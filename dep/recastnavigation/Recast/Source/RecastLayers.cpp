@@ -38,7 +38,7 @@ struct rcLayerRegion
 	unsigned char layerId;		// Layer ID
 	unsigned char nlayers;		// Layer count
 	unsigned char nneis;		// Neighbour count
-	unsigned char base;			// Flag indicating if the region is the base of merged regions.
+	unsigned char base;		// Flag indicating if the region is the base of merged regions.
 };
 
 
@@ -293,7 +293,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	for (int i = 0; i < nregs; ++i)
 	{
 		rcLayerRegion& root = regs[i];
-		// Skip alreadu visited.
+		// Skip already visited.
 		if (root.layerId != 0xff)
 			continue;
 
@@ -368,7 +368,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				rcLayerRegion& rj = regs[j];
 				if (!rj.base) continue;
 				
-				// Skip if teh regions are not close to each other.
+				// Skip if the regions are not close to each other.
 				if (!overlapRange(ri.ymin,ri.ymax+mergeHeight, rj.ymin,rj.ymax+mergeHeight))
 					continue;
 				// Skip if the height range would become too large.
@@ -377,7 +377,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				if ((ymax - ymin) >= 255)
 				  continue;
 						  
-				// Make sure that there is no overlap when mergin 'ri' and 'rj'.
+				// Make sure that there is no overlap when merging 'ri' and 'rj'.
 				bool overlap = false;
 				// Iterate over all regions which have the same layerId as 'rj'
 				for (int k = 0; k < nregs; ++k)
@@ -417,7 +417,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 					// Add overlaid layers from 'rj' to 'ri'.
 					for (int k = 0; k < rj.nlayers; ++k)
 						addUnique(ri.layers, ri.nlayers, rj.layers[k]);
-					// Update heigh bounds.
+					// Update height bounds.
 					ri.ymin = rcMin(ri.ymin, rj.ymin);
 					ri.ymax = rcMax(ri.ymax, rj.ymax);
 				}
@@ -481,10 +481,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	for (int i = 0; i < lset.nlayers; ++i)
 	{
 		unsigned char curId = (unsigned char)i;
-		
-		// Allocate memory for the current layer.
+
 		rcHeightfieldLayer* layer = &lset.layers[i];
-		memset(layer, 0, sizeof(rcHeightfieldLayer));
 
 		const int gridSize = sizeof(unsigned char)*lw*lh;
 
@@ -528,7 +526,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		layer->cs = chf.cs;
 		layer->ch = chf.ch;
 		
-		// Adjust the bbox to fit the heighfield.
+		// Adjust the bbox to fit the heightfield.
 		rcVcopy(layer->bmin, bmin);
 		rcVcopy(layer->bmax, bmax);
 		layer->bmin[1] = bmin[1] + hmin*chf.ch;
@@ -542,7 +540,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		layer->miny = layer->height;
 		layer->maxy = 0;
 		
-		// Copy height and area from compact heighfield. 
+		// Copy height and area from compact heightfield. 
 		for (int y = 0; y < lh; ++y)
 		{
 			for (int x = 0; x < lw; ++x)

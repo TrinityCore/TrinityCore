@@ -259,7 +259,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
     if (!result.updated)
         TC_LOG_INFO("sql.updates", ">> %s database is up-to-date! %s", DBUpdater<T>::GetTableName().c_str(), info.c_str());
     else
-        TC_LOG_INFO("sql.updates", ">> Applied %d %s. %s", result.updated, result.updated == 1 ? "query" : "queries", info.c_str());
+        TC_LOG_INFO("sql.updates", ">> Applied " SZFMTD " %s. %s", result.updated, result.updated == 1 ? "query" : "queries", info.c_str());
 
     return true;
 }
