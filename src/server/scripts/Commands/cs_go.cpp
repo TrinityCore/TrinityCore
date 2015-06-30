@@ -140,8 +140,6 @@ public:
         float o = fields[3].GetFloat();
         uint32 mapId = fields[4].GetUInt16();
 
-        Transport* transport = NULL;
-
         if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
@@ -159,11 +157,8 @@ public:
         else
             player->SaveRecallPosition();
 
-        if (player->TeleportTo(mapId, x, y, z, o))
-        {
-            if (transport)
-                transport->AddPassenger(player);
-        }
+        player->TeleportTo(mapId, x, y, z, o);
+
         return true;
     }
 
