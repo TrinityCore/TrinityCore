@@ -509,15 +509,8 @@ namespace WorldPackets
 
     namespace Ticket
     {
-        class GMSurveySubmit;
-        class GMTicketAcknowledgeSurvey;
-        class GMTicketCreate;
-        class GMTicketDelete;
         class GMTicketGetSystemStatus;
         class GMTicketGetCaseStatus;
-        class GMTicketGetTicket;
-        class GMTicketResponseResolve;
-        class GMTicketUpdateText;
         class SupportTicketSubmitBug;
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
@@ -1034,14 +1027,8 @@ class WorldSession
         void HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& logoutCancel);
 
         // GM Ticket opcodes
-        void HandleGMTicketCreateOpcode(WorldPackets::Ticket::GMTicketCreate& packet);
-        void HandleGMTicketUpdateTextOpcode(WorldPackets::Ticket::GMTicketUpdateText& packet);
-        void HandleGMTicketDeleteOpcode(WorldPackets::Ticket::GMTicketDelete& packet);
         void HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& packet);
-        void HandleGMTicketGetTicketOpcode(WorldPackets::Ticket::GMTicketGetTicket& packet);
         void HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& packet);
-        void HandleGMSurveySubmit(WorldPackets::Ticket::GMSurveySubmit& packet);
-        void HandleGMResponseResolve(WorldPackets::Ticket::GMTicketResponseResolve& packet);
         void HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTicketSubmitBug& packet);
         void HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet);
         void HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet);

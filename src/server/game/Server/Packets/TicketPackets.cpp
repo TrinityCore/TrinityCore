@@ -66,124 +66,6 @@ void WorldPackets::Ticket::GMTicketAcknowledgeSurvey::Read()
     _worldPacket >> CaseID;
 }
 
-WorldPacket const* WorldPackets::Ticket::GMTicketGetTicketResponse::Write()
-{
-    _worldPacket << Result;
-    _worldPacket.WriteBit(Info.is_initialized());
-    _worldPacket.FlushBits();
-
-    if (Info)
-    {
-        _worldPacket << int32(Info->TicketID);
-        _worldPacket << uint8(Info->Category);
-        _worldPacket.AppendPackedTime(Info->TicketOpenTime);
-        _worldPacket.AppendPackedTime(Info->OldestTicketTime);
-        _worldPacket.AppendPackedTime(Info->UpdateTime);
-        _worldPacket << uint8(Info->AssignedToGM);
-        _worldPacket << uint8(Info->OpenedByGM);
-        _worldPacket << int32(Info->WaitTimeOverrideMinutes);
-
-        _worldPacket.WriteBits(Info->TicketDescription.size(), 11);
-        _worldPacket.WriteBits(Info->WaitTimeOverrideMessage.size(), 10);
-        _worldPacket.FlushBits();
-
-        _worldPacket.WriteString(Info->TicketDescription);
-        _worldPacket.WriteString(Info->WaitTimeOverrideMessage);
-    }
-
-
-    return &_worldPacket;
-}
-
-void WorldPackets::Ticket::GMTicketCreate::Read()
-{
-    _worldPacket >> Map;
-    _worldPacket >> Pos;
-    _worldPacket >> Flags;
-
-    uint16 descLength = _worldPacket.ReadBits(11);
-    Description = _worldPacket.ReadString(descLength);
-    _worldPacket.ResetBitPos();
-
-    NeedResponse = _worldPacket.ReadBit();
-    NeedMoreHelp = _worldPacket.ReadBit();
-    _worldPacket >> DataLength;
-
-    if (DataLength > 0)
-    {
-        _worldPacket >> ChatHistoryData.TextCount;
-        for (uint8 i = 0; i < ChatHistoryData.TextCount; ++i)
-            ChatHistoryData.Sent.push_back(_worldPacket.read<uint32>());
-
-        _worldPacket >> ChatHistoryData.DecompressedSize;
-
-        //Note: don't ask why, but it works...
-        uint32 realLength = DataLength - ((ChatHistoryData.TextCount * 4) + 5);
-        ChatHistoryData.Data.resize(realLength);
-        _worldPacket.read(ChatHistoryData.Data.contents(), realLength);
-    }
-}
-
-void WorldPackets::Ticket::GMTicketUpdateText::Read()
-{
-    uint16 descLength = _worldPacket.ReadBits(11);
-    Description = _worldPacket.ReadString(descLength);
-}
-
-WorldPacket const* WorldPackets::Ticket::GMTicketUpdate::Write()
-{
-    _worldPacket << uint8(Result);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Ticket::GMTicketStatusUpdate::Write()
-{
-    _worldPacket << int32(StatusInt);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Ticket::GMTicketResponse::Write()
-{
-    _worldPacket << uint32(TicketID);
-    _worldPacket << uint32(ResponseID);
-
-    _worldPacket.WriteBits(Description.size(), 11);
-    _worldPacket.WriteBits(ResponseText.size(), 14);
-    _worldPacket.FlushBits();
-
-    _worldPacket.WriteString(Description);
-    _worldPacket.WriteString(ResponseText);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Ticket::GMTicketResolveResponse::Write()
-{
-    _worldPacket.WriteBit(ShowSurvey);
-
-    _worldPacket.FlushBits();
-    return &_worldPacket;
-}
-
-void WorldPackets::Ticket::GMSurveySubmit::Read()
-{
-    _worldPacket >> SurveyID;
-
-    SurveyQuestion.resize(_worldPacket.ReadBits(4));
-    uint16 commentLength = _worldPacket.ReadBits(11);
-
-    for (auto& q : SurveyQuestion)
-    {
-        _worldPacket >> q.QuestionID;
-        _worldPacket >> q.Answer;
-        q.AnswerComment = _worldPacket.ReadString(_worldPacket.ReadBits(11));
-    }
-
-    Comment = _worldPacket.ReadString(commentLength);
-}
-
 void WorldPackets::Ticket::SupportTicketSubmitBug::Read()
 {
     _worldPacket >> Header;
@@ -206,8 +88,7 @@ WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::Suppo
 
 WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::SupportTicketChatLine(uint32 timestamp, std::string const& text) :
     Timestamp(timestamp), Text(text)
-{
-}
+{ }
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine& line)
 {

@@ -399,15 +399,9 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GET_REMAINING_GAME_TIME,                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_GET_TROPHY_LIST,                                    STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,             STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::GetUndeleteCharacterCooldownStatus, &WorldSession::HandleGetUndeleteCooldownStatus);
-    //DEFINE_HANDLER(CMSG_GM_SURVEY_SUBMIT,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMSurveySubmit, &WorldSession::HandleGMSurveySubmit);
     DEFINE_HANDLER(CMSG_GM_TICKET_ACKNOWLEDGE_SURVEY,                       STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    //DEFINE_HANDLER(CMSG_GM_TICKET_CREATE,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketCreate, &WorldSession::HandleGMTicketCreateOpcode);
-    //DEFINE_HANDLER(CMSG_GM_TICKET_DELETE_TICKET,                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketDelete, &WorldSession::HandleGMTicketDeleteOpcode);
     DEFINE_HANDLER(CMSG_GM_TICKET_GET_CASE_STATUS,                          STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Ticket::GMTicketGetCaseStatus, &WorldSession::HandleGMTicketGetCaseStatusOpcode);
     DEFINE_HANDLER(CMSG_GM_TICKET_GET_SYSTEM_STATUS,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketGetSystemStatus, &WorldSession::HandleGMTicketSystemStatusOpcode);
-    //DEFINE_HANDLER(CMSG_GM_TICKET_GET_TICKET,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketGetTicket, &WorldSession::HandleGMTicketGetTicketOpcode);
-    //DEFINE_HANDLER(CMSG_GM_TICKET_RESPONSE_RESOLVE,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketResponseResolve, &WorldSession::HandleGMResponseResolve);
-    //DEFINE_HANDLER(CMSG_GM_TICKET_UPDATE_TEXT,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketUpdateText, &WorldSession::HandleGMTicketUpdateTextOpcode);
     DEFINE_HANDLER(CMSG_GOSSIP_SELECT_OPTION,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::NPC::GossipSelectOption, &WorldSession::HandleGossipSelectOptionOpcode);
     DEFINE_HANDLER(CMSG_GRANT_LEVEL,                                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::RaF::GrantLevel, &WorldSession::HandleGrantLevel);
     DEFINE_HANDLER(CMSG_GUILD_ADD_BATTLENET_FRIEND,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
