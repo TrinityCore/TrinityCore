@@ -716,15 +716,7 @@ enum OpcodeClient : uint32
     CMSG_WHO_IS                                       = 0x0126,
     CMSG_WORLD_PORT_RESPONSE                          = 0x04B6,
     CMSG_WORLD_TELEPORT                               = 0x0A35,
-    CMSG_WRAP_ITEM                                    = 0x0363,
-
-    // Deleted opcodes, remove as soon as their uses are removed
-    CMSG_GM_SURVEY_SUBMIT                             = 0xBADD,
-    CMSG_GM_TICKET_CREATE                             = 0xBADD,
-    CMSG_GM_TICKET_DELETE_TICKET                      = 0xBADD,
-    CMSG_GM_TICKET_GET_TICKET                         = 0xBADD,
-    CMSG_GM_TICKET_RESPONSE_RESOLVE                   = 0xBADD,
-    CMSG_GM_TICKET_UPDATE_TEXT                        = 0xBADD
+    CMSG_WRAP_ITEM                                    = 0x0363
 };
 
 enum OpcodeServer : uint32
@@ -1646,13 +1638,7 @@ enum OpcodeServer : uint32
 
     // Deleted opcodes, here only to allow compile
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
-    SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
-    SMSG_GM_TICKET_GET_TICKET_RESPONSE                = 0xBADD,
-    SMSG_GM_TICKET_RESOLVE_RESPONSE                   = 0xBADD,
-    SMSG_GM_TICKET_RESPONSE                           = 0xBADD,
-    SMSG_GM_TICKET_RESPONSE_ERROR                     = 0xBADD,
-    SMSG_GM_TICKET_STATUS_UPDATE                      = 0xBADD,
-    SMSG_GM_TICKET_UPDATE                             = 0xBADD,
+    SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD
 };
 
 inline bool IsInstanceOnlyOpcode(uint32 opcode)

@@ -49,7 +49,6 @@ public:
             { "trigger",            rbac::RBAC_PERM_COMMAND_GO_TRIGGER,             false, &HandleGoTriggerCommand,                     "", NULL },
             { "zonexy",             rbac::RBAC_PERM_COMMAND_GO_ZONEXY,              false, &HandleGoZoneXYCommand,                      "", NULL },
             { "xyz",                rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "", NULL },
-            { "ticket",             rbac::RBAC_PERM_COMMAND_GO_TICKET,              false, &HandleGoTicketCommand<GmTicket>,            "", NULL },
             { "bugticket",          rbac::RBAC_PERM_COMMAND_GO_BUG_TICKET,          false, &HandleGoTicketCommand<BugTicket>,           "", NULL },
             { "complaintticket",    rbac::RBAC_PERM_COMMAND_GO_COMPLAINT_TICKET,    false, &HandleGoTicketCommand<ComplaintTicket>,     "", NULL },
             { "suggestionticket",   rbac::RBAC_PERM_COMMAND_GO_SUGGESTION_TICKET,   false, &HandleGoTicketCommand<SuggestionTicket>,    "", NULL },

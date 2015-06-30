@@ -1773,14 +1773,6 @@ Support.ComplaintsEnabled = 0
 Support.SuggestionsEnabled = 0
 
 #
-#    Support.ChanceOfGMSurvey
-#        Description: Chance of sending a GM survey after ticket completion.
-#        Default:     50 - (Enabled)
-#                     0  - (Disabled)
-
-Support.ChanceOfGMSurvey = 50
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -2767,18 +2759,11 @@ MinRecordUpdateTimeDiff = 100
 PlayerStart.String = ""
 
 #
-#     LevelReq.Trade
+#      rade
 #        Description: Level requirement for characters to be able to trade.
 #        Default:     1
 
 LevelReq.Trade = 1
-
-#
-#     LevelReq.Ticket
-#        Description: Level requirement for characters to be able to write tickets.
-#        Default:     1
-
-LevelReq.Ticket = 1
 
 #
 #     LevelReq.Auction

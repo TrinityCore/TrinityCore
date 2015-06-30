@@ -445,7 +445,6 @@ void World::LoadConfigSettings(bool reload)
         sSupportMgr->SetComplaintSystemStatus(m_bool_configs[CONFIG_SUPPORT_COMPLAINTS_ENABLED]);
         sSupportMgr->SetSuggestionSystemStatus(m_bool_configs[CONFIG_SUPPORT_SUGGESTIONS_ENABLED]);
     }
-    m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfigMgr->GetFloatDefault("Support.ChanceOfGMSurvey", 50.0f);
 
 
     ///- Get string for new logins (newly created characters)
@@ -628,7 +627,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Whisper", 1);
     m_int_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Say", 1);
     m_int_configs[CONFIG_TRADE_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Trade", 1);
-    m_int_configs[CONFIG_TICKET_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Ticket", 1);
     m_int_configs[CONFIG_AUCTION_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Auction", 1);
     m_int_configs[CONFIG_MAIL_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Mail", 1);
     m_bool_configs[CONFIG_PRESERVE_CUSTOM_CHANNELS] = sConfigMgr->GetBoolDefault("PreserveCustomChannels", false);
@@ -1842,9 +1840,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
-
-    TC_LOG_INFO("server.loading", "Loading GM tickets...");
-    sSupportMgr->LoadGmTickets();
 
     TC_LOG_INFO("server.loading", "Loading GM bugs...");
     sSupportMgr->LoadBugTickets();
