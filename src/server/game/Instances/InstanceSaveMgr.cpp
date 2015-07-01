@@ -348,8 +348,12 @@ void InstanceSaveManager::LoadResetTimes()
                 InstResetTimeMapDiffType::iterator itr = instResetTime.find(instance);
                 if (itr != instResetTime.end() && itr->second.second != resettime)
                 {
-                    CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '" UI64FMTD "' WHERE id = '%u'", uint64(resettime), instance);
-                    itr->second.second = resettime;
+                    const MapEntry* entry = sMapStore.LookupEntry(PAIR32_LOPART(itr->second.first));
+                    if (entry && entry->map_type != MAP_RAID)
+                    {
+                        CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '" UI64FMTD "' WHERE id = '%u' AND difficulty = 0", uint64(resettime), instance);
+                        itr->second.second = resettime;
+                    }
                 }
             }
             while (result->NextRow());
@@ -676,4 +680,23 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
         ret += itr->second->GetGroupCount();
 
     return ret;
+}
+
+time_t InstanceSave::GetDefaultResetTime()
+{
+    return sInstanceSaveMgr->GetResetTimeFor(m_mapid, m_difficulty);
+}
+
+time_t InstanceSave::GetNextResetTime()
+{
+    uint64 period = 0;
+    MapDifficulty const* mapDiff = GetMapDifficultyData(m_mapid, m_difficulty);
+    if (mapDiff && mapDiff->resetTime)
+    {
+        period = uint64(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
+        if (period < DAY)
+            period = DAY;
+    }
+
+    return GetDefaultResetTime() + period;
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `character_instance` ADD COLUMN `extend` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0';

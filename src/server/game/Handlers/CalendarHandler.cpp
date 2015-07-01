@@ -690,20 +690,23 @@ void WorldSession::HandleCalendarGetNumPending(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& recvData)
 {
-    uint32 mapId, difficulty;
-    uint8 toggleExtend;
-    recvData >> mapId >> difficulty>> toggleExtend;
-    TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: %u, Difficulty: %u, ToggleExtend: %s", mapId, difficulty, toggleExtend ? "On" : "Off");
+    uint32 map_id = 0;
+    uint32 difficulty = 0;
+    uint8 extend = 0;
 
-    /*
-    InstancePlayerBind* instanceBind = _player->GetBoundInstance(mapId, Difficulty(difficulty));
-    if (!instanceBind || !instanceBind->save)
-        return;
+    recvData >> map_id;
+    recvData >> difficulty;
+    recvData >> extend;
 
-    InstanceSave* save = instanceBind->save;
-    // http://www.wowwiki.com/Instance_Lock_Extension
-    // SendCalendarRaidLockoutUpdated(save);
-    */
+    if (Player* player = GetPlayer())
+    {
+        TC_LOG_DEBUG("instance.extend", "HandleSetSavedInstanceExtend: player = %u, map_id = %u, difficulty = %u, extend = %u", player->GetGUIDHigh(), map_id, difficulty, extend);
+
+        if (InstancePlayerBind* instance = player->GetBoundInstance(map_id, Difficulty(difficulty)))
+        {
+            player->BindToInstance(instance->save, instance->perm, false, extend == 1 ? instance->extend | InstanceExtend::Extend : instance->extend & (~InstanceExtend::Extend));
+        }
+    }
 }
 
 // ----------------------------------- SEND ------------------------------------
