@@ -1,7 +1,7 @@
--- 
+--
 -- Hellscream's Champion
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=9212;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES
 (9212, 0, 0, 'I am ready to leave, Durkot.', 25265, 1, 1, 0, 0, 0, 0, NULL, 25265);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9212 AND `SourceEntry`=0;

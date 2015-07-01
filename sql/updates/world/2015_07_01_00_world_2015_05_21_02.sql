@@ -1,4 +1,4 @@
--- 
+--
 -- DB/Quest: The Earthbinder
 -- Tola'thion SAI
 SET @ENTRY := 19293;
@@ -49,7 +49,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,6,0,100,0,0,0,0,0,45,2,0,0,0,0,0,19,19294,50,0,0,0,0,0,"Lured Colossus - On Just Died - Set Data 2 0");
 
 DELETE FROM `creature_text` WHERE `entry`=19294;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (19294, 0, 0, 'Up here on the hill, $n.', 15, 0, 100, 0, 0, 0, 18293, 0, 'Earthbinder Galandria Nightbreeze'),
 (19294, 1, 0, 'I have an idea.  Let\'s plant this shard in the ground and see what happens', 12, 0, 100, 0, 0, 0, 18289, 0, 'Earthbinder Galandria Nightbreeze'),
 (19294, 2, 0, 'The evil emanating from the crystal shard has lured one of the colossi.  Put it down quick!', 12, 0, 100, 0, 0, 0, 18291, 0, 'Earthbinder Galandria Nightbreeze');
