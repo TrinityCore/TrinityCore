@@ -213,6 +213,8 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 basePoint = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
                                 ApplyPct(basePoint, TickCount * 40);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
+                                if (Player* modOwner = caster->GetSpellModOwner())
+                                    modOwner->ApplySpellMod(aura->GetSpellInfo()->Id, SPELLMOD_DOT, basePoint);
 
                                 aurEff->SetBonusAmount(caster->SpellDamageBonusDone(unitTarget, aurEff->GetSpellInfo(), 0, DOT));
                             }
