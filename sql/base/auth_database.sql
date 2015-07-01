@@ -251,7 +251,7 @@ CREATE TABLE `battlenet_components` (
 
 LOCK TABLES `battlenet_components` WRITE;
 /*!40000 ALTER TABLE `battlenet_components` DISABLE KEYS */;
-INSERT INTO `battlenet_components` VALUES ('Bnet','Mc64',37165),('Bnet','Win',37165),('Bnet','Wn64',37165),('WoW','base',19793),('WoW','deDE',0),('WoW','enCN',0),('WoW','enGB',0),('WoW','enTW',0),('WoW','enUS',0),('WoW','esES',0),('WoW','esMX',0),('WoW','frFR',0),('WoW','itIT',0),('WoW','koKR',0),('WoW','Mc64',19865),('WoW','ptBR',0),('WoW','ptPT',0),('WoW','ruRU',0),('WoW','Win',19865),('WoW','Wn64',19865),('WoW','zhCN',0),('WoW','zhTW',0);
+INSERT INTO `battlenet_components` VALUES ('Bnet','Mc64',37165),('Bnet','Win',37165),('Bnet','Wn64',37165),('WoW','base',20182),('WoW','deDE',0),('WoW','enCN',0),('WoW','enGB',0),('WoW','enTW',0),('WoW','enUS',0),('WoW','esES',0),('WoW','esMX',0),('WoW','frFR',0),('WoW','itIT',0),('WoW','koKR',0),('WoW','Mc64',20182),('WoW','ptBR',0),('WoW','ptPT',0),('WoW','ruRU',0),('WoW','Win',20182),('WoW','Wn64',20182),('WoW','zhCN',0),('WoW','zhTW',0);
 /*!40000 ALTER TABLE `battlenet_components` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -581,7 +581,7 @@ CREATE TABLE `realmlist` (
 
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
-INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,19793,2,1);
+INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,20182,2,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
