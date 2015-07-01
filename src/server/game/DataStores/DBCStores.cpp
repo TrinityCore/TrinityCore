@@ -189,6 +189,7 @@ NameGenContainer sGenerateNamesMap;
 DBCStorage <PowerDisplayEntry> sPowerDisplayStore(PowerDisplayfmt);
 DBCStorage <PvPDifficultyEntry> sPvPDifficultyStore(PvPDifficultyfmt);
 
+DBCStorage <QuestMoneyRewardEntry> sQuestMoneyRewardStore(QuestMoneyRewardfmt);
 DBCStorage <QuestSortEntry> sQuestSortStore(QuestSortEntryfmt);
 DBCStorage <QuestV2Entry> sQuestV2Store(QuestV2fmt);
 DBCStorage <QuestXPEntry>   sQuestXPStore(QuestXPfmt);
@@ -542,6 +543,7 @@ void LoadDBCStores(const std::string& dataPath)
             if (entry->BracketID > MAX_BATTLEGROUND_BRACKETS)
                 ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sQuestMoneyRewardStore,       dbcPath, "QuestMoneyReward.dbc"); // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestV2Store,                dbcPath, "QuestV2.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestXPStore,                dbcPath, "QuestXP.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestFactionRewardStore,     dbcPath, "QuestFactionReward.dbc");//19116

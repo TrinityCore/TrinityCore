@@ -37,7 +37,7 @@ Quest::Quest(Field* questRecord)
     RewardXPMultiplier = questRecord[10].GetFloat();
     RewardMoney = questRecord[11].GetUInt32();
     RewardMoneyDifficulty = questRecord[12].GetUInt32();
-    Float13 = questRecord[13].GetFloat();
+    RewardMoneyMultiplier = questRecord[13].GetFloat();
     RewardBonusMoney = questRecord[14].GetUInt32();
     RewardDisplaySpell = questRecord[15].GetUInt32();
     RewardSpell = questRecord[16].GetUInt32();
@@ -241,10 +241,14 @@ uint32 Quest::XPValue(uint32 playerLevel) const
     return 0;
 }
 
-uint32 Quest::GetRewMoney() const
+uint32 Quest::MoneyValue(uint8 playerLevel) const
 {
-    if (RewardMoney > 0)
-        return RewardMoney * sWorld->getRate(RATE_MONEY_QUEST);
+    uint8 level;
+    if (playerLevel)
+        level = Level == -1 ? playerLevel : Level;
+
+    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(level))
+        return money->Money[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
     else
         return 0;
 }
@@ -253,7 +257,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
     rewards.ItemCount               = GetRewItemsCount();
-    rewards.Money                   = GetRewMoney();
+    rewards.Money                   = player->GetQuestMoneyReward(this);
     rewards.XP                      = player->GetQuestXPReward(this);
     rewards.Title                   = GetRewTitle();
     rewards.Talents                 = GetBonusTalents();
