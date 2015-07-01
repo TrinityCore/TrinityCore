@@ -270,8 +270,6 @@ struct PointOfInterestLocale
     StringVector Name;
 };
 
-#define MAX_EQUIPMENT_ITEMS 3
-
 struct EquipmentInfo
 {
     uint32  ItemEntry[MAX_EQUIPMENT_ITEMS];

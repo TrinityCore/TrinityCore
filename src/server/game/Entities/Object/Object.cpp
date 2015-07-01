@@ -953,6 +953,9 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
+        case TYPEID_GAMEOBJECT:
+            flags = GameObjectDynamicUpdateFieldFlags;
+            break;
         case TYPEID_CONVERSATION:
             flags = ConversationDynamicUpdateFieldFlags;
             break;

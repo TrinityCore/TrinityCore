@@ -400,7 +400,7 @@ struct GameObjectTemplate
         // 27 GAMEOBJECT_TYPE_MINI_GAME
         struct
         {
-        } DONOTUSE3;
+        } miniGame;
         // 28 GAMEOBJECT_TYPE_DO_NOT_USE_2
         struct
         {
@@ -584,7 +584,7 @@ struct GameObjectTemplate
         struct
         {
             int32 mapID;                                    // 0 mapID, References: Map, NoValue = -1
-            int32 namedset;                                 // 1 named set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 namedset;                                 // 1 named set (Area Names), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 Primarydoodadset;                        // 2 Primary doodad set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 Secondarydoodadset;                      // 3 Secondary doodad set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
         } phaseableMO;
@@ -598,12 +598,23 @@ struct GameObjectTemplate
         struct
         {
             uint32 ShipmentContainer;                       // 0 Shipment Container, References: CharShipmentContainer, NoValue = 0
+            uint32 GiganticAOI;                             // 1 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 LargeAOI;                                // 2 Large AOI, enum { false, true, }; Default: false
         } garrisonShipment;
         // 46 GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE
         struct
         {
             uint32 TrophyInstanceID;                        // 0 Trophy Instance ID, References: TrophyInstance, NoValue = 0
         } garrisonMonumentPlaque;
+        // 47 GAMEOBJECT_TYPE_DO_NOT_USE_3
+        struct
+        {
+        } DONOTUSE3;
+        // 48 GAMEOBJECT_TYPE_UI_LINK
+        struct
+        {
+            uint32 UILinkType;                              // 0 UI Link Type, Type id: 10
+        } UILink;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];

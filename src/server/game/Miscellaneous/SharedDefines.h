@@ -2103,10 +2103,12 @@ enum GameobjectTypes : uint8 // (6.0.3.19103)
     GAMEOBJECT_TYPE_PHASEABLE_MO                = 43,
     GAMEOBJECT_TYPE_GARRISON_MONUMENT           = 44,
     GAMEOBJECT_TYPE_GARRISON_SHIPMENT           = 45,
-    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE    = 46
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE    = 46,
+    GAMEOBJECT_TYPE_DO_NOT_USE_3                = 47,
+    GAMEOBJECT_TYPE_UI_LINK                     = 48
 };
 
-#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  49             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
