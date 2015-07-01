@@ -52,7 +52,7 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
 {
     uint8 rewCount = quest->GetRewItemsCount() + quest->GetRewCurrencyCount();
 
-    data << uint32(quest->GetRewMoney());
+    data << uint32(player->GetQuestMoneyReward(quest));
     data << uint32(player->GetQuestXPReward(quest));
     data << uint8(rewCount);
     if (rewCount)

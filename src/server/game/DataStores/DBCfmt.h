@@ -127,6 +127,7 @@ char const MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";
 char const NameGenfmt[] = "dsii";
 char const NumTalentsAtLevelfmt[] = "df";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
+char const QuestMoneyRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nx";
 char const QuestV2fmt[] = "ni";
 char const QuestXPfmt[] = "niiiiiiiiii";
