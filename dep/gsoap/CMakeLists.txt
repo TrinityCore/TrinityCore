@@ -21,6 +21,11 @@ include_directories(
 # Little fix for MSVC / Windows platforms
 add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=0)
 
+# Turn off warnings for gsoap till the sources are updated
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+	set_source_files_properties(stdsoap2.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+endif()
+
 add_library(gsoap STATIC ${gsoap_STAT_SRCS})
 
 set_target_properties(gsoap PROPERTIES LINKER_LANGUAGE CXX)
