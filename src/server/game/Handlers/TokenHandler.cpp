@@ -32,7 +32,7 @@ void WorldSession::HandleUpdateListedAuctionableTokens(WorldPackets::Token::Upda
 
 void WorldSession::HandleRequestWowTokenMarketPrice(WorldPackets::Token::RequestWowTokenMarketPrice& requestWowTokenMarketPrice)
 {
-    WorldPackets::Token::RequestWowTokenMarketPriceResponse response;
+    WorldPackets::Token::WowTokenMarketPriceResponse response;
 
     /// @todo: 6.x fix implementation
     response.CurrentMarketPrice = 300000000;

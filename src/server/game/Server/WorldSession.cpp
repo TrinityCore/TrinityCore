@@ -1421,7 +1421,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
-        case CMSG_GM_LAG_REPORT:                        //   1               3         1 async db query
         case CMSG_SPELL_CLICK:                          // not profiled
         case CMSG_MOVE_DISMISS_VEHICLE:                 // not profiled
         {
@@ -1439,7 +1438,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_DEL_FRIEND:                           //   7               5         1 async db query
         case CMSG_ADD_FRIEND:                           //   6               4         1 async db query
         case CMSG_CHARACTER_RENAME_REQUEST:             //   5               3         1 async db query
-        case CMSG_GM_SURVEY_SUBMIT:                     //   2               3         1 async db query
         case CMSG_BUG_REPORT:                           //   1               1         1 async db query
         case CMSG_SET_PARTY_LEADER:                     //   1               2         1 async db query
         case CMSG_CONVERT_RAID:                         //   1               5         1 async db query
@@ -1464,10 +1462,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_CREATE_CHARACTER:                     //   7               5         3 async db queries
         case CMSG_ENUM_CHARACTERS:                      //  22               3         2 async db queries
         case CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT:    //  22               3         2 async db queries
-        case CMSG_GM_TICKET_CREATE:                     //   1              25         1 async db query
-        case CMSG_GM_TICKET_UPDATE_TEXT:                //   0              15         1 async db query
-        case CMSG_GM_TICKET_DELETE_TICKET:              //   1              25         1 async db query
-        case CMSG_GM_TICKET_RESPONSE_RESOLVE:           //   1              25         1 async db query
         case CMSG_SUPPORT_TICKET_SUBMIT_BUG:            // not profiled                1 async db query
         case CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION:     // not profiled                1 async db query
         case CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT:      // not profiled                1 async db query

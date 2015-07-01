@@ -1563,11 +1563,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         slot[2] = e.action.equip.slot3;
                     }
                     if (!e.action.equip.mask || (e.action.equip.mask & 1))
-                        npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, slot[0]);
+                        npc->SetVirtualItem(0, slot[0]);
                     if (!e.action.equip.mask || (e.action.equip.mask & 2))
-                        npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, slot[1]);
+                        npc->SetVirtualItem(1, slot[1]);
                     if (!e.action.equip.mask || (e.action.equip.mask & 4))
-                        npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, slot[2]);
+                        npc->SetVirtualItem(2, slot[2]);
                 }
             }
 
