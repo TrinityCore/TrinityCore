@@ -1,4 +1,5 @@
-Copyright (c) 2014 - 2015, Victor Zverovich
+Copyright (c) 2012 - 2015, Victor Zverovich
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
