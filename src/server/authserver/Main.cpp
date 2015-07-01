@@ -271,6 +271,8 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
         ;
 
     all.add(win);
+#else
+    (void)configService;
 #endif
     variables_map variablesMap;
     try
