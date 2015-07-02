@@ -152,6 +152,7 @@ class Aura
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
+        bool HasMoreThanOneEffect(SpellEffects spellEffects) const;
         bool HasMoreThanOneEffectForType(AuraType auraType) const;
         bool IsArea() const;
         bool IsPassive() const;
