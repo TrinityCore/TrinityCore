@@ -41,7 +41,8 @@ enum DataTypes
     DATA_MASSIVE_JORMUNGAR          = 9,
     DATA_FEROCIOUS_RHINO            = 10,
     DATA_GORTOK_ORB                 = 11,
-    DATA_GORTOK_PALEHOOF_SPHERE     = 12
+    DATA_GORTOK_PALEHOOF_SPHERE     = 12,
+    DATA_GRAUF                      = 13
 };
 
 enum CreatureIds
