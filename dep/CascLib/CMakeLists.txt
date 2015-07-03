@@ -39,4 +39,9 @@ set(TOMCRYPT_FILES
 
 include_directories(${CMAKE_SOURCE_DIR}/dep)
 
+# Turn off warnings for casclib till the sources are updated
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+	set_source_files_properties(Common.cpp PROPERTIES COMPILE_FLAGS -Wno-char-subscripts)
+endif()
+
 add_library(casc STATIC ${SRC_FILES} ${TOMCRYPT_FILES})
