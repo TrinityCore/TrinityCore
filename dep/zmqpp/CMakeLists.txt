@@ -20,11 +20,6 @@ add_library(zmqpp STATIC
   ${zmqpp_STAT_SRCS}
 )
 
-# Turn off warnings for zmqpp till the sources are updated
-IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-	set_source_files_properties(socket.cpp PROPERTIES COMPILE_FLAGS -Wno-unused-const-variable)
-endif()
-
 if (WIN32)
   add_definitions(-DBUILD_VERSION=\\"3.2.0\\")
 else()
