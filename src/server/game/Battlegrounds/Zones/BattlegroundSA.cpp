@@ -525,7 +525,7 @@ void BattlegroundSA::TeleportToEntrancePosition(Player* player)
     {
         if (!ShipsStarted)
         {
-            player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            // player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
             if (urand(0, 1))
                 player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);
@@ -700,7 +700,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
         safeloc = BG_SA_GYEntries[BG_SA_DEFENDER_LAST_GY];
 
     closest = sWorldSafeLocsStore.LookupEntry(safeloc);
-    nearest = player->GetExactDistSq(closest->x, closest->y, closest->z);
+    nearest = player->GetExactDistSq(closest->Loc.X, closest->Loc.Y, closest->Loc.Z);
 
     for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
@@ -708,7 +708,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
             continue;
 
         ret = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
-        dist = player->GetExactDistSq(ret->x, ret->y, ret->z);
+        dist = player->GetExactDistSq(ret->Loc.X, ret->Loc.Y, ret->Loc.Z);
         if (dist < nearest)
         {
             closest = ret;
