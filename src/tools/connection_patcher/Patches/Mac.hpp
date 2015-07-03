@@ -32,6 +32,7 @@ namespace Connection_Patcher
                 static const std::vector<unsigned char> BNet     () { return { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x47, 0x0C, 0x5D, 0xC3, 0x90, 0x90, 0x90 }; }
                 static const std::vector<unsigned char> Password () { return { 0x0F, 0x85 }; }
                 static const std::vector<unsigned char> Signature() { return { 0x41, 0xB6, 0x01, 0x41, 0xBF, 0x02, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }; }
+                static const std::vector<unsigned char> Versions () { return { 't', 'r', 'i', 'n', 'i', 't', 'y', '6' , '.', 'g', 'i', 't', 'h', 'u', 'b', '.', 'i', 'o', '/', 't', 'c', '/', '%', 's', '/', '%', 's', '/', 'v', 'e', 'r', 's', 'i', 'o', 'n', 's' }; }
             };
         };
     }
