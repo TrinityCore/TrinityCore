@@ -167,6 +167,7 @@ enum Spells
     SPELL_GIANT_SWARM               = 70475,
     SPELL_SUMMON_PLAGUE_INSECT      = 70484,
     SPELL_RANDOM_LEAP               = 70485,
+    SPELL_FLESH_EATING_BITE         = 72967
 };
 
 // Helper defines
@@ -265,7 +266,8 @@ enum EventTypes
     EVENT_PUTRICIDE_TRAP                = 56,
     EVENT_END_LEAP                      = 57,
     EVENT_SUMMON_FLESH_EATING_BUG       = 58,
-    EVENT_END_TRAP                      = 59
+    EVENT_FLESH_EATING_BITE             = 59,
+    EVENT_END_TRAP                      = 60
 };
 
 enum DataTypesICC
@@ -2188,6 +2190,7 @@ public:
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->GetMotionMaster()->MoveRandom(10.0f);
+            _events.ScheduleEvent(EVENT_FLESH_EATING_BITE, 3000);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -2201,7 +2204,7 @@ public:
             {
                 case ACTION_PUTRICIDE_BUG_LEAP:
                     DoCast(SPELL_RANDOM_LEAP);
-                    _events.ScheduleEvent(EVENT_END_LEAP, 3000);
+                    _events.ScheduleEvent(EVENT_END_LEAP, 2500);
                     break;
                 default:
                     break;
@@ -2210,15 +2213,27 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            _events.Update(diff);
-
-            if (_events.ExecuteEvent() == EVENT_END_LEAP)
-            {
-                me->GetMotionMaster()->MoveRandom(10.0f);
-            }
-
             if (!UpdateVictim())
                 return;
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+            
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_END_LEAP:
+                        me->GetMotionMaster()->MoveRandom(10.0f);
+                        break;
+                    case EVENT_FLESH_EATING_BITE:
+                        DoCast(SPELL_FLESH_EATING_BITE);
+                        _events.ScheduleEvent(EVENT_FLESH_EATING_BITE, 2500);
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
