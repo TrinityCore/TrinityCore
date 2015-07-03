@@ -589,6 +589,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         PutricideDoorGUID = go->GetGUID();
                         if (GetData(DATA_PUTRICIDE_TRAP) == DONE)
                             HandleGameObject(PutricideDoorGUID, false, go);
+                        break;
                     case GO_DOODAD_ICECROWN_ORANGETUBES02:
                         PutricidePipeGUIDs[0] = go->GetGUID();
                         if (GetBossState(DATA_FESTERGUT) == DONE)

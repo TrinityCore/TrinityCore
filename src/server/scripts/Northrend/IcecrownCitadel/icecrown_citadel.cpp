@@ -2452,7 +2452,6 @@ void AddSC_icecrown_citadel()
     new at_icc_start_frostwing_gauntlet();
     new npc_flesh_eating_insect();
     new npc_putricide_trap();
-    new spell_icc_random_leap_location();
     new spell_icc_summon_plagued_insect();
     new spell_icc_giant_swarm();
     new at_icc_start_putricide_pre_event();
