@@ -2309,41 +2309,6 @@ public:
 
 };
 
-class spell_icc_random_leap_location : public SpellScriptLoader
-{
-public:
-    spell_icc_random_leap_location() : SpellScriptLoader("spell_icc_random_leap_location") { }
-
-    class spell_icc_random_leap_location_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_icc_random_leap_location_SpellScript);
-
-        void HandleJump(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-
-            Unit* caster = GetOriginalCaster();
-
-            if (Creature* creature = caster->FindNearestCreature(NPC_PUTRICIDE_TRAP, 40.0f, true))
-            {
-                Position pos = creature->GetRandomNearPosition(15.0f);
-                caster->GetMotionMaster()->MoveJump(pos, 30.0f, 0.0f);
-                caster->ToCreature()->SetHomePosition(pos);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_icc_random_leap_location_SpellScript::HandleJump, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_icc_random_leap_location_SpellScript();
-    }
-};
-
 class spell_icc_summon_plagued_insect : public SpellScriptLoader
 {
 public:
