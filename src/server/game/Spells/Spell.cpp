@@ -5088,12 +5088,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                     m_preGeneratedPath.SetPathLengthLimit(range);
                     // first try with raycast, if it fails fall back to normal path
-                    bool result = m_preGeneratedPath.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + target->GetObjectSize(), false, true);
+                    bool result = m_preGeneratedPath.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + target->GetObjectSize() / 2.f, false, true);
                     if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_OUT_OF_RANGE;
                     else if (!result || m_preGeneratedPath.GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
                     {
-                        result = m_preGeneratedPath.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + target->GetObjectSize(), false, false);
+                        result = m_preGeneratedPath.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + target->GetObjectSize() / 2.f, false, false);
                         if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                             return SPELL_FAILED_OUT_OF_RANGE;
                         else if (!result || m_preGeneratedPath.GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
