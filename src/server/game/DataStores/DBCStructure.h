@@ -793,14 +793,6 @@ struct GameObjectDisplayInfoEntry
     //float         OverrideNameScale;                      // 20
 };
 
-struct GameTablesEntry
-{
-    //uint32 Index;                                         // 0 - not a real field, not counted for columns
-    char const* Name;                                       // 1
-    uint32 NumRows;                                         // 2
-    uint32 NumColumns;                                      // 3
-};
-
 struct GemPropertiesEntry
 {
     uint32      ID;                                         // 0
