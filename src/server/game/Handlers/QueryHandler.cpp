@@ -397,6 +397,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
+        response.Allow = store->HasRecord(rec.RecordID);
 
         if (store->HasRecord(rec.RecordID))
         {
