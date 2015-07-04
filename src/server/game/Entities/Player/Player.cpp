@@ -22843,7 +22843,7 @@ void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
             if (getClass() == CLASS_DEATH_KNIGHT && skillId == SKILL_FIRST_AID)
                 rank = 4;
 
-            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTierID);
+            SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
             uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)

@@ -1735,6 +1735,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
 
+    TC_LOG_INFO("server.loading", "Loading skill tier info...");
+    sObjectMgr->LoadSkillTiers();
+
     TC_LOG_INFO("server.loading", "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
     TC_LOG_INFO("server.loading", "Loading Achievement Criteria Modifier trees...");

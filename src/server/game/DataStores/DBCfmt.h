@@ -136,7 +136,6 @@ char const ScalingStatDistributionfmt[] = "niii";
 char const SkillLinefmt[] = "nisxixixx";
 char const SkillLineAbilityfmt[] = "niiiiiiiiiiii";
 char const SkillRaceClassInfofmt[] = "diiiiiii";
-char const SkillTiersfmt[] = "niiiiiiiiiiiiiiii";
 char const SpecializationSpellsEntryfmt[] = "niiix";
 char const SpellCastTimefmt[] = "nixx";
 char const SpellCategoriesEntryfmt[] = "diiiiiiiii";

@@ -199,7 +199,6 @@ DBCStorage <SkillLineEntry> sSkillLineStore(SkillLinefmt);
 DBCStorage <SkillLineAbilityEntry> sSkillLineAbilityStore(SkillLineAbilityfmt);
 DBCStorage <SkillRaceClassInfoEntry> sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
 SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
-DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 
 DBCStorage <SpecializationSpellsEntry> sSpecializationSpellsStore(SpecializationSpellsEntryfmt);
 std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> sSpecializationSpellsBySpecStore;
@@ -459,7 +458,6 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sSkillLineStore, "SkillLine.dbc");//19116
     LOAD_DBC(sSkillLineAbilityStore, "SkillLineAbility.dbc");//19116
     LOAD_DBC(sSkillRaceClassInfoStore, "SkillRaceClassInfo.dbc");//19116
-    LOAD_DBC(sSkillTiersStore, "SkillTiers.dbc");
     LOAD_DBC(sSpecializationSpellsStore, "SpecializationSpells.dbc");
     LOAD_DBC(sSpellStore, "Spell.dbc"/*, &CustomSpellEntryfmt, &CustomSpellEntryIndex*/);
     LOAD_DBC(sSpellCategoriesStore, "SpellCategories.dbc");//15595
