@@ -2509,32 +2509,6 @@ void SpellMgr::LoadPetDefaultSpells()
     uint32 countCreature = 0;
     uint32 countData = 0;
 
-    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
-    {
-
-        if (!itr->second.PetSpellDataId)
-            continue;
-
-        // for creature with PetSpellDataId get default pet spells from dbc
-        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(itr->second.PetSpellDataId);
-        if (!spellDataEntry)
-            continue;
-
-        int32 petSpellsId = -int32(itr->second.PetSpellDataId);
-        PetDefaultSpellsEntry petDefSpells;
-        for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-            petDefSpells.spellid[j] = spellDataEntry->Spells[j];
-
-        if (LoadPetDefaultSpells_helper(&itr->second, petDefSpells))
-        {
-            mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
-            ++countData;
-        }
-    }
-
-    TC_LOG_INFO("server.loading", ">> Loaded addition spells for %u pet spell data entries in %u ms", countData, GetMSTimeDiffToNow(oldMSTime));
-
     TC_LOG_INFO("server.loading", "Loading summonable creature templates...");
     oldMSTime = getMSTime();
 
@@ -2554,11 +2528,7 @@ void SpellMgr::LoadPetDefaultSpells()
                 if (!cInfo)
                     continue;
 
-                // already loaded
-                if (cInfo->PetSpellDataId)
-                    continue;
-
-                // for creature without PetSpellDataId get default pet spells from creature_template
+                // get default pet spells from creature_template
                 int32 petSpellsId = cInfo->Entry;
                 if (mPetDefaultSpellsMap.find(cInfo->Entry) != mPetDefaultSpellsMap.end())
                     continue;

@@ -84,7 +84,6 @@ DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayI
 DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
 DBCStorage <CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage <CreatureModelDataEntry> sCreatureModelDataStore(CreatureModelDatafmt);
-DBCStorage <CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
 DBCStorage <CreatureTypeEntry> sCreatureTypeStore(CreatureTypefmt);
 DBCStorage <CriteriaEntry> sCriteriaStore(Criteriafmt);
 DBCStorage <CriteriaTreeEntry> sCriteriaTreeStore(CriteriaTreefmt);
@@ -388,7 +387,6 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sCreatureDisplayInfoExtraStore, "CreatureDisplayInfoExtra.dbc");//19116
     LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//19116
     LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//19116
-    LOAD_DBC(sCreatureSpellDataStore, "CreatureSpellData.dbc");//19116
     LOAD_DBC(sCreatureTypeStore, "CreatureType.dbc");//19116
     LOAD_DBC(sCriteriaStore, "Criteria.dbc");//19342
     LOAD_DBC(sCriteriaTreeStore, "CriteriaTree.dbc");//19342
@@ -518,7 +516,7 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 0; i < sCharStartOutfitStore.GetNumRows(); ++i)
         if (CharStartOutfitEntry const* outfit = sCharStartOutfitStore.LookupEntry(i))
             sCharStartOutfitMap[outfit->RaceID | (outfit->ClassID << 8) | (outfit->GenderID << 16)] = outfit;
-  
+
     for (uint32 i = 0; i < sCharSectionsStore.GetNumRows(); ++i)
         if (CharSectionsEntry const* entry = sCharSectionsStore.LookupEntry(i))
             if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) //ignore Nonplayable races
@@ -540,7 +538,7 @@ void LoadDBCStores(const std::string& dataPath)
             PowersByClass[power->ClassID][power->PowerType] = index;
         }
     }
-   
+
     memset(sChrSpecializationByIndexStore, 0, sizeof(sChrSpecializationByIndexStore));
     for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
         if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i))

@@ -416,11 +416,11 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "dynamicflags, family, trainer_type, trainer_class, trainer_race, type, "
     //                                        39          40           41      42              43        44           45           46           47           48           49
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                        50      51      52      53      54      55      56      57      58              59         60       61       62      63
-                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                        64           65           66              67                   68            69                 70             71              72
+    //                                        50      51      52      53      54      55      56      57      58         59       60       61      62
+                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
+    //                                        63           64           65              66                   67            68                 69             70              71
                                              "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        73            74          75           76                    77           78
+    //                                        72            73          74           75                    76           77
                                              "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template");
 
     if (!result)
@@ -505,28 +505,27 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         creatureTemplate.spells[i] = fields[50 + i].GetUInt32();
 
-    creatureTemplate.PetSpellDataId = fields[58].GetUInt32();
-    creatureTemplate.VehicleId      = fields[59].GetUInt32();
-    creatureTemplate.mingold        = fields[60].GetUInt32();
-    creatureTemplate.maxgold        = fields[61].GetUInt32();
-    creatureTemplate.AIName         = fields[62].GetString();
-    creatureTemplate.MovementType   = uint32(fields[63].GetUInt8());
-    creatureTemplate.InhabitType    = uint32(fields[64].GetUInt8());
-    creatureTemplate.HoverHeight    = fields[65].GetFloat();
-    creatureTemplate.ModHealth      = fields[66].GetFloat();
-    creatureTemplate.ModHealthExtra = fields[67].GetFloat();
-    creatureTemplate.ModMana        = fields[68].GetFloat();
-    creatureTemplate.ModManaExtra   = fields[69].GetFloat();
-    creatureTemplate.ModArmor       = fields[70].GetFloat();
-    creatureTemplate.ModDamage      = fields[71].GetFloat();
-    creatureTemplate.ModExperience  = fields[72].GetFloat();
-    creatureTemplate.RacialLeader   = fields[73].GetBool();
+    creatureTemplate.VehicleId      = fields[58].GetUInt32();
+    creatureTemplate.mingold        = fields[59].GetUInt32();
+    creatureTemplate.maxgold        = fields[60].GetUInt32();
+    creatureTemplate.AIName         = fields[61].GetString();
+    creatureTemplate.MovementType   = uint32(fields[62].GetUInt8());
+    creatureTemplate.InhabitType    = uint32(fields[63].GetUInt8());
+    creatureTemplate.HoverHeight    = fields[64].GetFloat();
+    creatureTemplate.ModHealth      = fields[65].GetFloat();
+    creatureTemplate.ModHealthExtra = fields[66].GetFloat();
+    creatureTemplate.ModMana        = fields[67].GetFloat();
+    creatureTemplate.ModManaExtra   = fields[68].GetFloat();
+    creatureTemplate.ModArmor       = fields[69].GetFloat();
+    creatureTemplate.ModDamage      = fields[70].GetFloat();
+    creatureTemplate.ModExperience  = fields[71].GetFloat();
+    creatureTemplate.RacialLeader   = fields[72].GetBool();
 
-    creatureTemplate.movementId         = fields[74].GetUInt32();
-    creatureTemplate.RegenHealth        = fields[75].GetBool();
-    creatureTemplate.MechanicImmuneMask = fields[76].GetUInt32();
-    creatureTemplate.flags_extra        = fields[77].GetUInt32();
-    creatureTemplate.ScriptID           = GetScriptId(fields[78].GetCString());
+    creatureTemplate.movementId         = fields[73].GetUInt32();
+    creatureTemplate.RegenHealth        = fields[74].GetBool();
+    creatureTemplate.MechanicImmuneMask = fields[75].GetUInt32();
+    creatureTemplate.flags_extra        = fields[76].GetUInt32();
+    creatureTemplate.ScriptID           = GetScriptId(fields[77].GetCString());
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -905,13 +904,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
              TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
              const_cast<CreatureTemplate*>(cInfo)->VehicleId = 0;
         }
-    }
-
-    if (cInfo->PetSpellDataId)
-    {
-        CreatureSpellDataEntry const* spellDataId = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
-        if (!spellDataId)
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing PetSpellDataId (%u).", cInfo->Entry, cInfo->PetSpellDataId);
     }
 
     for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
