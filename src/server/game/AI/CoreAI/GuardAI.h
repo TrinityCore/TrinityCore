@@ -35,4 +35,3 @@ class GuardAI : public ScriptedAI
         void JustDied(Unit* killer) override;
 };
 #endif
-

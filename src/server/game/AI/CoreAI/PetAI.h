@@ -67,4 +67,3 @@ class PetAI : public CreatureAI
         void ClearCharmInfoFlags();
 };
 #endif
-
