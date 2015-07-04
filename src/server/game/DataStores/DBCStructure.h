@@ -424,15 +424,6 @@ struct CreatureModelDataEntry
     //float     HoverHeight;                                // 33
 };
 
-#define MAX_CREATURE_SPELL_DATA_SLOT 4
-
-struct CreatureSpellDataEntry
-{
-    uint32      ID;                                         // 0
-    uint32      Spells[MAX_CREATURE_SPELL_DATA_SLOT];       // 1-4
-    //uint32    Availability[MAX_CREATURE_SPELL_DATA_SLOT]; // 4-7
-};
-
 struct CreatureTypeEntry
 {
     uint32      ID;                                         // 0

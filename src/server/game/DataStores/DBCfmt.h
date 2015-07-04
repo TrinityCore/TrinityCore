@@ -47,7 +47,6 @@ char const CreatureDisplayInfofmt[] = "nixifxxxxxxxxxxxxxxix";
 char const CreatureDisplayInfoExtrafmt[] = "dixxxxxxxxxxxxxxxxxxxx";
 char const CreatureFamilyfmt[] = "nfifiiiiixsx";
 char const CreatureModelDatafmt[] = "nixxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
-char const CreatureSpellDatafmt[] = "niiiixxxx";
 char const CreatureTypefmt[] = "nxx";
 char const Criteriafmt[] = "niiiiiiiixii";
 char const CriteriaTreefmt[] = "niliixxx";
