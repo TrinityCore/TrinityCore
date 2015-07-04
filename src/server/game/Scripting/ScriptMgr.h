@@ -156,7 +156,7 @@ class ScriptObject
         // whether or not this script type must be assigned in the database.
         virtual bool IsDatabaseBound() const { return false; }
 
-        const std::string& GetName() const { return _name; }
+        std::string const& GetName() const { return _name; }
 
     protected:
 
@@ -171,7 +171,7 @@ class ScriptObject
 
     private:
 
-        const std::string _name;
+        std::string const _name;
 };
 
 template<class TObject> class UpdatableScript
@@ -1102,9 +1102,9 @@ class ScriptMgr
 
         void OnGuildAddMember(Guild* guild, Player* player, uint8& plRank);
         void OnGuildRemoveMember(Guild* guild, ObjectGuid guid, bool isDisbanding, bool isKicked);
-        void OnGuildMOTDChanged(Guild* guild, const std::string& newMotd);
-        void OnGuildInfoChanged(Guild* guild, const std::string& newInfo);
-        void OnGuildCreate(Guild* guild, Player* leader, const std::string& name);
+        void OnGuildMOTDChanged(Guild* guild, std::string const& newMotd);
+        void OnGuildInfoChanged(Guild* guild, std::string const& newInfo);
+        void OnGuildCreate(Guild* guild, Player* leader, std::string const& name);
         void OnGuildDisband(Guild* guild);
         void OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint64 &amount, bool isRepair);
         void OnGuildMemberDepositMoney(Guild* guild, Player* player, uint64 &amount);

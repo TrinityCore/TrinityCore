@@ -150,8 +150,8 @@ class PoolMgr
         typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
         typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
         typedef std::vector<PoolGroup<Quest> >      PoolGroupQuestMap;
-        typedef std::pair<uint64, uint32> SearchPair;
-        typedef std::map<uint64, uint32> SearchMap;
+        typedef std::pair<uint64, uint32>           SearchPair;
+        typedef std::map<uint64, uint32>            SearchMap;
 
         PoolTemplateDataMap    mPoolTemplate;
         PoolGroupCreatureMap   mPoolCreatureGroups;
