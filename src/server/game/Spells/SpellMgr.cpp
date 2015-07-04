@@ -2507,7 +2507,6 @@ void SpellMgr::LoadPetDefaultSpells()
     mPetDefaultSpellsMap.clear();
 
     uint32 countCreature = 0;
-    uint32 countData = 0;
 
     TC_LOG_INFO("server.loading", "Loading summonable creature templates...");
     oldMSTime = getMSTime();
