@@ -397,18 +397,17 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
-        response.Allow = store->HasRecord(rec.RecordID);
+        response.RecordID = rec.RecordID;
 
         if (store->HasRecord(rec.RecordID))
         {
-            response.RecordID = rec.RecordID;
+            response.Allow = true;
             response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
             store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
         }
         else
         {
             TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
-            response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }
 
