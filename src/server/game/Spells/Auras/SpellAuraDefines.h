@@ -460,7 +460,7 @@ enum AuraType
     SPELL_AURA_400                                          = 400,
     SPELL_AURA_401                                          = 401,
     SPELL_AURA_402                                          = 402,
-    SPELL_AURA_403                                          = 403,
+    SPELL_AURA_OVERRIDE_SPELL_VISUAL                        = 403,
     SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT              = 404,
     SPELL_AURA_405                                          = 405,
     SPELL_AURA_406                                          = 406,

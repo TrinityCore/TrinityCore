@@ -765,7 +765,7 @@ enum SpellAttr11
     SPELL_ATTR11_UNK13                            = 0x00002000, // 13
     SPELL_ATTR11_UNK14                            = 0x00004000, // 14
     SPELL_ATTR11_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR11_UNK16                            = 0x00010000, // 16
+    SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE     = 0x00010000, // 16
     SPELL_ATTR11_UNK17                            = 0x00020000, // 17
     SPELL_ATTR11_UNK18                            = 0x00040000, // 18
     SPELL_ATTR11_UNK19                            = 0x00080000, // 19
