@@ -1459,16 +1459,17 @@ void World::SetInitialWorldSettings()
 
     LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmHandle.Index);      // One-time query
 
-    ///- Load the DBC files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
+    ///- Load DBCs
     LoadDBCStores(m_dataPath);
+    ///- Load DB2s
     sDB2Manager.LoadStores(m_dataPath);
-
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();
-
-    // Close hotfix database - it is only used during DB2 loading
+    ///- Close hotfix database - it is only used during DB2 loading
     HotfixDatabase.Close();
+    ///- Load GameTables
+    LoadGameTables(m_dataPath);
 
     sSpellMgr->LoadPetFamilySpellsStore();
 

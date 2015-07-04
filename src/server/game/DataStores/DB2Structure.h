@@ -100,6 +100,14 @@ struct GameObjectsEntry
     LocalizedString* Name;                                          // 23
 };
 
+struct GameTablesEntry
+{
+    uint32 ID;                                                      // 0
+    LocalizedString* Name;                                          // 1
+    uint32 NumRows;                                                 // 2
+    uint32 NumColumns;                                              // 3
+};
+
 struct GarrAbilityEntry
 {
     uint32 ID;                                                      // 0
@@ -669,7 +677,7 @@ struct TaxiPathNodePtr
 typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 201
+#define TaxiMaskSize 215
 typedef uint8 TaxiMask[TaxiMaskSize];
 
 #endif

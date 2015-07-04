@@ -21,6 +21,7 @@
 
 #include "DBCStore.h"
 #include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "SharedDefines.h"
 
 typedef std::list<uint32> SimpleFactionsList;
@@ -278,5 +279,6 @@ extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 void LoadDBCStores(const std::string& dataPath);
+void LoadGameTables(const std::string& dataPath);
 
 #endif

@@ -52,6 +52,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "PhaseUseFlags, PhaseID, PhaseGroupID, Type, Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Name FROM gameobjects ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GAMEOBJECTS, "SELECT ID, Name_lang FROM gameobjects_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // GameTables.db2
+    PrepareStatement(HOTFIX_SEL_GAME_TABLES, "SELECT ID, Name, NumRows, NumColumns FROM game_tables ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GAME_TABLES, "SELECT ID, Name_lang FROM game_tables_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // GarrAbility.db2
     PrepareStatement(HOTFIX_SEL_GARR_ABILITY, "SELECT ID, Flags, Name, Description, IconFileDataID, OtherFactionGarrAbilityID, "
         "GarrAbilityCategoryID FROM garr_ability ORDER BY ID DESC", CONNECTION_SYNCH);

@@ -24,6 +24,7 @@ char const BroadcastTextFormat[] = "nissiiiiiiiii";
 char const CurrencyTypesFormat[] = "nisssiiiiiis";
 char const CurvePointFormat[] = "niiff";
 char const GameObjectsFormat[] = "niiffffffffiiiiiiiiiiiis";
+char const GameTablesFormat[] = "nsii";
 char const GarrAbilityFormat[] = "nissiii";
 char const GarrBuildingFormat[] = "niiiiissssiiiiiiiiiiiiii";
 char const GarrBuildingPlotInstFormat[] = "niiiff";
