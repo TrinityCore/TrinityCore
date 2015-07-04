@@ -7705,6 +7705,32 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     TC_LOG_INFO("server.loading", ">> Loaded %u areas for fishing base skill level in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadSkillTiers()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT ID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, "
+        " Value11, Value12, Value13, Value14, Value15, Value16 FROM skill_tiers");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 skill max values. DB table `skill_tiers` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 id = fields[0].GetUInt32();
+        SkillTiersEntry& tier = _skillTiers[id];
+        for (uint32 i = 0; i < MAX_SKILL_STEP; ++i)
+            tier.Value[i] = fields[1 + i].GetUInt32();
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u skill max values in %u ms", uint32(_skillTiers.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
 bool ObjectMgr::CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName const& names)
 {
     // get main part of the name
@@ -7769,7 +7795,7 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
     if (!skill)
         return SKILL_RANGE_NONE;
 
-    if (sSkillTiersStore.LookupEntry(rcEntry->SkillTierID))
+    if (sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
         return SKILL_RANGE_RANK;
 
     if (rcEntry->SkillID == SKILL_RUNEFORGING)

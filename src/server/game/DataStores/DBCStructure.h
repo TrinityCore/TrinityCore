@@ -1483,14 +1483,6 @@ struct SkillRaceClassInfoEntry
     uint32      SkillTierID;                                // 7
 };
 
-#define MAX_SKILL_STEP 16
-
-struct SkillTiersEntry
-{
-    uint32      ID;                                         // 0
-    uint32      Value[MAX_SKILL_STEP];                      // 1-16
-};
-
 // SpecializationSpells.dbc
 struct SpecializationSpellsEntry
 {

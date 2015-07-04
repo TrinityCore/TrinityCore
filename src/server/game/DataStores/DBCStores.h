@@ -240,7 +240,6 @@ extern DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
 extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage <SkillRaceClassInfoEntry>      sSkillRaceClassInfoStore;
-extern DBCStorage <SkillTiersEntry>              sSkillTiersStore;
 extern SpellEffectScallingByEffectId             sSpellEffectScallingByEffectId;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStore;
