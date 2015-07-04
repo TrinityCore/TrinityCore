@@ -80,6 +80,21 @@ enum UlduarNPCs
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
 
+    // Thorim
+    NPC_SIF                                 = 33196,
+    NPC_MERCENARY_CAPTAIN_A                 = 32908,
+    NPC_MERCENARY_SOLDIER_A                 = 32885,
+    NPC_MERCENARY_CAPTAIN_H                 = 32907,
+    NPC_MERCENARY_SOLDIER_H                 = 32883,
+    NPC_RUNIC_COLOSSUS                      = 32872,
+    NPC_ANCIENT_RUNE_GIANT                  = 32873,
+    NPC_GOLEM_RIGHT_HAND                    = 33140,
+    NPC_GOLEM_LEFT_HAND                     = 33141,
+    NPC_THORIM_EVENT_TRIGGER                = 32892,
+    NPC_THORIM_COMBAT_TRIGGER               = 34055,
+    NPC_THORIM_THUNDER_ORB                  = 33378,
+    NPC_THORIM_CONTROLLER                   = 32879,
+
     // Mimiron
     NPC_LEVIATHAN_MKII                      = 33432,
     NPC_VX_001                              = 33651,
@@ -217,8 +232,14 @@ enum UlduarGameObjects
     GO_HODIR_CHEST                          = 194307,
 
     // Thorim
-    GO_THORIM_CHEST_HERO                    = 194315,
-    GO_THORIM_CHEST                         = 194314,
+    GO_CACHE_OF_STORMS_10                   = 194312,
+    GO_CACHE_OF_STORMS_HARDMODE_10          = 194313,
+    GO_CACHE_OF_STORMS_25                   = 194314,
+    GO_CACHE_OF_STORMS_HARDMODE_25          = 194315,
+    GO_THORIM_DOOR                          = 194559,
+    GO_RUNIC_DOOR                           = 194557,
+    GO_STONE_DOOR                           = 194558,
+    GO_THORIM_LEVER                         = 194264,
 
     // Mimiron
     GO_MIMIRON_TRAM                         = 194675,
@@ -279,6 +300,10 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_CON_SPEED_ATORY                 = 21597,
     CRITERIA_LUMBERJACKED                    = 21686,
     CRITERIA_DISARMED                        = 21687,
+    CRITERIA_LOSE_YOUR_ILLUSION_10           = 10440,
+    CRITERIA_LOSE_YOUR_ILLUSION_25           = 10457,
+    CRITERIA_DONT_STAND_IN_LIGHTNING_10      = 10305,
+    CRITERIA_DONT_STAND_IN_LIGHTNING_25      = 10309,
     CRITERIA_WAITS_DREAMING_STORMWIND_25     = 10321,
     CRITERIA_WAITS_DREAMING_CHAMBER_25       = 10322,
     CRITERIA_WAITS_DREAMING_ICECROWN_25      = 10323,
@@ -368,9 +393,22 @@ enum UlduarData
     DATA_HODIR_YS,
     DATA_THORIM_YS,
     DATA_MIMIRON_YS,
-    DATA_ILLUSION,
+    DATA_ILLUSION                = 46, // Should ALWAYS have this value, DB expects it!
     DATA_DRIVE_ME_CRAZY,
     DATA_KEEPERS_COUNT,
+
+    // Thorim
+    DATA_RUNIC_DOOR,
+    DATA_STONE_DOOR,
+    DATA_RUNIC_COLOSSUS,
+    DATA_RUNE_GIANT,
+    DATA_SIF,
+    DATA_SIF_BLIZZARD,
+    DATA_THORIM_HARDMODE,
+    DATA_THORIM_COMBAT_TRIGGER,
+    DATA_THORIM_CONTROLLER,
+    DATA_CHARGED_PILLAR,
+    DATA_DONT_STAND_IN_LIGHTNING,
 
     // Algalon the Observer
     DATA_ALGALON_SUMMON_STATE,

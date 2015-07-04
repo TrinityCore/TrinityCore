@@ -104,6 +104,12 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid AuriayaGUID;
             ObjectGuid HodirGUID;
             ObjectGuid ThorimGUID;
+            ObjectGuid ThorimCombatTriggerGUID;
+            ObjectGuid ThorimControllerGUID;
+            ObjectGuid SifGUID;
+            ObjectGuid SifBlizzardTriggerGUID;
+            ObjectGuid RunicColossusGUID;
+            ObjectGuid AncientRuneGiantGUID;
             ObjectGuid FreyaGUID;
             ObjectGuid ElderGUIDs[3];
             ObjectGuid FreyaAchieveTriggerGUID;
@@ -126,6 +132,9 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid KologarnChestGUID;
             ObjectGuid KologarnBridgeGUID;
             ObjectGuid ThorimChestGUID;
+            ObjectGuid ThorimLeverGUID;
+            ObjectGuid ThorimStoneDoorGUID;
+            ObjectGuid ThorimRunicDoorGUID;
             ObjectGuid HodirRareCacheGUID;
             ObjectGuid HodirChestGUID;
             ObjectGuid MimironTramGUID;
@@ -310,8 +319,27 @@ class instance_ulduar : public InstanceMapScript
                             creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA);
                         break;
 
+                    // Thorim
                     case NPC_THORIM:
                         ThorimGUID = creature->GetGUID();
+                        break;
+                    case NPC_SIF:
+                        SifGUID = creature->GetGUID();
+                        break;
+                    case NPC_MERCENARY_CAPTAIN_A:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_H);
+                        break;
+                    case NPC_MERCENARY_SOLDIER_A:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MERCENARY_SOLDIER_H);
+                        break;
+                    case NPC_THORIM_EVENT_TRIGGER:
+                        // [1] Movement Flags: OnTransport, DisableGravity (1536)
+                        creature->SetDisableGravity(true);
+                        if (creature->GetWaypointPath()) /* This is the one moving, Sif should cast Blizzard on this trigger
+                                                         / so as to make blizzard move through the room */
+                            SifBlizzardTriggerGUID = creature->GetGUID();
                         break;
 
                     // Freya
@@ -461,9 +489,20 @@ class instance_ulduar : public InstanceMapScript
                         if (GetBossState(BOSS_KOLOGARN) == DONE)
                             HandleGameObject(ObjectGuid::Empty, false, gameObject);
                         break;
-                    case GO_THORIM_CHEST_HERO:
-                    case GO_THORIM_CHEST:
+                    case GO_CACHE_OF_STORMS_10:
+                    case GO_CACHE_OF_STORMS_HARDMODE_10:
+                    case GO_CACHE_OF_STORMS_25:
+                    case GO_CACHE_OF_STORMS_HARDMODE_25:
                         ThorimChestGUID = gameObject->GetGUID();
+                        break;
+                    case GO_THORIM_LEVER:
+                        ThorimLeverGUID = gameObject->GetGUID();
+                        break;
+                    case GO_RUNIC_DOOR:
+                        ThorimRunicDoorGUID = gameObject->GetGUID();
+                        break;
+                    case GO_STONE_DOOR:
+                        ThorimStoneDoorGUID = gameObject->GetGUID();
                         break;
                     case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
                     case GO_HODIR_RARE_CACHE_OF_WINTER:
@@ -915,6 +954,20 @@ class instance_ulduar : public InstanceMapScript
                         return HodirGUID;
                     case BOSS_THORIM:
                         return ThorimGUID;
+
+                    // Thorim
+                    case DATA_SIF:
+                        return SifGUID;
+                    case DATA_SIF_BLIZZARD:
+                        return SifBlizzardTriggerGUID;
+                    case DATA_RUNIC_COLOSSUS:
+                        return RunicColossusGUID;
+                    case DATA_RUNE_GIANT:
+                        return AncientRuneGiantGUID;
+                    case DATA_RUNIC_DOOR:
+                        return ThorimRunicDoorGUID;
+                    case DATA_STONE_DOOR:
+                        return ThorimStoneDoorGUID;
 
                     // Freya
                     case BOSS_FREYA:
