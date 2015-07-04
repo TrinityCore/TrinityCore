@@ -39,6 +39,7 @@
 #include "ConditionMgr.h"
 #include "DB2Stores.h"
 #include <string>
+#include <tuple>
 #include <map>
 #include <limits>
 #include <functional>
@@ -67,8 +68,8 @@ struct TempSummonGroupKey
 
     bool operator<(TempSummonGroupKey const& rhs) const
     {
-        // memcmp is only reliable if struct doesn't have any padding (packed)
-        return memcmp(this, &rhs, sizeof(TempSummonGroupKey)) < 0;
+        return std::tie(_summonerEntry, _summonerType, _summonGroup) <
+            std::tie(rhs._summonerEntry, rhs._summonerType, rhs._summonGroup);
     }
 
 private:

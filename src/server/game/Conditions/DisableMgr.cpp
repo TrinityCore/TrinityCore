@@ -345,6 +345,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                             return (disabledModes & RAID_STATUSFLAG_10MAN_HEROIC) != 0;
                         case DIFFICULTY_25_HC:
                             return (disabledModes & RAID_STATUSFLAG_25MAN_HEROIC) != 0;
+                        default:
+                            return false;
                     }
                 }
                 else if (mapEntry->InstanceType == MAP_COMMON)

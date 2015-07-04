@@ -243,9 +243,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
 
 uint32 Quest::MoneyValue(uint8 playerLevel) const
 {
-    uint8 level;
-    if (playerLevel)
-        level = Level == -1 ? playerLevel : Level;
+    uint8 level = Level == -1 ? playerLevel : Level;
 
     if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(level))
         return money->Money[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
