@@ -97,7 +97,7 @@ bool Weather::ReGenerate()
     time_t gtime = sWorld->GetGameTime();
     struct tm ltime;
     localtime_r(&gtime, &ltime);
-    uint32 season = ((ltime.tm_yday - 78 + 365)/91)%4;
+    uint32 season = ((ltime.tm_yday - 78 + 365) / 91) % 4;
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
@@ -152,8 +152,8 @@ bool Weather::ReGenerate()
 
     // At this point, only weather that isn't doing anything remains but that have weather data
     uint32 chance1 = m_weatherChances->data[season].rainChance;
-    uint32 chance2 = chance1+ m_weatherChances->data[season].snowChance;
-    uint32 chance3 = chance2+ m_weatherChances->data[season].stormChance;
+    uint32 chance2 = chance1 + m_weatherChances->data[season].snowChance;
+    uint32 chance3 = chance2 + m_weatherChances->data[season].stormChance;
 
     uint32 rnd = urand(0, 99);
     if (rnd <= chance1)
@@ -316,4 +316,3 @@ WeatherState Weather::GetWeatherState() const
             return WEATHER_STATE_FINE;
     }
 }
-

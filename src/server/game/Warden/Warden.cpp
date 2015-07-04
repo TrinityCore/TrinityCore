@@ -192,14 +192,14 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
 
     switch (action)
     {
-    case WARDEN_ACTION_LOG:
-        return "None";
-        break;
-    case WARDEN_ACTION_KICK:
-        _session->KickPlayer();
-        return "Kick";
-        break;
-    case WARDEN_ACTION_BAN:
+        case WARDEN_ACTION_LOG:
+            return "None";
+            break;
+        case WARDEN_ACTION_KICK:
+            _session->KickPlayer();
+            return "Kick";
+            break;
+        case WARDEN_ACTION_BAN:
         {
             std::stringstream duration;
             duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
@@ -215,8 +215,8 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
 
             return "Ban";
         }
-    default:
-        break;
+        default:
+            break;
     }
     return "Undefined";
 }
