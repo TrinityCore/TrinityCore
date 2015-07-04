@@ -196,6 +196,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            bool Allow       = false;
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
             int32 RecordID   = 0;
