@@ -411,7 +411,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //    *data << ObjectGuid(RemoveForcesIDs);
 
         data->WriteBits(unit->GetUnitMovementFlags(), 30);
-        data->WriteBits(unit->GetExtraUnitMovementFlags(), 15);
+        data->WriteBits(unit->GetExtraUnitMovementFlags(), 16);
         data->WriteBit(!unit->m_movementInfo.transport.guid.IsEmpty()); // HasTransport
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
