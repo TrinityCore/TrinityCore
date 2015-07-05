@@ -1162,7 +1162,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
     features.ComplaintStatus = 0;
     features.TutorialsEnabled = true;
-    features.UnkBit90 = true;
+    features.NPETutorialsEnabled = true;
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);

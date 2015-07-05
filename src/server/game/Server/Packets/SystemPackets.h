@@ -83,7 +83,7 @@ namespace WorldPackets
 
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
-            bool UnkBit90                            = false;
+            bool NPETutorialsEnabled                 = false;
             bool UnkBit61                            = false;
         };
 
