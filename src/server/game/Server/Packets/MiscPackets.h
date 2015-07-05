@@ -242,6 +242,7 @@ namespace WorldPackets
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint32> RestrictedAccountMaxMoney;
             uint32 DifficultyID     = 0;
+            bool XRealmPvpAlert     = false;
         };
 
         class AreaTrigger final : public ClientPacket

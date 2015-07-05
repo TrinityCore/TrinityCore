@@ -154,6 +154,7 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket << uint32(DifficultyID);
     _worldPacket << uint8(IsTournamentRealm);
     _worldPacket << uint32(WeeklyReset);
+    _worldPacket.WriteBit(XRealmPvpAlert);
     _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
     _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
     _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
