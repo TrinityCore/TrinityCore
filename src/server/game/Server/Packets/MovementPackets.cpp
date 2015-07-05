@@ -546,6 +546,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     {
         _worldPacket << force.ID;
         _worldPacket << force.Direction;
+        _worldPacket << force.TransportPosition;
         _worldPacket << force.TransportID;
         _worldPacket << force.Magnitude;
         _worldPacket.WriteBits(force.Type, 2);
