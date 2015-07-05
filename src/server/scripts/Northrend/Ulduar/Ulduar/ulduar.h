@@ -404,6 +404,7 @@ enum UlduarEvents
     EVENT_DESPAWN_ALGALON       = 1,
     EVENT_UPDATE_ALGALON_TIMER  = 2,
     ACTION_INIT_ALGALON         = 6,
+    EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7
 };
 
 enum YoggSaronIllusions
