@@ -690,22 +690,7 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case BOSS_LEVIATHAN:
                         if (state == DONE)
-                        {
-                            // Eject all players from vehicles and make them untargetable.
-                            // They will be despawned after a while
-                            for (auto const& vehicleGuid : LeviathanVehicleGUIDs)
-                            {
-                                if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
-                                {
-                                    if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
-                                    {
-                                        vehicle->RemoveAllPassengers();
-                                        vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                        vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
-                                    }
-                                }
-                            }
-                        }
+                            _events.ScheduleEvent(EVENT_DESPAWN_LEVIATHAN_VEHICLES, 5 * IN_MILLISECONDS);
                         break;
                     case BOSS_IGNIS:
                     case BOSS_RAZORSCALE:
@@ -1162,6 +1147,22 @@ class instance_ulduar : public InstanceMapScript
                                 _events.CancelEvent(EVENT_UPDATE_ALGALON_TIMER);
                                 if (Creature* algalon = instance->GetCreature(AlgalonGUID))
                                     algalon->AI()->DoAction(EVENT_DESPAWN_ALGALON);
+                            }
+                            break;
+                        case EVENT_DESPAWN_LEVIATHAN_VEHICLES:
+                            // Eject all players from vehicles and make them untargetable.
+                            // They will be despawned after a while
+                            for (auto const& vehicleGuid : LeviathanVehicleGUIDs)
+                            {
+                                if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
+                                {
+                                    if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
+                                    {
+                                        vehicle->RemoveAllPassengers();
+                                        vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                        vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
+                                    }
+                                }
                             }
                             break;
                     }
