@@ -1562,7 +1562,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     partyUpdate.PartyType = m_groupType;
     partyUpdate.PartyIndex = 0;
     partyUpdate.PartyFlags = uint8(IsCreated());
- 
+
     partyUpdate.PartyGUID = m_guid;
     partyUpdate.LeaderGUID = m_leaderGuid;
 
