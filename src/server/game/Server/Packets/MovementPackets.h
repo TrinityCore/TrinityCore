@@ -249,6 +249,7 @@ namespace WorldPackets
         {
             ObjectGuid ID;
             G3D::Vector3 Direction;
+            G3D::Vector3 TransportPosition;
             uint32 TransportID  = 0;
             float Magnitude     = 0;
             uint8 Type          = 0;

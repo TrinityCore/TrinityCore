@@ -451,6 +451,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //{
         //    *data << ObjectGuid(ID);
         //    *data << Vector3(Direction);
+        //    *data << Vector3(force.TransportPosition);
         //    *data << int32(TransportID);
         //    *data << float(Magnitude);
         //    *data << uint8(Type);
