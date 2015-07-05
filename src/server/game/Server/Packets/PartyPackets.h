@@ -73,9 +73,9 @@ namespace WorldPackets
 
             // Inviter
             ObjectGuid InviterGUID;
-			ObjectGuid InviterBNetAccountId;
+            ObjectGuid InviterBNetAccountId;
             std::string InviterName;
-            
+
             // Realm
             bool IsXRealm = false;
             bool IsLocal = true;
@@ -166,7 +166,7 @@ namespace WorldPackets
 
             std::vector<GroupAura> AuraList;
         };
-        
+
         struct GroupMemberStats
         {
             ObjectGuid GUID;
@@ -523,7 +523,7 @@ namespace WorldPackets
             int8 PartyFlags = 0;
             int8 PartyIndex = 0;
             int8 PartyType = 0;
-            
+
             ObjectGuid PartyGUID;
             ObjectGuid LeaderGUID;
 

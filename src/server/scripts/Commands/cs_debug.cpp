@@ -1431,7 +1431,7 @@ public:
             handler->SendSysMessage("Target is not phased");
         return true;
     }
-    
+
     static bool HandleDebugSendPlaySceneCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
@@ -1458,7 +1458,7 @@ public:
             sceneInstanceID = atoi(c);
         if (d)
             sceneScriptPackageID = atoi(d);
-        
+
         Player* me = handler->GetSession()->GetPlayer();
 
         WorldPackets::Scenes::PlayScene packet;

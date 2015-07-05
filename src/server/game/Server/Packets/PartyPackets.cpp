@@ -665,7 +665,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPlayerInfos c
 {
     data.WriteBits(playerInfos.Name.size(), 6);
     data.FlushBits();
-    
+
     data << playerInfos.GUID;
     data << playerInfos.Status;
     data << playerInfos.Subgroup;

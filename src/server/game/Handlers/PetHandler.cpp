@@ -433,7 +433,7 @@ void WorldSession::SendQueryPetNameResponse(ObjectGuid guid)
 
         if (Pet* pet = unit->ToPet())
         {
-            if (DeclinedName const* names = pet->GetDeclinedNames()) 
+            if (DeclinedName const* names = pet->GetDeclinedNames())
             {
                 response.HasDeclined = true;
                 response.DeclinedNames = *names;
