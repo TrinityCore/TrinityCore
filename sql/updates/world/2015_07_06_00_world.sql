@@ -1,5 +1,5 @@
 SET @OGUID := 29829;
-SeT @CGUID := 144096;
+SET @CGUID := 144096;
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+8;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -10,7 +10,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 (@OGUID+4, 184329, 550, 1, 1, 544.6263, 141.888, 26.34531, 2.879789, 0, 0, 1, -4.371139E-08, 7200, 255, 0), -- 184329 (Area: -1)
 (@OGUID+5, 184327, 550, 1, 1, 544.538, -143.1392, 26.34531, 3.403396, 0, 0, 1, -4.371139E-08, 7200, 255, 0), -- 184327 (Area: -1)
 (@OGUID+6, 184328, 550, 1, 1, 654.1292, 75.33163, 48.19505, 0.6108655, 0, 0, 1, -4.371139E-08, 7200, 255, 0), -- 184328 (Area: -1)
-(@OGUID+7, 184326, 550, 3, 1, 654.1447, -76.82803, 48.19501, 2.530723, 0, 0, 1, -4.371139E-08, 7200, 255, 0), -- 184326 (Area: -1)
+(@OGUID+7, 184326, 550, 1, 1, 654.1447, -76.82803, 48.19501, 2.530723, 0, 0, 1, -4.371139E-08, 7200, 255, 0), -- 184326 (Area: -1)
 (@OGUID+8, 184596, 550, 1, 1, 744.0446, -44.63448, 46.66097, 3.141593, 0, 0, 1, -4.371139E-08, 7200, 255, 1); -- 184596 (Area: -1)
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+58;
