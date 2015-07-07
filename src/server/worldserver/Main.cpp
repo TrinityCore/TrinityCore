@@ -100,8 +100,8 @@ extern int main(int argc, char** argv)
     std::string configService;
 
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
-    // exit if help is enabled
-    if (vm.count("help"))
+    // exit if help or version is enabled
+    if (vm.count("help") || vm.count("version"))
         return 0;
 
 #ifdef _WIN32
@@ -511,6 +511,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
+        ("version,v", "print version build info")
         ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_CORE_CONFIG), "use <arg> as configuration file")
         ;
 #ifdef _WIN32
@@ -533,6 +534,10 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
 
     if (vm.count("help")) {
         std::cout << all << "\n";
+    }
+    else if (vm.count("version"))
+    {
+        std::cout << _FULLVERSION << "\n";
     }
 
     return vm;
