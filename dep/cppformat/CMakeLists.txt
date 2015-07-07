@@ -6,12 +6,7 @@ set(FMT_SOURCES format.cc format.h)
 # Use variadic templates
 add_definitions(-DFMT_VARIADIC_TEMPLATES=1)
 
-# Check if initializer lists are supported.
-check_cxx_source_compiles("
-  #include <initializer_list>
-  int main() {}" FMT_INITIALIZER_LIST)
-
-# Use delete
+# Use deleted functions
 add_definitions(-DFMT_USE_DELETED_FUNCTIONS=1)
 
 # Use static assert
@@ -22,6 +17,7 @@ if (WIN32)
 else ()
   check_symbol_exists(open fcntl.h HAVE_OPEN)
 endif ()
+
 if (HAVE_OPEN)
   add_definitions(-DFMT_USE_FILE_DESCRIPTORS=1)
   set(FMT_SOURCES ${FMT_SOURCES} posix.cc posix.h)
