@@ -2157,10 +2157,9 @@ void Guild::SendLoginInfo(WorldSession* session)
         player->GetSession()->SendPacket(renameFlag.Write());
     }
 
-    for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-            if (entry->GuildLevel <= GetLevel())
-                player->LearnSpell(entry->SpellID, true);
+    for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+        if (entry->GuildLevel <= GetLevel())
+            player->LearnSpell(entry->SpellID, true);
 
     m_achievementMgr.SendAllAchievementData(player);
 
@@ -2704,10 +2703,9 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
         player->SetRank(0);
         player->SetGuildLevel(0);
 
-        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                if (entry->GuildLevel <= GetLevel())
-                    player->RemoveSpell(entry->SpellID, false, false);
+        for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+            if (entry->GuildLevel <= GetLevel())
+                player->RemoveSpell(entry->SpellID, false, false);
     }
 
     _DeleteMemberFromDB(guid.GetCounter());

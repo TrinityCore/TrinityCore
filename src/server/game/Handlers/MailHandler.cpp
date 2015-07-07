@@ -628,7 +628,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
             return;
         }
 
-        bodyItem->SetText(mailTemplateEntry->Body_lang);
+        bodyItem->SetText(mailTemplateEntry->Body->Str[GetSessionDbcLocale()]);
     }
     else
         bodyItem->SetText(m->body);

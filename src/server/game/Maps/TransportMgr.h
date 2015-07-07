@@ -21,8 +21,8 @@
 #include <G3D/Quat.h>
 #include "Spline.h"
 #include "DBCStores.h"
+#include "DB2Stores.h"
 #include "ObjectGuid.h"
-#include "DB2Structure.h"
 
 struct KeyFrame;
 struct GameObjectTemplate;
@@ -99,7 +99,7 @@ typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
 class TransportMgr
 {
-        friend void LoadDBCStores(std::string const&);
+        friend void DB2Manager::LoadStores(std::string const&);
 
     public:
         static TransportMgr* instance()

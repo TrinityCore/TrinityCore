@@ -947,7 +947,8 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 244 SPELL_EFFECT_244
 };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap) : _hasPowerDifficultyData(false)
+SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals)
+    : _hasPowerDifficultyData(false)
 {
     Id = spellEntry->ID;
 
@@ -1006,12 +1007,10 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
     Speed = _misc ? _misc->Speed : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
     AttributesCu = 0;
-
-    for (uint8 i = 0; i < 2; ++i)
-        SpellVisual[i] = _misc ? _misc->SpellVisualID[i] : 0;
-
     SpellIconID = _misc ? _misc->SpellIconID : 0;
     ActiveIconID = _misc ? _misc->ActiveIconID : 0;
+
+    _visuals = std::move(visuals);
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
@@ -2799,6 +2798,42 @@ bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
                 return true;
 
     return false;
+}
+
+uint32 SpellInfo::GetSpellXSpellVisualId(Difficulty difficulty) const
+{
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
+    {
+        auto itr = _visuals.find(difficulty);
+        if (itr != _visuals.end())
+            for (SpellXSpellVisualEntry const* visual : itr->second)
+                if (!visual->PlayerConditionID)
+                    return visual->ID;
+
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+    }
+
+    auto itr = _visuals.find(DIFFICULTY_NONE);
+    if (itr != _visuals.end())
+        for (SpellXSpellVisualEntry const* visual : itr->second)
+            if (!visual->PlayerConditionID)
+                return visual->ID;
+
+    return 0;
+}
+
+uint32 SpellInfo::GetSpellVisual(Difficulty difficulty, Player* /*forPlayer*/ /*= nullptr*/) const
+{
+    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(difficulty)))
+    {
+        //if (visual->SpellVisualID[1] && forPlayer->GetViolenceLevel() operator 2)
+        //    return visual->SpellVisualID[1];
+
+        return visual->SpellVisualID[0];
+    }
+
+    return 0;
 }
 
 void SpellInfo::_InitializeExplicitTargetMask()

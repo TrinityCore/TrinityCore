@@ -37,6 +37,12 @@ enum GarrisonFollowerFlags
     GARRISON_FOLLOWER_FLAG_UNIQUE   = 0x1
 };
 
+enum GarrisonFollowerType
+{
+    FOLLOWER_TYPE_GARRISON = 1,
+    FOLLOWER_TYPE_SHIPYARD = 2
+};
+
 enum GarrisonAbilityFlags
 {
     GARRISON_ABILITY_FLAG_TRAIT         = 0x01,
