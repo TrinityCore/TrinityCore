@@ -10537,6 +10537,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_PRIEST:
+                        // Renewed Hope should affect flash heal
+                        if (spellProto->SpellFamilyFlags[0] & 0x800 && spellProto->SpellIconID == 177)
+                            if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(57470, EFFECT_0))
+                                if (HasAura(6788))
+                                    full_crit_chance += aurEff->GetAmount();
+                    break;
                     case SPELLFAMILY_MAGE:
                         // Glyph of Fire Blast
                         if (spellProto->SpellFamilyFlags[0] == 0x2 && spellProto->SpellIconID == 12)
