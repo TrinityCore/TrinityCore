@@ -89,9 +89,6 @@ void TaskScheduler::Dispatch(success_t const& callback)
             return;
     }
 
-    if (_task_holder.IsEmpty())
-        return;
-
     while (!_task_holder.IsEmpty())
     {
         if (_task_holder.First()->_end > _now)
