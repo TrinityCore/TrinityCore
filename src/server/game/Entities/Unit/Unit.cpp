@@ -10542,7 +10542,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         if (spellProto->SpellFamilyFlags[0] & 0x800 && spellProto->SpellIconID == 177)
                             if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(57470, EFFECT_0))
                                 if (HasAura(6788))
-                                    full_crit_chance += aurEff->GetAmount();
+                                    crit_chance += aurEff->GetAmount();
                     break;
                     case SPELLFAMILY_MAGE:
                         // Glyph of Fire Blast
