@@ -606,7 +606,7 @@ bool Matrix4float64::operator==(const Matrix4float64& other) const {
     // If the bit patterns are identical, they must be
     // the same matrix.  If not, they *might* still have
     // equal elements due to floating point weirdness.
-    if (memcmp(this, &other, sizeof(Matrix4float64) == 0)) {
+    if (memcmp(this, &other, sizeof(Matrix4float64)) == 0) {
         return true;
     } 
 
