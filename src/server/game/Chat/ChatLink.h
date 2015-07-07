@@ -22,6 +22,7 @@
 #include <sstream>
 #include <list>
 #include <cstring>
+#include "Common.h"
 
 struct ItemLocale;
 struct ItemTemplate;

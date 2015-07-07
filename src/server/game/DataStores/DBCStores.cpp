@@ -26,6 +26,7 @@
 #include "ItemTemplate.h"
 #include "Timer.h"
 #include "ObjectDefines.h"
+#include "DB2Stores.h"
 
 #include <map>
 
