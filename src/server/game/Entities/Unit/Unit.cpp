@@ -1647,7 +1647,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
 
-    auto absorb_ignoring_damage = CalculatePctF(dmgInfo.GetDamage(), auraAbsorbMod);
+    auto absorb_ignoring_damage = CalculatePct(dmgInfo.GetDamage(), auraAbsorbMod);
     dmgInfo.ModifyDamage(-absorb_ignoring_damage);
     
     // We're going to call functions which can modify content of the list during iteration over it's elements
