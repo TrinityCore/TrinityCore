@@ -75,7 +75,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
 
     SetGuidValue(AREATRIGGER_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
+    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->GetSpellVisual(GetMap()->GetDifficultyID()));
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
 
     CopyPhaseFrom(caster);

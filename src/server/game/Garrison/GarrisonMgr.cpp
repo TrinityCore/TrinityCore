@@ -46,6 +46,9 @@ void GarrisonMgr::Initialize()
     {
         if (GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(followerAbility->GarrAbilityID))
         {
+            if (ability->FollowerTypeID != FOLLOWER_TYPE_GARRISON)
+                continue;
+
             if (!(ability->Flags & GARRISON_ABILITY_CANNOT_ROLL) && ability->Flags & GARRISON_ABILITY_FLAG_TRAIT)
                 _garrisonFollowerRandomTraits.insert(ability);
 

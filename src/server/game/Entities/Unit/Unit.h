@@ -380,6 +380,7 @@ enum InventorySlot
 };
 
 struct FactionTemplateEntry;
+struct MountCapabilityEntry;
 struct SpellValue;
 
 class AuraApplication;

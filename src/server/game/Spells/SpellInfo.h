@@ -318,6 +318,9 @@ typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
 typedef std::vector<SpellEffectEntry const*> SpellEffectEntryVector;
 typedef std::unordered_map<uint32, SpellEffectEntryVector> SpellEffectEntryMap;
 
+typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;
+typedef std::unordered_map<uint32, SpellVisualVector> SpellVisualMap;
+
 typedef std::vector<AuraEffect*> AuraEffectVector;
 
 class SpellInfo
@@ -446,7 +449,7 @@ public:
     SpellTotemsEntry const* GetSpellTotems() const;
     SpellMiscEntry const* GetSpellMisc() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap);
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals);
     ~SpellInfo();
 
     uint32 GetCategory() const;
@@ -566,6 +569,9 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
+    uint32 GetSpellXSpellVisualId(Difficulty difficulty) const;
+    uint32 GetSpellVisual(Difficulty difficulty, Player* forPlayer = nullptr) const;
+
     // loading helpers
     void _InitializeExplicitTargetMask();
     bool _IsPositiveEffect(uint32 effIndex, bool deep) const;
@@ -582,6 +588,7 @@ public:
     SpellEffectInfo const* GetEffect(WorldObject const* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficultyID(), index); }
 
     SpellEffectInfoMap _effects;
+    SpellVisualMap _visuals;
     bool _hasPowerDifficultyData;
 };
 
