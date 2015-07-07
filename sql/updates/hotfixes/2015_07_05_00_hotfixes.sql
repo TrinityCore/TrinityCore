@@ -1022,4 +1022,4 @@ ALTER TABLE `garr_follower`
   ADD `HordeListPortraitTextureKitID` int(10) unsigned NOT NULL DEFAULT '0' AFTER `AlliancePortraitIconID`,
   ADD `AllianceListPortraitTextureKitID` int(10) unsigned NOT NULL DEFAULT '0' AFTER `HordeListPortraitTextureKitID`;
 ALTER TABLE `item_effect` ADD `ChrSpecializationID` int(10) unsigned NOT NULL DEFAULT '0' AFTER `CategoryCooldown`;
-ALTER TABLE `spell_misc` DROP `SpellVisualID1`. DROP `SpellVisualID2`;
+ALTER TABLE `spell_misc` DROP `SpellVisualID1`, DROP `SpellVisualID2`;
