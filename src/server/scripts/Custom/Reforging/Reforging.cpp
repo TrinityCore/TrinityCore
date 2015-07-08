@@ -399,7 +399,7 @@ public:
         Player* player;
     };
 
-    void OnLogin(Player* player, bool firstLogin) override
+    void OnLogin(Player* player, bool /*firstLogin*/) override
     {
         uint32 playerGUID = player->GetGUIDLow();
         QueryResult result = CharacterDatabase.PQuery("SELECT `GUID`, `increase`, `decrease`, `stat_value` FROM `custom_reforging` WHERE `Owner` = %u", playerGUID);
