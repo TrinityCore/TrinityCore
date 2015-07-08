@@ -521,6 +521,7 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
         {
             const EntryVector* oM = optionMap[(itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTransmogrified->GetTemplate()->SubClass][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
             if (oM)
+            {
                 if (!over && counter + oM->size() < selection.offset)
                 {
                     counter += oM->size();
@@ -530,6 +531,7 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
                     over = true;
                     L.insert(L.end(), oM->begin(), oM->end());
                 }
+            }
         }
         std::list<uint32>::const_iterator it = L.begin();
         std::advance(it, (selection.offset - counter) + vendorslot);
