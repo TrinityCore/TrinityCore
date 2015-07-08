@@ -724,6 +724,7 @@ enum OpcodeServer : uint32
     SMSG_ABORT_NEW_WORLD                              = 0x0895,
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x09C5,
     SMSG_ACCOUNT_DATA_TIMES                           = 0x000C,
+    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x0521,
     SMSG_ACCOUNT_MOUNT_UPDATE                         = 0x085C,
     SMSG_ACCOUNT_TOYS_UPDATE                          = 0x0ACF,
     SMSG_ACHIEVEMENT_DELETED                          = 0x0093,
