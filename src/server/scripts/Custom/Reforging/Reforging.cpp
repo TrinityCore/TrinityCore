@@ -2,7 +2,7 @@
 
 /*
 Reforging by Rochet2
-https://rochet2.github.io/?page=Transmogrification
+http://rochet2.github.io/Transmogrification.html
 
 Rules of thumb:
 Item can be reforged once.
@@ -40,7 +40,7 @@ static const char* GetStatName(uint32 ItemStatType)
     }
 }
 
-static const char* GetSlotName(uint8 slot, WorldSession* session)
+static const char* GetSlotName(uint8 slot, /*WorldSession* session*/)
 {
     switch (slot)
     {
@@ -192,7 +192,9 @@ static void SendReforgePacket(Player* player, uint32 entry, uint32 lowguid = 0, 
             decreased = true;
         }
         else
+        {
             data << pProto->ItemStat[i].ItemStatValue;
+        }
     }
     if (reforge)
     {
@@ -612,10 +614,14 @@ public:
                             UpdatePlayerReforgeStats(invItem, player, action, statTypes[menu]); // rewrite this function
                         }
                         else
+                        {
                             player->GetSession()->SendNotification("Not enough money");
+                        }
                     }
                     else
+                    {
                         player->GetSession()->SendNotification("Invalid item selected");
+                    }
                 }
                 OnGossipHello(player, creature);
             }
