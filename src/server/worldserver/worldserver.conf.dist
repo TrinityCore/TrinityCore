@@ -2759,7 +2759,7 @@ MinRecordUpdateTimeDiff = 100
 PlayerStart.String = ""
 
 #
-#      rade
+#     LevelReq.Trade
 #        Description: Level requirement for characters to be able to trade.
 #        Default:     1
 
