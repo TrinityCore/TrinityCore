@@ -489,7 +489,9 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
                 if (!oM)
                     continue;
                 if (!over && counter + oM->size() < selection.offset)
+                {
                     counter += oM->size();
+                }
                 else
                 {
                     over = true;
@@ -505,7 +507,9 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
                 if (!oM)
                     continue;
                 if (!over && counter + oM->size() < selection.offset)
+                {
                     counter += oM->size();
+                }
                 else
                 {
                     over = true;
@@ -518,7 +522,9 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
             const EntryVector* oM = optionMap[(itemTransmogrified->GetTemplate()->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTransmogrified->GetTemplate()->SubClass][getCorrectInvType(itemTransmogrified->GetTemplate()->InventoryType)][selection.quality];
             if (oM)
                 if (!over && counter + oM->size() < selection.offset)
+                {
                     counter += oM->size();
+                }
                 else
                 {
                     over = true;
@@ -538,7 +544,9 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
             if (RequireToken)
             {
                 if (player->HasItemCount(TokenEntry, TokenAmount))
+                {
                     player->DestroyItemCount(TokenEntry, TokenAmount, true);
+                }
                 else
                 {
                     player->GetSession()->SendNotification("You do not have enough %ss", getItemName(sObjectMgr->GetItemTemplate(TransmogDisplayVendorMgr::TokenEntry), player->GetSession()).c_str());
@@ -554,7 +562,9 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
             if (cost) // 0 cost if reverting look
             {
                 if (cost < 0)
+                {
                     TC_LOG_DEBUG("custom.transmog", "TransmogDisplayVendorMgr::HandleTransmogrify - %s (%s) transmogrification invalid cost (non negative, amount %i). Transmogrified %u with %u", player->GetName().c_str(), player->GetGUID().ToString().c_str(), -cost, itemTransmogrified->GetEntry(), itemTransmogrifier->ItemId);
+                }
                 else
                 {
                     if (!player->HasEnoughMoney(cost))
@@ -709,7 +719,9 @@ public:
                     player->PlayDirectSound(3337);
                 }
                 else
+                {
                     session->SendNotification("You have no transmogrified items equipped");
+                }
                 OnGossipSelect(player, creature, SENDER_REMOVE_MENU, 0);
             } break;
             case SENDER_REMOVE_ONE: // Remove TransmogDisplayVendorMgr from single item
@@ -725,10 +737,14 @@ public:
                         player->PlayDirectSound(3337);
                     }
                     else if (slotname)
+                    {
                         session->SendNotification("No transmogrification on %s slot", slotname);
+                    }
                 }
                 else if (slotname)
+                {
                     session->SendNotification("No item equipped in %s slot", slotname);
+                }
                 OnGossipSelect(player, creature, SENDER_REMOVE_MENU, 0);
             } break;
             case SENDER_REMOVE_MENU:
@@ -783,7 +799,9 @@ public:
                             if (!oM)
                                 continue;
                             if (!over && counter + oM->size() < selection.offset)
+                            {
                                 counter += oM->size();
+                            }
                             else
                             {
                                 over = true;
@@ -812,7 +830,9 @@ public:
                         const EntryVector* oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
                         if (oM)
                             if (!over && counter + oM->size() < selection.offset)
+                            {
                                 counter += oM->size();
+                            }
                             else
                             {
                                 over = true;
@@ -1054,7 +1074,9 @@ public:
                 displays.insert(itr->second.DisplayInfoID);
             }
             else
+            {
                 TC_LOG_INFO("server.loading", "Too many items for transmogrification: Class: %u SubClass: %u InventoryType: %u Quality: %u", itr->second.Class, itr->second.SubClass, getCorrectInvType(itr->second.InventoryType), itr->second.Quality);
+            }
         }
 
         // resize entry lists
