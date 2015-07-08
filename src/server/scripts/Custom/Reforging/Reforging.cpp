@@ -40,7 +40,7 @@ static const char* GetStatName(uint32 ItemStatType)
     }
 }
 
-static const char* GetSlotName(uint8 slot, /*WorldSession* session*/)
+static const char* GetSlotName(uint8 slot, WorldSession* /*session*/)
 {
     switch (slot)
     {
