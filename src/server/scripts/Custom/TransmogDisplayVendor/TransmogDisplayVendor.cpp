@@ -831,6 +831,7 @@ public:
                     {
                         const EntryVector* oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
                         if (oM)
+                        {
                             if (!over && counter + oM->size() < selection.offset)
                             {
                                 counter += oM->size();
@@ -840,6 +841,7 @@ public:
                                 over = true;
                                 L.insert(L.end(), oM->begin(), oM->end());
                             }
+                        }
                     }
 
                     // EntryVector oM = optionMap[(itemTemplate->Class != ITEM_CLASS_WEAPON ? MAX_ITEM_SUBCLASS_WEAPON : 0) + itemTemplate->SubClass][getCorrectInvType(itemTemplate->InventoryType)][selection.quality];
