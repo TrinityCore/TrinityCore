@@ -589,7 +589,7 @@ public:
         case RESTORE:
             // sender = item guidlow
             {
-                if (Item* invItem = player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, sender)))
+                if (player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, sender)))
                 {
                     if (!player->reforgeMap.empty() && player->reforgeMap.find(sender) != player->reforgeMap.end())
                         RemoveReforge(player, sender, true);
