@@ -613,7 +613,7 @@ public:
         for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; slot++)
         {
             // if (player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-            if (const char* slotName = TransmogDisplayVendorMgr::getSlotName(slot, player->GetSession()))
+            if (const char* slotName = TransmogDisplayVendorMgr::getSlotName(slot, session))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, slotName, SENDER_SELECT_VENDOR, slot);
         }
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Remove transmogrifications", SENDER_REMOVE_MENU, 0);
