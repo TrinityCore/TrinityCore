@@ -1647,6 +1647,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
 
+    auto absorb_ignoring_damage = CalculatePct(dmgInfo.GetDamage(), auraAbsorbMod);
+    dmgInfo.ModifyDamage(-absorb_ignoring_damage);
+    
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
     AuraEffectList vSchoolAbsorbCopy(victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
@@ -1678,9 +1681,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         if (defaultPrevented)
             continue;
-
-        // Apply absorb mod auras
-        AddPct(currentAbsorb, -auraAbsorbMod);
 
         // absorb must be smaller than the damage itself
         currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
@@ -1730,8 +1730,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (defaultPrevented)
             continue;
 
-        AddPct(currentAbsorb, -auraAbsorbMod);
-
         // absorb must be smaller than the damage itself
         currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
 
@@ -1760,6 +1758,8 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         }
     }
 
+    dmgInfo.ModifyDamage(absorb_ignoring_damage);
+    
     // split damage auras - only when not damaging self
     if (victim != this)
     {
@@ -10278,6 +10278,11 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 196, 0))
                     if (victim->GetDiseasesByCaster(owner->GetGUID()) > 0)
                         AddPct(DoneTotalMod, aurEff->GetAmount());
+
+            // Diseases should make 15% more damage with patch 3.2.0
+            if (spellProto->SpellFamilyFlags[1] & 0x6000000 && spellProto->SpellFamilyFlags[1] & 0x800)
+                AddPct(DoneTotalMod, 15);
+
             break;
     }
 
@@ -10532,6 +10537,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_PRIEST:
+                        // Renewed Hope should affect flash heal
+                        if (spellProto->SpellFamilyFlags[0] & 0x800 && spellProto->SpellIconID == 177)
+                            if (AuraEffect* aurEff = GetAuraEffectOfRankedSpell(57470, EFFECT_0))
+                                if (HasAura(6788))
+                                    crit_chance += aurEff->GetAmount();
+                    break;
                     case SPELLFAMILY_MAGE:
                         // Glyph of Fire Blast
                         if (spellProto->SpellFamilyFlags[0] == 0x2 && spellProto->SpellIconID == 12)
