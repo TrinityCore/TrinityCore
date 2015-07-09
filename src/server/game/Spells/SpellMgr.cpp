@@ -3345,6 +3345,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            case 57470: // Renewed Hope (Rank 1)
+            case 57472: // Renewed Hope (Rank 2)
+                // Renewed Hope (2 ranks) should also affect spell 2061, Flash Heal (all ranks)
+                spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
