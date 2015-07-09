@@ -521,9 +521,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountInfo->Id);
 
-    joinResponse->IPv4.emplace_back(realm->ExternalAddress, realm->Port);
-    if (realm->ExternalAddress != realm->LocalAddress)
-        joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->Port);
+    joinResponse->IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
 
     AsyncWrite(joinResponse);
 }
