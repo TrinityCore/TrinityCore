@@ -16393,7 +16393,7 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
 
     for (AuraEffect const* auraEffect : swaps)
     {
-        if ((!auraEffect->GetSpellEffectInfo()->SpellClassMask && auraEffect->GetMiscValue() == spellInfo->Id) ||
+        if ((!auraEffect->GetSpellEffectInfo()->SpellClassMask && uint32(auraEffect->GetMiscValue()) == spellInfo->Id) ||
             (auraEffect->GetSpellEffectInfo()->SpellClassMask && auraEffect->IsAffectingSpell(spellInfo)))
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
                     return newInfo;
