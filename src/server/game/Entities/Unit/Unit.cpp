@@ -16392,9 +16392,12 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
         swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
 
     for (AuraEffect const* auraEffect : swaps)
-        if (auraEffect->IsAffectingSpell(spellInfo))
-            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
-                return newInfo;
+    {
+        if ((!auraEffect->GetSpellEffectInfo()->SpellClassMask && auraEffect->GetMiscValue() == spellInfo->Id) ||
+            (auraEffect->GetSpellEffectInfo()->SpellClassMask && auraEffect->IsAffectingSpell(spellInfo)))
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
+                    return newInfo;
+    }
 
     return spellInfo;
 }
