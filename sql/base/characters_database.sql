@@ -1704,12 +1704,9 @@ DROP TABLE IF EXISTS `corpse_phases`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corpse_phases` (
-  `Guid` int(10) unsigned NOT NULL,
+  `OwnerGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `PhaseId` int(10) unsigned NOT NULL,
-  `OwnerGuid` int(10) unsigned NOT NULL,
-  `Time` int(10) unsigned NOT NULL DEFAULT '0',
-  `CorpseType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Guid`,`PhaseId`)
+  PRIMARY KEY (`OwnerGuid`,`PhaseId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3153,4 +3150,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-07-10 21:35:39
+-- Dump completed on 2015-07-10 22:27:47
