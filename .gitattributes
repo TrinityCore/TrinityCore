@@ -1,20 +1,31 @@
-# Lineendings
-*.sln        eol=crlf
-*.vcproj     eol=crlf
-*.vcxproj*   eol=crlf
+# Auto detect text files and perform LF normalization
+* text=auto
+
 
 # Whitespace rules
 # strict (no trailing, no tabs)
-*.cpp        whitespace=trailing-space,space-before-tab,tab-in-indent,cr-at-eol
-*.h          whitespace=trailing-space,space-before-tab,tab-in-indent,cr-at-eol
+*.cpp    whitespace=trailing-space,space-before-tab,tab-in-indent,cr-at-eol
+*.h      whitespace=trailing-space,space-before-tab,tab-in-indent,cr-at-eol
 
 # normal (no trailing)
-*.sql        whitespace=trailing-space,space-before-tab,cr-at-eol
-*.txt        whitespace=trailing-space,space-before-tab,cr-at-eol
+*.sql    whitespace=trailing-space,space-before-tab,cr-at-eol
+*.txt    whitespace=trailing-space,space-before-tab,cr-at-eol
 
 # special files which must ignore whitespace
-*.patch      whitespace=-trailing-space eol=lf
-*.diff       whitespace=-trailing-space eol=lf
+*.patch  whitespace=-trailing-space eol=lf
+*.diff   whitespace=-trailing-space eol=lf
+
+# Standard to msysgit
+*.doc    diff=astextplain
+*.DOC    diff=astextplain
+*.docx   diff=astextplain
+*.DOCX   diff=astextplain
+*.dot    diff=astextplain
+*.DOT    diff=astextplain
+*.pdf    diff=astextplain
+*.PDF    diff=astextplain
+*.rtf    diff=astextplain
+*.RTF    diff=astextplain
 
 # Ignore sql/* files
-sql/* linguist-documentation
+sql/*    linguist-documentation
