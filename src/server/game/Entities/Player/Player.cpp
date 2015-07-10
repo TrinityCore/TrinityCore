@@ -24293,20 +24293,16 @@ uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8
 
 void Player::InitGlyphsForLevel()
 {
-    uint32 slot = 0;
-    for (uint32 i = 0; i < sGlyphSlotStore.GetNumRows() && slot < MAX_GLYPH_SLOT_INDEX; ++i)
-        if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(i))
-            SetGlyphSlot(slot++, gs->ID);
-
-    uint8 level = getLevel();
     uint32 slotMask = 0;
+    uint8 slot = 0;
+    uint8 level = getLevel();
+    for (GlyphSlotEntry const* gs : sDB2Manager.GetGlyphSlots())
+    {
+        if (level >= ((gs->Tooltip + 1) * 25))
+            slotMask |= 1 << slot;
 
-    if (level >= 25)
-        slotMask |= 0x01 | 0x02 | 0x40;
-    if (level >= 50)
-        slotMask |= 0x04 | 0x08 | 0x80;
-    if (level >= 75)
-        slotMask |= 0x10 | 0x20 | 0x100;
+        SetGlyphSlot(slot++, gs->ID);
+    }
 
     SetUInt32Value(PLAYER_GLYPHS_ENABLED, slotMask);
 }
@@ -25419,7 +25415,6 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
-
 
     for (uint8 group = 0; group < GetTalentGroupsCount(); ++group)
     {

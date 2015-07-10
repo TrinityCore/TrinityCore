@@ -112,22 +112,22 @@ struct HotfixNotify
 
 typedef std::vector<HotfixNotify> HotfixData;
 
+#define DEFINE_DB2_SET_COMPARATOR(structure) \
+    struct structure ## Comparator : public std::binary_function<structure const*, structure const*, bool> \
+    { \
+        bool operator()(structure const* left, structure const* right) const; \
+    };
+
 class DB2Manager
 {
 public:
-    struct MountTypeXCapabilityComparator : public std::binary_function<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntry const*, bool>
-    {
-        bool operator()(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right) const
-        {
-            if (left->MountTypeID == right->MountTypeID)
-                return left->OrderIndex > right->OrderIndex;
-            return left->ID < right->ID;
-        }
-    };
+    DEFINE_DB2_SET_COMPARATOR(GlyphSlotEntry);
+    DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry);
 
     typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
     typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
     typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
+    typedef std::set<GlyphSlotEntry const*, GlyphSlotEntryComparator> GlyphSlotContainer;
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
@@ -136,7 +136,7 @@ public:
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
     typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
-    typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityComparator> MountTypeXCapabilitySet;
+    typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
@@ -162,6 +162,7 @@ public:
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender) const;
     uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId) const;
+    GlyphSlotContainer const& GetGlyphSlots() const { return _glyphSlots; }
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
     ItemBonusList GetItemBonusList(uint32 bonusListId) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
@@ -184,6 +185,7 @@ private:
     AreaGroupMemberContainer _areaGroupMembers;
     CharStartOutfitContainer _charStartOutfits;
     uint32 _powersByClass[MAX_CLASSES][MAX_POWERS];
+    GlyphSlotContainer _glyphSlots;
     HeirloomCurvesContainer _heirloomCurvePoints;
     ItemBonusListContainer _itemBonusLists;
     ItemBonusTreeContainer _itemBonusTrees;
