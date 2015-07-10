@@ -1,8 +1,8 @@
--- MySQL dump 10.16  Distrib 10.1.3-MariaDB, for Win64 (AMD64)
+-- MySQL dump 10.13  Distrib 5.6.21, for Win64 (x86_64)
 --
--- Host: localhost    Database: charactersdump
+-- Host: localhost    Database: char
 -- ------------------------------------------------------
--- Server version	10.1.3-MariaDB
+-- Server version	5.6.21-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -827,6 +827,31 @@ LOCK TABLES `character_garrison_buildings` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_garrison_follower_abilities`
+--
+
+DROP TABLE IF EXISTS `character_garrison_follower_abilities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_garrison_follower_abilities` (
+  `dbId` bigint(20) unsigned NOT NULL,
+  `abilityId` int(10) unsigned NOT NULL,
+  `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`dbId`,`abilityId`,`slot`),
+  CONSTRAINT `fk_foll_dbid` FOREIGN KEY (`dbId`) REFERENCES `character_garrison_followers` (`dbId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_garrison_follower_abilities`
+--
+
+LOCK TABLES `character_garrison_follower_abilities` WRITE;
+/*!40000 ALTER TABLE `character_garrison_follower_abilities` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_garrison_follower_abilities` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_garrison_followers`
 --
 
@@ -859,32 +884,6 @@ LOCK TABLES `character_garrison_followers` WRITE;
 /*!40000 ALTER TABLE `character_garrison_followers` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_garrison_followers` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `character_garrison_follower_abilities`
---
-
-DROP TABLE IF EXISTS `character_garrison_follower_abilities`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `character_garrison_follower_abilities` (
-  `dbId` bigint(20) unsigned NOT NULL,
-  `abilityId` int(10) unsigned NOT NULL,
-  `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`dbId`,`abilityId`,`slot`),
-  CONSTRAINT `fk_foll_dbid` FOREIGN KEY (`dbId`) REFERENCES `character_garrison_followers` (`dbId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `character_garrison_follower_abilities`
---
-
-LOCK TABLES `character_garrison_follower_abilities` WRITE;
-/*!40000 ALTER TABLE `character_garrison_follower_abilities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_garrison_follower_abilities` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 --
 -- Table structure for table `character_gifts`
@@ -1705,9 +1704,12 @@ DROP TABLE IF EXISTS `corpse_phases`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corpse_phases` (
-  `OwnerGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Guid` int(10) unsigned NOT NULL,
   `PhaseId` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`OwnerGuid`,`PhaseId`)
+  `OwnerGuid` int(10) unsigned NOT NULL,
+  `Time` int(10) unsigned NOT NULL DEFAULT '0',
+  `CorpseType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Guid`,`PhaseId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1915,31 +1917,6 @@ LOCK TABLES `gm_complaint_chatlog` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gm_subsurvey`
---
-
-DROP TABLE IF EXISTS `gm_subsurvey`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gm_subsurvey` (
-  `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `questionId` int(10) unsigned NOT NULL DEFAULT '0',
-  `answer` int(10) unsigned NOT NULL DEFAULT '0',
-  `answerComment` text NOT NULL,
-  PRIMARY KEY (`surveyId`,`questionId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gm_subsurvey`
---
-
-LOCK TABLES `gm_subsurvey` WRITE;
-/*!40000 ALTER TABLE `gm_subsurvey` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gm_subsurvey` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `gm_suggestion`
 --
 
@@ -1970,70 +1947,6 @@ CREATE TABLE `gm_suggestion` (
 LOCK TABLES `gm_suggestion` WRITE;
 /*!40000 ALTER TABLE `gm_suggestion` DISABLE KEYS */;
 /*!40000 ALTER TABLE `gm_suggestion` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `gm_survey`
---
-
-DROP TABLE IF EXISTS `gm_survey`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gm_survey` (
-  `surveyId` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `mainSurvey` int(10) unsigned NOT NULL DEFAULT '0',
-  `comment` longtext NOT NULL,
-  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`surveyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gm_survey`
---
-
-LOCK TABLES `gm_survey` WRITE;
-/*!40000 ALTER TABLE `gm_survey` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gm_survey` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `gm_ticket`
---
-
-DROP TABLE IF EXISTS `gm_ticket`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gm_ticket` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `playerGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
-  `description` text NOT NULL,
-  `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `posX` float NOT NULL DEFAULT '0',
-  `posY` float NOT NULL DEFAULT '0',
-  `posZ` float NOT NULL DEFAULT '0',
-  `lastModifiedTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `closedBy` bigint(20) NOT NULL DEFAULT '0',
-  `assignedTo` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `comment` text NOT NULL,
-  `response` text NOT NULL,
-  `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `needMoreHelp` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gm_ticket`
---
-
-LOCK TABLES `gm_ticket` WRITE;
-/*!40000 ALTER TABLE `gm_ticket` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gm_ticket` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3155,7 +3068,7 @@ CREATE TABLE `updates` (
 
 LOCK TABLES `updates` WRITE;
 /*!40000 ALTER TABLE `updates` DISABLE KEYS */;
-INSERT INTO `updates` VALUES ('2014_10_20_00_characters.sql','A5882DA0979CF4DAE33DA011EBAA006C24BE7230','ARCHIVED','2015-03-21 16:55:55',0),('2014_10_23_00_characters.sql','E2AC4758133EE19B7F08464A445802154D1261C8','ARCHIVED','2015-03-21 16:55:55',0),('2014_10_23_01_characters.sql','20029E6323D9773B32C34D84FFED1711CC60F09F','ARCHIVED','2015-03-21 16:55:55',0),('2014_10_23_02_characters.sql','8A7A16886EE71E7ACDDB3DDA6D0ECAC2FD2FDCA8','ARCHIVED','2015-03-21 16:55:55',0),('2014_10_24_00_characters.sql','D008FE81AE844FCA686439D6ECC5108FB0DD1EB9','ARCHIVED','2015-03-21 16:55:55',0),('2014_10_25_00_characters.sql','A39C7BE46686B54776BDAB9D7A882D91EDEC51A4','ARCHIVED','2015-03-21 16:55:55',0),('2014_10_26_00_characters.sql','C787954CC35FE34B4101FDE6527F14C027F4947C','ARCHIVED','2015-03-21 16:55:55',0),('2014_11_12_00_characters.sql','B160BB2313F1BD5F3B076A5A9279DC10D4796E34','ARCHIVED','2015-03-21 16:55:55',0),('2014_12_23_00_characters.sql','3D9D648B2387B357F4BD090B33F80682F7924882','ARCHIVED','2015-03-21 16:55:55',0),('2014_12_28_00_characters.sql','5362922FF4483A336311D73082A5727309CD9219','ARCHIVED','2015-03-21 16:55:55',0),('2014_12_31_00_characters.sql','498DDF2DD936CF156D74A8208DC93DCE9FCAB5AA','ARCHIVED','2015-03-21 16:55:55',0),('2015_01_02_00_characters.sql','E5940BE836F253982E07930120422E598D08BDE1','ARCHIVED','2015-03-21 16:55:55',0),('2015_01_10_00_characters.sql','30796056C8623699B2FE1BF626A19D38262E9284','ARCHIVED','2015-03-21 16:55:55',0),('2015_01_16_00_characters.sql','96642760A54C8D799AAFE438049A63AA521656F2','ARCHIVED','2015-03-21 16:55:55',0),('2015_01_27_00_characters.sql','EB710E3EB9F2CAFD84AB62CDC84E898403A80A4F','ARCHIVED','2015-03-21 16:55:55',0),('2015_02_13_00_characters.sql','405BEB4ED207DC6076442A37EE2AFB1F21E274A0','ARCHIVED','2015-03-21 16:55:55',0),('2015_02_13_01_characters.sql','35F582D4F33BF55D1685A1BA89273ED895FD09C5','ARCHIVED','2015-03-21 16:55:55',0),('2015_02_17_00_characters.sql','8D21FC5A55BF8B55D6DCDCE5F02CF2B640230E94','ARCHIVED','2015-03-21 16:55:55',0),('2015_03_10_00_characters.sql','E565B89B145C340067742DFF2DEF1B74F5F1BD4E','ARCHIVED','2015-03-21 16:55:55',0),('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 16:55:55',0),('2015_03_20_01_characters.sql','20BD68468C57FCF7E665B4DA185DCD52FACE8B3F','ARCHIVED','2015-03-21 16:55:55',0),('2015_03_20_02_characters.sql','0296995DCD3676BA9AE6024CA7C91C5F39D927A3','ARCHIVED','2015-03-21 16:56:46',0),('2015_03_29_00_characters.sql','95D6A46BB746A8BD3EE3FE2086DF1A07F7C33B92','RELEASED','2015-05-02 17:43:06',101),('2015_04_21_00_characters.sql','F2032B9BF4EDA7EDE5065554724ED392FD91657D','RELEASED','2015-05-02 17:43:06',60),('2015_04_28_00_characters.sql','949F62DB3A3461D420A1230ECF7A6A3ED6435703','RELEASED','2015-05-02 17:43:06',118);
+INSERT INTO `updates` VALUES ('2014_10_20_00_characters.sql','A5882DA0979CF4DAE33DA011EBAA006C24BE7230','ARCHIVED','2015-03-21 15:55:55',0),('2014_10_23_00_characters.sql','E2AC4758133EE19B7F08464A445802154D1261C8','ARCHIVED','2015-03-21 15:55:55',0),('2014_10_23_01_characters.sql','20029E6323D9773B32C34D84FFED1711CC60F09F','ARCHIVED','2015-03-21 15:55:55',0),('2014_10_23_02_characters.sql','8A7A16886EE71E7ACDDB3DDA6D0ECAC2FD2FDCA8','ARCHIVED','2015-03-21 15:55:55',0),('2014_10_24_00_characters.sql','D008FE81AE844FCA686439D6ECC5108FB0DD1EB9','ARCHIVED','2015-03-21 15:55:55',0),('2014_10_25_00_characters.sql','A39C7BE46686B54776BDAB9D7A882D91EDEC51A4','ARCHIVED','2015-03-21 15:55:55',0),('2014_10_26_00_characters.sql','C787954CC35FE34B4101FDE6527F14C027F4947C','ARCHIVED','2015-03-21 15:55:55',0),('2014_11_12_00_characters.sql','B160BB2313F1BD5F3B076A5A9279DC10D4796E34','ARCHIVED','2015-03-21 15:55:55',0),('2014_12_23_00_characters.sql','3D9D648B2387B357F4BD090B33F80682F7924882','ARCHIVED','2015-03-21 15:55:55',0),('2014_12_28_00_characters.sql','5362922FF4483A336311D73082A5727309CD9219','ARCHIVED','2015-03-21 15:55:55',0),('2014_12_31_00_characters.sql','498DDF2DD936CF156D74A8208DC93DCE9FCAB5AA','ARCHIVED','2015-03-21 15:55:55',0),('2015_01_02_00_characters.sql','E5940BE836F253982E07930120422E598D08BDE1','ARCHIVED','2015-03-21 15:55:55',0),('2015_01_10_00_characters.sql','30796056C8623699B2FE1BF626A19D38262E9284','ARCHIVED','2015-03-21 15:55:55',0),('2015_01_16_00_characters.sql','96642760A54C8D799AAFE438049A63AA521656F2','ARCHIVED','2015-03-21 15:55:55',0),('2015_01_27_00_characters.sql','EB710E3EB9F2CAFD84AB62CDC84E898403A80A4F','ARCHIVED','2015-03-21 15:55:55',0),('2015_02_13_00_characters.sql','405BEB4ED207DC6076442A37EE2AFB1F21E274A0','ARCHIVED','2015-03-21 15:55:55',0),('2015_02_13_01_characters.sql','35F582D4F33BF55D1685A1BA89273ED895FD09C5','ARCHIVED','2015-03-21 15:55:55',0),('2015_02_17_00_characters.sql','8D21FC5A55BF8B55D6DCDCE5F02CF2B640230E94','ARCHIVED','2015-03-21 15:55:55',0),('2015_03_10_00_characters.sql','E565B89B145C340067742DFF2DEF1B74F5F1BD4E','ARCHIVED','2015-03-21 15:55:55',0),('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 15:55:55',0),('2015_03_20_01_characters.sql','20BD68468C57FCF7E665B4DA185DCD52FACE8B3F','ARCHIVED','2015-03-21 15:55:55',0),('2015_03_20_02_characters.sql','0296995DCD3676BA9AE6024CA7C91C5F39D927A3','ARCHIVED','2015-03-21 15:56:46',0),('2015_03_29_00_characters.sql','95D6A46BB746A8BD3EE3FE2086DF1A07F7C33B92','RELEASED','2015-05-02 15:43:06',101),('2015_04_21_00_characters.sql','F2032B9BF4EDA7EDE5065554724ED392FD91657D','RELEASED','2015-05-02 15:43:06',60),('2015_04_28_00_characters.sql','949F62DB3A3461D420A1230ECF7A6A3ED6435703','RELEASED','2015-05-02 15:43:06',118),('2015_05_08_00_characters.sql','0F14B7821618D1C872625B6EDDAA9A667B211167','RELEASED','2015-07-10 19:32:17',161),('2015_05_22_00_characters.sql','65B82152413FAB23BE413656E59A486A74447FF7','RELEASED','2015-07-10 19:32:17',100),('2015_07_08_00_characters.sql','DAB25360ACB5244C8F8E6214CF6BD97160588A5B','RELEASED','2015-07-10 19:32:17',19);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3240,4 +3153,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-05-02 19:43:49
+-- Dump completed on 2015-07-10 21:35:39
