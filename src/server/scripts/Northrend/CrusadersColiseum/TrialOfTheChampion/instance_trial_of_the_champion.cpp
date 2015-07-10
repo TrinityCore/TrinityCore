@@ -46,11 +46,7 @@ public:
         {
             SetHeaders(DataHeader);
             m_playersTeam = 0;
-            uiMovementDone = 0;
-            uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
-
-            bDone = false;
 
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
@@ -58,8 +54,6 @@ public:
         uint32 m_playersTeam;
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint16 uiMovementDone;
-        uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
         ObjectGuid uiAnnouncerGUID;
@@ -82,8 +76,6 @@ public:
 
         std::string str_data;
 
-        bool bDone;
-
         bool IsEncounterInProgress() const override
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -97,7 +89,6 @@ public:
 
         void OnCreatureCreate(Creature* creature) override
         {
-            // OnCreatureCreate is called before OnPlayerEnter
             Map::PlayerList const &players = instance->GetPlayers();
             if (!players.isEmpty())
             {
@@ -129,14 +120,14 @@ public:
                     if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         creature->UpdateEntry(NPC_ARELAS);
                     break;
-                case VEHICLE_ARGENT_WARHORSE_H:
+                case VEHICLE_ARGENT_WARHORSE_COSMETIC:
                     if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         creature->UpdateEntry(VEHICLE_ARGENT_WARHORSE_A);
                     VehicleList.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_ARGENT_BATTLEWORG_H:
                     if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
-                        creature->UpdateEntry(VEHICLE_ARGENT_BATTLEWORG_A);
+                        creature->UpdateEntry(VEHICLE_ARGENT_BATTLEWORG_COSMETIC);
                     VehicleList.push_back(creature->GetGUID());
                     break;
                 case NPC_EADRIC:
@@ -239,15 +230,11 @@ public:
                         }
                     }else if (uiData == DONE)
                     {
-                        ++uiGrandChampionsDeaths;
-                        if (uiGrandChampionsDeaths == 3)
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
-                            if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
-                            {
-                                pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                                pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
-                            }
+                            pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
+                            pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000);
                         }
                     }
                     break;
@@ -353,9 +340,7 @@ public:
             saveStream << "T C " << m_auiEncounter[0]
                 << ' ' << m_auiEncounter[1]
                 << ' ' << m_auiEncounter[2]
-                << ' ' << m_auiEncounter[3]
-                << ' ' << uiGrandChampionsDeaths
-                << ' ' << uiMovementDone;
+                << ' ' << m_auiEncounter[3];
 
             str_data = saveStream.str();
 
@@ -389,9 +374,6 @@ public:
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
                         m_auiEncounter[i] = NOT_STARTED;
-
-                uiGrandChampionsDeaths = data4;
-                uiMovementDone = data5;
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;

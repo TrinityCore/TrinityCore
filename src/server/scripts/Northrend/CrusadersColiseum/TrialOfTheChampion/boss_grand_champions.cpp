@@ -36,55 +36,39 @@ enum Spells
     SPELL_CHARGE_GRAND_CHAMP            = 68321,
     SPELL_CHARGE_LESSER_CHAMP           = 63010,
     SPELL_SHIELD_BREAKER                = 68504,
-    SPELL_SHIELD_GRAND_CHAMP            = 62719, // 64101 is from sniffs but acts as visual shield only
+    SPELL_SHIELD_GRAND_CHAMP            = 62719,
     SPELL_SHIELD_LESSER_CHAMP           = 64100,
-    SPELL_TRAMPLE_DUMMY_AURA            = 67870, // triggers trample aura every 1 second, used by Grand Champions and players' vehicles
+    SPELL_TRAMPLE_DUMMY_AURA            = 67870, // triggers trample aura every 1 second, used by all vehicles
     SPELL_TRAMPLE_AURA                  = 67868, // actual trample stun
 
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
     SPELL_MORTAL_STRIKE                 = 68783,
-    SPELL_MORTAL_STRIKE_H               = 68784,
-    SPELL_BLADESTORM                    = 63784,
+    SPELL_BLADESTORM                    = 67541,
     SPELL_INTERCEPT                     = 67540,
-    SPELL_ROLLING_THROW                 = 47115, //not implemented in the AI yet...
+    SPELL_ROLLING_THROW                 = 67546,
 
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
     SPELL_FIREBALL                      = 66042,
-    SPELL_FIREBALL_H                    = 68310,
     SPELL_BLAST_WAVE                    = 66044,
-    SPELL_BLAST_WAVE_H                  = 68312,
     SPELL_HASTE                         = 66045,
     SPELL_POLYMORPH                     = 66043,
-    SPELL_POLYMORPH_H                   = 68311,
 
     // Colosos && Runok Wildmane || Shaman
     SPELL_CHAIN_LIGHTNING               = 67529,
-    SPELL_CHAIN_LIGHTNING_H             = 68319,
     SPELL_EARTH_SHIELD                  = 67530,
     SPELL_HEALING_WAVE                  = 67528,
-    SPELL_HEALING_WAVE_H                = 68318,
     SPELL_HEX_OF_MENDING                = 67534,
 
     // Jaelyne Evensong && Zul'tore || Hunter
-    SPELL_DISENGAGE                     = 68340, //not implemented in the AI yet...
+    SPELL_DISENGAGE                     = 68340,
     SPELL_LIGHTNING_ARROWS              = 66083,
     SPELL_MULTI_SHOT                    = 66081,
-    SPELL_SHOOT                         = 65868,
-    SPELL_SHOOT_H                       = 67988,
+    SPELL_SHOOT                         = 66079,
 
     // Lana Stouthammer && Deathstalker Visceri || Rouge
     SPELL_EVISCERATE                    = 67709,
-    SPELL_EVISCERATE_H                  = 68317,
     SPELL_FAN_OF_KNIVES                 = 67706,
     SPELL_POISON_BOTTLE                 = 67701
-};
-
-enum WaypointData
-{
-    DATA_GENERATE_WAYPOINTS_FOR_BOSS_1  = 1,
-    DATA_GENERATE_WAYPOINTS_FOR_BOSS_2,  
-    DATA_GENERATE_WAYPOINTS_FOR_BOSS_3,
-    DATA_GENERATE_WAYPOINTS_FOR_ADDS
 };
 
 enum Texts
@@ -96,8 +80,6 @@ enum Seats
 {
     SEAT_ID_0                           = 0
 };
-
-Position const vehicleExitPos = { 759.680f, 665.237f, 412.392f };
 
 void EnterAggressiveMode(Creature* temp)
 {
@@ -146,9 +128,27 @@ void DoCastPennant(Creature* me)
         me->CastSpell(me->GetVehicleBase(), SPELL_TRAMPLE_DUMMY_AURA, true);
 }
 
-Creature* FindMyMount(Creature* me)
+Creature* FindMyMount(Creature* me, bool newMount = false)
 {
     InstanceScript* instance = me->GetInstanceScript();
+    if (newMount)
+    {
+        // Summoning a new vehicle if all others are used
+        // can but should not occur
+        uint32 tmpEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
+        if (Creature* newMount = me->SummonCreature(tmpEntry, bossExitPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+        {
+            if (instance->GetGuidData(DATA_GRAND_CHAMPION_1) == me->GetGUID())
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, newMount->GetGUID());
+            else if (instance->GetGuidData(DATA_GRAND_CHAMPION_2) == me->GetGUID())
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, newMount->GetGUID());
+            else if (instance->GetGuidData(DATA_GRAND_CHAMPION_3) == me->GetGUID())
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, newMount->GetGUID());
+            newMount->SetOrientation(centerOrientation);
+            newMount->SetHomePosition(me->GetHomePosition());
+            return newMount;
+        }
+    }
     if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
         return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1));
     else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -156,7 +156,6 @@ Creature* FindMyMount(Creature* me)
     else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
         return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3));
 
-    // returns 0 if we don't have a match
     // should not happen
     return NULL;
 }
@@ -182,17 +181,6 @@ void SetGrandChampionToEvadeMode(Creature* me)
     EnterAggressiveMode(me);
 }
 
-bool IsGrandChampion(Creature* me)
-{
-    InstanceScript* instance = me->GetInstanceScript();
-    if (instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1) == me->GetGUID() ||
-        instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2) == me->GetGUID() ||
-        instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3) == me->GetGUID())
-        return true;
-
-    return false;
-}
-
 /*
 * Generic AI for Grand Champions in ToC.                    *
 * Script Complete: 100%                                     *
@@ -204,6 +192,8 @@ struct toc_bossAI : ScriptedAI
     {
         instance = creature->GetInstanceScript();
         LookingForMount = false;
+        MountedPhaseDone = false;
+        IsChampionDown = false;
         bDone = false;
         bHome = false;
 
@@ -215,13 +205,15 @@ struct toc_bossAI : ScriptedAI
     uint8 uiPhase;
     uint32 uiPhaseTimer;
 
-    bool LookingForMount;
-    bool bDone;
-    bool bHome;
+    bool LookingForMount; // if is in looking for mount phase
+    bool MountedPhaseDone; // if jousting phase is done
+    bool IsChampionDown; // if champion is defeated
+    bool bDone; // if all champions have been downed
+    bool bHome; // if champion has reached home after jousing phase
 
     void Reset()
     {
-        if (bDone)
+        if (MountedPhaseDone)
             DoCastPennant(me);
     }
     
@@ -235,6 +227,21 @@ struct toc_bossAI : ScriptedAI
             if (!pGrandChampion1->GetVehicleBase() &&
                 !pGrandChampion2->GetVehicleBase() &&
                 !pGrandChampion3->GetVehicleBase())
+                return true;
+        }
+        return false;
+    }
+
+    bool GrandChampionsDefeated()
+    {
+        Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1));
+        Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_2));
+        Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_3));
+        if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
+        {
+            if (pGrandChampion1->getStandState() == UNIT_STAND_STATE_KNEEL &&
+                pGrandChampion2->getStandState() == UNIT_STAND_STATE_KNEEL &&
+                pGrandChampion3->getStandState() == UNIT_STAND_STATE_KNEEL)
                 return true;
         }
         return false;
@@ -285,12 +292,12 @@ struct toc_bossAI : ScriptedAI
 
     bool CanUseNormalAI()
     {
-        return !UpdateVictim() || me->GetVehicleBase() || LookingForMount;
+        return !UpdateVictim() || me->GetVehicleBase() || LookingForMount || !MountedPhaseDone;
     }
 
     void EnterEvadeMode()
     {
-        if (LookingForMount && !bDone)
+        if (LookingForMount || !MountedPhaseDone)
             return;
 
         ScriptedAI::EnterEvadeMode();
@@ -302,22 +309,27 @@ struct toc_bossAI : ScriptedAI
 
         if (bHome)
         {
+            // Champions will be unattackable for 15 seconds when reached their homepositions for first time after jousting event
+            // After that time, they will start attacking a random player
+            // if group wipes during actual fight, grand champions will be attackable immediately when reached home position
             uiPhase = 4;
             uiPhaseTimer = 15000;
             bHome = false;
         }
-        else if (bDone && !bHome)
+        else if (bDone)
+            me->DisappearAndDie();
+        else if (MountedPhaseDone && !bHome)
             EnterAggressiveMode(me);
     }
 
     void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
     {
-        if (spell->Id == SPELL_TRAMPLE_AURA && LookingForMount && uiPhase == 0)
+        if (spell->Id == SPELL_TRAMPLE_AURA && LookingForMount && uiPhase == 0 && !me->IsImmunedToSpell(spell))
         {
+            uiPhase = 3;
             me->GetMotionMaster()->MovementExpired();
             me->GetMotionMaster()->MoveIdle();
             Talk(EMOTE_TRAMPLE, me);
-            uiPhase = 3;
             uiPhaseTimer = spell->GetDuration();
         }
     }
@@ -336,13 +348,18 @@ struct toc_bossAI : ScriptedAI
                     return;
 
                 LookingForMount = false;
+                uiPhase = 2;
                 me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, true); // Champion should be immune to trample here
-                mount->SetOrientation(4.714f); // looking towards arena
                 me->GetMotionMaster()->Clear();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // to prevent boss from bugging out
                 me->SetHealth(me->GetMaxHealth());
                 me->setRegeneratingHealth(true);
-                mount->SetVisible(true);
+                me->SetWalk(false);
+                mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                // sometimes a player can trample champion right when he is about to enter in vehicle
+                // it will bug the boss and you can kill him without the need to kill others as well
+                // so we remove the stun aura just incase
+                me->RemoveAura(SPELL_TRAMPLE_AURA); 
                 me->EnterVehicle(mount, SEAT_ID_0);
 
                 // In rare scenario all players can die meanwhile one of the champions is going for new mount, and then the champion ends in a bugged state
@@ -362,10 +379,7 @@ struct toc_bossAI : ScriptedAI
                     }
                 }
                 if (foundPlr)
-                {
-                    uiPhase = 2;
                     uiPhaseTimer = 2000; // slight delay before attacking
-                }
                 else
                     SetGrandChampionToEvadeMode(me);
             }
@@ -377,6 +391,8 @@ struct toc_bossAI : ScriptedAI
         if (damage >= me->GetHealth() && me->GetVehicleBase())
         {
             damage = 0;
+            LookingForMount = true;
+            uiPhase = 1;
             me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, true); // Champion should be immune to trample here
             me->ExitVehicle();
             me->RemoveAllAuras();
@@ -386,16 +402,76 @@ struct toc_bossAI : ScriptedAI
             me->CombatStop(true);
             me->setRegeneratingHealth(false); // we don't regen health yet
             me->GetMotionMaster()->MoveIdle();
-            // Vehicle starts running to the edge of arena
+            me->SetWalk(true);
+            // Champion's current vehicle runs to the gates and despawns
+            // Champion will search for new mount
             if (Creature* mount = FindMyMount(me))
             {
-                mount->SetReactState(REACT_PASSIVE);
                 mount->GetMotionMaster()->Clear();
                 mount->SetWalk(false);
-                mount->GetMotionMaster()->MovePoint(1, vehicleExitPos);
+                mount->SetReactState(REACT_PASSIVE);
+                mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                
+                uint32 newMountEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
+                Creature* newMount = NULL;
+                uint32 dist = 0;
+                std::list<Creature*> tempList;
+                float x, y;
+                me->GetPosition(x, y);
+
+                CellCoord pair(Trinity::ComputeCellCoord(x, y));
+                Cell cell(pair);
+                cell.SetNoCreate();
+
+                Trinity::AllCreaturesOfEntryInRange check(me, newMountEntry, 100);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, tempList, check);
+                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
+                cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
+                for (std::list<Creature*>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
+                {
+                    if (Creature* tmpMount = (*itr))
+                    {
+                        if (instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1) == tmpMount->GetGUID() ||
+                            instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2) == tmpMount->GetGUID() ||
+                            instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3) == tmpMount->GetGUID())
+                            continue;
+
+                        if (!tmpMount->IsAlive())
+                            continue;
+
+                        if (dist == 0)
+                        {
+                            dist = me->GetDistance(tmpMount);
+                            newMount = tmpMount;
+                        }
+
+                        if (me->GetDistance(tmpMount) < dist)
+                        {
+                            dist = me->GetDistance(tmpMount);
+                            newMount = tmpMount;
+                        }
+                    }
+                }
+                if (newMount)
+                {
+                    if (instance->GetGuidData(DATA_GRAND_CHAMPION_1) == me->GetGUID())
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, newMount->GetGUID());
+                    else if (instance->GetGuidData(DATA_GRAND_CHAMPION_2) == me->GetGUID())
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, newMount->GetGUID());
+                    else if (instance->GetGuidData(DATA_GRAND_CHAMPION_3) == me->GetGUID())
+                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, newMount->GetGUID());
+                    newMount->SetHomePosition(mount->GetHomePosition());
+                }
+                else
+                {
+                    // Summoning a new mount for Grand Champion if every other mount have been used
+                    if (FindMyMount(me, true)) { }
+                }
+
+                // Defeated mount runs towards the center of arena and disappears
+                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                    mount->GetMotionMaster()->MovePoint(1, announcer->GetHomePosition());
             }
-            LookingForMount = true;
-            uiPhase = 1;
             uiPhaseTimer = 3000; // slight delay before we run for new mount
             return;
         }
@@ -404,6 +480,30 @@ struct toc_bossAI : ScriptedAI
             damage = 0;
             return;
         }
+        else if (damage >= me->GetHealth() && instance->GetData(BOSS_GRAND_CHAMPIONS) == IN_PROGRESS)
+        {
+            damage = 0;
+            if (!IsChampionDown)
+            {
+                TC_LOG_INFO("server.worldserver", "DEBUG: Grand Champion %u is down", me->GetEntry());
+                IsChampionDown = true;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
+                me->SetHealth(1);
+                me->CombatStop(true);
+                me->setRegeneratingHealth(false);
+                me->GetMotionMaster()->MoveIdle();
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
+            }
+            return;
+        }
+    }
+
+    void AttackStart(Unit* who)
+    {
+        if (LookingForMount || uiPhase != 0)
+            return;
+        ScriptedAI::AttackStart(who);
     }
 
     void UpdateAI(uint32 uiDiff)
@@ -418,7 +518,8 @@ struct toc_bossAI : ScriptedAI
                         break;
                     me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(0, vehicleExitPos);
+                    if (Creature* mount = FindMyMount(me))
+                        me->GetMotionMaster()->MovePoint(0, mount->GetPosition());
                     break;
                 case 2:
                 {
@@ -426,12 +527,13 @@ struct toc_bossAI : ScriptedAI
                     if (Creature* mount = FindMyMount(me))
                     {
                         me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         DoCastPennant(me);
                         EnterAggressiveMode(me);
                         EnterAggressiveMode(mount);
                         bool foundPlr = false;
                         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                        if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                        if (!players.isEmpty())
                         {
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
@@ -455,7 +557,8 @@ struct toc_bossAI : ScriptedAI
                 case 3:
                     // Got trampled and continuing walking
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(0, vehicleExitPos);
+                    if (Creature* mount = FindMyMount(me))
+                        me->GetMotionMaster()->MovePoint(0, mount->GetPosition());
                     break;
                 case 4:
                     // Searches an enemy to attack
@@ -466,6 +569,11 @@ struct toc_bossAI : ScriptedAI
                     bHome = true;
                     EnterEvadeMode();
                     break;
+                case 6:
+                    // Returning home
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    break;
                 default:
                     break;
             }
@@ -473,9 +581,10 @@ struct toc_bossAI : ScriptedAI
         }
         else uiPhaseTimer -= uiDiff;
 
-        if (!bDone && GrandChampionsOutVehicle())
+        if (!MountedPhaseDone && GrandChampionsOutVehicle())
         {
-            bDone = true;
+            // Champions have been defeated in jousting event
+            MountedPhaseDone = true;
             if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
                 me->SetHomePosition(739.678f, 660.975f, 412.393f, 4.49f);
             else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_2))
@@ -496,12 +605,24 @@ struct toc_bossAI : ScriptedAI
             uiPhase = 5;
             uiPhaseTimer = 2000; // minor delay before entering to evade mode to correct movement
         }
+
+        if (!bDone && GrandChampionsDefeated())
+        {
+            // Grand Champions encounter is now over
+            TC_LOG_INFO("server.worldserver", "DEBUG: Grand Champion encounter down");
+            bDone = true;
+            me->SetHomePosition(bossExitPos);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetWalk(true);
+            uiPhase = 6;
+            uiPhaseTimer = 1000; // very short delay before giving loot chest
+        }
     }
 };
 
 /*
 * Generic AI for vehicles used by npcs in ToC.              *
-* Code requires cleanup and vehicle system some improvement *
+* Code requires cleanup and vehicles some improvement       *
 * Script Complete: 95%.                                     *
 */
 
@@ -543,6 +664,31 @@ public:
         void Reset() override
         {
             Initialize();
+        }
+
+        bool IsGrandChampionVehicle()
+        {
+            if (instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1) == me->GetGUID() ||
+                instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2) == me->GetGUID() ||
+                instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3) == me->GetGUID())
+                return true;
+            return false;
+        }
+
+        bool IsLesserChampion()
+        {
+            if (me->GetEntry() == VEHICLE_DARNASSUS_CHAMPION ||
+                me->GetEntry() == VEHICLE_EXODAR_CHAMPION ||
+                me->GetEntry() == VEHICLE_STORMWIND_CHAMPION ||
+                me->GetEntry() == VEHICLE_GNOMEREGAN_CHAMPION ||
+                me->GetEntry() == VEHICLE_IRONFORGE_CHAMPION ||
+                me->GetEntry() == VEHICLE_UNDERCITY_CHAMPION ||
+                me->GetEntry() == VEHICLE_THUNDER_BLUFF_CHAMPION ||
+                me->GetEntry() == VEHICLE_ORGRIMMAR_CHAMPION ||
+                me->GetEntry() == VEHICLE_SILVERMOON_CHAMPION ||
+                me->GetEntry() == VEHICLE_SENJIN_CHAMPION)
+                return true;
+            return false;
         }
 
         void SetData(uint32 uiType, uint32 uiData) override
@@ -607,6 +753,15 @@ public:
                 Start(false, true); // Grand Champions run to their positions
         }
 
+        void EnterEvadeMode() override
+        {
+            // Evade is handled in its own custom function for vehicles
+            if (IsGrandChampionVehicle() || me->GetEntry() == VEHICLE_ARGENT_BATTLEWORG_COSMETIC || me->GetEntry() == VEHICLE_ARGENT_WARHORSE_COSMETIC)
+                return;
+
+            npc_escortAI::EnterEvadeMode();
+        }
+
         void WaypointReached(uint32 waypointId) override 
         {
             uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
@@ -621,6 +776,8 @@ public:
                     else
                         me->SetFacingTo(allianceOrientation);
                     me->SetHomePosition(me->GetPosition());
+                    if (me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(SEAT_ID_0) && me->GetVehicleKit()->GetPassenger(SEAT_ID_0)->ToCreature())
+                        me->GetVehicleKit()->GetPassenger(SEAT_ID_0)->ToCreature()->SetHomePosition(me->GetPosition());
                     herald->AI()->SetData(DATA_LESSER_CHAMPIONS_PREPARE, uiWaypointPath);
                 }
             }
@@ -645,47 +802,36 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            // Grand Champions' mount will turn invisible when it has ran towards the edge of arena
-            if (uiPointId == 1 && IsGrandChampion(me) && me->GetVehicleKit() && !me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
-                me->SetVisible(false);
+            // Grand Champions' mount will despawn when it has run to the gates
+            if (uiPointId == 1 && me->GetVehicleKit() && !me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
+                me->DisappearAndDie();
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            switch (me->GetEntry())
+            if (IsLesserChampion())
             {
-                case VEHICLE_DARNASSUS_CHAMPION:
-                case VEHICLE_EXODAR_CHAMPION:
-                case VEHICLE_STORMWIND_CHAMPION:
-                case VEHICLE_GNOMEREGAN_CHAMPION:
-                case VEHICLE_IRONFORGE_CHAMPION:
-                case VEHICLE_UNDERCITY_CHAMPION:
-                case VEHICLE_THUNDER_BLUFF_CHAMPION:
-                case VEHICLE_ORGRIMMAR_CHAMPION:
-                case VEHICLE_SILVERMOON_CHAMPION:
-                case VEHICLE_SENJIN_CHAMPION:
-                    me->Dismount();
-                    if (Creature* herald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
-                        herald->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
-                    break;
+                me->Dismount();
+                if (Creature* herald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                    herald->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
             }
         }
 
         void DoCastShield()
         {
-            if (IsGrandChampion(me))
+            if (IsGrandChampionVehicle())
             {
                 if (me->GetVehicleKit())
                     if (Unit *rider = me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                         rider->CastSpell(rider, SPELL_SHIELD_GRAND_CHAMP, true);
             }
-            else
-                DoCast(me, SPELL_SHIELD_LESSER_CHAMP, true);
+            else if (IsLesserChampion())
+                  DoCast(me, SPELL_SHIELD_LESSER_CHAMP, true);
         }
 
         void AttackStart(Unit* target)
         {
-            if (IsGrandChampion(me))
+            if (IsGrandChampionVehicle())
             {
                 if (!(me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(SEAT_ID_0)))
                     return;
@@ -696,7 +842,7 @@ public:
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveFollow(target, 0, 0);
             }
-            else
+            else if (IsLesserChampion())
                 ScriptedAI::AttackStart(target);
         }
 
@@ -711,7 +857,7 @@ public:
             }
             else uiBuffTimer -= uiDiff;
 
-            if (IsGrandChampion(me))
+            if (IsGrandChampionVehicle())
             {
                 if (uiFlagTimer <= uiDiff && !castedPennant)
                 {
@@ -723,7 +869,7 @@ public:
                 else uiFlagTimer -= uiDiff;
             }
 
-            if (IsGrandChampion(me))
+            if (IsGrandChampionVehicle())
             {
                 if (!me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                     return;
@@ -764,7 +910,7 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && player->IsAlive() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            uint32 spell_charge = IsGrandChampion(me) ? SPELL_CHARGE_GRAND_CHAMP : SPELL_CHARGE_LESSER_CHAMP;
+                            uint32 spell_charge = IsGrandChampionVehicle() ? SPELL_CHARGE_GRAND_CHAMP : SPELL_CHARGE_LESSER_CHAMP;
                             if (me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                             {
                                 if (Unit* rider = me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
@@ -784,7 +930,7 @@ public:
                                     DoCast(player, spell_charge);
                             }
 
-                            if (IsGrandChampion(me))
+                            if (IsGrandChampionVehicle())
                             {
                                 if (me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                                 {
@@ -834,7 +980,7 @@ public:
 
             // Lesser Champions don't use Shield Breaker
             // Shield Breaker is cast on random player
-            if (IsGrandChampion(me))
+            if (IsGrandChampionVehicle())
             {
                 if (uiShieldBreakerTimer <= uiDiff)
                 {
@@ -894,6 +1040,7 @@ public:
             uiBladeStormTimer = urand(15000, 20000);
             uiInterceptTimer = 7000;
             uiMortalStrikeTimer = urand(8000, 12000);
+            uiRollingThrowTimer = 30000;
         }
 
         InstanceScript* instance;
@@ -901,6 +1048,7 @@ public:
         uint32 uiBladeStormTimer;
         uint32 uiInterceptTimer;
         uint32 uiMortalStrikeTimer;
+        uint32 uiRollingThrowTimer;
 
         void Reset() override
         {
@@ -951,12 +1099,13 @@ public:
                 uiMortalStrikeTimer = urand(8000, 12000);
             } else uiMortalStrikeTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
-        }
+            if (uiRollingThrowTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_ROLLING_THROW);
+                uiRollingThrowTimer = 30000;
+            } else uiRollingThrowTimer -= uiDiff;
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            DoMeleeAttackIfReady();
         }
     };
 
@@ -982,7 +1131,7 @@ public:
 
         void Initialize()
         {
-            uiFireBallTimer = 5000;
+            uiFireBallTimer = 2000;
             uiPolymorphTimer = 8000;
             uiBlastWaveTimer = 12000;
             uiHasteTimer = 22000;
@@ -1015,11 +1164,12 @@ public:
             if (uiFireBallTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_FIREBALL);
-                uiFireBallTimer = 5000;
+                uiFireBallTimer = 3000;
             } else uiFireBallTimer -= uiDiff;
 
             if (uiPolymorphTimer <= uiDiff)
             {
+                me->InterruptNonMeleeSpells(true);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_POLYMORPH);
                 uiPolymorphTimer = 8000;
@@ -1027,24 +1177,23 @@ public:
 
             if (uiBlastWaveTimer <= uiDiff)
             {
-                DoCastAOE(SPELL_BLAST_WAVE, false);
+                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                {
+                    if (me->IsWithinDist(target, 10.0f, false))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCastAOE(SPELL_BLAST_WAVE);
+                    }
+                }
                 uiBlastWaveTimer = 13000;
             } else uiBlastWaveTimer -= uiDiff;
 
             if (uiHasteTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(true);
-
                 DoCast(me, SPELL_HASTE);
                 uiHasteTimer = 22000;
             } else uiHasteTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -1070,18 +1219,26 @@ public:
 
         void Initialize()
         {
+            uiCheckTimer = 5000;
             uiChainLightningTimer = 16000;
             uiHealingWaveTimer = 12000;
-            uiEartShieldTimer = urand(30000, 35000);
-            uiHexMendingTimer = urand(20000, 25000);
+            uiEartShieldTimer = 5000;
+            uiHexMendingTimer = 7000;
+
+            isDefensive = false;
         }
 
         InstanceScript* instance;
 
+        uint32 uiCheckTimer;
         uint32 uiChainLightningTimer;
         uint32 uiEartShieldTimer;
         uint32 uiHealingWaveTimer;
         uint32 uiHexMendingTimer;
+
+        // If shaman's friend or himself goes below 25% HP, he will go into defensive mode,
+        // casting healing spells only
+        bool isDefensive;
 
         void Reset() override
         {
@@ -1100,48 +1257,78 @@ public:
                 return;
             }
 
+            if (uiCheckTimer <= uiDiff)
+            {
+                if (!isDefensive)
+                {
+                    Unit* pFriend = DoSelectLowestHpFriendly(40.0f);
+                    if (pFriend->GetHealthPct() <= 25 || me->GetHealthPct() <= 25)
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        uiEartShieldTimer = 1000;
+                        uiHealingWaveTimer = 1000;
+                        TC_LOG_INFO("server.worldserver", "DEBUG: Shaman entered into defensive mode");
+                        isDefensive = true;
+                    }
+                }
+                else
+                {
+                    Unit* pFriend = DoSelectLowestHpFriendly(40.0f);
+                    if (pFriend->GetHealthPct() > 25 && me->GetHealthPct() > 25)
+                    {
+                        uiChainLightningTimer = 1000;
+                        TC_LOG_INFO("server.worldserver", "DEBUG: Shaman entered into combat mode");
+                        isDefensive = false;
+                    }
+                }
+                uiCheckTimer = 5000;
+            } else uiCheckTimer -= uiDiff;
+
             if (uiChainLightningTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHAIN_LIGHTNING);
-
-                uiChainLightningTimer = 16000;
+                if (!isDefensive)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_CHAIN_LIGHTNING);
+                    uiChainLightningTimer = 16000;
+                }
             } else uiChainLightningTimer -= uiDiff;
 
             if (uiHealingWaveTimer <= uiDiff)
             {
-                bool bChance = roll_chance_i(50);
-
-                if (!bChance)
+                if (Unit* pFriend = DoSelectLowestHpFriendly(40.0f))
                 {
-                    if (Unit* pFriend = DoSelectLowestHpFriendly(40))
+                    if (pFriend->GetHealthPct() < me->GetHealthPct())
                         DoCast(pFriend, SPELL_HEALING_WAVE);
-                } else
-                    DoCast(me, SPELL_HEALING_WAVE);
-
-                uiHealingWaveTimer = 12000;
+                    else
+                        DoCast(me, SPELL_HEALING_WAVE);
+                }
+                if (isDefensive)
+                    uiHealingWaveTimer = 4000;
+                else
+                    uiHealingWaveTimer = 12000;
             } else uiHealingWaveTimer -= uiDiff;
 
             if (uiEartShieldTimer <= uiDiff)
             {
-                DoCast(me, SPELL_EARTH_SHIELD);
-
+                if (Unit* pFriend = DoSelectLowestHpFriendly(40.0f))
+                {
+                    if (pFriend->GetHealthPct() < me->GetHealthPct())
+                        DoCast(pFriend, SPELL_EARTH_SHIELD);
+                    else
+                        DoCast(me, SPELL_EARTH_SHIELD);
+                }
                 uiEartShieldTimer = urand(30000, 35000);
             } else uiEartShieldTimer -= uiDiff;
 
             if (uiHexMendingTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_HEX_OF_MENDING, true);
-
+                DoCastVictim(SPELL_HEX_OF_MENDING);
                 uiHexMendingTimer = urand(20000, 25000);
             } else uiHexMendingTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            if (!isDefensive)
+                DoMeleeAttackIfReady();
         }
     };
 
@@ -1167,12 +1354,12 @@ public:
 
         void Initialize()
         {
-            uiShootTimer = 12000;
+            uiShootTimer = 2000;
             uiMultiShotTimer = 0;
             uiLightningArrowsTimer = 7000;
+            uiDisengageTimer = urand(25000, 35000);
 
             uiTargetGUID.Clear();
-
             bShoot = false;
         }
 
@@ -1181,9 +1368,9 @@ public:
         uint32 uiShootTimer;
         uint32 uiMultiShotTimer;
         uint32 uiLightningArrowsTimer;
+        uint32 uiDisengageTimer;
 
         ObjectGuid uiTargetGUID;
-
         bool bShoot;
 
         void Reset() override
@@ -1203,9 +1390,23 @@ public:
                 return;
             }
 
+            if (uiDisengageTimer <= uiDiff)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                {
+                    if (me->IsWithinDist(target, 5.0f, false)) // Disengage only if there is player too close
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(me, SPELL_DISENGAGE);
+                    }
+                }
+                uiDisengageTimer = urand(25000, 35000);
+            }
+            else uiDisengageTimer -= uiDiff;
+
             if (uiLightningArrowsTimer <= uiDiff)
             {
-                DoCastAOE(SPELL_LIGHTNING_ARROWS, false);
+                DoCastAOE(SPELL_LIGHTNING_ARROWS);
                 uiLightningArrowsTimer = 7000;
             } else uiLightningArrowsTimer -= uiDiff;
 
@@ -1216,16 +1417,18 @@ public:
                     uiTargetGUID = target->GetGUID();
                     DoCast(target, SPELL_SHOOT);
                 }
-                uiShootTimer = 12000;
-                uiMultiShotTimer = 3000;
-                bShoot = true;
+                uiShootTimer = 2000;
+                if (!bShoot)
+                {
+                    uiMultiShotTimer = 7500;
+                    bShoot = true;
+                }
             } else uiShootTimer -= uiDiff;
 
             if (bShoot && uiMultiShotTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(true);
                 Unit* target = ObjectAccessor::GetUnit(*me, uiTargetGUID);
-
                 if (target && me->IsInRange(target, 5.0f, 30.0f, false))
                 {
                     DoCast(target, SPELL_MULTI_SHOT);
@@ -1248,13 +1451,6 @@ public:
                 }
                 bShoot = false;
             } else uiMultiShotTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -1316,7 +1512,11 @@ public:
 
             if (uiFanKivesTimer <= uiDiff)
             {
-                DoCastAOE(SPELL_FAN_OF_KNIVES, false);
+                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                {
+                    if (me->IsWithinDist(target, 8.0f, false)) // 8 yards is minimum range
+                        DoCastAOE(SPELL_FAN_OF_KNIVES);
+                }
                 uiFanKivesTimer = 14000;
             } else uiFanKivesTimer -= uiDiff;
 
@@ -1328,11 +1528,6 @@ public:
             } else uiPosionBottleTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 

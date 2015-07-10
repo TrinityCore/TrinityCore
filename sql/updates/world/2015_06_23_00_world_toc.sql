@@ -22,23 +22,23 @@ INSERT INTO `spell_script_names` VALUES (67868,'spell_toc5_trample_aura');
 --
 
 -- Variables
-SET @ARGENT_BATTLEWORG_A := 36559; -- cosmetic vehicle (used by grand champions in looking for mount phase)
+SET @ARGENT_BATTLEWORG_GC := 36559; -- used by Grand Champions in looking for mount phase, cannot be used by players
 SET @ARGENT_BATTLEWORG_H := 36558;
 SET @ARGENT_WARHORSE_A := 36557;
-SET @ARGENT_WARHORSE_H := 35644; -- cosmetic vehicle (used by grand champions in looking for mount phase)
+SET @ARGENT_WARHORSE_GC := 35644; -- used by Grand Champions in looking for mount phase, cannot be used by players
 
 -- Argent Battleworg should not be attackable by players
-UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256 WHERE `entry`=@ARGENT_BATTLEWORG_A;
+UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256 WHERE `entry`=@ARGENT_BATTLEWORG_GC;
 
 -- Scriptname for cosmetic vehicles
-UPDATE `creature_template` SET `ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (@ARGENT_BATTLEWORG_A,@ARGENT_WARHORSE_H);
+UPDATE `creature_template` SET `speed_run`=1.57143,`ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (@ARGENT_BATTLEWORG_GC,@ARGENT_WARHORSE_GC);
 
 -- Argent Battleworg is missing its Trample aura
 UPDATE `creature_template_addon` SET `auras`=67870 WHERE `entry`=@ARGENT_BATTLEWORG_H;
 
 -- Argent Warhorse is missing its vehicle data
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (@ARGENT_BATTLEWORG_H,@ARGENT_WARHORSE_A) AND `spell_id`=67830;
-UPDATE `creature_template` SET `npcflag`=16777216,`speed_run`=1.57143,`spell1`=68505,`spell2`=62575,`spell3`=68282,`spell4`=62552 WHERE `entry`=@ARGENT_WARHORSE_A;
+UPDATE `creature_template` SET `npcflag`=16777216,`spell1`=68505,`spell2`=62575,`spell3`=68282,`spell4`=62552,`VehicleId`=486 WHERE `entry`=@ARGENT_WARHORSE_A;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`) VALUES
 (@ARGENT_BATTLEWORG_H,67830,1),
 (@ARGENT_WARHORSE_A,67830,1);
@@ -141,5 +141,5 @@ SET @COLOSOS := 34701;
 SET @JAELYNE := 34657;
 SET @LANA := 34703;
 
--- None of the grand champions had unit flags set in database
+-- None of the grand champions had correct unit flags set in database
 UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry` IN (@MOKRA,@ERESSEA,@RUNOK,@ZULTORE,@VISCERI,@JACOB,@AMBROSE,@COLOSOS,@JAELYNE,@LANA);

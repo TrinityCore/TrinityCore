@@ -2047,11 +2047,6 @@ class spell_gen_mount : public SpellScriptLoader
               damaging spell on target with a small chance of failing it.
 */
 
-enum TrampleAura
-{
-    SPELL_TRAMPLE_AURA                  = 67868
-};
-
 class spell_toc5_trample_aura : public SpellScriptLoader
 {
     public:
@@ -2071,7 +2066,7 @@ class spell_toc5_trample_aura : public SpellScriptLoader
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 // The aura should not be applied if there is already a trample aura on target
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_TRAMPLE_AURA));
+                targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
             }
 
             void HandleStun()
