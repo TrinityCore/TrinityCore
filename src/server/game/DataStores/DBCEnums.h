@@ -494,6 +494,13 @@ enum AbilytyLearnType
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2  // Spell will be learned/removed together with entire skill
 };
 
+enum GlyphSlotType
+{
+    GLYPH_SLOT_MAJOR = 0,
+    GLYPH_SLOT_MINOR = 1,
+    GLYPH_SLOT_PRIME = 2
+};
+
 enum ItemEnchantmentType
 {
     ITEM_ENCHANTMENT_TYPE_NONE             = 0,

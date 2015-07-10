@@ -291,18 +291,19 @@ void DB2Manager::LoadStores(std::string const& dataPath)
         for (uint32 j = 0; j < MAX_POWERS; ++j)
             _powersByClass[i][j] = MAX_POWERS;
 
-    for (uint32 i = 0; i < sChrClassesXPowerTypesStore.GetNumRows(); ++i)
+    for (ChrClassesXPowerTypesEntry const* power : sChrClassesXPowerTypesStore)
     {
-        if (ChrClassesXPowerTypesEntry const* power = sChrClassesXPowerTypesStore.LookupEntry(i))
-        {
-            uint32 index = 0;
-            for (uint32 j = 0; j < MAX_POWERS; ++j)
-                if (_powersByClass[power->ClassID][j] != MAX_POWERS)
-                    ++index;
+        uint32 index = 0;
+        for (uint32 j = 0; j < MAX_POWERS; ++j)
+            if (_powersByClass[power->ClassID][j] != MAX_POWERS)
+                ++index;
 
-            _powersByClass[power->ClassID][power->PowerType] = index;
-        }
+        _powersByClass[power->ClassID][power->PowerType] = index;
     }
+
+    for (GlyphSlotEntry const* glyphSlot : sGlyphSlotStore)
+        if (glyphSlot->Type == GLYPH_SLOT_MAJOR || glyphSlot->Type == GLYPH_SLOT_MINOR)
+            _glyphSlots.insert(glyphSlot);
 
     for (ItemBonusEntry const* bonus : sItemBonusStore)
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
@@ -781,4 +782,18 @@ std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, D
     }
 
     return powers;
+}
+
+bool DB2Manager::GlyphSlotEntryComparator::operator()(GlyphSlotEntry const* left, GlyphSlotEntry const* right) const
+{
+    if (left->Tooltip != right->Tooltip)
+        return left->Tooltip < right->Tooltip;
+    return left->Type > right->Type;
+}
+
+bool DB2Manager::MountTypeXCapabilityEntryComparator::operator()(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right) const
+{
+    if (left->MountTypeID == right->MountTypeID)
+        return left->OrderIndex > right->OrderIndex;
+    return left->ID < right->ID;
 }
