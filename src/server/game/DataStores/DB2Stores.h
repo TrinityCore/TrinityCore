@@ -115,12 +115,14 @@ typedef std::vector<HotfixNotify> HotfixData;
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator : public std::binary_function<structure const*, structure const*, bool> \
     { \
-        bool operator()(structure const* left, structure const* right) const; \
+        bool operator()(structure const* left, structure const* right) const { return Compare(left, right); } \
+        static bool Compare(structure const* left, structure const* right); \
     };
 
 class DB2Manager
 {
 public:
+    DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry);
     DEFINE_DB2_SET_COMPARATOR(GlyphSlotEntry);
     DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry);
 

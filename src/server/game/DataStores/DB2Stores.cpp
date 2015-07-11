@@ -287,6 +287,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
         _charStartOutfits[outfit->RaceID | (outfit->ClassID << 8) | (outfit->GenderID << 16)] = outfit;
 
+    sChrClassesXPowerTypesStore.Sort(&ChrClassesXPowerTypesEntryComparator::Compare);
     for (uint32 i = 0; i < MAX_CLASSES; ++i)
         for (uint32 j = 0; j < MAX_POWERS; ++j)
             _powersByClass[i][j] = MAX_POWERS;
@@ -784,14 +785,21 @@ std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, D
     return powers;
 }
 
-bool DB2Manager::GlyphSlotEntryComparator::operator()(GlyphSlotEntry const* left, GlyphSlotEntry const* right) const
+bool DB2Manager::ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry const* left, ChrClassesXPowerTypesEntry const* right)
+{
+    if (left->ClassID != right->ClassID)
+        return left->ClassID < right->ClassID;
+    return left->PowerType < right->PowerType;
+}
+
+bool DB2Manager::GlyphSlotEntryComparator::Compare(GlyphSlotEntry const* left, GlyphSlotEntry const* right)
 {
     if (left->Tooltip != right->Tooltip)
         return left->Tooltip < right->Tooltip;
     return left->Type > right->Type;
 }
 
-bool DB2Manager::MountTypeXCapabilityEntryComparator::operator()(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right) const
+bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right)
 {
     if (left->MountTypeID == right->MountTypeID)
         return left->OrderIndex > right->OrderIndex;
