@@ -128,6 +128,35 @@ bool Position::HasInLine(Position const* pos, float width) const
     return std::fabs(std::sin(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY()) < width;
 }
 
+bool Position::IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const
+{
+    // rotate the WorldObject position instead of rotating the whole cube, that way we can make a simplified
+    // is-in-cube check and we have to calculate only one point instead of 4
+
+    // 2PI = 360*, keep in mind that ingame orientation is counter-clockwise
+    double rotation = 2 * M_PI - GetOrientation();
+    double sinVal = std::sin(rotation);
+    double cosVal = std::cos(rotation);
+
+    float BoxDistX = GetPositionX() - center.GetPositionX();
+    float BoxDistY = GetPositionY() - center.GetPositionY();
+
+    float rotX = float(center.GetPositionX() + BoxDistX * cosVal - BoxDistY*sinVal);
+    float rotY = float(center.GetPositionY() + BoxDistY * cosVal + BoxDistX*sinVal);
+
+    // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
+    float dz = GetPositionZ() - center.GetPositionZ();
+    float dx = rotX - GetPositionX();
+    float dy = rotY - GetPositionY();
+    if ((std::fabs(dx) > xradius) ||
+        (std::fabs(dy) > yradius) ||
+        (std::fabs(dz) > zradius))
+    {
+        return false;
+    }
+    return true;
+}
+
 std::string Position::ToString() const
 {
     std::stringstream sstr;
