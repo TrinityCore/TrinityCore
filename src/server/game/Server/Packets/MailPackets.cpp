@@ -81,7 +81,6 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     }
 
     Cod = mail->COD;
-    PackageID = 0;
     StationeryID = mail->stationery;
     SentMoney = mail->money;
     Flags = mail->checked;
@@ -103,7 +102,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
     data << int8(entry.SenderType);
 
     data << int64(entry.Cod);
-    data << int32(entry.PackageID);
     data << int32(entry.StationeryID);
     data << int64(entry.SentMoney);
     data << int32(entry.Flags);
@@ -164,7 +162,6 @@ void WorldPackets::Mail::SendMail::Read()
 {
     _worldPacket >> Info.Mailbox;
     _worldPacket >> Info.StationeryID;
-    _worldPacket >> Info.PackageID;
     _worldPacket >> Info.SendMoney;
     _worldPacket >> Info.Cod;
 
