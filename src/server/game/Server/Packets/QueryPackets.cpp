@@ -381,7 +381,6 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
         _worldPacket << int32(questPOIData.QuestID);
 
         _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
-        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
 
         for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
         {
@@ -396,7 +395,6 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
             _worldPacket << int32(questPOIBlobData.Flags);
             _worldPacket << int32(questPOIBlobData.WorldEffectID);
             _worldPacket << int32(questPOIBlobData.PlayerConditionID);
-            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
             _worldPacket << int32(questPOIBlobData.UnkWoD1);
             _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
 
