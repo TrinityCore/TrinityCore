@@ -6669,6 +6669,13 @@ void ObjectMgr::LoadGameObjectTemplate()
             }
             case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
                 CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
+
+                if (got.barberChair.SitAnimKit && !sAnimKitStore.LookupEntry(got.barberChair.SitAnimKit))
+                {
+                    TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data2 = %u but AnimKit.dbc (Id: %u) not exist, set to 0.",
+                       entry, got.type, got.barberChair.SitAnimKit, got.barberChair.SitAnimKit);
+                    got.barberChair.SitAnimKit = 0;
+                }
                 break;
             case GAMEOBJECT_TYPE_GARRISON_BUILDING:
                 if (uint32 transportMap = got.garrisonBuilding.mapID)

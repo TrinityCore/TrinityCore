@@ -283,7 +283,7 @@ void WorldPackets::Misc::StandStateChange::Read()
 
 WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
 {
-    _worldPacket << uint32(UnkWoD1);
+    _worldPacket << uint32(AnimKitID);
     _worldPacket << uint8(State);
 
     return &_worldPacket;
