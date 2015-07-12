@@ -341,7 +341,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllCraftsCommand(ChatHandler* handler, char const* args)
+    static bool HandleLearnAllCraftsCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
 
