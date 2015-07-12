@@ -114,9 +114,20 @@ public:
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
+        if (!spellId)
+            return false;
+            
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!spellInfo)
         {
             handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        
+        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -191,13 +202,7 @@ public:
         if (!*args)
             return false;
 
-        Unit* target = handler->getSelectedUnit();
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        Unit* player = handler->GetSession()->GetPlayer();
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
@@ -206,7 +211,11 @@ public:
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+            handler->SetSentErrorMessage(true);
             return false;
+        }
 
         if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
         {
@@ -215,7 +224,7 @@ public:
             return false;
         }
 
-        target->CastSpell(target, spellId, false);
+        player->CastSpell(player, spellId, false);
 
         return true;
     }
@@ -239,9 +248,20 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
+        if (!spellId)
+            return false;
+        
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!spellInfo)
         {
             handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        
+        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -273,9 +293,20 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
+        if (!spellId)
+            return false;
+            
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!spellInfo)
         {
             handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        
+        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
             handler->SetSentErrorMessage(true);
             return false;
         }
