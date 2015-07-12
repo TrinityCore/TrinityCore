@@ -329,7 +329,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllDefaultCommand(ChatHandler* handler, char const* args)
+    static bool HandleLearnAllDefaultCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
 
