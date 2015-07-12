@@ -21,13 +21,18 @@
 
 enum Spells
 {
-  SPELL_CAUTERIZING_FLAMES                      = 59466, //Only in heroic
-  SPELL_FIREBOLT                                = 54235,
-  H_SPELL_FIREBOLT                              = 59468,
-  SPELL_FLAME_BREATH                            = 54282,
-  H_SPELL_FLAME_BREATH                          = 59469,
-  SPELL_LAVA_BURN                               = 54249,
-  H_SPELL_LAVA_BURN                             = 59594
+    SPELL_CAUTERIZING_FLAMES                    = 59466, // Only in heroic
+    SPELL_FIREBOLT                              = 54235,
+    SPELL_FLAME_BREATH                          = 54282,
+    SPELL_LAVA_BURN                             = 54249
+};
+
+enum LavanthorEvents
+{
+    EVENT_CAUTERIZING_FLAMES = 1,
+    EVENT_FIREBOLT,
+    EVENT_FLAME_BREATH,
+    EVENT_LAVA_BURN
 };
 
 class boss_lavanthor : public CreatureScript
@@ -44,46 +49,37 @@ public:
     {
         boss_lavanthorAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
             instance = creature->GetInstanceScript();
         }
 
-        void Initialize()
-        {
-            uiFireboltTimer = 1000;
-            uiFlameBreathTimer = 5000;
-            uiLavaBurnTimer = 10000;
-            uiCauterizingFlamesTimer = 3000;
-        }
-
-        uint32 uiFireboltTimer;
-        uint32 uiFlameBreathTimer;
-        uint32 uiLavaBurnTimer;
-        uint32 uiCauterizingFlamesTimer;
-
-        InstanceScript* instance;
-
         void Reset() override
         {
-            Initialize();
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+
+            events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_LAVANTHOR_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+            if (GameObject* door = instance->GetGameObject(DATA_LAVANTHOR_CELL))
+                if (door->GetGoState() == GO_STATE_READY)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+
+            events.ScheduleEvent(EVENT_FIREBOLT, 1000);
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 5000);
+            events.ScheduleEvent(EVENT_LAVA_BURN, 10000);
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_CAUTERIZING_FLAMES, 3000);
         }
 
         void AttackStart(Unit* who) override
@@ -100,40 +96,38 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-
         void UpdateAI(uint32 diff) override
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
-            if (uiFireboltTimer <= diff)
-            {
-                DoCastVictim(SPELL_FIREBOLT);
-                uiFireboltTimer = urand(5000, 13000);
-            } else uiFireboltTimer -= diff;
+            events.Update(diff);
 
-            if (uiFlameBreathTimer <= diff)
-            {
-                DoCastVictim(SPELL_FLAME_BREATH);
-                uiFlameBreathTimer = urand(10000, 15000);
-            } else uiFlameBreathTimer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-            if (uiLavaBurnTimer <= diff)
+            switch (uint32 eventId = events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_LAVA_BURN);
-                uiLavaBurnTimer = urand(15000, 23000);
-            }
-
-            if (IsHeroic())
-            {
-                if (uiCauterizingFlamesTimer <= diff)
-                {
-                    DoCastVictim(SPELL_CAUTERIZING_FLAMES);
-                    uiCauterizingFlamesTimer = urand(10000, 16000);
-                } else uiCauterizingFlamesTimer -= diff;
+                case EVENT_FIREBOLT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FIREBOLT);
+                    events.ScheduleEvent(EVENT_FIREBOLT, urand(5000, 13000));
+                    break;
+                case EVENT_FLAME_BREATH:
+                    DoCast(SPELL_FLAME_BREATH);
+                    events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 15000));
+                    break;
+                case EVENT_LAVA_BURN:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_LAVA_BURN);
+                    events.ScheduleEvent(EVENT_LAVA_BURN, urand(15000, 23000));
+                    break;
+                case EVENT_CAUTERIZING_FLAMES:
+                    DoCast(SPELL_CAUTERIZING_FLAMES);
+                    events.ScheduleEvent(EVENT_CAUTERIZING_FLAMES, urand(10000, 16000));
+                    break;
+                default:
+                    break;
             }
 
             DoMeleeAttackIfReady();
@@ -143,17 +137,20 @@ public:
         {
             if (instance->GetData(DATA_WAVE_COUNT) == 6)
             {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 7);
             }
             else if (instance->GetData(DATA_WAVE_COUNT) == 12)
             {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
                 instance->SetData(DATA_WAVE_COUNT, 13);
             }
         }
-    };
 
+    private:
+        EventMap events;
+        InstanceScript* instance;
+    };
 };
 
 void AddSC_boss_lavanthor()
