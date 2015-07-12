@@ -71,6 +71,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonFollowe
     for (GarrAbilityEntry const* ability : follower.AbilityID)
         data << uint32(ability->ID);
 
+    data.WriteBits(follower.CustomName.length(), 7);
+    data.FlushBits();
+    data.WriteString(follower.CustomName);
+
     return data;
 }
 
@@ -88,6 +92,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMission
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMissionAreaBonus const& areaBonus)
+{
+    data << uint32(areaBonus.GarrMssnBonusAbilityID);
+    data << uint32(areaBonus.StartTime);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
 {
     _worldPacket.reserve(4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 +
@@ -95,7 +107,9 @@ WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
         Plots.size() * sizeof(GarrisonPlotInfo) +
         Followers.size() * (sizeof(GarrisonFollower) + 5 * 4) +
         Missions.size() * sizeof(GarrisonMission) +
-        ArchivedMissions.size() * 4);
+        MissionAreaBonuses.size() * sizeof(GarrisonMissionAreaBonus) +
+        ArchivedMissions.size() * 4 +
+        CanStartMission.size());
 
     _worldPacket << int32(GarrSiteID);
     _worldPacket << int32(GarrSiteLevelID);
@@ -104,6 +118,8 @@ WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
     _worldPacket << uint32(Plots.size());
     _worldPacket << uint32(Followers.size());
     _worldPacket << uint32(Missions.size());
+    _worldPacket << uint32(CanStartMission.size());
+    _worldPacket << uint32(MissionAreaBonuses.size());
     _worldPacket << uint32(ArchivedMissions.size());
     _worldPacket << int32(NumFollowerActivationsRemaining);
 
@@ -119,8 +135,16 @@ WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
     for (GarrisonMission const* mission : Missions)
         _worldPacket << *mission;
 
+    for (GarrisonMissionAreaBonus const* areaBonus : MissionAreaBonuses)
+        _worldPacket << *areaBonus;
+
     if (!ArchivedMissions.empty())
         _worldPacket.append(ArchivedMissions.data(), ArchivedMissions.size());
+
+    for (bool canStartMission : CanStartMission)
+        _worldPacket.WriteBit(canStartMission);
+
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -250,6 +274,15 @@ WorldPacket const* WorldPackets::Garrison::GarrisonAddFollowerResult::Write()
 {
     _worldPacket << uint32(Result);
     _worldPacket << Follower;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonRemoveFollowerResult::Write()
+{
+    _worldPacket << uint64(FollowerDBID);
+    _worldPacket << uint32(Result);
+    _worldPacket << uint32(Destroyed);
 
     return &_worldPacket;
 }
