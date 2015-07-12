@@ -299,7 +299,7 @@ public:
         if (!*args)
             return false;
 
-        Player* me = handler->GetSession()->GetPlayer();
+        Player* player = handler->getSelectedPlayerOrSelf();
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
         GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
@@ -311,7 +311,7 @@ public:
             return false;
         }
 
-        if (me->IsInCombat())
+        if (player->IsInCombat())
         {
             handler->SendSysMessage(LANG_YOU_IN_COMBAT);
             handler->SetSentErrorMessage(true);
@@ -319,7 +319,7 @@ public:
         }
 
         MapEntry const* map = sMapStore.LookupEntry(tele->mapId);
-        if (!map || (map->IsBattlegroundOrArena() && (me->GetMapId() != tele->mapId || !me->IsGameMaster())))
+        if (!map || (map->IsBattlegroundOrArena() && (player->GetMapId() != tele->mapId || !player->IsGameMaster())))
         {
             handler->SendSysMessage(LANG_CANNOT_TELE_TO_BG);
             handler->SetSentErrorMessage(true);
@@ -327,16 +327,16 @@ public:
         }
 
         // stop flight if need
-        if (me->IsInFlight())
+        if (player->IsInFlight())
         {
-            me->GetMotionMaster()->MovementExpired();
-            me->CleanupAfterTaxiFlight();
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
         }
         // save only in non-flight case
         else
-            me->SaveRecallPosition();
+            player->SaveRecallPosition();
 
-        me->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
+        player->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
         return true;
     }
 };
