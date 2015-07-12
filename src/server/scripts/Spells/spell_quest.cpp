@@ -2526,6 +2526,35 @@ class spell_q12414_hand_over_reins : public SpellScriptLoader
         }
 };
 
+// 13790 13793 13811 13814 - Among the Champions
+// 13665 13745 13750 13756 13761 13767 13772 13777 13782  13787 - The Grand Melee
+class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
+{
+    public:
+        spell_q13665_q13790_bested_trigger() : SpellScriptLoader("spell_q13665_q13790_bested_trigger") { }
+
+        class spell_q13665_q13790_bested_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13665_q13790_bested_trigger_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
+                target->CastSpell(target, uint32(GetEffectValue()));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13665_q13790_bested_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13665_q13790_bested_trigger_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2587,4 +2616,5 @@ void AddSC_quest_spell_scripts()
     new spell_q28813_get_our_boys_back_dummy();
     new spell_q28813_set_health_random();
     new spell_q12414_hand_over_reins();
+    new spell_q13665_q13790_bested_trigger();
 }
