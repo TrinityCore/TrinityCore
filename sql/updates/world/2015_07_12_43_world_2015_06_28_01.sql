@@ -4,8 +4,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 51518, 31, 3, 27641),
 (13, 1, 50087, 31, 3, 27641);
 
---- DELETE FROM `spelldifficulty_dbc` WHERE `id` = 50044;
---- INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES (50044, 50044, 59213);
+-- DELETE FROM `spelldifficulty_dbc` WHERE `id` = 50044;
+-- INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES (50044, 50044, 59213);
 
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE  `entry`=27641;
 
