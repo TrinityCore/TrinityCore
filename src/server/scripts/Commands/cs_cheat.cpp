@@ -166,8 +166,8 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        const char* enabled = "enabled";
-        const char* disabled = "disabled";
+        const char* enabled = "ON";
+        const char* disabled = "OFF";
 
         handler->SendSysMessage(LANG_COMMAND_CHEAT_STATUS);
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_GOD, player->GetCommandStatus(CHEAT_GOD) ? enabled : disabled);
@@ -186,13 +186,7 @@ public:
         std::string argstr = (char*)args;
 
         if (!*args)
-        {
             argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_WATERWALK)) ? "off" : "on";
-            if (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_WATERWALK))
-                argstr = "off";
-            else
-                argstr = "on";
-        }
 
         if (argstr == "off")
         {
@@ -214,14 +208,15 @@ public:
 
     static bool HandleTaxiCheatCommand(ChatHandler* handler, const char* args)
     {
+        std::string argstr = (char*)args;
+        
         if (!*args)
         {
+            // argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_TAXICHEAT)) ? "off" : "on";
             handler->SendSysMessage(LANG_USE_BOL);
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        std::string argstr = (char*)args;
 
         Player* chr = handler->getSelectedPlayer();
 
@@ -230,15 +225,6 @@ public:
         else if (handler->HasLowerSecurity(chr, ObjectGuid::Empty)) // check online security
             return false;
 
-        if (argstr == "on")
-        {
-            chr->SetTaxiCheater(true);
-            handler->PSendSysMessage(LANG_YOU_GIVE_TAXIS, handler->GetNameLink(chr).c_str());
-            if (handler->needReportToTarget(chr))
-                ChatHandler(chr->GetSession()).PSendSysMessage(LANG_YOURS_TAXIS_ADDED, handler->GetNameLink().c_str());
-            return true;
-        }
-
         if (argstr == "off")
         {
             chr->SetTaxiCheater(false);
@@ -246,6 +232,14 @@ public:
             if (handler->needReportToTarget(chr))
                 ChatHandler(chr->GetSession()).PSendSysMessage(LANG_YOURS_TAXIS_REMOVED, handler->GetNameLink().c_str());
 
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            chr->SetTaxiCheater(true);
+            handler->PSendSysMessage(LANG_YOU_GIVE_TAXIS, handler->GetNameLink(chr).c_str());
+            if (handler->needReportToTarget(chr))
+                ChatHandler(chr->GetSession()).PSendSysMessage(LANG_YOURS_TAXIS_ADDED, handler->GetNameLink().c_str());
             return true;
         }
 
@@ -262,7 +256,7 @@ public:
         int flag = atoi((char*)args);
 
         Player* chr = handler->getSelectedPlayer();
-        if (chr == NULL)
+        if (!chr)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
