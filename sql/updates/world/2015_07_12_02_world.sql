@@ -34,6 +34,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (16481904, 9, 6, 0, 0, 0, 100, 1, 0, 0, 0, 0, 12, 9445, 8, 0, 0, 0, 0, 8, 0, 0, 0, 656.212524, 2.171975, -60.058456, 0.99056, 'Dark Keeper Portrait - action list - Summon Dark guard'),
 (16481905, 9, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 50, 164825, 999990, 0, 0, 0, 0, 8, 0, 0, 0, 831.54,-339.529,-46.682,0.802851, 'Dark Keeper Portrait - action list - Summon Dark Keeper Nameplate'),
 (16481905, 9, 1, 0, 0, 0, 100, 1, 2000, 2000, 0, 0, 106, 16, 0, 0, 0, 0, 0, 20, 164825, 20, 0, 0, 0, 0, 0, 'Dark Keeper Nameplate - action list - Remove flags'),
-(16481905, 9, 2, 0, 0, 0, 100, 1, 0, 0, 0, 0, 12, 9443, 8, 0, 0, 0, 0, 8, 0, 0, 0, 804.041260, -247.344772, -43.302856, 2.606160, 'Dark Keeper Portrait - action list - Summon Dark Keeper Pelver');
+(16481905, 9, 2, 0, 0, 0, 100, 1, 0, 0, 0, 0, 12, 9443, 8, 0, 0, 0, 0, 8, 0, 0, 0, 804.041260, -247.344772, -43.302856, 2.606160, 'Dark Keeper Portrait - action list - Summon Dark Keeper Pelver'),
 (16481905, 9, 3, 0, 0, 0, 100, 1, 0, 0, 0, 0, 12, 9445, 8, 0, 0, 0, 0, 8, 0, 0, 0, 805.992065, -246.460281, -43.302856, 2.525251, 'Dark Keeper Portrait - action list - Summon Dark guard'),
 (16481905, 9, 4, 0, 0, 0, 100, 1, 0, 0, 0, 0, 12, 9445, 8, 0, 0, 0, 0, 8, 0, 0, 0, 803.904053, -249.407654, -43.302856, 2.525251, 'Dark Keeper Portrait - action list - Summon Dark guard');
