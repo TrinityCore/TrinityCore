@@ -423,11 +423,11 @@ namespace WorldPackets
         {
         public:
             StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1) { }
-            StandStateUpdate(UnitStandStateType state, uint32 animKitID) : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1), State(state), AnimKitID(animKitID) { }
+            StandStateUpdate(UnitStandStateType state, uint32 animKitID) : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1), AnimKitID(animKitID), State(state) { }
 
             WorldPacket const* Write() override;
 
-            uint32 AnimKitID = 0; /// @todo 6.1.0 resarch new value
+            uint32 AnimKitID = 0;
             UnitStandStateType State = UNIT_STAND_STATE_STAND;
         };
 
