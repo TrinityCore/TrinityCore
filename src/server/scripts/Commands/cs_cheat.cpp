@@ -217,7 +217,7 @@ public:
             chr = handler->GetSession()->GetPlayer();
         else if (handler->HasLowerSecurity(chr, ObjectGuid::Empty)) // check online security
             return false;
-        
+
         if (!*args)
         {
             argstr = (chr->isTaxiCheater()) ? "off" : "on";
