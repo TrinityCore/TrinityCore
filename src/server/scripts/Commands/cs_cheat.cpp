@@ -212,7 +212,7 @@ public:
     {
         std::string argstr = (char*)args;
         Player* chr = handler->getSelectedPlayer();
-        
+
         if (!chr)
             chr = handler->GetSession()->GetPlayer();
         else if (handler->HasLowerSecurity(chr, ObjectGuid::Empty)) // check online security
