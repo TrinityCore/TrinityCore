@@ -175,6 +175,8 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_CT, player->GetCommandStatus(CHEAT_CASTTIME) ? enabled : disabled);
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_POWER, player->GetCommandStatus(CHEAT_POWER) ? enabled : disabled);
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_WW, player->GetCommandStatus(CHEAT_WATERWALK) ? enabled : disabled);
+        handler->PSendSysMessage(LANG_COMMAND_CHEAT_TAXICHEATER, player->isTaxiCheater() ? enabled : disabled); // Check this lang before...
+        
         return true;
     }
 
@@ -212,6 +214,7 @@ public:
         
         if (!*args)
         {
+            // Use Function player->isTaxiCheater() (bool)
             // argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_TAXICHEAT)) ? "off" : "on";
             handler->SendSysMessage(LANG_USE_BOL);
             handler->SetSentErrorMessage(true);
