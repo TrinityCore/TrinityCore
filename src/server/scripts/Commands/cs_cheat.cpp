@@ -175,7 +175,7 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_CT, player->GetCommandStatus(CHEAT_CASTTIME) ? enabled : disabled);
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_POWER, player->GetCommandStatus(CHEAT_POWER) ? enabled : disabled);
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_WW, player->GetCommandStatus(CHEAT_WATERWALK) ? enabled : disabled);
-        handler->PSendSysMessage(LANG_COMMAND_CHEAT_TAXICHEATER, player->isTaxiCheater() ? enabled : disabled); // Check this lang before...
+        handler->PSendSysMessage(LANG_COMMAND_CHEAT_TAXINODES, player->isTaxiCheater() ? enabled : disabled);
         
         return true;
     }
@@ -211,22 +211,17 @@ public:
     static bool HandleTaxiCheatCommand(ChatHandler* handler, const char* args)
     {
         std::string argstr = (char*)args;
-        
-        if (!*args)
-        {
-            // Use Function player->isTaxiCheater() (bool)
-            // argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_TAXICHEAT)) ? "off" : "on";
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         Player* chr = handler->getSelectedPlayer();
-
+        
         if (!chr)
             chr = handler->GetSession()->GetPlayer();
         else if (handler->HasLowerSecurity(chr, ObjectGuid::Empty)) // check online security
             return false;
+        
+        if (!*args)
+        {
+            argstr = (chr->isTaxiCheater()) ? "off" : "on";
+        }
 
         if (argstr == "off")
         {
@@ -234,7 +229,6 @@ public:
             handler->PSendSysMessage(LANG_YOU_REMOVE_TAXIS, handler->GetNameLink(chr).c_str());
             if (handler->needReportToTarget(chr))
                 ChatHandler(chr->GetSession()).PSendSysMessage(LANG_YOURS_TAXIS_REMOVED, handler->GetNameLink().c_str());
-
             return true;
         }
         else if (argstr == "on")
@@ -256,6 +250,7 @@ public:
         if (!*args)
             return false;
 
+        // std::int flag = (char*)args;
         int flag = atoi((char*)args);
 
         Player* chr = handler->getSelectedPlayer();
