@@ -201,7 +201,12 @@ public:
         if (!*args)
             return false;
 
-        Unit* player = handler->GetSession()->GetPlayer();
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+        {
+            // If no target selected, then target is player.
+            target = handler->GetSession()->GetPlayer();
+        }
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
@@ -223,7 +228,7 @@ public:
             return false;
         }
 
-        player->CastSpell(player, spellId, false);
+        target->CastSpell(target, spellId, false);
 
         return true;
     }
