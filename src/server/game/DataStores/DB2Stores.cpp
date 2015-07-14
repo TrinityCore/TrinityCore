@@ -611,13 +611,13 @@ uint32 DB2Manager::GetHeirloomItemLevel(uint32 curveId, uint32 level) const
     return uint32(previousItr->second->Y);  // Lowest scaling point
 }
 
-DB2Manager::ItemBonusList DB2Manager::GetItemBonusList(uint32 bonusListId) const
+DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId) const
 {
     auto itr = _itemBonusLists.find(bonusListId);
     if (itr != _itemBonusLists.end())
-        return itr->second;
+        return &itr->second;
 
-    return ItemBonusList();
+    return nullptr;
 }
 
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const

@@ -102,8 +102,8 @@ bool ChatLink::ValidateName(char* buffer, const char* /*context*/)
     return true;
 }
 
-// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:random_property:0:reporter_level|h[name]|h|r
-// |cffa335ee|Hitem:812:0:0:0:0:0:0:0:70|h[Glowing Brightwood Staff]|h|r
+// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:random_property:property_seed:reporter_level:upgrade_id:context:numBonusListIDs|h[name]|h|r
+// |cffa335ee|Hitem:124382:0:0:0:0:0:0:0:0:0:0:0:4:42:562:565:567|h[Edict of Argus]|h|r");
 bool ItemChatLink::Initialize(std::istringstream& iss)
 {
     // Read item entry
@@ -113,6 +113,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item entry", iss.str().c_str());
         return false;
     }
+
     // Validate item
     _item = sObjectMgr->GetItemTemplate(itemEntry);
     if (!_item)
@@ -120,15 +121,23 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid itemEntry %u in |item command", iss.str().c_str(), itemEntry);
         return false;
     }
+
     // Validate item's color
-    if (_color != ItemQualityColors[_item->GetQuality()])
+    uint32 colorQuality = _item->GetQuality();
+    if (_item->GetFlags3() & ITEM_FLAG3_HEIRLOOM_QUALITY)
+        colorQuality = ITEM_QUALITY_HEIRLOOM;
+
+    if (_color != ItemQualityColors[colorQuality])
     {
-        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item has color %u, but user claims %u", iss.str().c_str(), ItemQualityColors[_item->GetQuality()], _color);
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item has color %u, but user claims %u", iss.str().c_str(), ItemQualityColors[colorQuality], _color);
         return false;
     }
+
     // Number of various item properties after item entry
-    const uint8 propsCount = 8;
-    const uint8 randomPropertyPosition = 5;
+    uint8 const propsCount = 11;
+    uint8 const randomPropertyPosition = 5;
+    uint8 const numBonusListIDsPosition = 10;
+    uint8 const maxBonusListIDs = 100;
     for (uint8 index = 0; index < propsCount; ++index)
     {
         if (!CheckDelimiter(iss, DELIMITER, "item"))
@@ -162,8 +171,41 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
                 }
             }
         }
+        if (index == numBonusListIDsPosition)
+        {
+            if (id > maxBonusListIDs)
+            {
+                TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): too many item bonus list IDs %u in |item command", iss.str().c_str(), id);
+                return false;
+            }
+
+            _bonusListIDs.resize(id);
+        }
+
         _data[index] = id;
     }
+
+    for (int32 index = 0; index < _bonusListIDs.size(); ++index)
+    {
+        if (!CheckDelimiter(iss, DELIMITER, "item"))
+            return false;
+
+        int32 id = 0;
+        if (!ReadInt32(iss, id))
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item bonus list id (%u)", iss.str().c_str(), index);
+            return false;
+        }
+
+        if (!sDB2Manager.GetItemBonusList(id))
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item bonus list id %d in |item command", iss.str().c_str(), id);
+            return false;
+        }
+
+        _bonusListIDs[index] = id;
+    }
+
     return true;
 }
 

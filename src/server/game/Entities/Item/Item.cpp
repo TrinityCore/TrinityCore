@@ -1792,10 +1792,12 @@ uint32 Item::GetVisibleAppearanceModId() const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    DB2Manager::ItemBonusList bonuses = sDB2Manager.GetItemBonusList(bonusListID);
-    AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
-    for (ItemBonusEntry const* bonus : bonuses)
-        _bonusData.AddBonus(bonus->Type, bonus->Value);
+    if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
+    {
+        AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
+        for (ItemBonusEntry const* bonus : *bonuses)
+            _bonusData.AddBonus(bonus->Type, bonus->Value);
+    }
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

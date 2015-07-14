@@ -166,7 +166,7 @@ public:
     uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId) const;
     GlyphSlotContainer const& GetGlyphSlots() const { return _glyphSlots; }
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
-    ItemBonusList GetItemBonusList(uint32 bonusListId) const;
+    ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
