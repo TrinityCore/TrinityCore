@@ -3093,6 +3093,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_PCT, 1.0f);
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PCT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT, 1.0f);
     for (uint8 i = 0; i < 7; ++i)
     {
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i, 0);
@@ -3113,7 +3114,11 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, 0.0f);
-    SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS, 1.0f);
+    for (uint16 i = 0; i < 3; ++i)
+    {
+        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS + i, 1.0f);
+        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + i, 1.0f);
+    }
 
     SetInt32Value(UNIT_FIELD_ATTACK_POWER,            0);
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
