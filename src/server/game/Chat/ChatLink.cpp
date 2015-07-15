@@ -185,7 +185,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         _data[index] = id;
     }
 
-    for (int32 index = 0; index < _bonusListIDs.size(); ++index)
+    for (uint32 index = 0; index < _bonusListIDs.size(); ++index)
     {
         if (!CheckDelimiter(iss, DELIMITER, "item"))
             return false;
