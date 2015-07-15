@@ -83,6 +83,9 @@ class AuraEffect
         uint32 GetTickNumber() const { return m_tickNumber; }
         int32 GetTotalTicks() const { return m_period ? (GetBase()->GetMaxDuration() / m_period) : 1;}
         void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_period; m_tickNumber = 0;}
+        void DoPartialTickEffect(Unit* caster, Unit* target);
+        bool IsPartialTickEffect() const;
+        uint32 CalculatePartialTickDamage(uint32 damage) const;
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
@@ -310,10 +313,10 @@ class AuraEffect
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster,  bool partial = false) const;
+        void HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, bool partial = false) const;
+        void HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster, bool partial = false) const;
+        void HandlePeriodicHealAurasTick(Unit* target, Unit* caster, bool partial = false) const;
         void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;

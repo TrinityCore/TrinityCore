@@ -897,6 +897,11 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
     if (apply && aurApp->GetRemoveMode())
         return;
 
+    // proc additional damage / healing ( 6.x haste - dot system )
+    if (!apply && IsPartialTickEffect())
+        if (GetCaster() && aurApp->GetTarget())
+            DoPartialTickEffect(GetCaster(),aurApp->GetTarget());
+
     // call scripts triggering additional events after apply/remove
     if (apply)
         GetBase()->CallScriptAfterEffectApplyHandlers(this, aurApp, (AuraEffectHandleModes)mode);
@@ -1142,8 +1147,54 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
 bool AuraEffect::CanPeriodicTickCrit(Unit const* caster) const
 {
     ASSERT(caster);
+    // from 6.x all dots / hots are allowed to crit apart from CANT_CRIT attribute
+    return !m_spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT);
+}
 
-    return caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, m_spellInfo);
+void AuraEffect::DoPartialTickEffect(Unit * caster, Unit * target)
+{
+    // check on target and caster is done before calling the function
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+            HandlePeriodicDamageAurasTick(target, caster, true);
+            break;
+        case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_OBS_MOD_HEALTH:
+            HandlePeriodicHealAurasTick(target, caster, true);
+            break;
+        case SPELL_AURA_PERIODIC_LEECH:
+            HandlePeriodicHealthLeechAuraTick(target, caster, true);
+            break;
+        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+            HandlePeriodicHealthFunnelAuraTick(target, caster, true);
+            break;
+        default:
+            break;
+    }
+}
+
+uint32 AuraEffect::CalculatePartialTickDamage(uint32 damage) const
+{
+    int32 partialTickDuration = GetBase()->GetTickRemainingPeriod();
+    return damage * partialTickDuration / m_period;
+}
+
+bool AuraEffect::IsPartialTickEffect() const
+{
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+        case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_OBS_MOD_HEALTH:
+        case SPELL_AURA_PERIODIC_LEECH:
+        case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+            return true;
+        default:
+            return false;
+    }
 }
 
 bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
@@ -5936,7 +5987,7 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         TC_LOG_DEBUG("spells","AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefor not triggered.", GetId(), triggerSpellId, GetEffIndex());
 }
 
-void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
+void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, bool partial) const
 {
     if (!caster || !target->IsAlive())
         return;
@@ -6060,6 +6111,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
+    if (partial && m_period > 0)
+        damage = CalculatePartialTickDamage(damage);
+
     int32 dmg = damage;
 
     if (!(GetSpellInfo()->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
@@ -6105,7 +6159,7 @@ bool AuraEffect::IsAreaAuraEffect() const
     return false;
 }
 
-void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) const
+void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, bool partial) const
 {
     if (!caster || !target->IsAlive())
         return;
@@ -6135,6 +6189,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetSpellEffectInfo(), GetBase()->GetStackAmount()) * caster->SpellDamagePctDone(target, m_spellInfo, DOT);
     }
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetSpellEffectInfo(), GetBase()->GetStackAmount());
+
+    if (partial && m_period > 0)
+        damage = CalculatePartialTickDamage(damage);
 
     // Calculate armor mitigation
     if (caster->IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
@@ -6197,7 +6254,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     }
 }
 
-void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) const
+void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster, bool partial) const
 {
     if (!caster || !caster->IsAlive() || !target->IsAlive())
         return;
@@ -6209,6 +6266,10 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) 
     }
 
     uint32 damage = std::max(GetAmount(), 0);
+
+    if (partial && m_period > 0)
+        damage = CalculatePartialTickDamage(damage);
+
     // do not kill health donator
     if (caster->GetHealth() < damage)
         damage = caster->GetHealth() - 1;
@@ -6225,7 +6286,7 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) 
     caster->HealBySpell(target, GetSpellInfo(), damage);
 }
 
-void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
+void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, bool partial) const
 {
     if (!caster || !target->IsAlive())
         return;
@@ -6300,6 +6361,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     TC_LOG_DEBUG("spells.periodic", "PeriodicTick: %s heal of %s for %u health inflicted by %u",
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId());
+
+    if (partial && m_period > 0)
+        damage = CalculatePartialTickDamage(damage);
 
     uint32 absorb = 0;
     uint32 heal = uint32(damage);
