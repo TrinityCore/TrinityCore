@@ -7,7 +7,7 @@ Requirements can be tweaked in the server configuration file.
 Basically any item should work with transmogrification. Custom items as well. No item is hardcoded to the system.
 Has a feature to store sets of displays. This can be removed before compiling or in the configuration file.
 Made for 3.3.5a.<br />
-Source: https://rochet2.github.io/?page=Transmogrification
+Source: http://rochet2.github.io/Transmogrification.html
 
 Video: https://youtu.be/xtH4ogz12iM
 
@@ -16,7 +16,7 @@ Video: https://youtu.be/xtH4ogz12iM
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmog
 - Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmog.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmog.patch
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmog
 
 Using direct merge:
 - open git bash to source location
@@ -44,6 +44,8 @@ Equip an item that is suitable for transmogrification.
 Have an item in your bags that is suitable to be used to transmogrify the equipped item
 Talk to Transmogrifier and select the item slot. Then select the item you want to transmogrify to.
 Click to proceed when prompted and your items are transmogrified.
+Currently the default settings are according to this: http://wowwiki.wikia.com/Transmogrification#Current_rules
+Tweak the settings if you need in worldserver.conf
 
 ####Changelog: [Changelog](https://github.com/Rochet2/TrinityCore/blob/transmog/src/server/scripts/Custom/Transmog/CHANGELOG.md)
 
