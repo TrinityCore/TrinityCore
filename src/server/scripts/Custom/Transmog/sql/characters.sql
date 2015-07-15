@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `custom_transmogrification` (
   `Owner` int(10) unsigned NOT NULL COMMENT 'Player guidLow',
   PRIMARY KEY (`GUID`),
   KEY `Owner` (`Owner`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='6_1';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='6_2';
 
 -- Data exporting was unselected.
 
