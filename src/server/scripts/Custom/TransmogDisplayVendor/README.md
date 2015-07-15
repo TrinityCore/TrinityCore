@@ -7,7 +7,7 @@ Transmogrification Display Vendor allows you to change the display of an item to
 You can use any item display in the game, as long as it fits the requirements.
 Requirements can be tweaked in the `TransmogDisplayVendor.cpp` file.
 Basically any item should work with transmogrification. Custom items as well. No item is hardcoded to the system.
-Has a feature to work with the regular [Transmogrification](https://rochet2.github.io/?page=Transmogrification). This can be enabled before compiling in `TransmogDisplayVendor.h`.
+Has a feature to work with the regular [Transmogrification](http://rochet2.github.io/Transmogrification.html). This can be enabled before compiling in `TransmogDisplayVendor.h`.
 Made for 3.3.5a.<br />
 Source: http://www.trinitycore.org/f/topic/7993-transmogrification-display-vendor/
 
@@ -18,7 +18,7 @@ Video: https://youtu.be/PIheEziN_dY
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmogvendor
 - Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmogvendor.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmogvendor.patch
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...transmogvendor
 
 Using direct merge:
 - open git bash to source location
@@ -46,4 +46,4 @@ Equip an item that is suitable for transmogrification.
 Talk to Transmogrifier and select the item slot. Then select the quality and then the item you want to transmogrify to.
 
 ####Bugs and Contact
-Report issues and similar to https://rochet2.github.io/
+Report issues and similar to http://rochet2.github.io/
