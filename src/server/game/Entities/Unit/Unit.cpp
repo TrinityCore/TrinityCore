@@ -1795,6 +1795,13 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
             dmgInfo.AbsorbDamage(splitDamage);
 
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(schoolMask))
+            {
+                victim->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
+
             uint32 splitted = splitDamage;
             uint32 splitted_absorb = 0;
             DealDamageMods(caster, splitted, &splitted_absorb);
@@ -1832,6 +1839,14 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             splitDamage = RoundToInterval(splitDamage, uint32(0), uint32(dmgInfo.GetDamage()));
 
             dmgInfo.AbsorbDamage(splitDamage);
+
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(schoolMask))
+            {
+                victim->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
+
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitDamage, &split_absorb);
 
@@ -8419,7 +8434,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             // Item - Shaman T10 Enhancement 4P Bonus
             if (AuraEffect const* aurEff = GetAuraEffect(70832, 0))
                 if (Aura const* maelstrom = GetAura(53817))
-                    if ((maelstrom->GetStackAmount() == maelstrom->GetSpellInfo()->StackAmount - 1) && roll_chance_i(aurEff->GetAmount()))
+                    if ((maelstrom->GetStackAmount() == maelstrom->GetSpellInfo()->StackAmount) && roll_chance_i(aurEff->GetAmount()))
                         CastSpell(this, 70831, true, castItem, triggeredByAura);
             break;
         }
@@ -9957,15 +9972,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
-    float tmpDamage = float(int32(pdamage) + DoneTotal);
-    // SPELLMOD_DOT will be applied in AuraEffect::HandlePeriodicDamageAurasTick.
-    if (damagetype != DOT)
-    {
-        tmpDamage *= SpellDamagePctDone(victim, spellProto, damagetype);
-        // apply spellmod to Done damage (flat and pct)
-        if (Player* modOwner = GetSpellModOwner())
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
-    }
+    // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
+    float tmpDamage = (int32(pdamage) + DoneTotal) * (damagetype == DOT ? 1.0f : SpellDamagePctDone(victim, spellProto, damagetype));
+    // apply spellmod to Done damage (flat and pct)
+    if (Player* modOwner = GetSpellModOwner())
+        modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
 
     return uint32(std::max(tmpDamage, 0.0f));
 }
@@ -10805,15 +10816,11 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             DoneTotal = 0;
     }
 
-    float heal = float(int32(healamount) + DoneTotal);
-    // SPELLMOD_DOT will be applied in AuraEffect::HandlePeriodicHealAurasTick.
-    if (damagetype != DOT)
-    {
-        heal *= SpellHealingPctDone(victim, spellProto);
-        // apply spellmod to Done amount
-        if (Player* modOwner = GetSpellModOwner())
-            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, heal);
-    }
+    // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
+    float heal = float(int32(healamount) + DoneTotal) * (damagetype == DOT ? 1.0f : SpellHealingPctDone(victim, spellProto));
+    // apply spellmod to Done amount
+    if (Player* modOwner = GetSpellModOwner())
+        modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, heal);
 
     return uint32(std::max(heal, 0.0f));
 }
