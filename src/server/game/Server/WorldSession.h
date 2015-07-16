@@ -360,6 +360,7 @@ namespace WorldPackets
         class SetActiveMover;
         class MoveSetCollisionHeightAck;
         class MoveTimeSkipped;
+        class SummonResponse;
     }
 
     namespace NPC
@@ -1313,7 +1314,7 @@ class WorldSession
         void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
         void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
         void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
-        void HandleSummonResponseOpcode(WorldPacket& recvData);
+        void HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet);
 
         void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
         void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);

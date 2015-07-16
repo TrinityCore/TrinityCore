@@ -401,6 +401,17 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             uint32 TimeSkipped = 0;
         };
+
+        class SummonResponse final : public ClientPacket
+        {
+        public:
+            SummonResponse(WorldPacket&& packet) : ClientPacket(CMSG_SUMMON_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Accept = false;
+            ObjectGuid SummonerGUID;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
