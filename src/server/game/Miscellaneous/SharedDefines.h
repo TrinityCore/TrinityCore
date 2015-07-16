@@ -812,7 +812,7 @@ enum SpellAttr12
     SPELL_ATTR12_UNK24                            = 0x01000000, // 24
     SPELL_ATTR12_UNK25                            = 0x02000000, // 25
     SPELL_ATTR12_UNK26                            = 0x04000000, // 26
-    SPELL_ATTR12_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR12_IS_READINESS_SPELL               = 0x08000000, // 27
     SPELL_ATTR12_UNK28                            = 0x10000000, // 28
     SPELL_ATTR12_UNK29                            = 0x20000000, // 29
     SPELL_ATTR12_UNK30                            = 0x40000000, // 30
