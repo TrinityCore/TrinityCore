@@ -761,7 +761,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_STAND_STATE_CHANGE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::StandStateChange, &WorldSession::HandleStandStateChangeOpcode);
     DEFINE_HANDLER(CMSG_START_SPECTATOR_WAR_GAME,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_START_WAR_GAME,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SUMMON_RESPONSE,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSummonResponseOpcode      );
+    DEFINE_HANDLER(CMSG_SUMMON_RESPONSE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Movement::SummonResponse, &WorldSession::HandleSummonResponseOpcode);
     DEFINE_HANDLER(CMSG_SUPPORT_TICKET_SUBMIT_BUG,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::SupportTicketSubmitBug, &WorldSession::HandleSupportTicketSubmitBug);
     DEFINE_HANDLER(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::SupportTicketSubmitComplaint, &WorldSession::HandleSupportTicketSubmitComplaint);
     DEFINE_HANDLER(CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::SupportTicketSubmitSuggestion, &WorldSession::HandleSupportTicketSubmitSuggestion);

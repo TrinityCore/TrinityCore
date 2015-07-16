@@ -674,3 +674,9 @@ void WorldPackets::Movement::MoveTimeSkipped::Read()
     _worldPacket >> MoverGUID;
     _worldPacket >> TimeSkipped;
 }
+
+void WorldPackets::Movement::SummonResponse::Read()
+{
+    _worldPacket >> SummonerGUID;
+    Accept = _worldPacket.ReadBit();
+}
