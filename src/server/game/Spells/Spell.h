@@ -489,7 +489,7 @@ class Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, OpcodeServer opcode = SMSG_CAST_FAILED, uint32 misc = 0);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, OpcodeServer opcode = SMSG_CAST_FAILED, uint32* misc = nullptr);
         void SendCastResult(SpellCastResult result);
         void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
@@ -526,8 +526,29 @@ class Spell
             uint32 TalentId;
             uint32 GlyphSlot;
 
-            uint32 Data;
+            // SPELL_EFFECT_SET_FOLLOWER_QUALITY
+            // SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+            // SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+            // SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+            // SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+            struct
+            {
+                uint32 Id;
+                uint32 AbilityId;   // only SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+            } GarrFollower;
+
+            // SPELL_EFFECT_FINISH_GARRISON_MISSION
+            uint32 GarrMissionId;
+
+            // SPELL_EFFECT_UPGRADE_HEIRLOOM
+            uint32 ItemId;
+
+            struct
+            {
+                uint32 Data[2];
+            } Raw;
         } m_misc;
+        uint32 m_SpellVisual;
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;

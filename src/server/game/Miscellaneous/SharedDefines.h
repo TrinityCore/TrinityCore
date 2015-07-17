@@ -1258,7 +1258,8 @@ enum SpellEffectName
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250, // Serverside marker for selfie screenshot - achievement check
-    TOTAL_SPELL_EFFECTS                             = 251,
+    SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
+    TOTAL_SPELL_EFFECTS                             = 252,
 };
 
 enum SpellCastResult // 20201

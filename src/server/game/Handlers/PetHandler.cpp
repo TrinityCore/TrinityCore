@@ -764,7 +764,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
     spell->m_cast_count = petCastSpell.Cast.CastID;
-    spell->m_misc.Data = petCastSpell.Cast.Misc;
+    spell->m_misc.Raw.Data[0] = petCastSpell.Cast.Misc[0];
+    spell->m_misc.Raw.Data[1] = petCastSpell.Cast.Misc[1];
     spell->m_targets = targets;
 
     SpellCastResult result = spell->CheckPetCast(NULL);
