@@ -313,7 +313,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
     spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
-    spell->m_misc.Data = cast.Cast.Misc;                            // 6.x Misc is just a guess
+    spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
+    spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
     spell->prepare(&targets);
 }
 

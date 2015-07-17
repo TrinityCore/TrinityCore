@@ -188,8 +188,10 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::MissileTrajecto
 ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request)
 {
     buffer >> request.CastID;
+    buffer >> request.Misc[0];
+    buffer >> request.Misc[1];
     buffer >> request.SpellID;
-    buffer >> request.Misc;
+    buffer >> request.SpellXSpellVisualID;
     buffer >> request.Target;
     buffer >> request.MissileTrajectory;
     buffer >> request.Charmer;
@@ -227,7 +229,6 @@ void WorldPackets::Spells::PetCastSpell::Read()
     _worldPacket >> PetGUID;
     _worldPacket >> Cast;
 }
-
 
 void WorldPackets::Spells::UseItem::Read()
 {
@@ -315,13 +316,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ProjectileVisualData const& projectileVisual)
-{
-    data << int32(projectileVisual.ID[0]);
-    data << int32(projectileVisual.ID[1]);
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::CreatureImmunities const& immunities)
 {
     data << int32(immunities.School);
@@ -343,6 +337,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << spellCastData.CasterUnit;
     data << uint8(spellCastData.CastID);
     data << int32(spellCastData.SpellID);
+    data << uint32(spellCastData.SpellXSpellVisualID);
     data << uint32(spellCastData.CastFlags);
     data << uint32(spellCastData.CastTime);
     data << uint32(spellCastData.HitTargets.size());
@@ -372,16 +367,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     for (WorldPackets::Spells::TargetLocation const& targetLoc : spellCastData.TargetPoints)
         data << targetLoc;
 
-    data.WriteBits(spellCastData.CastFlagsEx, 18);
+    data.WriteBits(spellCastData.CastFlagsEx, 20);
     data.WriteBit(spellCastData.RemainingRunes.is_initialized());
-    data.WriteBit(spellCastData.ProjectileVisual.is_initialized());
     data.FlushBits();
 
     if (spellCastData.RemainingRunes)
         data << *spellCastData.RemainingRunes;
-
-    if (spellCastData.ProjectileVisual)
-        data << *spellCastData.ProjectileVisual;
 
     return data;
 }

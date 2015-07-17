@@ -213,13 +213,14 @@ namespace WorldPackets
         {
             uint8 CastID = 0;
             int32 SpellID = 0;
-            int32 Misc = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint8 SendCastFlags = 0;
             SpellTargetData Target;
             MissileTrajectoryRequest MissileTrajectory;
             Optional<MovementInfo> MoveUpdate;
             std::vector<SpellWeight> Weight;
             ObjectGuid Charmer;
+            int32 Misc[2] = { };
         };
 
         class CastSpell final : public ClientPacket
@@ -287,11 +288,6 @@ namespace WorldPackets
             int8 InventoryType = 0;
         };
 
-        struct ProjectileVisualData
-        {
-            int32 ID[2];
-        };
-
         struct CreatureImmunities
         {
             uint32 School = 0;
@@ -311,6 +307,7 @@ namespace WorldPackets
             ObjectGuid CasterUnit;
             uint8 CastID        = 0;
             int32 SpellID       = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint32 CastFlags    = 0;
             uint32 CastFlagsEx  = 0;
             uint32 CastTime     = 0;
@@ -322,7 +319,6 @@ namespace WorldPackets
             Optional<RuneData> RemainingRunes;
             MissileTrajectoryResult MissileTrajectory;
             SpellAmmo Ammo;
-            Optional<ProjectileVisualData> ProjectileVisual;
             uint8 DestLocSpellCastIndex = 0;
             std::vector<TargetLocation> TargetPoints;
             CreatureImmunities Immunities;
