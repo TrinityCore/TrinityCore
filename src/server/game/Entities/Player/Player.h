@@ -1341,11 +1341,10 @@ enum MountSaveState : uint8
 
 struct MountData
 {
-    MountData() : m_favorite(false), m_disabled(false), m_state(MOUNTSTATE_UNCHANGED) { }
-    MountData(bool favorite, bool disabled, MountSaveState state) : m_favorite(favorite), m_disabled(disabled), m_state(state) { }
+    MountData() : m_favorite(false), m_state(MOUNTSTATE_UNCHANGED) { }
+    MountData(bool favorite, MountSaveState state) : m_favorite(favorite), m_state(state) { }
 
     bool m_favorite : 1;
-    bool m_disabled : 1;
     uint8 m_state : 3;
 };
 
@@ -2655,7 +2654,7 @@ class Player : public Unit, public GridObject<Player>
         void CreateGarrison(uint32 garrSiteId);
         Garrison* GetGarrison() { return _garrison.get(); }
 
-        bool AddMount(uint32 spellId, bool isFavorite = false, bool isNew = false, bool isDisabled = false);
+        bool AddMount(uint32 spellId, bool isFavorite = false, bool isNew = false);
         void ConvertMount(uint32 spellId);
         void LearnOtherFactionMount(uint32 spellId);
         void MountSetFavorite(uint32 spellId, bool state);

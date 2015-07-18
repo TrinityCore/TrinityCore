@@ -668,11 +668,10 @@ namespace WorldPackets
         {
         public:
             AccountMountUpdate() : ServerPacket(SMSG_ACCOUNT_MOUNT_UPDATE) { }
-            void InitializeMounts(std::unordered_map<uint32, MountData> mounts, bool fullUpdate, uint32 mountCount);
+            void InitializeMounts(std::unordered_map<uint32, MountData> mounts, bool fullUpdate);
             WorldPacket const* Write() override;
 
             bool IsFullUpdate = false;
-            uint32 MountCount = 0;
             std::vector<int32> MountSpellIDs;
             std::vector<bool> MountIsFavorite;
         };

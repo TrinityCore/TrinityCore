@@ -679,6 +679,20 @@ typedef std::unordered_map<uint32, std::list<uint32>> PhaseInfo;
 
 class PlayerDumpReader;
 
+struct MountDefinition
+{
+    MountDefinition() : m_faction(0), m_otherSpell(0), m_raceMask(0), m_classMask(0) { }
+    MountDefinition(uint8 faction, uint32 otherSpell, uint32 raceMask, uint32 classMask)
+        : m_faction(faction), m_otherSpell(otherSpell), m_raceMask(raceMask), m_classMask(classMask) { }
+
+    uint8 m_faction : 2;
+    uint32 m_otherSpell : 32;
+    uint32 m_raceMask : 32;
+    uint32 m_classMask : 32;
+};
+
+typedef std::map<uint32, MountDefinition> MountDefinitionMap;
+
 class ObjectMgr
 {
     friend class PlayerDumpReader;
@@ -1304,15 +1318,12 @@ class ObjectMgr
         CharacterConversionMap FactionChangeReputation;
         CharacterConversionMap FactionChangeSpells;
         CharacterConversionMap FactionChangeTitles;
-        CharacterConversionMap AllianceToHordeMounts;
-        CharacterConversionMap HordeToAllianceMounts;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
         void LoadFactionChangeQuests();
         void LoadFactionChangeReputations();
         void LoadFactionChangeSpells();
-        void LoadFactionMountSpells();
         void LoadFactionChangeTitles();
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
@@ -1350,6 +1361,9 @@ class ObjectMgr
 
             return nullptr;
         }
+
+        MountDefinitionMap MountDefinitionStore;
+        void LoadMountDefinitions();
 
     private:
         // first free id for selected id type

@@ -22598,7 +22598,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
     WorldPackets::Misc::AccountMountUpdate accountMountUpdate;
-    accountMountUpdate.InitializeMounts(mounts, true, m_mountCount);
+    accountMountUpdate.InitializeMounts(mounts, true);
     SendDirectMessage(accountMountUpdate.Write());
 
     // SMSG_ACCOUNT_TOYS_UPDATE
@@ -26776,13 +26776,8 @@ void Player::_LoadAccountMounts(PreparedQueryResult result)
         do
         {
             uint32 spellId = (*result)[0].GetUInt32();
-            bool disabled = false;
-            if (GetTeam() == ALLIANCE)
-                disabled = (sObjectMgr->HordeToAllianceMounts.find(spellId) != sObjectMgr->HordeToAllianceMounts.end());
-            else
-                disabled = (sObjectMgr->AllianceToHordeMounts.find(spellId) != sObjectMgr->AllianceToHordeMounts.end());
 
-            AddMount((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, disabled);
+            AddMount((*result)[0].GetUInt32(), (*result)[1].GetBool(), false);
         } while (result->NextRow());
     }
 
@@ -26799,30 +26794,44 @@ void Player::ConvertMount(uint32 spellId)
 
 void Player::LearnOtherFactionMount(uint32 spellId)
 {
-    std::map<uint32, uint32>::const_iterator itr = sObjectMgr->AllianceToHordeMounts.find(spellId);
-    if (itr != sObjectMgr->AllianceToHordeMounts.end())
-        AddMount(itr->second, false, true, GetTeam() == ALLIANCE);
-    else
+    MountDefinitionMap::const_iterator itr = sObjectMgr->MountDefinitionStore.find(spellId);
+    if (itr != sObjectMgr->MountDefinitionStore.end())
     {
-        itr = sObjectMgr->HordeToAllianceMounts.find(spellId);
-        if (sObjectMgr->HordeToAllianceMounts.find(spellId) != sObjectMgr->HordeToAllianceMounts.end())
-            AddMount(itr->second, false, true, GetTeam() == HORDE);
+        if (itr->second.m_otherSpell)
+            AddMount(itr->second.m_otherSpell, false, true);
     }
 }
 
-bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*= false*/, bool isDisabled /*= false*/)
+bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*= false*/)
 {
     if (mounts.find(spellId) != mounts.end())
         return false;
 
-    MountData data(isFavorite, isDisabled, isNew ? MOUNTSTATE_NEW : MOUNTSTATE_UNCHANGED);
+    MountDefinitionMap::const_iterator itr = sObjectMgr->MountDefinitionStore.find(spellId);
+    if (itr == sObjectMgr->MountDefinitionStore.end())
+        return false;
+
+    bool isDisabled = false;
+    if (uint8 faction = itr->second.m_faction)
+    {
+        if (GetTeam() == ALLIANCE)
+            isDisabled = faction == 2;
+        else
+            isDisabled = faction == 1;
+    }
+
+    if (isDisabled && itr->second.m_otherSpell)
+        return false;
+    if (!(getClassMask() & itr->second.m_classMask))
+        return false;
+    if (!(getRaceMask() & itr->second.m_raceMask))
+        return false;
+
+    MountData data(isFavorite, isNew ? MOUNTSTATE_NEW : MOUNTSTATE_UNCHANGED);
     mounts[spellId] = data;
 
     if (!isDisabled)
-    {
         AddTemporarySpell(spellId);
-        m_mountCount++;
-    }
 
     if (isNew)
         LearnOtherFactionMount(spellId);

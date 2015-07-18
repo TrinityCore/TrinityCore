@@ -1844,7 +1844,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading faction change spell pairs...");
     sObjectMgr->LoadFactionChangeSpells();
-    sObjectMgr->LoadFactionMountSpells();
 
     TC_LOG_INFO("server.loading", "Loading faction change item pairs...");
     sObjectMgr->LoadFactionChangeItems();
@@ -1854,6 +1853,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
+
+    TC_LOG_INFO("server.loading", "Loading mount definitions...");
+    sObjectMgr->LoadMountDefinitions();
 
     TC_LOG_INFO("server.loading", "Loading GM tickets...");
     sSupportMgr->LoadGmTickets();

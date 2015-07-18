@@ -538,18 +538,15 @@ WorldPacket const* WorldPackets::Misc::AccountMountUpdate::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Misc::AccountMountUpdate::InitializeMounts(std::unordered_map<uint32, MountData> mounts, bool fullUpdate, uint32 mountCount)
+void WorldPackets::Misc::AccountMountUpdate::InitializeMounts(std::unordered_map<uint32, MountData> mounts, bool fullUpdate)
 {
     IsFullUpdate = fullUpdate;
-    MountSpellIDs.reserve(mountCount);
-    MountIsFavorite.reserve(mountCount);
+    MountSpellIDs.reserve(mounts.size());
+    MountIsFavorite.reserve(mounts.size());
     for (std::unordered_map<uint32, MountData>::const_iterator itr = mounts.begin(); itr != mounts.end(); ++itr)
     {
-        if (!itr->second.m_disabled)
-        {
-            MountSpellIDs.push_back(itr->first);
-            MountIsFavorite.push_back(itr->second.m_favorite);
-        }
+        MountSpellIDs.push_back(itr->first);
+        MountIsFavorite.push_back(itr->second.m_favorite);
     }
 }
 
