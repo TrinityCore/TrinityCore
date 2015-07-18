@@ -25,6 +25,8 @@ namespace WorldPackets
 {
     namespace LFG
     {
+        /** Begin Structs */
+
         struct RideTicket
         {
             ObjectGuid RequesterGuid;
@@ -165,6 +167,18 @@ namespace WorldPackets
             bool MyLfgFirstReward = false;
         };
 
+        struct ClientLFGProposalUpdatePlayer
+        {
+            uint32 Roles = 0;
+            bool Me = false;
+            bool SameParty = false;
+            bool MyParty = false;
+            bool Responded = false;
+            bool Accepted = false;
+        };
+
+        /** End Structs */
+
         class ClientLFGJoinResult final : public ServerPacket
         {
         public:
@@ -222,11 +236,15 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsBeginning = false;
+            bool ShowRoleCheck = false;
+            std::vector<ClientLFGRoleCheckUpdateMember> Members;
             std::vector<uint32> JoinSlots;
+            uint32 ActivityID = 0;
+            uint32 JoinSlotsCount = 0;
+            uint32 MembersCount = 0;
             uint64 BgQueueID = 0;
             uint8 PartyIndex = 0;
             uint8 RoleCheckStatus = 0;
-            std::vector<ClientLFGRoleCheckUpdateMember> Members;
         };
 
         class ClientLFGUpdateStatus final : public ServerPacket
@@ -235,6 +253,9 @@ namespace WorldPackets
             ClientLFGUpdateStatus() : ServerPacket(SMSG_LFG_UPDATE_STATUS) { }
 
             WorldPacket const* Write() override;
+
+            uint32 SlotsCount = 0;
+            uint32 SuspendedPlayersCount = 0;
 
             bool IsParty = false;
             bool Joined = false;
@@ -260,6 +281,7 @@ namespace WorldPackets
 
             bool Listed = false;
             LFGListJoinRequest Request;
+            uint32 Unk = 0; // Roles?
             uint8 Reason = 0;
             RideTicket Ticket;
         };
@@ -271,22 +293,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint32 BlacklistEntryCount = 0;
             LFGListBlacklist Blacklist;
-        };
-
-        class ClientLFGProposalUpdatePlayer final : public ServerPacket
-        {
-        public:
-            ClientLFGProposalUpdatePlayer() : ServerPacket(SMSG_LFG_UPDATE_STATUS) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 Roles = 0;
-            bool Me = false;
-            bool SameParty = false;
-            bool MyParty = false;
-            bool Responded = false;
-            bool Accepted = false;
         };
 
         class ClientLFGProposalUpdate final : public ServerPacket
@@ -296,6 +304,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint32 PlayersCount = 0;
             bool ProposalSilent = false;
             std::vector<ClientLFGProposalUpdatePlayer> Players;
             uint32 CompletedMask = 0;
@@ -610,20 +619,22 @@ namespace WorldPackets
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo& bootInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& bootInfo);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo& playerDungeonInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList& clientBlackList);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList const& clientBlackList);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot& clientBlackListSlot);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot const& clientBlackListSlot);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest& joinRequest);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest const& joinRequest);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklist const& listBlackList);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklistEntry const& listBlackListEntry);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& item);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& currency);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGProposalUpdatePlayer const& update);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResultParty const& party);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResultPlayer const& player);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGRoleCheckUpdateMember const& member);
 #endif // LFGPackets_h__
