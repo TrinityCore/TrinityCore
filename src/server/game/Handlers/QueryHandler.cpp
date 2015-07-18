@@ -126,26 +126,32 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         response.Allow = true;
         WorldPackets::Query::GameObjectStats& stats = response.Stats;
 
-        stats.CastBarCaption = gameObjectInfo->castBarCaption;
+        stats.Type = gameObjectInfo->type;
         stats.DisplayID = gameObjectInfo->displayId;
-        stats.IconName = gameObjectInfo->IconName;
-        stats.Name[0] = gameObjectInfo->name;
 
-        GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
-        if (items)
+        stats.Name[0] = gameObjectInfo->name;
+        stats.IconName = gameObjectInfo->IconName;
+        stats.CastBarCaption = gameObjectInfo->castBarCaption;
+        stats.UnkString = gameObjectInfo->unk1;
+
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
+            if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
+            {
+                ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
+                ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, stats.CastBarCaption);
+                ObjectMgr::GetLocaleString(gameObjectLocale->Unk1, localeConstant, stats.UnkString);
+            }
+
+        stats.Size = gameObjectInfo->size;
+
+        if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
 
         for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
             stats.Data[i] = gameObjectInfo->raw.data[i];
-
-        stats.Size = gameObjectInfo->size;
-        stats.Type = gameObjectInfo->type;
-        stats.UnkString = gameObjectInfo->unk1;
-        stats.Expansion = 0;
     }
-    else
-        response.Allow = false;
 
     SendPacket(response.Write());
 }
