@@ -538,6 +538,7 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
         };
 
+        // Is this opcode not in TC yet? Could someone point me to what I'm probably missing?
         /*class UserClientDFSetNeeds final : public ClientPacket
         {
         public:
@@ -595,7 +596,7 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
             std::string Comment;
             std::vector<uint32> Slots;
-            uint32 Needs[3] = {};
+            uint32 Needs[3];
         };
     }
 }
@@ -608,10 +609,10 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards& playerRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGBlackList& blackList);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot& blackListSlot);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList& clientBlackList);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList const& clientBlackList);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot& clientBlackListSlot);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot const& clientBlackListSlot);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward& playerQuestRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards);
 #endif // LFGPackets_h__

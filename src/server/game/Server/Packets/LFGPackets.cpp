@@ -104,13 +104,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards con
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList const& clientBlackList)
 {
+    data << clientBlackList.Guid;
+    data << clientBlackList.Slots;
+
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot const& clientBlackListSlot)
 {
+    data << clientBlackListSlot.Slot;
+    data << clientBlackListSlot.Reason;
+    data << clientBlackListSlot.SubReason1;
+    data << clientBlackListSlot.SubReason2;
     return data;
 }
 
