@@ -34,6 +34,7 @@ EndScriptData */
 #include "Transport.h"
 #include "Language.h"
 #include "MovementPackets.h"
+#include "SpellPackets.h"
 #include "ScenePackets.h"
 
 #include <fstream>
@@ -213,16 +214,13 @@ public:
         char* fail2 = strtok(NULL, " ");
         uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
 
-        WorldPacket data(SMSG_CAST_FAILED, 5);
-        data << uint8(0);
-        data << uint32(133);
-        data << uint8(failNum);
-        if (fail1 || fail2)
-            data << uint32(failArg1);
-        if (fail2)
-            data << uint32(failArg2);
-
-        handler->GetSession()->SendPacket(&data);
+        WorldPackets::Spells::CastFailed castFailed(SMSG_CAST_FAILED);
+        castFailed.CastID = 0;
+        castFailed.SpellID = 133;
+        castFailed.Reason = failNum;
+        castFailed.FailedArg1 = failArg1;
+        castFailed.FailedArg2 = failArg2;
+        handler->GetSession()->SendPacket(castFailed.Write());
 
         return true;
     }

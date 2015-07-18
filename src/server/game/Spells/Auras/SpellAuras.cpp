@@ -202,6 +202,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     WorldPackets::Spells::AuraDataInfo auraData;
     auraData.SpellID = aura->GetId();
+    auraData.SpellXSpellVisualID = aura->GetSpellInfo()->GetSpellXSpellVisualId(_target->GetMap()->GetDifficultyID());
     auraData.Flags = GetFlags();
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         auraData.Flags |= AFLAG_DURATION;

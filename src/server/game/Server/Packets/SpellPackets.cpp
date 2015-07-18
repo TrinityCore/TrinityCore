@@ -108,6 +108,7 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
         {
             AuraDataInfo const& data = *aura.AuraData;
             _worldPacket << uint32(data.SpellID);
+            _worldPacket << uint32(data.SpellXSpellVisualID);
             _worldPacket << uint8(data.Flags);
             _worldPacket << uint32(data.ActiveFlags);
             _worldPacket << uint16(data.CastLevel);
@@ -414,6 +415,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
     _worldPacket << CasterUnit;
     _worldPacket << uint8(CastID);
     _worldPacket << int32(SpellID);
+    _worldPacket << uint32(SpelXSpellVisualID);
     _worldPacket << uint16(Reason);
 
     return &_worldPacket;
@@ -472,6 +474,9 @@ WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
     _worldPacket << uint32(SpellID.size());
     for (uint32 spellId : SpellID)
         _worldPacket << uint32(spellId);
+
+    _worldPacket.WriteBit(SuppressMessaging);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -577,7 +582,8 @@ WorldPacket const* WorldPackets::Spells::ClearSpellCharges::Write()
 WorldPacket const* WorldPackets::Spells::SetSpellCharges::Write()
 {
     _worldPacket << int32(Category);
-    _worldPacket << float(Count);
+    _worldPacket << uint32(NextRecoveryTime);
+    _worldPacket << uint8(ConsumedCharges);
     _worldPacket.WriteBit(IsPet);
     _worldPacket.FlushBits();
 

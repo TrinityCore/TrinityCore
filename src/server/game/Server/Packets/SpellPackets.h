@@ -150,6 +150,7 @@ namespace WorldPackets
         struct AuraDataInfo
         {
             int32 SpellID = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint8 Flags = 0;
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
@@ -366,6 +367,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
+            uint32 SpelXSpellVisualID = 0;
             uint16 Reason   = 0;
             uint8 CastID    = 0;
         };
@@ -427,6 +429,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<uint32> SpellID;
+            bool SuppressMessaging = false;
         };
 
         class CooldownEvent final : public ServerPacket
@@ -546,8 +549,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsPet = false;
-            float Count = 0.0f;
-            int32 Category = 0;
+            uint32 Category = 0;
+            uint32 NextRecoveryTime = 0;
+            uint8 ConsumedCharges = 0;
         };
 
         struct SpellChargeEntry
