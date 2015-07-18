@@ -1893,7 +1893,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     return guid;
 }
 
-bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, const Position& pos)
+bool ObjectMgr::MoveCreatureData(uint32 guid, uint32 mapId, const Position& pos)
 {
     CreatureData& data = NewOrExistCreatureData(guid);
     if (!data.id)
@@ -1917,7 +1917,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, const Position& pos)
             Creature* creature = new Creature();
             if (!creature->LoadCreatureFromDB(guid, map))
             {
-                TC_LOG_ERROR("misc", "MoveCreData: Cannot add creature guid %u to map", guid);
+                TC_LOG_ERROR("misc", "MoveCreatureData: Cannot add creature guid %u to map", guid);
                 delete creature;
                 return false;
             }
@@ -1926,7 +1926,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, const Position& pos)
     return true;
 }
 
-uint32 ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
+uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
