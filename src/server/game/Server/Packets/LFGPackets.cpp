@@ -36,3 +36,226 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ti
 
     return data;
 }
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo& bootInfo)
+{
+    data >> bootInfo.VoteInProgress;
+    data >> bootInfo.VotePassed;
+    data >> bootInfo.MyVoteCompleted;
+    data >> bootInfo.MyVote;
+    data >> bootInfo.Target;
+    data >> bootInfo.TotalVotes;
+    data >> bootInfo.BootVotes;
+    data >> bootInfo.TimeLeft;
+    data >> bootInfo.VotesNeeded;
+    data >> bootInfo.Reason;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo& playerDungeonInfo)
+{
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards& playerRewards)
+{
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGBlackList& blackList)
+{
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot& blackListSlot)
+{
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward& playerQuestRewards)
+{
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& bootInfo)
+{
+    data << bool(bootInfo.VoteInProgress);
+    data << bool(bootInfo.VotePassed);
+    data << bool(bootInfo.MyVoteCompleted);
+    data << bool(bootInfo.MyVote);
+    data << ObjectGuid(bootInfo.Target);
+    data << uint32(bootInfo.TotalVotes);
+    data << uint32(bootInfo.BootVotes);
+    data << int32(bootInfo.TimeLeft);
+    data << uint32(bootInfo.VotesNeeded);
+    data << std::string(bootInfo.Reason);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo)
+{
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards)
+{
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList)
+{
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot)
+{
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards)
+{
+    return data;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGJoinResult::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << BlackList;
+    _worldPacket << ResultDetail;
+    _worldPacket << Ticket;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGListJoinResult::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGQueueStatus::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGRoleCheckUpdate::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGUpdateStatus::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateStatus::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateBlacklist::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGProposalUpdatePlayer::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGProposalUpdate::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGSearchResults::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGSlotInvalid::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGOfferContinue::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLfgBootPlayer::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLfgPartyInfo::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLfgPlayerInfo::Write()
+{
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::ClientLFGPlayerReward::Write()
+{
+    return &_worldPacket;
+}
+
+void WorldPackets::LFG::UserClientLFGListJoin::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientLFGListUpdateRequest::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientLFGListLeave::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFLeave::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFSearchJoin::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFSearchLeave::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFGetSystemInfo::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFSetComment::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFSetRoles::Read()
+{
+}
+
+//void WorldPackets::LFG::UserClientDFSetNeeds::Read()
+//{
+//}
+
+void WorldPackets::LFG::UserClientDFBootPlayerVote::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFTeleport::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFProposalResponse::Read()
+{
+}
+
+void WorldPackets::LFG::UserClientDFJoin::Read()
+{
+}
