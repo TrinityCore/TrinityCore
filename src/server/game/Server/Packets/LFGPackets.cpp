@@ -177,6 +177,32 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& 
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& item)
+{
+    data << item.ItemID;
+    data << item.Quantity;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& currency)
+{
+    data << currency.CurrencyID;
+    data << currency.Quantity;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot)
+{
+    data << blackListSlot.Slot;
+    data << blackListSlot.Reason;
+    data << blackListSlot.SubReason1;
+    data << blackListSlot.SubReason2;
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::LFG::ClientLFGJoinResult::Write()
 {
     _worldPacket << Result;
