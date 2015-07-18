@@ -154,6 +154,7 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket << uint32(DifficultyID);
     _worldPacket << uint8(IsTournamentRealm);
     _worldPacket << uint32(WeeklyReset);
+    _worldPacket.WriteBit(XRealmPvpAlert);
     _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
     _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
     _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
@@ -282,7 +283,7 @@ void WorldPackets::Misc::StandStateChange::Read()
 
 WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
 {
-    _worldPacket << uint32(UnkWoD1);
+    _worldPacket << uint32(AnimKitID);
     _worldPacket << uint8(State);
 
     return &_worldPacket;
@@ -517,6 +518,23 @@ WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
 
         _worldPacket.WriteString(cufProfile->ProfileName);
     }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket.WriteBit(PlayHoverAnim);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

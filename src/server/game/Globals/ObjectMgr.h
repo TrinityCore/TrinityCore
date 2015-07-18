@@ -39,6 +39,7 @@
 #include "ConditionMgr.h"
 #include "DB2Stores.h"
 #include <string>
+#include <tuple>
 #include <map>
 #include <limits>
 #include <functional>
@@ -67,8 +68,8 @@ struct TempSummonGroupKey
 
     bool operator<(TempSummonGroupKey const& rhs) const
     {
-        // memcmp is only reliable if struct doesn't have any padding (packed)
-        return memcmp(this, &rhs, sizeof(TempSummonGroupKey)) < 0;
+        return std::tie(_summonerEntry, _summonerType, _summonGroup) <
+            std::tie(rhs._summonerEntry, rhs._summonerType, rhs._summonGroup);
     }
 
 private:
@@ -626,6 +627,14 @@ enum SkillRangeType
     SKILL_RANGE_NONE                                        // 0..0 always
 };
 
+#define MAX_SKILL_STEP 16
+
+struct SkillTiersEntry
+{
+    uint32      ID;                                         // 0
+    uint32      Value[MAX_SKILL_STEP];                      // 1-16
+};
+
 SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
@@ -762,18 +771,18 @@ class ObjectMgr
 
         static ObjectGuid GetPlayerGUIDByName(std::string const& name);
 
-        GameObjectQuestItemList* GetGameObjectQuestItemList(uint32 id)
+        GameObjectQuestItemList const* GetGameObjectQuestItemList(uint32 id) const
         {
-            GameObjectQuestItemMap::iterator itr = _gameObjectQuestItemStore.find(id);
+            GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
             if (itr != _gameObjectQuestItemStore.end())
                 return &itr->second;
             return NULL;
         }
         GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
 
-        CreatureQuestItemList* GetCreatureQuestItemList(uint32 id)
+        CreatureQuestItemList const* GetCreatureQuestItemList(uint32 id) const
         {
-            CreatureQuestItemMap::iterator itr = _creatureQuestItemStore.find(id);
+            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
             if (itr != _creatureQuestItemStore.end())
                 return &itr->second;
             return NULL;
@@ -1032,6 +1041,7 @@ class ObjectMgr
         void LoadPetNames();
         void LoadPetNumber();
         void LoadFishingBaseSkillLevel();
+        void LoadSkillTiers();
 
         void LoadReputationRewardRate();
         void LoadReputationOnKill();
@@ -1064,6 +1074,12 @@ class ObjectMgr
         {
             FishingBaseSkillContainer::const_iterator itr = _fishingBaseForAreaStore.find(entry);
             return itr != _fishingBaseForAreaStore.end() ? itr->second : 0;
+        }
+
+        SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const
+        {
+            auto itr = _skillTiers.find(skillTierId);
+            return itr != _skillTiers.end() ? &itr->second : nullptr;
         }
 
         void ReturnOrDeleteOldMails(bool serverUp);
@@ -1473,6 +1489,7 @@ class ObjectMgr
 
         typedef std::map<uint32, int32> FishingBaseSkillContainer; // [areaId][base skill level]
         FishingBaseSkillContainer _fishingBaseForAreaStore;
+        std::unordered_map<uint32, SkillTiersEntry> _skillTiers;
 
         typedef std::map<uint32, StringVector> HalfNameContainer;
         HalfNameContainer _petHalfName0;

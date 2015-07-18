@@ -22,6 +22,7 @@
 #include <sstream>
 #include <list>
 #include <cstring>
+#include "Common.h"
 
 struct ItemLocale;
 struct ItemTemplate;
@@ -65,10 +66,11 @@ public:
     virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
-    std::string FormatName(uint8 index, char* suffixStrings) const;
+    std::string FormatName(uint8 index, LocalizedString* suffixStrings) const;
 
     ItemTemplate const* _item;
-    int32 _data[8];
+    int32 _data[11];
+    std::vector<int32> _bonusListIDs;
     ItemRandomSuffixEntry const* _suffix;
     ItemRandomPropertiesEntry const* _property;
 };

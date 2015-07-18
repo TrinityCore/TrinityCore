@@ -426,7 +426,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //363 SPELL_AURA_MOD_NEXT_SPELL
     &AuraEffect::HandleUnused,                                    //364 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //365 SPELL_AURA_MAX_FAR_CLIP_PLANE
-    &AuraEffect::HandleNULL,                                      //366 SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT
+    &AuraEffect::HandleOverrideSpellPowerByAttackPower,           //366 SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT
     &AuraEffect::HandleNULL,                                      //367 SPELL_AURA_367
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
@@ -464,7 +464,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //401
     &AuraEffect::HandleNULL,                                      //402
     &AuraEffect::HandleNULL,                                      //403
-    &AuraEffect::HandleNULL,                                      //404
+    &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT
     &AuraEffect::HandleNULL,                                      //405
     &AuraEffect::HandleNULL,                                      //406
     &AuraEffect::HandleNULL,                                      //407 SPELL_AURA_MOD_FEAR_2
@@ -479,7 +479,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //416
     &AuraEffect::HandleNULL,                                      //417
     &AuraEffect::HandleNULL,                                      //418
-    &AuraEffect::HandleNULL,                                      //419
+    &AuraEffect::HandleAuraModIncreaseBaseManaPercent,            //419 SPELL_AURA_MOD_BASE_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_MOD_BATTLE_PET_XP_PCT
     &AuraEffect::HandleNULL,                                      //421
     &AuraEffect::HandleNULL,                                      //422
@@ -526,7 +526,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CRIT_RATING_AFFECTS_PARRY used by Riposte
     &AuraEffect::HandleNULL,                                      //464
     &AuraEffect::HandleNULL,                                      //465
-    &AuraEffect::HandleNULL,                                      //466
+    &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
     &AuraEffect::HandleNULL,                                      //468
     &AuraEffect::HandleNULL,                                      //469
@@ -2185,12 +2185,6 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     if (uint32 modelid = ci->GetRandomValidModelId())
                         model_id = modelid;                     // Will use the default model here
 
-                    // Polymorph (sheep)
-                    if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellInfo()->SpellIconID == 82 && GetSpellInfo()->SpellVisual[0] == 12978)
-                        if (Unit* caster = GetCaster())
-                            if (caster->HasAura(52648))         // Glyph of the Penguin
-                                model_id = 26452;
-
                     target->SetDisplayId(model_id);
 
                     // Dragonmaw Illusion (set mount model also)
@@ -3211,6 +3205,10 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
 
     switch (miscVal)
     {
+        case 27:
+            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SILENCE, apply);
+            aura_immunity_list.push_back(SPELL_AURA_MOD_SILENCE);
+            break;
         case 96:
         case 1615:
         {
@@ -4004,10 +4002,35 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 
         if (GetMiscValue() == i || GetMiscValue() == -1)
         {
             target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(m_amount), apply);
-            if (target->GetTypeId() == TYPEID_PLAYER || target->ToCreature()->IsPet())
-                target->ApplyStatPercentBuffMod(Stats(i), float(m_amount), apply);
+            target->ApplyStatPercentBuffMod(Stats(i), float(m_amount), apply);
         }
     }
+}
+
+void AuraEffect::HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->ApplyModSignedFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT, float(m_amount), apply);
+    target->UpdateSpellDamageAndHealingBonus();
+}
+
+void AuraEffect::HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->ApplyModSignedFloatValue(PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PERCENT, float(m_amount), apply);
+    target->UpdateAttackPowerAndDamage();
 }
 
 /********************************/
@@ -4064,10 +4087,11 @@ void AuraEffect::HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint
     }
     else
     {
-        if (int32(target->GetHealth()) > GetAmount())
-            target->ModifyHealth(-GetAmount());
-        else
-            target->SetHealth(1);
+        if (target->GetHealth() > 0)
+        {
+            int32 value = std::min<int32>(target->GetHealth() - 1, GetAmount());
+            target->ModifyHealth(-value);
+        }
         target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
     }
 }
@@ -4079,19 +4103,15 @@ void AuraEffect::HandleAuraModIncreaseMaxHealth(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    uint32 oldhealth = target->GetHealth();
-    double healthPercentage = (double)oldhealth / (double)target->GetMaxHealth();
+    float percent = target->GetHealthPct();
 
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_VALUE, float(GetAmount()), apply);
 
     // refresh percentage
-    if (oldhealth > 0)
+    if (target->GetHealth() > 0)
     {
-        uint32 newhealth = uint32(ceil((double)target->GetMaxHealth() * healthPercentage));
-        if (newhealth == 0)
-            newhealth = 1;
-
-        target->SetHealth(newhealth);
+        uint32 newHealth = std::max<uint32>(target->CountPctFromMaxHealth(int32(percent)), 1);
+        target->SetHealth(newHealth);
     }
 }
 
@@ -4155,8 +4175,12 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurAp
     // Unit will keep hp% after MaxHealth being modified if unit is alive.
     float percent = target->GetHealthPct();
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(GetAmount()), apply);
-    if (target->IsAlive())
-        target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+
+    if (target->GetHealth() > 0)
+    {
+        uint32 newHealth = std::max<uint32>(target->CountPctFromMaxHealth(int32(percent)), 1);
+        target->SetHealth(newHealth);
+    }
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4167,6 +4191,14 @@ void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurA
     Unit* target = aurApp->GetTarget();
 
     target->HandleStatModifier(UNIT_MOD_HEALTH, BASE_PCT, float(GetAmount()), apply);
+}
+
+void AuraEffect::HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    aurApp->GetTarget()->HandleStatModifier(UNIT_MOD_MANA, BASE_PCT, float(GetAmount()), apply);
 }
 
 /********************************/

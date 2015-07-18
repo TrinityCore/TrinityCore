@@ -90,7 +90,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.EnergyMulti = creatureInfo->ModMana;
         stats.Leader = creatureInfo->RacialLeader;
 
-        CreatureQuestItemList* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
+        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
         if (items)
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
@@ -131,7 +131,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.IconName = gameObjectInfo->IconName;
         stats.Name[0] = gameObjectInfo->name;
 
-        GameObjectQuestItemList* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
+        GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
         if (items)
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
@@ -397,17 +397,17 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
+        response.RecordID = rec.RecordID;
 
         if (store->HasRecord(rec.RecordID))
         {
-            response.RecordID = rec.RecordID;
+            response.Allow = true;
             response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
             store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
         }
         else
         {
             TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
-            response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }
 

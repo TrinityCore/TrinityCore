@@ -39,8 +39,8 @@
 
 Pet::Pet(Player* owner, PetType type) :
     Guardian(NULL, owner, true), m_usedTalentCount(0), m_removed(false),
-    m_petType(type), m_duration(0), m_loading(false), m_declinedname(NULL),
-    m_groupUpdateMask(0)
+    m_petType(type), m_duration(0), m_loading(false), m_groupUpdateMask(0),
+    m_declinedname(NULL)
 {
     ASSERT(GetOwner());
 
@@ -1455,10 +1455,8 @@ void Pet::InitLevelupSpellsForLevel()
         }
     }
 
-    int32 petSpellsId = GetCreatureTemplate()->PetSpellDataId ? -(int32)GetCreatureTemplate()->PetSpellDataId : GetEntry();
-
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
-    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
+    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(int32(GetEntry())))
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
@@ -1911,14 +1909,8 @@ void Pet::SynchronizeLevelWithOwner()
     {
         // always same level
         case SUMMON_PET:
-            GivePetLevel(owner->getLevel());
-            break;
-        // can't be greater owner level
         case HUNTER_PET:
-            if (getLevel() > owner->getLevel())
-                GivePetLevel(owner->getLevel());
-            else if (getLevel() + 5 < owner->getLevel())
-                GivePetLevel(owner->getLevel() - 5);
+            GivePetLevel(owner->getLevel());
             break;
         default:
             break;

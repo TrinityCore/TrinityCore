@@ -97,7 +97,7 @@ class QueryCallback
         //! Resets all underlying variables (param, result and stage)
         void Reset()
         {
-            SetParam(NULL);
+            SetParam(ParamType());
             FreeResult();
             ResetStage();
         }

@@ -282,14 +282,7 @@ void World::AddSession_(WorldSession* s)
         return;
     }
 
-    s->SendAuthResponse(AUTH_OK, false);
-
-    s->SendSetTimeZoneInformation();
-    s->SendFeatureSystemStatusGlueScreen();
-
-    s->SendAddonsInfo();
-    s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    s->SendTutorialsData();
+    s->InitializeSession();
 
     UpdateMaxSessionCounters();
 
@@ -394,18 +387,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
     if ((!m_playerLimit || sessions < m_playerLimit) && !m_QueuedPlayer.empty())
     {
         WorldSession* pop_sess = m_QueuedPlayer.front();
-        pop_sess->SetInQueue(false);
-        pop_sess->ResetTimeOutTime();
-        pop_sess->SendAuthWaitQue(0);
-
-        pop_sess->SendSetTimeZoneInformation();
-        pop_sess->SendFeatureSystemStatusGlueScreen();
-
-        pop_sess->SendAddonsInfo();
-
-        pop_sess->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-        pop_sess->SendTutorialsData();
-
+        pop_sess->InitializeSession();
         m_QueuedPlayer.pop_front();
 
         // update iter to point first queued socket or end() if queue is empty now
@@ -463,7 +445,6 @@ void World::LoadConfigSettings(bool reload)
         sSupportMgr->SetComplaintSystemStatus(m_bool_configs[CONFIG_SUPPORT_COMPLAINTS_ENABLED]);
         sSupportMgr->SetSuggestionSystemStatus(m_bool_configs[CONFIG_SUPPORT_SUGGESTIONS_ENABLED]);
     }
-    m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfigMgr->GetFloatDefault("Support.ChanceOfGMSurvey", 50.0f);
 
 
     ///- Get string for new logins (newly created characters)
@@ -646,7 +627,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Whisper", 1);
     m_int_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Say", 1);
     m_int_configs[CONFIG_TRADE_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Trade", 1);
-    m_int_configs[CONFIG_TICKET_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Ticket", 1);
     m_int_configs[CONFIG_AUCTION_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Auction", 1);
     m_int_configs[CONFIG_MAIL_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Mail", 1);
     m_bool_configs[CONFIG_PRESERVE_CUSTOM_CHANNELS] = sConfigMgr->GetBoolDefault("PreserveCustomChannels", false);
@@ -1477,16 +1457,17 @@ void World::SetInitialWorldSettings()
 
     LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmHandle.Index);      // One-time query
 
-    ///- Load the DBC files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
+    ///- Load DBCs
     LoadDBCStores(m_dataPath);
+    ///- Load DB2s
     sDB2Manager.LoadStores(m_dataPath);
-
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();
-
-    // Close hotfix database - it is only used during DB2 loading
+    ///- Close hotfix database - it is only used during DB2 loading
     HotfixDatabase.Close();
+    ///- Load GameTables
+    LoadGameTables(m_dataPath);
 
     sSpellMgr->LoadPetFamilySpellsStore();
 
@@ -1752,6 +1733,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
 
+    TC_LOG_INFO("server.loading", "Loading skill tier info...");
+    sObjectMgr->LoadSkillTiers();
+
     TC_LOG_INFO("server.loading", "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
     TC_LOG_INFO("server.loading", "Loading Achievement Criteria Modifier trees...");
@@ -1845,6 +1829,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading faction change spell pairs...");
     sObjectMgr->LoadFactionChangeSpells();
 
+    TC_LOG_INFO("server.loading", "Loading faction change quest pairs...");
+    sObjectMgr->LoadFactionChangeQuests();
+
     TC_LOG_INFO("server.loading", "Loading faction change item pairs...");
     sObjectMgr->LoadFactionChangeItems();
 
@@ -1856,9 +1843,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading mount definitions...");
     sObjectMgr->LoadMountDefinitions();
-
-    TC_LOG_INFO("server.loading", "Loading GM tickets...");
-    sSupportMgr->LoadGmTickets();
 
     TC_LOG_INFO("server.loading", "Loading GM bugs...");
     sSupportMgr->LoadBugTickets();
@@ -2354,7 +2338,7 @@ namespace Trinity
     class WorldWorldTextBuilder
     {
         public:
-            typedef std::vector<WorldPacket*> WorldPacketList;
+            typedef std::vector<WorldPackets::Packet*> WorldPacketList;
             static size_t const BufferSize = 2048;
 
             explicit WorldWorldTextBuilder(uint32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) { }
@@ -2386,10 +2370,10 @@ namespace Trinity
             {
                 while (char* line = ChatHandler::LineFromMessage(text))
                 {
-                    WorldPackets::Chat::Chat packet;
-                    packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-                    packet.Write();
-                    dataList.emplace_back(new WorldPacket(packet.Move()));
+                    WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+                    packet->Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+                    packet->Write();
+                    dataList.push_back(packet);
                 }
             }
 

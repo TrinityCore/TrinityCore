@@ -60,7 +60,6 @@ namespace WorldPackets
             Optional<ObjectGuid> SenderCharacter;
             Optional<uint32> AltSenderID;
             int64 Cod = 0;
-            int32 PackageID = 0;
             int32 StationeryID = 0;
             int64 SentMoney = 0;
             int32 Flags = 0;
@@ -117,7 +116,6 @@ namespace WorldPackets
 
                 ObjectGuid Mailbox;
                 int32 StationeryID = 0;
-                int32 PackageID = 0;
                 int64 SendMoney = 0;
                 int64 Cod = 0;
                 std::string Target;

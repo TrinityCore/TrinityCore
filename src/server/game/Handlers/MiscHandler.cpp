@@ -904,7 +904,7 @@ void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& 
     _player->m_timeSyncQueue.pop();
 }
 
-void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& /*packet*/)
 {
     if (Group* group = _player->GetGroup())
     {

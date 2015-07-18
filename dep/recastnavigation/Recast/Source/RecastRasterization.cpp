@@ -50,7 +50,7 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 		// Allocate memory for the new pool.
 		rcSpanPool* pool = (rcSpanPool*)rcAlloc(sizeof(rcSpanPool), RC_ALLOC_PERM);
 		if (!pool) return 0;
-		pool->next = 0;
+
 		// Add the pool into the list of pools.
 		pool->next = hf.pools;
 		hf.pools = pool;

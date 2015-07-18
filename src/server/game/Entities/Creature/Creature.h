@@ -119,7 +119,6 @@ struct CreatureTemplate
     uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[CREATURE_MAX_SPELLS];
-    uint32  PetSpellDataId;
     uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
@@ -269,8 +268,6 @@ struct PointOfInterestLocale
 {
     StringVector Name;
 };
-
-#define MAX_EQUIPMENT_ITEMS 3
 
 struct EquipmentInfo
 {
@@ -456,6 +453,10 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 #define CREATURE_Z_ATTACK_RANGE 3
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
+
+//used for handling non-repeatable random texts
+typedef std::vector<uint8> CreatureTextRepeatIds;
+typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
 
 class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
@@ -694,6 +695,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 
+        CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
+        void SetTextRepeatId(uint8 textGroup, uint8 id);
+        void ClearTextRepeatGroup(uint8 textGroup);
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -758,6 +763,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool TriggerJustRespawned;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
+
+        CreatureTextRepeatGroup m_textRepeat;
 };
 
 class AssistDelayEvent : public BasicEvent

@@ -1,0 +1,1 @@
+UPDATE `item` SET `VerifiedBuild`=19831 WHERE `ID` IN (120989 /*-Unknown-*/, 121820 /*-Unknown-*/, 121837 /*-Unknown-*/, 122101 /*-Unknown-*/, 122147 /*-Unknown-*/, 122154 /*-Unknown-*/, 122706 /*-Unknown-*/, 122707 /*-Unknown-*/);

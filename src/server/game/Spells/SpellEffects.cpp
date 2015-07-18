@@ -68,6 +68,7 @@
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
 #include "Garrison.h"
+#include "CombatLogPackets.h"
 #include "DuelPackets.h"
 #include "MiscPackets.h"
 #include "SpellPackets.h"
@@ -298,7 +299,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
     &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
-    &Spell::EffectNULL,                                     //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
+    &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
@@ -325,6 +326,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
+    &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -378,11 +380,12 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
-    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
-    data << m_caster->GetGUID();
-    data << unitTarget->GetGUID();
-    data << uint32(m_spellInfo->Id);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellInstakillLog data;
+    data.Target = unitTarget->GetGUID();
+    data.Caster = m_caster->GetGUID();
+    data.SpellID = m_spellInfo->Id;
+
+    m_caster->SendMessageToSet(data.Write(), true);
 
     m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
@@ -497,7 +500,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             case SPELLFAMILY_DRUID:
             {
                 // Ferocious Bite
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[0] & 0x000800000) && m_spellInfo->SpellVisual[0] == 6587)
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->SpellFamilyFlags[3] & 0x1000)
                 {
                     // converts each extra point of energy ( up to 25 energy ) into additional damage
                     int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
@@ -2483,7 +2486,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
     if (!rcEntry)
         return;
 
-    SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcEntry->SkillTierID);
+    SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID);
     if (!tier)
         return;
 
@@ -2684,16 +2687,13 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
         duration = 3600;                                    // 1 hour
     // shaman family enchantments
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN)
-        duration = 1800;                                    // 30 mins
+        duration = 3600;                                    // 30 mins
     // other cases with this SpellVisual already selected
-    else if (m_spellInfo->SpellVisual[0] == 215)
+    else if (m_spellInfo->GetSpellVisual(DIFFICULTY_NONE) == 215)
         duration = 1800;                                    // 30 mins
     // some fishing pole bonuses except Glow Worm which lasts full hour
-    else if (m_spellInfo->SpellVisual[0] == 563 && m_spellInfo->Id != 64401)
+    else if (m_spellInfo->GetSpellVisual(DIFFICULTY_NONE) == 563 && m_spellInfo->Id != 64401)
         duration = 600;                                     // 10 mins
-    // shaman rockbiter enchantments
-    else if (m_spellInfo->SpellVisual[0] == 0)
-        duration = 1800;                                    // 30 mins
     else if (m_spellInfo->Id == 29702)
         duration = 300;                                     // 5 mins
     else if (m_spellInfo->Id == 37360)
@@ -2905,19 +2905,18 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    // Also use this effect to set the taunter's threat to the taunted creature's highest value
-    if (unitTarget->getThreatManager().getCurrentVictim())
-    {
-        float myThreat = unitTarget->getThreatManager().getThreat(m_caster);
-        float itsThreat = unitTarget->getThreatManager().getCurrentVictim()->getThreat();
-        if (itsThreat > myThreat)
-            unitTarget->getThreatManager().addThreat(m_caster, itsThreat - myThreat);
-    }
-
-    //Set aggro victim to caster
     if (!unitTarget->getThreatManager().getOnlineContainer().empty())
+    {
+        // Also use this effect to set the taunter's threat to the taunted creature's highest value
+        float myThreat = unitTarget->getThreatManager().getThreat(m_caster);
+        float topThreat = unitTarget->getThreatManager().getOnlineContainer().getMostHated()->getThreat();
+        if (topThreat > myThreat)
+            unitTarget->getThreatManager().doAddThreat(m_caster, topThreat - myThreat);
+
+        //Set aggro victim to caster
         if (HostileReference* forcedVictim = unitTarget->getThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
             unitTarget->getThreatManager().setCurrentVictim(forcedVictim);
+    }
 
     if (unitTarget->ToCreature()->IsAIEnabled && !unitTarget->ToCreature()->HasReactState(REACT_PASSIVE))
         unitTarget->ToCreature()->AI()->AttackStart(m_caster);
@@ -5482,10 +5481,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (EQUIPMENT_SLOT_MAINHAND * 3)))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (EQUIPMENT_SLOT_MAINHAND * 2)))
             {
                 summon->SetDisplayId(11686); // modelid2
-                summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+                summon->SetVirtualItem(0, weapon);
             }
             else
                 summon->SetDisplayId(1126); // modelid1
@@ -5856,4 +5855,16 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
         garrison->AddFollower(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
+        garrison->ActivateBuilding(GetEffect(effIndex)->MiscValue);
 }

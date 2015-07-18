@@ -177,33 +177,25 @@ class SmartScript
 
         GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
-            GameObject* gameObject = NULL;
+            auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
+            if (bounds.first == bounds.second)
+                return nullptr;
 
-            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-            Cell cell(p);
-
-            Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
-            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
-
-            TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
-            cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
-
-            return gameObject;
+            return bounds.first->second;
         }
 
         Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
-            Creature* creature = NULL;
-            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-            Cell cell(p);
+            auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
+            if (bounds.first == bounds.second)
+                return nullptr;
 
-            Trinity::CreatureWithDbGUIDCheck target_check(searchObject, guid);
-            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
+            auto creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair)
+            {
+                return pair.second->IsAlive();
+            });
 
-            TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-            cell.Visit(p, unit_checker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
-
-            return creature;
+            return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
         }
 
         ObjectListMap* mTargetStorage;
@@ -254,7 +246,14 @@ class SmartScript
                 DecPhase(abs(p));
         }
 
-        void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
+        void DecPhase(int32 p = 1)
+        {
+            if(mEventPhase > (uint32)p)
+                mEventPhase -= (uint32)p;
+            else
+                mEventPhase = 0;
+        }
+
         bool IsInPhase(uint32 p) const { return ((1 << (mEventPhase - 1)) & p) != 0; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 

@@ -1191,7 +1191,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
     features.ComplaintStatus = 0;
     features.TutorialsEnabled = true;
-    features.UnkBit90 = true;
+    features.NPETutorialsEnabled = true;
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
@@ -2364,7 +2364,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = GetRandomCharacterName(packet.Race, packet.Sex);
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale());
 
     SendPacket(result.Write());
 }

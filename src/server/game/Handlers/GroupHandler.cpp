@@ -433,7 +433,7 @@ void WorldSession::HandleUpdateRaidTargetOpcode(WorldPackets::Party::UpdateRaidT
     if (!group)
         return;
 
-    if (packet.Symbol == 0xFF)                  // target icon request
+    if (packet.Symbol == -1)                  // target icon request
         group->SendTargetIconList(this, packet.PartyIndex);
     else                                        // target icon update
     {

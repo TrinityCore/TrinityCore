@@ -652,10 +652,10 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 
         if (warn)
         {
-            if (now <= resetTime)
+            if (now >= resetTime)
                 timeLeft = 0;
             else
-                timeLeft = uint32(now - resetTime);
+                timeLeft = uint32(resetTime - now);
 
             ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
         }

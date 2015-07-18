@@ -242,6 +242,7 @@ namespace WorldPackets
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint32> RestrictedAccountMaxMoney;
             uint32 DifficultyID     = 0;
+            bool XRealmPvpAlert     = false;
         };
 
         class AreaTrigger final : public ClientPacket
@@ -422,11 +423,11 @@ namespace WorldPackets
         {
         public:
             StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1) { }
-            StandStateUpdate(UnitStandStateType state) : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1), State(state) { }
+            StandStateUpdate(UnitStandStateType state, uint32 animKitID) : ServerPacket(SMSG_STAND_STATE_UPDATE, 4 + 1), AnimKitID(animKitID), State(state) { }
 
             WorldPacket const* Write() override;
 
-            uint32 UnkWoD1 = 0; /// @todo 6.1.0 resarch new value
+            uint32 AnimKitID = 0;
             UnitStandStateType State = UNIT_STAND_STATE_STAND;
         };
 
@@ -662,6 +663,28 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<CUFProfile const*> CUFProfiles;
+        };
+
+        class SetAIAnimKit final : public ServerPacket
+        {
+        public:
+            SetAIAnimKit() : ServerPacket(SMSG_SET_AI_ANIM_KIT, 16 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
+        class SetPlayHoverAnim final : public ServerPacket
+        {
+        public:
+            SetPlayHoverAnim() : ServerPacket(SMSG_SET_PLAY_HOVER_ANIM, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool PlayHoverAnim = false;
         };
 
         class AccountMountUpdate final : public ServerPacket

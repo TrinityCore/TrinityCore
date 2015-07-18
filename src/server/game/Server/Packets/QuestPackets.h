@@ -118,7 +118,8 @@ namespace WorldPackets
             int32 RewardXPDifficulty        = 0; // used for calculating rewarded experience
             float RewardXPMultiplier        = 1.0f;
             int32 RewardMoney               = 0; // reward money (below max lvl)
-            int32 RewardMoneyDifficulty     = 0; // used in XP calculation at client
+            int32 RewardMoneyDifficulty     = 0;
+            float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
             int32 RewardDisplaySpell        = 0; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
@@ -131,6 +132,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
+            int32 AllowableRaces            = -1;
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;
@@ -163,9 +165,6 @@ namespace WorldPackets
             int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
-
-            float Float13 = 1.0f;
-            int32 AllowableRaces = -1;
         };
 
         class QueryQuestInfoResponse final : public ServerPacket

@@ -117,7 +117,7 @@ dtPolyRef PathGenerator::GetPathPolyByPosition(dtPolyRef const* polyPath, uint32
     }
 
     if (distance)
-        *distance = dtSqrt(minDist3d);
+        *distance = dtMathSqrtf(minDist3d);
 
     return (minDist2d < 3.0f) ? nearestPoly : INVALID_POLYREF;
 }
@@ -800,7 +800,7 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
         // Find movement delta.
         float delta[VERTEX_SIZE];
         dtVsub(delta, steerPos, iterPos);
-        float len = dtSqrt(dtVdot(delta, delta));
+        float len = dtMathSqrtf(dtVdot(delta, delta));
         // If the steer target is end of path or off-mesh link, do not move past the location.
         if ((endOfPath || offMeshConnection) && len < SMOOTH_PATH_STEP_SIZE)
             len = 1.0f;
@@ -925,6 +925,7 @@ void PathGenerator::ReducePathLenghtByDist(float dist)
             float step = dist / len;
             // same as nextVec
             _pathPoints[i + 1] -= diffVec * step;
+            _sourceUnit->UpdateAllowedPositionZ(_pathPoints[i + 1].x, _pathPoints[i + 1].y, _pathPoints[i + 1].z);
             _pathPoints.resize(i + 2);
             break;
         }

@@ -890,7 +890,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // (after what time the ratings aren't taken into account when making teams) then
         // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
         // else leave the discard time on 0, this way all ratings will be discarded
-        uint32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
+        // this has to be signed value - when the server starts, this value would be negative and thus overflow
+        int32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[BG_TEAMS_COUNT];
@@ -906,7 +907,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                 // if group match conditions, then add it to pool
                 if (!(*itr2)->IsInvitedToBGInstanceGUID
                     && (((*itr2)->ArenaMatchmakerRating >= arenaMinRating && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating)
-                        || (*itr2)->JoinTime < discardTime))
+                        || (int32)(*itr2)->JoinTime < discardTime))
                 {
                     itr_teams[found++] = itr2;
                     team = i;
@@ -924,7 +925,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             {
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
                     && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
-                        || (*itr3)->JoinTime < discardTime)
+                        || (int32)(*itr3)->JoinTime < discardTime)
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {
                     itr_teams[found++] = itr3;

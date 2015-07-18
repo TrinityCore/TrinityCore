@@ -1786,13 +1786,13 @@ void GameObject::Use(Unit* user)
 
             Player* player = user->ToPlayer();
 
-            // fallback, will always work
-            player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
-
             WorldPackets::Misc::EnableBarberShop packet;
             player->SendDirectMessage(packet.Write());
 
-            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight));
+            // fallback, will always work
+            player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+
+            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.SitAnimKit);
             return;
         }
         default:
@@ -1814,6 +1814,9 @@ void GameObject::Use(Unit* user)
             TC_LOG_DEBUG("outdoorpvp", "WORLD: %u non-dbc spell was handled by OutdoorPvP", spellId);
         return;
     }
+
+    if (Player* player = user->ToPlayer())
+        sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
 
     if (spellCaster)
         spellCaster->CastSpell(user, spellInfo, triggered);
