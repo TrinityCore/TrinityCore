@@ -447,21 +447,31 @@ WorldPacket const* WorldPackets::LFG::ClientLFGSearchResults::Write()
 
 WorldPacket const* WorldPackets::LFG::ClientLFGSlotInvalid::Write()
 {
+    _worldPacket << Reason;
+    _worldPacket << SubReason1;
+    _worldPacket << SubReason2;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::LFG::ClientLFGOfferContinue::Write()
 {
+    _worldPacket << Slot;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::LFG::ClientLfgBootPlayer::Write()
 {
+    _worldPacket << Info;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::LFG::ClientLfgPartyInfo::Write()
 {
+    _worldPacket << Player;
+
     return &_worldPacket;
 }
 
@@ -527,7 +537,9 @@ void WorldPackets::LFG::UserClientDFGetSystemInfo::Read()
 void WorldPackets::LFG::UserClientDFSetComment::Read()
 {
     _worldPacket >> Ticket;
-    _worldPacket >> Comment;
+
+    auto commentLen = _worldPacket.ReadBits(8);
+    Comment = _worldPacket.ReadString(commentLen);
 }
 
 void WorldPackets::LFG::UserClientDFSetRoles::Read()
