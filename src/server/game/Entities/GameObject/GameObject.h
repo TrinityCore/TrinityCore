@@ -804,6 +804,7 @@ struct GameObjectLocale
 {
     StringVector Name;
     StringVector CastBarCaption;
+    StringVector Unk1;
 };
 
 // `gameobject_addon` table
