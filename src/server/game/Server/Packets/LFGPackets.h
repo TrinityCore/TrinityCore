@@ -92,6 +92,8 @@ namespace WorldPackets
             std::vector<LfgPlayerQuestRewardItem> Item;
             std::vector<LfgPlayerQuestRewardCurrency> Currency;
             std::vector<LfgPlayerQuestRewardCurrency> BonusCurrency;
+            bool UnkBit = true;
+            uint32 UnkWoD62 = 0;
         };
 
         struct LfgPlayerDungeonInfo
@@ -111,9 +113,11 @@ namespace WorldPackets
             int32 PurseLimit = 0;
             int32 Quantity = 0;
             uint32 CompletedMask = 0;
-            bool int16ageEligible = false;
-            std::vector<LfgPlayerQuestReward> int16ageReward;
+            bool ShortageEligible = false;
+            std::vector<LfgPlayerQuestReward> ShortageReward;
             LfgPlayerQuestReward Rewards;
+
+            uint32 ShortageRewardCount = 0;
         };
 
         struct LFGPlayerRewards
@@ -439,6 +443,7 @@ namespace WorldPackets
 
             int32 RewardMoney = 0;
             uint32 QueuedSlot = 0;
+            uint32 RewardsCount = 0;
             std::vector<LFGPlayerRewards> Rewards;
             int32 AddedXP = 0;
             uint32 ActualSlot = 0;
@@ -591,6 +596,8 @@ namespace WorldPackets
 
             void Read() override;
 
+            uint32 slotsCount = 0;
+
             bool QueueAsGroup = false;
             uint32 Roles = 0;
             uint8 PartyIndex = 0;
@@ -607,12 +614,13 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo& bootInf
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& bootInfo);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo& playerDungeonInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards& playerRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList& clientBlackList);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList const& clientBlackList);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot& clientBlackListSlot);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot const& clientBlackListSlot);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward& playerQuestRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest& joinRequest);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest const& joinRequest);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList);
 #endif // LFGPackets_h__

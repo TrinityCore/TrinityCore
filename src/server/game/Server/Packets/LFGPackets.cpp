@@ -53,27 +53,12 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo& bootInf
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo& playerDungeonInfo)
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList& clientBlackList)
 {
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards& playerRewards)
-{
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGBlackList& blackList)
-{
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot& blackListSlot)
-{
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward& playerQuestRewards)
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot& clientBlackListSlot)
 {
     return data;
 }
@@ -96,11 +81,39 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& b
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo)
 {
+    data << playerDungeonInfo.Slot;
+    data << playerDungeonInfo.CompletionQuantity;
+    data << playerDungeonInfo.CompletionLimit;
+    data << playerDungeonInfo.CompletionCurrencyID;
+    data << playerDungeonInfo.SpecificQuantity;
+    data << playerDungeonInfo.SpecificLimit;
+    data << playerDungeonInfo.OverallQuantity;
+    data << playerDungeonInfo.OverallLimit;
+    data << playerDungeonInfo.PurseWeeklyQuantity;
+    data << playerDungeonInfo.PurseWeeklyLimit;
+    data << playerDungeonInfo.PurseQuantity;
+    data << playerDungeonInfo.PurseLimit;
+    data << playerDungeonInfo.Quantity;
+    data << playerDungeonInfo.CompletedMask;
+    data << playerDungeonInfo.ShortageRewardCount;
+
+    data << playerDungeonInfo.Rewards;
+
+    for (uint32 i = 0; i < playerDungeonInfo.ShortageRewardCount; i++)
+        data << playerDungeonInfo.ShortageReward;
+
+    data << playerDungeonInfo.FirstReward;
+    data << playerDungeonInfo.ShortageEligible;
     return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards)
 {
+    data << playerRewards.RewardItem;
+    data << playerRewards.RewardItemQuantity;
+    data << playerRewards.BonusCurrency;
+    data << playerRewards.IsCurrency;
+
     return data;
 }
 
@@ -123,6 +136,44 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSl
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards)
 {
+    data << playerQuestRewards.Mask;
+    data << playerQuestRewards.RewardMoney;
+    data << playerQuestRewards.RewardXP;
+    data << playerQuestRewards.Item;
+    data << playerQuestRewards.Currency;
+    data << playerQuestRewards.BonusCurrency;
+    data << playerQuestRewards.UnkBit;
+
+    if (playerQuestRewards.UnkBit)
+        data << playerQuestRewards.UnkWoD62;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest& joinRequest)
+{
+    data >> joinRequest.ActivityID;
+    data >> joinRequest.RequiredItemLevel;
+    data >> joinRequest.Name;
+    data >> joinRequest.Comment;
+    data >> joinRequest.VoiceChat;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest const& joinRequest)
+{
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList)
+{
+    data.WriteBit(blackList.PlayerGuid.is_initialized());
+    data << blackList.Slot;
+
+    if (blackList.PlayerGuid)
+        data << *blackList.PlayerGuid;
+
     return data;
 }
 
@@ -203,48 +254,73 @@ WorldPacket const* WorldPackets::LFG::ClientLfgPartyInfo::Write()
 
 WorldPacket const* WorldPackets::LFG::ClientLfgPlayerInfo::Write()
 {
+    _worldPacket << BlackList;
+    _worldPacket << Dungeon;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::LFG::ClientLFGPlayerReward::Write()
 {
+    _worldPacket << ActualSlot;
+    _worldPacket << QueuedSlot;
+    _worldPacket << RewardMoney;
+    _worldPacket << AddedXP;
+    _worldPacket << RewardsCount;
+
+    for (uint32 i = 0; i < RewardsCount; i++)
+        _worldPacket << Rewards;
+
     return &_worldPacket;
 }
 
 void WorldPackets::LFG::UserClientLFGListJoin::Read()
 {
+    _worldPacket >> Info;
 }
 
 void WorldPackets::LFG::UserClientLFGListUpdateRequest::Read()
 {
+    _worldPacket >> Info;
+    _worldPacket >> Ticket;
 }
 
 void WorldPackets::LFG::UserClientLFGListLeave::Read()
 {
+    _worldPacket >> Ticket;
 }
 
 void WorldPackets::LFG::UserClientDFLeave::Read()
 {
+    _worldPacket >> Ticket;
 }
 
 void WorldPackets::LFG::UserClientDFSearchJoin::Read()
 {
+    _worldPacket >> Slot;
 }
 
 void WorldPackets::LFG::UserClientDFSearchLeave::Read()
 {
+    _worldPacket >> Slot;
 }
 
 void WorldPackets::LFG::UserClientDFGetSystemInfo::Read()
 {
+    _worldPacket >> Player;
+    _worldPacket >> PartyIndex;
 }
 
 void WorldPackets::LFG::UserClientDFSetComment::Read()
 {
+    _worldPacket >> Ticket;
+    _worldPacket >> Comment;
 }
 
 void WorldPackets::LFG::UserClientDFSetRoles::Read()
 {
+    _worldPacket >> RolesDesired;
+    _worldPacket >> PartyIndex;
 }
 
 //void WorldPackets::LFG::UserClientDFSetNeeds::Read()
@@ -253,16 +329,35 @@ void WorldPackets::LFG::UserClientDFSetRoles::Read()
 
 void WorldPackets::LFG::UserClientDFBootPlayerVote::Read()
 {
+    _worldPacket >> Vote;
 }
 
 void WorldPackets::LFG::UserClientDFTeleport::Read()
 {
+    _worldPacket >> TeleportOut;
 }
 
 void WorldPackets::LFG::UserClientDFProposalResponse::Read()
 {
+    _worldPacket >> Ticket;
+    _worldPacket >> InstanceID;
+    _worldPacket >> ProposalID;
+    _worldPacket >> Accepted;
 }
 
 void WorldPackets::LFG::UserClientDFJoin::Read()
 {
+    _worldPacket >> QueueAsGroup;
+    auto commentLength = _worldPacket.ReadBits(8);
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Roles;
+    _worldPacket >> slotsCount;
+
+    for (uint32 i = 0; i < 3; i++)
+        _worldPacket >> Needs[i];
+
+    Comment = _worldPacket.ReadString(commentLength);
+
+    for (uint32 i = 0; i < slotsCount; i++)
+        _worldPacket >> Slots;
 }
