@@ -500,6 +500,7 @@ namespace WorldPackets
         class UnlearnSkill;
         class SelfRes;
         class GetMirrorImageData;
+        class SpellClick;
     }
 
     namespace Talent
@@ -1487,7 +1488,7 @@ class WorldSession
         void HandleTransmogrifyItems(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleSpellClick(WorldPacket& recvData);
+        void HandleSpellClick(WorldPackets::Spells::SpellClick& packet);
         void HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& packet);
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
