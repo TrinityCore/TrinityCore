@@ -615,7 +615,7 @@ enum WeaponAttackType : uint16
 
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,
+    CR_UNUSED_1                         = 0,
     CR_DEFENSE_SKILL                    = 1, // Removed in 4.0.1
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -626,24 +626,29 @@ enum CombatRating
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
-    CR_HIT_TAKEN_MELEE                  = 11, // Deprecated since Cataclysm
-    CR_HIT_TAKEN_RANGED                 = 12, // Deprecated since Cataclysm
-    CR_HIT_TAKEN_SPELL                  = 13, // Deprecated since Cataclysm
+    CR_MULTISTRIKE                      = 11,
+    CR_READINESS                        = 12,
+    CR_SPEED                            = 13,
     CR_RESILIENCE_CRIT_TAKEN            = 14,
     CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,
-    CR_CRIT_TAKEN_SPELL                 = 16, // Deprecated since Cataclysm
+    CR_LIFESTEAL                        = 16,
     CR_HASTE_MELEE                      = 17,
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
-    CR_WEAPON_SKILL_MAINHAND            = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,
+    CR_AVOIDANCE                        = 20,
+    CR_UNUSED_2                         = 21,
     CR_WEAPON_SKILL_RANGED              = 22,
     CR_EXPERTISE                        = 23,
     CR_ARMOR_PENETRATION                = 24,
     CR_MASTERY                          = 25,
+    CR_UNUSED_3                         = 26,
+    CR_UNUSED_4                         = 27,
+    CR_VERSATILITY_DAMAGE_DONE          = 28,
+    // placeholder                      = 29,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 30
 };
 
-#define MAX_COMBAT_RATING         26
+#define MAX_COMBAT_RATING         31
 
 enum DamageEffectType
 {
