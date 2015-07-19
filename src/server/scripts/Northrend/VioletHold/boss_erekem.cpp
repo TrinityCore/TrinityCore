@@ -254,7 +254,7 @@ public:
             else
                 breakBondsCd -= diff;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_EARTH_SHIELD:
                     if (Unit* ally = DoSelectLowestHpFriendly(30.0f))
