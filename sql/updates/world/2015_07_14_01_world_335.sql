@@ -12,6 +12,7 @@ UPDATE `creature_queststarter` SET `quest`=10073 WHERE `id`=15283 AND `quest`=10
 UPDATE `creature_queststarter` SET `quest`=10072 WHERE `id`=15284 AND `quest`=10070;
 UPDATE `creature_queststarter` SET `quest`=10071 WHERE `id`=15285 AND `quest`=10071;
 UPDATE `creature_queststarter` SET `quest`=10070 WHERE `id`=15513 AND `quest`=10072;
+/*
 UPDATE `locales_quest` SET 
 `Title_loc2`="Veilleur du puits Solanian",
 `Title_loc3`="Brunnenbehüter Solanian",
@@ -34,3 +35,4 @@ UPDATE `locales_quest` SET
 `OfferRewardText_loc7`="Ah bien, $gun:una; $c. Te he estado esperando.$B$BTengo unas tareas que son especialmente adecuadas para ti.",
 `OfferRewardText_loc8`="Я ждал тебя, $c.У меня есть несколько поручений, для выполнения которых ты подходишь как нельзя лучше."
 WHERE `id` IN (10068, 10069, 10070, 10071, 10072, 10073);
+*/
