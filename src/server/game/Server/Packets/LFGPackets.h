@@ -614,6 +614,22 @@ namespace WorldPackets
             std::vector<uint32> Slots;
             uint32 Needs[3];
         };
+
+        class UserClientDfGetJoinStatus final : public ClientPacket
+        {
+        public:
+            UserClientDfGetJoinStatus(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_JOIN_STATUS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class UserClientLfgListGetStatus final : public ClientPacket
+        {
+        public:
+            UserClientLfgListGetStatus(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_GET_STATUS, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

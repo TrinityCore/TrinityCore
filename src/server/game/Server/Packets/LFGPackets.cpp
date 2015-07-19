@@ -82,6 +82,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo
 
     data.WriteBit(playerDungeonInfo.FirstReward);
     data.WriteBit(playerDungeonInfo.ShortageEligible);
+    data.FlushBits();
+
     return data;
 }
 
@@ -90,7 +92,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards con
     data << playerRewards.RewardItem;
     data << playerRewards.RewardItemQuantity;
     data << playerRewards.BonusCurrency;
+
     data.WriteBit(playerRewards.IsCurrency);
+    data.FlushBits();
 
     return data;
 }
@@ -123,6 +127,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward
     data << playerQuestRewards.BonusCurrency;
 
     data.WriteBit(playerQuestRewards.UnkBit);
+    data.FlushBits();
 
     if (playerQuestRewards.UnkBit)
         data << playerQuestRewards.UnkWoD62;
@@ -135,9 +140,9 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest& 
     data >> joinRequest.ActivityID;
     data >> joinRequest.RequiredItemLevel;
 
-    uint32 nameLen = data.ReadBits(8);
-    uint32 commentLen = data.ReadBits(11);
-    uint32 voiceLen = data.ReadBits(8);
+    auto nameLen = data.ReadBits(8);
+    auto commentLen = data.ReadBits(11);
+    auto voiceLen = data.ReadBits(8);
 
     joinRequest.Name = data.ReadString(nameLen);
     joinRequest.Comment = data.ReadString(commentLen);
@@ -167,6 +172,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& 
 {
     data.WriteBit(blackList.PlayerGuid.is_initialized());
     data << blackList.Slot;
+    data.FlushBits();
 
     if (blackList.PlayerGuid)
         data << *blackList.PlayerGuid;
@@ -223,6 +229,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGProposalUpd
     data.WriteBit(update.Responded);
     data.WriteBit(update.Accepted);
 
+    data.FlushBits();
+
     return data;
 }
 
@@ -267,7 +275,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResul
     data << uint32(player.ChangeMask);
 
     data.WriteBits(player.Comment.length(), 8);
-    data.WriteBit(bool(player.IsLeader));
+    data.WriteBit(player.IsLeader);
     data.FlushBits();
 
     data.WriteString(std::string(player.Comment));
@@ -296,7 +304,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGRoleCheckUp
     data << member.Guid;
     data << member.RolesDesired;
     data << member.Level;
+
     data.WriteBit(member.RoleCheckComplete);
+    data.FlushBits();
 
     return data;
 }
@@ -355,6 +365,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGRoleCheckUpdate::Write()
 
     _worldPacket.WriteBit(IsBeginning);
     _worldPacket.WriteBit(ShowRoleCheck);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -397,7 +408,9 @@ WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateStatus::Write()
     _worldPacket << Request;
     _worldPacket << Unk;
     _worldPacket << Reason;
+
     _worldPacket.WriteBit(Listed);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -426,6 +439,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGProposalUpdate::Write()
 
     _worldPacket.WriteBit(ValidCompletedMask);
     _worldPacket.WriteBit(ProposalSilent);
+    _worldPacket.FlushBits;
 
     return &_worldPacket;
 }
@@ -441,6 +455,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGSearchResults::Write()
     _worldPacket << Removes;
 
     _worldPacket.WriteBit(Incremental);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -567,7 +582,8 @@ void WorldPackets::LFG::UserClientDFProposalResponse::Read()
     _worldPacket >> Ticket;
     _worldPacket >> InstanceID;
     _worldPacket >> ProposalID;
-    _worldPacket >> Accepted;
+
+    Accepted = _worldPacket.ReadBit();
 }
 
 void WorldPackets::LFG::UserClientDFJoin::Read()
