@@ -738,6 +738,17 @@ namespace WorldPackets
             ObjectGuid UnitGUID;
             uint32 DisplayID = 0;
         };
+
+        class SpellClick final : public ClientPacket
+        {
+        public:
+            SpellClick(WorldPacket&& packet) : ClientPacket(CMSG_SPELL_CLICK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SpellClickUnitGuid;
+            bool TryAutoDismount = false;
+        };
     }
 }
 

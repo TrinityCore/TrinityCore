@@ -484,13 +484,10 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& /*packet*/
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPacket& recvData)
+void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
     // this will get something not in world. crash
-    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.SpellClickUnitGuid);
 
     if (!unit)
         return;

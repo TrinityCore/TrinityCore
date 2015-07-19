@@ -739,3 +739,9 @@ WorldPacket const* WorldPackets::Spells::MirrorImageCreatureData::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Spells::SpellClick::Read()
+{
+    _worldPacket >> SpellClickUnitGuid;
+    TryAutoDismount = _worldPacket.ReadBit();
+}
