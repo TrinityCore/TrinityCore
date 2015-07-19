@@ -152,6 +152,7 @@ public:
             if (id == 1)
             {
                 wait_timer = 5000;
+                me->LoadEquipment(1);
                 me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
                 if (Player* starter = ObjectAccessor::GetPlayer(*me, playerGUID))
