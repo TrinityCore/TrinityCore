@@ -27,7 +27,7 @@ enum Spells
     SPELL_OPTIC_LINK                           = 54396,
     SPELL_RAY_OF_PAIN                          = 54438, // NYI missing spelldifficulty
     SPELL_RAY_OF_SUFFERING                     = 54442, // NYI missing spelldifficulty
-    
+
     // Visual
     SPELL_OPTIC_LINK_LEVEL_1                   = 54393,
     SPELL_OPTIC_LINK_LEVEL_2                   = 54394,
