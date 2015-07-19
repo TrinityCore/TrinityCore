@@ -755,7 +755,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SORT_BAGS,                                          STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SORT_BANK_BAGS,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SORT_REAGENT_BANK_BAGS,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_SPELL_CLICK,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSpellClick                );
+    DEFINE_HANDLER(CMSG_SPELL_CLICK,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::SpellClick, &WorldSession::HandleSpellClick);
     DEFINE_HANDLER(CMSG_SPIRIT_HEALER_ACTIVATE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::SpiritHealerActivate, &WorldSession::HandleSpiritHealerActivate);
     DEFINE_HANDLER(CMSG_SPLIT_ITEM,                                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::SplitItem, &WorldSession::HandleSplitItemOpcode);
     DEFINE_HANDLER(CMSG_STAND_STATE_CHANGE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::StandStateChange, &WorldSession::HandleStandStateChangeOpcode);
