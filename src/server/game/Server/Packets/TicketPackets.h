@@ -81,7 +81,7 @@ namespace WorldPackets
             time_t OldestTicketTime = 0;
             time_t UpdateTime = 0;
             std::vector<GMTicketCase> Cases;
-        };        
+        };
 
         class GMTicketAcknowledgeSurvey final : public ClientPacket
         {

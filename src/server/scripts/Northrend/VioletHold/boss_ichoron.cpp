@@ -367,7 +367,7 @@ public:
                         bIsDrained = true;
                         drainedTimer = 50;
                         uint32 damage = me->CountPctFromMaxHealth(30);
-                        if (me->GetHealth() < damage)                            
+                        if (me->GetHealth() < damage)
                             me->SetHealth(me->CountPctFromMaxHealth(1));
                         else
                         {
