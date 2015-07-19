@@ -1,0 +1,3 @@
+ALTER TABLE `npc_vendor`
+	ADD COLUMN `PlayerConditionID` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0' AFTER `type`,
+	ADD COLUMN `IgnoreFiltering` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `PlayerConditionID`;
