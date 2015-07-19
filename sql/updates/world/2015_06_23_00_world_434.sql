@@ -65,7 +65,7 @@ CHANGE `data31` `Data31` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 
 
 -- lfg_entrances -> lfg_dungeon_template
-RENAME TABLE `lfg_entrances` TO `lfg_dungeon_template`;
+-- RENAME TABLE `lfg_entrances` TO `lfg_dungeon_template`;
 
 -- npc_text
 ALTER TABLE `npc_text`
