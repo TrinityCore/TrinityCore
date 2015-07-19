@@ -99,15 +99,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards con
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList const& clientBlackList)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& clientBlackList)
 {
-    data << clientBlackList.Guid;
-    data << clientBlackList.Slots;
+    data.WriteBit(clientBlackList.PlayerGuid.is_initialized());
+    data << clientBlackList.Slot;
+    data.FlushBits();
+
+    if (clientBlackList.PlayerGuid)
+        data << *clientBlackList.PlayerGuid;
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot const& clientBlackListSlot)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& clientBlackListSlot)
 {
     data << uint32(clientBlackListSlot.Slot);
     data << uint32(clientBlackListSlot.Reason);
@@ -168,18 +172,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest c
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList)
-{
-    data.WriteBit(blackList.PlayerGuid.is_initialized());
-    data << blackList.Slot;
-    data.FlushBits();
-
-    if (blackList.PlayerGuid)
-        data << *blackList.PlayerGuid;
-
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& item)
 {
     data << item.ItemID;
@@ -192,16 +184,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward
 {
     data << currency.CurrencyID;
     data << currency.Quantity;
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot)
-{
-    data << blackListSlot.Slot;
-    data << blackListSlot.Reason;
-    data << blackListSlot.SubReason1;
-    data << blackListSlot.SubReason2;
 
     return data;
 }
@@ -221,7 +203,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklistEntr
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGProposalUpdatePlayer const& update)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGProposalUpdatePlayer const& update)
 {
     data << update.Roles;
     data.WriteBit(update.Me);
@@ -234,7 +216,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGProposalUpd
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResultPlayer const& player)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultPlayer const& player)
 {
     // Casting because hard as fuck to know which is which xD
     // Order is probably not at all correct. Will have to use some sniffs for this.
@@ -283,7 +265,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResul
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResultParty const& party)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultParty const& party)
 {
     data << party.Guid;
     data << party.ChangeMask;
@@ -299,7 +281,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResul
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGRoleCheckUpdateMember const& member)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMember const& member)
 {
     data << member.Guid;
     data << member.RolesDesired;
@@ -311,7 +293,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGRoleCheckUp
     return data;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGJoinResult::Write()
+WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
 {
     _worldPacket << Result;
     _worldPacket << BlackList;
@@ -321,7 +303,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGJoinResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGListJoinResult::Write()
+WorldPacket const* WorldPackets::LFG::LFGListJoinResult::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << Result;
@@ -330,7 +312,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGListJoinResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGQueueStatus::Write()
+WorldPacket const* WorldPackets::LFG::LFGQueueStatus::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << Slot;
@@ -348,7 +330,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGQueueStatus::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGRoleCheckUpdate::Write()
+WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
 {
     _worldPacket << PartyIndex;
     _worldPacket << RoleCheckStatus;
@@ -370,7 +352,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGRoleCheckUpdate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGUpdateStatus::Write()
+WorldPacket const* WorldPackets::LFG::LFGUpdateStatus::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << SubType;
@@ -402,7 +384,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGUpdateStatus::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateStatus::Write()
+WorldPacket const* WorldPackets::LFG::LFGListUpdateStatus::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << Request;
@@ -415,7 +397,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateStatus::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateBlacklist::Write()
+WorldPacket const* WorldPackets::LFG::LFGListUpdateBlacklist::Write()
 {
     _worldPacket << BlacklistEntryCount;
     for (uint32 i = 0; i < BlacklistEntryCount; i++)
@@ -424,7 +406,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGListUpdateBlacklist::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGProposalUpdate::Write()
+WorldPacket const* WorldPackets::LFG::LFGProposalUpdate::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << InstanceID;
@@ -444,7 +426,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGProposalUpdate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGSearchResults::Write()
+WorldPacket const* WorldPackets::LFG::LFGSearchResults::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << CountTotalParties;
@@ -460,7 +442,7 @@ WorldPacket const* WorldPackets::LFG::ClientLFGSearchResults::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGSlotInvalid::Write()
+WorldPacket const* WorldPackets::LFG::LFGSlotInvalid::Write()
 {
     _worldPacket << Reason;
     _worldPacket << SubReason1;
@@ -469,28 +451,28 @@ WorldPacket const* WorldPackets::LFG::ClientLFGSlotInvalid::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGOfferContinue::Write()
+WorldPacket const* WorldPackets::LFG::LFGOfferContinue::Write()
 {
     _worldPacket << Slot;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLfgBootPlayer::Write()
+WorldPacket const* WorldPackets::LFG::LFGBootPlayer::Write()
 {
     _worldPacket << Info;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLfgPartyInfo::Write()
+WorldPacket const* WorldPackets::LFG::LFGPartyInfo::Write()
 {
     _worldPacket << Player;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLfgPlayerInfo::Write()
+WorldPacket const* WorldPackets::LFG::LFGPlayerInfo::Write()
 {
     _worldPacket << BlackList;
     _worldPacket << Dungeon;
@@ -498,7 +480,7 @@ WorldPacket const* WorldPackets::LFG::ClientLfgPlayerInfo::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::LFG::ClientLFGPlayerReward::Write()
+WorldPacket const* WorldPackets::LFG::LFGPlayerReward::Write()
 {
     _worldPacket << ActualSlot;
     _worldPacket << QueuedSlot;
@@ -512,44 +494,44 @@ WorldPacket const* WorldPackets::LFG::ClientLFGPlayerReward::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::LFG::UserClientLFGListJoin::Read()
+void WorldPackets::LFG::LFGListJoin::Read()
 {
     _worldPacket >> Info;
 }
 
-void WorldPackets::LFG::UserClientLFGListUpdateRequest::Read()
+void WorldPackets::LFG::LFGListUpdateRequest::Read()
 {
     _worldPacket >> Info;
     _worldPacket >> Ticket;
 }
 
-void WorldPackets::LFG::UserClientLFGListLeave::Read()
+void WorldPackets::LFG::LFGListLeave::Read()
 {
     _worldPacket >> Ticket;
 }
 
-void WorldPackets::LFG::UserClientDFLeave::Read()
+void WorldPackets::LFG::DfLeave::Read()
 {
     _worldPacket >> Ticket;
 }
 
-void WorldPackets::LFG::UserClientDFSearchJoin::Read()
+void WorldPackets::LFG::DfSearchJoin::Read()
 {
     _worldPacket >> Slot;
 }
 
-void WorldPackets::LFG::UserClientDFSearchLeave::Read()
+void WorldPackets::LFG::DfSearchLeave::Read()
 {
     _worldPacket >> Slot;
 }
 
-void WorldPackets::LFG::UserClientDFGetSystemInfo::Read()
+void WorldPackets::LFG::DfGetSystemInfo::Read()
 {
     _worldPacket >> Player;
     _worldPacket >> PartyIndex;
 }
 
-void WorldPackets::LFG::UserClientDFSetComment::Read()
+void WorldPackets::LFG::DfSetComment::Read()
 {
     _worldPacket >> Ticket;
 
@@ -557,27 +539,27 @@ void WorldPackets::LFG::UserClientDFSetComment::Read()
     Comment = _worldPacket.ReadString(commentLen);
 }
 
-void WorldPackets::LFG::UserClientDFSetRoles::Read()
+void WorldPackets::LFG::DfSetRoles::Read()
 {
     _worldPacket >> RolesDesired;
     _worldPacket >> PartyIndex;
 }
 
-//void WorldPackets::LFG::UserClientDFSetNeeds::Read()
+//void WorldPackets::LFG::DfSetNeeds::Read()
 //{
 //}
 
-void WorldPackets::LFG::UserClientDFBootPlayerVote::Read()
+void WorldPackets::LFG::DfBootPlayerVote::Read()
 {
     _worldPacket >> Vote;
 }
 
-void WorldPackets::LFG::UserClientDFTeleport::Read()
+void WorldPackets::LFG::DfTeleport::Read()
 {
     _worldPacket >> TeleportOut;
 }
 
-void WorldPackets::LFG::UserClientDFProposalResponse::Read()
+void WorldPackets::LFG::DfProposalResponse::Read()
 {
     _worldPacket >> Ticket;
     _worldPacket >> InstanceID;
@@ -586,7 +568,7 @@ void WorldPackets::LFG::UserClientDFProposalResponse::Read()
     Accepted = _worldPacket.ReadBit();
 }
 
-void WorldPackets::LFG::UserClientDFJoin::Read()
+void WorldPackets::LFG::DfJoin::Read()
 {
     _worldPacket >> QueueAsGroup;
     auto commentLength = _worldPacket.ReadBits(8);

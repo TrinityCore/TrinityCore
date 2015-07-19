@@ -49,20 +49,6 @@ namespace WorldPackets
             std::vector<LFGBlackListSlot> Slot;
         };
 
-        struct ClientLFGBlackListSlot
-        {
-            int32 Slot = 0;
-            int32 Reason = 0;
-            int32 SubReason1 = 0;
-            int32 SubReason2 = 0;
-        };
-
-        struct ClientLFGBlackList
-        {
-            ObjectGuid Guid;
-            std::vector<ClientLFGBlackListSlot> Slots;
-        };
-
         struct LFGListBlacklistEntry
         {
             uint32 ActivityID = 0;
@@ -153,7 +139,7 @@ namespace WorldPackets
             std::string VoiceChat;
         };
 
-        struct CliPartyLFGInfo
+        struct PartyLFGInfo
         {
             uint8 MyLfgFlags = 0;
             uint32 LfgSlot = 0;
@@ -167,7 +153,7 @@ namespace WorldPackets
             bool MyLfgFirstReward = false;
         };
 
-        struct ClientLFGProposalUpdatePlayer
+        struct LFGProposalUpdatePlayer
         {
             uint32 Roles = 0;
             bool Me = false;
@@ -179,23 +165,23 @@ namespace WorldPackets
 
         /** End Structs */
 
-        class ClientLFGJoinResult final : public ServerPacket
+        class LFGJoinResult final : public ServerPacket
         {
         public:
-            ClientLFGJoinResult() : ServerPacket(SMSG_LFG_JOIN_RESULT) { }
+            LFGJoinResult() : ServerPacket(SMSG_LFG_JOIN_RESULT) { }
 
             WorldPacket const* Write() override;
 
             uint8 Result = 0;
-            std::vector<ClientLFGBlackList> BlackList;
+            std::vector<LFGBlackList> BlackList;
             uint8 ResultDetail = 0;
             RideTicket Ticket;
         };
 
-        class ClientLFGListJoinResult final : public ServerPacket
+        class LFGListJoinResult final : public ServerPacket
         {
         public:
-            ClientLFGListJoinResult() : ServerPacket(SMSG_LFG_LIST_JOIN_RESULT) { }
+            LFGListJoinResult() : ServerPacket(SMSG_LFG_LIST_JOIN_RESULT) { }
 
             WorldPacket const* Write() override;
 
@@ -204,10 +190,10 @@ namespace WorldPackets
             uint8 Result = 0;
         };
 
-        class ClientLFGQueueStatus final : public ServerPacket
+        class LFGQueueStatus final : public ServerPacket
         {
         public:
-            ClientLFGQueueStatus() : ServerPacket(SMSG_LFG_QUEUE_STATUS) { }
+            LFGQueueStatus() : ServerPacket(SMSG_LFG_QUEUE_STATUS) { }
 
             WorldPacket const* Write() override;
 
@@ -220,7 +206,7 @@ namespace WorldPackets
             uint32 AvgWaitTimeByRole[3];
         };
 
-        struct ClientLFGRoleCheckUpdateMember
+        struct LFGRoleCheckUpdateMember
         {
             ObjectGuid Guid;
             bool RoleCheckComplete = false;
@@ -228,16 +214,16 @@ namespace WorldPackets
             uint8 Level = 0;
         };
 
-        class ClientLFGRoleCheckUpdate final : public ServerPacket
+        class LFGRoleCheckUpdate final : public ServerPacket
         {
         public:
-            ClientLFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
+            LFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
 
             WorldPacket const* Write() override;
 
             bool IsBeginning = false;
             bool ShowRoleCheck = false;
-            std::vector<ClientLFGRoleCheckUpdateMember> Members;
+            std::vector<LFGRoleCheckUpdateMember> Members;
             std::vector<uint32> JoinSlots;
             uint32 ActivityID = 0;
             uint32 JoinSlotsCount = 0;
@@ -247,10 +233,10 @@ namespace WorldPackets
             uint8 RoleCheckStatus = 0;
         };
 
-        class ClientLFGUpdateStatus final : public ServerPacket
+        class LFGUpdateStatus final : public ServerPacket
         {
         public:
-            ClientLFGUpdateStatus() : ServerPacket(SMSG_LFG_UPDATE_STATUS) { }
+            LFGUpdateStatus() : ServerPacket(SMSG_LFG_UPDATE_STATUS) { }
 
             WorldPacket const* Write() override;
 
@@ -272,10 +258,10 @@ namespace WorldPackets
             uint8 SubType = 0;
         };
 
-        class ClientLFGListUpdateStatus final : public ServerPacket
+        class LFGListUpdateStatus final : public ServerPacket
         {
         public:
-            ClientLFGListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS) { }
+            LFGListUpdateStatus() : ServerPacket(SMSG_LFG_LIST_UPDATE_STATUS) { }
 
             WorldPacket const* Write() override;
 
@@ -286,10 +272,10 @@ namespace WorldPackets
             RideTicket Ticket;
         };
 
-        class ClientLFGListUpdateBlacklist final : public ServerPacket
+        class LFGListUpdateBlacklist final : public ServerPacket
         {
         public:
-            ClientLFGListUpdateBlacklist() : ServerPacket(SMSG_LFG_LIST_UPDATE_BLACKLIST) { }
+            LFGListUpdateBlacklist() : ServerPacket(SMSG_LFG_LIST_UPDATE_BLACKLIST) { }
 
             WorldPacket const* Write() override;
 
@@ -297,16 +283,16 @@ namespace WorldPackets
             LFGListBlacklist Blacklist;
         };
 
-        class ClientLFGProposalUpdate final : public ServerPacket
+        class LFGProposalUpdate final : public ServerPacket
         {
         public:
-            ClientLFGProposalUpdate() : ServerPacket(SMSG_LFG_PROPOSAL_UPDATE) { }
+            LFGProposalUpdate() : ServerPacket(SMSG_LFG_PROPOSAL_UPDATE) { }
 
             WorldPacket const* Write() override;
 
             uint32 PlayersCount = 0;
             bool ProposalSilent = false;
-            std::vector<ClientLFGProposalUpdatePlayer> Players;
+            std::vector<LFGProposalUpdatePlayer> Players;
             uint32 CompletedMask = 0;
             uint64 InstanceID = 0;
             bool ValidCompletedMask = false;
@@ -316,7 +302,7 @@ namespace WorldPackets
             uint32 ProposalID = 0;
         };
 
-        struct ClientLFGSearchResultParty
+        struct LFGSearchResultParty
         {
             ObjectGuid Guid;
             uint32 ChangeMask = 0;
@@ -326,7 +312,7 @@ namespace WorldPackets
             uint8 Needs[3];
         };
 
-        struct ClientLFGSearchResultPlayer
+        struct LFGSearchResultPlayer
         {
             bool IsLeader = false;
             float AvgItemLevel = 0.0f;
@@ -367,17 +353,17 @@ namespace WorldPackets
             uint8 Status = 0;
         };
 
-        class ClientLFGSearchResults final : public ServerPacket
+        class LFGSearchResults final : public ServerPacket
         {
         public:
-            ClientLFGSearchResults() : ServerPacket(SMSG_LFG_SEARCH_RESULTS) { }
+            LFGSearchResults() : ServerPacket(SMSG_LFG_SEARCH_RESULTS) { }
 
             WorldPacket const* Write() override;
 
             bool Incremental = false;
             RideTicket Ticket;
-            std::vector<ClientLFGSearchResultParty> Parties;
-            std::vector<ClientLFGSearchResultPlayer> Players;
+            std::vector<LFGSearchResultParty> Parties;
+            std::vector<LFGSearchResultPlayer> Players;
             std::vector<ObjectGuid> Removes;
             uint32 CountTotalParties = 0;
             uint32 CountTotalPlayers = 0;
@@ -385,10 +371,10 @@ namespace WorldPackets
             uint32 SlotType = 0;
         };
 
-        class ClientLFGSlotInvalid final : public ServerPacket
+        class LFGSlotInvalid final : public ServerPacket
         {
         public:
-            ClientLFGSlotInvalid() : ServerPacket(SMSG_LFG_SLOT_INVALID) { }
+            LFGSlotInvalid() : ServerPacket(SMSG_LFG_SLOT_INVALID) { }
 
             WorldPacket const* Write() override;
 
@@ -397,45 +383,45 @@ namespace WorldPackets
             uint32 Reason = 0;
         };
 
-        /* class ClientLFGTeleportDenied final : public ServerPacket
+        /* class LFGTeleportDenied final : public ServerPacket
         {
         LfgTeleportResult Reason;
         }; */
 
-        class ClientLFGOfferContinue final : public ServerPacket
+        class LFGOfferContinue final : public ServerPacket
         {
         public:
-            ClientLFGOfferContinue() : ServerPacket(SMSG_LFG_OFFER_CONTINUE) { }
+            LFGOfferContinue() : ServerPacket(SMSG_LFG_OFFER_CONTINUE) { }
 
             WorldPacket const* Write() override;
 
             uint32 Slot = 0;
         };
 
-        class ClientLfgBootPlayer final : public ServerPacket
+        class LFGBootPlayer final : public ServerPacket
         {
         public:
-            ClientLfgBootPlayer() : ServerPacket(SMSG_LFG_BOOT_PLAYER) { }
+            LFGBootPlayer() : ServerPacket(SMSG_LFG_BOOT_PLAYER) { }
 
             WorldPacket const* Write() override;
 
             LfgBootInfo Info;
         };
 
-        class ClientLfgPartyInfo final : public ServerPacket
+        class LFGPartyInfo final : public ServerPacket
         {
         public:
-            ClientLfgPartyInfo() : ServerPacket(SMSG_LFG_PARTY_INFO) { }
+            LFGPartyInfo() : ServerPacket(SMSG_LFG_PARTY_INFO) { }
 
             WorldPacket const* Write() override;
 
             std::vector<LFGBlackList> Player;
         };
 
-        class ClientLfgPlayerInfo final : public ServerPacket
+        class LFGPlayerInfo final : public ServerPacket
         {
         public:
-            ClientLfgPlayerInfo() : ServerPacket(SMSG_LFG_PLAYER_INFO) { }
+            LFGPlayerInfo() : ServerPacket(SMSG_LFG_PLAYER_INFO) { }
 
             WorldPacket const* Write() override;
 
@@ -443,10 +429,10 @@ namespace WorldPackets
             std::vector<LfgPlayerDungeonInfo> Dungeon;
         };
 
-        class ClientLFGPlayerReward final : public ServerPacket
+        class LFGPlayerReward final : public ServerPacket
         {
         public:
-            ClientLFGPlayerReward() : ServerPacket(SMSG_LFG_PLAYER_REWARD) { }
+            LFGPlayerReward() : ServerPacket(SMSG_LFG_PLAYER_REWARD) { }
 
             WorldPacket const* Write() override;
 
@@ -458,20 +444,20 @@ namespace WorldPackets
             uint32 ActualSlot = 0;
         };
 
-        class UserClientLFGListJoin final : public ClientPacket
+        class LFGListJoin final : public ClientPacket
         {
         public:
-            UserClientLFGListJoin(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_JOIN, std::move(packet)) { }
+            LFGListJoin(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_JOIN, std::move(packet)) { }
 
             void Read() override;
 
             LFGListJoinRequest Info;
         };
 
-        class UserClientLFGListUpdateRequest final : public ClientPacket
+        class LFGListUpdateRequest final : public ClientPacket
         {
         public:
-            UserClientLFGListUpdateRequest(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_UPDATE_REQUEST, std::move(packet)) { }
+            LFGListUpdateRequest(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_UPDATE_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
@@ -479,50 +465,50 @@ namespace WorldPackets
             RideTicket Ticket;
         };
 
-        class UserClientLFGListLeave final : public ClientPacket
+        class LFGListLeave final : public ClientPacket
         {
         public:
-            UserClientLFGListLeave(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_LEAVE, std::move(packet)) { }
+            LFGListLeave(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_LEAVE, std::move(packet)) { }
 
             void Read() override;
 
             RideTicket Ticket;
         };
 
-        class UserClientDFLeave final : public ClientPacket
+        class DfLeave final : public ClientPacket
         {
         public:
-            UserClientDFLeave(WorldPacket&& packet) : ClientPacket(CMSG_DF_LEAVE, std::move(packet)) { }
+            DfLeave(WorldPacket&& packet) : ClientPacket(CMSG_DF_LEAVE, std::move(packet)) { }
 
             void Read() override;
 
             RideTicket Ticket;
         };
 
-        class UserClientDFSearchJoin final : public ClientPacket
+        class DfSearchJoin final : public ClientPacket
         {
         public:
-            UserClientDFSearchJoin(WorldPacket&& packet) : ClientPacket(CMSG_DF_SEARCH_JOIN, std::move(packet)) { }
+            DfSearchJoin(WorldPacket&& packet) : ClientPacket(CMSG_DF_SEARCH_JOIN, std::move(packet)) { }
 
             void Read() override;
 
             uint32 Slot = 0;
         };
 
-        class UserClientDFSearchLeave final : public ClientPacket
+        class DfSearchLeave final : public ClientPacket
         {
         public:
-            UserClientDFSearchLeave(WorldPacket&& packet) : ClientPacket(CMSG_DF_SEARCH_LEAVE, std::move(packet)) { }
+            DfSearchLeave(WorldPacket&& packet) : ClientPacket(CMSG_DF_SEARCH_LEAVE, std::move(packet)) { }
 
             void Read() override;
 
             uint32 Slot = 0;
         };
 
-        class UserClientDFGetSystemInfo final : public ClientPacket
+        class DfGetSystemInfo final : public ClientPacket
         {
         public:
-            UserClientDFGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_SYSTEM_INFO, std::move(packet)) { }
+            DfGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_SYSTEM_INFO, std::move(packet)) { }
 
             void Read() override;
 
@@ -530,10 +516,10 @@ namespace WorldPackets
             bool Player = false;
         };
 
-        class UserClientDFSetComment final : public ClientPacket
+        class DfSetComment final : public ClientPacket
         {
         public:
-            UserClientDFSetComment(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_COMMENT, std::move(packet)) { }
+            DfSetComment(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_COMMENT, std::move(packet)) { }
 
             void Read() override;
 
@@ -541,10 +527,10 @@ namespace WorldPackets
             std::string Comment;
         };
 
-        class UserClientDFSetRoles final : public ClientPacket
+        class DfSetRoles final : public ClientPacket
         {
         public:
-            UserClientDFSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_ROLES, std::move(packet)) { }
+            DfSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_ROLES, std::move(packet)) { }
 
             void Read() override;
 
@@ -553,10 +539,10 @@ namespace WorldPackets
         };
 
         // Is this opcode not in TC yet? Could someone point me to what I'm probably missing?
-        /*class UserClientDFSetNeeds final : public ClientPacket
+        /*class DfSetNeeds final : public ClientPacket
         {
         public:
-        UserClientDFSetNeeds(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_NEEDS, std::move(packet)) { }
+        DfSetNeeds(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_NEEDS, std::move(packet)) { }
 
         void Read() override;
 
@@ -565,30 +551,30 @@ namespace WorldPackets
         uint32 Needs[3];
         };*/
 
-        class UserClientDFBootPlayerVote final : public ClientPacket
+        class DfBootPlayerVote final : public ClientPacket
         {
         public:
-            UserClientDFBootPlayerVote(WorldPacket&& packet) : ClientPacket(CMSG_DF_BOOT_PLAYER_VOTE, std::move(packet)) { }
+            DfBootPlayerVote(WorldPacket&& packet) : ClientPacket(CMSG_DF_BOOT_PLAYER_VOTE, std::move(packet)) { }
 
             void Read() override;
 
             bool Vote = false;
         };
 
-        class UserClientDFTeleport final : public ClientPacket
+        class DfTeleport final : public ClientPacket
         {
         public:
-            UserClientDFTeleport(WorldPacket&& packet) : ClientPacket(CMSG_DF_TELEPORT, std::move(packet)) { }
+            DfTeleport(WorldPacket&& packet) : ClientPacket(CMSG_DF_TELEPORT, std::move(packet)) { }
 
             void Read() override;
 
             bool TeleportOut = false;
         };
 
-        class UserClientDFProposalResponse final : public ClientPacket
+        class DfProposalResponse final : public ClientPacket
         {
         public:
-            UserClientDFProposalResponse(WorldPacket&& packet) : ClientPacket(CMSG_DF_PROPOSAL_RESPONSE, std::move(packet)) { }
+            DfProposalResponse(WorldPacket&& packet) : ClientPacket(CMSG_DF_PROPOSAL_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -598,10 +584,10 @@ namespace WorldPackets
             uint64 InstanceID = 0;
         };
 
-        class UserClientDFJoin final : public ClientPacket
+        class DfJoin final : public ClientPacket
         {
         public:
-            UserClientDFJoin(WorldPacket&& packet) : ClientPacket(CMSG_DF_JOIN, std::move(packet)) { }
+            DfJoin(WorldPacket&& packet) : ClientPacket(CMSG_DF_JOIN, std::move(packet)) { }
 
             void Read() override;
 
@@ -615,18 +601,18 @@ namespace WorldPackets
             uint32 Needs[3];
         };
 
-        class UserClientDfGetJoinStatus final : public ClientPacket
+        class DfGetJoinStatus final : public ClientPacket
         {
         public:
-            UserClientDfGetJoinStatus(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_JOIN_STATUS, std::move(packet)) { }
+            DfGetJoinStatus(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_JOIN_STATUS, std::move(packet)) { }
 
             void Read() override { }
         };
 
-        class UserClientLfgListGetStatus final : public ClientPacket
+        class LFGListGetStatus final : public ClientPacket
         {
         public:
-            UserClientLfgListGetStatus(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_GET_STATUS, std::move(packet)) { }
+            LFGListGetStatus(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LIST_GET_STATUS, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -638,19 +624,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ti
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& bootInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackList const& clientBlackList);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGBlackListSlot const& clientBlackListSlot);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& clientBlackList);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& clientBlackListSlot);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest& joinRequest);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListJoinRequest const& joinRequest);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& blackListSlot);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklist const& listBlackList);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklistEntry const& listBlackListEntry);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& item);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& currency);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGProposalUpdatePlayer const& update);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResultParty const& party);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGSearchResultPlayer const& player);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::ClientLFGRoleCheckUpdateMember const& member);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGProposalUpdatePlayer const& update);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultParty const& party);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultPlayer const& player);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMember const& member);
 #endif // LFGPackets_h__
