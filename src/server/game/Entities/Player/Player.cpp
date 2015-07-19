@@ -4723,7 +4723,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    SetWaterWalking(false);
+    SetWaterWalking(false, true);
     if (!HasUnitState(UNIT_STATE_STUNNED))
         SetRooted(false);
 
