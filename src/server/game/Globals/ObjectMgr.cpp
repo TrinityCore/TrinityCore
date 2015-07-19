@@ -9269,8 +9269,8 @@ void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0                1
-    QueryResult result = WorldDatabase.Query("SELECT GameObjectEntry, ItemId FROM gameobject_questitem ORDER BY Idx ASC");
+    //                                               0                1       2
+    QueryResult result = WorldDatabase.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
 
     if (!result)
     {
@@ -9284,7 +9284,22 @@ void ObjectMgr::LoadGameObjectQuestItems()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        uint32 item = fields[1].GetUInt32();
+        uint32 item  = fields[1].GetUInt32();
+        uint32 idx   = fields[2].GetUInt32();
+
+        GameObjectTemplate const* goInfo = GetGameObjectTemplate(entry);
+        if (!goInfo)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gameobject_questitem` has data for nonexistent gameobject (entry: %u, idx: %u), skipped", entry, idx);
+            continue;
+        };
+
+        ItemEntry const* db2Data = sItemStore.LookupEntry(item);
+        if (!db2Data)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gameobject_questitem` has nonexistent item (ID: %u) in gameobject (entry: %u, idx: %u), skipped", item, entry, idx);
+            continue;
+        };
 
         _gameObjectQuestItemStore[entry].push_back(item);
 
@@ -9299,8 +9314,8 @@ void ObjectMgr::LoadCreatureQuestItems()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0              1
-    QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, ItemId FROM creature_questitem ORDER BY Idx ASC");
+    //                                               0              1       2
+    QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
 
     if (!result)
     {
@@ -9314,7 +9329,22 @@ void ObjectMgr::LoadCreatureQuestItems()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        uint32 item = fields[1].GetUInt32();
+        uint32 item  = fields[1].GetUInt32();
+        uint32 idx   = fields[2].GetUInt32();
+
+        CreatureTemplate const* creatureInfo = GetCreatureTemplate(entry);
+        if (!creatureInfo)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_questitem` has data for nonexistent creature (entry: %u, idx: %u), skipped", entry, idx);
+            continue;
+        };
+
+        ItemEntry const* db2Data = sItemStore.LookupEntry(item);
+        if (!db2Data)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_questitem` has nonexistent item (ID: %u) in creature (entry: %u, idx: %u), skipped", item, entry, idx);
+            continue;
+        };
 
         _creatureQuestItemStore[entry].push_back(item);
 
