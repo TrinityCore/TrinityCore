@@ -1471,15 +1471,16 @@ void World::SetInitialWorldSettings()
 
     sSpellMgr->LoadPetFamilySpellsStore();
 
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-    {
-        std::vector<uint32> mapIds;
-        for (uint32 mapId = 0; mapId < sMapStore.GetNumRows(); mapId++)
-            if (sMapStore.LookupEntry(mapId))
-                mapIds.push_back(mapId);
+    std::vector<uint32> mapIds;
+    for (uint32 mapId = 0; mapId < sMapStore.GetNumRows(); mapId++)
+        if (sMapStore.LookupEntry(mapId))
+            mapIds.push_back(mapId);
 
+    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapIds);
-    }
+
+    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    mmmgr->InitializeThreadUnsafe(mapIds);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
