@@ -1228,11 +1228,11 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id)
             default:
                 if (e.entryOrGuid < 0)
                 {
-                    entry = uint32(std::abs(e.entryOrGuid));
-                    CreatureData const* data = sObjectMgr->GetCreatureData(entry);
+                    ObjectGuid::LowType guid = ObjectGuid::LowType(-e.entryOrGuid);
+                    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
                     if (!data)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Creature guid %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Creature guid %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
                         return false;
                     }
                     else
