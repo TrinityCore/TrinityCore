@@ -1066,8 +1066,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     {
         case TARGET_OBJECT_TYPE_UNIT:
         {
-            if (Unit* unitTarget = target->ToUnit())
-                AddUnitTarget(unitTarget, effMask, true, false);
+            if (Unit* unit = target->ToUnit())
+                AddUnitTarget(unit, effMask, true, false);
             else
             {
                 TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id %u set object of wrong type, expected unit, got %s, effect %u", m_spellInfo->Id, target->GetGUID().GetTypeName(), effMask);
@@ -1132,8 +1132,8 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
-                if (Unit* unitTarget = (*itr)->ToUnit())
-                    AddUnitTarget(unitTarget, effMask, false);
+                if (Unit* unit = (*itr)->ToUnit())
+                    AddUnitTarget(unit, effMask, false);
                 else if (GameObject* gObjTarget = (*itr)->ToGameObject())
                     AddGOTarget(gObjTarget, effMask);
             }
@@ -1213,8 +1213,8 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
         {
-            if (Unit* unitTarget = (*itr)->ToUnit())
-                AddUnitTarget(unitTarget, effMask, false, true, center);
+            if (Unit* unit = (*itr)->ToUnit())
+                AddUnitTarget(unit, effMask, false, true, center);
             else if (GameObject* gObjTarget = (*itr)->ToGameObject())
                 AddGOTarget(gObjTarget, effMask);
         }
@@ -1472,8 +1472,8 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
         CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
 
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-            if (Unit* unitTarget = (*itr)->ToUnit())
-                AddUnitTarget(unitTarget, effMask, false);
+            if (Unit* unit = (*itr)->ToUnit())
+                AddUnitTarget(unit, effMask, false);
     }
 }
 
@@ -1528,12 +1528,12 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex)
         if (m_spellInfo->CheckTarget(m_caster, *itr, true) != SPELL_CAST_OK)
             continue;
 
-        if (Unit* unitTarget = (*itr)->ToUnit())
+        if (Unit* unit = (*itr)->ToUnit())
         {
-            if (m_caster == *itr || m_caster->IsOnVehicle(unitTarget) || unitTarget->GetVehicle())
+            if (m_caster == *itr || m_caster->IsOnVehicle(unit) || unit->GetVehicle())
                 continue;
 
-            if (Creature* creatureTarget = unitTarget->ToCreature())
+            if (Creature* creatureTarget = unit->ToCreature())
             {
                 if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_PROJECTILE_COLLISION))
                     continue;
@@ -1682,8 +1682,8 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
             // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
             if (targetMask & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK))
             {
-                if (Unit* unitTarget = m_targets.GetUnitTarget())
-                    target = unitTarget;
+                if (Unit* unit = m_targets.GetUnitTarget())
+                    target = unit;
                 else if (targetMask & TARGET_FLAG_CORPSE_MASK)
                 {
                     if (Corpse* corpseTarget = m_targets.GetCorpseTarget())
@@ -1698,8 +1698,8 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
             }
             if (targetMask & TARGET_FLAG_ITEM_MASK)
             {
-                if (Item* itemTarget = m_targets.GetItemTarget())
-                    AddItemTarget(itemTarget, 1 << effIndex);
+                if (Item* item = m_targets.GetItemTarget())
+                    AddItemTarget(item, 1 << effIndex);
                 return;
             }
             if (targetMask & TARGET_FLAG_GAMEOBJECT_MASK)
@@ -1876,10 +1876,10 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
             uint32 maxHPDeficit = 0;
             for (std::list<WorldObject*>::iterator itr = tempTargets.begin(); itr != tempTargets.end(); ++itr)
             {
-                if (Unit* unitTarget = (*itr)->ToUnit())
+                if (Unit* unit = (*itr)->ToUnit())
                 {
-                    uint32 deficit = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
-                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && target->IsWithinDist(unitTarget, jumpRadius) && target->IsWithinLOSInMap(unitTarget))
+                    uint32 deficit = unit->GetMaxHealth() - unit->GetHealth();
+                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit))
                     {
                         foundItr = itr;
                         maxHPDeficit = deficit;
@@ -5011,12 +5011,12 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_LEARN_PET_SPELL:
             {
                 // check target only for unit target case
-                if (Unit* unitTarget = m_targets.GetUnitTarget())
+                if (Unit* unit = m_targets.GetUnitTarget())
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_BAD_TARGETS;
 
-                    Pet* pet = unitTarget->ToPet();
+                    Pet* pet = unit->ToPet();
                     if (!pet || pet->GetOwner() != m_caster)
                         return SPELL_FAILED_BAD_TARGETS;
 
@@ -5398,8 +5398,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                         return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
 
-                    int32 damage = CalculateDamage(i, target);
-                    if (damage && int32(target->getLevel()) > damage)
+                    int32 value = CalculateDamage(i, target);
+                    if (value && int32(target->getLevel()) > value)
                         return SPELL_FAILED_HIGHLEVEL;
                 }
 
@@ -6471,8 +6471,8 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
                 return false;
             if (target->GetCharmerGUID())
                 return false;
-            if (int32 damage = CalculateDamage(eff, target))
-                if ((int32)target->getLevel() > damage)
+            if (int32 value = CalculateDamage(eff, target))
+                if ((int32)target->getLevel() > value)
                     return false;
             break;
         default:

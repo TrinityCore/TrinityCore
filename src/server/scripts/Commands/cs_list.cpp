@@ -500,7 +500,7 @@ public:
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
             stmt->setUInt32(0, targetGuid.GetCounter());
-            PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
+            queryResult = CharacterDatabase.Query(stmt);
 
             if (queryResult)
             {
