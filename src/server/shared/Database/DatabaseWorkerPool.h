@@ -503,7 +503,7 @@ class DatabaseWorkerPool
                 {
                     while (_connectionCount[type] != 0)
                     {
-                        T* t = _connections[type][i--];
+                        t = _connections[type][i--];
                         delete t;
                         --_connectionCount[type];
                     }
