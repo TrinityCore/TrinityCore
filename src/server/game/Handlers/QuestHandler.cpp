@@ -272,7 +272,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
                         continue;
 
-                    if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
+                    rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID);
+                    if (rewardProto)
                     {
                         if (rewardProto->CanWinForPlayer(_player))
                         {

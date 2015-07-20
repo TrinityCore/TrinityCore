@@ -8853,12 +8853,12 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*spellProto*/, uint32 d
     return damage;
 }
 
-uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack) const
+uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffectInfo const* spellEffect, uint32 stack) const
 {
     // For totems get healing bonus from owner (statue isn't totem in fact)
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
         if (Unit* owner = GetOwner())
-            return owner->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, effect, stack);
+            return owner->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, spellEffect, stack);
 
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
@@ -8914,11 +8914,11 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
     // Check for table values
-    float coeff = effect->BonusCoefficient;
+    float coeff = spellEffect->BonusCoefficient;
     float factorMod = 1.0f;
-    if (effect->BonusCoefficientFromAP > 0.0f)
+    if (spellEffect->BonusCoefficientFromAP > 0.0f)
     {
-        DoneTotal += int32(effect->BonusCoefficientFromAP * stack * GetTotalAttackPowerValue(
+        DoneTotal += int32(spellEffect->BonusCoefficientFromAP * stack * GetTotalAttackPowerValue(
             (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
     }
     else if (coeff <= 0.0f)
@@ -9040,7 +9040,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     return DoneTotalMod;
 }
 
-uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType /*damagetype*/, SpellEffectInfo const* effect, uint32 stack) const
+uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType /*damagetype*/, SpellEffectInfo const* spellEffect, uint32 stack) const
 {
     float TakenTotalMod = 1.0f;
 
@@ -9073,7 +9073,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     }
 
     // Check for table values
-    float coeff = effect->BonusCoefficient;
+    float coeff = spellEffect->BonusCoefficient;
     float factorMod = 1.0f;
     if (coeff <= 0.0f)
     {

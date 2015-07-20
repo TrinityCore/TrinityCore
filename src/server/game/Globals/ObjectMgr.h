@@ -646,7 +646,7 @@ bool normalizePlayerName(std::string& name);
 
 struct ExtendedPlayerName
 {
-    ExtendedPlayerName(std::string const& name, std::string const& realm) : Name(name), Realm(realm) { }
+    ExtendedPlayerName(std::string const& name, std::string const& realmName) : Name(name), Realm(realmName) { }
     std::string Name;
     std::string Realm;
 };

@@ -85,7 +85,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
     {
         do
         {
-            Field* fields = followers->Fetch();
+            fields = followers->Fetch();
 
             uint64 dbId = fields[0].GetUInt64();
             uint32 followerId = fields[1].GetUInt32();
@@ -116,7 +116,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         {
             do
             {
-                Field* fields = abilities->Fetch();
+                fields = abilities->Fetch();
                 uint64 dbId = fields[0].GetUInt64();
                 GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(fields[1].GetUInt32());
 

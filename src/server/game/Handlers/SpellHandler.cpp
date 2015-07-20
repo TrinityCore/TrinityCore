@@ -484,10 +484,10 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& /*packet*/
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& packet)
+void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick)
 {
     // this will get something not in world. crash
-    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.SpellClickUnitGuid);
+    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, spellClick.SpellClickUnitGuid);
 
     if (!unit)
         return;
@@ -499,9 +499,9 @@ void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& packet)
     unit->HandleSpellClick(_player);
 }
 
-void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& packet)
+void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& getMirrorImageData)
 {
-    ObjectGuid guid = packet.UnitGUID;
+    ObjectGuid guid = getMirrorImageData.UnitGUID;
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
@@ -518,23 +518,23 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
 
     if (Player* player = creator->ToPlayer())
     {
-        WorldPackets::Spells::MirrorImageComponentedData packet;
-        packet.UnitGUID = guid;
-        packet.DisplayID = creator->GetDisplayId();
-        packet.RaceID = creator->getRace();
-        packet.Gender = creator->getGender();
-        packet.ClassID = creator->getClass();
+        WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
+        mirrorImageComponentedData.UnitGUID = guid;
+        mirrorImageComponentedData.DisplayID = creator->GetDisplayId();
+        mirrorImageComponentedData.RaceID = creator->getRace();
+        mirrorImageComponentedData.Gender = creator->getGender();
+        mirrorImageComponentedData.ClassID = creator->getClass();
 
         Guild* guild = player->GetGuild();
 
-        packet.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
-        packet.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
-        packet.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
-        packet.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
-        packet.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
-        packet.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
+        mirrorImageComponentedData.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+        mirrorImageComponentedData.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
+        mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
+        mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+        mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
-        packet.ItemDisplayID.reserve(11);
+        mirrorImageComponentedData.ItemDisplayID.reserve(11);
 
         static EquipmentSlots const itemSlots[] =
         {
@@ -564,16 +564,16 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             else
                 itemDisplayId = 0;
 
-            packet.ItemDisplayID.push_back(itemDisplayId);
+            mirrorImageComponentedData.ItemDisplayID.push_back(itemDisplayId);
         }
-        SendPacket(packet.Write());
+        SendPacket(mirrorImageComponentedData.Write());
     }
     else
     {
-        WorldPackets::Spells::MirrorImageCreatureData packet;
-        packet.UnitGUID = guid;
-        packet.DisplayID = creator->GetDisplayId();
-        SendPacket(packet.Write());
+        WorldPackets::Spells::MirrorImageCreatureData mirrorImageCreatureData;
+        mirrorImageCreatureData.UnitGUID = guid;
+        mirrorImageCreatureData.DisplayID = creator->GetDisplayId();
+        SendPacket(mirrorImageCreatureData.Write());
     }
 }
 

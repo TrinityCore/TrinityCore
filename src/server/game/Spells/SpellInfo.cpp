@@ -3313,10 +3313,10 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
     DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
     while (difficultyEntry)
     {
-        SpellEffectInfoMap::const_iterator itr = _effects.find(difficulty);
-        if (itr != _effects.end())
+        SpellEffectInfoMap::const_iterator effectItr = _effects.find(difficulty);
+        if (effectItr != _effects.end())
         {
-            for (SpellEffectInfo const* effect : itr->second)
+            for (SpellEffectInfo const* effect : effectItr->second)
             {
                 // overwrite any existing effect from DIFFICULTY_NONE
                 if (effect)
