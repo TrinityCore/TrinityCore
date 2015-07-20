@@ -345,7 +345,7 @@ public:
 
                     events.Update(diff);
 
-                    switch (uint32 eventId = events.ExecuteEvent())
+                    switch (events.ExecuteEvent())
                     {
                         case EVENT_WATER_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -398,7 +398,7 @@ public:
 
                 events.Update(diff);
 
-                switch (uint32 eventId = events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_WATER_BLAST:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
