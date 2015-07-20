@@ -196,7 +196,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_ARCANE_BARRAGE:
                     DoCast(SPELL_ARCANE_BARRAGE_VOLLEY);
@@ -286,7 +286,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_RANGE_CHECK:
                     if (Creature* xevozz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XEVOZZ)))

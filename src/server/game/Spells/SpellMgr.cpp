@@ -3158,6 +3158,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // add corruption to affected spells
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
                 break;
+            case 57470: // Renewed Hope (Rank 1)
+            case 57472: // Renewed Hope (Rank 2)
+                // should also affect Flash Heal
+                spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
+                break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;
                 break;
@@ -3235,6 +3240,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].BasePoints = -6; // -5%
                 break;
             case 50526: // Wandering Plague
+            case 15290: // Vampiric Embrace
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
