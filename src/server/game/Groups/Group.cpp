@@ -488,24 +488,24 @@ bool Group::AddMember(Player* player)
             if (itr->GetSource() == player)
                 continue;
 
-            if (Player* member = itr->GetSource())
+            if (Player* existingMember = itr->GetSource())
             {
-                if (player->HaveAtClient(member))
+                if (player->HaveAtClient(existingMember))
                 {
-                    member->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
-                    member->BuildValuesUpdateBlockForPlayer(&groupData, player);
-                    member->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                    existingMember->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                    existingMember->BuildValuesUpdateBlockForPlayer(&groupData, player);
+                    existingMember->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
                 }
 
-                if (member->HaveAtClient(player))
+                if (existingMember->HaveAtClient(player))
                 {
                     UpdateData newData(player->GetMapId());
                     WorldPacket newDataPacket;
-                    player->BuildValuesUpdateBlockForPlayer(&newData, member);
+                    player->BuildValuesUpdateBlockForPlayer(&newData, existingMember);
                     if (newData.HasData())
                     {
                         newData.BuildPacket(&newDataPacket);
-                        member->SendDirectMessage(&newDataPacket);
+                        existingMember->SendDirectMessage(&newDataPacket);
                     }
                 }
             }
@@ -2118,8 +2118,8 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             {
                 if (Group* group = SendMsgTo->GetGroup())
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                        if (Player* player = itr->GetSource())
+                    for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
+                        if (Player* player = groupRef->GetSource())
                             player->SendResetInstanceSuccess(instanceSave->GetMapId());
                 }
 

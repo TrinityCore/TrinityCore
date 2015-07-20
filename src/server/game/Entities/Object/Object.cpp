@@ -2867,8 +2867,8 @@ void WorldObject::UpdateAreaPhase()
         {
             bool up = false;
             uint32 phaseGroup = uint32((*itr)->GetMiscValueB());
-            std::set<uint32> const& phases = sDB2Manager.GetPhasesForGroup(phaseGroup);
-            for (uint32 phase : phases)
+            std::set<uint32> const& phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
+            for (uint32 phase : phaseIDs)
                 up = SetInPhase(phase, false, true);
             if (!updateNeeded && up)
                 updateNeeded = true;

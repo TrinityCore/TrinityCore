@@ -318,15 +318,15 @@ void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQues
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet)
+void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& questPoiQuery)
 {
-    if (packet.MissingQuestCount > MAX_QUEST_LOG_SIZE)
+    if (questPoiQuery.MissingQuestCount > MAX_QUEST_LOG_SIZE)
         return;
 
     // Read quest ids and add the in a unordered_set so we don't send POIs for the same quest multiple times
     std::unordered_set<int32> questIds;
-    for (int32 i = 0; i < packet.MissingQuestCount; ++i)
-        questIds.insert(packet.MissingQuestPOIs[i]); // QuestID
+    for (int32 i = 0; i < questPoiQuery.MissingQuestCount; ++i)
+        questIds.insert(questPoiQuery.MissingQuestPOIs[i]); // QuestID
 
     WorldPackets::Query::QuestPOIQueryResponse response;
 

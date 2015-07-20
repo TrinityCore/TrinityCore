@@ -8150,12 +8150,12 @@ void ObjectMgr::LoadTrainerSpell()
     TC_LOG_INFO("server.loading", ">> Loaded %d Trainers in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors)
+int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 referenceType, std::set<uint32> *skip_vendors)
 {
     // find all items from the reference vendor
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
     stmt->setUInt32(0, uint32(item));
-    stmt->setUInt8(1, type);
+    stmt->setUInt8(1, referenceType);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -8170,7 +8170,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::se
 
         // if item is a negative, its a reference
         if (item_id < 0)
-            count += LoadReferenceVendor(vendor, -item_id, type, skip_vendors);
+            count += LoadReferenceVendor(vendor, -item_id, referenceType, skip_vendors);
         else
         {
             int32  maxcount     = fields[1].GetUInt32();
@@ -9248,10 +9248,10 @@ void ObjectMgr::LoadRealmNames()
     {
         Field* fields = result->Fetch();
 
-        uint32 realm = fields[0].GetUInt32();
+        uint32 realmId = fields[0].GetUInt32();
         std::string realmName = fields[1].GetString();
 
-        _realmNameStore[realm] = realmName;
+        _realmNameStore[realmId] = realmName;
 
         ++count;
     }
@@ -9259,9 +9259,9 @@ void ObjectMgr::LoadRealmNames()
     TC_LOG_INFO("server.loading", ">> Loaded %u realm names in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-std::string ObjectMgr::GetRealmName(uint32 realm) const
+std::string ObjectMgr::GetRealmName(uint32 realmId) const
 {
-    RealmNameContainer::const_iterator iter = _realmNameStore.find(realm);
+    RealmNameContainer::const_iterator iter = _realmNameStore.find(realmId);
     return iter != _realmNameStore.end() ? iter->second : "";
 }
 

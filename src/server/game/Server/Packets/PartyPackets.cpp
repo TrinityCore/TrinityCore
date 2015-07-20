@@ -475,10 +475,10 @@ void WorldPackets::Party::PartyMemberStats::Initialize(Player const* player)
 
             if (aurApp->GetFlags() & AFLAG_SCALABLE)
             {
-                for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (uint32 e = 0; e < MAX_SPELL_EFFECTS; ++e)
                 {
-                    float scale = 0.f;
-                    if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
+                    float scale = 0.0f;
+                    if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(e))
                         scale = float(eff->GetAmount());
                     aura.EffectScales.push_back(scale);
                 }
@@ -526,10 +526,10 @@ void WorldPackets::Party::PartyMemberStats::Initialize(Player const* player)
 
                 if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
-                    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    for (uint32 e = 0; e < MAX_SPELL_EFFECTS; ++e)
                     {
-                        float scale = 0.f;
-                        if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(i))
+                        float scale = 0.0f;
+                        if (AuraEffect const* eff = aurApp->GetBase()->GetEffect(e))
                             scale = float(eff->GetAmount());
                         aura.EffectScales.push_back(scale);
                     }

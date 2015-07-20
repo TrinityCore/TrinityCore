@@ -538,7 +538,7 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& calendarEven
 
     if (calendarEvent.IsGuildEvent() || calendarEvent.IsGuildAnnouncement())
     {
-        if (Guild* guild = sGuildMgr->GetGuildById(calendarEvent.GetGuildId()))
+        if (guild)
             guild->BroadcastPacket(&data);
     }
     else

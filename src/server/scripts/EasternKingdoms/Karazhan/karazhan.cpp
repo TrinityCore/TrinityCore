@@ -552,11 +552,11 @@ public:
             YellTimer = 10000;
         }
 
-        uint32 NextStep(uint32 Step)
+        uint32 NextStep(uint32 step)
         {
             Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID);
             Map* map = me->GetMap();
-            switch (Step)
+            switch (step)
             {
             case 0: return 9999999;
             case 1:
