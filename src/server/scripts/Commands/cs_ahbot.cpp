@@ -146,11 +146,9 @@ public:
     static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, const char* args)
     {
         char* arg = strtok((char*)args, " ");
-        if (!arg)
-            return false;
 
         bool all = false;
-        if (strcmp(arg, "all") == 0)
+        if (arg && strcmp(arg, "all") == 0)
             all = true;
 
         sAuctionBot->Rebuild(all);
