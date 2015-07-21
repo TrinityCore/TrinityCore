@@ -44,6 +44,7 @@
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "BattlenetServerManager.h"
+#include "DatabaseLoader.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>

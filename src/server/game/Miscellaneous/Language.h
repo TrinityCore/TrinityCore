@@ -207,15 +207,8 @@ enum TrinityStrings
     LANG_LIQUID_STATUS                  = 175,
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
-
-    LANG_PHASING_SUCCESS                = 178,
-    LANG_PHASING_FAILED                 = 179,
-    LANG_PHASING_LAST_PHASE             = 180,
-    LANG_PHASING_LIST                   = 181,
-    LANG_PHASING_PHASEMASK              = 182,
-    LANG_PHASING_REPORT_STATUS          = 183,
-    LANG_PHASING_NO_DEFINITIONS         = 184,              // Phasing
-    // Room for more level 1              185-199 not used
+    LANG_GRID_POSITION                  = 178,
+    // Room for more level 1              179-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
