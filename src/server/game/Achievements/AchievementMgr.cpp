@@ -1099,6 +1099,16 @@ void AchievementMgr<T>::CheckAllAchievementCriteria(Player* referencePlayer)
 }
 
 static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = {1057, 1107, 1108};
+static const uint32 achievIdForDungeon[][4] =
+{
+    // ach_cr_id, is_dungeon, is_raid, is_heroic_dungeon
+    { 321,       true,      true,   true  },
+    { 916,       false,     true,   false },
+    { 917,       false,     true,   false },
+    { 918,       true,      false,  false },
+    { 2219,      false,     false,  true  },
+    { 0,         false,     false,  false }
+};
 
 // Helper function to avoid having to specialize template for a 800 line long function
 template <typename T> static bool IsGuild() { return false; }
@@ -1130,9 +1140,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         return;
     }
 
-    TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: %s, %s (%u), %u, %u"
-        , m_player->GetGUID().ToString().c_str(), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2);
-
     TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: %s, %s (%u), " UI64FMTD ", " UI64FMTD ", " UI64FMTD
         , GetOwner()->GetGUID().ToString().c_str(), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2, miscValue3);
 
@@ -1141,7 +1148,9 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, IsGuild<T>());
+    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
+        AchievementCriteriaEntry const* achievementCriteria = (*i);
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->achievement);
         if (!achievement)
         {
@@ -1160,342 +1169,317 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         switch (type)
         {
             // special cases, db data is checked later
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-                break;
-            default:
-                if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
-                    if (!data->Meets(referencePlayer, unit, miscValue1))
-                        continue;
-                break;
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
+            break;
+        default:
+            if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
+                if (!data->Meets(referencePlayer, unit, miscValue1))
+                    continue;
+            break;
         }
 
         switch (type)
         {
             // std. case: increment at 1
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
-            case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
-            case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-            case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
-            case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-            case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
-            case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
-            case ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION:
-            case ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS:            /* FIXME: for online player only currently */
-            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
-            case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
-            case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-            case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
-            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
-            case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
-            case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
-            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-            case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-            case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
-            case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
-            case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
-            case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
-            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
-            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
-            case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
-                SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
-                break;
+        case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION:
+        case ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS:    /* FIXME: for online player only currently */
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
+        case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
+        case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
+        case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
+        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
+        case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
+        case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
+        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+        case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+        case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
+        case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
+            break;
             // std case: increment at miscValue1
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-            case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-            case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
-            case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
-            case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
-            case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
-            case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING:
-            case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
-            case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
-            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
-            case ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS: /* FIXME: for online player only currently */
-            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-            case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
-            case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
-                SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
-            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
-                SetCriteriaProgress(achievementCriteria, miscValue2, referencePlayer, PROGRESS_ACCUMULATE);
-                break;
+        case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
+        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
+        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING:
+        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
+        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
+        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:/* FIXME: for online player only currently */
+        case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
+        case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
+        case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
+            SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+            SetCriteriaProgress(achievementCriteria, miscValue2, referencePlayer, PROGRESS_ACCUMULATE);
+            break;
             // std case: high value at miscValue1
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD: /* FIXME: for online player only currently */
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
-            // std. case: set at 1
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
-            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
-            case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
-            case ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP:
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
-                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_SET);
-            case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->getLevel(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
-                if (uint32 skillvalue = referencePlayer->GetBaseSkillValue(achievementCriteria->reach_skill_level.skillID))
-                    SetCriteriaProgress(achievementCriteria, skillvalue, referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-                if (uint32 maxSkillvalue = referencePlayer->GetPureMaxSkillValue(achievementCriteria->learn_skill_level.skillID))
-                    SetCriteriaProgress(achievementCriteria, maxSkillvalue, referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetRewardedQuestCount(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
-            {
-                time_t nextDailyResetTime = sWorld->GetNextDailyQuestsResetTime();
-                CriteriaProgress const* progress = GetCriteriaProgress(achievementCriteria);
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD: /* FIXME: for online player only currently */
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST:
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
+            SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->getLevel(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+            if (uint32 skillvalue = referencePlayer->GetBaseSkillValue(achievementCriteria->reach_skill_level.skillID))
+                SetCriteriaProgress(achievementCriteria, skillvalue, referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+            if (uint32 maxSkillvalue = referencePlayer->GetPureMaxSkillValue(achievementCriteria->learn_skill_level.skillID))
+                SetCriteriaProgress(achievementCriteria, maxSkillvalue, referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetRewardedQuestCount(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
+        {
+            time_t nextDailyResetTime = sWorld->GetNextDailyQuestsResetTime();
+            CriteriaProgress *progress = GetCriteriaProgress(achievementCriteria);
 
-                if (!miscValue1) // Login case.
+            if (!miscValue1) // Login case.
+            {
+                // reset if player missed one day.
+                if (progress && progress->date < (nextDailyResetTime - 2 * DAY))
+                    SetCriteriaProgress(achievementCriteria, 0, referencePlayer, PROGRESS_SET);
+                continue;
+            }
+
+            ProgressType progressType;
+            if (!progress)
+                // 1st time. Start count.
+                progressType = PROGRESS_SET;
+            else if (progress->date < (nextDailyResetTime - 2 * DAY))
+                // last progress is older than 2 days. Player missed 1 day => Restart count.
+                progressType = PROGRESS_SET;
+            else if (progress->date < (nextDailyResetTime - DAY))
+                // last progress is between 1 and 2 days. => 1st time of the day.
+                progressType = PROGRESS_ACCUMULATE;
+            else
+                // last progress is within the day before the reset => Already counted today.
+                continue;
+
+            SetCriteriaProgress(achievementCriteria, 1, referencePlayer, progressType);
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+        {
+            uint32 counter = 0;
+
+            const RewardedQuestSet &rewQuests = referencePlayer->getRewardedQuests();
+            for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
+            {
+                Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
+                if (quest && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->complete_quests_in_zone.zoneID)
+                    ++counter;
+            }
+            SetCriteriaProgress(achievementCriteria, counter, referencePlayer);
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
+            // miscValue1 is the ingame fallheight*100 as stored in dbc
+            SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+            SetCriteriaProgress(achievementCriteria, 1, referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetBankBagSlotCount(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
+        {
+            int32 reputation = referencePlayer->GetReputationMgr().GetReputation(achievementCriteria->gain_reputation.factionID);
+            if (reputation > 0)
+                SetCriteriaProgress(achievementCriteria, reputation, referencePlayer);
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetExaltedFactionCount(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+        {
+            uint32 spellCount = 0;
+            for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
+                spellIter != referencePlayer->GetSpellMap().end();
+                ++spellIter)
+            {
+                SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                 {
-                    // reset if player missed one day.
-                    if (progress && progress->date < (nextDailyResetTime - 2 * DAY))
-                        SetCriteriaProgress(achievementCriteria, 0, referencePlayer, PROGRESS_SET);
+                    if (skillIter->second->skillId == achievementCriteria->learn_skillline_spell.skillLine)
+                        spellCount++;
+                }
+            }
+            SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetReveredFactionCount(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetHonoredFactionCount(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+        {
+            uint32 spellCount = 0;
+            for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
+                spellIter != referencePlayer->GetSpellMap().end();
+                ++spellIter)
+            {
+                SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                    if (skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
+                        spellCount++;
+            }
+            SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS), referencePlayer);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
+            SetCriteriaProgress(achievementCriteria, referencePlayer->GetMoney(), referencePlayer, PROGRESS_HIGHEST);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
+            if (!miscValue1)
+                SetCriteriaProgress(achievementCriteria, _achievementPoints, referencePlayer, PROGRESS_SET);
+            else
+                SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
+        {
+            uint32 reqTeamType = achievementCriteria->highest_team_rating.teamtype;
+
+            if (miscValue1)
+            {
+                if (miscValue2 != reqTeamType)
                     continue;
-                }
 
-                ProgressType progressType;
-                if (!progress)
-                    // 1st time. Start count.
-                    progressType = PROGRESS_SET;
-                else if (progress->date < (nextDailyResetTime - 2 * DAY))
-                    // last progress is older than 2 days. Player missed 1 day => Restart count.
-                    progressType = PROGRESS_SET;
-                else if (progress->date < (nextDailyResetTime - DAY))
-                    // last progress is between 1 and 2 days. => 1st time of the day.
-                    progressType = PROGRESS_ACCUMULATE;
-                else
-                    // last progress is within the day before the reset => Already counted today.
-                    continue;
-
-                SetCriteriaProgress(achievementCriteria, 1, referencePlayer, progressType);
-                break;
+                SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+            else // login case
             {
-                uint32 counter = 0;
-
-                const RewardedQuestSet &rewQuests = referencePlayer->getRewardedQuests();
-                for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
+                for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                 {
-                    Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
-                    if (quest && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->complete_quests_in_zone.zoneID)
-                        ++counter;
-                }
-                SetCriteriaProgress(achievementCriteria, counter, referencePlayer);
-                break;
-            }
-            case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
-                // miscValue1 is the ingame fallheight*100 as stored in dbc
-                SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
-            case ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP:
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
-                SetCriteriaProgress(achievementCriteria, 1, referencePlayer);
-            case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetBankBagSlotCount(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
-            {
-                int32 reputation = referencePlayer->GetReputationMgr().GetReputation(achievementCriteria->gain_reputation.factionID);
-                if (reputation > 0)
-                    SetCriteriaProgress(achievementCriteria, reputation, referencePlayer);
-                break;
-            }
-            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetExaltedFactionCount(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
-            {
-                uint32 spellCount = 0;
-                for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                    spellIter != referencePlayer->GetSpellMap().end();
-                    ++spellIter)
-                {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
-                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                    {
-                        if (skillIter->second->skillId == achievementCriteria->learn_skillline_spell.skillLine)
-                            spellCount++;
-                    }
-                }
-                SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);
-                break;
-            }
-            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetReveredFactionCount(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetHonoredFactionCount(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
-            {
-                uint32 spellCount = 0;
-                for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                    spellIter != referencePlayer->GetSpellMap().end();
-                    ++spellIter)
-                {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
-                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                        if (skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
-                            spellCount++;
-                }
-                SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);
-                break;
-            }
-            case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS), referencePlayer);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
-                SetCriteriaProgress(achievementCriteria, referencePlayer->GetMoney(), referencePlayer, PROGRESS_HIGHEST);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
-                if (!miscValue1)
-                    SetCriteriaProgress(achievementCriteria, _achievementPoints, referencePlayer, PROGRESS_SET);
-                else
-                    SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
-                break;
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
-            {
-                uint32 reqTeamType = achievementCriteria->highest_team_rating.teamtype;
-
-                if (miscValue1)
-                {
-                    if (miscValue2 != reqTeamType)
+                    uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
+                    if (!teamId)
                         continue;
 
-                    SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
+                    ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
+                    if (!team || team->GetType() != reqTeamType)
+                        continue;
+
+                    SetCriteriaProgress(achievementCriteria, team->GetStats().Rating, referencePlayer, PROGRESS_HIGHEST);
+                    break;
                 }
-                else // login case
+            }
+
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
+        {
+            uint32 reqTeamType = achievementCriteria->highest_personal_rating.teamtype;
+
+            if (miscValue1)
+            {
+                if (miscValue2 != reqTeamType)
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
+            }
+            else // login case
+            {
+                for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                 {
-                    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
+                    uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
+                    if (!teamId)
+                        continue;
+
+                    ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
+                    if (!team || team->GetType() != reqTeamType)
+                        continue;
+
+                    if (ArenaTeamMember const* member = team->GetMember(referencePlayer->GetGUID()))
                     {
-                        uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
-                        if (!teamId)
-                            continue;
-
-                        ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
-                        if (!team || team->GetType() != reqTeamType)
-                            continue;
-
-                        SetCriteriaProgress(achievementCriteria, team->GetStats().Rating, referencePlayer, PROGRESS_HIGHEST);
+                        SetCriteriaProgress(achievementCriteria, member->PersonalRating, referencePlayer, PROGRESS_HIGHEST);
                         break;
                     }
                 }
-                break;
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
-            {
-                uint32 reqTeamType = achievementCriteria->highest_personal_rating.teamtype;
-
-                if (miscValue1)
-                {
-                    if (miscValue2 != reqTeamType)
-                        continue;
-
-                    SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
-                }
-                else // login case
-                {
-                    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
-                    {
-                        uint32 teamId = referencePlayer->GetArenaTeamId(arena_slot);
-                        if (!teamId)
-                            continue;
-
-                        ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(teamId);
-                        if (!team || team->GetType() != reqTeamType)
-                            continue;
-
-                        if (ArenaTeamMember const* member = team->GetMember(referencePlayer->GetGUID()))
-                        {
-                            SetCriteriaProgress(achievementCriteria, member->PersonalRating, referencePlayer, PROGRESS_HIGHEST);
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-            case ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL:
-                SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
-                break;
+            break;
+        }
+        case ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL:
+            SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
+            break;
             // FIXME: not triggered in code as result, need to implement
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
-            case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
-            case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
-            case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
-            case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
-            case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
-            case ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING:
-            case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
-            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
-                break;                                   // Not implemented yet :(
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
+        case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
+        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
+        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
+        case ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
+            break;                                   // Not implemented yet :(
         }
 
         if (IsCompletedCriteria(achievementCriteria, achievement))
@@ -2346,14 +2330,14 @@ bool AchievementMgr<T>::CanUpdateCriteria(AchievementCriteriaEntry const* criter
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, nullptr))
     {
         TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Disabled",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->requiredType));
+            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
         return false;
     }
 
     if (achievement->mapID != -1 && referencePlayer->GetMapId() != uint32(achievement->mapID))
     {
         TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s Achievement %u) Wrong map",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->requiredType), achievement->ID);
+            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type), achievement->ID);
         return false;
     }
 
@@ -2361,21 +2345,14 @@ bool AchievementMgr<T>::CanUpdateCriteria(AchievementCriteriaEntry const* criter
         (achievement->requiredFaction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
     {
         TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s Achievement %u) Wrong faction",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->requiredType), achievement->ID);
+            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type), achievement->ID);
         return false;
     }
 
-    if (!RequirementsSatisfied(criteria, achievement, miscValue1, miscValue2, unit))
-    {
-        TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Requirements not satisfied",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->requiredType));
-        return false;
-    }
-
-    if (!ConditionsSatisfied(criteria))
+    if (!ConditionsSatisfied(criteria, referencePlayer))
     {
         TC_LOG_TRACE("achievement", "CanUpdateCriteria: (Id: %u Type %s) Conditions not satisfied",
-            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->requiredType));
+            criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
         return false;
     }
 
@@ -2396,18 +2373,6 @@ bool AchievementMgr<T>::CanUpdateCriteria(AchievementCriteriaEntry const* criter
     // don't update already completed criteria
     if (IsCompletedCriteria(criteria, achievement))
         return false;
-
-    return true;
-}
-
-bool AchievementMgr::ConditionsSatisfied(AchievementCriteriaEntry const* criteria) const
-{
-    if (!ConditionsSatisfied(criteria, referencePlayer))
-    {
-        TC_LOG_TRACE("achievement", "CanUpdateCriteria: %s (Id: %u Type %s) Conditions not satisfied",
-            criteria->name, criteria->ID, AchievementGlobalMgr::GetCriteriaTypeString(criteria->type));
-        return false;
-    }
 
     return true;
 }
@@ -2552,222 +2517,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
         {
             if (!miscValue1)
-
-            Map const* map = GetPlayer()->IsInWorld() ? GetPlayer()->GetMap() : sMapMgr->FindMap(GetPlayer()->GetMapId(), GetPlayer()->GetInstanceId());
-            if (!map || !map->IsDungeon())
                 return false;
-
-            //FIXME: work only for instances where max == min for players
-            if (map->ToInstanceMap()->GetMaxPlayers() != achievementCriteria->death_in_dungeon.manLimit)
-                return false;
-            break;
-        }
-        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
-            if (!miscValue1)
-                return false;
-            if (miscValue1 != achievementCriteria->killed_by_creature.creatureEntry)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
-            if (!miscValue1)
-                return false;
-            // if team check required: must kill by opposition faction
-            if (achievement->ID == 318 && miscValue2 == GetPlayer()->GetTeam())
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
-            if (!miscValue1)
-                return false;
-            if (miscValue2 != achievementCriteria->death_from.type)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
-            // if miscvalues != 0, it contains the questID.
-            if (miscValue1)
-            {
-                if (miscValue1 != achievementCriteria->complete_quest.questID)
-                    return false;
-            }
-            else
-            {
-                // login case.
-                if (!GetPlayer()->GetQuestRewardStatus(achievementCriteria->complete_quest.questID))
-                    return false;
-            }
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-            if (!miscValue1 || miscValue1 != achievementCriteria->be_spell_target.spellID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
-        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-            if (!miscValue1 || miscValue1 != achievementCriteria->cast_spell.spellID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
-            if (miscValue1 && miscValue1 != achievementCriteria->learn_spell.spellID)
-                return false;
-            if (!GetPlayer()->HasSpell(achievementCriteria->learn_spell.spellID))
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            // miscvalue1=loot_type (note: 0 = LOOT_CORPSE and then it ignored)
-            // miscvalue2=count of item loot
-            if (!miscValue1 || !miscValue2)
-                return false;
-            if (miscValue1 != achievementCriteria->loot_type.lootType)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
-            if (miscValue1 && achievementCriteria->own_item.itemID != miscValue1)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
-            if (!miscValue1)
-                return false;
-            if (achievementCriteria->use_item.itemID != miscValue1)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
-            if (!miscValue1)
-                return false;
-            if (miscValue1 != achievementCriteria->own_item.itemID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
-        {
-            WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(achievementCriteria->explore_area.areaReference);
-            if (!worldOverlayEntry)
-                return false;
-
-            bool matchFound = false;
-            for (int j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
-            {
-                uint32 area_id = worldOverlayEntry->areatableID[j];
-                if (!area_id)                            // array have 0 only in empty tail
-                    break;
-
-                int32 exploreFlag = GetAreaFlagByAreaID(area_id);
-                if (exploreFlag < 0)
-                    continue;
-
-                uint32 playerIndexOffset = uint32(exploreFlag) / 32;
-                uint32 mask = 1 << (uint32(exploreFlag) % 32);
-
-                if (GetPlayer()->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + playerIndexOffset) & mask)
-                {
-                    matchFound = true;
-                    break;
-                }
-            }
-
-            if (!matchFound)
-                return false;
-            break;
-        }
-        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
-            if (miscValue1 && miscValue1 != achievementCriteria->gain_reputation.factionID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscvalue1 = itemid
-            // miscvalue2 = itemSlot
-            if (!miscValue1)
-                return false;
-            if (miscValue2 != achievementCriteria->equip_epic_item.itemSlot)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
-        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-            // miscvalue1 = itemid
-            // miscvalue2 = diced value
-            if (!miscValue1)
-                return false;
-            if (miscValue2 != achievementCriteria->roll_greed_on_loot.rollValue)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-            // miscvalue1 = emote
-            if (!miscValue1)
-                return false;
-            if (miscValue1 != achievementCriteria->do_emote.emoteID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
-        case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
-            if (!miscValue1)
-                return false;
-
-            if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP)
-            {
-                if (GetPlayer()->GetMapId() != achievementCriteria->additionalRequirements[0].additionalRequirement_value)
-                    return false;
-
-                // map specific case (BG in fact) expected player targeted damage/heal
-                if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
-                    return false;
-            }
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
-            if (!miscValue1)
-                return false;
-            if (miscValue1 != achievementCriteria->equip_item.itemID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
-            if (!miscValue1)
-                return false;
-            if (miscValue1 != achievementCriteria->use_gameobject.goEntry)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
-            if (!miscValue1)
-                return false;
-            if (miscValue1 != achievementCriteria->fish_in_gameobject.goEntry)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
-            if (miscValue1 && miscValue1 != achievementCriteria->learn_skillline_spell.skillLine)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
-        case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
-        {
-            if (!miscValue1)
-                return false;
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(miscValue1);
-            if (!proto || proto->Quality < ITEM_QUALITY_EPIC)
-                return false;
-            break;
-        }
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
-            if (miscValue1 && miscValue1 != achievementCriteria->learn_skill_line.skillLine)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
-            if (!miscValue1 || miscValue1 != achievementCriteria->hk_class.classID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            if (!miscValue1 || miscValue1 != achievementCriteria->hk_race.raceID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            if (!miscValue1 || miscValue1 != achievementCriteria->bg_objective.objectiveId)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-            if (!miscValue1 || miscValue1 != achievementCriteria->honorable_kill_at_area.areaID)
-                return false;
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
-            if (miscValue1 != achievementCriteria->win_arena.mapID)
-                return false;
-            break;
-        default:
-            break;
-    }
 
             Map const* map = referencePlayer->IsInWorld() ? referencePlayer->GetMap() : sMapMgr->FindMap(referencePlayer->GetMapId(), referencePlayer->GetInstanceId());
             if (!map || !map->IsDungeon())
@@ -3008,221 +2758,6 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
             break;
     }
     return true;
-}
-
-char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 type)
-{
-    return GetCriteriaTypeString(AchievementCriteriaTypes(type));
-}
-
-char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes type)
-{
-    switch (type)
-    {
-        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
-            return "KILL_CREATURE";
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-            return "TYPE_WIN_BG";
-        case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
-            return "REACH_LEVEL";
-        case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
-            return "REACH_SKILL_LEVEL";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
-            return "COMPLETE_ACHIEVEMENT";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
-            return "COMPLETE_QUEST_COUNT";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
-            return "COMPLETE_DAILY_QUEST_DAILY";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
-            return "COMPLETE_QUESTS_IN_ZONE";
-        case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
-            return "DAMAGE_DONE";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
-            return "COMPLETE_DAILY_QUEST";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-            return "COMPLETE_BATTLEGROUND";
-        case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
-            return "DEATH_AT_MAP";
-        case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
-            return "DEATH";
-        case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
-            return "DEATH_IN_DUNGEON";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            return "COMPLETE_RAID";
-        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
-            return "KILLED_BY_CREATURE";
-        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_PLAYER:
-            return "KILLED_BY_PLAYER";
-        case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
-            return "FALL_WITHOUT_DYING";
-        case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
-            return "DEATHS_FROM";
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
-            return "COMPLETE_QUEST";
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-            return "BE_SPELL_TARGET";
-        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
-            return "CAST_SPELL";
-        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            return "BG_OBJECTIVE_CAPTURE";
-        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-            return "HONORABLE_KILL_AT_AREA";
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
-            return "WIN_ARENA";
-        case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
-            return "PLAY_ARENA";
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
-            return "LEARN_SPELL";
-        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
-            return "HONORABLE_KILL";
-        case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
-            return "OWN_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
-            return "WIN_RATED_ARENA";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
-            return "HIGHEST_TEAM_RATING";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
-            return "HIGHEST_PERSONAL_RATING";
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-            return "LEARN_SKILL_LEVEL";
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
-            return "USE_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
-            return "LOOT_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
-            return "EXPLORE_AREA";
-        case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            return "OWN_RANK";
-        case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
-            return "BUY_BANK_SLOT";
-        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
-            return "GAIN_REPUTATION";
-        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION:
-            return "GAIN_EXALTED_REPUTATION";
-        case ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP:
-            return "VISIT_BARBER_SHOP";
-        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            return "EQUIP_EPIC_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
-            return "ROLL_NEED_ON_LOOT";
-        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
-            return "GREED_ON_LOOT";
-        case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
-            return "HK_CLASS";
-        case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            return "HK_RACE";
-        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-            return "DO_EMOTE";
-        case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
-            return "HEALING_DONE";
-        case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
-            return "GET_KILLING_BLOWS";
-        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
-            return "EQUIP_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
-            return "MONEY_FROM_VENDORS";
-        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
-            return "GOLD_SPENT_FOR_TALENTS";
-        case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
-            return "NUMBER_OF_TALENT_RESETS";
-        case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
-            return "MONEY_FROM_QUEST_REWARD";
-        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING:
-            return "GOLD_SPENT_FOR_TRAVELLING";
-        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
-            return "GOLD_SPENT_AT_BARBER";
-        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
-            return "GOLD_SPENT_FOR_MAIL";
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
-            return "LOOT_MONEY";
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
-            return "USE_GAMEOBJECT";
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-            return "BE_SPELL_TARGET2";
-        case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
-            return "SPECIAL_PVP_KILL";
-        case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
-            return "FISH_IN_GAMEOBJECT";
-        case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
-            return "ON_LOGIN";
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
-            return "LEARN_SKILLLINE_SPELLS";
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
-            return "WIN_DUEL";
-        case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
-            return "LOSE_DUEL";
-        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
-            return "KILL_CREATURE_TYPE";
-        case ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:
-            return "GOLD_EARNED_BY_AUCTIONS";
-        case ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION:
-            return "CREATE_AUCTION";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID:
-            return "HIGHEST_AUCTION_BID";
-        case ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS:
-            return "WON_AUCTIONS";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD:
-            return "HIGHEST_AUCTION_SOLD";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
-            return "HIGHEST_GOLD_VALUE_OWNED";
-        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION:
-            return "GAIN_REVERED_REPUTATION";
-        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION:
-            return "GAIN_HONORED_REPUTATION";
-        case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
-            return "KNOWN_FACTIONS";
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
-            return "LOOT_EPIC_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
-            return "RECEIVE_EPIC_ITEM";
-        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
-            return "ROLL_NEED";
-        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
-            return "ROLL_GREED";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
-            return "HIGHEST_HEALTH";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER:
-            return "HIGHEST_POWER";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT:
-            return "HIGHEST_STAT";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
-            return "HIGHEST_SPELLPOWER";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_ARMOR:
-            return "HIGHEST_ARMOR";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_RATING:
-            return "HIGHEST_RATING";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT:
-            return "HIT_DEALT";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
-            return "HIT_RECEIVED";
-        case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
-            return "TOTAL_DAMAGE_RECEIVED";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CAST:
-            return "HIGHEST_HEAL_CAST";
-        case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
-            return "TOTAL_HEALING_RECEIVED";
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
-            return "HIGHEST_HEALING_RECEIVED";
-        case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
-            return "QUEST_ABANDONED";
-        case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
-            return "FLIGHT_PATHS_TAKEN";
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            return "LOOT_TYPE";
-        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-            return "CAST_SPELL2";
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
-            return "LEARN_SKILL_LINE";
-        case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
-            return "EARN_HONORABLE_KILL";
-        case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
-            return "ACCEPTED_SUMMONINGS";
-        case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
-            return "EARN_ACHIEVEMENT_POINTS";
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-            return "USE_LFD_TO_GROUP_WITH_PLAYERS";
-    }
-    return "MISSING_TYPE";
 }
 
 template<class T>
