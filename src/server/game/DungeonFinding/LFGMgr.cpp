@@ -782,10 +782,10 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
                         }
                     }
                 }
-                
+
                 if (eraseDungeon)
                     dungeons.erase(itDungeon);
-                
+
                 lockMap[guid][dungeonId] = it2->second;
             }
         }
@@ -1267,14 +1267,6 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
             player->GetName().c_str(), player->GetMapId(), uint32(dungeon->map));
         if (player->GetMapId() == uint32(dungeon->map))
             player->TeleportToBGEntryPoint();
-
-        // in the case were we are the last in lfggroup then we must disband when porting out of the instance
-        if (group->GetMembersCount() == 1)
-        {
-            group->Disband();
-            TC_LOG_DEBUG("lfg.teleport", "Player %s is last in lfggroup so we disband the group.",
-                player->GetName().c_str());
-        }
 
         return;
     }

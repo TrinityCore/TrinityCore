@@ -24,8 +24,6 @@ SDCategory: Blade's Edge Mountains
 EndScriptData */
 
 /* ContentData
-npc_bloodmaul_brutebane
-npc_bloodmaul_brute
 npc_nether_drake
 npc_daranelle
 go_legion_obelisk
@@ -42,171 +40,6 @@ EndContentData */
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-
-/*######
-## npc_bloodmaul_brutebane
-######*/
-
-enum Bloodmaul
-{
-    NPC_OGRE_BRUTE                              = 19995,
-    NPC_QUEST_CREDIT                            = 21241,
-    GO_KEG                                      = 184315,
-    QUEST_GETTING_THE_BLADESPIRE_TANKED         = 10512,
-    QUEST_BLADESPIRE_KEGGER                     = 10545
-};
-
-class npc_bloodmaul_brutebane : public CreatureScript
-{
-public:
-    npc_bloodmaul_brutebane() : CreatureScript("npc_bloodmaul_brutebane") { }
-
-    struct npc_bloodmaul_brutebaneAI : public ScriptedAI
-    {
-        npc_bloodmaul_brutebaneAI(Creature* creature) : ScriptedAI(creature)
-        {
-           if (Creature* Ogre = me->FindNearestCreature(NPC_OGRE_BRUTE, 50, true))
-           {
-               Ogre->SetReactState(REACT_DEFENSIVE);
-               Ogre->GetMotionMaster()->MovePoint(1, me->GetPositionX()-1, me->GetPositionY()+1, me->GetPositionZ());
-           }
-        }
-
-        void UpdateAI(uint32 /*diff*/) override { }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bloodmaul_brutebaneAI(creature);
-    }
-};
-
-/*######
-## npc_bloodmaul_brute
-######*/
-
-enum BloodmaulBrute
-{
-    EVENT_CLEAVE                                = 1,
-    EVENT_DEBILITATING_STRIKE                   = 2,
-    SAY_AGGRO                                   = 0,
-    SAY_DEATH                                   = 1,
-    SAY_ENRAGE                                  = 2,
-    SPELL_CLEAVE                                = 15496,
-    SPELL_DEBILITATING_STRIKE                   = 37577,
-    SPELL_ENRAGE                                = 8599,
-    QUEST_INTO_THE_SOULGRINDER                  = 11000
-};
-
-class npc_bloodmaul_brute : public CreatureScript
-{
-public:
-    npc_bloodmaul_brute() : CreatureScript("npc_bloodmaul_brute") { }
-
-    struct npc_bloodmaul_bruteAI : public ScriptedAI
-    {
-        npc_bloodmaul_bruteAI(Creature* creature) : ScriptedAI(creature)
-        {
-            hp30 = false;
-        }
-
-        void Reset() override
-        {
-            PlayerGUID.Clear();
-            hp30 = false;
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            if (urand (0, 100) < 35)
-                Talk(SAY_AGGRO);
-
-            events.ScheduleEvent(EVENT_CLEAVE, urand(9000,12000));
-            events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, 15000);
-        }
-
-        void JustDied(Unit* killer) override
-        {
-            if (killer->GetTypeId() == TYPEID_PLAYER)
-                if (killer->ToPlayer()->GetQuestRewardStatus(QUEST_INTO_THE_SOULGRINDER))
-                    Talk(SAY_DEATH);
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!who || (!who->IsAlive()))
-                return;
-
-            if (me->IsWithinDistInMap(who, 50.0f))
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED) == QUEST_STATUS_INCOMPLETE
-                        || who->ToPlayer()->GetQuestStatus(QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE)
-                        PlayerGUID = who->GetGUID();
-            }
-        }
-
-        void MovementInform(uint32 /*type*/, uint32 id) override
-        {
-            if (id == 1)
-            {
-                if (GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20))
-                    Keg->Delete();
-
-                me->HandleEmoteCommand(7);
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->GetMotionMaster()->MoveTargetedHome();
-
-                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                Creature* Credit = me->FindNearestCreature(NPC_QUEST_CREDIT, 50, true);
-                if (player && Credit)
-                    player->KilledMonster(Credit->GetCreatureTemplate(), Credit->GetGUID());
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_CLEAVE:
-                        DoCast(me, SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(9000,12000));
-                        break;
-                    case EVENT_DEBILITATING_STRIKE:
-                        DoCastVictim(SPELL_DEBILITATING_STRIKE);
-                        events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, urand(18000,22000));
-                        break;
-                }
-            }
-
-            if (!hp30 && HealthBelowPct(30))
-            {
-                hp30 = true;
-                Talk(SAY_ENRAGE);
-                DoCast(me, SPELL_ENRAGE);
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-            EventMap events;
-            ObjectGuid PlayerGUID;
-            bool hp30;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bloodmaul_bruteAI(creature);
-    }
-};
 
 /*######
 ## npc_nether_drake
@@ -1193,8 +1026,6 @@ class spell_oscillating_field : public SpellScriptLoader
 
 void AddSC_blades_edge_mountains()
 {
-    new npc_bloodmaul_brutebane();
-    new npc_bloodmaul_brute();
     new npc_nether_drake();
     new npc_daranelle();
     new go_legion_obelisk();

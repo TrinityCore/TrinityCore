@@ -158,7 +158,7 @@ uint32 UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash
 {
     LocaleFileStorage const available = GetFileList();
     AppliedFileStorage applied = ReceiveAppliedFiles();
-    
+
     // Fill hash to name cache
     HashToFileNameStorage hashToName;
     for (auto entry : applied)
