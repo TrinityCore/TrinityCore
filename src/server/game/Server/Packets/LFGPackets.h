@@ -226,8 +226,6 @@ namespace WorldPackets
             std::vector<LFGRoleCheckUpdateMember> Members;
             std::vector<uint32> JoinSlots;
             uint32 ActivityID = 0;
-            uint32 JoinSlotsCount = 0;
-            uint32 MembersCount = 0;
             uint64 BgQueueID = 0;
             uint8 PartyIndex = 0;
             uint8 RoleCheckStatus = 0;
@@ -425,6 +423,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint32 DungeonCount = 0;
+
             LFGBlackList BlackList;
             std::vector<LfgPlayerDungeonInfo> Dungeon;
         };
@@ -621,9 +621,6 @@ namespace WorldPackets
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& bootInfo);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& clientBlackList);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& clientBlackListSlot);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestRewards);
@@ -634,8 +631,4 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklist con
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklistEntry const& listBlackListEntry);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& item);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& currency);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGProposalUpdatePlayer const& update);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultParty const& party);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultPlayer const& player);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMember const& member);
 #endif // LFGPackets_h__

@@ -37,73 +37,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ti
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgBootInfo const& bootInfo)
-{
-    data.WriteBit(bootInfo.VoteInProgress);
-    data.WriteBit(bootInfo.VotePassed);
-    data.WriteBit(bootInfo.MyVoteCompleted);
-    data.WriteBit(bootInfo.MyVote);
-    data.WriteBits(bootInfo.Reason.length(), 8);
-    data.FlushBits();
-
-    data << ObjectGuid(bootInfo.Target);
-    data << uint32(bootInfo.TotalVotes);
-    data << uint32(bootInfo.BootVotes);
-    data << int32(bootInfo.TimeLeft);
-    data << uint32(bootInfo.VotesNeeded);
-
-    data.WriteString(std::string(bootInfo.Reason));
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo)
-{
-    data << playerDungeonInfo.Slot;
-    data << playerDungeonInfo.CompletionQuantity;
-    data << playerDungeonInfo.CompletionLimit;
-    data << playerDungeonInfo.CompletionCurrencyID;
-    data << playerDungeonInfo.SpecificQuantity;
-    data << playerDungeonInfo.SpecificLimit;
-    data << playerDungeonInfo.OverallQuantity;
-    data << playerDungeonInfo.OverallLimit;
-    data << playerDungeonInfo.PurseWeeklyQuantity;
-    data << playerDungeonInfo.PurseWeeklyLimit;
-    data << playerDungeonInfo.PurseQuantity;
-    data << playerDungeonInfo.PurseLimit;
-    data << playerDungeonInfo.Quantity;
-    data << playerDungeonInfo.CompletedMask;
-    data << playerDungeonInfo.ShortageRewardCount;
-
-    data << playerDungeonInfo.Rewards;
-
-    for (uint32 i = 0; i < playerDungeonInfo.ShortageRewardCount; i++)
-        data << playerDungeonInfo.ShortageReward;
-
-    data.WriteBit(playerDungeonInfo.FirstReward);
-    data.WriteBit(playerDungeonInfo.ShortageEligible);
-    data.FlushBits();
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& playerRewards)
-{
-    data << playerRewards.RewardItem;
-    data << playerRewards.RewardItemQuantity;
-    data << playerRewards.BonusCurrency;
-
-    data.WriteBit(playerRewards.IsCurrency);
-    data.FlushBits();
-
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& clientBlackList)
 {
     data.WriteBit(clientBlackList.PlayerGuid.is_initialized());
-    data << clientBlackList.Slot;
     data.FlushBits();
+
+    data << clientBlackList.Slot;
 
     if (clientBlackList.PlayerGuid)
         data << *clientBlackList.PlayerGuid;
@@ -203,96 +142,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGListBlacklistEntr
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGProposalUpdatePlayer const& update)
-{
-    data << update.Roles;
-    data.WriteBit(update.Me);
-    data.WriteBit(update.SameParty);
-    data.WriteBit(update.Responded);
-    data.WriteBit(update.Accepted);
-
-    data.FlushBits();
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultPlayer const& player)
-{
-    // Casting because hard as fuck to know which is which xD
-    // Order is probably not at all correct. Will have to use some sniffs for this.
-    data << ObjectGuid(player.Guid);
-    data << uint32(player.SpecID);
-    data << uint8(player.ChrClass);
-    data << uint8(player.Level);
-    data << uint8(player.Race);
-    data << uint32(player.Agility);
-    data << uint32(player.Armor);
-    data << uint32(player.AttackPower);
-    data << uint32(player.BlockRating);
-    data << uint32(player.ParryRating);
-    data << uint32(player.HasteRating);
-    data << float(player.GearRating);
-    data << float(player.AvgItemLevel);
-    data << uint32(player.CritMelee);
-    data << uint32(player.CritRanged);
-    data << uint32(player.CritSpell);
-    data << uint32(player.DefenseRating);
-    data << uint32(player.DodgeRating);
-    data << float(player.Mp5);
-    data << float(player.Mp5InCombat);
-    data << uint32(player.PlusHealing);
-    data << uint32(player.MaxHealth);
-    data << uint32(player.MaxMana);
-    data << uint32(player.SpellDamage);
-    data << uint32(player.BossKills);
-    data << float(player.Expertise);
-    data << uint32(player.InstanceCompletedMask);
-    data << uint32(player.NativeRealmAddress);
-    data << uint32(player.VirtualRealmAddress);
-    data << ObjectGuid(player.PartyGuid);
-    data << uint8(player.RolesDesired);
-    data << uint32(player.Area);
-    data << uint8(player.Status);
-    data << uint64(player.InstanceID);
-    data << uint32(player.ChangeMask);
-
-    data.WriteBits(player.Comment.length(), 8);
-    data.WriteBit(player.IsLeader);
-    data.FlushBits();
-
-    data.WriteString(std::string(player.Comment));
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGSearchResultParty const& party)
-{
-    data << party.Guid;
-    data << party.ChangeMask;
-    data << party.InstanceID;
-    data << party.InstanceCompletedMask;
-    data << party.Needs[3];
-
-    data.WriteBits(party.Comment.length(), 8);
-    data.FlushBits();
-
-    data.WriteString(party.Comment);
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGRoleCheckUpdateMember const& member)
-{
-    data << member.Guid;
-    data << member.RolesDesired;
-    data << member.Level;
-
-    data.WriteBit(member.RoleCheckComplete);
-    data.FlushBits();
-
-    return data;
-}
-
 WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
 {
     _worldPacket << Result;
@@ -334,16 +183,21 @@ WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
 {
     _worldPacket << PartyIndex;
     _worldPacket << RoleCheckStatus;
-    _worldPacket << JoinSlotsCount;
+    _worldPacket << JoinSlots.size();
     _worldPacket << BgQueueID;
     _worldPacket << ActivityID;
-    _worldPacket << MembersCount;
+    _worldPacket << Members.size();
 
-    for (uint32 i = 0; i < JoinSlotsCount; i++)
+    for (uint32 i = 0; i < JoinSlots.size(); i++)
         _worldPacket << JoinSlots;
 
-    for (uint32 i = 0; i < MembersCount; i++)
-        _worldPacket << Members;
+    for (auto const& members : Members)
+    {
+        _worldPacket << members.Guid;
+        _worldPacket << members.RoleCheckComplete;
+        _worldPacket << members.RolesDesired;
+        _worldPacket << members.Level;
+    }
 
     _worldPacket.WriteBit(IsBeginning);
     _worldPacket.WriteBit(ShowRoleCheck);
@@ -414,14 +268,22 @@ WorldPacket const* WorldPackets::LFG::LFGProposalUpdate::Write()
     _worldPacket << Slot;
     _worldPacket << State;
     _worldPacket << CompletedMask;
-    _worldPacket << PlayersCount;
+    _worldPacket << Players.size();
 
-    for (uint32 i = 0; i < PlayersCount; i++)
-        _worldPacket << Players;
+    for (auto const& players : Players)
+    {
+        _worldPacket << players.Roles;
+        _worldPacket.WriteBit(players.Me);
+        _worldPacket.WriteBit(players.SameParty);
+        _worldPacket.WriteBit(players.Responded);
+        _worldPacket.WriteBit(players.Accepted);
+
+        _worldPacket.FlushBits();
+    }
 
     _worldPacket.WriteBit(ValidCompletedMask);
     _worldPacket.WriteBit(ProposalSilent);
-    _worldPacket.FlushBits;
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -433,6 +295,65 @@ WorldPacket const* WorldPackets::LFG::LFGSearchResults::Write()
     _worldPacket << CountTotalPlayers;
     _worldPacket << SlotID;
     _worldPacket << SlotType;
+
+    for (auto const& party : Parties)
+    {
+        _worldPacket << party.Guid;
+        _worldPacket << party.ChangeMask;
+        _worldPacket << party.InstanceID;
+        _worldPacket << party.InstanceCompletedMask;
+        _worldPacket << party.Needs[3];
+
+        _worldPacket.WriteBits(party.Comment.length(), 8);
+        _worldPacket.FlushBits();
+
+        _worldPacket.WriteString(party.Comment);
+    }
+
+    for (auto const& player : Players)
+    {
+        _worldPacket << player.Guid;
+        _worldPacket << uint32(player.SpecID);
+        _worldPacket << uint8(player.ChrClass);
+        _worldPacket << uint8(player.Level);
+        _worldPacket << uint8(player.Race);
+        _worldPacket << uint32(player.Agility);
+        _worldPacket << uint32(player.Armor);
+        _worldPacket << uint32(player.AttackPower);
+        _worldPacket << uint32(player.BlockRating);
+        _worldPacket << uint32(player.ParryRating);
+        _worldPacket << uint32(player.HasteRating);
+        _worldPacket << float(player.GearRating);
+        _worldPacket << float(player.AvgItemLevel);
+        _worldPacket << uint32(player.CritMelee);
+        _worldPacket << uint32(player.CritRanged);
+        _worldPacket << uint32(player.CritSpell);
+        _worldPacket << uint32(player.DefenseRating);
+        _worldPacket << uint32(player.DodgeRating);
+        _worldPacket << float(player.Mp5);
+        _worldPacket << float(player.Mp5InCombat);
+        _worldPacket << uint32(player.PlusHealing);
+        _worldPacket << uint32(player.MaxHealth);
+        _worldPacket << uint32(player.MaxMana);
+        _worldPacket << uint32(player.SpellDamage);
+        _worldPacket << uint32(player.BossKills);
+        _worldPacket << float(player.Expertise);
+        _worldPacket << uint32(player.InstanceCompletedMask);
+        _worldPacket << uint32(player.NativeRealmAddress);
+        _worldPacket << uint32(player.VirtualRealmAddress);
+        _worldPacket << ObjectGuid(player.PartyGuid);
+        _worldPacket << uint8(player.RolesDesired);
+        _worldPacket << uint32(player.Area);
+        _worldPacket << uint8(player.Status);
+        _worldPacket << uint64(player.InstanceID);
+        _worldPacket << uint32(player.ChangeMask);
+
+        _worldPacket.WriteBits(player.Comment.length(), 8);
+        _worldPacket.WriteBit(player.IsLeader);
+        _worldPacket.FlushBits();
+
+        _worldPacket.WriteString(player.Comment);
+    }
 
     _worldPacket << Removes;
 
@@ -460,7 +381,20 @@ WorldPacket const* WorldPackets::LFG::LFGOfferContinue::Write()
 
 WorldPacket const* WorldPackets::LFG::LFGBootPlayer::Write()
 {
-    _worldPacket << Info;
+    _worldPacket.WriteBit(Info.VoteInProgress);
+    _worldPacket.WriteBit(Info.VotePassed);
+    _worldPacket.WriteBit(Info.MyVoteCompleted);
+    _worldPacket.WriteBit(Info.MyVote);
+    _worldPacket.WriteBits(Info.Reason.length(), 8);
+    _worldPacket.FlushBits();
+
+    _worldPacket << ObjectGuid(Info.Target);
+    _worldPacket << uint32(Info.TotalVotes);
+    _worldPacket << uint32(Info.BootVotes);
+    _worldPacket << int32(Info.TimeLeft);
+    _worldPacket << uint32(Info.VotesNeeded);
+
+    _worldPacket.WriteString(std::string(Info.Reason));
 
     return &_worldPacket;
 }
@@ -474,8 +408,39 @@ WorldPacket const* WorldPackets::LFG::LFGPartyInfo::Write()
 
 WorldPacket const* WorldPackets::LFG::LFGPlayerInfo::Write()
 {
+    _worldPacket << int16(Dungeon.size());
     _worldPacket << BlackList;
-    _worldPacket << Dungeon;
+
+    for (auto const& dungeon : Dungeon)
+    {
+        {
+            _worldPacket << int32(dungeon.Slot);
+            _worldPacket << int32(dungeon.CompletionQuantity);
+            _worldPacket << int32(dungeon.CompletionLimit);
+            _worldPacket << int32(dungeon.CompletionCurrencyID);
+            _worldPacket << int32(dungeon.SpecificQuantity);
+            _worldPacket << int32(dungeon.SpecificLimit);
+            _worldPacket << int32(dungeon.OverallQuantity);
+            _worldPacket << int32(dungeon.OverallLimit);
+            _worldPacket << int32(dungeon.PurseWeeklyQuantity);
+            _worldPacket << int32(dungeon.PurseWeeklyLimit);
+            _worldPacket << int32(dungeon.PurseQuantity);
+            _worldPacket << int32(dungeon.PurseLimit);
+            _worldPacket << int32(dungeon.Quantity);
+            _worldPacket << int32(dungeon.CompletedMask);
+
+            _worldPacket << int32(dungeon.ShortageReward.size());
+
+            _worldPacket << dungeon.Rewards;
+
+            for (auto const& reward : dungeon.ShortageReward)
+                _worldPacket << reward;
+
+            _worldPacket.WriteBit(dungeon.FirstReward);
+            _worldPacket.WriteBit(dungeon.ShortageEligible);
+            _worldPacket.FlushBits();
+        }
+    }
 
     return &_worldPacket;
 }
@@ -486,10 +451,17 @@ WorldPacket const* WorldPackets::LFG::LFGPlayerReward::Write()
     _worldPacket << QueuedSlot;
     _worldPacket << RewardMoney;
     _worldPacket << AddedXP;
-    _worldPacket << RewardsCount;
+    _worldPacket << Rewards.size();
 
-    for (uint32 i = 0; i < RewardsCount; i++)
-        _worldPacket << Rewards;
+    for (auto const& rewards : Rewards)
+    {
+        _worldPacket << rewards.RewardItem;
+        _worldPacket << rewards.RewardItemQuantity;
+        _worldPacket << rewards.BonusCurrency;
+
+        _worldPacket.WriteBit(rewards.IsCurrency);
+        _worldPacket.FlushBits();
+    }
 
     return &_worldPacket;
 }
