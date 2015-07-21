@@ -239,7 +239,7 @@ void AuctionBotConfig::GetConfigFromFile()
 
 char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
 {
-    static char const* names[MAX_AUCTION_HOUSE_TYPE] = { "Alliance", "Horde", "Neutral" };
+    static char const* names[MAX_AUCTION_HOUSE_TYPE] = { "Neutral", "Alliance", "Horde" };
     return names[houseType];
 }
 

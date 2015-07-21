@@ -29,7 +29,6 @@ npc_corastrasza
 npc_sinkhole_kill_credit
 npc_khunok_the_behemoth
 npc_nerubar_victim
-npc_keristrasza
 npc_nesingwary_trapper
 npc_lurgglbr
 npc_nexus_drake_hatchling
@@ -219,48 +218,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_khunok_the_behemothAI(creature);
-    }
-};
-
-/*######
-## npc_keristrasza
-######*/
-
-enum Keristrasza
-{
-    SPELL_TELEPORT_TO_SARAGOSA = 46772
-};
-
-#define GOSSIP_HELLO_KERI   "I am prepared to face Saragosa!"
-
-class npc_keristrasza : public CreatureScript
-{
-public:
-    npc_keristrasza() : CreatureScript("npc_keristrasza") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(11957) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_KERI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, SPELL_TELEPORT_TO_SARAGOSA, true);
-        }
-
-        return true;
     }
 };
 
@@ -2488,7 +2445,6 @@ void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
     new npc_khunok_the_behemoth();
-    new npc_keristrasza();
     new npc_corastrasza();
     new npc_iruk();
     new npc_nerubar_victim();
