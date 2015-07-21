@@ -377,7 +377,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     // Group with less that MAXGROUPSIZE members always compatible
     if (check.size() == 1 && numPlayers != MAXGROUPSIZE)
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) sigle group. Compatibles", strGuids.c_str());
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) single group. Compatibles", strGuids.c_str());
         LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
 
         LfgCompatibilityData data(LFG_COMPATIBLES_WITH_LESS_PLAYERS);
