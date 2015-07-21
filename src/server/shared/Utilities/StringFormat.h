@@ -23,11 +23,11 @@
 
 namespace Trinity
 {
-    //! Default TC string format function
-    template<typename... Args>
-    inline std::string StringFormat(const char* fmt, Args const&... args)
+    /// Default TC string format function.
+    template<typename Format, typename... Args>
+    inline std::string StringFormat(Format&& fmt, Args&&... args)
     {
-        return fmt::sprintf(fmt, args...);
+        return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
     }
 }
 
