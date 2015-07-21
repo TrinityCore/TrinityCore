@@ -421,7 +421,7 @@ public:
             gossipStep = 0;
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit* who) override
         {
             if (who && !who->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
                 npc_escortAI::AttackStart(who);

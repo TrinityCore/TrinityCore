@@ -32,7 +32,6 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "UpdateMask.h"
-#include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
 

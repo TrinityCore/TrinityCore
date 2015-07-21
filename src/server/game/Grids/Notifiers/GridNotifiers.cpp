@@ -21,12 +21,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "UpdateData.h"
-#include "Item.h"
-#include "Map.h"
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
-#include "SpellInfo.h"
 
 using namespace Trinity;
 

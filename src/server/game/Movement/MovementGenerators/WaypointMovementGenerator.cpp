@@ -19,7 +19,6 @@
 #include "WaypointMovementGenerator.h"
 //Extended headers
 #include "ObjectMgr.h"
-#include "World.h"
 #include "Transport.h"
 //Flightmaster grid preloading
 #include "MapManager.h"

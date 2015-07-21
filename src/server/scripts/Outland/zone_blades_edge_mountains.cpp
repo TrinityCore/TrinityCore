@@ -29,7 +29,6 @@ npc_bloodmaul_brute
 npc_nether_drake
 npc_daranelle
 go_legion_obelisk
-go_thunderspike
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -505,31 +504,6 @@ public:
 
         return true;
     }
-};
-
-/*######
-## go_thunderspike
-######*/
-
-enum TheThunderspike
-{
-    NPC_GOR_GRIMGUT     = 21319,
-    QUEST_THUNDERSPIKE  = 10526,
-};
-
-class go_thunderspike : public GameObjectScript
-{
-    public:
-        go_thunderspike() : GameObjectScript("go_thunderspike") { }
-
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (player->GetQuestStatus(QUEST_THUNDERSPIKE) == QUEST_STATUS_INCOMPLETE && !go->FindNearestCreature(NPC_GOR_GRIMGUT, 25.0f, true))
-                if (Creature* gorGrimgut = go->SummonCreature(NPC_GOR_GRIMGUT, -2413.4f, 6914.48f, 25.01f, 3.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000))
-                    gorGrimgut->AI()->AttackStart(player);
-
-            return true;
-        }
 };
 
 enum SimonGame
@@ -1224,7 +1198,6 @@ void AddSC_blades_edge_mountains()
     new npc_nether_drake();
     new npc_daranelle();
     new go_legion_obelisk();
-    new go_thunderspike();
     new npc_simon_bunny();
     new go_simon_cluster();
     new go_apexis_relic();

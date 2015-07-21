@@ -20,7 +20,6 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
-#include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -33,7 +32,6 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
-#include <G3D/Quat.h>
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(NULL), m_goValue(), m_AI(NULL)

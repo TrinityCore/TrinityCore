@@ -1873,7 +1873,7 @@ class spell_igb_rocket_pack_useable : public SpellScriptLoader
         {
             PrepareAuraScript(spell_igb_rocket_pack_useable_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetOwner()->GetInstanceScript() != nullptr;
             }
@@ -2001,7 +2001,7 @@ class spell_igb_cannon_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_igb_cannon_blast_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -2343,7 +2343,7 @@ class spell_igb_gunship_fall_teleport : public SpellScriptLoader
         {
             PrepareSpellScript(spell_igb_gunship_fall_teleport_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetInstanceScript() != nullptr;
             }
