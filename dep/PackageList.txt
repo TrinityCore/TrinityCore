@@ -4,6 +4,10 @@ Boost
   http://www.boost.org
   Version: 1.55
 
+Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
+  http://www.highscore.de/boost/process0.5/
+  Version: 0.5
+
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6

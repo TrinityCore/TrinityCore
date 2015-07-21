@@ -255,12 +255,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 if (GetBossState(BOSS_VALKIRIES) == SPECIAL)
                                     state = DONE;
                                 break;
-                            case DONE:
-                                if (instance->GetPlayers().getFirst()->GetSource()->GetTeam() == ALLIANCE)
-                                    EventStage = 4020;
-                                else
-                                    EventStage = 4030;
-                                break;
                             default:
                                 break;
                         }

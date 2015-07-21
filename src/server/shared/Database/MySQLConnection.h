@@ -72,8 +72,10 @@ class MySQLConnection
         MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
         virtual ~MySQLConnection();
 
-        virtual bool Open();
+        virtual uint32 Open();
         void Close();
+
+        bool PrepareStatements();
 
     public:
         bool Execute(const char* sql);
@@ -111,7 +113,6 @@ class MySQLConnection
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
         void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
 
-        bool PrepareStatements();
         virtual void DoPrepareStatements() = 0;
 
     protected:

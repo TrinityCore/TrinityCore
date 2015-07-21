@@ -5,6 +5,7 @@
 # This module defines
 # MYSQL_INCLUDE_DIR, where to find mysql.h
 # MYSQL_LIBRARIES, the libraries to link against to connect to MySQL
+# MYSQL_EXECUTABLE, the MySQL executable.
 # MYSQL_FOUND, if false, you cannot build anything that requires MySQL.
 
 # also defined, but not for general use are
@@ -182,6 +183,65 @@ else( NOT WIN32 )
   set( MYSQL_EXTRA_LIBRARIES "" )
 endif( NOT WIN32 )
 
+if( UNIX )
+    find_program(MYSQL_EXECUTABLE mysql
+    PATHS
+        ${MYSQL_CONFIG_PREFER_PATH}
+        /usr/local/mysql/bin/
+        /usr/local/bin/
+        /usr/bin/
+    DOC
+        "path to your mysql binary."
+    )
+endif( UNIX )
+
+if( WIN32 )
+    find_program(MYSQL_EXECUTABLE mysql
+      PATHS
+        "C:/Program Files/MySQL/MySQL Server 5.6/bin"
+        "C:/Program Files/MySQL/MySQL Server 5.6/bin/opt"
+        "C:/Program Files/MySQL/MySQL Server 5.5/bin"
+        "C:/Program Files/MySQL/MySQL Server 5.5/bin/opt"
+        "C:/Program Files/MySQL/MySQL Server 5.1/bin"
+        "C:/Program Files/MySQL/MySQL Server 5.1/bin/opt"
+        "C:/Program Files/MySQL/MySQL Server 5.0/bin"
+        "C:/Program Files/MySQL/MySQL Server 5.0/bin/opt"
+        "C:/Program Files/MySQL/bin"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.6/bin"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.6/bin/opt"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.5/bin"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.5/bin/opt"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.1/bin"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.1/bin/opt"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.0/bin"
+        "C:/Program Files (x86)/MySQL/MySQL Server 5.0/bin/opt"
+        "C:/Program Files (x86)/MySQL/bin"
+        "C:/MySQL/bin/debug"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.6;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.6;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.5;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.5;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.1;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.1;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.6;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.6;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.5;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.5;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.1;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.1;Location]/bin/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/bin"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/bin/opt"
+        "$ENV{ProgramFiles}/MySQL/*/bin/opt"
+        "$ENV{SystemDrive}/MySQL/*/bin/opt"
+        "c:/msys/local/include"
+        "$ENV{MYSQL_ROOT}/bin"
+     DOC
+        "path to your mysql binary."
+    )
+endif( WIN32 )
+
 if( MYSQL_LIBRARY )
   if( MYSQL_INCLUDE_DIR )
     set( MYSQL_FOUND 1 )
@@ -190,7 +250,10 @@ if( MYSQL_LIBRARY )
   else( MYSQL_INCLUDE_DIR )
     message(FATAL_ERROR "Could not find MySQL headers! Please install the development libraries and headers")
   endif( MYSQL_INCLUDE_DIR )
-  mark_as_advanced( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIR )
+  if( MYSQL_EXECUTABLE )
+    message(STATUS "Found MySQL executable: ${MYSQL_EXECUTABLE}")
+  endif( MYSQL_EXECUTABLE )
+  mark_as_advanced( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIR MYSQL_EXECUTABLE)
 else( MYSQL_LIBRARY )
   message(FATAL_ERROR "Could not find the MySQL libraries! Please install the development libraries and headers")
 endif( MYSQL_LIBRARY )
