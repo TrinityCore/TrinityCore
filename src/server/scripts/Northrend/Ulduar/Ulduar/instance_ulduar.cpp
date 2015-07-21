@@ -83,6 +83,7 @@ class instance_ulduar : public InstanceMapScript
                 IsDriveMeCrazyEligible = true;
                 _algalonSummoned = false;
                 _summonAlgalon = false;
+                _CoUAchivePlayerDeathMask = 0;
 
                 memset(_summonObservationRingKeeper, 0, sizeof(_summonObservationRingKeeper));
                 memset(_summonYSKeeper, 0, sizeof(_summonYSKeeper));
@@ -592,6 +593,19 @@ class instance_ulduar : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
+                // Champion/Conqueror of Ulduar
+                if (unit->GetTypeId() == TYPEID_PLAYER)
+                {
+                    for (uint8 i = 0; i < BOSS_ALGALON; i++)
+                    {
+                        if (GetBossState(i) == IN_PROGRESS)
+                        {
+                            _CoUAchivePlayerDeathMask |= (1 << i);
+                            SaveToDB();
+                        }
+                    }
+                }
+
                 Creature* creature = unit->ToCreature();
                 if (!creature)
                     return;
@@ -1007,6 +1021,45 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_ALONE_IN_THE_DARKNESS_10:
                     case CRITERIA_ALONE_IN_THE_DARKNESS_25:
                         return keepersCount == 0;
+                    case CRITERIA_C_O_U_LEVIATHAN_10:
+                    case CRITERIA_C_O_U_LEVIATHAN_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_LEVIATHAN)) == 0;
+                    case CRITERIA_C_O_U_IGNIS_10:
+                    case CRITERIA_C_O_U_IGNIS_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_IGNIS)) == 0;
+                    case CRITERIA_C_O_U_RAZORSCALE_10:
+                    case CRITERIA_C_O_U_RAZORSCALE_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_RAZORSCALE)) == 0;
+                    case CRITERIA_C_O_U_XT002_10:
+                    case CRITERIA_C_O_U_XT002_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_XT002)) == 0;
+                    case CRITERIA_C_O_U_IRON_COUNCIL_10:
+                    case CRITERIA_C_O_U_IRON_COUNCIL_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_ASSEMBLY_OF_IRON)) == 0;
+                    case CRITERIA_C_O_U_KOLOGARN_10:
+                    case CRITERIA_C_O_U_KOLOGARN_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_KOLOGARN)) == 0;
+                    case CRITERIA_C_O_U_AURIAYA_10:
+                    case CRITERIA_C_O_U_AURIAYA_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_AURIAYA)) == 0;
+                    case CRITERIA_C_O_U_HODIR_10:
+                    case CRITERIA_C_O_U_HODIR_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_HODIR)) == 0;
+                    case CRITERIA_C_O_U_THORIM_10:
+                    case CRITERIA_C_O_U_THORIM_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_THORIM)) == 0;
+                    case CRITERIA_C_O_U_FREYA_10:
+                    case CRITERIA_C_O_U_FREYA_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_FREYA)) == 0;
+                    case CRITERIA_C_O_U_MIMIRON_10:
+                    case CRITERIA_C_O_U_MIMIRON_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_MIMIRON)) == 0;
+                    case CRITERIA_C_O_U_VEZAX_10:
+                    case CRITERIA_C_O_U_VEZAX_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_VEZAX)) == 0;
+                    case CRITERIA_C_O_U_YOGG_SARON_10:
+                    case CRITERIA_C_O_U_YOGG_SARON_25:
+                        return (_CoUAchivePlayerDeathMask & (1 << BOSS_YOGG_SARON)) == 0;
                 }
 
                 return false;
@@ -1018,6 +1071,8 @@ class instance_ulduar : public InstanceMapScript
 
                 for (uint8 i = 0; i < 4; ++i)
                     data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
+
+                data << ' ' << _CoUAchivePlayerDeathMask;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
@@ -1056,6 +1111,8 @@ class instance_ulduar : public InstanceMapScript
                     _summonObservationRingKeeper[2] = true;
                 if (GetBossState(BOSS_MIMIRON) == DONE && !_summonYSKeeper[3])
                     _summonObservationRingKeeper[3] = true;
+
+                data >> _CoUAchivePlayerDeathMask;
             }
 
             void Update(uint32 diff) override
@@ -1095,6 +1152,7 @@ class instance_ulduar : public InstanceMapScript
             bool _summonYSKeeper[4];
             uint32 _maxArmorItemLevel;
             uint32 _maxWeaponItemLevel;
+            uint32 _CoUAchivePlayerDeathMask;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
