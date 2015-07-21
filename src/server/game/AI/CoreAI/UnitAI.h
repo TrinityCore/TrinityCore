@@ -22,6 +22,7 @@
 #include "Define.h"
 #include "Unit.h"
 #include "Containers.h"
+#include "EventMap.h"
 #include <list>
 
 class Player;

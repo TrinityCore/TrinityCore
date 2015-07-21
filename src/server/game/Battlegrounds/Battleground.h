@@ -28,6 +28,7 @@
 #include "GameObject.h"
 #include "Packets/WorldStatePackets.h"
 #include "Packets/BattlegroundPackets.h"
+#include "EventMap.h"
 
 class Creature;
 class GameObject;
