@@ -422,6 +422,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             condMeets = object->IsInTerrainSwap(ConditionValue1);
             break;
         }
+        case CONDITION_REALM_ACHIEVEMENT:
+        {
+            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(ConditionValue1);
+            if (achievement && sAchievementMgr->IsRealmCompleted(achievement, std::numeric_limits<uint32>::max()))
+                condMeets = true;
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -592,6 +599,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             mask |= GRID_MAP_TYPE_MASK_CREATURE;
             break;
         case CONDITION_TERRAIN_SWAP:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_REALM_ACHIEVEMENT:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         default:
@@ -2089,6 +2099,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         case CONDITION_AREAID:
         case CONDITION_ALIVE:
             break;
+        case CONDITION_REALM_ACHIEVEMENT:
+        {
+            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
+            if (!achievement)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non existing realm first achivement id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         default:
             break;
     }
