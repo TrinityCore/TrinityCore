@@ -75,9 +75,7 @@ class Log
 
             std::unique_ptr<LogMessage> msg(new LogMessage(LOG_LEVEL_INFO, "commands.gm", std::move(Trinity::StringFormat(fmt, args...))));
 
-            std::ostringstream ss;
-            ss << account;
-            msg->param1 = ss.str();
+            msg->param1 = std::to_string(account);
 
             write(std::move(msg));
         }

@@ -2925,7 +2925,7 @@ CREATE TABLE `quest_template` (
   `RewardSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardSpellCast` int(11) NOT NULL DEFAULT '0',
   `RewardHonor` int(11) NOT NULL DEFAULT '0',
-  `RewardHonorMultiplier` float NOT NULL DEFAULT '1',
+  `RewardHonorMultiplier` float NOT NULL DEFAULT '0',
   `RewardMailTemplateId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardMailDelay` int(11) unsigned NOT NULL DEFAULT '0',
   `SourceItemId` mediumint(8) unsigned NOT NULL DEFAULT '0',
