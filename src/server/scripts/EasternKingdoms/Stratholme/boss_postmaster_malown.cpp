@@ -55,7 +55,8 @@ enum Events
 
 class boss_postmaster_malown : public CreatureScript
 {
-    public: boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }
+    public:
+        boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }
 
         struct boss_postmaster_malownAI : public BossAI
         {
@@ -120,13 +121,14 @@ class boss_postmaster_malown : public CreatureScript
                             break;
                     }
                 }
+
                 DoMeleeAttackIfReady();
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_postmaster_malownAI(creature);
+            return GetInstanceAI<boss_postmaster_malownAI>(creature);
         }
 };
 

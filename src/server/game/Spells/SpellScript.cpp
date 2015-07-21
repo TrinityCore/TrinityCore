@@ -1001,9 +1001,9 @@ DynamicObject* AuraScript::GetDynobjOwner() const
     return m_aura->GetDynobjOwner();
 }
 
-void AuraScript::Remove(uint32 removeMode)
+void AuraScript::Remove(AuraRemoveMode removeMode)
 {
-    m_aura->Remove((AuraRemoveMode)removeMode);
+    m_aura->Remove(removeMode);
 }
 
 Aura* AuraScript::GetAura() const
