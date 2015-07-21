@@ -882,34 +882,37 @@ public:
     };
 };
 
+enum LooselyTurnedSoil
+{
+    QUEST_CALL_THE_HEADLESS_HORSEMAN = 11405
+};
+
 class go_loosely_turned_soil : public GameObjectScript
 {
 public:
     go_loosely_turned_soil() : GameObjectScript("go_loosely_turned_soil") { }
 
-    bool OnGossipHello(Player* player, GameObject* soil) override
+    bool OnGossipHello(Player* player, GameObject* go) override
     {
-        InstanceScript* instance = player->GetInstanceScript();
-        if (instance)
-        {
-            if (instance->GetBossState(DATA_HORSEMAN_EVENT) != NOT_STARTED)
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS || player->GetQuestStatus(QUEST_CALL_THE_HEADLESS_HORSEMAN) != QUEST_STATUS_COMPLETE)
                 return true;
-            instance->SetBossState(DATA_HORSEMAN_EVENT, IN_PROGRESS);
-        }
-    /*  if (soil->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER && player->getLevel() > 64)
-        {
-            player->PrepareQuestMenu(soil->GetGUID());
-            player->SendPreparedQuest(soil->GetGUID());
-        }
-        if (player->GetQuestStatus(11405) == QUEST_STATUS_INCOMPLETE && player->getLevel() > 64)
-        { */
+
+        return false;
+    }
+
+    bool OnQuestReward(Player* player, GameObject* go, Quest const* /*quest*/, uint32 /*opt*/) override
+    {
+        if (InstanceScript* instance = go->GetInstanceScript())
+            if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS)
+                return false;
+
             player->AreaExploredOrEventHappens(11405);
-            if (Creature* horseman = soil->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            if (Creature* horseman = go->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
             {
                 ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
                 ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
             }
-        //}
         return true;
     }
 };
