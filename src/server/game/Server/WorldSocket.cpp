@@ -191,12 +191,12 @@ bool WorldSocket::ReadDataHandler()
                 break;
             case CMSG_LOG_DISCONNECT:
                 packet.rfinish();   // contains uint32 disconnectReason;
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 return true;
             case CMSG_ENABLE_NAGLE:
             {
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                TC_LOG_DEBUG("network", "%s", GetOpcodeNameForLogging(opcode).c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 if (_worldSession)
                     _worldSession->HandleEnableNagleAlgorithm();

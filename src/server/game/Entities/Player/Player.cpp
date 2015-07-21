@@ -6571,7 +6571,7 @@ void Player::SendActionButtons(uint32 state) const
 
     data << uint8(state);
     GetSession()->SendPacket(&data);
-    TC_LOG_DEBUG("network", "SMSG_ACTION_BUTTONS sent '%u' spec '%u' Sent", GetGUIDLow(), m_activeSpec);
+    TC_LOG_DEBUG("network", "SMSG_ACTION_BUTTONS sent '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
@@ -26062,7 +26062,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     LearnSpell(spellid, false);
     AddTalent(spellid, GetActiveSpec(), true);
 
-    TC_LOG_DEBUG("entities.player", "TalentID: %u Rank: %u Spell: %u Spec: %u\n", talentId, talentRank, spellid, m_activeSpec);
+    TC_LOG_DEBUG("entities.player", "TalentID: %u Rank: %u Spell: %u Spec: %u\n", talentId, talentRank, spellid, GetActiveSpec());
 
     // set talent tree for player
     if (!GetPrimaryTalentTree(GetActiveSpec()))
