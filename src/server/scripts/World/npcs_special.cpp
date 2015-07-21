@@ -524,12 +524,7 @@ enum Doctor
     HORDE_COORDS        = 6
 };
 
-struct Location
-{
-    float x, y, z, o;
-};
-
-static Location AllianceCoords[]=
+Position const AllianceCoords[]=
 {
     {-3757.38f, -4533.05f, 14.16f, 3.62f},                      // Top-far-right bunk as seen from entrance
     {-3754.36f, -4539.13f, 14.16f, 5.13f},                      // Top-far-left bunk
@@ -545,7 +540,7 @@ static Location AllianceCoords[]=
 #define A_RUNTOY -4531.52f
 #define A_RUNTOZ 11.91f
 
-static Location HordeCoords[]=
+Position const HordeCoords[]=
 {
     {-1013.75f, -3492.59f, 62.62f, 4.34f},                      // Left, Behind
     {-1017.72f, -3490.92f, 62.62f, 4.34f},                      // Right, Behind
@@ -614,7 +609,7 @@ public:
         bool Event;
 
         GuidList Patients;
-        std::vector<Location*> Coordinates;
+        std::vector<Position const*> Coordinates;
 
         void Reset() override
         {
@@ -647,7 +642,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void PatientDied(Location* point)
+        void PatientDied(Position const* point)
         {
             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (player && ((player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)))
@@ -672,7 +667,7 @@ public:
                 Reset();
         }
 
-        void PatientSaved(Creature* /*soldier*/, Player* player, Location* point)
+        void PatientSaved(Creature* /*soldier*/, Player* player, Position const* point)
         {
             if (player && PlayerGUID == player->GetGUID())
             {
@@ -747,7 +742,7 @@ public:
         }
 
         ObjectGuid DoctorGUID;
-        Location* Coord;
+        Position const* Coord;
 
         void Reset() override
         {
@@ -864,7 +859,6 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
             if (Coordinates.empty())
                 return;
 
-            std::vector<Location*>::iterator itr = Coordinates.begin() + rand32() % Coordinates.size();
             uint32 patientEntry = 0;
 
             switch (me->GetEntry())
@@ -880,20 +874,21 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
                     return;
             }
 
-            if (Location* point = *itr)
+            std::vector<Position const*>::iterator point = Coordinates.begin();
+            std::advance(point, urand(0, Coordinates.size() - 1));
+
+            if (Creature* Patient = me->SummonCreature(patientEntry, **point, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
             {
-                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
-                {
-                    //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
-                    Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+                //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
+                Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-                    Patients.push_back(Patient->GetGUID());
-                    ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->DoctorGUID = me->GetGUID();
-                    ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Coord = point;
+                Patients.push_back(Patient->GetGUID());
+                ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->DoctorGUID = me->GetGUID();
+                ENSURE_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Coord = *point;
 
-                    Coordinates.erase(itr);
-                }
+                Coordinates.erase(point);
             }
+
             SummonPatientTimer = 10000;
             ++SummonPatientCount;
         }

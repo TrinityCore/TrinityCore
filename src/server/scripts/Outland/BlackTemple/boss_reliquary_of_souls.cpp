@@ -84,12 +84,7 @@ enum ReliquaryOfSouls
     NUMBER_ENSLAVED_SOUL            = 8
 };
 
-struct Position2d
-{
-    float x, y;
-};
-
-static Position2d Coords[]=
+G3D::Vector2 const Coords[]=
 {
     {450.4f, 212.3f},
     {542.1f, 212.3f},

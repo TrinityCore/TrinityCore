@@ -82,12 +82,7 @@ uint32 PrismaticAuras[]=
     40897,                                                  // Holy
 };
 
-struct Locations
-{
-    float x, y, z;
-};
-
-static Locations TeleportPoint[]=
+G3D::Vector3 const TeleportPoint[]=
 {
     {959.996f, 212.576f, 193.843f},
     {932.537f, 231.813f, 193.838f},
