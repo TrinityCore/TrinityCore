@@ -508,7 +508,7 @@ CREATE TABLE `rbac_default_permissions` (
 
 LOCK TABLES `rbac_default_permissions` WRITE;
 /*!40000 ALTER TABLE `rbac_default_permissions` DISABLE KEYS */;
-INSERT INTO `rbac_default_permissions` VALUES (0,195),(1,194),(2,193),(3,192);
+INSERT INTO `rbac_default_permissions` VALUES (3,192),(2,193),(1,194),(0,195);
 /*!40000 ALTER TABLE `rbac_default_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -661,4 +661,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-10-18 23:33:11
+-- Dump completed on 2014-11-11  0:38:41

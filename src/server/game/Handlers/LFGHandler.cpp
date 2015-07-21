@@ -115,7 +115,9 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
     {
         uint32 dungeon;
         recvData >> dungeon;
-        newDungeons.insert((dungeon & 0x00FFFFFF));        // remove the type from the dungeon entry
+        dungeon &= 0x00FFFFFF;                             // remove the type from the dungeon entry
+        if (dungeon)
+            newDungeons.insert(dungeon);
     }
 
     TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
