@@ -594,7 +594,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 // These are found in ItemRandomSuffix.dbc and ItemRandomProperties.dbc
                 //  even though the DBC names seem misleading
 
-                char* const* suffix = nullptr;
+                char* suffix = nullptr;
 
                 if (propRefID < 0)
                 {
