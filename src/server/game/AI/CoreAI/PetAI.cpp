@@ -150,15 +150,15 @@ void PetAI::UpdateAI(uint32 diff)
 
             if (me->GetCharmInfo() && me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
                 continue;
+    
+            // check spell cooldown
+            if (!me->GetSpellHistory()->IsReady(spellInfo))
+                continue;
 
             if (spellInfo->IsPositive())
             {
                 if (spellInfo->CanBeUsedInCombat())
                 {
-                    // check spell cooldown
-                    if (!me->GetSpellHistory()->IsReady(spellInfo))
-                        continue;
-
                     // Check if we're in combat or commanded to attack
                     if (!me->IsInCombat() && !me->GetCharmInfo()->IsCommandAttack())
                         continue;
