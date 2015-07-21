@@ -64,7 +64,7 @@ void AuctionBotBuyer::LoadConfig()
     }
 }
 
-void AuctionBotBuyer::LoadBuyerValues(BuyerConfiguration& config)
+void AuctionBotBuyer::LoadBuyerValues(BuyerConfiguration& /* config */)
 {
 
 }

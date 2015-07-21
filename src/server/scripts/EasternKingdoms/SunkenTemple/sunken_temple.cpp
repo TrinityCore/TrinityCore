@@ -36,19 +36,27 @@ EndContentData */
 # at_malfurion_Stormrage_trigger
 #####*/
 
+enum MalfurionMisc
+{
+    NPC_MALFURION_STORMRAGE           = 15362,
+    QUEST_ERANIKUS_TYRANT_OF_DREAMS   = 8733,
+    QUEST_THE_CHARGE_OF_DRAGONFLIGHTS = 8555,
+};
+
 class at_malfurion_stormrage : public AreaTriggerScript
 {
-public:
-    at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
+    public:
+        at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
-    {
-        if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 15))
-            player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
-        return false;
-    }
-
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+        {
+            if (player->GetInstanceScript() && !player->FindNearestCreature(NPC_MALFURION_STORMRAGE, 15.0f) &&
+                player->GetQuestStatus(QUEST_THE_CHARGE_OF_DRAGONFLIGHTS) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_ERANIKUS_TYRANT_OF_DREAMS) != QUEST_STATUS_REWARDED)
+                player->SummonCreature(NPC_MALFURION_STORMRAGE, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+            return false;
+        }
 };
+
 /*#####
 # go_atalai_statue
 #####*/
