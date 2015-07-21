@@ -1993,10 +1993,8 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     Tokenizer equipment(fields[19].GetString(), ' ');
     uint8 slot = fields[21].GetUInt8();
     uint32 playerBytes2 = fields[6].GetUInt32();
-    
-    uint16 atLoginFlags = fields[15].GetUInt16();
 
-    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, uint8(playerBytes >> 16), uint8(playerBytes >> 24), uint8(playerBytes >> 8), uint8(playerBytes2), uint8(playerBytes)))
+    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, hairStyle, hairColor, face, facialHair, skin))
     {
         TC_LOG_ERROR("entities.player.loading", "Player %u has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid);
         
@@ -16460,21 +16458,24 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
 {
     if (questId)
     {
-        uint16 log_slot = FindQuestSlot(questId);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
+        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
         {
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
+            uint16 log_slot = FindQuestSlot(questId);
+            if (log_slot < MAX_QUEST_LOG_SIZE)
             {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
-                SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
-                SendQuestComplete(questId);
+                QuestStatusData& q_status = m_QuestStatus[questId];
+
+                if (!q_status.Explored)
+                {
+                    q_status.Explored = true;
+                    m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
+                    SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+                    SendQuestComplete(qInfo);
+                }
             }
+            if (CanCompleteQuest(questId))
+                CompleteQuest(questId);
         }
-        if (CanCompleteQuest(questId))
-            CompleteQuest(questId);
     }
 }
 

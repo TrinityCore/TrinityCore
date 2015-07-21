@@ -59,7 +59,7 @@ public:
 
     void Start() override;
 
-    void SendPacket(WorldPacket const& packet);
+    void SendPacket(WorldPacket& packet);
 
 protected:
     void OnClose() override;
@@ -72,7 +72,7 @@ private:
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
-    void SendPacketAndLogOpcode(WorldPacket const& packet);
+    void SendPacketAndLogOpcode(WorldPacket& packet);
     void HandleSendAuthSession();
     void HandleAuthSession(WorldPacket& recvPacket);
     void SendAuthResponseError(uint8 code);

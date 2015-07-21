@@ -65,6 +65,8 @@ void WorldSocket::HandleSendAuthSession()
 
     packet << uint32(_authSeed);
     packet << uint8(1);
+    SendPacketAndLogOpcode(packet);
+}
 
 void WorldSocket::OnClose()
 {
@@ -147,17 +149,8 @@ bool WorldSocket::ReadHeaderHandler()
 
     if (!header->IsValidSize() || (_initialized && !header->IsValidOpcode()))
     {
-        if (_worldSession)
-        {
-            Player* player = _worldSession->GetPlayer();
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName().c_str() : "<none>", header->size, header->cmd);
-        }
-        else
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
-                GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
-
-        CloseSocket();
+        TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
+            GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
         return false;
     }
 
@@ -181,27 +174,27 @@ bool WorldSocket::ReadDataHandler()
         if (sPacketLog->CanLogPacket())
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
-    std::unique_lock<std::mutex> sessionGuard(_worldSessionLock, std::defer_lock);
+        std::unique_lock<std::mutex> sessionGuard(_worldSessionLock, std::defer_lock);
 
         switch (opcode)
         {
             case CMSG_PING:
-            LogOpcodeText(opcode, sessionGuard);
-            return HandlePing(packet);
+                LogOpcodeText(opcode, sessionGuard);
+                return HandlePing(packet);
             case CMSG_AUTH_SESSION:
-            LogOpcodeText(opcode, sessionGuard);
+                LogOpcodeText(opcode, sessionGuard);
                 if (_worldSession)
                 {
-                // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
-                if (sessionGuard.try_lock())
-                    TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                return false;
+                    // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
+                    if (sessionGuard.try_lock())
+                        TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                    return false;
                 }
 
                 HandleAuthSession(packet);
                 break;
             case CMSG_KEEP_ALIVE:
-            LogOpcodeText(opcode, sessionGuard);
+                LogOpcodeText(opcode, sessionGuard);
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 break;
             case CMSG_LOG_DISCONNECT:
@@ -219,8 +212,8 @@ bool WorldSocket::ReadDataHandler()
             }
             default:
             {
-            sessionGuard.lock();
-            LogOpcodeText(opcode, sessionGuard);
+                sessionGuard.lock();
+                LogOpcodeText(opcode, sessionGuard);
                 if (!_worldSession)
                 {
                     TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
@@ -283,13 +276,13 @@ void WorldSocket::LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> cons
     }
 }
 
-void WorldSocket::SendPacketAndLogOpcode(WorldPacket const& packet)
+void WorldSocket::SendPacketAndLogOpcode(WorldPacket& packet)
 {
     TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetRemoteIpAddress().to_string().c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
     SendPacket(packet);
 }
 
-void WorldSocket::SendPacket(WorldPacket const& packet)
+void WorldSocket::SendPacket(WorldPacket& packet)
 {
     if (!IsOpen())
         return;

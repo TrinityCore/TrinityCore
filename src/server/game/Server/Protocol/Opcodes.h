@@ -1469,7 +1469,7 @@ extern OpcodeTable opcodeTable;
 void InitOpcodes();
 
 /// Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(Opcodes id)
+inline std::string GetOpcodeNameForLogging(uint32 id)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
