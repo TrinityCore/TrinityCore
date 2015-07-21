@@ -18,23 +18,25 @@
 #ifndef LOGOPERATION_H
 #define LOGOPERATION_H
 
+#include <memory>
+
 class Logger;
 struct LogMessage;
 
 class LogOperation
 {
     public:
-        LogOperation(Logger const* _logger, LogMessage* _msg)
-            : logger(_logger), msg(_msg)
+        LogOperation(Logger const* _logger, std::unique_ptr<LogMessage>&& _msg)
+            : logger(_logger), msg(std::forward<std::unique_ptr<LogMessage>>(_msg))
         { }
 
-        ~LogOperation();
+        ~LogOperation() { }
 
         int call();
 
     protected:
         Logger const* logger;
-        LogMessage* msg;
+        std::unique_ptr<LogMessage> msg;
 };
 
 #endif

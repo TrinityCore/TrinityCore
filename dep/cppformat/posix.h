@@ -28,11 +28,6 @@
 #ifndef FMT_POSIX_H_
 #define FMT_POSIX_H_
 
-#ifdef __MINGW32__
-// Workaround MinGW bug https://sourceforge.net/p/mingw/bugs/2024/.
-# undef __STRICT_ANSI__
-#endif
-
 #include <errno.h>
 #include <fcntl.h>  // for O_RDONLY
 #include <stdio.h>
@@ -41,8 +36,12 @@
 
 #include "format.h"
 
+#ifdef FMT_INCLUDE_POSIX_TEST
+# include "test/posix-test.h"
+#endif
+
 #ifndef FMT_POSIX
-# if defined(_WIN32) && !defined(__MINGW32__)
+# ifdef _WIN32
 // Fix warnings about deprecated symbols.
 #  define FMT_POSIX(call) _##call
 # else
@@ -181,7 +180,7 @@ public:
 #endif
 
   // Opens a file.
-  BufferedFile(CStringRef filename, CStringRef mode);
+  BufferedFile(fmt::StringRef filename, fmt::StringRef mode);
 
   // Closes the file.
   void close();
@@ -189,14 +188,12 @@ public:
   // Returns the pointer to a FILE object representing this file.
   FILE *get() const FMT_NOEXCEPT { return file_; }
 
-  // We place parentheses around fileno to workaround a bug in some versions
-  // of MinGW that define fileno as a macro.
-  int (fileno)() const;
+  int fileno() const;
 
-  void print(CStringRef format_str, const ArgList &args) {
+  void print(fmt::StringRef format_str, const ArgList &args) {
     fmt::print(file_, format_str, args);
   }
-  FMT_VARIADIC(void, print, CStringRef)
+  FMT_VARIADIC(void, print, fmt::StringRef)
 };
 
 // A file. Closed file is represented by a File object with descriptor -1.
@@ -224,7 +221,7 @@ class File {
   File() FMT_NOEXCEPT : fd_(-1) {}
 
   // Opens a file and constructs a File object representing this file.
-  File(CStringRef path, int oflag);
+  File(fmt::StringRef path, int oflag);
 
 #if !FMT_USE_RVALUE_REFERENCES
   // Emulate a move constructor and a move assignment operator if rvalue
@@ -296,7 +293,7 @@ class File {
   void close();
 
   // Returns the file size.
-  LongLong size() const;
+  fmt::LongLong size() const;
 
   // Attempts to read count bytes from the file into the specified buffer.
   std::size_t read(void *buffer, std::size_t count);

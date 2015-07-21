@@ -18,14 +18,8 @@
 #include "LogOperation.h"
 #include "Logger.h"
 
-LogOperation::~LogOperation()
-{
-    delete msg;
-}
-
 int LogOperation::call()
 {
-    if (logger && msg)
-        logger->write(*msg);
+    logger->write(msg.get());
     return 0;
 }

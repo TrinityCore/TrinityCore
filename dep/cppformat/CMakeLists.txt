@@ -6,7 +6,12 @@ set(FMT_SOURCES format.cc format.h)
 # Use variadic templates
 add_definitions(-DFMT_VARIADIC_TEMPLATES=1)
 
-# Use deleted functions
+# Check if initializer lists are supported.
+check_cxx_source_compiles("
+  #include <initilizer_list>
+  int main() {}" FMT_INITIALIZER_LIST)
+
+# Use delete
 add_definitions(-DFMT_USE_DELETED_FUNCTIONS=1)
 
 # Use static assert

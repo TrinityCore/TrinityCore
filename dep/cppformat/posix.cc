@@ -45,17 +45,16 @@
 # define O_CREAT _O_CREAT
 # define O_TRUNC _O_TRUNC
 
-# ifndef S_IRUSR
-#  define S_IRUSR _S_IREAD
-# endif
+#ifndef S_IRUSR
+# define S_IRUSR _S_IREAD
+#endif
 
-# ifndef S_IWUSR
-#  define S_IWUSR _S_IWRITE
-# endif
+#ifndef S_IWUSR
+# define S_IWUSR _S_IWRITE
+#endif
 
 # ifdef __MINGW32__
 #  define _SH_DENYNO 0x40
-#  undef fileno
 # endif
 
 #endif  // _WIN32
@@ -83,8 +82,7 @@ fmt::BufferedFile::~BufferedFile() FMT_NOEXCEPT {
     fmt::report_system_error(errno, "cannot close file");
 }
 
-fmt::BufferedFile::BufferedFile(
-    fmt::CStringRef filename, fmt::CStringRef mode) {
+fmt::BufferedFile::BufferedFile(fmt::StringRef filename, fmt::StringRef mode) {
   FMT_RETRY_VAL(file_, FMT_SYSTEM(fopen(filename.c_str(), mode.c_str())), 0);
   if (!file_)
     throw SystemError(errno, "cannot open file {}", filename);
@@ -99,19 +97,16 @@ void fmt::BufferedFile::close() {
     throw SystemError(errno, "cannot close file");
 }
 
-// A macro used to prevent expansion of fileno on broken versions of MinGW.
-#define FMT_ARGS
-
 int fmt::BufferedFile::fileno() const {
-  int fd = FMT_POSIX_CALL(fileno FMT_ARGS(file_));
+  int fd = FMT_POSIX_CALL(fileno(file_));
   if (fd == -1)
     throw SystemError(errno, "cannot get file descriptor");
   return fd;
 }
 
-fmt::File::File(fmt::CStringRef path, int oflag) {
+fmt::File::File(fmt::StringRef path, int oflag) {
   int mode = S_IRUSR | S_IWUSR;
-#if defined(_WIN32) && !defined(__MINGW32__)
+#ifdef _WIN32
   fd_ = -1;
   FMT_POSIX_CALL(sopen_s(&fd_, path.c_str(), oflag, _SH_DENYNO, mode));
 #else
@@ -141,19 +136,13 @@ void fmt::File::close() {
 
 fmt::LongLong fmt::File::size() const {
 #ifdef _WIN32
-  // Use GetFileSize instead of GetFileSizeEx for the case when _WIN32_WINNT
-  // is less than 0x0500 as is the case with some default MinGW builds.
-  // Both functions support large file sizes.
-  DWORD size_upper = 0;
+  LARGE_INTEGER filesize = {};
   HANDLE handle = reinterpret_cast<HANDLE>(_get_osfhandle(fd_));
-  DWORD size_lower = FMT_SYSTEM(GetFileSize(handle, &size_upper));
-  if (size_lower == INVALID_FILE_SIZE) {
-    DWORD error = GetLastError();
-    if (error != NO_ERROR)
-      throw WindowsError(GetLastError(), "cannot get file size");
-  }
-  fmt::ULongLong long_size = size_upper;
-  return (long_size << sizeof(DWORD) * CHAR_BIT) | size_lower;
+  if (!FMT_SYSTEM(GetFileSizeEx(handle, &filesize)))
+    throw WindowsError(GetLastError(), "cannot get file size");
+  FMT_STATIC_ASSERT(sizeof(fmt::LongLong) >= sizeof(filesize.QuadPart),
+      "return type of File::size is not large enough");
+  return filesize.QuadPart;
 #else
   typedef struct stat Stat;
   Stat file_stat = Stat();

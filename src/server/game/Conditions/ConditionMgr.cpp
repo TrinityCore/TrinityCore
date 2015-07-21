@@ -99,7 +99,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Distance",             true, true,  true  },
     { "Alive",               false, false, false },
     { "Health Value",         true, true,  false },
-    { "Health Pct",           true, true,  false }
+    { "Health Pct",           true, true, false  },
+    { "Realm Achievement",    true, false, false }
 };
 
 // Checks if object meets the condition

@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <string>
 #include <time.h>
+#include <type_traits>
 #include "Define.h"
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
@@ -57,16 +58,16 @@ enum AppenderFlags
 
 struct LogMessage
 {
-    LogMessage(LogLevel _level, std::string const& _type, std::string const& _text)
-        : level(_level), type(_type), text(_text), mtime(time(NULL))
+    LogMessage(LogLevel _level, std::string const& _type, std::string&& _text)
+        : level(_level), type(_type), text(std::forward<std::string>(_text)), mtime(time(NULL))
     { }
 
     static std::string getTimeStr(time_t time);
     std::string getTimeStr();
 
-    LogLevel level;
-    std::string type;
-    std::string text;
+    LogLevel const level;
+    std::string const type;
+    std::string const text;
     std::string prefix;
     std::string param1;
     time_t mtime;
@@ -91,11 +92,11 @@ class Appender
         AppenderFlags getFlags() const;
 
         void setLogLevel(LogLevel);
-        void write(LogMessage& message);
+        void write(LogMessage* message);
         static const char* getLogLevelString(LogLevel level);
 
     private:
-        virtual void _write(LogMessage const& /*message*/) = 0;
+        virtual void _write(LogMessage const* /*message*/) = 0;
 
         uint8 id;
         std::string name;

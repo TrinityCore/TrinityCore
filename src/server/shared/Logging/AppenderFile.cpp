@@ -43,21 +43,21 @@ AppenderFile::~AppenderFile()
     CloseFile();
 }
 
-void AppenderFile::_write(LogMessage const& message)
+void AppenderFile::_write(LogMessage const* message)
 {
-    bool exceedMaxSize = maxFileSize > 0 && (fileSize.load() + message.Size()) > maxFileSize;
+    bool exceedMaxSize = maxFileSize > 0 && (fileSize.load() + message->Size()) > maxFileSize;
 
     if (dynamicName)
     {
         char namebuf[TRINITY_PATH_MAX];
-        snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1.c_str());
+        snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message->param1.c_str());
         // always use "a" with dynamic name otherwise it could delete the log we wrote in last _write() call
         FILE* file = OpenFile(namebuf, "a", backup || exceedMaxSize);
         if (!file)
             return;
-        fprintf(file, "%s%s", message.prefix.c_str(), message.text.c_str());
+        fprintf(file, "%s%s", message->prefix.c_str(), message->text.c_str());
         fflush(file);
-        fileSize += uint64(message.Size());
+        fileSize += uint64(message->Size());
         fclose(file);
         return;
     }
@@ -67,9 +67,9 @@ void AppenderFile::_write(LogMessage const& message)
     if (!logfile)
         return;
 
-    fprintf(logfile, "%s%s", message.prefix.c_str(), message.text.c_str());
+    fprintf(logfile, "%s%s\n", message->prefix.c_str(), message->text.c_str());
     fflush(logfile);
-    fileSize += uint64(message.Size());
+    fileSize += uint64(message->Size());
 }
 
 FILE* AppenderFile::OpenFile(std::string const &filename, std::string const &mode, bool backup)
