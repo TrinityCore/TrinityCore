@@ -207,7 +207,7 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
-            if (damage > me->GetHealth() && events.IsInPhase(PHASE_ONE))
+            if (damage >= me->GetHealth() && events.IsInPhase(PHASE_ONE))
             {
                 damage = 0;
                 me->RemoveAllAuras();
