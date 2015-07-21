@@ -494,3 +494,11 @@ void WorldPackets::Quest::QuestConfirmAccept::Read()
 {
     _worldPacket >> QuestID;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestPushResult::Write()
+{
+    _worldPacket << SenderGUID;
+    _worldPacket << uint8(Result);
+
+    return &_worldPacket;
+}

@@ -484,6 +484,17 @@ namespace WorldPackets
 
             int32 QuestID = 0;
         };
+
+        class QuestPushResult final : public ServerPacket
+        {
+        public:
+            QuestPushResult() : ServerPacket(SMSG_QUEST_PUSH_RESULT, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint8 Result = 0;
+        };
     }
 }
 
