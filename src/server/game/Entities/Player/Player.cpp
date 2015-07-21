@@ -16432,10 +16432,10 @@ void Player::SendPushToPartyResponse(Player* player, uint8 msg)
 {
     if (player)
     {
-        WorldPacket data(SMSG_QUEST_PUSH_RESULT, 8 + 1);
-        data << player->GetGUID();
-        data << uint8(msg);                                 // valid values: 0-8
-        SendDirectMessage(&data);
+        WorldPackets::Quest::QuestPushResult data;
+        data.SenderGUID = player->GetGUID();
+        data.Result = msg;                          // valid values: 0-8
+        SendDirectMessage(data.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
     }
 }
