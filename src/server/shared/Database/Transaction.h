@@ -39,8 +39,11 @@ class Transaction
 
         void Append(PreparedStatement* statement);
         void Append(const char* sql);
-        template<typename... Args>
-        void PAppend(const char* sql, Args const&... args) { Append(Trinity::StringFormat(sql, args...).c_str()); }
+        template<typename Format, typename... Args>
+        void PAppend(Format&& sql, Args&&... args)
+        {
+            Append(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+        }
 
         size_t GetSize() const { return m_queries.size(); }
 
