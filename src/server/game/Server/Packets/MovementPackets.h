@@ -412,6 +412,17 @@ namespace WorldPackets
             bool Accept = false;
             ObjectGuid SummonerGUID;
         };
+
+        class ControlUpdate final : public ServerPacket
+        {
+        public:
+            ControlUpdate() : ServerPacket(SMSG_CONTROL_UPDATE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            bool On = false;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
