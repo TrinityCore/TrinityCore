@@ -66,10 +66,26 @@ using fmt::internal::Arg;
 #ifndef FMT_THROW
 # if FMT_EXCEPTIONS
 #  define FMT_THROW(x) throw x
-#  define FMT_RETURN_AFTER_THROW(x)
 # else
-#  define FMT_THROW(x) assert(false)
-#  define FMT_RETURN_AFTER_THROW(x) return x
+#  ifndef NDEBUG
+#   define FMT_THROW(x) assert(false && #x)
+#  elif defined _MSC_VER
+#   define FMT_THROW(x) __assume(0)
+#  elif defined __clang__ || FMT_GCC_VERSION >= 405
+#   define FMT_THROW(x) __builtin_unreachable()
+#  else
+#   define FMT_THROW(x) std::abort()
+#  endif
+# endif
+#endif
+
+#ifndef FMT_NORETURN
+# if defined __GNUC__ || defined __clang__
+#  define FMT_NORETURN __attribute__((__noreturn__))
+# elif defined _MSC_VER
+#  define FMT_NORETURN __declspec(noreturn)
+# else
+#  define FMT_NORETURN
 # endif
 #endif
 
@@ -83,7 +99,19 @@ using fmt::internal::Arg;
 # pragma warning(push)
 # pragma warning(disable: 4127)  // conditional expression is constant
 # pragma warning(disable: 4702)  // unreachable code
+// Disable deprecation warning for strerror. The latter is not called but
+// MSVC fails to detect it.
+# pragma warning(disable: 4996)
 #endif
+
+// Dummy implementations of strerror_r and strerror_s called if corresponding
+// system functions are not available.
+static inline fmt::internal::None<> strerror_r(int, char *, ...) {
+  return fmt::internal::None<>();
+}
+static inline fmt::internal::None<> strerror_s(char *, std::size_t, ...) {
+  return fmt::internal::None<>();
+}
 
 namespace {
 
@@ -141,35 +169,54 @@ typedef void (*FormatFunc)(fmt::Writer &, int, fmt::StringRef);
 int safe_strerror(
     int error_code, char *&buffer, std::size_t buffer_size) FMT_NOEXCEPT {
   assert(buffer != 0 && buffer_size != 0);
-  int result = 0;
-#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE) || __ANDROID__
-  // XSI-compliant version of strerror_r.
-  result = strerror_r(error_code, buffer, buffer_size);
-  if (result != 0)
-    result = errno;
-#elif _GNU_SOURCE
-  // GNU-specific version of strerror_r.
-  char *message = strerror_r(error_code, buffer, buffer_size);
-  // If the buffer is full then the message is probably truncated.
-  if (message == buffer && strlen(buffer) == buffer_size - 1)
-    result = ERANGE;
-  buffer = message;
-#elif __MINGW32__
-  errno = 0;
-  (void)buffer_size;
-  buffer = strerror(error_code);
-  result = errno;
-#elif _WIN32
-  result = strerror_s(buffer, buffer_size, error_code);
-  // If the buffer is full then the message is probably truncated.
-  if (result == 0 && std::strlen(buffer) == buffer_size - 1)
-    result = ERANGE;
-#else
-  result = strerror_r(error_code, buffer, buffer_size);
-  if (result == -1)
-    result = errno;  // glibc versions before 2.13 return result in errno.
-#endif
-  return result;
+
+  class StrError {
+   private:
+    int error_code_;
+    char *&buffer_;
+    std::size_t buffer_size_;
+
+    // Handle the result of XSI-compliant version of strerror_r.
+    int handle(int result) {
+      // glibc versions before 2.13 return result in errno.
+      return result == -1 ? errno : result;
+    }
+
+    // Handle the result of GNU-specific version of strerror_r.
+    int handle(char *message) {
+      // If the buffer is full then the message is probably truncated.
+      if (message == buffer_ && strlen(buffer_) == buffer_size_ - 1)
+        return ERANGE;
+      buffer_ = message;
+      return 0;
+    }
+
+    // Handle the case when strerror_r is not available.
+    int handle(fmt::internal::None<>) {
+      return fallback(strerror_s(buffer_, buffer_size_, error_code_));
+    }
+
+    // Fallback to strerror_s when strerror_r is not available.
+    int fallback(int result) {
+      // If the buffer is full then the message is probably truncated.
+      return result == 0 && strlen(buffer_) == buffer_size_ - 1 ?
+            ERANGE : result;
+    }
+
+    // Fallback to strerror if strerror_r and strerror_s are not available.
+    int fallback(fmt::internal::None<>) {
+      errno = 0;
+      buffer_ = strerror(error_code_);
+      return errno;
+    }
+
+   public:
+    StrError(int error_code, char *&buffer, std::size_t buffer_size)
+      : error_code_(error_code), buffer_(buffer), buffer_size_(buffer_size) {}
+
+    int run() { return handle(strerror_r(error_code_, buffer_, buffer_size_)); }
+  };
+  return StrError(error_code, buffer, buffer_size).run();
 }
 
 void format_error_code(fmt::Writer &out, int error_code,
@@ -179,14 +226,14 @@ void format_error_code(fmt::Writer &out, int error_code,
   // bad_alloc.
   out.clear();
   static const char SEP[] = ": ";
-  static const char ERR[] = "error ";
+  static const char _ERR[] = "error ";
   fmt::internal::IntTraits<int>::MainType ec_value = error_code;
-  // Subtract 2 to account for terminating null characters in SEP and ERR.
+  // Subtract 2 to account for terminating null characters in SEP and _ERR.
   std::size_t error_code_size =
-      sizeof(SEP) + sizeof(ERR) + fmt::internal::count_digits(ec_value) - 2;
+      sizeof(SEP) + sizeof(_ERR) + fmt::internal::count_digits(ec_value) - 2;
   if (message.size() <= fmt::internal::INLINE_BUFFER_SIZE - error_code_size)
     out << message << SEP;
-  out << ERR << error_code;
+  out << _ERR << error_code;
   assert(out.size() <= fmt::internal::INLINE_BUFFER_SIZE);
 }
 
@@ -257,9 +304,9 @@ class WidthHandler : public fmt::internal::ArgVisitor<WidthHandler, unsigned> {
  public:
   explicit WidthHandler(fmt::FormatSpec &spec) : spec_(spec) {}
 
+  FMT_NORETURN
   unsigned visit_unhandled_arg() {
     FMT_THROW(fmt::FormatError("width is not integer"));
-    FMT_RETURN_AFTER_THROW(0);
   }
 
   template <typename T>
@@ -279,9 +326,9 @@ class WidthHandler : public fmt::internal::ArgVisitor<WidthHandler, unsigned> {
 class PrecisionHandler :
     public fmt::internal::ArgVisitor<PrecisionHandler, int> {
  public:
+  FMT_NORETURN
   unsigned visit_unhandled_arg() {
     FMT_THROW(fmt::FormatError("precision is not integer"));
-    FMT_RETURN_AFTER_THROW(0);
   }
 
   template <typename T>
@@ -437,6 +484,7 @@ const uint64_t fmt::internal::BasicData<T>::POWERS_OF_10_64[] = {
 };
 
 FMT_FUNC void fmt::internal::report_unknown_type(char code, const char *type) {
+  (void)type;
   if (std::isprint(static_cast<unsigned char>(code))) {
     FMT_THROW(fmt::FormatError(
         fmt::format("unknown format code '{}' for {}", code, type)));
@@ -711,6 +759,7 @@ void fmt::internal::PrintfFormatter<Char>::parse_flags(
 template <typename Char>
 Arg fmt::internal::PrintfFormatter<Char>::get_arg(
     const Char *s, unsigned arg_index) {
+  (void)s;
   const char *error = 0;
   Arg arg = arg_index == UINT_MAX ?
     next_arg(error) : FormatterBase::get_arg(arg_index - 1, error);

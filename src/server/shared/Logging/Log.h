@@ -26,6 +26,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/strand.hpp>
 
+#include <stdarg.h>
 #include <unordered_map>
 #include <string>
 #include <memory>
