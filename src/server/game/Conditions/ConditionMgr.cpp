@@ -2028,6 +2028,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 TC_LOG_ERROR("sql.sql", "%s has non existing world state in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
+            break;
+        }
         case CONDITION_PHASEID:
         {
             if (!sPhaseStore.LookupEntry(cond->ConditionValue1))
@@ -2084,7 +2086,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_INSTANCE_INFO:
         case CONDITION_AREAID:
-        case CONDITION_PHASEMASK:
         case CONDITION_ALIVE:
             break;
         default:

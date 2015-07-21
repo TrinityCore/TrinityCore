@@ -324,7 +324,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
-        if (packet->GetOpcode() >= NUM_MSG_TYPES)
+        if (packet->GetOpcode() >= NUM_OPCODE_HANDLERS)
         {
             TC_LOG_ERROR("network.opcode", "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
@@ -332,7 +332,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         else
         {
-            OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
+            OpcodeHandler const* opHandle = opcodeTable[packet->GetOpcode()];
             try
             {
             switch (opHandle->Status)
@@ -359,7 +359,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
                         {
                             sScriptMgr->OnPacketReceive(this, *packet);
-                            (this->*opHandle.handler)(*packet);
+                            (this->*opHandle->Handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
                         // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
@@ -404,7 +404,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                         {
                             sScriptMgr->OnPacketReceive(this, *packet);
-                    (this->*opHandle->Handler)(*packet);
+                            (this->*opHandle->Handler)(*packet);
                             LogUnprocessedTail(packet);
                         }
                     break;
