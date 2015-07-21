@@ -74,8 +74,8 @@ enum ConditionTypes
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
     CONDITION_TERRAIN_SWAP          = 39,                   // terrainSwap      0              0                  true if object is in terrainswap
     CONDITION_REALM_ACHIEVEMENT     = 40,                   // achievement_id   0              0                  true if realm achievement is complete
-    CONDITION_IN_WATER              = 40,                   // 0                0              0                  true if unit in water
-    CONDITION_MAX                   = 41                    // MAX
+    CONDITION_IN_WATER              = 41,                   // 0                0              0                  true if unit in water
+    CONDITION_MAX                   = 42                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
