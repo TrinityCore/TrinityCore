@@ -292,7 +292,6 @@ public:
                 break;
         }
         player->CLOSE_GOSSIP_MENU();
-        ai->SetDespawnAtFar(true);
         creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         return true;
     }
@@ -574,7 +573,6 @@ public:
                     break;
                 case 45:
                     SetRun(true);
-                    SetDespawnAtFar(false);
                     gossipStep = 4;
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
@@ -901,7 +899,6 @@ public:
                             instance->SetBossState(DATA_ARTHAS, IN_PROGRESS);
 
                             me->SetReactState(REACT_DEFENSIVE);
-                            SetDespawnAtFar(false);
                             JumpToNextStep(5000);
                             break;
                         // Summon wave groups - start the Infinite Corruptor timer
