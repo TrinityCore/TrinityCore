@@ -66,6 +66,7 @@ class TransactionTask : public SQLOperation
         bool Execute() override;
 
         SQLTransaction m_trans;
+        static std::mutex _deadlockLock;
 };
 
 #endif
