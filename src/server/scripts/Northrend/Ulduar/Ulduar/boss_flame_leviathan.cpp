@@ -548,6 +548,11 @@ class boss_flame_leviathan : public CreatureScript
                     if (me->isAttackReady())
                     {
                         Unit* target = ObjectAccessor::GetUnit(*me, _pursueTarget);
+
+                        // Pursue was unable to acquire a valid target, so get the current victim as target.
+                        if (!target && me->GetVictim())
+                            target = me->GetVictim();
+
                         if (me->IsWithinCombatRange(target, 30.0f))
                         {
                             DoCast(target, SPELL_BATTERING_RAM);
@@ -1648,7 +1653,7 @@ class FlameLeviathanPursuedTargetSelector
 
         bool operator()(WorldObject* target) const
         {
-            //! No players, only vehicles (@todo check if blizzlike)
+            //! No players, only vehicles. Pursue is never cast on players.
             Creature* creatureTarget = target->ToCreature();
             if (!creatureTarget)
                 return true;
@@ -1698,12 +1703,7 @@ class spell_pursue : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
-                if (targets.empty())
-                {
-                    if (Creature* caster = GetCaster()->ToCreature())
-                        caster->AI()->EnterEvadeMode();
-                }
-                else
+                if (!targets.empty())
                 {
                     //! In the end, only one target should be selected
                     _target = Trinity::Containers::SelectRandomContainerElement(targets);
