@@ -199,6 +199,9 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
         return;
     }
 
+    if (level < lowestLogLevel)
+        lowestLogLevel = level;
+
     logger.Create(name, level);
     //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Level %u\n", name.c_str(), level);
 
@@ -321,6 +324,9 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
             return false;
 
         it->second.setLogLevel(newLevel);
+
+        if (newLevel != LOG_LEVEL_DISABLED && newLevel < lowestLogLevel)
+            lowestLogLevel = newLevel;
     }
     else
     {
@@ -394,6 +400,7 @@ void Log::LoadFromConfig()
 {
     Close();
 
+    lowestLogLevel = LOG_LEVEL_FATAL;
     AppenderId = 0;
     m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())

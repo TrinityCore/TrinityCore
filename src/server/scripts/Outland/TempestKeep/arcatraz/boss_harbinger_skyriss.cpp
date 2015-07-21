@@ -283,7 +283,10 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
         {
             boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() override { }
+            void Reset() override 
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            }
 
             void EnterCombat(Unit* /*who*/) override { }
         };

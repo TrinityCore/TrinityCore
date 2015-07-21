@@ -386,13 +386,12 @@ namespace VMAP
                     {
                         if (!iLoadedSpawns.count(referencedVal))
                         {
-#ifdef VMAP_DEBUG
                             if (referencedVal > iNTreeValues)
                             {
-                                TC_LOG_DEBUG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
+                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, tilefile.c_str());
                                 continue;
                             }
-#endif
+
                             iTreeValues[referencedVal] = ModelInstance(spawn, model);
                             iLoadedSpawns[referencedVal] = 1;
                         }
