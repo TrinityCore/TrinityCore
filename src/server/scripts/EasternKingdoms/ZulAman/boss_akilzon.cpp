@@ -135,7 +135,6 @@ class boss_akilzon : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_PLAYER_KILL);
                     Talk(SAY_KILL);
             }
 
