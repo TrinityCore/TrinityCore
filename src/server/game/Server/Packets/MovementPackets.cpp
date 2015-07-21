@@ -680,3 +680,12 @@ void WorldPackets::Movement::SummonResponse::Read()
     _worldPacket >> SummonerGUID;
     Accept = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(On);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

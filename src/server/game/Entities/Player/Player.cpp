@@ -23811,10 +23811,10 @@ void Player::ResurrectUsingRequestData()
 
 void Player::SetClientControl(Unit* target, bool allowMove)
 {
-    WorldPacket data(SMSG_CONTROL_UPDATE, target->GetPackGUID().size()+1);
-    data << target->GetPackGUID();
-    data << uint8(allowMove ? 1 : 0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Movement::ControlUpdate data;
+    data.Guid = target->GetGUID();
+    data.On = allowMove;
+    GetSession()->SendPacket(data.Write());
 
     if (this != target)
         SetViewpoint(target, allowMove);
