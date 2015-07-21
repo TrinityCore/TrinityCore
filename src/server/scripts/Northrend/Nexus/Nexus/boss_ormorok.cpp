@@ -68,7 +68,7 @@ public:
 
     struct boss_ormorokAI : public BossAI
     {
-        boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK_EVENT)
+        boss_ormorokAI(Creature* creature) : BossAI(creature, DATA_ORMOROK)
         {
             Initialize();
         }
@@ -95,8 +95,6 @@ public:
                 events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
 
             Talk(SAY_AGGRO);
-
-            instance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -112,10 +110,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-
             Talk(SAY_DEATH);
-
-            instance->SetData(DATA_ORMOROK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* who) override
@@ -138,27 +133,27 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_TRAMPLE:
-                    DoCast(me, SPELL_TRAMPLE);
-                    events.ScheduleEvent(EVENT_TRAMPLE, 10000);
-                    break;
-                case EVENT_SPELL_REFLECTION:
-                    Talk(SAY_REFLECT);
-                    DoCast(me, SPELL_SPELL_REFLECTION);
-                    events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
-                    break;
-                case EVENT_CRYSTAL_SPIKES:
-                    Talk(SAY_CRYSTAL_SPIKES);
-                    DoCast(SPELL_CRYSTAL_SPIKES);
-                    events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
-                    break;
-                case EVENT_CRYSTALLINE_TANGLER:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, OrmorokTanglerPredicate(me)))
-                        DoCast(target, SPELL_SUMMON_CRYSTALLINE_TANGLER);
-                    events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
-                    break;
-                default:
-                    break;
+                    case EVENT_TRAMPLE:
+                        DoCast(me, SPELL_TRAMPLE);
+                        events.ScheduleEvent(EVENT_TRAMPLE, 10000);
+                        break;
+                    case EVENT_SPELL_REFLECTION:
+                        Talk(SAY_REFLECT);
+                        DoCast(me, SPELL_SPELL_REFLECTION);
+                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+                        break;
+                    case EVENT_CRYSTAL_SPIKES:
+                        Talk(SAY_CRYSTAL_SPIKES);
+                        DoCast(SPELL_CRYSTAL_SPIKES);
+                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
+                        break;
+                    case EVENT_CRYSTALLINE_TANGLER:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, OrmorokTanglerPredicate(me)))
+                            DoCast(target, SPELL_SUMMON_CRYSTALLINE_TANGLER);
+                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                        break;
+                    default:
+                        break;
                 }
             }
 

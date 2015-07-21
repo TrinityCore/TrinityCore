@@ -128,7 +128,7 @@ void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData c
     if (gameObjectData)
         LoadObjectData(gameObjectData, _gameObjectInfo);
 
-    TC_LOG_ERROR("scripts", "InstanceScript::LoadObjectData: " SZFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
+    TC_LOG_DEBUG("scripts", "InstanceScript::LoadObjectData: " SZFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
 }
 
 void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objectInfo)

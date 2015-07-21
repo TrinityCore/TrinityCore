@@ -2,12 +2,9 @@
 
 [![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/issue)](http://www.issuestats.com/github/TrinityCore/TrinityCore) [![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/pr)](http://www.issuestats.com/github/TrinityCore/TrinityCore) [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)
 
-## Build Status
-
-6.x | 4.3.4 | 3.3.5
-:------------: | :------------: | :------------:
-[![6.x Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=6.x)](https://travis-ci.org/TrinityCore/TrinityCore) | [![4.3.4 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/TrinityCore/TrinityCore) | [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=3.3.5)](https://travis-ci.org/TrinityCore/TrinityCore)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) | |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656)
+`6.x`: [![6.x Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=6.x)](https://travis-ci.org/TrinityCore/TrinityCore)
+`4.3.4`: [![4.3.4 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/TrinityCore/TrinityCore)
+`3.3.5`: [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=3.3.5)](https://travis-ci.org/TrinityCore/TrinityCore)
 
 ## Introduction
 
@@ -40,8 +37,10 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 
 ## Install
 
-Detailed installation guides are available in the [wiki](http://collab.kpsn.org/display/tc/Installation+Guide) for
-Windows, Linux and Mac OSX.
+Detailed installation guides are available in the wiki for
+[Windows](http://collab.kpsn.org/display/tc/Win),
+[Linux](http://collab.kpsn.org/display/tc/Linux) and
+[Mac OSX](http://collab.kpsn.org/display/tc/Mac).
 
 
 ## Reporting issues

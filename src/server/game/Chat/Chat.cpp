@@ -1000,7 +1000,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     if (!idS)
         return 0;
 
-    uint32 id = (uint32)atol(idS);
+    uint32 id = atoul(idS);
 
     switch (type)
     {
@@ -1013,12 +1013,9 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (!talentEntry)
                 return 0;
 
-            int32 rank = param1_str ? (uint32)atol(param1_str) : 0;
+            uint32 rank = param1_str ? atol(param1_str) : 0u;
             if (rank >= MAX_TALENT_RANK)
                 return 0;
-
-            if (rank < 0)
-                rank = 0;
 
             return talentEntry->RankID[rank];
         }
@@ -1027,7 +1024,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             return id;
         case SPELL_LINK_GLYPH:
         {
-            uint32 glyph_prop_id = param1_str ? (uint32)atol(param1_str) : 0;
+            uint32 glyph_prop_id = param1_str ? atoul(param1_str) : 0;
 
             GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
             if (!glyphPropEntry)
@@ -1100,7 +1097,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
         }
         case SPELL_LINK_CREATURE:
         {
-            uint32 lowguid = (uint32)atol(idS);
+            uint32 lowguid = atoul(idS);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
                 return ObjectGuid(HIGHGUID_UNIT, data->id, lowguid);
@@ -1109,7 +1106,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
         }
         case SPELL_LINK_GAMEOBJECT:
         {
-            uint32 lowguid = (uint32)atol(idS);
+            uint32 lowguid = atoul(idS);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
                 return ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, lowguid);

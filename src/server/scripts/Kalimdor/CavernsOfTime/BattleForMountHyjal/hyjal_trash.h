@@ -21,8 +21,6 @@
 #include "hyjal.h"
 #include "ScriptedEscortAI.h"
 
-#define MINRAIDDAMAGE  700000//minimal damage before trash can drop loot and reputation, resets if faction leader dies
-
 struct hyjal_trashAI : public npc_escortAI
 {
     hyjal_trashAI(Creature* creature);

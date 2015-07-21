@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.13-MariaDB, for Win64 (x86)
+-- MySQL dump 10.15  Distrib 10.0.15-MariaDB, for Win64 (x86)
 --
 -- Host: localhost    Database: auth_4x
 -- ------------------------------------------------------
--- Server version   10.0.13-MariaDB
+-- Server version   10.0.15-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -496,7 +496,8 @@ DROP TABLE IF EXISTS `rbac_default_permissions`;
 CREATE TABLE `rbac_default_permissions` (
   `secId` int(10) unsigned NOT NULL COMMENT 'Security Level id',
   `permissionId` int(10) unsigned NOT NULL COMMENT 'permission id',
-  PRIMARY KEY (`secId`,`permissionId`),
+  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  PRIMARY KEY (`secId`,`permissionId`,`realmId`),
   KEY `fk__rbac_default_permissions__rbac_permissions` (`permissionId`),
   CONSTRAINT `fk__rbac_default_permissions__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Default permission to assign to different account security levels';
@@ -508,7 +509,7 @@ CREATE TABLE `rbac_default_permissions` (
 
 LOCK TABLES `rbac_default_permissions` WRITE;
 /*!40000 ALTER TABLE `rbac_default_permissions` DISABLE KEYS */;
-INSERT INTO `rbac_default_permissions` VALUES (3,192),(2,193),(1,194),(0,195);
+INSERT INTO `rbac_default_permissions` VALUES (0,195,-1),(1,194,-1),(2,193,-1),(3,192,-1);
 /*!40000 ALTER TABLE `rbac_default_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -661,4 +662,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-11-11  0:38:41
+-- Dump completed on 2014-12-21 20:42:33

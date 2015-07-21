@@ -26,7 +26,7 @@ utf8-cpp (UTF-8 with C++ in a Portable Way)
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
-  Version: 1.2.7
+  Version: 1.2.8
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/

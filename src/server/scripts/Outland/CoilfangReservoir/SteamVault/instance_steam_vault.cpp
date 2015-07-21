@@ -31,19 +31,23 @@ class go_main_chambers_access_panel : public GameObjectScript
                 return false;
 
             if (go->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
-            {
                 instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
-                go->SetGoState(GO_STATE_ACTIVE);
-            }
 
             if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
-            {
                 instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
-                go->SetGoState(GO_STATE_ACTIVE);
-            }
+
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->SetGoState(GO_STATE_ACTIVE);
 
             return true;
         }
+};
+
+ObjectData const gameObjectData[] = 
+{
+    { GO_ACCESS_PANEL_HYDRO, DATA_ACCESS_PANEL_HYDRO },
+    { GO_ACCESS_PANEL_MEK,   DATA_ACCESS_PANEL_MEK   },
+    { 0,                     0                       } // END
 };
 
 class instance_steam_vault : public InstanceMapScript
@@ -57,6 +61,7 @@ class instance_steam_vault : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(nullptr, gameObjectData);
 
                 DistillerState       = 0;
             }
@@ -89,6 +94,8 @@ class instance_steam_vault : public InstanceMapScript
                     default:
                         break;
                 }
+
+                InstanceScript::OnGameObjectCreate(go);
             }
 
             ObjectGuid GetGuidData(uint32 type) const override
@@ -128,6 +135,9 @@ class instance_steam_vault : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_HYDROMANCER_THESPIA:
+                        if (state == DONE)
+                            if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_HYDRO))
+                                panel->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         if (state == SPECIAL)
                         {
                             if (GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL)
@@ -137,6 +147,9 @@ class instance_steam_vault : public InstanceMapScript
                         }
                         break;
                     case DATA_MEKGINEER_STEAMRIGGER:
+                        if (state == DONE)
+                            if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_MEK))
+                                panel->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         if (state == SPECIAL)
                         {
                             if (GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL)
