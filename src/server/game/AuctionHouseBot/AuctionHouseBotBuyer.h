@@ -24,7 +24,7 @@
 
 struct BuyerAuctionEval
 {
-    BuyerAuctionEval(): AuctionId(0), LastChecked(0), LastExist(0) {}
+    BuyerAuctionEval() : AuctionId(0), LastChecked(0), LastExist(0) { }
 
     uint32  AuctionId;
     time_t  LastChecked;
@@ -33,13 +33,14 @@ struct BuyerAuctionEval
 
 struct BuyerItemInfo
 {
-    BuyerItemInfo(): ItemCount(0), BuyPrice(0), BidPrice(0), MinBuyPrice(0), MinBidPrice(0) {}
+    BuyerItemInfo() : BidItemCount(0), BuyItemCount(0), MinBuyPrice(0), MinBidPrice(0), TotalBuyPrice(0), TotalBidPrice(0) { }
 
-    uint32  ItemCount;
-    double  BuyPrice;
-    double  BidPrice;
+    uint32  BidItemCount;
+    uint32  BuyItemCount;
     uint32  MinBuyPrice;
     uint32  MinBidPrice;
+    double  TotalBuyPrice;
+    double  TotalBidPrice;
 };
 
 typedef std::map<uint32, BuyerItemInfo> BuyerItemInfoMap;
@@ -47,7 +48,7 @@ typedef std::map<uint32, BuyerAuctionEval> CheckEntryMap;
 
 struct BuyerConfiguration
 {
-    BuyerConfiguration(): FactionChance(3), BuyerEnabled(false), BuyerPriceRatio(100), _houseType(AUCTION_HOUSE_NEUTRAL) {}
+    BuyerConfiguration() : BuyerEnabled(false), _houseType(AUCTION_HOUSE_NEUTRAL) { }
 
     void Initialize(AuctionHouseType houseType)
     {
@@ -57,10 +58,8 @@ struct BuyerConfiguration
     AuctionHouseType GetHouseType() const { return _houseType; }
 
     BuyerItemInfoMap SameItemInfo;
-    CheckEntryMap CheckedEntry;
-    uint32 FactionChance;
+    CheckEntryMap EligibleItems;
     bool BuyerEnabled;
-    uint32 BuyerPriceRatio;
 
 private:
     AuctionHouseType _houseType;
@@ -78,19 +77,23 @@ public:
     bool Update(AuctionHouseType houseType) override;
 
     void LoadConfig();
-    void AddNewAuctionBuyerBotBid(BuyerConfiguration& config);
+    void BuyAndBidItems(BuyerConfiguration& config);
 
 private:
     uint32 _checkInterval;
     BuyerConfiguration _houseConfig[MAX_AUCTION_HOUSE_TYPE];
 
     void LoadBuyerValues(BuyerConfiguration& config);
-    bool IsBuyableEntry(uint32 buyoutPrice, double inGameBuyPrice, uint32 maxBuyablePrice, uint32 minBuyPrice, uint32 maxChance, uint32 chanceRatio);
-    bool IsBidableEntry(uint32 bidPrice, double inGameBuyPrice, double maxBidablePrice, uint32 minBidPrice, uint32 maxChance, uint32 chanceRatio);
+
+    // ahInfo can be NULL
+    bool RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
+    bool RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
     void PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice);
-    void BuyEntry(AuctionEntry* auction);
+    void BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctionHouse);
     void PrepareListOfEntry(BuyerConfiguration& config);
-    uint32 GetBuyableEntry(BuyerConfiguration& config);
+    uint32 GetItemInformation(BuyerConfiguration& config);
+    uint32 GetVendorPrice(uint32 quality);
+    uint32 GetChanceMultiplier(uint32 quality);
 };
 
 #endif
