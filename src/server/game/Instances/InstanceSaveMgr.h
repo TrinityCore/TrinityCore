@@ -222,9 +222,9 @@ class InstanceSaveManager
         InstanceSave* GetInstanceSave(uint32 InstanceId);
 
         /* statistics */
-        uint32 GetNumInstanceSaves() { return uint32(m_instanceSaveById.size()); }
-        uint32 GetNumBoundPlayersTotal();
-        uint32 GetNumBoundGroupsTotal();
+        uint32 GetNumInstanceSaves() const { return uint32(m_instanceSaveById.size()); }
+        uint32 GetNumBoundPlayersTotal() const;
+        uint32 GetNumBoundGroupsTotal() const;
 
     protected:
         static uint16 ResetTimeDelay[];

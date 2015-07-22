@@ -782,7 +782,7 @@ class WorldSession
         std::string GetPlayerInfo() const;
 
         void SetSecurity(AccountTypes security) { _security = security; }
-        std::string const& GetRemoteAddress() { return m_Address; }
+        std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
         uint8 GetExpansion() const { return m_expansion; }
 

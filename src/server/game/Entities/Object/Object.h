@@ -498,7 +498,7 @@ class WorldObject : public Object, public WorldLocation
         std::set<uint32> const& GetPhases() const { return _phases; }
         std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
         std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
-        int32 GetDBPhase() { return _dbPhase; }
+        int32 GetDBPhase() const { return _dbPhase; }
 
         // if negative it is used as PhaseGroupId
         void SetDBPhase(int32 p) { _dbPhase = p; }
