@@ -92,6 +92,15 @@ void WorldPackets::Chat::ChatMessageEmote::Read()
     Text = _worldPacket.ReadString(len);
 }
 
+WorldPackets::Chat::Chat::Chat(Chat const& chat) : ServerPacket(SMSG_CHAT, chat._worldPacket.size()),
+    SlashCmd(chat.SlashCmd), _Language(chat._Language), SenderGUID(chat.SenderGUID),
+    SenderGuildGUID(chat.SenderGuildGUID), SenderAccountGUID(chat.SenderAccountGUID), TargetGUID(chat.TargetGUID), PartyGUID(chat.PartyGUID),
+    SenderVirtualAddress(chat.SenderVirtualAddress), TargetVirtualAddress(chat.TargetVirtualAddress), SenderName(chat.SenderName), TargetName(chat.TargetName),
+    Prefix(chat.Prefix), _Channel(chat._Channel), ChatText(chat.ChatText), AchievementID(chat.AchievementID), _ChatFlags(chat._ChatFlags),
+    DisplayTime(chat.DisplayTime), HideChatLog(chat.HideChatLog), FakeSenderName(chat.FakeSenderName)
+{
+}
+
 void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message,
     uint32 achievementId /*= 0*/, std::string channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string addonPrefix /*= ""*/)
 {
@@ -111,30 +120,10 @@ void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, W
     _Language = language;
 
     if (sender)
-    {
-        SenderGUID = sender->GetGUID();
-
-        if (Creature const* creatureSender = sender->ToCreature())
-            SenderName = creatureSender->GetNameForLocaleIdx(locale);
-
-        if (Player const* playerSender = sender->ToPlayer())
-        {
-            SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
-            _ChatFlags = playerSender->GetChatFlags();
-
-            SenderGuildGUID = ObjectGuid::Create<HighGuid::Guild>(playerSender->GetGuildId());
-
-            if (Group const* group = playerSender->GetGroup())
-                PartyGUID = group->GetGUID();
-        }
-    }
+        SetSender(sender, locale);
 
     if (receiver)
-    {
-        TargetGUID = receiver->GetGUID();
-        if (Creature const* creatureReceiver = receiver->ToCreature())
-            TargetName = creatureReceiver->GetNameForLocaleIdx(locale);
-    }
+        SetReceiver(receiver, locale);
 
     SenderVirtualAddress = GetVirtualRealmAddress();
     TargetVirtualAddress = GetVirtualRealmAddress();
@@ -142,6 +131,32 @@ void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, W
     _Channel = std::move(channelName);
     Prefix = std::move(addonPrefix);
     ChatText = std::move(message);
+}
+
+void WorldPackets::Chat::Chat::SetSender(WorldObject const* sender, LocaleConstant locale)
+{
+    SenderGUID = sender->GetGUID();
+
+    if (Creature const* creatureSender = sender->ToCreature())
+        SenderName = creatureSender->GetNameForLocaleIdx(locale);
+
+    if (Player const* playerSender = sender->ToPlayer())
+    {
+        SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
+        _ChatFlags = playerSender->GetChatFlags();
+
+        SenderGuildGUID = ObjectGuid::Create<HighGuid::Guild>(playerSender->GetGuildId());
+
+        if (Group const* group = playerSender->GetGroup())
+            PartyGUID = group->GetGUID();
+    }
+}
+
+void WorldPackets::Chat::Chat::SetReceiver(WorldObject const* receiver, LocaleConstant locale)
+{
+    TargetGUID = receiver->GetGUID();
+    if (Creature const* creatureReceiver = receiver->ToCreature())
+        TargetName = creatureReceiver->GetNameForLocaleIdx(locale);
 }
 
 WorldPacket const* WorldPackets::Chat::Chat::Write()
@@ -244,4 +259,14 @@ void WorldPackets::Chat::ChatRegisterAddonPrefixes::Read()
         uint32 lenghts = _worldPacket.ReadBits(5);
         Prefixes.push_back(_worldPacket.ReadString(lenghts));
     }
+}
+
+WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
+{
+    _worldPacket << int32(ZoneID);
+    _worldPacket.WriteBits(MessageText.length(), 12);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(MessageText);
+
+    return &_worldPacket;
 }

@@ -33,13 +33,12 @@ class CreatureTextBuilder
         CreatureTextBuilder(WorldObject const* obj, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        void operator()(WorldPacket& data, LocaleConstant locale) const
+        WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-            WorldPackets::Chat::Chat packet;
-            packet.Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
-            packet.Write();
-            data = packet.Move();
+            WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+            chat->Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
+            return chat;
         }
 
     private:
@@ -58,13 +57,12 @@ class PlayerTextBuilder
         PlayerTextBuilder(WorldObject const* obj, WorldObject const* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        void operator()(WorldPacket& data, LocaleConstant locale) const
+        WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-            WorldPackets::Chat::Chat packet;
-            packet.Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
-            packet.Write();
-            data = packet.Move();
+            WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+            chat->Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            return chat;
         }
 
     private:
@@ -83,7 +81,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     uint32 oldMSTime = getMSTime();
 
     mTextMap.clear(); // for reload case
-    mTextRepeatMap.clear(); //reset all currently used temp texts
+    //all currently used temp texts are NOT reset
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -230,13 +228,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
 
     if (tempGroup.empty())
     {
-        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID());
-        if (mapItr != mTextRepeatMap.end())
-        {
-            CreatureTextRepeatGroup::iterator groupItr = mapItr->second.find(textGroup);
-            groupItr->second.clear();
-        }
-
+        source->ClearTextRepeatGroup(textGroup);
         tempGroup = textGroupContainer;
     }
 
@@ -430,26 +422,14 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
     if (!source)
         return;
 
-    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUID()][textGroup];
-    if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
-        repeats.push_back(id);
-    else
-        TC_LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup %u for Creature (%s) %s, id %u already added", uint32(textGroup), source->GetName().c_str(), source->GetGUID().ToString().c_str(), uint32(id));
+    source->SetTextRepeatId(textGroup, id);
 }
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup) const
 {
     ASSERT(source);//should never happen
-    CreatureTextRepeatIds ids;
 
-    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID());
-    if (mapItr != mTextRepeatMap.end())
-    {
-        CreatureTextRepeatGroup::const_iterator groupItr = (*mapItr).second.find(textGroup);
-        if (groupItr != mapItr->second.end())
-            ids = groupItr->second;
-    }
-    return ids;
+    return source->GetTextRepeatGroup(textGroup);
 }
 
 bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup) const

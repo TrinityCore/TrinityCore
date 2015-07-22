@@ -286,6 +286,7 @@ class Quest
         void LoadQuestObjectiveVisualEffect(Field* fields);
 
         uint32 XPValue(uint32 playerLevel) const;
+        uint32 MoneyValue(uint8 playerLevel) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
@@ -320,6 +321,7 @@ class Quest
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
         float  GetXPMultiplier() const { return RewardXPMultiplier; }
+        float  GetMoneyMultiplier() const { return RewardMoneyMultiplier; }
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellID; }
@@ -335,7 +337,6 @@ class Quest
         std::string const& GetPortraitTurnInText() const { return PortraitTurnInText; }
         std::string const& GetPortraitTurnInName() const { return PortraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; }
-        uint32 GetRewMoney() const;
         uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
         uint32 GetRewKillHonor() const { return RewardKillHonor; }
@@ -406,7 +407,7 @@ class Quest
         float  RewardXPMultiplier;
         int32  RewardMoney;
         uint32 RewardMoneyDifficulty;
-        float  Float13;
+        float  RewardMoneyMultiplier;
         uint32 RewardBonusMoney;
         uint32 RewardDisplaySpell;
         uint32 RewardSpell;

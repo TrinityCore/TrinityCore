@@ -146,14 +146,14 @@ class npc_voljin_zulaman : public CreatureScript
                             DoCast(me, SPELL_BANGING_THE_GONG);
                             if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
                                 strangeGong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, uint32(ITEM_VIRTUAL_ITEM));
+                            me->SetVirtualItem(0, uint32(ITEM_VIRTUAL_ITEM));
                             break;
                         case EVENT_START_DOOR_OPENING_1:
                             me->RemoveAura(SPELL_BANGING_THE_GONG);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_2, 500);
                             break;
                         case EVENT_START_DOOR_OPENING_2:
-                            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, uint32(0));
+                            me->SetVirtualItem(0, uint32(0));
                             if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
                                 strangeGong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500);

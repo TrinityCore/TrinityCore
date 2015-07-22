@@ -30,8 +30,11 @@ class SQLQueryHolder
         SQLQueryHolder() { }
         virtual ~SQLQueryHolder();
         bool SetQuery(size_t index, const char* sql);
-        template<typename... Args>
-        bool SetPQuery(size_t index, const char* sql, Args const&... args) { return SetQuery(index, Trinity::StringFormat(sql, args...).c_str()); }
+        template<typename Format, typename... Args>
+        bool SetPQuery(size_t index, Format&& sql, Args&&... args)
+        {
+            return SetQuery(index, Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+        }
         bool SetPreparedQuery(size_t index, PreparedStatement* stmt);
         void SetSize(size_t size);
         QueryResult GetResult(size_t index);

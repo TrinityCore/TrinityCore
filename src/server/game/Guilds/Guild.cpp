@@ -683,7 +683,7 @@ bool EmblemInfo::ValidateEmblemColors()
     return sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
            sGuildColorBorderStore.LookupEntry(m_borderColor) &&
            sGuildColorEmblemStore.LookupEntry(m_color);
-        
+
 }
 
 bool EmblemInfo::LoadFromDB(Field* fields)
@@ -693,7 +693,7 @@ bool EmblemInfo::LoadFromDB(Field* fields)
     m_borderStyle       = fields[5].GetUInt8();
     m_borderColor       = fields[6].GetUInt8();
     m_backgroundColor   = fields[7].GetUInt8();
-        
+
     return ValidateEmblemColors();
 }
 
@@ -2157,10 +2157,9 @@ void Guild::SendLoginInfo(WorldSession* session)
         player->GetSession()->SendPacket(renameFlag.Write());
     }
 
-    for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-            if (entry->GuildLevel <= GetLevel())
-                player->LearnSpell(entry->SpellID, true);
+    for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+        if (entry->GuildLevel <= GetLevel())
+            player->LearnSpell(entry->SpellID, true);
 
     m_achievementMgr.SendAllAchievementData(player);
 
@@ -2257,7 +2256,7 @@ bool Guild::LoadFromDB(Field* fields)
 
     if (!m_emblemInfo.LoadFromDB(fields))
     {
-        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors (Background: %u, Border: %u, Emblem: %u), skipped.", 
+        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors (Background: %u, Border: %u, Emblem: %u), skipped.",
             m_id, m_emblemInfo.GetBackgroundColor(), m_emblemInfo.GetBorderColor(), m_emblemInfo.GetColor());
         return false;
     }
@@ -2704,10 +2703,9 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
         player->SetRank(0);
         player->SetGuildLevel(0);
 
-        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                if (entry->GuildLevel <= GetLevel())
-                    player->RemoveSpell(entry->SpellID, false, false);
+        for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+            if (entry->GuildLevel <= GetLevel())
+                player->RemoveSpell(entry->SpellID, false, false);
     }
 
     _DeleteMemberFromDB(guid.GetCounter());

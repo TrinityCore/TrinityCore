@@ -313,7 +313,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
     spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
-    spell->m_misc.Data = cast.Cast.Misc;                            // 6.x Misc is just a guess
+    spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
+    spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
     spell->prepare(&targets);
 }
 
@@ -483,13 +484,10 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& /*packet*/
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPacket& recvData)
+void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
     // this will get something not in world. crash
-    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, spellClick.SpellClickUnitGuid);
 
     if (!unit)
         return;
@@ -501,11 +499,9 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     unit->HandleSpellClick(_player);
 }
 
-void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
+void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& getMirrorImageData)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-    recvData.read_skip<uint32>(); // DisplayId ?
+    ObjectGuid guid = getMirrorImageData.UnitGUID;
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
@@ -520,27 +516,25 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (!creator)
         return;
 
-    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 68);
-    data << guid;
-    data << uint32(creator->GetDisplayId());
-    data << uint8(creator->getRace());
-    data << uint8(creator->getGender());
-    data << uint8(creator->getClass());
-
-    if (creator->GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = creator->ToPlayer())
     {
-        Player* player = creator->ToPlayer();
-        Guild* guild = NULL;
+        WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
+        mirrorImageComponentedData.UnitGUID = guid;
+        mirrorImageComponentedData.DisplayID = creator->GetDisplayId();
+        mirrorImageComponentedData.RaceID = creator->getRace();
+        mirrorImageComponentedData.Gender = creator->getGender();
+        mirrorImageComponentedData.ClassID = creator->getClass();
 
-        if (ObjectGuid::LowType guildId = player->GetGuildId())
-            guild = sGuildMgr->GetGuildById(guildId);
+        Guild* guild = player->GetGuild();
 
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));
-        data << (guild ? guild->GetGUID() : ObjectGuid::Empty);
+        mirrorImageComponentedData.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+        mirrorImageComponentedData.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
+        mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
+        mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+        mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
+
+        mirrorImageComponentedData.ItemDisplayID.reserve(11);
 
         static EquipmentSlots const itemSlots[] =
         {
@@ -553,44 +547,34 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             EQUIPMENT_SLOT_FEET,
             EQUIPMENT_SLOT_WRISTS,
             EQUIPMENT_SLOT_HANDS,
-            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_TABARD,
+            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_END
         };
 
         // Display items in visible slots
-        for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+        for (auto const& slot : itemSlots)
         {
-            if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
-                data << uint32(0);
-            else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
-                data << uint32(0);
-            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-                data << uint32(item->GetDisplayId());
+            uint32 itemDisplayId;
+            if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||
+                (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
+                itemDisplayId = 0;
+            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                itemDisplayId = item->GetDisplayId();
             else
-                data << uint32(0);
+                itemDisplayId = 0;
+
+            mirrorImageComponentedData.ItemDisplayID.push_back(itemDisplayId);
         }
+        SendPacket(mirrorImageComponentedData.Write());
     }
     else
     {
-        // Skip player data for creatures
-        data << uint8(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
+        WorldPackets::Spells::MirrorImageCreatureData mirrorImageCreatureData;
+        mirrorImageCreatureData.UnitGUID = guid;
+        mirrorImageCreatureData.DisplayID = creator->GetDisplayId();
+        SendPacket(mirrorImageCreatureData.Write());
     }
-
-    SendPacket(&data);
 }
 
 void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)

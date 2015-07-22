@@ -26,6 +26,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "Packets/ChatPackets.h"
 
 class DefenseMessageBuilder
 {
@@ -33,14 +34,14 @@ class DefenseMessageBuilder
         DefenseMessageBuilder(uint32 zoneId, uint32 id)
             : _zoneId(zoneId), _id(id) { }
 
-        void operator()(WorldPacket& data, LocaleConstant locale) const
+        WorldPackets::Chat::DefenseMessage* operator()(LocaleConstant locale) const
         {
             std::string text = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
 
-            data.Initialize(SMSG_DEFENSE_MESSAGE, 4 + 4 + text.length());
-            data.append<uint32>(_zoneId);
-            data.append<uint32>(text.length());
-            data << text;
+            WorldPackets::Chat::DefenseMessage* defenseMessage = new WorldPackets::Chat::DefenseMessage();
+            defenseMessage->ZoneID = _zoneId;
+            defenseMessage->MessageText = text;
+            return defenseMessage;
         }
 
     private:
@@ -118,7 +119,7 @@ bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x,
 
 bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, TeamId /*teamId = TEAM_NEUTRAL*/, uint32 spawntimedelay /*= 0*/)
 {
-    if (ObjectGuid::LowType guid = sObjectMgr->AddCreData(entry, map, x, y, z, o, spawntimedelay))
+    if (ObjectGuid::LowType guid = sObjectMgr->AddCreatureData(entry, map, x, y, z, o, spawntimedelay))
     {
         AddCre(type, guid);
         return true;

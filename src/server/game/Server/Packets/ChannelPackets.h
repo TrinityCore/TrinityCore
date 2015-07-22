@@ -31,8 +31,8 @@ namespace WorldPackets
         public:
             struct ChannelPlayer
             {
-                ChannelPlayer(ObjectGuid const& guid, uint32 realm, uint8 flags) :
-                    Guid(guid), VirtualRealmAddress(realm), Flags(flags) { }
+                ChannelPlayer(ObjectGuid const& guid, uint32 virtualRealmAddress, uint8 flags) :
+                    Guid(guid), VirtualRealmAddress(virtualRealmAddress), Flags(flags) { }
 
                 ObjectGuid Guid; ///< Player Guid
                 uint32 VirtualRealmAddress;

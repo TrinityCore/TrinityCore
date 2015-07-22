@@ -258,9 +258,10 @@ void WorldPackets::Query::DBQueryBulk::Read()
 
 WorldPacket const* WorldPackets::Query::DBReply::Write()
 {
-    _worldPacket << TableHash;
-    _worldPacket << RecordID;
-    _worldPacket << Timestamp;
+    _worldPacket << uint32(TableHash);
+    _worldPacket << uint32(RecordID);
+    _worldPacket << uint32(Timestamp);
+    _worldPacket.WriteBit(Allow);
     _worldPacket << uint32(Data.size());
     _worldPacket.append(Data);
 
@@ -380,7 +381,6 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
         _worldPacket << int32(questPOIData.QuestID);
 
         _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
-        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
 
         for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
         {
@@ -395,7 +395,6 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
             _worldPacket << int32(questPOIBlobData.Flags);
             _worldPacket << int32(questPOIBlobData.WorldEffectID);
             _worldPacket << int32(questPOIBlobData.PlayerConditionID);
-            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
             _worldPacket << int32(questPOIBlobData.UnkWoD1);
             _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
 

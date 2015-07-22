@@ -124,36 +124,37 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
 
     EndianConvert(unk1);
 
-    if (build > 12880)
+    if (fread(&minIndex, 4, 1, f) != 1)                           // MinIndex WDB2
     {
-        if (fread(&minIndex, 4, 1, f) != 1)                           // MinIndex WDB2
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(minIndex);
-
-        if (fread(&maxIndex, 4, 1, f) != 1)                           // MaxIndex WDB2
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(maxIndex);
-
-        if (fread(&locale, 4, 1, f) != 1)                             // Locales
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(locale);
-
-        if (fread(&unk5, 4, 1, f) != 1)                               // Unknown WDB2
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(unk5);
+        fclose(f);
+        return false;
     }
+
+    EndianConvert(minIndex);
+
+    if (fread(&maxIndex, 4, 1, f) != 1)                           // MaxIndex WDB2
+    {
+        fclose(f);
+        return false;
+    }
+
+    EndianConvert(maxIndex);
+
+    if (fread(&locale, 4, 1, f) != 1)                             // Locales
+    {
+        fclose(f);
+        return false;
+    }
+
+    EndianConvert(locale);
+
+    if (fread(&unk5, 4, 1, f) != 1)                               // Unknown WDB2
+    {
+        fclose(f);
+        return false;
+    }
+
+    EndianConvert(unk5);
 
     if (maxIndex != 0)
     {

@@ -63,6 +63,19 @@ if( UNIX )
   endif( MYSQL_CONFIG )
 endif( UNIX )
 
+if( WIN32 )
+  # read environment variables and change \ to /
+  SET(PROGRAM_FILES_32 $ENV{ProgramFiles})
+  if (${PROGRAM_FILES_32})
+    STRING(REPLACE "\\\\" "/" PROGRAM_FILES_32 ${PROGRAM_FILES_32})
+  endif(${PROGRAM_FILES_32})
+
+  SET(PROGRAM_FILES_64 $ENV{ProgramW6432})
+  if (${PROGRAM_FILES_64})
+     STRING(REPLACE "\\\\" "/" PROGRAM_FILES_64 ${PROGRAM_FILES_64})
+  endif(${PROGRAM_FILES_64})
+endif ( WIN32 )
+
 find_path(MYSQL_INCLUDE_DIR
   NAMES
     mysql.h

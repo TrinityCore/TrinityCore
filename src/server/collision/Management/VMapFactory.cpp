@@ -27,7 +27,7 @@ namespace VMAP
     // just return the instance
     IVMapManager* VMapFactory::createOrGetVMapManager()
     {
-        if (gVMapManager == 0)
+        if (gVMapManager == nullptr)
             gVMapManager= new VMapManager2();                // should be taken from config ... Please change if you like :-)
         return gVMapManager;
     }

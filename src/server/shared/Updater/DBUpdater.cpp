@@ -271,10 +271,10 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
         [&](Path const& file) { DBUpdater<T>::ApplyFile(pool, file); },
             [&](std::string const& query) -> QueryResult { return DBUpdater<T>::Retrieve(pool, query); });
 
-    uint32 count;
+    UpdateResult result;
     try
     {
-        count = updateFetcher.Update(
+        result = updateFetcher.Update(
             sConfigMgr->GetBoolDefault("Updates.Redundancy", true),
             sConfigMgr->GetBoolDefault("Updates.AllowRehash", true),
             sConfigMgr->GetBoolDefault("Updates.ArchivedRedundancy", false),
@@ -285,10 +285,13 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
         return false;
     }
 
-    if (!count)
-        TC_LOG_INFO("sql.updates", ">> %s database is up-to-date!", DBUpdater<T>::GetTableName().c_str());
+    std::string const info = Trinity::StringFormat("Containing " SZFMTD " new and " SZFMTD " archived updates.",
+        result.recent, result.archived);
+
+    if (!result.updated)
+        TC_LOG_INFO("sql.updates", ">> %s database is up-to-date! %s", DBUpdater<T>::GetTableName().c_str(), info.c_str());
     else
-        TC_LOG_INFO("sql.updates", ">> Applied %d %s.", count, count == 1 ? "query" : "queries");
+        TC_LOG_INFO("sql.updates", ">> Applied " SZFMTD " %s. %s", result.updated, result.updated == 1 ? "query" : "queries", info.c_str());
 
     return true;
 }
@@ -380,7 +383,9 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     // CLI Client connection info
     args.push_back("-h" + host);
     args.push_back("-u" + user);
-    args.push_back("-p" + password);
+
+    if (!password.empty())
+        args.push_back("-p" + password);
 
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32

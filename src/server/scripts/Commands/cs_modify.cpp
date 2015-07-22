@@ -23,14 +23,13 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
-#include <stdlib.h>
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-
+#include "SpellPackets.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -407,12 +406,15 @@ public:
         if (handler->needReportToTarget(target))
             ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_SPELLFLATID_CHANGED, handler->GetNameLink().c_str(), spellflatid, val, mark);
 
-        WorldPacket data(SMSG_SET_FLAT_SPELL_MODIFIER, (1+1+2+2));
-        data << uint8(spellflatid);
-        data << uint8(op);
-        data << uint16(val);
-        data << uint16(mark);
-        target->GetSession()->SendPacket(&data);
+        WorldPackets::Spells::SetSpellModifier packet(SMSG_SET_FLAT_SPELL_MODIFIER);
+        WorldPackets::Spells::SpellModifier spellMod;
+        spellMod.ModIndex = op;
+        WorldPackets::Spells::SpellModifierData modData;
+        modData.ClassIndex = spellflatid;
+        modData.ModifierValue = float(val);
+        spellMod.ModifierData.push_back(modData);
+        packet.Modifiers.push_back(spellMod);
+        target->GetSession()->SendPacket(packet.Write());
 
         return true;
     }

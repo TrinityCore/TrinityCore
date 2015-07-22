@@ -1056,6 +1056,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
             case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+            case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
                 SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1289,7 +1290,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
-            case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
@@ -1443,6 +1443,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteria const* achieveme
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             return progress->counter >= requiredAmount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2381,6 +2382,10 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             return false;
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            if (miscValue1 != achievementCriteria->Entry->Asset.GarrBuildingID)
+                return false;
+            break;
         default:
             break;
     }
@@ -2955,7 +2960,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         CriteriaTreeEntry const* cur = tree;
         while (achievementItr == achievementCriteriaTreeIds.end())
         {
-            if (!tree->Parent)
+            if (!cur->Parent)
                 break;
 
             cur = sCriteriaTreeStore.LookupEntry(cur->Parent);
@@ -2974,8 +2979,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         achievementCriteriaTree->Entry = tree;
 
         _achievementCriteriaTrees[achievementCriteriaTree->Entry->ID] = achievementCriteriaTree;
-        if (sCriteriaStore.LookupEntry(tree->CriteriaID))
-            _achievementCriteriaTreeByCriteria[tree->CriteriaID].push_back(achievementCriteriaTree);
     }
 
     // Build tree
@@ -2986,7 +2989,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         auto parent = _achievementCriteriaTrees.find(itr->second->Entry->Parent);
         if (parent != _achievementCriteriaTrees.end())
+        {
             parent->second->Children.push_back(itr->second);
+            while (parent != _achievementCriteriaTrees.end())
+            {
+                auto cur = parent;
+                parent = _achievementCriteriaTrees.find(parent->second->Entry->Parent);
+                if (parent == _achievementCriteriaTrees.end())
+                {
+                    if (sCriteriaStore.LookupEntry(itr->second->Entry->CriteriaID))
+                        _achievementCriteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(cur->second);
+                }
+            }
+        }
+        else if (sCriteriaStore.LookupEntry(itr->second->Entry->CriteriaID))
+            _achievementCriteriaTreeByCriteria[itr->second->Entry->CriteriaID].push_back(itr->second);
     }
 
     // Load criteria
@@ -3013,8 +3030,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         for (AchievementCriteriaTree const* tree : treeItr->second)
         {
-            const_cast<AchievementCriteriaTree*>(tree)->Criteria = achievementCriteria;
-
             if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_GUILD)
                 achievementCriteria->FlagsCu |= ACHIEVEMENT_CRITERIA_FLAG_CU_GUILD;
             else if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT)
@@ -3038,6 +3053,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         if (criteria->StartTimer)
             _achievementCriteriasByTimedType[criteria->StartEvent].push_back(achievementCriteria);
     }
+
+    for (auto& p : _achievementCriteriaTrees)
+        const_cast<AchievementCriteriaTree*>(p.second)->Criteria = GetAchievementCriteria(p.second->Entry->CriteriaID);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement criteria and %u guild achievement crieteria in %u ms", criterias, guildCriterias, GetMSTimeDiffToNow(oldMSTime));
 }

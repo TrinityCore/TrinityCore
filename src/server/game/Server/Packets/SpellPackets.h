@@ -150,6 +150,7 @@ namespace WorldPackets
         struct AuraDataInfo
         {
             int32 SpellID = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint8 Flags = 0;
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
@@ -213,13 +214,14 @@ namespace WorldPackets
         {
             uint8 CastID = 0;
             int32 SpellID = 0;
-            int32 Misc = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint8 SendCastFlags = 0;
             SpellTargetData Target;
             MissileTrajectoryRequest MissileTrajectory;
             Optional<MovementInfo> MoveUpdate;
             std::vector<SpellWeight> Weight;
             ObjectGuid Charmer;
+            int32 Misc[2] = { };
         };
 
         class CastSpell final : public ClientPacket
@@ -287,11 +289,6 @@ namespace WorldPackets
             int8 InventoryType = 0;
         };
 
-        struct ProjectileVisualData
-        {
-            int32 ID[2];
-        };
-
         struct CreatureImmunities
         {
             uint32 School = 0;
@@ -311,6 +308,7 @@ namespace WorldPackets
             ObjectGuid CasterUnit;
             uint8 CastID        = 0;
             int32 SpellID       = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint32 CastFlags    = 0;
             uint32 CastFlagsEx  = 0;
             uint32 CastTime     = 0;
@@ -322,7 +320,6 @@ namespace WorldPackets
             Optional<RuneData> RemainingRunes;
             MissileTrajectoryResult MissileTrajectory;
             SpellAmmo Ammo;
-            Optional<ProjectileVisualData> ProjectileVisual;
             uint8 DestLocSpellCastIndex = 0;
             std::vector<TargetLocation> TargetPoints;
             CreatureImmunities Immunities;
@@ -370,6 +367,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
+            uint32 SpelXSpellVisualID = 0;
             uint16 Reason   = 0;
             uint8 CastID    = 0;
         };
@@ -431,6 +429,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<uint32> SpellID;
+            bool SuppressMessaging = false;
         };
 
         class CooldownEvent final : public ServerPacket
@@ -550,8 +549,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsPet = false;
-            float Count = 0.0f;
-            int32 Category = 0;
+            uint32 Category = 0;
+            uint32 NextRecoveryTime = 0;
+            uint8 ConsumedCharges = 0;
         };
 
         struct SpellChargeEntry
@@ -693,6 +693,61 @@ namespace WorldPackets
             SelfRes(WorldPacket&& packet) : ClientPacket(CMSG_SELF_RES, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class GetMirrorImageData final : public ClientPacket
+        {
+        public:
+            GetMirrorImageData(WorldPacket&& packet) : ClientPacket(CMSG_GET_MIRROR_IMAGE_DATA, std::move(packet)) {}
+
+            void Read() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+        };
+
+        class MirrorImageComponentedData final : public ServerPacket
+        {
+        public:
+            MirrorImageComponentedData() : ServerPacket(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 8 + 4 + 8 * 1 + 8 + 11 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+            uint8 RaceID = 0;
+            uint8 Gender = 0;
+            uint8 ClassID = 0;
+            uint8 SkinColor = 0;
+            uint8 FaceVariation = 0;
+            uint8 HairVariation = 0;
+            uint8 HairColor = 0;
+            uint8 BeardVariation = 0;
+            ObjectGuid GuildGUID;
+
+            std::vector<uint32> ItemDisplayID;
+        };
+
+        class MirrorImageCreatureData final : public ServerPacket
+        {
+        public:
+            MirrorImageCreatureData() : ServerPacket(SMSG_MIRROR_IMAGE_CREATURE_DATA, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+        };
+
+        class SpellClick final : public ClientPacket
+        {
+        public:
+            SpellClick(WorldPacket&& packet) : ClientPacket(CMSG_SPELL_CLICK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SpellClickUnitGuid;
+            bool TryAutoDismount = false;
         };
     }
 }

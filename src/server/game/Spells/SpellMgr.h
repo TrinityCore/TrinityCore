@@ -552,6 +552,8 @@ typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
+
 struct PetDefaultSpellsEntry
 {
     uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];

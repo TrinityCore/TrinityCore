@@ -501,7 +501,7 @@ void GuildMgr::LoadGuildRewards()
         {
             do
             {
-                Field* fields = reqAchievementResult->Fetch();
+                fields = reqAchievementResult->Fetch();
 
                 uint32 requiredAchievementId = fields[0].GetUInt32();
 

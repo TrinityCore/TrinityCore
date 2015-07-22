@@ -360,6 +360,7 @@ namespace WorldPackets
         class SetActiveMover;
         class MoveSetCollisionHeightAck;
         class MoveTimeSkipped;
+        class SummonResponse;
     }
 
     namespace NPC
@@ -498,6 +499,8 @@ namespace WorldPackets
         class SetActionButton;
         class UnlearnSkill;
         class SelfRes;
+        class GetMirrorImageData;
+        class SpellClick;
     }
 
     namespace Talent
@@ -508,15 +511,8 @@ namespace WorldPackets
 
     namespace Ticket
     {
-        class GMSurveySubmit;
-        class GMTicketAcknowledgeSurvey;
-        class GMTicketCreate;
-        class GMTicketDelete;
         class GMTicketGetSystemStatus;
         class GMTicketGetCaseStatus;
-        class GMTicketGetTicket;
-        class GMTicketResponseResolve;
-        class GMTicketUpdateText;
         class SupportTicketSubmitBug;
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
@@ -742,7 +738,7 @@ struct PacketCounter
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
@@ -767,9 +763,13 @@ class WorldSession
         void SendAuthResponse(uint8 code, bool queued, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
 
+        void InitializeSession();
+        void InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQueryHolder* holder);
+
         rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
+        PreparedQueryResultFuture LoadPermissionsAsync();
         void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
 
         AccountTypes GetSecurity() const { return _security; }
@@ -852,10 +852,9 @@ class WorldSession
         // Account Data
         AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
         void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
-        void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
-        void LoadTutorialsData();
+        void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
         uint32 GetTutorialInt(uint8 index) const { return _tutorials[index]; }
@@ -1030,14 +1029,8 @@ class WorldSession
         void HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& logoutCancel);
 
         // GM Ticket opcodes
-        void HandleGMTicketCreateOpcode(WorldPackets::Ticket::GMTicketCreate& packet);
-        void HandleGMTicketUpdateTextOpcode(WorldPackets::Ticket::GMTicketUpdateText& packet);
-        void HandleGMTicketDeleteOpcode(WorldPackets::Ticket::GMTicketDelete& packet);
         void HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& packet);
-        void HandleGMTicketGetTicketOpcode(WorldPackets::Ticket::GMTicketGetTicket& packet);
         void HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTicketGetSystemStatus& packet);
-        void HandleGMSurveySubmit(WorldPackets::Ticket::GMSurveySubmit& packet);
-        void HandleGMResponseResolve(WorldPackets::Ticket::GMTicketResponseResolve& packet);
         void HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTicketSubmitBug& packet);
         void HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet);
         void HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet);
@@ -1322,7 +1315,7 @@ class WorldSession
         void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
         void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
         void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
-        void HandleSummonResponseOpcode(WorldPacket& recvData);
+        void HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet);
 
         void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
         void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
@@ -1495,16 +1488,16 @@ class WorldSession
         void HandleTransmogrifyItems(WorldPacket& recvData);
 
         // Miscellaneous
-        void HandleSpellClick(WorldPacket& recvData);
-        void HandleMirrorImageDataRequest(WorldPacket& recvData);
+        void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);
+        void HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& getMirrorImageData);
         void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
-        void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet);
-        void HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet);
-        void HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& packet);
+        void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& saveEquipmentSet);
+        void HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& deleteEquipmentSet);
+        void HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& useEquipmentSet);
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs);
-        void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet);
+        void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& questPoiQuery);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
@@ -1536,6 +1529,8 @@ class WorldSession
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
+        QueryResultHolderFuture _realmAccountLoginCallback;
+        QueryResultHolderFuture _accountLoginCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
         PreparedQueryResultFuture _stablePetCallback;
         QueryCallback<PreparedQueryResult, bool> _charEnumCallback;
@@ -1609,6 +1604,7 @@ class WorldSession
 
         AccountTypes _security;
         uint32 _accountId;
+        std::string _accountName;
         uint32 _battlenetAccountId;
         uint8 m_expansion;
 

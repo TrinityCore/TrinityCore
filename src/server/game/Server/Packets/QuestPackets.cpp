@@ -75,7 +75,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.RewardXPMultiplier;
         _worldPacket << Info.RewardMoney;
         _worldPacket << Info.RewardMoneyDifficulty;
-        _worldPacket << Info.Float13; // Unk
+        _worldPacket << Info.RewardMoneyMultiplier;
         _worldPacket << Info.RewardBonusMoney;
         _worldPacket << Info.RewardDisplaySpell;
         _worldPacket << Info.RewardSpell;
@@ -493,4 +493,12 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
 void WorldPackets::Quest::QuestConfirmAccept::Read()
 {
     _worldPacket >> QuestID;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestPushResult::Write()
+{
+    _worldPacket << SenderGUID;
+    _worldPacket << uint8(Result);
+
+    return &_worldPacket;
 }

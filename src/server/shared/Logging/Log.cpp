@@ -270,7 +270,7 @@ void Log::write(std::unique_ptr<LogMessage>&& msg) const
 
     if (_ioService)
     {
-        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, std::forward<std::unique_ptr<LogMessage>>(msg)));
+        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, std::move(msg)));
 
         _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
     }
@@ -291,9 +291,8 @@ std::string Log::GetTimestampStr()
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-    return std::string(buf);
+    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d",
+        aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
 bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLogger /* = true */)

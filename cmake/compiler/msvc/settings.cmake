@@ -51,8 +51,10 @@ message(STATUS "MSVC: Disabled NON-SECURE warnings")
 add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "MSVC: Disabled POSIX warnings")
 
-# Ignore C4351: new behavior: elements of array 'x' will be default initialized
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4351")
+# Ignore specific warnings
+# C4351: new behavior: elements of array 'x' will be default initialized
+# C4091: 'typedef ': ignored on left of '' when no variable is declared
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4351 /wd4091")
 
 if(NOT WITH_WARNINGS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619 /wd4512")

@@ -583,13 +583,13 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
                 {
                     const ItemRandomSuffixEntry* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
                     if (itemRandSuffix)
-                        suffix = itemRandSuffix->Name_lang;
+                        suffix = itemRandSuffix->Name->Str[player->GetSession()->GetSessionDbcLocale()];
                 }
                 else
                 {
                     const ItemRandomPropertiesEntry* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
                     if (itemRandProp)
-                        suffix = itemRandProp->Name_lang;
+                        suffix = itemRandProp->Name->Str[player->GetSession()->GetSessionDbcLocale()];
                 }
 
                 // dbc local name

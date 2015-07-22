@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "Chat.h"
 #include "Language.h"
 #include "SupportMgr.h"
@@ -34,7 +35,7 @@ void Ticket::TeleportTo(Player* player) const
     player->TeleportTo(_mapId, _pos.x, _pos.y, _pos.z, 0.0f, 0);
 }
 
-std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName, char const* /*completedName*/) const
+std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName) const
 {
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
@@ -47,165 +48,6 @@ std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* cl
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, unassignedName);
     if (deletedName)
         ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, deletedName);
-    return ss.str();
-}
-
-GmTicket::GmTicket() : _lastModifiedTime(0), _completed(false), _assignedToStatus(GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED),
-_openedByGmStatus(GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED), _needResponse(false), _needMoreHelp(false) { }
-
-GmTicket::GmTicket(Player* player) : Ticket(player), _lastModifiedTime(time(nullptr)), _completed(false), _assignedToStatus(GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED),
-_openedByGmStatus(GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED), _needResponse(false), _needMoreHelp(false)
-{
-    _id = sSupportMgr->GenerateGmTicketId();
-}
-
-GmTicket::~GmTicket() { }
-
-void GmTicket::SetGmAction(bool needResponse, bool needMoreHelp)
-{
-    _needResponse = needResponse;   // Requires GM response. 17 = true, 1 = false (17 is default)
-    _needMoreHelp = needMoreHelp;           // Requests further GM interaction on a ticket to which a GM has already responded. Basically means "has a new ticket"
-}
-
-void GmTicket::SetUnassigned()
-{
-    if (_assignedToStatus != GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED)
-        _assignedToStatus = GMTICKET_ASSIGNEDTOGM_STATUS_NOT_ASSIGNED;
-
-    _assignedTo.Clear();
-}
-
-void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
-{
-    std::stringstream ss(log);
-    std::stringstream newss;
-    std::string line;
-    while (std::getline(ss, line) && !time.empty())
-    {
-        newss << secsToTimeString(time.front()) << ": " << line << "\n";
-        time.pop_front();
-    }
-
-    _chatLog = newss.str();
-}
-
-void GmTicket::SendResponse(WorldSession* session) const
-{
-    WorldPackets::Ticket::GMTicketResponse resp;
-    resp.TicketID = GetId();
-    resp.ResponseID = 2; //TODO : research
-    resp.Description = GetDescription();
-    resp.ResponseText = GetResponse();
-
-    session->SendPacket(resp.Write());
-}
-
-void GmTicket::LoadFromDB(Field* fields)
-{
-    uint8 idx = 0;
-    _id                 = fields[  idx].GetUInt32();
-    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
-    _description        = fields[++idx].GetString();
-    _createTime         = fields[++idx].GetUInt32();
-    _mapId              = fields[++idx].GetUInt16();
-    _pos.x              = fields[++idx].GetFloat();
-    _pos.y              = fields[++idx].GetFloat();
-    _pos.z              = fields[++idx].GetFloat();
-    _lastModifiedTime   = fields[++idx].GetUInt32();
-
-    int64 closedBy      = fields[++idx].GetInt64();
-    if (closedBy == 0)
-        _closedBy = ObjectGuid::Empty;
-    else if (closedBy < 0)
-        _closedBy.SetRawValue(0, uint64(closedBy));
-    else
-        _closedBy = ObjectGuid::Create<HighGuid::Player>(uint64(closedBy));
-
-    uint64 assignedTo   = fields[++idx].GetUInt64();
-    if (assignedTo == 0)
-        _assignedTo = ObjectGuid::Empty;
-    else
-        _assignedTo = ObjectGuid::Create<HighGuid::Player>(assignedTo);
-
-    _comment            = fields[++idx].GetString();
-    _response           = fields[++idx].GetString();
-    _completed          = fields[++idx].GetBool();
-    _assignedToStatus   = GMTicketAssignedToGMStatus(fields[++idx].GetUInt8());
-    _openedByGmStatus   = GMTicketOpenedByGMStatus(fields[++idx].GetUInt8());
-    _needMoreHelp       = fields[++idx].GetBool();
-}
-
-void GmTicket::SaveToDB(SQLTransaction& trans) const
-{
-    uint8 idx = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
-    stmt->setUInt32(idx, _id);
-    stmt->setUInt64(++idx, _playerGuid.GetCounter());
-    stmt->setString(++idx, _description);
-    stmt->setUInt32(++idx, _createTime);
-    stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setUInt32(++idx, uint32(_lastModifiedTime));
-    stmt->setInt64(++idx, int64(_closedBy.GetCounter()));
-    stmt->setUInt64(++idx, _assignedTo.GetCounter());
-    stmt->setString(++idx, _comment);
-    stmt->setString(++idx, _response);
-    stmt->setBool(++idx, _completed);
-    stmt->setUInt8(++idx, uint8(_assignedToStatus));
-    stmt->setUInt8(++idx, _openedByGmStatus);
-    stmt->setBool(++idx, _needMoreHelp);
-
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
-}
-
-void GmTicket::DeleteFromDB()
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
-    stmt->setUInt32(0, _id);
-    CharacterDatabase.Execute(stmt);
-}
-
-std::string GmTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
-{
-    time_t curTime = time(nullptr);
-
-    std::stringstream ss;
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, true, false)).c_str());
-
-    if (!_assignedTo.IsEmpty())
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
-
-    if (detailed)
-    {
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTMESSAGE, _description.c_str());
-        if (!_comment.empty())
-            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTCOMMENT, _comment.c_str());
-        if (!_response.empty())
-            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTRESPONSE, _response.c_str());
-    }
-    return ss.str();
-}
-
-std::string GmTicket::FormatViewMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName, const char* szCompletedName) const
-{
-    std::stringstream ss;
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
-    if (szClosedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
-    if (szAssignedToName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName);
-    if (szUnassignedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName);
-    if (szDeletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName);
-    if (szCompletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCOMPLETED, szCompletedName);
     return ss.str();
 }
 
@@ -248,7 +90,7 @@ void BugTicket::LoadFromDB(Field* fields)
     _comment            = fields[++idx].GetString();
 }
 
-void BugTicket::SaveToDB(SQLTransaction& trans) const
+void BugTicket::SaveToDB() const
 {
     uint8 idx = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_BUG);
@@ -264,7 +106,7 @@ void BugTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
     stmt->setString(++idx, _comment);
 
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+    CharacterDatabase.Execute(stmt);
 }
 
 void BugTicket::DeleteFromDB()
@@ -344,11 +186,9 @@ void ComplaintTicket::LoadChatLineFromDB(Field* fields)
     _chatLog.Lines.emplace_back(fields[0].GetUInt32(), fields[1].GetString());
 }
 
-void ComplaintTicket::SaveToDB(SQLTransaction& trans) const
+void ComplaintTicket::SaveToDB() const
 {
-    bool isInTransaction = bool(trans);
-    if (!isInTransaction)
-        trans = CharacterDatabase.BeginTransaction();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     uint8 idx = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_COMPLAINT);
@@ -385,8 +225,7 @@ void ComplaintTicket::SaveToDB(SQLTransaction& trans) const
         ++lineIndex;
     }
 
-    if (!isInTransaction)
-        CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void ComplaintTicket::DeleteFromDB()
@@ -460,7 +299,7 @@ void SuggestionTicket::LoadFromDB(Field* fields)
     _comment            = fields[++idx].GetString();
 }
 
-void SuggestionTicket::SaveToDB(SQLTransaction& trans) const
+void SuggestionTicket::SaveToDB() const
 {
     uint8 idx = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_SUGGESTION);
@@ -476,7 +315,7 @@ void SuggestionTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
     stmt->setString(++idx, _comment);
 
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+    CharacterDatabase.Execute(stmt);
 }
 
 void SuggestionTicket::DeleteFromDB()
@@ -508,14 +347,11 @@ std::string SuggestionTicket::FormatViewMessageString(ChatHandler& handler, bool
 }
 
 SupportMgr::SupportMgr() : _supportSystemStatus(false), _ticketSystemStatus(false), _bugSystemStatus(false), _complaintSystemStatus(false), _suggestionSystemStatus(false),
-_lastGmTicketId(0), _lastBugId(0), _lastComplaintId(0), _lastSuggestionId(0), _lastChange(0),
-_openGmTicketCount(0), _openBugTicketCount(0), _openComplaintTicketCount(0), _openSuggestionTicketCount(0) { }
+_lastBugId(0), _lastComplaintId(0), _lastSuggestionId(0), _lastChange(0),
+_openBugTicketCount(0), _openComplaintTicketCount(0), _openSuggestionTicketCount(0) { }
 
 SupportMgr::~SupportMgr()
 {
-    for (auto const& t : _gmTicketList)
-        delete t.second;
-
     for (auto const& b : _bugTicketList)
         delete b.second;
 
@@ -533,17 +369,6 @@ void SupportMgr::Initialize()
     SetBugSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED));
     SetComplaintSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED));
     SetSuggestionSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED));
-}
-
-template<>
-GmTicket* SupportMgr::GetTicket<GmTicket>(uint32 ticketId)
-{
-    GmTicketList::const_iterator itr = _gmTicketList.find(ticketId);
-    if (itr != _gmTicketList.end())
-        return itr->second;
-
-    return nullptr;
-
 }
 
 template<>
@@ -579,9 +404,6 @@ SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32 suggestionId)
 }
 
 template<>
-uint32 SupportMgr::GetOpenTicketCount<GmTicket>() const { return _openGmTicketCount; }
-
-template<>
 uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const { return _openBugTicketCount; }
 
 template<>
@@ -589,46 +411,6 @@ uint32 SupportMgr::GetOpenTicketCount<ComplaintTicket>() const { return _openCom
 
 template<>
 uint32 SupportMgr::GetOpenTicketCount<SuggestionTicket>() const { return _openSuggestionTicketCount; }
-
-void SupportMgr::LoadGmTickets()
-{
-    uint32 oldMSTime = getMSTime();
-
-    for (auto const& c : _gmTicketList)
-        delete c.second;
-    _gmTicketList.clear();
-
-    _lastGmTicketId = 0;
-    _openGmTicketCount = 0;
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        GmTicket* ticket = new GmTicket();
-        ticket->LoadFromDB(fields);
-
-        if (!ticket->IsClosed())
-            ++_openGmTicketCount;
-
-        uint32 id = ticket->GetId();
-        if (_lastGmTicketId < id)
-            _lastGmTicketId = id;
-
-        _gmTicketList[id] = ticket;
-        ++count;
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u GM tickets in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
 
 void SupportMgr::LoadBugTickets()
 {
@@ -765,24 +547,13 @@ void SupportMgr::LoadSuggestionTickets()
     TC_LOG_INFO("server.loading", ">> Loaded %u GM suggestions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void SupportMgr::AddTicket(GmTicket* ticket)
-{
-    _gmTicketList[ticket->GetId()] = ticket;
-    if (!ticket->IsClosed())
-        ++_openGmTicketCount;
-
-    SQLTransaction trans = SQLTransaction(nullptr);
-    ticket->SaveToDB(trans);
-}
-
 void SupportMgr::AddTicket(BugTicket* ticket)
 {
     _bugTicketList[ticket->GetId()] = ticket;
     if (!ticket->IsClosed())
         ++_openBugTicketCount;
 
-    SQLTransaction trans = SQLTransaction(nullptr);
-    ticket->SaveToDB(trans);
+    ticket->SaveToDB();
 }
 
 void SupportMgr::AddTicket(ComplaintTicket* ticket)
@@ -791,8 +562,7 @@ void SupportMgr::AddTicket(ComplaintTicket* ticket)
     if (!ticket->IsClosed())
         ++_openComplaintTicketCount;
 
-    SQLTransaction trans = SQLTransaction(nullptr);
-    ticket->SaveToDB(trans);
+    ticket->SaveToDB();
 }
 
 void SupportMgr::AddTicket(SuggestionTicket* ticket)
@@ -801,19 +571,7 @@ void SupportMgr::AddTicket(SuggestionTicket* ticket)
     if (!ticket->IsClosed())
         ++_openSuggestionTicketCount;
 
-    SQLTransaction trans = SQLTransaction(nullptr);
-    ticket->SaveToDB(trans);
-}
-
-template<>
-void SupportMgr::RemoveTicket<GmTicket>(uint32 ticketId)
-{
-    if (GmTicket* ticket = GetTicket<GmTicket>(ticketId))
-    {
-        ticket->DeleteFromDB();
-        _gmTicketList.erase(ticketId);
-        delete ticket;
-    }
+    ticket->SaveToDB();
 }
 
 template<>
@@ -850,28 +608,14 @@ void SupportMgr::RemoveTicket<SuggestionTicket>(uint32 ticketId)
 }
 
 template<>
-void SupportMgr::CloseTicket<GmTicket>(uint32 ticketId, ObjectGuid closedBy)
-{
-    if (GmTicket* ticket = GetTicket<GmTicket>(ticketId))
-    {
-        SQLTransaction trans = SQLTransaction(NULL);
-        ticket->SetClosedBy(closedBy);
-        if (!closedBy.IsEmpty())
-            --_openGmTicketCount;
-        ticket->SaveToDB(trans);
-    }
-}
-
-template<>
 void SupportMgr::CloseTicket<BugTicket>(uint32 ticketId, ObjectGuid closedBy)
 {
     if (BugTicket* ticket = GetTicket<BugTicket>(ticketId))
     {
-        SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(closedBy);
         if (!closedBy.IsEmpty())
             --_openBugTicketCount;
-        ticket->SaveToDB(trans);
+        ticket->SaveToDB();
     }
 }
 
@@ -880,11 +624,10 @@ void SupportMgr::CloseTicket<ComplaintTicket>(uint32 ticketId, ObjectGuid closed
 {
     if (ComplaintTicket* ticket = GetTicket<ComplaintTicket>(ticketId))
     {
-        SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(closedBy);
         if (!closedBy.IsEmpty())
             --_openComplaintTicketCount;
-        ticket->SaveToDB(trans);
+        ticket->SaveToDB();
     }
 }
 
@@ -893,25 +636,11 @@ void SupportMgr::CloseTicket<SuggestionTicket>(uint32 ticketId, ObjectGuid close
 {
     if (SuggestionTicket* ticket = GetTicket<SuggestionTicket>(ticketId))
     {
-        SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(closedBy);
         if (!closedBy.IsEmpty())
             --_openSuggestionTicketCount;
-        ticket->SaveToDB(trans);
+        ticket->SaveToDB();
     }
-}
-
-template<>
-void SupportMgr::ResetTickets<GmTicket>()
-{
-    for (auto const& c : _gmTicketList)
-        delete c.second;
-    _gmTicketList.clear();
-
-    _lastGmTicketId = 0;
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
-    CharacterDatabase.Execute(stmt);
 }
 
 template<>
@@ -956,25 +685,6 @@ void SupportMgr::ResetTickets<SuggestionTicket>()
 }
 
 template<>
-void SupportMgr::ShowList<GmTicket>(ChatHandler& handler, bool onlineOnly) const
-{
-    handler.SendSysMessage(onlineOnly ? LANG_COMMAND_TICKETSHOWONLINELIST : LANG_COMMAND_TICKETSHOWLIST);
-    for (GmTicketList::const_iterator itr = _gmTicketList.begin(); itr != _gmTicketList.end(); ++itr)
-        if (!itr->second->IsClosed() && !itr->second->IsCompleted())
-            if (!onlineOnly || itr->second->GetPlayer())
-                handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
-}
-
-template<>
-void SupportMgr::ShowList<GmTicket>(ChatHandler& handler) const
-{
-    handler.SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
-    for (GmTicketList::const_iterator itr = _gmTicketList.begin(); itr != _gmTicketList.end(); ++itr)
-        if (!itr->second->IsClosed() && !itr->second->IsCompleted())
-                handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
-}
-
-template<>
 void SupportMgr::ShowList<BugTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
@@ -1002,15 +712,6 @@ void SupportMgr::ShowList<SuggestionTicket>(ChatHandler& handler) const
 }
 
 template<>
-void SupportMgr::ShowClosedList<GmTicket>(ChatHandler& handler) const
-{
-    handler.SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
-    for (GmTicketList::const_iterator itr = _gmTicketList.begin(); itr != _gmTicketList.end(); ++itr)
-            if (itr->second->IsClosed())
-                handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
-}
-
-template<>
 void SupportMgr::ShowClosedList<BugTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
@@ -1035,46 +736,4 @@ void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handler) const
     for (SuggestionTicketList::const_iterator itr = _suggestionTicketList.begin(); itr != _suggestionTicketList.end(); ++itr)
         if (itr->second->IsClosed())
             handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
-}
-
-void SupportMgr::ShowGmEscalatedList(ChatHandler& handler) const
-{
-    handler.SendSysMessage(LANG_COMMAND_TICKETSHOWESCALATEDLIST);
-    for (GmTicketList::const_iterator itr = _gmTicketList.begin(); itr != _gmTicketList.end(); ++itr)
-        if (!itr->second->IsClosed() && itr->second->GetAssigendToStatus() == GMTICKET_ASSIGNEDTOGM_STATUS_ESCALATED)
-            handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
-}
-
-void SupportMgr::SendGmTicket(WorldSession* session, GmTicket* ticket) const
-{
-    WorldPackets::Ticket::GMTicketGetTicketResponse response;
-
-    if (ticket)
-    {
-        response.Result = GMTICKET_STATUS_HASTEXT;
-        response.Info = boost::in_place();
-
-        response.Info->TicketID = ticket->GetId();
-        response.Info->TicketDescription = ticket->GetDescription();
-        response.Info->Category = 1;
-        response.Info->TicketOpenTime = GetAge(ticket->GetLastModifiedTime());
-        response.Info->OldestTicketTime = sSupportMgr->GetOldestOpenTicket() ? GetAge(sSupportMgr->GetOldestOpenTicket()->GetLastModifiedTime()) : float(0);
-        response.Info->UpdateTime = GetAge(sSupportMgr->GetLastChange());
-        response.Info->AssignedToGM = ticket->GetAssigendToStatus();
-        response.Info->OpenedByGM = ticket->GetOpenedByGmStatus();
-        response.Info->WaitTimeOverrideMessage = "";
-        response.Info->WaitTimeOverrideMinutes = 0;
-    }
-    else
-        response.Result = GMTICKET_STATUS_DEFAULT;
-
-    session->SendPacket(response.Write());
-}
-
-void SupportMgr::SendGmTicketUpdate(WorldSession* session, GMTicketResponse response) const
-{
-    WorldPackets::Ticket::GMTicketUpdate update;
-    update.Result = response;
-
-    session->SendPacket(update.Write());
 }

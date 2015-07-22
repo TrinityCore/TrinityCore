@@ -919,7 +919,7 @@ public:
         // Search in TaxiNodes.dbc
         for (TaxiNodesEntry const* nodeEntry : sTaxiNodesStore)
         {
-            std::string name = nodeEntry->Name_lang->Str[locale];
+            std::string name = nodeEntry->Name->Str[locale];
             if (name.empty())
                 continue;
 

@@ -167,7 +167,7 @@ struct CalendarInvite
         void SetStatusTime(time_t statusTime) { _statusTime = statusTime; }
         time_t GetStatusTime() const { return _statusTime; }
 
-        void SetText(const std::string& text) { _text = text; }
+        void SetText(std::string const& text) { _text = text; }
         std::string GetText() const { return _text; }
 
         void SetStatus(CalendarInviteStatus status) { _status = status; }
@@ -224,10 +224,10 @@ struct CalendarEvent
         void SetGuildId(ObjectGuid::LowType guildId) { _guildId = guildId; }
         ObjectGuid::LowType GetGuildId() const { return _guildId; }
 
-        void SetTitle(const std::string& title) { _title = title; }
+        void SetTitle(std::string const& title) { _title = title; }
         std::string GetTitle() const { return _title; }
 
-        void SetDescription(const std::string& description) { _description = description; }
+        void SetDescription(std::string const& description) { _description = description; }
         std::string GetDescription() const { return _description; }
 
         void SetType(CalendarEventType type) { _type = type; }

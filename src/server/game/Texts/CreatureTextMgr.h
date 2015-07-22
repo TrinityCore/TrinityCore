@@ -76,11 +76,6 @@ typedef std::unordered_map<uint32, CreatureTextHolder> CreatureTextMap;     // a
 
 typedef std::map<CreatureTextId, CreatureTextLocale> LocaleCreatureTextMap;
 
-//used for handling non-repeatable random texts
-typedef std::vector<uint8> CreatureTextRepeatIds;
-typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
-typedef std::unordered_map<ObjectGuid, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
-
 class CreatureTextMgr
 {
     private:
@@ -116,7 +111,6 @@ class CreatureTextMgr
         static float GetRangeForChatType(ChatMsg msgType);
 
         CreatureTextMap mTextMap;
-        CreatureTextRepeatMap mTextRepeatMap;
         LocaleCreatureTextMap mLocaleTextMap;
 };
 
@@ -145,23 +139,25 @@ class CreatureTextLocalizer
             // create if not cached yet
             if (!_packetCache[loc_idx])
             {
-                messageTemplate = new WorldPackets::Chat::Chat();
+                messageTemplate = _builder(loc_idx);
                 _packetCache[loc_idx] = messageTemplate;
             }
             else
                 messageTemplate = _packetCache[loc_idx];
 
+            WorldPackets::Chat::Chat message(*messageTemplate);
+
             switch (_msgType)
             {
                 case CHAT_MSG_MONSTER_WHISPER:
                 case CHAT_MSG_RAID_BOSS_WHISPER:
-                    messageTemplate->TargetGUID = player->GetGUID();
+                    message.SetReceiver(player, loc_idx);
                     break;
                 default:
                     break;
             }
 
-            player->SendDirectMessage(messageTemplate->Write());
+            player->SendDirectMessage(message.Write());
         }
 
     private:
