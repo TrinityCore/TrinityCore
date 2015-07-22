@@ -562,6 +562,36 @@ void Player::UpdateMastery()
     }
 }
 
+void Player::UpdateMultistrike()
+{
+    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    value += GetRatingBonusValue(CR_MULTISTRIKE);
+    SetFloatValue(PLAYER_MULTISTRIKE, value);
+}
+
+void Player::UpdateLeech()
+{
+    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    value += GetRatingBonusValue(CR_LIFESTEAL);
+    SetFloatValue(PLAYER_LIFESTEAL, value);
+}
+
+void Player::UpdateVesatillity()
+{
+    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    value += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+    value += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
+    SetFloatValue(PLAYER_VERSATILITY, value);
+    SetFloatValue(PLAYER_VERSATILITY_BONUS, value);
+}
+
+void Player::UpdateAvoidance()
+{
+    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    value += GetRatingBonusValue(CR_AVOIDANCE);
+    SetFloatValue(PLAYER_AVOIDANCE, value);
+}
+
 const float m_diminishing_k[MAX_CLASSES] =
 {
     0.9560f,  // Warrior

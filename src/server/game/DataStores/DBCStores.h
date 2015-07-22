@@ -161,6 +161,7 @@ extern GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store;
 extern GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store;
 extern GameTable <GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore;
 extern GameTable <gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
+extern GameTable <GtArmorMitigationByLvlEntry>  sGtArmorMitigationByLvlStore;
 extern GameTable <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
 extern GameTable <GtSpellScalingEntry>          sGtSpellScalingStore;
 extern GameTable <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;

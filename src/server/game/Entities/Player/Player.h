@@ -2073,6 +2073,10 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
         void UpdateMastery();
+        void UpdateMultistrike();
+        void UpdateLeech();
+        void UpdateVesatillity();
+        void UpdateAvoidance();
         bool CanUseMastery() const;
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
@@ -2280,7 +2284,8 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
         void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
-        void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
+        void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply, uint32 ilvl = 0);
+        void _ApplyItemScale(ItemTemplate const* proto, uint8 slot, uint32 ilvl, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);

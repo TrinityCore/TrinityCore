@@ -425,6 +425,17 @@ class Item : public Object
         uint32 GetModifier(ItemModifier modifier) const { return _modifiers[modifier]; }
         void SetModifier(ItemModifier modifier, uint32 value);
 
+        static float GetScalingDamageValue(ItemTemplate const* proto, uint32 itemLevel);
+        static uint32 GetRandomPointsOffset(ItemTemplate const* proto);
+        static float GetSocketCost(uint32 itemLevel);
+        static uint32 CalculateStatScaling(ItemTemplate const* proto, uint32 index, uint32 itemLevel);
+        static uint32 CalculateScalingStatGTValue(ItemTemplate const* proto, uint32 itemLevel);
+        static uint32 CalculateArmorScaling(ItemTemplate const* proto, uint32 itemLevel);
+        static void CalculateMinMaxDamageScaling(ItemTemplate const* proto, uint32 itemLevel, uint32& minDamage, uint32& maxDamage);
+        
+        void SetScaleIlvl(uint32 itemLevel) { m_scaleLvl = itemLevel; }
+        uint32 GetScaleIlvl() const { return m_scaleLvl; }
+
     protected:
         BonusData _bonusData;
 
@@ -440,6 +451,7 @@ class Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
+        uint32 m_scaleLvl;
         uint32 _modifiers[MAX_ITEM_MODIFIERS];
 };
 #endif

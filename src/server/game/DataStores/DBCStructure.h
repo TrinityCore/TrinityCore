@@ -773,6 +773,11 @@ struct gtOCTHpPerStaminaEntry
     float    ratio;
 };
 
+struct GtArmorMitigationByLvlEntry
+{
+    float    ratio;
+};
+
 struct GtRegenHPPerSptEntry
 {
     float    ratio;
@@ -1602,6 +1607,12 @@ struct WorldSafeLocsEntry
     DBCPosition3D   Loc;                                    // 2-4
     float           Facing;                                 // 5 values are in degrees
     //char*         AreaName_lang;                          // 6
+};
+
+struct gtItemSocketCostPerLevelEntry
+{
+    uint32 level;
+    float cost;
 };
 
 /*
