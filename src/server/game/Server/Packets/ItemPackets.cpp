@@ -328,11 +328,12 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << BattlePetBreedQuality;
     _worldPacket << BattlePetSpeciesID;
     _worldPacket << BattlePetLevel;
-
+    _worldPacket << UnkWoD62;
     _worldPacket << ItemGUID;
 
     _worldPacket.WriteBit(Pushed);
     _worldPacket.WriteBit(Created);
+    _worldPacket.WriteBits(UnkBits62, 2);
     _worldPacket.WriteBit(DisplayText);
     _worldPacket.WriteBit(IsBonusRoll);
 

@@ -303,9 +303,11 @@ namespace WorldPackets
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
+            uint32 UnkWoD62                 = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;
             bool DisplayText                = false;
+            bool UnkBits62                  = false;
             bool Created                    = false;
             bool IsBonusRoll                = false;
         };
