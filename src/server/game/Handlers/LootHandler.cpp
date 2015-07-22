@@ -41,7 +41,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
     /// @todo Implement looting by LootObject guid
     for (WorldPackets::Loot::LootRequest const& req : packet.Loot)
     {
-        Loot* loot = NULL;
+        Loot* loot = nullptr;
 
         if (lguid.IsGameObject())
         {
@@ -109,7 +109,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
     if (!guid)
         return;
 
-    Loot* loot = NULL;
+    Loot* loot = nullptr;
     bool shareMoney = true;
 
     switch (guid.GetHigh())
@@ -172,7 +172,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
             Group* group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* member = itr->GetSource();
                 if (!member)
@@ -374,7 +374,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
                 if (Group* group = player->GetGroup())
                 {
-                    group->SendLooter(creature, NULL);
+                    group->SendLooter(creature, nullptr);
 
                     // force update of dynamic flags, otherwise other group's players still not able to loot.
                     creature->ForceValuesUpdateAtIndex(OBJECT_DYNAMIC_FLAGS);
@@ -422,7 +422,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    Loot* loot = NULL;
+    Loot* loot = nullptr;
 
     if (GetPlayer()->GetLootGUID().IsCreatureOrVehicle())
     {
@@ -466,7 +466,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         else
             _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
 
-        target->SendEquipError(msg, NULL, NULL, item.itemid);
+        target->SendEquipError(msg, nullptr, nullptr, item.itemid);
         return;
     }
 
