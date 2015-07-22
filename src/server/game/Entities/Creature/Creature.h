@@ -134,7 +134,6 @@ struct CreatureTemplate
     float   ModDamage;
     float   ModExperience;
     bool    RacialLeader;
-    uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
@@ -170,6 +169,9 @@ struct CreatureTemplate
         return canTameExotic || !IsExotic();
     }
 };
+
+typedef std::vector<uint32> CreatureQuestItemList;
+typedef std::unordered_map<uint32, CreatureQuestItemList> CreatureQuestItemMap;
 
 // Benchmarked: Faster than std::map (insert/find)
 typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;

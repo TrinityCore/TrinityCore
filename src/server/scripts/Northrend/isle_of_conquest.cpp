@@ -161,19 +161,6 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
                  * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
                  */
                 caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
-                /*
-                 * HACK: This aura should be added by 20212 and 20213 but can't find any SMSG_SPELL_GO. Could't find their position.
-                 * ServerToClient: SMSG_AURA_UPDATE (0x0072)
-                 * [0] CasterGUID: Full: xxxxx Type: Unit Entry: 20212 Low: xxx
-                 * [0] Flags: None (0)
-                 * [0] Caster Level: 60
-                 * [0] Spell ID: 66656
-                 * [0] Charges: 0
-                 * [0] Effect Mask: 1
-                 * [0] Slot: 37
-                 * Guid: Full: xxxxx Type: Player2 Low: xxxxx
-                 */
-                caster->AddAura(SPELL_PARACHUTE, caster);
             }
 
             void Register() override

@@ -1665,6 +1665,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                         return SPELL_FAILED_NOT_HERE;
                     break;
                 }
+                break;
             }
         }
     }

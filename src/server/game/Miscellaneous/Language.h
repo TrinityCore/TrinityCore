@@ -973,15 +973,14 @@ enum TrinityStrings
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
     LANG_GUILD_INFO_LEVEL               = 1184,
-    // Room for more level 3              1184-1199 not used
 
     // Debug commands
+    LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
     LANG_DEBUG_AREATRIGGER_ON           = 1202,
     LANG_DEBUG_AREATRIGGER_OFF          = 1203,
     LANG_DEBUG_AREATRIGGER_REACHED      = 1204,
-    // Room for more debug                1205-1299 not used
 
     // Isle of Conquest
     LANG_BG_IC_START_TWO_MINUTES        = 1205,

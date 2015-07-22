@@ -8,10 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if( CMAKE_COMPILER_IS_GNUCXX )
-  add_definitions(--no-warnings)
-elseif( MSVC )
+if( MSVC )
   add_definitions(/W0)
+else()
+  add_definitions(-w)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

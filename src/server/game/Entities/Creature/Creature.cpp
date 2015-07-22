@@ -1388,6 +1388,12 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
     if (IsCivilian())
         return false;
 
+    // This set of checks is should be done only for creatures
+    if ((HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC) && who->GetTypeId() != TYPEID_PLAYER)                                   // flag is valid only for non player characters 
+        || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) && who->GetTypeId() == TYPEID_PLAYER)                                 // immune to PC and target is a player, return false
+        || (who->GetOwner() && who->GetOwner()->GetTypeId() == TYPEID_PLAYER && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))) // player pets are immune to pc as well
+        return false;
+    
     // Do not attack non-combat pets
     if (who->GetTypeId() == TYPEID_UNIT && who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
         return false;
@@ -1525,9 +1531,9 @@ void Creature::setDeathState(DeathState s)
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
-        LoadCreaturesAddon(true);
         Motion_Initialize();
         Unit::setDeathState(ALIVE);
+        LoadCreaturesAddon(true);
     }
 }
 

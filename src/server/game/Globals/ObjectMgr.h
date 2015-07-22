@@ -37,6 +37,7 @@
 #include "ObjectDefines.h"
 #include "VehicleDefines.h"
 #include <string>
+#include <tuple>
 #include <map>
 #include <limits>
 #include "ConditionMgr.h"
@@ -66,8 +67,8 @@ struct TempSummonGroupKey
 
     bool operator<(TempSummonGroupKey const& rhs) const
     {
-        // memcmp is only reliable if struct doesn't have any padding (packed)
-        return memcmp(this, &rhs, sizeof(TempSummonGroupKey)) < 0;
+        return std::tie(_summonerEntry, _summonerType, _summonGroup) <
+            std::tie(rhs._summonerEntry, rhs._summonerType, rhs._summonGroup);
     }
 
 private:
@@ -750,6 +751,24 @@ class ObjectMgr
 
         ObjectGuid GetPlayerGUIDByName(std::string const& name) const;
 
+        GameObjectQuestItemList const* GetGameObjectQuestItemList(uint32 id) const
+        {
+            GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
+            if (itr != _gameObjectQuestItemStore.end())
+                return &itr->second;
+            return NULL;
+        }
+        GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
+
+        CreatureQuestItemList const* GetCreatureQuestItemList(uint32 id) const
+        {
+            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
+            if (itr != _creatureQuestItemStore.end())
+                return &itr->second;
+            return NULL;
+        }
+        CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
+
         /**
         * Retrieves the player name by guid.
         *
@@ -958,6 +977,8 @@ class ObjectMgr
         void LoadCreatureTemplateAddons();
         void LoadCreatureTemplate(Field* fields);
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
+        void LoadGameObjectQuestItems();
+        void LoadCreatureQuestItems();
         void LoadTempSummons();
         void LoadCreatures();
         void LoadLinkedRespawn();
@@ -1444,6 +1465,8 @@ class ObjectMgr
         CreatureAddonContainer _creatureAddonStore;
         CreatureAddonContainer _creatureTemplateAddonStore;
         GameObjectAddonContainer _gameObjectAddonStore;
+        GameObjectQuestItemMap _gameObjectQuestItemStore;
+        CreatureQuestItemMap _creatureQuestItemStore;
         EquipmentInfoContainer _equipmentInfoStore;
         LinkedRespawnContainer _linkedRespawnStore;
         CreatureLocaleContainer _creatureLocaleStore;

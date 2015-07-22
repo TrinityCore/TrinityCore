@@ -207,6 +207,8 @@ class Quest
     friend class ObjectMgr;
     public:
         Quest(Field* questRecord);
+        void LoadQuestTemplateAddon(Field* fields);
+
         uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
@@ -352,21 +354,13 @@ class Quest
         uint32 Method;
         int32  ZoneOrSort;
         uint32 MinLevel;
-        uint32 MaxLevel;
         int32  Level;
         uint32 Type;
-        uint32 RequiredClasses;
         uint32 RequiredRaces;
-        uint32 RequiredSkillId;
-        uint32 RequiredSkillPoints;
         uint32 RequiredFactionId1;
         int32  RequiredFactionValue1;
         uint32 RequiredFactionId2;
         int32  RequiredFactionValue2;
-        uint32 RequiredMinRepFaction;
-        int32  RequiredMinRepValue;
-        uint32 RequiredMaxRepFaction;
-        int32  RequiredMaxRepValue;
         uint32 SuggestedPlayers;
         uint32 LimitTime;
         uint32 Flags;
@@ -374,14 +368,9 @@ class Quest
         uint32 RequiredPlayerKills;
         uint32 RewardTalents;
         int32  RewardArenaPoints;
-        int32  PrevQuestId;
-        int32  NextQuestId;
-        int32  ExclusiveGroup;
         uint32 NextQuestIdChain;
         uint32 RewardXPId;
         uint32 SourceItemId;
-        uint32 SourceItemIdCount;
-        uint32 SourceSpellid;
         std::string Title;
         std::string Details;
         std::string Objectives;
@@ -395,8 +384,6 @@ class Quest
         uint32 RewardMoneyMaxLevel;
         uint32 RewardSpell;
         int32  RewardSpellCast;
-        uint32 RewardMailTemplateId;
-        uint32 RewardMailDelay;
         uint32 PointMapId;
         float  PointX;
         float  PointY;
@@ -418,7 +405,23 @@ class Quest
         uint32 SoundAccept;
         uint32 SoundTurnIn;
 
-        uint32 SpecialFlags; // custom flags, not sniffed/WDB
+        // quest_template_addon table (custom data)
+        uint32 MaxLevel              = 0;
+        uint32 RequiredClasses       = 0;
+        uint32 SourceSpellid         = 0;
+        int32  PrevQuestId           = 0;
+        int32  NextQuestId           = 0;
+        int32  ExclusiveGroup        = 0;
+        uint32 RewardMailTemplateId  = 0;
+        uint32 RewardMailDelay       = 0;
+        uint32 RequiredSkillId       = 0;
+        uint32 RequiredSkillPoints   = 0;
+        uint32 RequiredMinRepFaction = 0;
+        int32  RequiredMinRepValue   = 0;
+        uint32 RequiredMaxRepFaction = 0;
+        int32  RequiredMaxRepValue   = 0;
+        uint32 SourceItemIdCount     = 0;
+        uint32 SpecialFlags          = 0; // custom flags, not sniffed/WDB
 };
 
 struct QuestStatusData

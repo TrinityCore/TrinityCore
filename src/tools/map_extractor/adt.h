@@ -67,8 +67,8 @@ class adt_MCLQ
         uint32 fcc;
         char   fcc_txt[4];
     };
-    uint32 size;
 public:
+    uint32 size;
     float height1;
     float height2;
     struct liquid_data{
@@ -96,8 +96,8 @@ class adt_MCNK
         uint32 fcc;
         char   fcc_txt[4];
     };
-    uint32 size;
 public:
+    uint32 size;
     uint32 flags;
     uint32 ix;
     uint32 iy;
@@ -155,8 +155,8 @@ class adt_MCIN
         uint32 fcc;
         char   fcc_txt[4];
     };
-    uint32 size;
 public:
+    uint32 size;
     struct adt_CELLS{
         uint32 offsMCNK;
         uint32 size;
@@ -274,6 +274,7 @@ class adt_MHDR
         uint32 fcc;
         char   fcc_txt[4];
     };
+public:
     uint32 size;
 
     uint32 flags;
@@ -292,7 +293,6 @@ class adt_MHDR
     uint32 data3;
     uint32 data4;
     uint32 data5;
-public:
     bool prepareLoadedData();
     adt_MCIN* getMCIN() { return offsMCIN ? (adt_MCIN *)((uint8 *)&flags+offsMCIN) : NULL; }
     adt_MH2O* getMH2O() { return offsMH2O ? (adt_MH2O *)((uint8 *)&flags+offsMH2O) : NULL; }

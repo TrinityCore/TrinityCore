@@ -207,7 +207,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         data << info->unk1;                                 // 2.0.3, string
         data.append(info->raw.data, MAX_GAMEOBJECT_DATA);
         data << float(info->size);                          // go size
-        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+
             data << uint32(info->questItems[i]);            // itemId[6], quest drop
         data << int32(info->unkInt32);                      // 4.x, unknown
         SendPacket(&data);

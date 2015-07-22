@@ -105,3 +105,32 @@
    fun:_IO_file_xsputn@@GLIBC_2.2.5
    fun:fwrite
 }
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZN3Log14LoadFromConfigEv
+   fun:_ZN5World18LoadConfigSettingsEb
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZN3Log22CreateLoggerFromConfigERKSs
+   fun:_ZN3Log21ReadLoggersFromConfigEv
+   fun:_ZN3Log14LoadFromConfigEv
+   fun:_ZN5World18LoadConfigSettingsEb
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZN5World18LoadConfigSettingsEb
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZNK5World12getIntConfigE15WorldIntConfigs
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZNK3Log9ShouldLogERKSs8LogLevel
+}

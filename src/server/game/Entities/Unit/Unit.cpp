@@ -1706,6 +1706,13 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(schoolMask))
+            {
+                victim->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
+
         AuraEffectList vSplitDamagePctCopy(victim->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
         for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(); itr != vSplitDamagePctCopy.end() && dmgInfo.GetDamage() > 0; ++itr)
         {
@@ -1731,6 +1738,14 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             splitDamage = RoundToInterval(splitDamage, uint32(0), uint32(dmgInfo.GetDamage()));
 
             dmgInfo.AbsorbDamage(splitDamage);
+
+            // check if caster is immune to damage
+            if (caster->IsImmunedToDamage(schoolMask))
+            {
+                victim->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                continue;
+            }
+
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitDamage, &split_absorb);
 
@@ -9567,6 +9582,26 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
     return false;
 }
 
+uint32 Unit::GetSchoolImmunityMask() const
+{
+    uint32 mask = 0;
+    SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_SCHOOL];
+    for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+        mask |= itr->type;
+
+    return mask;
+}
+
+uint32 Unit::GetMechanicImmunityMask() const
+{
+    uint32 mask = 0;
+    SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+    for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+        mask |= (1 << itr->type);
+
+    return mask;
+}
+
 bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
     if (!spellInfo || !spellInfo->Effects[index].IsEffect())
@@ -10709,6 +10744,13 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             /// @todo possible affect only on MOVE_RUN
             if (int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
             {
+                if (Creature* creature = ToCreature())
+                {
+                    uint32 immuneMask = creature->GetCreatureTemplate()->MechanicImmuneMask;
+                    if (immuneMask & (1 << MECHANIC_SNARE) || immuneMask & (1 << MECHANIC_DAZE))
+                        break;
+                }
+
                 // Use speed from aura
                 float max_speed = normalization / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
                 if (speed > max_speed)
@@ -10730,15 +10772,15 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
     if (slow)
-    {
         AddPct(speed, slow);
-        if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
-        {
-            float min_speed = minSpeedMod / 100.0f;
-            if (speed < min_speed)
-                speed = min_speed;
-        }
+
+    if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
+    {
+        float min_speed = minSpeedMod / 100.0f;
+        if (speed < min_speed)
+            speed = min_speed;
     }
+
     SetSpeed(mtype, speed, forced);
 }
 
@@ -14846,7 +14888,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
         SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
-        
+
         if (player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || player->HasAuraType(SPELL_AURA_FLY))
             player->SetCanFly(true, true);
     }

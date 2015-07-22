@@ -547,7 +547,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.ModExperience  = fields[72].GetFloat();
     creatureTemplate.RacialLeader   = fields[73].GetBool();
 
-    for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+    creatureTemplate.movementId         = fields[70].GetUInt32();
         creatureTemplate.questItems[i] = fields[74 + i].GetUInt32();
 
     creatureTemplate.movementId         = fields[80].GetUInt32();
@@ -3899,10 +3899,12 @@ void ObjectMgr::LoadQuests()
     QueryResult result = WorldDatabase.Query("SELECT "
         //0     1      2        3           4           5            6            7               8              9               10             11                 12
         "ID, Method, QuestLevel, MinLevel, MaxLevel, QuestSortID, QuestType, SuggestedGroupNum, LimitTime, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
-        //         13                 14                    15                   16                      17                  18                         19                  20
-        "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
-        //     21         22             23                24             25              26                    27                28            29              30              31
-        "PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestIdChain, RewardXPId, RewardOrRequiredMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
+        //      9                     10                   11                    12
+        "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
+        //      13             14               15                    16               17             18             19               20
+        "NextQuestIdChain, RewardXPId, RewardOrRequiredMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
+        //      21       22        23              24                25               26
+        "SourceItemId, Flags, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
         //         32                  33            34             35               36         37         38            39                40                41               42                 43
         "RewardMailTemplateId, RewardMailDelay, SourceItemId, SourceItemCount, SourceSpellId, Flags, SpecialFlags, MinimapTargetMark, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
         //      44            45                    46                    47                  48               49             50              51             52                53                54                55               56
@@ -3950,6 +3952,31 @@ void ObjectMgr::LoadQuests()
     } while (result->NextRow());
 
     std::map<uint32, uint32> usedMailTemplates;
+
+    // Load `quest_template_addon`
+    //                                   0   1         2                 3              4            5            6               7                     8
+    result = WorldDatabase.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, RewardMailTemplateID, RewardMailDelay, "
+        //9               10                   11                     12                     13                   14                   15                 16
+        "RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, SpecialFlags FROM quest_template_addon");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest template addons. DB table `quest_template_addon` is empty.");
+    }
+    else
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 questId = fields[0].GetUInt32();
+
+            auto itr = _questTemplates.find(questId);
+            if (itr != _questTemplates.end())
+                itr->second->LoadQuestTemplateAddon(fields);
+            else
+                TC_LOG_ERROR("server.loading", "Table `quest_template_addon` has data for quest %u but such quest does not exist", questId);
+        } while (result->NextRow());
+    }
 
     // Post processing
     for (QuestMap::iterator iter = _questTemplates.begin(); iter != _questTemplates.end(); ++iter)
@@ -5247,7 +5274,7 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1       2
+    //                                               0     1       2
     QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
 
     if (!result)
@@ -6242,7 +6269,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     _areaTriggerStore.clear();                                  // need for reload case
 
-    //                                               0            1                  2                  3                  4                   5
+    //                                               0        1              2                  3                  4                   5
     QueryResult result = WorldDatabase.Query("SELECT ID,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if (!result)
     {
@@ -7319,7 +7346,7 @@ void ObjectMgr::LoadPointsOfInterest()
 
     uint32 count = 0;
 
-    //                                                  0   1  2   3      4     5       6
+    //                                               0       1          2        3     4      5    6
     QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Data, Name FROM points_of_interest");
 
     if (!result)
@@ -7365,7 +7392,7 @@ void ObjectMgr::LoadQuestPOI()
 
     uint32 count = 0;
 
-    //                                               0        1   2         3      4               5        6     7
+    //                                               0        1          2          3           4          5       6        7
     QueryResult result = WorldDatabase.Query("SELECT QuestID, id, ObjectiveIndex, MapID, WorldMapAreaId, Floor, Priority, Flags FROM quest_poi order by QuestID");
 
     if (!result)
@@ -7374,7 +7401,7 @@ void ObjectMgr::LoadQuestPOI()
         return;
     }
 
-    //                                                0       1   2  3
+    //                                                  0       1   2  3
     QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx2");
 
     std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
@@ -9490,4 +9517,64 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
     if (!info)
         return NULL;
     return info;
+}
+
+void ObjectMgr::LoadGameObjectQuestItems()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0                1
+    QueryResult result = WorldDatabase.Query("SELECT GameObjectEntry, ItemId FROM gameobject_questitem ORDER BY Idx ASC");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gameobject quest items. DB table `gameobject_questitem` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 entry = fields[0].GetUInt32();
+        uint32 item = fields[1].GetUInt32();
+
+        _gameObjectQuestItemStore[entry].push_back(item);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u gameobject quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadCreatureQuestItems()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0              1
+    QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, ItemId FROM creature_questitem ORDER BY Idx ASC");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature quest items. DB table `creature_questitem` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 entry = fields[0].GetUInt32();
+        uint32 item = fields[1].GetUInt32();
+
+        _creatureQuestItemStore[entry].push_back(item);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

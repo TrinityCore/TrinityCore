@@ -9802,13 +9802,9 @@ void Player::SendBattlefieldWorldStates()
     {
         if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
         {
-            if (wg->IsWarTime())
-                SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
-            else // Time to next battle
-            {
-                uint32 timer = wg->GetTimer() / 1000;
-                SendUpdateWorldState(ClockWorldState[1], time(NULL) + timer);
-            }
+            SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, wg->IsWarTime() ? 0 : 1);
+            uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
+            SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + timer));
         }
     }
 }
@@ -17968,9 +17964,9 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     TC_LOG_DEBUG("entities.player.loading", "Loading auras for player %u", GetGUIDLow());
 
     /*                                                           0       1        2         3                 4         5      6       7         8              9            10
-    QueryResult* result = CharacterDatabase.PQuery("SELECT caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, base_amount0, base_amount1, base_amount2,
+    QueryResult* result = CharacterDatabase.PQuery("SELECT casterGuid, spell, effectMask, recalculateMask, stackCount, amount0, amount1, amount2, base_amount0, base_amount1, base_amount2,
                                                         11          12          13
-                                                    maxduration, remaintime, remaincharges FROM character_aura WHERE guid = '%u'", GetGUIDLow());
+                                                    maxDuration, remainTime, remainCharges FROM character_aura WHERE guid = '%u'", GetGUIDLow());
     */
 
     if (result)
@@ -23191,15 +23187,17 @@ void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time)
+void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome)
 {
     // type of warning, based on the time remaining until reset
     uint32 type;
-    if (time > 3600)
+    if (welcome)
         type = RAID_INSTANCE_WELCOME;
-    else if (time > 900 && time <= 3600)
+    else if (time > 21600)
+        type = RAID_INSTANCE_WELCOME;
+    else if (time > 3600)
         type = RAID_INSTANCE_WARNING_HOURS;
-    else if (time > 300 && time <= 900)
+    else if (time > 300)
         type = RAID_INSTANCE_WARNING_MIN;
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
@@ -24223,6 +24221,9 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 
     if (player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
+
+    if (player->GetMap()->IsDungeon())
+        return true;
 
     return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
 }
@@ -26292,7 +26293,7 @@ void Player::SetMap(Map* map)
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
 {
-    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6, glyph7, glyph8, glyph9 FROM character_glyphs WHERE guid = '%u'
+    // SELECT talentGroup, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6 from character_glyphs WHERE guid = '%u'
     if (!result)
         return;
 
@@ -26335,7 +26336,7 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
 
 void Player::_LoadTalents(PreparedQueryResult result)
 {
-    // SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, spec FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
+    // SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, talentGroup FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
     if (result)
     {
         do
