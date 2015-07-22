@@ -3033,6 +3033,10 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 63026: // Force Cast (HACK: Target shouldn't be changed)
+            case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
             case 70743: // AoD Special
             case 70614: // AoD Special - Vegard
             case 42436: // Drink! (Brewfest)
@@ -3187,6 +3191,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 57761: // Fireball!
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 88819: // Daybreak
+            case 18820: // Insight
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost

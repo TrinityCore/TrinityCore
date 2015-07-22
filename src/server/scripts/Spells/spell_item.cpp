@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SkillDiscovery.h"
@@ -1349,7 +1350,7 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_AIR_RIFLE_HOLD_VISUAL, true);
                     // needed because this spell shares GCD with its triggered spells (which must not be cast with triggered flag)
                     if (Player* player = caster->ToPlayer())
-                        player->GetGlobalCooldownMgr().CancelGlobalCooldown(GetSpellInfo());
+                        player->GetSpellHistory()->CancelGlobalCooldown(GetSpellInfo());
                     if (urand(0, 4))
                         caster->CastSpell(target, SPELL_AIR_RIFLE_SHOOT, false);
                     else
@@ -2368,7 +2369,7 @@ class spell_item_rocket_boots : public SpellScriptLoader
                 if (Battleground* bg = caster->GetBattleground())
                     bg->EventPlayerDroppedFlag(caster);
 
-                caster->RemoveSpellCooldown(SPELL_ROCKET_BOOTS_PROC);
+                caster->GetSpellHistory()->ResetCooldown(SPELL_ROCKET_BOOTS_PROC);
                 caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true, NULL);
             }
 

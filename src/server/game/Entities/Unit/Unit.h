@@ -274,13 +274,6 @@ enum UnitRename
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
-enum Swing
-{
-    NOSWING                    = 0,
-    SINGLEHANDEDSWING          = 1,
-    TWOHANDEDSWING             = 2
-};
-
 enum VictimState
 {
     VICTIMSTATE_INTACT         = 0, // set when attacker misses
@@ -340,6 +333,7 @@ class AuraEffect;
 class Creature;
 class Spell;
 class SpellInfo;
+class SpellHistory;
 class DynamicObject;
 class GameObject;
 class Item;
@@ -361,7 +355,7 @@ namespace Movement
 }
 
 typedef std::list<Unit*> UnitList;
-typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
+typedef std::list<std::pair<Aura*, uint8>> DispelChargesList;
 
 struct SpellImmune
 {
@@ -384,13 +378,6 @@ enum WeaponDamageRange
 {
     MINDAMAGE,
     MAXDAMAGE
-};
-
-enum DamageTypeToSchool
-{
-    RESISTANCE,
-    DAMAGE_DEALT,
-    DAMAGE_TAKEN
 };
 
 enum AuraRemoveMode
@@ -1047,30 +1034,6 @@ enum CurrentSpellTypes
 #define CURRENT_FIRST_NON_MELEE_SPELL 1
 #define CURRENT_MAX_SPELL             4
 
-struct GlobalCooldown
-{
-    explicit GlobalCooldown(uint32 _dur = 0, uint32 _time = 0) : duration(_dur), cast_time(_time) { }
-
-    uint32 duration;
-    uint32 cast_time;
-};
-
-typedef std::unordered_map<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
-
-class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
-{
-public:
-    GlobalCooldownMgr() { }
-
-public:
-    bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
-    void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 gcd);
-    void CancelGlobalCooldown(SpellInfo const* spellInfo);
-
-private:
-    GlobalCooldownList m_GlobalCooldowns;
-};
-
 enum ActiveStates
 {
     ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
@@ -1188,8 +1151,6 @@ struct CharmInfo
 
         CharmSpellInfo* GetCharmSpell(uint8 index) { return &(_charmspells[index]); }
 
-        GlobalCooldownMgr& GetGlobalCooldownMgr() { return m_GlobalCooldownMgr; }
-
         void SetIsCommandAttack(bool val);
         bool IsCommandAttack();
         void SetIsCommandFollow(bool val);
@@ -1222,8 +1183,6 @@ struct CharmInfo
         float _stayX;
         float _stayY;
         float _stayZ;
-
-        GlobalCooldownMgr m_GlobalCooldownMgr;
 };
 
 // for clearing special attacks
@@ -1253,16 +1212,6 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_WATER = 82,
     SUMMON_TYPE_TOTEM_AIR   = 83
 };
-
-/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
-enum SpellCooldownFlags
-{
-    SPELL_COOLDOWN_FLAG_NONE                    = 0x0,
-    SPELL_COOLDOWN_FLAG_INCLUDE_GCD             = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
-    SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
-};
-
-typedef std::unordered_map<uint32, uint32> PacketCooldowns;
 
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
@@ -1600,8 +1549,6 @@ class Unit : public WorldObject
         Aura* AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisualKit(uint32 id, uint32 unkParam);
-        void BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown);
-        void BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns);
 
         void DeMorph();
 
@@ -1862,7 +1809,6 @@ class Unit : public WorldObject
         void SetChannelObjectGuid(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, guid); }
 
         void SetCurrentCastSpell(Spell* pSpell);
-        virtual void ProhibitSpellSchool(SpellSchoolMask /*idSchoolMask*/, uint32 /*unTimeMs*/) { }
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
 
@@ -1879,6 +1825,9 @@ class Unit : public WorldObject
         Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
+
+        SpellHistory* GetSpellHistory() { return m_spellHistory; }
+        SpellHistory const* GetSpellHistory() const { return m_spellHistory; }
 
         ObjectGuid m_SummonSlot[MAX_SUMMON_SLOT];
         ObjectGuid m_ObjectSlot[MAX_GAMEOBJECT_SLOT];
@@ -1950,7 +1899,7 @@ class Unit : public WorldObject
         void TauntApply(Unit* victim);
         void TauntFadeOut(Unit* taunter);
         ThreatManager& getThreatManager() { return m_ThreatManager; }
-        void addHatedBy(HostileReference* pHostileReference) { m_HostileRefManager.insertFirst(pHostileReference); };
+        void addHatedBy(HostileReference* pHostileReference) { m_HostileRefManager.insertFirst(pHostileReference); }
         void removeHatedBy(HostileReference* /*pHostileReference*/) { /* nothing to do yet */ }
         HostileRefManager& getHostileRefManager() { return m_HostileRefManager; }
 
@@ -2312,6 +2261,7 @@ class Unit : public WorldObject
 
         time_t _lastDamagedTime; // Part of Evade mechanics
 
+        SpellHistory* m_spellHistory;
         uint16 _aiAnimKitId;
         uint16 _movementAnimKitId;
         uint16 _meleeAnimKitId;

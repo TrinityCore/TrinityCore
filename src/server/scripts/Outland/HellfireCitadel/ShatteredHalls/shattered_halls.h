@@ -33,7 +33,11 @@ enum DataTypes
     DATA_SHATTERED_EXECUTIONER       = 3,
     DATA_PRISONERS_EXECUTED          = 4,
 
-    DATA_TEAM_IN_INSTANCE            = 5
+    DATA_TEAM_IN_INSTANCE            = 5,
+
+    DATA_FIRST_PRISONER,
+    DATA_SECOND_PRISONER,
+    DATA_THIRD_PRISONER
 };
 
 enum CreatureIds
@@ -70,6 +74,20 @@ enum QuestIds
     QUEST_IMPRISONED_H               = 9525
 };
 
+enum InstanceSpells
+{
+    SPELL_KARGATH_EXECUTIONER_1      = 39288,
+    SPELL_KARGATH_EXECUTIONER_2      = 39289,
+    SPELL_KARGATH_EXECUTIONER_3      = 39290,
+
+    SPELL_REMOVE_KARGATH_EXECUTIONER = 39291
+};
+
+enum Actions
+{
+    ACTION_EXECUTIONER_TAUNT = 1
+};
+
 const Position Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
 
 struct FactionSpawnerHelper
@@ -77,7 +95,7 @@ struct FactionSpawnerHelper
     FactionSpawnerHelper(uint32 allianceEntry, uint32 hordeEntry, const Position& pos) : _allianceNPC(allianceEntry), _hordeNPC(hordeEntry), _spawnPos(pos) { }
 
     inline uint32 operator()(uint32 teamID) const { return teamID == ALLIANCE ? _allianceNPC : _hordeNPC; }
-    inline const Position GetPos() const { return _spawnPos; }
+    inline Position const& GetPos() const { return _spawnPos; }
 
 private:
     const uint32 _allianceNPC;

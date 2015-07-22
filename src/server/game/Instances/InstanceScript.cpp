@@ -426,7 +426,26 @@ void InstanceScript::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime /
             TC_LOG_ERROR("scripts", "InstanceScript: DoUseDoorOrButton can't use gameobject entry %u, because type is %u.", go->GetEntry(), go->GetGoType());
     }
     else
-        TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
+        TC_LOG_DEBUG("scripts", "InstanceScript: DoUseDoorOrButton failed");
+}
+
+void InstanceScript::DoCloseDoorOrButton(ObjectGuid guid)
+{
+    if (!guid)
+        return;
+
+    if (GameObject* go = instance->GetGameObject(guid))
+    {
+        if (go->GetGoType() == GAMEOBJECT_TYPE_DOOR || go->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
+        {
+            if (go->getLootState() == GO_ACTIVATED)
+                go->ResetDoorOrButton();
+        }
+        else
+            TC_LOG_ERROR("scripts", "InstanceScript: DoCloseDoorOrButton can't use gameobject entry %u, because type is %u.", go->GetEntry(), go->GetGoType());
+    }
+    else
+        TC_LOG_DEBUG("scripts", "InstanceScript: DoCloseDoorOrButton failed");
 }
 
 void InstanceScript::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn /*= MINUTE*/)
