@@ -77,7 +77,7 @@ public:
 
         return name;
     }
-    std::string const& GetComment() { return _comment; }
+    std::string const& GetComment() const { return _comment; }
 
     virtual void SetAssignedTo(ObjectGuid guid, bool /*isAdmin*/ = false) { _assignedTo = guid; }
     virtual void SetUnassigned() { _assignedTo.Clear(); }
@@ -225,11 +225,11 @@ public:
 
     void Initialize();
 
-    bool GetSupportSystemStatus() { return _supportSystemStatus; }
-    bool GetTicketSystemStatus() { return _supportSystemStatus && _ticketSystemStatus; }
-    bool GetBugSystemStatus() { return _supportSystemStatus && _bugSystemStatus; }
-    bool GetComplaintSystemStatus() { return _supportSystemStatus && _complaintSystemStatus; }
-    bool GetSuggestionSystemStatus() { return _supportSystemStatus && _suggestionSystemStatus; }
+    bool GetSupportSystemStatus() const { return _supportSystemStatus; }
+    bool GetTicketSystemStatus() const { return _supportSystemStatus && _ticketSystemStatus; }
+    bool GetBugSystemStatus() const { return _supportSystemStatus && _bugSystemStatus; }
+    bool GetComplaintSystemStatus() const { return _supportSystemStatus && _complaintSystemStatus; }
+    bool GetSuggestionSystemStatus() const { return _supportSystemStatus && _suggestionSystemStatus; }
     uint64 GetLastChange() const { return _lastChange; }
     template<typename T>
     uint32 GetOpenTicketCount() const;

@@ -149,7 +149,7 @@ class BfGraveyardWG : public BfGraveyard
         BfGraveyardWG(BattlefieldWG* Bf);
 
         void SetTextId(uint32 textId) { m_GossipTextId = textId; }
-        uint32 GetTextId() { return m_GossipTextId; }
+        uint32 GetTextId() const { return m_GossipTextId; }
 
     protected:
         uint32 m_GossipTextId;
