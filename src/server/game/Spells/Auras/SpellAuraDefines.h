@@ -423,7 +423,7 @@ enum AuraType
     SPELL_AURA_MOD_NEXT_SPELL                               = 363,  // Used by 101601 Throw Totem - causes the client to initialize spell cast with specified spell
     SPELL_AURA_364                                          = 364,  // Not used in 4.3.4
     SPELL_AURA_MAX_FAR_CLIP_PLANE                           = 365,  // Overrides client's View Distance setting to max("Fair", current_setting) and turns off terrain display
-    SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT               = 366,  // NYI - Sets spellpower equal to % of attack power, discarding all other bonuses (from gear and buffs)
+    SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT               = 366,  // Sets spellpower equal to % of attack power, discarding all other bonuses (from gear and buffs)
     SPELL_AURA_367                                          = 367,
     SPELL_AURA_368                                          = 368,  // Not used in 4.3.4
     SPELL_AURA_ENABLE_POWER_BAR_TIMER                       = 369,
@@ -462,7 +462,7 @@ enum AuraType
     SPELL_AURA_402                                          = 402,
     SPELL_AURA_OVERRIDE_SPELL_VISUAL                        = 403,
     SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT              = 404,
-    SPELL_AURA_405                                          = 405,
+    SPELL_AURA_MOD_STAT_GAINED_PCT                          = 405, // Modifies stats gained by a percentage.
     SPELL_AURA_406                                          = 406,
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // NYI
     SPELL_AURA_408                                          = 408,
@@ -473,8 +473,8 @@ enum AuraType
     SPELL_AURA_413                                          = 413,
     SPELL_AURA_414                                          = 414,
     SPELL_AURA_415                                          = 415,
-    SPELL_AURA_416                                          = 416,
-    SPELL_AURA_417                                          = 417,
+    SPELL_AURA_MOD_COOLDOWN_BY_HASTE                        = 416, // Modifies spells cooldowns based on your haste rating
+    SPELL_AURA_MOD_COOLDOWN_BY_HASTE2                       = 417, // Modifies spells cooldowns based on your haste rating 2
     SPELL_AURA_418                                          = 418,
     SPELL_AURA_MOD_BASE_MANA_PCT                            = 419,
     SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,  // NYI

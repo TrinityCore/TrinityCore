@@ -5501,6 +5501,12 @@ void Player::UpdateRating(CombatRating cr)
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
+    AuraEffectList const& modRatingPctGain = GetAuraEffectsByType(SPELL_AURA_MOD_STAT_GAINED_PCT);
+    for (AuraEffectList::const_iterator i = modRatingPctGain.begin(); i != modRatingPctGain.end(); ++i)
+        if ((*i)->GetMiscValue() & (1 << cr))
+            AddPct(amount, (*i)->GetAmount());
+
     if (amount < 0)
         amount = 0;
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
@@ -5558,7 +5564,34 @@ void Player::UpdateRating(CombatRating cr)
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
+        {
+            float hastePct = GetRatingBonusValue(cr);
+            hastePct += GetTotalAuraModifier(SPELL_AURA_MELEE_SLOW);
+            hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_SPEED_SLOW_ALL);
+            hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE);
+            hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+            hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_2);
+            hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE_3);
+
+            AddPct(hastePct, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_STAT_GAINED_PCT, 1 << cr));
+
+            SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.f / (1.f + (hastePct * 0.01f)));
+
+            AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+            //AuraEffectList const& auraList2 = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE2);
+
+            for (AuraEffectList::const_iterator iter = auraList.begin(); iter != auraList.end(); iter++)
+            {
+                (*iter)->RecalculateAmount();
+            }
+
+            //for (AuraEffectList::const_iterator iter = auraList2.begin(); iter != auraList2.end(); iter++)
+            //{
+            //    (*iter)->RecalculateAmount();
+            //}
+
             break;
+        }
         case CR_AVOIDANCE:
             UpdateAvoidance();
             break;

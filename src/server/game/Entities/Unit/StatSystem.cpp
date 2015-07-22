@@ -534,6 +534,7 @@ void Player::UpdateMastery()
 
     float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
     value += GetRatingBonusValue(CR_MASTERY);
+    AddPct(value, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_STAT_GAINED_PCT, 1 << CR_MASTERY));
     SetFloatValue(PLAYER_MASTERY, value);
 
     ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup()));
@@ -564,8 +565,9 @@ void Player::UpdateMastery()
 
 void Player::UpdateMultistrike()
 {
-    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float value = 0;//GetTotalAuraModifier(SPELL_AURA);
     value += GetRatingBonusValue(CR_MULTISTRIKE);
+    AddPct(value, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_STAT_GAINED_PCT, 1 << CR_MULTISTRIKE));
     SetFloatValue(PLAYER_MULTISTRIKE, value);
 }
 
@@ -642,6 +644,7 @@ void Player::UpdateParryPercentage()
 
         value = value < 0.0f ? 0.0f : value;
     }
+    AddPct(value, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_STAT_GAINED_PCT, 1 << CR_PARRY));
     SetStatFloatValue(PLAYER_PARRY_PERCENTAGE, value);
 }
 

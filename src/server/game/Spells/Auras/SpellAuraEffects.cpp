@@ -465,7 +465,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //402
     &AuraEffect::HandleNULL,                                      //403
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT
-    &AuraEffect::HandleNULL,                                      //405
+    &AuraEffect::HandleAuraModStatGainedPct,                      //405 SPELL_AURA_MOD_STAT_GAINED_PCT
     &AuraEffect::HandleNULL,                                      //406
     &AuraEffect::HandleNULL,                                      //407 SPELL_AURA_MOD_FEAR_2
     &AuraEffect::HandleNULL,                                      //408
@@ -638,6 +638,19 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // custom amount calculations go here
     switch (GetAuraType())
     {
+        case SPELL_AURA_MELEE_SLOW:
+        case SPELL_AURA_MOD_SPEED_SLOW_ALL:
+        case SPELL_AURA_MOD_MELEE_RANGED_HASTE:
+        case SPELL_AURA_MOD_MELEE_RANGED_HASTE_2:
+        case SPELL_AURA_MOD_MELEE_HASTE:
+        case SPELL_AURA_MOD_MELEE_HASTE_2:
+        case SPELL_AURA_MOD_MELEE_HASTE_3:
+            AddPct(amount, caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_STAT_GAINED_PCT, 1 << CR_CRIT_MELEE | 1 << CR_CRIT_RANGED | 1 << CR_CRIT_SPELL));
+            break;
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
+        //case SPELL_AURA_MOD_COOLDOWN_BY_HASTE2:
+            amount = ceil((float(GetEffIndex()) * ((1.f / caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN)) - 1.f)));
+            break;
         // crowd control auras
         case SPELL_AURA_MOD_CONFUSE:
         case SPELL_AURA_MOD_FEAR:
@@ -805,8 +818,12 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
 
 void AuraEffect::CalculateSpellMod()
 {
+    SpellModType type = GetAuraType() == SPELL_AURA_ADD_FLAT_MODIFIER ? SPELLMOD_FLAT : SPELLMOD_PCT;
+
     switch (GetAuraType())
     {
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
+        case SPELL_AURA_MOD_COOLDOWN_BY_HASTE2:
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
@@ -814,7 +831,7 @@ void AuraEffect::CalculateSpellMod()
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
 
-                m_spellmod->type = SpellModType(uint32(GetAuraType())); // SpellModType value == spell aura types
+                m_spellmod->type = type; // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
                 m_spellmod->mask = GetSpellEffectInfo()->SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
@@ -4382,9 +4399,13 @@ void AuraEffect::HandleModMeleeRangedSpeedPct(AuraApplication const* aurApp, uin
     //! ToDo: Haste auras with the same handler _CAN'T_ stack together
     Unit* target = aurApp->GetTarget();
 
+    target->ApplyCastTimePercentMod(float(m_amount), apply);
     target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), apply);
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), apply);
+
+    if (Player* player = target->ToPlayer())
+        player->UpdateRating(CR_HASTE_MELEE);
 }
 
 void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4408,6 +4429,9 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
     target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, float(GetAmount()), apply);
+
+    if (Player* player = target->ToPlayer())
+        player->UpdateRating(CR_HASTE_MELEE);
 }
 
 void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4439,6 +4463,9 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
     }
     target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK,  float(GetAmount()), apply);
+
+    if (Player* player = target->ToPlayer())
+        player->UpdateRating(CR_HASTE_MELEE);
 }
 
 void AuraEffect::HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6702,4 +6729,22 @@ void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, u
 
     if (Player* player = aurApp->GetTarget()->ToPlayer())
         player->SendSpellCategoryCooldowns();
+}
+
+void AuraEffect::HandleAuraModStatGainedPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* player = GetCaster()->ToPlayer();
+
+    if (!player)
+        return;
+
+    for (int i = 0; i < MAX_COMBAT_RATING; i++)
+        if (GetMiscValue() & (1 << i))
+            player->UpdateRating(static_cast<CombatRating>(i));
+
+    if (GetMiscValue() & (1 << CR_HASTE_MELEE | 1 << CR_HASTE_RANGED | 1 << CR_HASTE_SPELL))
+        player->RecalculateAttackAndCastTime();
 }

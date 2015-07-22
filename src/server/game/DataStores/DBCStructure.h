@@ -1609,12 +1609,6 @@ struct WorldSafeLocsEntry
     //char*         AreaName_lang;                          // 6
 };
 
-struct gtItemSocketCostPerLevelEntry
-{
-    uint32 level;
-    float cost;
-};
-
 /*
 struct WorldStateSounds
 {
