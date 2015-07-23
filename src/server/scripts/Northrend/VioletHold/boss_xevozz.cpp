@@ -220,14 +220,14 @@ public:
                     DoCast(SPELL_SUMMON_ETHEREAL_SPHERE_2);
                     break;
                 case EVENT_SUMMON_PLAYERS:
-				{
-					Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE, 150.0f);
-					if (!sphere)
-						sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE2, 150.0f);
-					if (sphere)
-						sphere->GetAI()->DoAction(ACTION_SUMMON);
-					break;
-				}
+                {
+                    Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE, 150.0f);
+                    if (!sphere)
+                        sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE2, 150.0f);
+                    if (sphere)
+                        sphere->GetAI()->DoAction(ACTION_SUMMON);
+                    break;
+                }
                 default:
                     break;
             }
