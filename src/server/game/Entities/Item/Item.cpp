@@ -1873,7 +1873,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
     }
 }
 
-float Item::GetScalingDamageValue(ItemTemplate const* proto, uint32 itemLevel)
+float Item::GetScalingDamageValue(ItemTemplate const* proto, uint32 itemLevel) const
 {
     uint32 quality = proto->GetQuality();
 
@@ -1884,109 +1884,110 @@ float Item::GetScalingDamageValue(ItemTemplate const* proto, uint32 itemLevel)
 
     switch (proto->GetInventoryType())
     {
-    case INVTYPE_WEAPON:
-    case INVTYPE_WEAPONMAINHAND:
-    case INVTYPE_WEAPONOFFHAND:
-        if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-        {
-            damageEntry = sItemDamageOneHandCasterStore.LookupEntry(itemLevel);
-            break;
-        }
-        damageEntry = sItemDamageOneHandStore.LookupEntry(itemLevel);
-        break;
-    case INVTYPE_RANGED:
-    case INVTYPE_THROWN:
-    case INVTYPE_RANGEDRIGHT:
-        if (proto->GetSubClass() < 4)
-        {
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
             if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
             {
-                damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(itemLevel);
+                damageEntry = sItemDamageOneHandCasterStore.LookupEntry(itemLevel);
                 break;
             }
-            damageEntry = sItemDamageTwoHandStore.LookupEntry(itemLevel);
+            damageEntry = sItemDamageOneHandStore.LookupEntry(itemLevel);
             break;
-        }
-        else if (proto->GetSubClass() == 19)
-        {
-            damageEntry = sItemDamageOneHandCasterStore.LookupEntry(itemLevel);
-            break;
-        }
-        else
-        {
-            if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+        case INVTYPE_RANGED:
+        case INVTYPE_THROWN:
+        case INVTYPE_RANGEDRIGHT:
             {
-                damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(itemLevel);
+                if (proto->GetSubClass() < 4)
+                {
+                    if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+                    {
+                        damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(itemLevel);
+                        break;
+                    }
+                    damageEntry = sItemDamageTwoHandStore.LookupEntry(itemLevel);
+                    break;
+                }
+                if (proto->GetSubClass() == 19)
+                {
+                    damageEntry = sItemDamageOneHandCasterStore.LookupEntry(itemLevel);
+                    break;
+                }
+                if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+                {
+                    damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(itemLevel);
+                    break;
+                }
+                damageEntry = sItemDamageTwoHandStore.LookupEntry(itemLevel);
                 break;
             }
-            damageEntry = sItemDamageTwoHandStore.LookupEntry(itemLevel);
-            break;
-        }
     case INVTYPE_AMMO:
-        damageEntry = sItemDamageAmmoStore.LookupEntry(itemLevel);
-        break;
-    case INVTYPE_2HWEAPON:
-        if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-        {
-            damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(itemLevel);
+            damageEntry = sItemDamageAmmoStore.LookupEntry(itemLevel);
             break;
-        }
-        damageEntry = sItemDamageTwoHandStore.LookupEntry(itemLevel);
-        break;
-    default:
-        break;
+        case INVTYPE_2HWEAPON:
+            if (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+            {
+                damageEntry = sItemDamageTwoHandCasterStore.LookupEntry(itemLevel);
+                break;
+            }
+            damageEntry = sItemDamageTwoHandStore.LookupEntry(itemLevel);
+            break;
+        default:
+            break;
     }
     return damageEntry ? damageEntry->DPS[quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : quality] : 0.f;
 }
 
-uint32 Item::GetRandomPointsOffset(ItemTemplate const* proto)
+uint32 Item::GetRandomPointsOffset(ItemTemplate const* proto) const
 {
     if (!proto)
         return 0;
 
     switch (proto->GetInventoryType())
     {
-    case INVTYPE_NECK:
-    case INVTYPE_WRISTS:
-    case INVTYPE_FINGER:
-    case INVTYPE_SHIELD:
-    case INVTYPE_CLOAK:
-    case INVTYPE_HOLDABLE:
-        return 2;
-    case INVTYPE_SHOULDERS:
-    case INVTYPE_WAIST:
-    case INVTYPE_FEET:
-    case INVTYPE_HANDS:
-    case INVTYPE_TRINKET:
-        return 1;
-    case INVTYPE_WEAPON:
-    case INVTYPE_WEAPONMAINHAND:
-    case INVTYPE_WEAPONOFFHAND:
-        return 3;
-    case INVTYPE_RANGEDRIGHT:
-        return 3 * (proto->GetSubClass() == 19 ? 1 : 0);
-    case INVTYPE_RELIC:
-        return 4;
-    case INVTYPE_HEAD:
-    case INVTYPE_BODY:
-    case INVTYPE_CHEST:
-    case INVTYPE_LEGS:
-    case INVTYPE_RANGED:
-    case INVTYPE_2HWEAPON:
-    case INVTYPE_ROBE:
-    case INVTYPE_THROWN:
-        return 0;
-    default:
-        return -1;
+        case INVTYPE_NECK:
+        case INVTYPE_WRISTS:
+        case INVTYPE_FINGER:
+        case INVTYPE_SHIELD:
+        case INVTYPE_CLOAK:
+        case INVTYPE_HOLDABLE:
+            return 2;
+        case INVTYPE_SHOULDERS:
+        case INVTYPE_WAIST:
+        case INVTYPE_FEET:
+        case INVTYPE_HANDS:
+        case INVTYPE_TRINKET:
+            return 1;
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+            return 3;
+        case INVTYPE_RANGEDRIGHT:
+            return 3 * (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_WAND ? 1 : 0);
+        case INVTYPE_RELIC:
+            return 4;
+        case INVTYPE_HEAD:
+        case INVTYPE_BODY:
+        case INVTYPE_CHEST:
+        case INVTYPE_LEGS:
+        case INVTYPE_RANGED:
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_ROBE:
+        case INVTYPE_THROWN:
+            return 0;
+        default:
+            return -1;
     }
 }
 
 uint32 Item::CalculateScalingStatGTValue(ItemTemplate const* proto, uint32 itemLevel)
 {
+    Item* item = nullptr;
+
     if (!proto)
         return 0;
 
-    uint32 offset = GetRandomPointsOffset(proto);
+    uint32 offset = item->GetRandomPointsOffset(proto);
     if (offset == -1)
         return 0;
 
@@ -1997,19 +1998,19 @@ uint32 Item::CalculateScalingStatGTValue(ItemTemplate const* proto, uint32 itemL
 
     switch (proto->GetQuality())
     {
-    case ITEM_QUALITY_UNCOMMON:
-        return randProperty->UncommonPropertiesPoints[offset];
-    case ITEM_QUALITY_RARE:
-        return randProperty->RarePropertiesPoints[offset];
-    case ITEM_QUALITY_EPIC:
-    case ITEM_QUALITY_HEIRLOOM:
-        return randProperty->EpicPropertiesPoints[offset];
-    default:
-        return 0;
+        case ITEM_QUALITY_UNCOMMON:
+            return randProperty->UncommonPropertiesPoints[offset];
+        case ITEM_QUALITY_RARE:
+            return randProperty->RarePropertiesPoints[offset];
+        case ITEM_QUALITY_EPIC:
+        case ITEM_QUALITY_HEIRLOOM:
+            return randProperty->EpicPropertiesPoints[offset];
+        default:
+            return 0;
     }
 }
 
-float Item::GetSocketCost(uint32 itemLevel)
+float Item::GetSocketCost(uint32 itemLevel) const
 {
     GtItemSocketCostPerLevelEntry const* socket = sGtItemSocketCostPerLevelStore.EvaluateTable(itemLevel - 1, 0);
     return socket ? socket->ratio : 0.f;
@@ -2017,7 +2018,9 @@ float Item::GetSocketCost(uint32 itemLevel)
 
 uint32 Item::CalculateStatScaling(ItemTemplate const* proto, uint32 index, uint32 itemLevel)
 {
-    return floor(((static_cast<float>(proto->GetStatScalingFactor()) * static_cast<float>(CalculateScalingStatGTValue(proto, itemLevel)) * 0.000099999997f) - (GetSocketCost(itemLevel) * proto->GetItemStatSocketCostMultiplier(index))) + 0.5f);
+    Item* item = nullptr;
+
+    return floor(((static_cast<float>(proto->GetStatScalingFactor()) * static_cast<float>(CalculateScalingStatGTValue(proto, itemLevel)) * 0.000099999997f) - (item->GetSocketCost(itemLevel) * proto->GetItemStatSocketCostMultiplier(index))) + 0.5f);
 }
 
 uint32 Item::CalculateArmorScaling(ItemTemplate const* proto, uint32 itemLevel)
@@ -2030,28 +2033,29 @@ uint32 Item::CalculateArmorScaling(ItemTemplate const* proto, uint32 itemLevel)
 
     if (proto->GetClass() != ITEM_CLASS_ARMOR || proto->GetClass() != ITEM_SUBCLASS_ARMOR_SHIELD)
     {
-        if (inventoryType == 1 || inventoryType == 5 || inventoryType == 3 || inventoryType == 7 || inventoryType == 8 || inventoryType == 9 || inventoryType == 10 || inventoryType == 6 || inventoryType == 16 || inventoryType == 20)
+        if (inventoryType == INVTYPE_HEAD || inventoryType == INVTYPE_CHEST || inventoryType == INVTYPE_SHOULDERS || inventoryType == INVTYPE_LEGS || inventoryType == 8
+            || inventoryType == INVTYPE_FEET || inventoryType == INVTYPE_WRISTS || inventoryType == INVTYPE_HANDS || inventoryType == INVTYPE_CLOAK || inventoryType == INVTYPE_ROBE)
         {
             ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(itemLevel);
             ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(itemLevel);
-            ArmorLocationEntry const* armorLoc = sArmorLocationStore.LookupEntry(inventoryType == 20 ? 5 : inventoryType);
+            ArmorLocationEntry const* armorLoc = sArmorLocationStore.LookupEntry(inventoryType == INVTYPE_ROBE ? INVTYPE_CHEST : inventoryType);
 
-            if (proto->GetSubClass() == 0 || proto->GetSubClass() > 4)
+            if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_AXE || proto->GetSubClass() > ITEM_SUBCLASS_WEAPON_MACE)
                 return 0.0f;
 
             return int(floor(armorQuality->QualityMod[quality] * armorTotal->Value[proto->GetSubClass() - 1] * armorLoc->Modifier[proto->GetSubClass() - 1] + 0.5f));
         }
         return 0;
     }
-    else
-    {
-        ItemArmorShieldEntry const* shieldEntry = sItemArmorShieldStore.LookupEntry(itemLevel);
-        return shieldEntry->Quality[quality];
-    }
+
+    ItemArmorShieldEntry const* shieldEntry = sItemArmorShieldStore.LookupEntry(itemLevel);
+    return shieldEntry->Quality[quality];
 }
 
 void Item::CalculateMinMaxDamageScaling(ItemTemplate const* proto, uint32 itemLevel, uint32& minDamage, uint32& maxDamage)
 {
+    Item* item = nullptr;
+
     minDamage = 0;
     maxDamage = 0;
 
@@ -2061,14 +2065,14 @@ void Item::CalculateMinMaxDamageScaling(ItemTemplate const* proto, uint32 itemLe
     if (!proto->IsWeapon())
         return;
 
-    float weaponMinDamageCalc = float(proto->GetDelay()) * GetScalingDamageValue(proto, itemLevel) * 0.001f;
+    float weaponMinDamageCalc = float(proto->GetDelay()) * item->GetScalingDamageValue(proto, itemLevel) * 0.001f;
     float weaponMaxDamageCalc = (((proto->GetStatScalingFactor() * 0.5f) + 1.f) * weaponMinDamageCalc) + 0.5f;
 
     if (proto->GetDelay() != 0)
     {
-        float delayModifier = 1000.0f / float(proto->GetDelay());
+        float delayModifier = 1000.0f / proto->GetDelay();
         float midCalc = (delayModifier * ((1.f - (proto->GetStatScalingFactor() * 0.5f)) * weaponMinDamageCalc)) + proto->GetArmorDamageModifier();
-        midCalc = midCalc > 1.f ? midCalc : 1.f;
+        midCalc = std::max(midCalc, 1.f);
         float delayCoeff = 1.f / delayModifier;
         minDamage = floor((delayCoeff * midCalc) + 0.5f);
         maxDamage = floor((delayCoeff * ((delayModifier * weaponMaxDamageCalc) + proto->GetArmorDamageModifier())) + 0.5f);

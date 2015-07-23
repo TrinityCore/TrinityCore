@@ -12935,56 +12935,6 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
     }
 }
 
-void Unit::RecalculateAttackAndCastTime()
-{
-    Player* player = ToPlayer();
-
-    if (!player)
-        return;
-
-    SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.f);
-    SetFloatValue(UNIT_MOD_CAST_SPEED, 1.f);
-    SetFloatValue(UNIT_MOD_CAST_HASTE, 1.f);
-
-    for (int i = 0; i < 3; i++)
-    {
-        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND + i))
-            SetFloatValue(UNIT_FIELD_BASEATTACKTIME + i, item->GetTemplate()->GetDelay());
-        else
-            SetFloatValue(UNIT_FIELD_BASEATTACKTIME + i, 2000.f);
-        m_modAttackSpeedPct[i] = 1.f;
-    }
-
-    float val = ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN)) - 1.f) * 100.f;
-
-    for (int i = 0; i < 3; i++)
-        ApplyAttackTimePercentMod(static_cast<WeaponAttackType>(i), val, true);
-
-    ApplyCastTimePercentMod(val, true);
-
-    ApplyCastTimePercentMod(GetTotalAuraModifier(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK) + GetTotalAuraModifier(SPELL_AURA_HASTE_SPELLS), true);
-    ApplyAttackTimePercentMod(BASE_ATTACK, GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKSPEED), true);
-    ApplyAttackTimePercentMod(RANGED_ATTACK, GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_HASTE) + GetTotalAuraModifier(SPELL_AURA_HASTE_RANGED) + GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_HASTE_2), true);
-
-    UpdateDamagePhysical(BASE_ATTACK);
-    UpdateDamagePhysical(OFF_ATTACK);
-    UpdateDamagePhysical(RANGED_ATTACK);
-
-    AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-    //AuraEffectList const& auraList2 = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE2);
-
-    for (AuraEffectList::const_iterator iter = auraList.begin(); iter != auraList.end(); iter++)
-    {
-        (*iter)->RecalculateAmount();
-    }
-
-    //for (AuraEffectList::const_iterator iter = auraList2.begin(); iter != auraList2.end(); iter++)
-    //{
-    //    (*iter)->RecalculateAmount();
-    //}
-}
-
 uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const
 {
     // Not apply this to creature cast spells with casttime == 0
