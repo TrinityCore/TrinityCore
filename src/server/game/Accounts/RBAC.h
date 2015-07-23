@@ -923,7 +923,7 @@ class RBACData
          */
         void CalculateNewPermissions();
 
-        int32 GetRealmId() { return _realmId; }
+        int32 GetRealmId() const { return _realmId; }
 
         // Auxiliar private functions - defined to allow to maintain same code even
         // if internal structure changes.

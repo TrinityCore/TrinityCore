@@ -73,7 +73,7 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
             : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
         ~ChaseMovementGenerator() { }
 
-        MovementGeneratorType GetMovementGeneratorType() { return CHASE_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -97,7 +97,7 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
             : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
         ~FollowMovementGenerator() { }
 
-        MovementGeneratorType GetMovementGeneratorType() { return FOLLOW_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
