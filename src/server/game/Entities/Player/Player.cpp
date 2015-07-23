@@ -3812,7 +3812,8 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                     continue;
 
                 ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || (pSkill->id == SKILL_LOCKPICKING && _spell_idx->second->max_value == 0))
+                // Also added for runeforging. It's already confirmed this happens upon learning for Death Knights, not from character creation.
+                if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
                     LearnDefaultSkill(pSkill->id, 0);
 
                 if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
