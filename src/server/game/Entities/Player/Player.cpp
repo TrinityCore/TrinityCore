@@ -24520,22 +24520,24 @@ void Player::ConvertRune(uint8 index, RuneType newType)
 {
     SetCurrentRune(index, newType);
 
-    WorldPacket data(SMSG_CONVERT_RUNE, 2);
-    data << uint8(index);
-    data << uint8(newType);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Spells::ConvertRune data;
+    data.Index = index;
+    data.Rune = newType;
+    GetSession()->SendPacket(data.Write());
 }
 
 void Player::ResyncRunes(uint8 count)
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data << uint32(count);
+    WorldPackets::Spells::ResyncRunes data(count);
+
     for (uint32 i = 0; i < count; ++i)
     {
-        data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        WorldPackets::Spells::ResyncRunes::ResyncRune rune;
+        rune.RuneType = GetCurrentRune(i);                         // rune type
+        rune.Cooldown = uint8(255 - (GetRuneCooldown(i) * 51));    // passed cooldown time (0-255)
+        data.Runes.push_back(rune);
     }
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(data.Write());
 }
 
 void Player::AddRunePower(uint8 index)
