@@ -749,6 +749,33 @@ namespace WorldPackets
             ObjectGuid SpellClickUnitGuid;
             bool TryAutoDismount = false;
         };
+
+        class ConvertRune final : public ServerPacket
+        {
+        public:
+            ConvertRune() : ServerPacket(SMSG_CONVERT_RUNE, 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Index = 0;
+            uint8 Rune = 0;
+        };
+
+        class ResyncRunes final : public ServerPacket
+        {
+        public:
+            struct ResyncRune
+            {
+                uint8 RuneType = 0;
+                uint8 Cooldown = 0;
+            };
+
+            ResyncRunes(size_t size) : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * size) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ResyncRune> Runes;
+        };
     }
 }
 
