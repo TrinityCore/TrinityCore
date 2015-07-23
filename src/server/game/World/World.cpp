@@ -1294,6 +1294,19 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Creature.Zone.Area.Data", false);
     m_bool_configs[CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Gameoject.Zone.Area.Data", false);
 
+    // Pooling Configuration
+    m_bool_configs[CONFIG_POOL_INIT_STATE] = sConfigMgr->GetBoolDefault("Pool.InitState", false);
+    m_bool_configs[CONFIG_POOL_LOOT_RESET_CORPSE_DECAY] = sConfigMgr->GetBoolDefault("Pool.LootResetCorpseDecay", true);
+    m_bool_configs[CONFIG_POOL_STOP_ON_INVALID_CONFIG] = sConfigMgr->GetBoolDefault("Pool.StopOnInvalidConfig", false);
+    m_bool_configs[CONFIG_POOL_REUSE_GUIDS] = sConfigMgr->GetBoolDefault("Pool.ReuseGuids", false);
+
+    m_int_configs[CONFIG_POOL_DEFAULT_CREATURE_RESPAWN] = sConfigMgr->GetIntDefault("Pool.DefaultCreatureRespawn", 900);
+    m_int_configs[CONFIG_POOL_DEFAULT_CORPSE_DECAY_LOOT] = sConfigMgr->GetIntDefault("Pool.DefaultCorpseDecay.Loot", 300);
+    m_int_configs[CONFIG_POOL_DEFAULT_CORPSE_DECAY_NOLOOT] = sConfigMgr->GetIntDefault("Pool.DefaultCorpseDecay.NoLoot", 120);
+    m_int_configs[CONFIG_POOL_DEFAULT_GAMEOBJECT_RESPAWN] = sConfigMgr->GetIntDefault("Pool.DefaultGameobjectRespawn", 900);
+    m_int_configs[CONFIG_POOL_FAST_RESPAWN_WAIT] = sConfigMgr->GetIntDefault("Pool.FastRespawnWait", 5);
+    m_int_configs[CONFIG_POOL_UPDATE_RATE] = sConfigMgr->GetIntDefault("Pool.UpdateTimer", 5);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -1807,6 +1820,9 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*MINUTE*IN_MILLISECONDS);    // Mysql ping time in minutes
 
+    // New Pooling
+    m_timers[WUPDATE_NEWPOOL].SetInterval(getIntConfig(CONFIG_POOL_UPDATE_RATE) * IN_MILLISECONDS);
+
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
@@ -2068,6 +2084,13 @@ void World::Update(uint32 diff)
     {
         sAuctionBot->Update();
         m_timers[WUPDATE_AHBOT].Reset();
+    }
+
+    // Trigger New pool update
+    if (m_timers[WUPDATE_NEWPOOL].Passed())
+    {
+        sPoolMgr->UpdateNewPool(diff);
+        m_timers[WUPDATE_NEWPOOL].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed

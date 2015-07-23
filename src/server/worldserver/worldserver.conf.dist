@@ -3361,3 +3361,101 @@ PacketSpoof.BanDuration = 86400
 
 #
 ###################################################################################################
+
+###################################################################################################
+# POOL SYSTEM SETTINGS
+#
+# These settings control various aspects of the creature/gameobject pooling functionality.
+#
+#     Pool.InitState (NYI)
+#         Description: Specifies whether pools should be initialized fresh on restart
+#         Note:        Grid unload/reload will be affected (only for pooled objects)
+#         Default:     0 - Pooled objects will be reset to their initial state on server start
+#                      1 - Pooled object state will be loaded from grid tables
+
+Pool.InitState = 0
+
+#
+#    Pool.DefaultCreatureRespawn
+#         Description: Specifies default respawn time in seconds for creatures in a pool
+#         Note:        Applies to pools where number of creatures is above minimum, but below maximum spawns
+#                      Setting can be overridden in database
+#         Default:     900 (15min)
+
+Pool.DefaultCreatureRespawn = 900
+
+#
+#    Pool.DefaultCorpseDecay.Loot
+#         Description: Defines the amount of time in seconds a corpose will remain while unlooted
+#         Note:        This is longer than for looted, to allow players time to collect loot.
+#                      Setting can be overridden in database
+#         Default:     300 (5min)
+
+Pool.DefaultCorpseDecay.Loot = 300
+
+#
+#    Pool.DefaultCorpseDecay.NoLoot
+#         Description: Defines the amount of time in seconds a corpose will remain once looted
+#         Note:        This is less time than for an unlooted corpse, to prevent clutter
+#                      Setting can be overridden in database
+#         Default:     120 (2min)
+
+Pool.DefaultCorpseDecay.NoLoot = 120
+
+#
+#    Pool.LootResetCorpseDecay
+#         Description: Defines whether the loot decay time is reset if a player loots the corpse
+#         Note:        This appears to be correct behaviour, but is configurable nonetheless
+#         Default:     1 - Reset the loot decay time upon corpse loot
+#                      0 - Decay time will keep ticking even if corpse is looted
+
+Pool.LootResetCorpseDecay = 1
+
+#
+#    Pool.DefaultGameobjectRespawn (NYI)
+#         Description: Specifies default respawn time in seconds for game objects in a pool
+#         Note:        Applies to pools where number of game objects is above minimum, but below maximum spawns
+#                      Setting can be overridden in database
+#         Default:     900 (15min)
+
+Pool.DefaultGameobjectRespawn = 900
+
+#
+#    Pool.FastRespawnWait
+#         Description: Specifies the number of seconds between creature death/game object despawn and the expedited respawn
+#         Note:        Applies to pools where number of creatures/objects is below minimum
+#         Default:     5 (5 sec)
+
+Pool.FastRespawnWait = 5
+
+#
+#    Pool.UpdateTimer
+#         Description: Specifies the number of seconds between update cycles for pooling
+#         Note:        All pooling updates (spawns/despawns) will only happen at intervals of this number of seconds.
+#         Default:     5 (5 sec)
+
+Pool.UpdateTimer = 5
+
+#    Pool.StopOnInvalidConfig
+#         Description: Specifies whether the core should stop loading when a pooling configuration error is encountered
+#         Note:        Warnings will be shown in the appropriate logging channel regardless
+#         Default:     0 - Warnings will be shown but loading will continue
+#                      1 - Error will be shown and loading aborted
+#
+
+Pool.StopOnInvalidConfig = 0
+
+#    Pool.ReuseGuids
+#         Description: Specifies whether old guids should be reused. Once creatures are despawned the guid can be made available for use.
+#         Note:        If set to 1, there is a chance that when a creature guid is re-used near a player 
+#                      the player will see a level up, if the guid is reused with a creature of a different
+#                      level in their sight. There is a very large pool of GUIDs. It would take quite some time to
+#                      use them all. Restarting most servers weekly would be more than enough.
+#         Default      0 - GUIDs will not be reused and dynamic IDs used until exhausted.
+#                      1 - GUIDs will be re-used by the pooling system once creature is despawned
+#
+
+Pool.ReuseGuids = 0
+
+#
+###################################################################################################

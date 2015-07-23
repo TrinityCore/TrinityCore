@@ -237,6 +237,9 @@ void Creature::RemoveCorpse(bool setSpawnTime)
     if (IsAIEnabled)
         AI()->CorpseRemoved(respawnDelay);
 
+    // Despawn if pooled creature
+    sPoolMgr->HandleDespawn(GetGUIDLow());
+
     // Should get removed later, just keep "compatibility" with scripts
     if (setSpawnTime)
         m_respawnTime = time(NULL) + respawnDelay;
@@ -755,23 +758,34 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, 
         return false;
     }
 
-    switch (GetCreatureTemplate()->rank)
+    uint32 pool_id = sPoolMgr->IsPoolCreature(guidlow);
+    if (pool_id != 0)
     {
-        case CREATURE_ELITE_RARE:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE);
-            break;
-        case CREATURE_ELITE_ELITE:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_ELITE);
-            break;
-        case CREATURE_ELITE_RAREELITE:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RAREELITE);
-            break;
-        case CREATURE_ELITE_WORLDBOSS:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_WORLDBOSS);
-            break;
-        default:
-            m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_NORMAL);
-            break;
+        PoolCreatureInfo* creatureinfo = sPoolMgr->GetCreatureInfo(pool_id, guidlow);
+
+        if (creatureinfo)
+            m_corpseDelay = creatureinfo->corpsetimeloot;
+    }
+    else
+    {
+        switch (GetCreatureTemplate()->rank)
+        {
+            case CREATURE_ELITE_RARE:
+                m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE);
+                break;
+            case CREATURE_ELITE_ELITE:
+                m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_ELITE);
+                break;
+            case CREATURE_ELITE_RAREELITE:
+                m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RAREELITE);
+                break;
+            case CREATURE_ELITE_WORLDBOSS:
+                m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_WORLDBOSS);
+                break;
+            default:
+                m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_NORMAL);
+                break;
+        }
     }
 
     LoadCreaturesAddon();
@@ -1191,9 +1205,54 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const*
     return true;
 }
 
+// Obtain a creature data pointer, from a pooled spawn
+CreatureData const* GetCreatureDataFromPool(uint32 pool_id, uint32 guid)
+{
+    CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
+    PoolCreatureInfo* creatureinfo = sPoolMgr->GetCreatureInfo(pool_id, guid);
+    PoolSpawnPoints* spawnpoint = sPoolMgr->GetCreatureSpawn(pool_id, guid);
+
+    if (creatureinfo && spawnpoint)
+    {
+
+        // Copy data from structures into Creature data
+        data.id = creatureinfo->creature_id;
+        data.mapid = spawnpoint->mapid;
+        data.phaseMask = creatureinfo->phaseMask;
+        data.displayid = creatureinfo->displayid;
+        data.equipmentId = creatureinfo->equipmentId;
+        data.posX = spawnpoint->posX;
+        data.posY = spawnpoint->posY;
+        data.posZ = spawnpoint->posZ;
+        data.orientation = spawnpoint->orientation;
+        data.spawntimesecs = creatureinfo->spawntimesecs;
+        data.spawndist = creatureinfo->spawndist;
+        data.currentwaypoint = creatureinfo->currentwaypoint;
+        data.curhealth = creatureinfo->curhealth;
+        data.curmana = creatureinfo->curmana;
+        data.movementType = creatureinfo->movementType;
+        data.spawnMask = creatureinfo->spawnMask;
+        data.npcflag = creatureinfo->npcflag;
+        data.unit_flags = creatureinfo->unit_flags;
+        data.dynamicflags = creatureinfo->dynamicflags;
+        data.dbData = false;
+        return &data;
+    }
+    data.id = 0;
+    return &data;
+}
+
 bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
 {
-    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+    // Get pool ID if creature is in dynamic pool
+    uint32 pool_id = sPoolMgr->IsPoolCreature(guid);
+    CreatureData const* data;
+
+    // Load from DB if not, if so, get data from pool object
+    if (pool_id == 0)
+        data = sObjectMgr->GetCreatureData(guid);
+    else
+        data = GetCreatureDataFromPool(pool_id, guid);
 
     if (!data)
     {
@@ -1496,6 +1555,8 @@ void Creature::setDeathState(DeathState s)
 
         if ((CanFly() || IsFlying()))
             GetMotionMaster()->MoveFall();
+
+        sPoolMgr->HandleCreatureDeath(GetGUIDLow());
 
         Unit::setDeathState(CORPSE);
     }
@@ -2219,7 +2280,22 @@ void Creature::AllLootRemovedFromCorpse()
     if (loot.loot_type == LOOT_SKINNING)
         m_corpseRemoveTime = now;
     else
-        m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);
+    {
+        uint32 guidlow = GetGUIDLow();
+        uint32 pool_id = sPoolMgr->IsPoolCreature(guidlow);
+
+        // For pooled creatures, reduce time to noloot timer once looted
+        if (pool_id != 0)
+        {
+            PoolCreatureInfo* creatureinfo = sPoolMgr->GetCreatureInfo(pool_id, guidlow);
+            if (creatureinfo)
+                m_corpseRemoveTime = now + creatureinfo->corpsetimenoloot;
+            else
+                m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);
+        }
+        else
+            m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);
+    }
 
     m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
 }
@@ -2634,6 +2710,21 @@ void Creature::ReleaseFocus(Spell const* focusSpell)
 
     if (focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
         ClearUnitState(UNIT_STATE_ROTATING);
+}
+
+void Creature::ResetLootTimer()
+{
+    uint32 guidlow = GetGUIDLow();
+    uint32 pool_id = sPoolMgr->IsPoolCreature(guidlow);
+    if (pool_id != 0)
+    {
+        PoolCreatureInfo* creatureinfo = sPoolMgr->GetCreatureInfo(pool_id, guidlow);
+        if (creatureinfo)
+        {
+            time_t now = time(NULL);
+            m_corpseRemoveTime = now + creatureinfo->corpsetimeloot;
+        }
+    }
 }
 
 void Creature::StartPickPocketRefillTimer()

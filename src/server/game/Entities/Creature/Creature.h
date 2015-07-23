@@ -537,6 +537,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;
+        void ResetLootTimer();
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
         bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(NULL); }

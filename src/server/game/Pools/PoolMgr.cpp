@@ -21,6 +21,7 @@
 #include "ObjectMgr.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "World.h"
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
@@ -125,11 +126,62 @@ void ActivePoolData::RemoveObject<Quest>(uint32 quest_id, uint32 pool_id)
 }
 
 ////////////////////////////////////////////////////////////
+// class NewActivePoolData
+
+// Method that tell amount spawned objects/subpools
+uint32 NewActivePoolData::GetActiveObjectCount(uint32 pool_id) const
+{
+    ActivePoolPools::const_iterator itr = mNewSpawnedPools.find(pool_id);
+    return itr != mNewSpawnedPools.end() ? itr->second : 0;
+}
+
+// Method that tell if a creature is spawned currently
+bool NewActivePoolData::IsActiveCreature(uint32 guid) const
+{
+    return mNewSpawnedCreatures.find(guid) != mNewSpawnedCreatures.end();
+}
+
+// Method that tell if a gameobject is spawned currently
+bool NewActivePoolData::IsActiveGameObject(uint32 guid) const
+{
+    return mNewSpawnedGameobjects.find(guid) != mNewSpawnedGameobjects.end();
+}
+
+void NewActivePoolData::ActivateCreature(uint32 guid, uint32 pool_id)
+{
+    mNewSpawnedCreatures.insert(guid);
+    ++mNewSpawnedPools[pool_id];
+}
+
+void NewActivePoolData::ActivateGameObject(uint32 guid, uint32 pool_id)
+{
+    mNewSpawnedGameobjects.insert(guid);
+    ++mNewSpawnedPools[pool_id];
+}
+
+void NewActivePoolData::RemoveCreature(uint32 guid, uint32 pool_id)
+{
+    mNewSpawnedCreatures.erase(guid);
+    uint32& val = mNewSpawnedPools[pool_id];
+    if (val > 0)
+        --val;
+}
+
+void NewActivePoolData::RemoveGameObject(uint32 guid, uint32 pool_id)
+{
+    mNewSpawnedGameobjects.erase(guid);
+    uint32& val = mNewSpawnedPools[pool_id];
+    if (val > 0)
+        --val;
+}
+
+
+////////////////////////////////////////////////////////////
 // Methods of template class PoolGroup
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
 template <class T>
-void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
+void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 minentries, uint32 maxentries)
 {
     if (poolitem.chance != 0 && maxentries == 1)
         ExplicitlyChanced.push_back(poolitem);
@@ -312,10 +364,11 @@ void PoolGroup<Pool>::RemoveOneRelation(uint32 child_pool_id)
 }
 
 template <class T>
-void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom)
+void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 minlimit, uint32 maxlimit, uint32 triggerFrom)
 {
     uint32 lastDespawned = 0;
-    int count = limit - spawns.GetActiveObjectCount(poolId);
+    int count = maxlimit - spawns.GetActiveObjectCount(poolId);
+    TC_LOG_DEBUG("pool", "Spawning pool %u. Already active %u max: %u available %lu trying for %u", poolId, spawns.GetActiveObjectCount(poolId), maxlimit, EqualChanced.size() + ExplicitlyChanced.size(), count);
 
     // If triggered from some object respawn this object is still marked as spawned
     // and also counted into m_SpawnedPoolAmount so we need increase count to be
@@ -365,7 +418,7 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
         {
             Creature* creature = new Creature();
-            //TC_LOG_DEBUG("pool", "Spawning creature %u", guid);
+            TC_LOG_DEBUG("pool", "Spawning creature %u", obj->guid);
             if (!creature->LoadCreatureFromDB(obj->guid, map))
             {
                 delete creature;
@@ -435,7 +488,7 @@ void PoolGroup<Quest>::Spawn1Object(PoolObject* obj)
 }
 
 template <>
-void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom)
+void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 minlimit, uint32 maxlimit, uint32 triggerFrom)
 {
     TC_LOG_DEBUG("pool", "PoolGroup<Quest>: Spawning pool %u", poolId);
     // load state from db
@@ -455,8 +508,8 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
                 spawns.ActivateObject<Quest>(questId, poolId);
                 PoolObject tempObj(questId, 0.0f);
                 Spawn1Object(&tempObj);
-                --limit;
-            } while (result->NextRow() && limit);
+                --maxlimit;
+            } while (result->NextRow() && maxlimit);
             return;
         }
     }
@@ -476,14 +529,14 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     DespawnObject(spawns);
 
     // recycle minimal amount of quests if possible count is lower than limit
-    if (limit > newQuests.size() && !currentQuests.empty())
+    if (maxlimit > newQuests.size() && !currentQuests.empty())
     {
         do
         {
             uint32 questId = Trinity::Containers::SelectRandomContainerElement(currentQuests);
             newQuests.insert(questId);
             currentQuests.erase(questId);
-        } while (newQuests.size() < limit && !currentQuests.empty()); // failsafe
+        } while (newQuests.size() < maxlimit && !currentQuests.empty()); // failsafe
     }
 
     if (newQuests.empty())
@@ -497,8 +550,8 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
         PoolObject tempObj(questId, 0.0f);
         Spawn1Object(&tempObj);
         newQuests.erase(questId);
-        --limit;
-    } while (limit && !newQuests.empty());
+        --maxlimit;
+    } while (maxlimit && !newQuests.empty());
 
     // if we are here it means the pool is initialized at startup and did not have previous saved state
     if (!triggerFrom)
@@ -511,7 +564,10 @@ void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
         if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, obj->guid), (Creature*)NULL))
+        {
             creature->GetMap()->AddToMap(creature);
+            TC_LOG_DEBUG("pool", "Respawning creature %u", obj->guid);
+        }
 }
 
 // Method that does the respawn job on the specified gameobject
@@ -532,6 +588,524 @@ template <>
 void PoolGroup<Quest>::ReSpawn1Object(PoolObject* /*obj*/) { }
 
 ////////////////////////////////////////////////////////////
+// Methods of class NewPoolGroup
+
+void NewPoolGroup::AddCreatureEntry(PoolCreatureInfo& poolitem)
+{
+    PoolCreatures.push_back(poolitem);
+}
+
+void NewPoolGroup::AddSpawnEntry(PoolSpawnPoints& poolitem)
+{
+    PoolSpawns.push_back(poolitem);
+}
+
+// For this, we check that if one entry is 0, all are 0. If all don't total 100, all become 0.
+bool NewPoolGroup::CheckPool()
+{
+    if (!PoolCreatures.empty())
+    {
+        bool bZerofound = false;
+        float chance = 0;
+
+        // Create total chance for pool, and also check for zero chance values
+        for (uint32 i = 0; i < PoolCreatures.size(); i++)
+        {
+            if (PoolCreatures[i].chance == 0)
+                bZerofound = true;
+
+            chance += PoolCreatures[i].chance;
+        }
+
+        // If there were no zeroes, but the chance is not 100% exactly, report warning/fail
+        if (!bZerofound && chance != 100)
+        {
+            if (sWorld->getBoolConfig(CONFIG_POOL_STOP_ON_INVALID_CONFIG))
+                return false;
+
+            TC_LOG_WARN("pool", "NEW Pool %u, found total chance %f, must be 0 or 100. Setting all to 0 (equal chance) for this pool", poolId, chance);
+            for (uint32 i = 0; i < PoolCreatures.size(); i++)
+                PoolCreatures[i].chance = 0;
+        }
+        // If there were zeroes found, but also other chance values, report warning/fail
+        else if (bZerofound && chance != 0)
+        {
+            if (sWorld->getBoolConfig(CONFIG_POOL_STOP_ON_INVALID_CONFIG))
+                return false;
+
+            TC_LOG_WARN("pool", "NEW Pool %u, found a zero chance entry with total chance %f, All entries must be 0, or explicit values. Setting all to 0 (equal chance) for this pool", poolId, chance);
+            for (uint32 i = 0; i < PoolCreatures.size(); i++)
+                PoolCreatures[i].chance = 0;
+        }
+    }
+
+    // Populate search maps for spawns
+    if (!PoolSpawns.empty())
+    {
+        PoolFreeSpawns.clear();
+        PoolActiveSpawns.clear();
+
+        for (uint i = 0; i < PoolSpawns.size(); i++)
+        {
+            uint32 guid = PoolSpawns[i].guid;
+            SearchPair p(guid, i);
+            PoolFreeSpawns.insert(p);
+        }
+    }
+
+    // Clear respawn timers
+    Respawns.clear();
+    return true;
+}
+
+PoolCreatureInfo* NewPoolGroup::RollCreature()
+{
+    if (!PoolCreatures.empty())
+    {
+        // Choose a creature entirely at random if first chance we find is 0
+        if (PoolCreatures[0].chance == 0)
+        {
+            int32 index = irand(0, PoolCreatures.size() -1);
+            return &PoolCreatures[index];
+        }
+        // Choose based on chance rating
+        else
+        {
+            int32 index = irand(1, 100);
+            float chance = 0;
+            for (uint i = 0; i < PoolCreatures.size(); i++)
+            {
+                chance += PoolCreatures[i].chance;
+                if ((uint32)chance >= (uint32)index)
+                    return &PoolCreatures[i];
+            }
+        }
+    }
+    return NULL;
+}
+
+PoolSpawnPoints* NewPoolGroup::RollSpawnPoint()
+{
+    if (!PoolSpawns.empty() && !PoolFreeSpawns.empty())
+    {
+        // If there's only one entry left, just return that
+        if (PoolFreeSpawns.size() == 1)
+        {
+            SearchMap::iterator itr = PoolFreeSpawns.begin();
+            return &PoolSpawns[itr->second];
+        }
+
+        // Random element remaining in free spawns
+        int32 index = irand(0, PoolFreeSpawns.size() -1);
+
+        // Iterate to this element
+        SearchMap::iterator itr = PoolFreeSpawns.begin();
+        for (uint i = 0; i < index; i++)
+            ++itr;
+
+        // Return pointer to the spawn structure
+        return &PoolSpawns[itr->second];
+    }
+    return NULL;
+}
+
+void NewPoolGroup::DespawnCreature(NewActivePoolData& spawns, SearchMap& CreatureMap, RespawnPool& RespawnMap, uint32 guid)
+{
+    // Find the index of the creature info for this guid. Exit if not found
+    SearchMap::iterator itrci = CreatureInfoMap.find(guid);
+    if (itrci == CreatureInfoMap.end())
+    {
+        TC_LOG_WARN("pool", "Creature %u not found in Info Map when trying to despawn", guid);
+        return;
+    }
+
+    uint32 creatureidx = itrci->second;
+
+    // Find the guid of the spawn point for this guid. Exit if not found
+    SearchMap::iterator itrsp = CreatureSpawnPoints.find(guid);
+    if (itrsp == CreatureSpawnPoints.end())
+    {
+        TC_LOG_WARN("pool", "Creature %u not found in Spawn Map when trying to despawn", guid);
+        return;
+    }
+
+    uint32 spawnguid = itrsp->second;
+
+    // If we made it here, it's definately in our pool. So, despawn it
+    Despawn1Creature(guid);
+
+    // Delete from creature lookup maps
+    CreatureInfoMap.erase(itrci);
+    CreatureSpawnPoints.erase(itrsp);
+
+    // Find in Creature map, and delete if found
+    SearchMap::iterator itr = CreatureMap.find(guid);
+    if (itr != CreatureMap.end())
+        CreatureMap.erase(itr);
+    else
+        TC_LOG_WARN("pool", "Creature %u, in pool %u expected in creature map, but not found!", guid, poolId);
+
+    TC_LOG_DEBUG("pool", "Despawned %u", guid);
+}
+
+void NewPoolGroup::ClearSpawn(uint32 guid, uint32 minspawns)
+{
+    // Find the guid of the spawn point for this guid. Exit if not found
+    SearchMap::iterator itrsp = CreatureSpawnPoints.find(guid);
+    if (itrsp == CreatureSpawnPoints.end())
+        return;
+
+    uint32 spawnguid = itrsp->second;
+    // Find spawn point in active points
+    SearchMap::iterator itr = PoolActiveSpawns.find(spawnguid);
+    if (itr != PoolActiveSpawns.end())
+    {
+        uint32 spawnidx = itr->second;
+
+        // Delete from active
+        PoolActiveSpawns.erase(itr);
+
+        // Add to free spawns
+        itr = PoolFreeSpawns.find(spawnguid);
+        if (itr == PoolFreeSpawns.end())
+        {
+            SearchPair p(spawnguid, spawnidx);
+            PoolFreeSpawns.insert(p);
+
+            // Add to respawn time
+            SearchMap::iterator itrci = CreatureInfoMap.find(guid);
+            if (itrci != CreatureInfoMap.end())
+            {
+                PoolCreatureInfo* cinfo = &PoolCreatures[itrci->second];
+                time_t respawntime = time(NULL) + cinfo->spawntimesecs;
+                TC_LOG_DEBUG("pool", "Scheduling respawn for %li", respawntime);
+                TimePair tp(respawntime, spawnguid);
+                Respawns.insert(tp);
+
+                // Expedite oldest (after expedite time) entry if less than minimum spawns
+                uint32 currentspawns = PoolSpawnCount();
+                time_t now = time(NULL);
+
+                // Find imminent spawns (between now and the fast spawn time)
+                SpawnTimeMap::iterator nearitr = Respawns.begin();
+                do
+                {
+                    // If we find one coming soon, consider it a current spawn
+                    if (nearitr != Respawns.end() && nearitr->first <= (now + sWorld->getIntConfig(CONFIG_POOL_FAST_RESPAWN_WAIT) + 1))
+                        currentspawns++;
+                    ++nearitr;
+                }
+                while (nearitr != Respawns.end() && nearitr->first <= (now + sWorld->getIntConfig(CONFIG_POOL_FAST_RESPAWN_WAIT) + 1));
+
+                // The difference will ALMOST always be 1. But if can be more, and we should always speed up spawns to match minimum count
+                if (currentspawns < minspawns && !Respawns.empty())
+                {
+                    for (uint i = 0; i < (minspawns - currentspawns); i++)
+                    {
+                        SpawnTimeMap::iterator sitr = Respawns.begin();
+                        do
+                        {
+                            ++sitr;
+                        }
+                        while (sitr != Respawns.end() && sitr->first < (now + sWorld->getIntConfig(CONFIG_POOL_FAST_RESPAWN_WAIT) + 1));
+                        if (sitr != Respawns.end())
+                        {
+                            respawntime = now + sWorld->getIntConfig(CONFIG_POOL_FAST_RESPAWN_WAIT);
+                            SpawnTimeMap::const_iterator itrtmp;
+                            do
+                            {
+                                TimePair tpa(respawntime, sitr->second);
+                                itrtmp = Respawns.find(tpa);
+                                // On the unlikely chance this spawn point already exists at this time, increase spawn time by 1 second and try again.
+                                if (itrtmp != Respawns.end())
+                                    respawntime++;
+                                TC_LOG_DEBUG("pool", "Expediting oldest spawn at point %u, from %li to %li", sitr->second, sitr->first, respawntime);
+                            }
+                            while (itrtmp != Respawns.end());
+                            TimePair tpa(respawntime, sitr->second);
+                            Respawns.insert(tpa);
+                            Respawns.erase(sitr);
+                        }
+                    }
+                }
+            }
+        }
+        else
+            TC_LOG_WARN("pool", "Active spawn guid %u, also in free spawns!", spawnguid);
+    }
+    else
+        TC_LOG_WARN("pool", "Used spawn %u not found in actives!", spawnguid);
+}
+
+void NewPoolGroup::Despawn1Creature(uint32 guid)
+{
+    if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
+    {
+        sObjectMgr->RemoveCreatureFromGrid(guid, data);
+        TC_LOG_DEBUG("pool", "Despawning creature %u", guid);
+
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, guid), (Creature*)NULL))
+            creature->AddObjectToRemoveList();
+    }
+}
+
+void NewPoolGroup::Despawn1GameObject(uint32 guid)
+{
+    if (GameObjectData const* data = sObjectMgr->GetGOData(guid))
+    {
+        sObjectMgr->RemoveGameobjectFromGrid(guid, data);
+
+        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, guid), (GameObject*)NULL))
+            pGameobject->AddObjectToRemoveList();
+    }
+}
+
+void NewPoolGroup::SpawnCreature(NewActivePoolData& spawns, SearchMap& CreatureMap, uint32 minlimit, uint32 maxlimit, FreeGuid& FreeGuids)
+{
+    int count = maxlimit - spawns.GetActiveObjectCount(poolId);
+    uint32 guid;
+    TC_LOG_DEBUG("pool", "Spawning new pool %u. Already active %u max: %u available %lu trying for %u", poolId, spawns.GetActiveObjectCount(poolId), maxlimit, PoolSpawns.size(), count);
+
+    for (int i = 0; i < count; ++i)
+    {
+
+        PoolCreatureInfo* objcrea = RollCreature();
+        PoolSpawnPoints* objspawn = RollSpawnPoint();
+        if (!objcrea || !objspawn)
+        {
+            TC_LOG_WARN("pool", "Failed to create either creature or spawn point during pool %u spawn", poolId);
+            return;
+        }
+        guid = Spawn1Creature(objcrea, objspawn, CreatureMap, FreeGuids);
+        if (guid != 0)
+        {
+            spawns.ActivateCreature(guid, poolId);
+
+        }
+    }
+}
+
+void NewPoolGroup::Respawn1Creature(NewActivePoolData& spawns, SearchMap& CreatureMap, FreeGuid& FreeGuids)
+{
+    uint32 guid;
+    PoolCreatureInfo* objcrea = RollCreature();
+    PoolSpawnPoints* objspawn = RollSpawnPoint();
+    if (!objcrea || !objspawn)
+    {
+        TC_LOG_WARN("pool", "Failed to create either creature or spawn point during pool %u spawn", poolId);
+        return;
+    }
+    guid = Spawn1Creature(objcrea, objspawn, CreatureMap, FreeGuids);
+    if (guid != 0)
+    {
+        spawns.ActivateCreature(guid, poolId);
+    }
+}
+
+uint32 NewPoolGroup::Spawn1Creature(PoolCreatureInfo* creatureinfo, PoolSpawnPoints* spawnpoint, SearchMap& CreatureMap, FreeGuid& FreeGuids)
+{
+    CreatureData data;
+    uint32 guid = 0;
+    if (FreeGuids.empty() || !sWorld->getBoolConfig(CONFIG_POOL_REUSE_GUIDS))
+        guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+    else
+    {
+        // There's guids in the Free GUID store, first we must validate them
+        FreeGuid::reverse_iterator itr = FreeGuids.rbegin();
+        do
+        {
+            if (itr == FreeGuids.rend())
+                break;
+            uint32 tguid = itr->first;
+
+            // If this creature isn't already in the world, we can use the guid
+            Creature* pCreature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, itr->second, tguid), (Creature*)NULL);
+            if (!pCreature && creatureinfo->creature_id != itr->second)
+                guid=tguid;
+
+            // Either way, remove the ID from the list
+            FreeGuids.erase(FreeGuids.find(tguid));
+            ++itr;
+        }
+        while (itr != FreeGuids.rend() && guid == 0);
+
+        // If there were no free guids in the list, take a new one
+        if (guid == 0)
+            guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+        else
+            TC_LOG_DEBUG("pool", "Re-using old guid %u for entry %u", guid, creatureinfo->creature_id);
+    }
+
+    // Copy data from structures into Creature data
+    data.id = creatureinfo->creature_id;
+    data.mapid = spawnpoint->mapid;
+    data.phaseMask = creatureinfo->phaseMask;
+    data.displayid = creatureinfo->displayid;
+    data.equipmentId = creatureinfo->equipmentId;
+    data.posX = spawnpoint->posX;
+    data.posY = spawnpoint->posY;
+    data.posZ = spawnpoint->posZ;
+    data.orientation = spawnpoint->orientation;
+    data.spawntimesecs = creatureinfo->spawntimesecs;
+    data.spawndist = creatureinfo->spawndist;
+    data.currentwaypoint = creatureinfo->currentwaypoint;
+    data.curhealth = creatureinfo->curhealth;
+    data.curmana = creatureinfo->curmana;
+    data.movementType = creatureinfo->movementType;
+    data.spawnMask = creatureinfo->spawnMask;
+    data.npcflag = creatureinfo->npcflag;
+    data.unit_flags = creatureinfo->unit_flags;
+    data.dynamicflags = creatureinfo->dynamicflags;
+    data.dbData = false;
+
+    // Creature and spawn data MUST be added to lookup before LoadCreatureFromDB, since this will call back here!
+    // Add guid / Creature ID/Qualifier pair to Search Map, only if not already present
+    uint32 index = FindCreatureIndex(creatureinfo->creature_id, creatureinfo->creature_qual);
+    if (index != 0xFFFFFFFF)
+    {
+        SearchPair p(guid, index);
+        SearchMap::const_iterator itr = CreatureInfoMap.find(guid);
+        if (itr == CreatureInfoMap.end())
+        {
+            CreatureInfoMap.insert(p);
+        }
+        else
+            TC_LOG_WARN("pool", "Creature Info already present for guid %u!", guid);
+    }
+    else
+        TC_LOG_WARN("pool", "Creature Info index not found for guid %u, Creature %u, qualifier %u", guid, creatureinfo->creature_id, creatureinfo->creature_qual);
+
+    // Add Creature/Spawn pair to Search Map, only if not already present
+    SearchPair p(guid, spawnpoint->guid);
+    SearchMap::const_iterator itr = CreatureSpawnPoints.find(guid);
+    if (itr == CreatureSpawnPoints.end())
+        CreatureSpawnPoints.insert(p);
+
+    // Add lookup for this guid and pool
+    SearchPair pc(guid, poolId);
+    CreatureMap.insert(pc);
+
+    sObjectMgr->AddCreatureToGrid(guid, &data);
+
+    // Spawn if necessary (loaded grids only)
+    Map* map = sMapMgr->CreateBaseMap(data.mapid);
+    // We use spawn coords to spawn
+    if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
+    {
+        Creature* creature = new Creature();
+        TC_LOG_DEBUG("pool", "Spawning creature %u from pool %u, entry %u with spawnpoint %u at %f, %f, %f", guid, poolId, creatureinfo->creature_id, spawnpoint->guid, spawnpoint->posX, spawnpoint->posY, spawnpoint->posZ);
+        if (!creature->LoadCreatureFromDB(guid, map))
+        {
+            TC_LOG_WARN("pool", "Failed to load creature %u", creatureinfo->creature_id);
+            delete creature;
+            return 0;
+        }
+    }
+
+    // Remove spawn point from Free spawns
+    itr = PoolFreeSpawns.find(spawnpoint->guid);
+    if (itr != PoolFreeSpawns.end())
+        PoolFreeSpawns.erase(itr);
+
+    // Add spawn point to Active Spawns
+    itr = PoolActiveSpawns.find(spawnpoint->guid);
+    if (itr == PoolActiveSpawns.end())
+    {
+        uint32 index = FindSpawnIndex(spawnpoint->guid);
+        if (index != 0xFFFFFFFF)
+        {
+            SearchPair p(spawnpoint->guid, index);
+            PoolActiveSpawns.insert(p);
+            TC_LOG_DEBUG("pool", "Spawn point %u, Added to active, removed from free", spawnpoint->guid);
+        }
+        else
+        {
+            TC_LOG_WARN("pool", "Spawn point %u, index was not found!", spawnpoint->guid);
+        }
+    }
+    else
+    {
+        TC_LOG_WARN("pool", "Spawn point %u, in both active and free spawn list!", spawnpoint->guid);
+    }
+
+    return guid;
+}
+
+// Recover spawn index from guid
+uint32 NewPoolGroup::FindSpawnIndex(uint32 guid)
+{
+    for (uint32 i = 0; i < PoolSpawns.size(); i++)
+    {
+        if (PoolSpawns[i].guid == guid)
+            return i;
+    }
+    return 0xFFFFFFFF;
+}
+
+// Recover creature index from creature/qualifier
+uint32 NewPoolGroup::FindCreatureIndex(uint32 creature_id, uint32 creature_qual)
+{
+    for (uint32 i = 0; i < PoolCreatures.size(); i++)
+    {
+        if (PoolCreatures[i].creature_id == creature_id && PoolCreatures[i].creature_qual == creature_qual)
+            return i;
+    }
+    return 0xFFFFFFFF;
+}
+
+PoolCreatureInfo* NewPoolGroup::GetCreatureInfo(uint32 guid)
+{
+    SearchMap::const_iterator itr = CreatureInfoMap.find(guid);
+    if (itr != CreatureInfoMap.end())
+        return &PoolCreatures[itr->second];
+}
+
+PoolSpawnPoints* NewPoolGroup::GetCreatureSpawn(uint32 guid)
+{
+    SearchMap::const_iterator itr = CreatureSpawnPoints.find(guid);
+    if (itr != CreatureSpawnPoints.end())
+    {
+        uint32 index = FindSpawnIndex(itr->second);
+        if (index != 0xFFFFFFFF)
+            return &PoolSpawns[index];
+    }
+}
+
+bool NewPoolGroup::UpdateNewPool(NewActivePoolData& spawns, SearchMap& CreatureMap, FreeGuid& FreeGuids)
+{
+    // Return false if no respawns waiting (we shouldn't get here, but never mind)
+    if (Respawns.empty())
+    {
+        TC_LOG_WARN("pool", "Pool Update for %u reached, but no respawns waiting. What is this, I don't even?", poolId);
+        return false;
+    }
+
+    SpawnTimeMap::const_iterator itr = Respawns.begin();
+    time_t now = time(NULL);
+
+    // If first item is not ready, none are ready
+    time_t spawntime = itr->first;
+    if (itr->first > now)
+        return true;
+
+    // Loop until we find an entry for a later time
+    do
+    {
+        Respawn1Creature(spawns, CreatureMap, FreeGuids);
+        Respawns.erase(itr);
+        ++itr;
+    }
+    while (itr != Respawns.end() && itr->first <= now);
+
+    // If no respawns remain queued, return false, to remove the pool from consideration
+    if (Respawns.empty())
+        return false;
+
+    // More respawns remain
+    return true;
+}
+
+////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
 PoolMgr::PoolMgr() : max_pool_id(0) { }
@@ -550,6 +1124,7 @@ void PoolMgr::Initialize()
     mPoolGameobjectGroups.resize(max_pool_id + 1);
     mPoolPoolGroups.resize(max_pool_id + 1);
     mPoolQuestGroups.resize(max_pool_id + 1);
+    mNewPoolCreatureInfo.resize(max_pool_id + 1);
 
     mQuestSearchMap.clear();
     mGameobjectSearchMap.clear();
@@ -562,7 +1137,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
+        QueryResult result = WorldDatabase.Query("SELECT entry, min_limit, max_limit FROM pool_template");
         if (!result)
         {
             mPoolTemplate.clear();
@@ -578,7 +1153,8 @@ void PoolMgr::LoadFromDB()
             uint32 pool_id = fields[0].GetUInt32();
 
             PoolTemplateData& pPoolTemplate = mPoolTemplate[pool_id];
-            pPoolTemplate.MaxLimit  = fields[1].GetUInt32();
+            pPoolTemplate.MinLimit  = fields[1].GetUInt32();
+            pPoolTemplate.MaxLimit  = fields[2].GetUInt32();
 
             ++count;
         }
@@ -631,7 +1207,7 @@ void PoolMgr::LoadFromDB()
                 PoolObject plObject = PoolObject(guid, chance);
                 PoolGroup<Creature>& cregroup = mPoolCreatureGroups[pool_id];
                 cregroup.SetPoolId(pool_id);
-                cregroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
+                cregroup.AddEntry(plObject, pPoolTemplate->MinLimit, pPoolTemplate->MaxLimit);
                 SearchPair p(guid, pool_id);
                 mCreatureSearchMap.insert(p);
 
@@ -640,6 +1216,140 @@ void PoolMgr::LoadFromDB()
             while (result->NextRow());
 
             TC_LOG_INFO("server.loading", ">> Loaded %u creatures in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // New Creatures
+    TC_LOG_INFO("server.loading", "Loading NEW Creatures Pooling Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                               0        1            2                   3       4          5          6        7             8
+        QueryResult result = WorldDatabase.Query("SELECT pool_id, creature_id, creature_qualifier, chance, spawnMask, phaseMask, modelId, equipment_id, spawntimesecs, "
+        //                                        9                   10                    11         12               13         14       15
+                                                 "corpsetimesecsloot, corpsetimesecsnoloot, spawndist, currentwaypoint, curhealth, curmana, MovementType, "
+        //                                        16       17          18
+                                                 "npcflag, unit_flags, dynamicflags FROM pool_creature_info");
+
+        if (!result)
+        {
+            TC_LOG_INFO("server.loading", ">> Loaded 0 NEW creatures in  pools. DB table `pool_creature_info` is empty.");
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                PoolCreatureInfo creatureinfo;
+
+                uint32 pool_id                = fields[0].GetUInt32();
+                creatureinfo.creature_id      = fields[1].GetUInt32();
+                creatureinfo.creature_qual    = fields[2].GetUInt32();
+                creatureinfo.chance           = fields[3].GetFloat();
+                creatureinfo.spawnMask        = fields[4].GetUInt8();
+                creatureinfo.phaseMask        = fields[5].GetUInt32();
+                creatureinfo.displayid        = fields[6].GetUInt32();
+                creatureinfo.equipmentId      = fields[7].GetInt8();
+                creatureinfo.spawntimesecs    = fields[8].GetUInt32() > 0 ? fields[8].GetUInt32() : sWorld->getIntConfig(CONFIG_POOL_DEFAULT_CREATURE_RESPAWN);
+                creatureinfo.corpsetimeloot   = fields[9].GetUInt32() > 0 ? fields[9].GetUInt32() : sWorld->getIntConfig(CONFIG_POOL_DEFAULT_CORPSE_DECAY_LOOT);
+                creatureinfo.corpsetimenoloot = fields[10].GetUInt32() > 0 ? fields[10].GetUInt32() : sWorld->getIntConfig(CONFIG_POOL_DEFAULT_CORPSE_DECAY_NOLOOT);
+                creatureinfo.spawndist        = fields[11].GetFloat();
+                creatureinfo.currentwaypoint  = fields[12].GetUInt32();
+                creatureinfo.curhealth        = fields[13].GetUInt32();
+                creatureinfo.curmana          = fields[14].GetUInt32();
+                creatureinfo.movementType     = fields[15].GetUInt8();
+                creatureinfo.npcflag          = fields[16].GetUInt32();
+                creatureinfo.unit_flags       = fields[17].GetUInt32();
+                creatureinfo.dynamicflags     = fields[18].GetUInt32();
+
+                CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creatureinfo.creature_id);
+                if (!cInfo)
+                {
+                    TC_LOG_ERROR("sql.sql", "`pool_creature_info` has a non existing creature template (Entry: %u) defined for pool id (%u), skipped.", creatureinfo.creature_id, pool_id);
+                    continue;
+                }
+                if (pool_id > max_pool_id)
+                {
+                    TC_LOG_ERROR("sql.sql", "`pool_creature` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", pool_id);
+                    continue;
+                }
+                if (creatureinfo.chance < 0 || creatureinfo.chance > 100)
+                {
+                    TC_LOG_ERROR("sql.sql", "`pool_creature` has an invalid chance (%f) for creature entry (%u) in pool id (%u), skipped.", creatureinfo.chance, creatureinfo.creature_id, pool_id);
+                    continue;
+                }
+                PoolTemplateData* pPoolTemplate = &mPoolTemplate[pool_id];
+
+                //PoolObject plObject = PoolObject(guid, chance);
+
+                NewPoolGroup& cregroup = mNewPoolCreatureInfo[pool_id];
+                cregroup.SetPoolId(pool_id);
+                cregroup.AddCreatureEntry(creatureinfo);
+                //SearchPair p(guid, pool_id);
+                //mCreatureSearchMap.insert(p);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            TC_LOG_INFO("server.loading", ">> Loaded %u creatures in new pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // New Game Objects will go here!
+
+    // New Spawn Points
+    TC_LOG_INFO("server.loading", "Loading NEW Spawn Point Pooling Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                               0        1     2    3       4       5           6           7           8
+        QueryResult result = WorldDatabase.Query("SELECT pool_id, guid, map, zoneId, areaId, position_x, position_y, position_z, orientation "
+                                                 "FROM pool_spawns");
+
+        if (!result)
+        {
+            TC_LOG_INFO("server.loading", ">> Loaded 0 NEW spawns in  pools. DB table `pool_creature_info` is empty.");
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                PoolSpawnPoints poolspawns;
+
+                uint32 pool_id         = fields[0].GetUInt32();
+                poolspawns.guid        = fields[1].GetUInt32();
+                poolspawns.mapid       = fields[2].GetUInt16();
+                poolspawns.zoneid      = fields[3].GetUInt16();
+                poolspawns.areaid      = fields[4].GetUInt16();
+                poolspawns.posX        = fields[5].GetFloat();
+                poolspawns.posY        = fields[6].GetFloat();
+                poolspawns.posZ        = fields[7].GetFloat();
+                poolspawns.orientation = fields[8].GetFloat();
+
+                if (pool_id > max_pool_id)
+                {
+                    TC_LOG_ERROR("sql.sql", "`pool_spawns` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", pool_id);
+                    continue;
+                }
+                PoolTemplateData* pPoolTemplate = &mPoolTemplate[pool_id];
+
+                //PoolObject plObject = PoolObject(guid, chance);
+
+                NewPoolGroup& cregroup = mNewPoolCreatureInfo[pool_id];
+                cregroup.SetPoolId(pool_id);
+                cregroup.AddSpawnEntry(poolspawns);
+                //SearchPair p(guid, pool_id);
+                //mCreatureSearchMap.insert(p);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            TC_LOG_INFO("server.loading", ">> Loaded %u spawns in new pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
@@ -699,7 +1409,7 @@ void PoolMgr::LoadFromDB()
                 PoolObject plObject = PoolObject(guid, chance);
                 PoolGroup<GameObject>& gogroup = mPoolGameobjectGroups[pool_id];
                 gogroup.SetPoolId(pool_id);
-                gogroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
+                gogroup.AddEntry(plObject, pPoolTemplate->MinLimit, pPoolTemplate->MaxLimit);
                 SearchPair p(guid, pool_id);
                 mGameobjectSearchMap.insert(p);
 
@@ -759,7 +1469,7 @@ void PoolMgr::LoadFromDB()
                 PoolObject plObject = PoolObject(child_pool_id, chance);
                 PoolGroup<Pool>& plgroup = mPoolPoolGroups[mother_pool_id];
                 plgroup.SetPoolId(mother_pool_id);
-                plgroup.AddEntry(plObject, pPoolTemplateMother->MaxLimit);
+                plgroup.AddEntry(plObject, pPoolTemplateMother->MinLimit, pPoolTemplateMother->MaxLimit);
                 SearchPair p(child_pool_id, mother_pool_id);
                 mPoolSearchMap.insert(p);
 
@@ -871,7 +1581,7 @@ void PoolMgr::LoadFromDB()
                 PoolObject plObject = PoolObject(entry, 0.0f);
                 PoolGroup<Quest>& questgroup = mPoolQuestGroups[pool_id];
                 questgroup.SetPoolId(pool_id);
-                questgroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
+                questgroup.AddEntry(plObject, pPoolTemplate->MinLimit, pPoolTemplate->MaxLimit);
                 SearchPair p(entry, pool_id);
                 mQuestSearchMap.insert(p);
 
@@ -920,6 +1630,7 @@ void PoolMgr::LoadFromDB()
                 if (!pool_pool_id)
                 {
                     SpawnPool(pool_entry);
+                    SpawnNewPool(pool_entry);
                     count++;
                 }
             }
@@ -1001,7 +1712,8 @@ template<>
 void PoolMgr::SpawnPool<Creature>(uint32 pool_id, uint32 db_guid)
 {
     if (!mPoolCreatureGroups[pool_id].isEmpty())
-        mPoolCreatureGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MaxLimit, db_guid);
+        mPoolCreatureGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MinLimit, mPoolTemplate[pool_id].MaxLimit, db_guid);
+
 }
 
 // Call to spawn a pool, if cache if true the method will spawn only if cached entry is different
@@ -1010,7 +1722,7 @@ template<>
 void PoolMgr::SpawnPool<GameObject>(uint32 pool_id, uint32 db_guid)
 {
     if (!mPoolGameobjectGroups[pool_id].isEmpty())
-        mPoolGameobjectGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MaxLimit, db_guid);
+        mPoolGameobjectGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MinLimit, mPoolTemplate[pool_id].MaxLimit, db_guid);
 }
 
 // Call to spawn a pool, if cache if true the method will spawn only if cached entry is different
@@ -1019,7 +1731,7 @@ template<>
 void PoolMgr::SpawnPool<Pool>(uint32 pool_id, uint32 sub_pool_id)
 {
     if (!mPoolPoolGroups[pool_id].isEmpty())
-        mPoolPoolGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MaxLimit, sub_pool_id);
+        mPoolPoolGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MinLimit, mPoolTemplate[pool_id].MaxLimit, sub_pool_id);
 }
 
 // Call to spawn a pool
@@ -1027,7 +1739,7 @@ template<>
 void PoolMgr::SpawnPool<Quest>(uint32 pool_id, uint32 quest_id)
 {
     if (!mPoolQuestGroups[pool_id].isEmpty())
-        mPoolQuestGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MaxLimit, quest_id);
+        mPoolQuestGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MinLimit, mPoolTemplate[pool_id].MaxLimit, quest_id);
 }
 
 void PoolMgr::SpawnPool(uint32 pool_id)
@@ -1036,6 +1748,12 @@ void PoolMgr::SpawnPool(uint32 pool_id)
     SpawnPool<GameObject>(pool_id, 0);
     SpawnPool<Creature>(pool_id, 0);
     SpawnPool<Quest>(pool_id, 0);
+}
+
+void PoolMgr::SpawnNewPool(uint32 pool_id)
+{
+    if (!mNewPoolCreatureInfo[pool_id].isEmpty())
+        mNewPoolCreatureInfo[pool_id].SpawnCreature(mNewSpawnedData, mNewCreatureSearchMap, mPoolTemplate[pool_id].MinLimit, mPoolTemplate[pool_id].MaxLimit, mFreeGuids);
 }
 
 // Call to despawn a pool, all gameobjects/creatures in this pool are removed
@@ -1055,13 +1773,14 @@ void PoolMgr::DespawnPool(uint32 pool_id)
 }
 
 // Method that check chance integrity of the creatures and gameobjects in this pool
-bool PoolMgr::CheckPool(uint32 pool_id) const
+bool PoolMgr::CheckPool(uint32 pool_id)
 {
     return pool_id <= max_pool_id &&
         mPoolGameobjectGroups[pool_id].CheckPool() &&
         mPoolCreatureGroups[pool_id].CheckPool() &&
         mPoolPoolGroups[pool_id].CheckPool() &&
-        mPoolQuestGroups[pool_id].CheckPool();
+        mPoolQuestGroups[pool_id].CheckPool() &&
+        mNewPoolCreatureInfo[pool_id].CheckPool();
 }
 
 // Call to update the pool when a gameobject/creature part of pool [pool_id] is ready to respawn
@@ -1074,6 +1793,73 @@ void PoolMgr::UpdatePool(uint32 pool_id, uint32 db_guid_or_pool_id)
         SpawnPool<Pool>(motherpoolid, pool_id);
     else
         SpawnPool<T>(pool_id, db_guid_or_pool_id);
+}
+
+PoolCreatureInfo* PoolMgr::GetCreatureInfo(uint32 pool_id, uint32 guid)
+{
+    if (pool_id <= max_pool_id)
+        return mNewPoolCreatureInfo[pool_id].GetCreatureInfo(guid);
+
+}
+
+PoolSpawnPoints* PoolMgr::GetCreatureSpawn(uint32 pool_id, uint32 guid)
+{
+    if (pool_id <= max_pool_id)
+        return mNewPoolCreatureInfo[pool_id].GetCreatureSpawn(guid);
+
+}
+
+void PoolMgr::HandleCreatureDeath(uint32 guid)
+{
+    uint32 pool_id = IsPoolCreature(guid);
+
+    // Nothing to do if this isn't a pool creature
+    if (pool_id == 0)
+        return;
+
+    // Clear spawn, and internally add to respawn timer in pool context
+    mNewPoolCreatureInfo[pool_id].ClearSpawn(guid, mPoolTemplate[pool_id].MinLimit);
+
+    // If pool not already queued, add to pending respawn iterator
+    if (mRespawnMap.find(pool_id) == mRespawnMap.end())
+        mRespawnMap.insert(pool_id);
+}
+
+void PoolMgr::HandleDespawn(uint32 guid)
+{
+    uint32 pool_id = IsPoolCreature(guid);
+
+    // Nothing to do if this isn't a pool creature
+    if (pool_id == 0)
+        return;
+
+    TC_LOG_DEBUG("pool", "Trying despawn, %u from pool %u", guid, pool_id);
+    PoolCreatureInfo* cinfo = mNewPoolCreatureInfo[pool_id].GetCreatureInfo(guid);
+    mNewPoolCreatureInfo[pool_id].DespawnCreature(mNewSpawnedData, mNewCreatureSearchMap, mRespawnMap, guid);
+
+    if (sWorld->getBoolConfig(CONFIG_POOL_REUSE_GUIDS))
+    {
+        GuidPair gp(guid, cinfo->creature_id);
+        mFreeGuids.insert(gp);
+    }
+}
+
+// This is called every 5 seconds. Be careful what you put here
+void PoolMgr::UpdateNewPool(uint32 diff)
+{
+    if (mRespawnMap.empty())
+        return;
+
+    // Iterate the pools that have respawns, and run their local updater
+    for (RespawnPool::iterator itr = mRespawnMap.begin(); itr != mRespawnMap.end(); ++itr)
+    {
+        if (*itr != 0)
+        {
+            // Remove pool from iterator if there are no more respawns
+            if (!mNewPoolCreatureInfo[*itr].UpdateNewPool(mNewSpawnedData, mNewCreatureSearchMap, mFreeGuids))
+                mRespawnMap.erase(*itr);
+        }
+    }
 }
 
 template void PoolMgr::UpdatePool<Pool>(uint32 pool_id, uint32 db_guid_or_pool_id);
