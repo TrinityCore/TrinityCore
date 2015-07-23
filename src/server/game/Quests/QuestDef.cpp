@@ -199,6 +199,29 @@ Quest::Quest(Field* questRecord)
             ++_reqCurrencyCount;
 }
 
+void Quest::LoadQuestTemplateAddon(Field* fields)
+{
+    MaxLevel = fields[1].GetUInt8();
+    RequiredClasses = fields[2].GetUInt32();
+    SourceSpellid = fields[3].GetUInt32();
+    PrevQuestId = fields[4].GetInt32();
+    NextQuestId = fields[5].GetInt32();
+    ExclusiveGroup = fields[6].GetInt32();
+    RewardMailTemplateId = fields[7].GetUInt32();
+    RewardMailDelay = fields[8].GetUInt32();
+    RequiredSkillId = fields[9].GetUInt16();
+    RequiredSkillPoints = fields[10].GetUInt16();
+    RequiredMinRepFaction = fields[11].GetUInt16();
+    RequiredMaxRepFaction = fields[12].GetUInt16();
+    RequiredMinRepValue = fields[13].GetInt32();
+    RequiredMaxRepValue = fields[14].GetInt32();
+    SourceItemIdCount = fields[15].GetUInt8();
+    SpecialFlags = fields[16].GetUInt8();
+
+    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
+        Flags |= QUEST_FLAGS_AUTO_ACCEPT;
+}
+
 uint32 Quest::XPValue(Player* player) const
 {
     if (player)

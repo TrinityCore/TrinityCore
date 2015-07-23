@@ -632,7 +632,7 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 // Remove Frost Nova cooldown
-                GetTarget()->ToPlayer()->RemoveSpellCooldown(SPELL_MAGE_FROST_NOVA, true);
+                GetTarget()->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_MAGE_FROST_NOVA, true);
             }
 
             void Register() override

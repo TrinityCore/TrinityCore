@@ -463,7 +463,7 @@ class spell_sha_feedback : public SpellScriptLoader
             {
                 PreventDefaultAction(); // will prevent default effect execution
                 if (Player* target = GetTarget()->ToPlayer())
-                    target->ModifySpellCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, aurEff->GetBaseAmount());
+                    target->GetSpellHistory()->ModifyCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, aurEff->GetBaseAmount());
             }
 
             void Register() override
@@ -988,7 +988,7 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_SHAMAN_LAVA_BURST, true);
+                GetCaster()->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_LAVA_BURST, true);
             }
 
             void Register() override
@@ -1056,7 +1056,7 @@ class spell_sha_nature_guardian : public SpellScriptLoader
             {
                 //! HACK due to currenct proc system implementation
                 if (Player* player = GetTarget()->ToPlayer())
-                    if (player->HasSpellCooldown(GetSpellInfo()->Id))
+                    if (player->GetSpellHistory()->HasCooldown(GetSpellInfo()->Id))
                         return false;
 
                 return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
@@ -1073,7 +1073,7 @@ class spell_sha_nature_guardian : public SpellScriptLoader
                     eventInfo.GetProcTarget()->getThreatManager().modifyThreatPercent(GetTarget(), -10);
 
                 if (Player* player = GetTarget()->ToPlayer())
-                    player->AddSpellCooldown(GetSpellInfo()->Id, 0, time(NULL) + aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                    player->GetSpellHistory()->AddCooldown(GetSpellInfo()->Id, 0, std::chrono::seconds(GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
             }
 
             void Register() override

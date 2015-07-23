@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "Containers.h"
 
 enum DeathKnightSpells
@@ -1527,7 +1528,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
             {
                 //! HACK due to currenct proc system implementation
                 if (Player* player = GetTarget()->ToPlayer())
-                    if (player->HasSpellCooldown(GetId()))
+                    if (player->GetSpellHistory()->HasCooldown(GetId()))
                         return false;
 
                return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
@@ -1535,13 +1536,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
-                GetTarget()->CastSpell(GetTarget(), SPELL_DK_WILL_OF_THE_NECROPOLIS, true, NULL, aurEff);
-
-                if (Player* player = GetTarget()->ToPlayer())
-                {
-                    player->RemoveSpellCooldown(SPELL_DK_RUNE_TAP, true);
-                    player->AddSpellCooldown(GetId(), 0, time(NULL) + 45);
-                }
+                GetTarget()->CastSpell(GetTarget(), SPELL_DK_WILL_OF_THE_NECROPOLIS, true, nullptr, aurEff);
             }
 
             void Register() override

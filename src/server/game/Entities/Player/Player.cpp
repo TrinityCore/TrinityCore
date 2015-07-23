@@ -22273,32 +22273,6 @@ void Player::UpdatePvP(bool state, bool _override)
     }
 }
 
-        // Apply SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN modifiers
-        // Note: This aura applies its modifiers to all cooldowns of spells with set category, not to category cooldown only
-        if (cat)
-        {
-            if (int32 categoryModifier = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN, cat))
-            {
-                if (rec > 0)
-                    rec += categoryModifier;
-
-                if (catrec > 0)
-                    catrec += categoryModifier;
-            }
-
-            SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.LookupEntry(cat);
-            ASSERT(categoryEntry);
-            if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
-            {
-                tm date;
-                localtime_r(&curTime, &date);
-                catrec = catrec * DAY - (date.tm_hour * HOUR + date.tm_min * MINUTE + date.tm_sec) * IN_MILLISECONDS;
-            }
-        }
-
-
-        if (catrec < 0)
-            catrec = 0;
 void Player::UpdatePotionCooldown(Spell* spell)
 {
     // no potion used i combat or still in combat
@@ -26238,39 +26212,6 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
         CharacterDatabase.Execute(stmt);
     }
-}
-
-void Player::SendClearAllCooldowns(Unit* target)
-{
-    uint32 spellCount = m_spellCooldowns.size();
-    ObjectGuid guid = target ? target->GetGUID() : ObjectGuid::Empty;
-
-    WorldPacket data(SMSG_CLEAR_COOLDOWNS, 4+8);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBits(spellCount, 24); // Spell Count
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-
-    data.FlushBits();
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[3]);
-    for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
-        data << uint32(itr->first); // Spell ID
-
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-
-    SendDirectMessage(&data);
 }
 
 void Player::ResetMap()

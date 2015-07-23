@@ -524,7 +524,7 @@ void BattlegroundSA::TeleportToEntrancePosition(Player* player)
     {
         if (!ShipsStarted)
         {
-            player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+            //player->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
 
             if (urand(0, 1))
                 player->TeleportTo(607, 2682.936f, -830.368f, 15.0f, 2.895f, 0);

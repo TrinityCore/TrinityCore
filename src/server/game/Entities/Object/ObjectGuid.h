@@ -90,27 +90,27 @@ class ObjectGuid
 
         typedef uint32 LowType;
 
-        ObjectGuid() : _guid(0) { }
-        explicit ObjectGuid(uint64 guid) : _guid(guid) { }
-        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
-        ObjectGuid(HighGuid hi, LowType counter) : _guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) { }
+        ObjectGuid() { _data._guid = UI64LIT(0); }
+        explicit ObjectGuid(uint64 guid) { _data._guid = guid; }
+        ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
+        ObjectGuid(HighGuid hi, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
 
-        operator uint64() const { return _guid; }
+        operator uint64() const { return _data._guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
-        void Set(uint64 guid) { _guid = guid; }
-        void Clear() { _guid = 0; }
+        void Set(uint64 guid) { _data._guid = guid; }
+        void Clear() { _data._guid = 0; }
 
         PackedGuid WriteAsPacked() const;
 
-        uint64   GetRawValue() const { return _guid; }
-        HighGuid GetHigh() const { return HighGuid((_guid >> 48) & 0x0000FFFF); }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
+        uint64   GetRawValue() const { return _data._guid; }
+        HighGuid GetHigh() const { return HighGuid((_data._guid >> 48) & 0x0000FFFF); }
+        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
         LowType  GetCounter()  const
         {
             return HasEntry()
-                   ? LowType(_guid & UI64LIT(0x0000000000FFFFFF))
-                   : LowType(_guid & UI64LIT(0x00000000FFFFFFFF));
+                ? LowType(_data._guid & UI64LIT(0x0000000000FFFFFF))
+                : LowType(_data._guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
         static uint32 GetMaxCounter(HighGuid high)
@@ -122,7 +122,7 @@ class ObjectGuid
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        bool IsEmpty()             const { return _guid == 0; }
+        bool IsEmpty()             const { return _data._guid == 0; }
         bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
         bool IsPet()               const { return GetHigh() == HIGHGUID_PET; }
         bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE; }
@@ -174,6 +174,17 @@ class ObjectGuid
         bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
         bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
         bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
+        uint8& operator[] (uint32 index) 
+        { 
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index]; 
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index];
+        }
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
@@ -208,7 +219,11 @@ class ObjectGuid
         ObjectGuid(HighGuid, uint32, uint64 counter) = delete;       // no implementation, used to catch wrong type assignment
         ObjectGuid(HighGuid, uint64 counter) = delete;               // no implementation, used to catch wrong type assignment
 
-        uint64 _guid;
+        union
+        {
+            uint64 _guid;
+            uint8 _bytes[sizeof(uint64)];
+        } _data;
 };
 
 // Some Shared defines

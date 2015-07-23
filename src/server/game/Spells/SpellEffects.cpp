@@ -3931,7 +3931,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     }
 
     // the player dies if hearthstone is in cooldown, else the player is teleported to home
-    if (player->HasSpellCooldown(8690))
+    if (player->GetSpellHistory()->HasCooldown(8690))
     {
         player->Kill(player);
         return;

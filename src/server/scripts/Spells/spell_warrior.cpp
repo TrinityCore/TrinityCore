@@ -815,7 +815,7 @@ class spell_warr_sudden_death : public SpellScriptLoader
             {
                 // Remove cooldown on Colossus Smash
                 if (Player* player = GetTarget()->ToPlayer())
-                    player->RemoveSpellCooldown(SPELL_WARRIOR_COLOSSUS_SMASH, true);
+                    player->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_COLOSSUS_SMASH, true);
             }
 
             void Register() override
@@ -917,7 +917,7 @@ class spell_warr_sword_and_board : public SpellScriptLoader
             {
                 // Remove cooldown on Shield Slam
                 if (Player* player = GetTarget()->ToPlayer())
-                    player->RemoveSpellCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
+                    player->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_SHIELD_SLAM, true);
             }
 
             void Register() override

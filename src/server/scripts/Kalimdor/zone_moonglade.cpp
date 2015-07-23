@@ -26,8 +26,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
 /*####
 # npc_omen
 ####*/

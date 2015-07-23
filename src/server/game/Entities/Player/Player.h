@@ -1860,7 +1860,6 @@ class Player : public Unit, public GridObject<Player>
         void DropModCharge(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
-        void SendClearAllCooldowns(Unit* target);
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         uint32 GetLastPotionId() { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }

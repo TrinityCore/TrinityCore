@@ -546,10 +546,6 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.ModDamage      = fields[71].GetFloat();
     creatureTemplate.ModExperience  = fields[72].GetFloat();
     creatureTemplate.RacialLeader   = fields[73].GetBool();
-
-    creatureTemplate.movementId         = fields[70].GetUInt32();
-        creatureTemplate.questItems[i] = fields[74 + i].GetUInt32();
-
     creatureTemplate.movementId         = fields[80].GetUInt32();
     creatureTemplate.RegenHealth        = fields[81].GetBool();
     creatureTemplate.MechanicImmuneMask = fields[82].GetUInt32();
@@ -6751,15 +6747,12 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.flags          = fields[8].GetUInt32();
         got.size           = fields[9].GetFloat();
 
-        for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            got.questItems[i] = fields[10 + i].GetUInt32();
-
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
-            got.raw.data[i] = fields[16 + i].GetUInt32();
+            got.raw.data[i] = fields[10 + i].GetUInt32();
 
-        got.unkInt32 = fields[48].GetInt32();
-        got.AIName = fields[49].GetString();
-        got.ScriptId = GetScriptId(fields[50].GetCString());
+        got.unkInt32 = fields[42].GetInt32();
+        got.AIName = fields[43].GetString();
+        got.ScriptId = GetScriptId(fields[44].GetCString());
 
         // Checks
 

@@ -1587,7 +1587,7 @@ class Unit : public WorldObject
         bool SetDisableGravity(bool disable, bool packetOnly = false);
         bool SetFall(bool enable);
         bool SetSwim(bool enable);
-        bool SetCanFly(bool enable);
+        bool SetCanFly(bool enable, bool packetOnly = false);
         bool SetWaterWalking(bool enable, bool packetOnly = false);
         bool SetFeatherFall(bool enable, bool packetOnly = false);
         bool SetHover(bool enable, bool packetOnly = false);

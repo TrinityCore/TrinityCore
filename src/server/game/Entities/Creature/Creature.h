@@ -492,7 +492,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool HasSpellCooldown(uint32 spell_id) const;
         bool HasCategoryCooldown(uint32 spell_id) const;
         uint32 GetCreatureSpellCooldownDelay(uint32 spellId) const;
-        virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs) override;
+       // virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs) override;
 
         bool HasSpell(uint32 spellID) const override;
 
@@ -567,8 +567,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         SpellInfo const* reachWithSpellCure(Unit* victim);
 
         uint32 m_spells[CREATURE_MAX_SPELLS];
-        CreatureSpellCooldowns m_CreatureSpellCooldowns;
-        CreatureSpellCooldowns m_CreatureCategoryCooldowns;
+        //CreatureSpellCooldowns m_CreatureSpellCooldowns;
+        //CreatureSpellCooldowns m_CreatureCategoryCooldowns;
 
         bool CanStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;
