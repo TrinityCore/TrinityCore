@@ -22,11 +22,12 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <openssl/sha.h>
 #include "World.h"
 #include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
+
+#include <openssl/sha.h>
 
 Warden::Warden() : _session(NULL), _inputCrypto(16), _outputCrypto(16), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
                    _dataSent(false), _previousTimestamp(0), _module(NULL), _initialized(false)
