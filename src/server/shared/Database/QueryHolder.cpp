@@ -40,29 +40,6 @@ bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
     return true;
 }
 
-bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
-{
-    if (!format)
-    {
-        TC_LOG_ERROR("sql.sql", "Query (index: %u) is empty.", uint32(index));
-        return false;
-    }
-
-    va_list ap;
-    char szQuery [MAX_QUERY_LEN];
-    va_start(ap, format);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
-    va_end(ap);
-
-    if (res == -1)
-    {
-        TC_LOG_ERROR("sql.sql", "SQL Query truncated (and not execute) for format: %s", format);
-        return false;
-    }
-
-    return SetQuery(index, szQuery);
-}
-
 bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatement* stmt)
 {
     if (m_queries.size() <= index)

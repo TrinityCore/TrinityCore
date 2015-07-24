@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -257,6 +257,42 @@ public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dan
         SpellScript* GetSpellScript() const override
         {
             return new spell_ruumbos_silly_dance_SpellScript();
+        }
+};
+
+/*######
+## at_ancient_leaf
+######*/
+
+enum AncientMisc
+{
+    QUEST_ANCIENT_LEAF      = 7632,
+    NPC_VARTRUS             = 14524,
+    NPC_STOMA               = 14525,
+    NPC_HASTAT              = 14526,
+    CREATURE_GROUP_ANCIENTS = 1
+};
+
+class at_ancient_leaf : public AreaTriggerScript
+{
+    public:
+        at_ancient_leaf() : AreaTriggerScript("at_ancient_leaf") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+        {
+            if (player->IsGameMaster() || !player->IsAlive())
+                return false;
+
+            // Handle Call Ancients event start - The area trigger summons 3 ancients
+            if ((player->GetQuestStatus(QUEST_ANCIENT_LEAF) == QUEST_STATUS_COMPLETE) || (player->GetQuestStatus(QUEST_ANCIENT_LEAF) == QUEST_STATUS_REWARDED))
+            {
+                // If ancients are already spawned, skip the rest
+                if (GetClosestCreatureWithEntry(player, NPC_VARTRUS, 50.0f) || GetClosestCreatureWithEntry(player, NPC_STOMA, 50.0f) || GetClosestCreatureWithEntry(player, NPC_HASTAT, 50.0f))
+                    return true;
+
+                player->GetMap()->SummonCreatureGroup(CREATURE_GROUP_ANCIENTS);
+            }
+            return false;
         }
 };
 

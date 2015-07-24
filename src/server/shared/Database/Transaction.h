@@ -19,6 +19,7 @@
 #define _TRANSACTION_H
 
 #include "SQLOperation.h"
+#include "StringFormat.h"
 
 //- Forward declare (don't include header to prevent circular includes)
 class PreparedStatement;
@@ -38,7 +39,8 @@ class Transaction
 
         void Append(PreparedStatement* statement);
         void Append(const char* sql);
-        void PAppend(const char* sql, ...);
+        template<typename... Args>
+        void PAppend(const char* sql, Args const&... args) { Append(Trinity::StringFormat(sql, args...).c_str()); }
 
         size_t GetSize() const { return m_queries.size(); }
 
@@ -59,13 +61,14 @@ class TransactionTask : public SQLOperation
     friend class DatabaseWorker;
 
     public:
-        TransactionTask(SQLTransaction trans) : m_trans(trans) { } ;
-        ~TransactionTask(){ };
+        TransactionTask(SQLTransaction trans) : m_trans(trans) { }
+        ~TransactionTask() { }
 
     protected:
         bool Execute() override;
 
         SQLTransaction m_trans;
+        static std::mutex _deadlockLock;
 };
 
 #endif

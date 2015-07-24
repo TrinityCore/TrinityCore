@@ -903,17 +903,15 @@ class boss_yogg_saron : public CreatureScript
                 DoCast(me, SPELL_KNOCK_AWAY);
 
                 me->ResetLootMode();
-                switch (_instance->GetData(DATA_KEEPERS_COUNT))
-                {
-                    case 0:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_4);
-                    case 1:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                    case 2:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                    case 3:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                }
+                uint32 keepersCount = _instance->GetData(DATA_KEEPERS_COUNT);
+                if (keepersCount == 0)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                if (keepersCount <= 1)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                if (keepersCount <= 2)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                if (keepersCount <= 3)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -1126,30 +1124,11 @@ class npc_ominous_cloud : public CreatureScript
                 DoCast(me, SPELL_OMINOUS_CLOUD_VISUAL);
             }
 
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-            {
-                float step = clockwise ? float(-M_PI) / 8.0f : float(M_PI) / 8.0f;
-                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                for (uint8 i = 0; i < 16; angle += step, ++i)
-                {
-                    G3D::Vector3 point;
-                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
-                    path.push_back(point);
-                }
-            }
-
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 /*action*/) override
             {
-                Movement::MoveSplineInit init(me);
-                FillCirclePath(YoggSaronSpawnPos, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action != 0);
-                init.SetWalk(true);
-                init.SetCyclic();
-                init.Launch();
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true, 16);
             }
         };
 

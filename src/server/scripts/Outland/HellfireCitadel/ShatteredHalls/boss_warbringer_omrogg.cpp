@@ -160,6 +160,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void Reset() override
             {
+                _Reset();
                 if (Unit* LeftHead  = ObjectAccessor::GetUnit(*me, LeftHeadGUID))
                 {
                     LeftHead->setDeathState(JUST_DIED);
@@ -257,14 +258,14 @@ class boss_warbringer_omrogg : public CreatureScript
                 Creature* LeftHead  = ObjectAccessor::GetCreature(*me, LeftHeadGUID);
                 Creature* RightHead = ObjectAccessor::GetCreature(*me, RightHeadGUID);
 
+                _JustDied();
+
                 if (!LeftHead || !RightHead)
                     return;
 
                 LeftHead->AI()->Talk(YELL_DIE_L);
 
                 RightHead->AI()->SetData(SETDATA_DATA, SETDATA_YELL);
-
-                instance->SetBossState(DATA_OMROGG, DONE);
             }
 
             void UpdateAI(uint32 diff) override
@@ -416,7 +417,7 @@ class npc_omrogg_heads : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override { }
 
-            void SetData(uint32 data, uint32 value)
+            void SetData(uint32 data, uint32 value) override
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
                 {

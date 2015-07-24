@@ -23,6 +23,7 @@
 #include "ByteBuffer.h"
 
 #include <functional>
+#include <unordered_set>
 
 enum TypeID
 {
@@ -87,8 +88,10 @@ class ObjectGuid
     public:
         static ObjectGuid const Empty;
 
+        typedef uint32 LowType;
+
         ObjectGuid() { _data._guid = UI64LIT(0); }
-        explicit ObjectGuid(uint64 guid)  { _data._guid = guid; }
+        explicit ObjectGuid(uint64 guid) { _data._guid = guid; }
         ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
         ObjectGuid(HighGuid hi, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(hi) << ((hi == HIGHGUID_CORPSE || hi == HIGHGUID_AREATRIGGER) ? 48 : 52)) : 0; }
 
@@ -101,35 +104,23 @@ class ObjectGuid
         PackedGuid WriteAsPacked() const;
 
         uint64   GetRawValue() const { return _data._guid; }
-        HighGuid GetHigh() const
+        HighGuid GetHigh() const { return HighGuid((_data._guid >> 48) & 0x0000FFFF); }
+        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
+        LowType  GetCounter()  const
         {
-            uint32 temp = ((uint64(_data._guid) >> 48) & 0x0000FFFF);
-            return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
-        }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
-        uint32   GetCounter()  const
-        {
-            return uint32(_data._guid & UI64LIT(0x00000000FFFFFFFF));
+            return HasEntry()
+                ? LowType(_data._guid & UI64LIT(0x0000000000FFFFFF))
+                : LowType(_data._guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
-        static uint32 GetMaxCounter(HighGuid /*high*/)
+        static uint32 GetMaxCounter(HighGuid high)
         {
-            return uint32(0xFFFFFFFF);
+            return HasEntry(high)
+                   ? uint32(0x00FFFFFF)
+                   : uint32(0xFFFFFFFF);
         }
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
-
-        uint8& operator[](uint32 index)
-        {
-            ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
-        }
-
-        uint8 const& operator[](uint32 index) const
-        {
-            ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
-        }
 
         bool IsEmpty()             const { return _data._guid == 0; }
         bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
@@ -183,6 +174,17 @@ class ObjectGuid
         bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
         bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
         bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
+        uint8& operator[] (uint32 index) 
+        { 
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index]; 
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index];
+        }
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
@@ -229,6 +231,7 @@ typedef std::set<ObjectGuid> GuidSet;
 typedef std::list<ObjectGuid> GuidList;
 typedef std::deque<ObjectGuid> GuidDeque;
 typedef std::vector<ObjectGuid> GuidVector;
+typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
 
 // minimum buffer size for packed guid is 9 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 9

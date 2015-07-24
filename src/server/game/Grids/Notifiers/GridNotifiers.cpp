@@ -21,12 +21,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "UpdateData.h"
-#include "Item.h"
-#include "Map.h"
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
-#include "SpellInfo.h"
 
 using namespace Trinity;
 
@@ -65,7 +62,7 @@ void VisibleNotifier::SendToSelf()
         }
     }
 
-    for (GuidSet::const_iterator it = vis_guids.begin(); it != vis_guids.end(); ++it)
+    for (auto it = vis_guids.begin(); it != vis_guids.end(); ++it)
     {
         i_player.m_clientGUIDs.erase(*it);
         i_data.AddOutOfRangeGUID(*it);

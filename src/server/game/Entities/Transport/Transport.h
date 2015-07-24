@@ -39,6 +39,7 @@ class Transport : public GameObject, public TransportBase
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         void Update(uint32 diff) override;
+        void DelayedUpdate(uint32 diff);
 
         void BuildUpdate(UpdateDataMapType& data_map) override;
 
@@ -79,7 +80,7 @@ class Transport : public GameObject, public TransportBase
             TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         }
 
-        uint32 GetPeriod() const { return GetUInt32Value(GAMEOBJECT_LEVEL); }
+        uint32 GetTransportPeriod() const override { return GetUInt32Value(GAMEOBJECT_LEVEL); }
         void SetPeriod(uint32 period) { SetUInt32Value(GAMEOBJECT_LEVEL, period); }
         uint32 GetTimer() const { return GetGOValue()->Transport.PathProgress; }
 
@@ -103,6 +104,7 @@ class Transport : public GameObject, public TransportBase
         void MoveToNextWaypoint();
         float CalculateSegmentPos(float perc);
         bool TeleportTransport(uint32 newMapid, float x, float y, float z, float o);
+        void DelayedTeleportTransport();
         void UpdatePassengerPositions(PassengerSet& passengers);
         void DoEventIfAny(KeyFrame const& node, bool departure);
 
@@ -127,6 +129,7 @@ class Transport : public GameObject, public TransportBase
         PassengerSet _staticPassengers;
 
         bool _delayedAddModel;
+        bool _delayedTeleport;
 };
 
 #endif

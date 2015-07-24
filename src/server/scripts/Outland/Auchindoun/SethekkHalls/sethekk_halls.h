@@ -28,7 +28,10 @@ enum DataTypes
     // Encounter States/Boss GUIDs
     DATA_DARKWEAVER_SYTH                = 0,
     DATA_TALON_KING_IKISS               = 1,
-    DATA_ANZU                           = 2
+    DATA_ANZU                           = 2,
+
+    // Additional Data
+    DATA_TALON_KING_COFFER              = 3
 };
 
 enum CreatureIds
@@ -39,7 +42,8 @@ enum CreatureIds
 
 enum GameObjectIds
 {
-    GO_IKISS_DOOR                       = 177203
+    GO_IKISS_DOOR                       = 177203,
+    GO_TALON_KING_COFFER                = 187372
 };
 
 template<class AI>

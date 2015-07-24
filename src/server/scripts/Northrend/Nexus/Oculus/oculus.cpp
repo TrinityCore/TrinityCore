@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "CombatAI.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -31,6 +32,9 @@ enum GossipNPCs
     GOSSIP_MENU_ETERNOS                 = 9574,
     GOSSIP_MENU_BELGARISTRASZ           = 9575,
 
+    SPELL_CREATE_EMERALD_ESSENCE        = 49382, // no effects in spell_dbc
+    SPELL_CREATE_AMBER_ESSENCE          = 49447, // no effects in spell_dbc
+    SPELL_CREATE_RUBY_ESSENCE           = 49450, // no effects in spell_dbc
     ITEM_EMERALD_ESSENCE                = 37815,
     ITEM_AMBER_ESSENCE                  = 37859,
     ITEM_RUBY_ESSENCE                   = 37860
@@ -48,7 +52,7 @@ enum Drakes
     SPELL_RUBY_EVASIVE_AURA             = 50248,          // Instant - Allows the Ruby Drake to generate Evasive Charges when hit by hostile attacks and spells.
     SPELL_RUBY_EVASIVE_CHARGES          = 50241,
     SPELL_RUBY_EVASIVE_MANEUVERS        = 50240,          // Instant - 5 sec. cooldown - Allows your drake to dodge all incoming attacks and spells. Requires Evasive Charges to use. Each attack or spell dodged while this ability is active burns one Evasive Charge. Lasts 30 sec. or until all charges are exhausted.
-    // you do not have acces to until you kill Mage-Lord Urom
+    // you do not have access to until you kill the Mage-Lord Urom
     SPELL_RUBY_MARTYR                   = 50253,          // Instant - 10 sec. cooldown - Redirect all harmful spells cast at friendly drakes to yourself for 10 sec.
 
 /*
@@ -73,6 +77,11 @@ enum Drakes
     SPELL_EMERALD_TOUCH_THE_NIGHTMARE   = 50341,         // (60 yds) - Instant - Consumes 30% of the caster's max health to inflict 25, 000 nature damage to an enemy dragon and reduce the damage it deals by 25% for 30 sec.
     // you do not have access to until you kill the Mage-Lord Urom
     SPELL_EMERALD_DREAM_FUNNEL          = 50344,         // (60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
+/*
+ * All Drakes
+ * GPS System
+ */
+    SPELL_GPS                           = 53389,
 
     // Misc
     POINT_LAND                          = 2,
@@ -98,7 +107,13 @@ enum Says
     WHISPER_DRAKES_WELCOME            = 1,
     WHISPER_DRAKES_ABILITIES          = 2,
     WHISPER_DRAKES_SPECIAL            = 3,
-    WHISPER_DRAKES_LOWHEALTH          = 4
+    WHISPER_DRAKES_LOWHEALTH          = 4,
+    WHISPER_GPS_10_CONSTRUCTS         = 5,
+    WHISPER_GPS_1_CONSTRUCT           = 6,
+    WHISPER_GPS_VAROS                 = 7,
+    WHISPER_GPS_UROM                  = 8,
+    WHISPER_GPS_EREGOS                = 9,
+    WHISPER_GPS_END                   = 10
 };
 
 class npc_verdisa_beglaristrasz_eternos : public CreatureScript
@@ -112,7 +127,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
 
             void StoreEssence(Player* player, uint32 itemId)
             {
-                /// @todo: should be handled by spell, but not found in dbc (49450 and other?)
+                /// @todo: implement with spells
                 uint32 count = 1;
                 ItemPosCountVec dest;
                 uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count);
@@ -245,6 +260,26 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
             {
                 _events.Reset();
                 Initialize();
+            }
+
+            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            {
+                if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+                    if (spell->Id == SPELL_GPS)
+                    {
+                        if (_instance->GetBossState(DATA_EREGOS) == DONE)
+                            Talk(WHISPER_GPS_END, creator);
+                        else if (_instance->GetBossState(DATA_UROM) == DONE)
+                            Talk(WHISPER_GPS_EREGOS, creator);
+                        else if (_instance->GetBossState(DATA_VAROS) == DONE)
+                            Talk(WHISPER_GPS_UROM, creator);
+                        else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_NO_CONSTRUCT)
+                            Talk(WHISPER_GPS_VAROS, creator);
+                        else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_ONE_CONSTRUCT)
+                            Talk(WHISPER_GPS_1_CONSTRUCT, creator);
+                        else if (_instance->GetData(DATA_CONSTRUCTS) == KILL_MORE_CONSTRUCT)
+                            Talk(WHISPER_GPS_10_CONSTRUCTS, creator);
+                    }
             }
 
             void IsSummonedBy(Unit* summoner) override

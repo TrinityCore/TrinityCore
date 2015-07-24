@@ -23,21 +23,16 @@
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "WorldSession.h"
 #include "Configuration/Config.h"
 
-#include "AccountMgr.h"
-#include "Chat.h"
 #include "CliRunnable.h"
-#include "Language.h"
 #include "Log.h"
-#include "MapManager.h"
-#include "Player.h"
 #include "Util.h"
 
 #if PLATFORM != PLATFORM_WINDOWS
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "Chat.h"
 
 char* command_finder(const char* text, int state)
 {

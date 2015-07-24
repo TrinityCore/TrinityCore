@@ -334,15 +334,15 @@ public:
         char* fmaxcount = strtok(NULL, " ");                    //add maxcount, default: 0
         uint32 maxcount = 0;
         if (fmaxcount)
-            maxcount = atol(fmaxcount);
+            maxcount = atoul(fmaxcount);
 
         char* fincrtime = strtok(NULL, " ");                    //add incrtime, default: 0
         uint32 incrtime = 0;
         if (fincrtime)
-            incrtime = atol(fincrtime);
+            incrtime = atoul(fincrtime);
 
         char* fextendedcost = strtok(NULL, " ");                //add ExtendedCost, default: 0
-        uint32 extendedcost = fextendedcost ? atol(fextendedcost) : 0;
+        uint32 extendedcost = fextendedcost ? atoul(fextendedcost) : 0;
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor)
         {
@@ -378,28 +378,13 @@ public:
 
         uint32 lowGuid = atoi((char*)guidStr);
 
-        Creature* creature = NULL;
-
-        /* FIXME: impossible without entry
-        if (lowguid)
-            creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
-        */
-
         // attempt check creature existence by DB data
-        if (!creature)
+        CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
+        if (!data)
         {
-            CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
-            if (!data)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowGuid);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-        }
-        else
-        {
-            // obtain real GUID for DB operations
-            lowGuid = creature->GetDBTableGUIDLow();
+            handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowGuid);
+            handler->SetSentErrorMessage(true);
+            return false;
         }
 
         int wait = waitStr ? atoi(waitStr) : 0;
@@ -414,18 +399,6 @@ public:
         stmt->setUInt32(1, lowGuid);
 
         WorldDatabase.Execute(stmt);
-
-        if (creature && creature->GetWaypointPath())
-        {
-            creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-            creature->GetMotionMaster()->Initialize();
-            if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
-            {
-                creature->setDeathState(JUST_DIED);
-                creature->Respawn(true);
-            }
-            creature->SaveToDB();
-        }
 
         handler->SendSysMessage(LANG_WAYPOINT_ADDED);
 
@@ -572,7 +545,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        uint32 itemId = atol(pitem);
+        uint32 itemId = atoul(pitem);
 
         const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
 
@@ -840,34 +813,22 @@ public:
 
             lowguid = atoi(cId);
 
-            /* FIXME: impossible without entry
-            if (lowguid)
-                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
-            */
-
             // Attempting creature load from DB data
-            if (!creature)
+            CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
+            if (!data)
             {
-                CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
-                if (!data)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-
-                uint32 map_id = data->mapid;
-
-                if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, lowguid);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
+                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
+                handler->SetSentErrorMessage(true);
+                return false;
             }
-            else
+
+            uint32 map_id = data->mapid;
+
+            if (handler->GetSession()->GetPlayer()->GetMapId() != map_id)
             {
-                lowguid = creature->GetDBTableGUIDLow();
+                handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, lowguid);
+                handler->SetSentErrorMessage(true);
+                return false;
             }
         }
         else
@@ -1356,7 +1317,7 @@ public:
             return false;
         }
 
-        ObjectGuid receiver_guid(HIGHGUID_PLAYER, uint32(atol(receiver_str)));
+        ObjectGuid receiver_guid(HIGHGUID_PLAYER, uint32(atoul(receiver_str)));
 
         // check online security
         Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);

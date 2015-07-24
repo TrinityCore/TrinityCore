@@ -110,7 +110,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_DENIED               = 77,
     LANG_RBAC_PERM_REVOKED              = 78,
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
-    // Free 80 - 95
+    LANG_PVPSTATS                       = 80,
+    LANG_PVPSTATS_DISABLED              = 81,
+    // Free 82 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -205,15 +207,8 @@ enum TrinityStrings
     LANG_LIQUID_STATUS                  = 175,
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
-
-    LANG_PHASING_SUCCESS                = 178,
-    LANG_PHASING_FAILED                 = 179,
-    LANG_PHASING_LAST_PHASE             = 180,
-    LANG_PHASING_LIST                   = 181,
-    LANG_PHASING_PHASEMASK              = 182,
-    LANG_PHASING_REPORT_STATUS          = 183,
-    LANG_PHASING_NO_DEFINITIONS         = 184,              // Phasing
-    // Room for more level 1              185-199 not used
+    LANG_GRID_POSITION                  = 178,
+    // Room for more level 1              179-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -978,15 +973,14 @@ enum TrinityStrings
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
     LANG_GUILD_INFO_LEVEL               = 1184,
-    // Room for more level 3              1184-1199 not used
 
     // Debug commands
+    LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
     LANG_DEBUG_AREATRIGGER_ON           = 1202,
     LANG_DEBUG_AREATRIGGER_OFF          = 1203,
     LANG_DEBUG_AREATRIGGER_REACHED      = 1204,
-    // Room for more debug                1205-1299 not used
 
     // Isle of Conquest
     LANG_BG_IC_START_TWO_MINUTES        = 1205,

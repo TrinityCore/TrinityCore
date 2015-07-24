@@ -28,7 +28,7 @@ enum Spells
 enum Events
 {
     EVENT_POISON_CLOUD     = 1,
-    EVENT_FRENZIED_RAGE    = 2
+    EVENT_FRENZIED_RAGE
 };
 
 class boss_aku_mai : public CreatureScript
@@ -38,7 +38,7 @@ public:
 
     struct boss_aku_maiAI : public BossAI
     {
-        boss_aku_maiAI(Creature* creature) : BossAI(creature, TYPE_AKU_MAI)
+        boss_aku_maiAI(Creature* creature) : BossAI(creature, DATA_AKU_MAI)
         {
             Initialize();
         }
@@ -56,42 +56,30 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
             _EnterCombat();
+            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
         {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (!IsEnraged && HealthBelowPct(30))
-                events.ScheduleEvent(EVENT_FRENZIED_RAGE, 100);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
             {
-                switch (eventId)
-                {
-                    case EVENT_POISON_CLOUD:
-                        DoCastVictim(SPELL_POISON_CLOUD);
-                        events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
-                        break;
-                    case EVENT_FRENZIED_RAGE:
-                        DoCast(me, SPELL_FRENZIED_RAGE);
-                        IsEnraged = true;
-                        break;
-                    default:
-                        break;
-                }
+                DoCast(me, SPELL_FRENZIED_RAGE);
+                IsEnraged = true;
             }
-            DoMeleeAttackIfReady();
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_POISON_CLOUD:
+                    DoCastVictim(SPELL_POISON_CLOUD);
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
+                    break;
+                default:
+                    break;
+            }
         }
 
         private:
@@ -100,7 +88,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_aku_maiAI(creature);
+        return GetInstanceAI<boss_aku_maiAI>(creature);
     }
 };
 

@@ -24,8 +24,6 @@
 #include "GameObjectModel.h"
 #include "Log.h"
 #include "GameObject.h"
-#include "Creature.h"
-#include "TemporarySummon.h"
 #include "Object.h"
 #include "DBCStores.h"
 #include "World.h"
@@ -76,6 +74,12 @@ void LoadGameObjectModelList()
         {
             VMAP_ERROR_LOG("misc", "File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
             break;
+        }
+
+        if (v1.isNaN() || v2.isNaN())
+        {
+            VMAP_ERROR_LOG("misc", "File '%s' Model '%s' has invalid v1%s v2%s values!", VMAP::GAMEOBJECT_MODELS, std::string(buff, name_length).c_str(), v1.toString().c_str(), v2.toString().c_str());
+            continue;
         }
 
         model_list.insert
@@ -182,12 +186,12 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     return hit;
 }
 
-bool GameObjectModel::Relocate(const GameObject& go)
+bool GameObjectModel::UpdatePosition()
 {
     if (!iModel)
         return false;
 
-    ModelList::const_iterator it = model_list.find(go.GetDisplayId());
+    ModelList::const_iterator it = model_list.find(owner->GetDisplayId());
     if (it == model_list.end())
         return false;
 
@@ -199,9 +203,9 @@ bool GameObjectModel::Relocate(const GameObject& go)
         return false;
     }
 
-    iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
+    iPos = Vector3(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ());
 
-    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
+    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(owner->GetOrientation(), 0, 0);
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
@@ -215,7 +219,7 @@ bool GameObjectModel::Relocate(const GameObject& go)
     for (int i = 0; i < 8; ++i)
     {
         Vector3 pos(iBound.corner(i));
-        go.SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_MANUAL_DESPAWN);
+        owner->SummonCreature(1, pos.x, pos.y, pos.z, 0, TEMPSUMMON_MANUAL_DESPAWN);
     }
 #endif
 

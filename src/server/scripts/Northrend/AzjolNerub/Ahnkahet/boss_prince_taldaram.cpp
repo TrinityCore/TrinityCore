@@ -108,7 +108,7 @@ class boss_prince_taldaram : public CreatureScript
                 events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 5000);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 BossAI::JustSummoned(summon);
 

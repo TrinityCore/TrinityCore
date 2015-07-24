@@ -112,7 +112,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
     for (size_t i = 0; i < path.size(); ++i)
-        allPoints.push_back(G3D::Vector3(path[i].x, path[i].y, path[i].z));
+        allPoints.push_back(G3D::Vector3(path[i].LocX, path[i].LocY, path[i].LocZ));
 
     // Add extra points to allow derivative calculations for all path nodes
     allPoints.insert(allPoints.begin(), allPoints.front().lerp(allPoints[1], -0.2f));
@@ -129,7 +129,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (!mapChange)
         {
             TaxiPathNodeEntry const& node_i = path[i];
-            if (i != path.size() - 1 && (node_i.actionFlag & 1 || node_i.mapid != path[i + 1].mapid))
+            if (i != path.size() - 1 && (node_i.Flags & 1 || node_i.MapID != path[i + 1].MapID))
             {
                 keyFrames.back().Teleport = true;
                 mapChange = true;
@@ -142,8 +142,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
                 k.InitialOrientation = Position::NormalizeOrientation(std::atan2(h.y, h.x) + float(M_PI));
 
                 keyFrames.push_back(k);
-                splinePath.push_back(G3D::Vector3(node_i.x, node_i.y, node_i.z));
-                transport->mapsUsed.insert(k.Node->mapid);
+                splinePath.push_back(G3D::Vector3(node_i.LocX, node_i.LocY, node_i.LocZ));
+                transport->mapsUsed.insert(k.Node->MapID);
             }
         }
         else
@@ -153,12 +153,12 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     if (splinePath.size() >= 2)
     {
         // Remove special catmull-rom spline points
-        if (!keyFrames.front().IsStopFrame() && !keyFrames.front().Node->arrivalEventID && !keyFrames.front().Node->departureEventID)
+        if (!keyFrames.front().IsStopFrame() && !keyFrames.front().Node->ArrivalEventID && !keyFrames.front().Node->DepartureEventID)
         {
             splinePath.erase(splinePath.begin());
             keyFrames.erase(keyFrames.begin());
         }
-        if (!keyFrames.back().IsStopFrame() && !keyFrames.back().Node->arrivalEventID && !keyFrames.back().Node->departureEventID)
+        if (!keyFrames.back().IsStopFrame() && !keyFrames.back().Node->ArrivalEventID && !keyFrames.back().Node->DepartureEventID)
         {
             splinePath.pop_back();
             keyFrames.pop_back();
@@ -311,7 +311,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     float curPathTime = 0.0f;
     if (keyFrames[0].IsStopFrame())
     {
-        curPathTime = float(keyFrames[0].Node->delay);
+        curPathTime = float(keyFrames[0].Node->Delay);
         keyFrames[0].DepartureTime = uint32(curPathTime * IN_MILLISECONDS);
     }
 
@@ -322,7 +322,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         {
             keyFrames[i].ArriveTime = uint32(curPathTime * IN_MILLISECONDS);
             keyFrames[i - 1].NextArriveTime = keyFrames[i].ArriveTime;
-            curPathTime += float(keyFrames[i].Node->delay);
+            curPathTime += float(keyFrames[i].Node->Delay);
             keyFrames[i].DepartureTime = uint32(curPathTime * IN_MILLISECONDS);
         }
         else
@@ -374,10 +374,10 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
 
     // ...at first waypoint
     TaxiPathNodeEntry const* startNode = tInfo->keyFrames.begin()->Node;
-    uint32 mapId = startNode->mapid;
-    float x = startNode->x;
-    float y = startNode->y;
-    float z = startNode->z;
+    uint32 mapId = startNode->MapID;
+    float x = startNode->LocX;
+    float y = startNode->LocY;
+    float z = startNode->LocZ;
     float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base

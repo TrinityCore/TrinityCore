@@ -44,14 +44,14 @@ bool AuctionBotSeller::Initialize()
     {
         std::stringstream includeStream(sAuctionBotConfig->GetAHBotIncludes());
         std::string temp;
-        while (getline(includeStream, temp, ','))
+        while (std::getline(includeStream, temp, ','))
             includeItems.push_back(atoi(temp.c_str()));
     }
 
     {
         std::stringstream excludeStream(sAuctionBotConfig->GetAHBotExcludes());
         std::string temp;
-        while (getline(excludeStream, temp, ','))
+        while (std::getline(excludeStream, temp, ','))
             excludeItems.push_back(atoi(temp.c_str()));
     }
 
@@ -76,17 +76,17 @@ bool AuctionBotSeller::Initialize()
 
     TC_LOG_DEBUG("ahbot", "Loading loot items for filter..");
     QueryResult result = WorldDatabase.PQuery(
-        "SELECT `item` FROM `creature_loot_template` UNION "
-        "SELECT `item` FROM `disenchant_loot_template` UNION "
-        "SELECT `item` FROM `fishing_loot_template` UNION "
-        "SELECT `item` FROM `gameobject_loot_template` UNION "
-        "SELECT `item` FROM `item_loot_template` UNION "
-        "SELECT `item` FROM `milling_loot_template` UNION "
-        "SELECT `item` FROM `pickpocketing_loot_template` UNION "
-        "SELECT `item` FROM `prospecting_loot_template` UNION "
-        "SELECT `item` FROM `reference_loot_template` UNION "
-        "SELECT `item` FROM `skinning_loot_template` UNION "
-        "SELECT `item` FROM `spell_loot_template`");
+        "SELECT `item` FROM `creature_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `disenchant_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `fishing_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `gameobject_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `item_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `milling_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `pickpocketing_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `prospecting_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `reference_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `skinning_loot_template` WHERE `Reference` = 0 UNION "
+        "SELECT `item` FROM `spell_loot_template` WHERE `Reference` = 0");
 
     if (result)
     {
@@ -207,12 +207,12 @@ bool AuctionBotSeller::Initialize()
         {
             if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
             {
-                if (prototype->BuyPrice == 0)
+                if (prototype->SellPrice == 0)
                     continue;
             }
             else
             {
-                if (prototype->SellPrice == 0)
+                if (prototype->BuyPrice == 0)
                     continue;
             }
         }
@@ -706,7 +706,7 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
     if (sellPrice == 0)
         sellPrice = (buyPrice > 10 ? buyPrice / GetSellModifier(itemProto) : buyPrice);
 
-    if (!sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+    if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
         buyPrice = sellPrice;
 
     uint32 basePrice = (buyPrice * stackCount * priceRatio) / (itemProto->Class == 6 ? 200 : itemProto->BuyCount) / 100;

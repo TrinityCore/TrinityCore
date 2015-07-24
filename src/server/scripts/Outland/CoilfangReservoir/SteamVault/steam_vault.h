@@ -28,7 +28,11 @@ enum DataTypes
     DATA_HYDROMANCER_THESPIA        = 0,
     DATA_MEKGINEER_STEAMRIGGER      = 1,
     DATA_WARLORD_KALITHRESH         = 2,
-    DATA_DISTILLER                  = 3
+    DATA_DISTILLER                  = 3,
+
+    // Additional Data
+    DATA_ACCESS_PANEL_HYDRO         = 4,
+    DATA_ACCESS_PANEL_MEK           = 5
 };
 
 enum CreatureIds

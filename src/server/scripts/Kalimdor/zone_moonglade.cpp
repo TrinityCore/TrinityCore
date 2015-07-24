@@ -26,6 +26,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 
+
 /*####
 # npc_omen
 ####*/

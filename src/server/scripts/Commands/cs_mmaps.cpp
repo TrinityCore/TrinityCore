@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -47,17 +47,17 @@ public:
         static ChatCommand mmapCommandTable[] =
         {
             { "loadedtiles", rbac::RBAC_PERM_COMMAND_MMAP_LOADEDTILES, false, &HandleMmapLoadedTilesCommand, "", NULL },
-            { "loc", rbac::RBAC_PERM_COMMAND_MMAP_LOC, false, &HandleMmapLocCommand, "", NULL },
-            { "path", rbac::RBAC_PERM_COMMAND_MMAP_PATH, false, &HandleMmapPathCommand, "", NULL },
-            { "stats", rbac::RBAC_PERM_COMMAND_MMAP_STATS, false, &HandleMmapStatsCommand, "", NULL },
-            { "testarea", rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA, false, &HandleMmapTestArea, "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "loc",         rbac::RBAC_PERM_COMMAND_MMAP_LOC,         false, &HandleMmapLocCommand,         "", NULL },
+            { "path",        rbac::RBAC_PERM_COMMAND_MMAP_PATH,        false, &HandleMmapPathCommand,        "", NULL },
+            { "stats",       rbac::RBAC_PERM_COMMAND_MMAP_STATS,       false, &HandleMmapStatsCommand,       "", NULL },
+            { "testarea",    rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA,    false, &HandleMmapTestArea,           "", NULL },
+            { NULL,          0,                                  false, NULL,                          "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable },
-            { NULL, 0, false, NULL, "", NULL }
+            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable  },
+            { NULL,   0,                     false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -87,6 +87,10 @@ public:
         if (para && strcmp(para, "true") == 0)
             useStraightPath = true;
 
+        bool useStraightLine = false;
+        if (para && strcmp(para, "line") == 0)
+            useStraightLine = true;
+
         // unit locations
         float x, y, z;
         player->GetPosition(x, y, z);
@@ -94,11 +98,11 @@ public:
         // path
         PathGenerator path(target);
         path.SetUseStraightPath(useStraightPath);
-        bool result = path.CalculatePath(x, y, z);
+        bool result = path.CalculatePath(x, y, z, false, useStraightLine);
 
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
-        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
+        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useStraightLine ? "Raycast" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: %zu - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
         G3D::Vector3 const &start = path.GetStartPosition();

@@ -57,7 +57,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 bossId, EncounterState state)
+            bool SetBossState(uint32 bossId, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(bossId, state))
                     return false;

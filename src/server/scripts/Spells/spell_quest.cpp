@@ -208,22 +208,23 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
                 if (GetCastItem())
                     if (Creature* creatureTarget = GetHitCreature())
                     {
-                        uint32 uiNewEntry = 0;
+                        uint32 newEntry = 0;
                         switch (caster->GetTeam())
                         {
                             case HORDE:
                                 if (creatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
-                                    uiNewEntry = NPC_CURED_GAZELLE;
+                                    newEntry = NPC_CURED_GAZELLE;
                                 break;
                             case ALLIANCE:
                                 if (creatureTarget->GetEntry() == NPC_SICKLY_DEER)
-                                    uiNewEntry = NPC_CURED_DEER;
+                                    newEntry = NPC_CURED_DEER;
                                 break;
                         }
-                        if (uiNewEntry)
+                        if (newEntry)
                         {
-                            creatureTarget->UpdateEntry(uiNewEntry);
+                            creatureTarget->UpdateEntry(newEntry);
                             creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            caster->KilledMonsterCredit(newEntry);
                         }
                     }
             }
@@ -338,7 +339,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q11396_11399_scourging_crystal_controller_SpellScript();
-        };
+        }
 };
 
 // 43882 Scourging Crystal Controller Dummy
@@ -374,7 +375,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
         SpellScript* GetSpellScript() const override
         {
             return new spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript();
-        };
+        }
 };
 
 // http://www.wowhead.com/quest=11515 Blood for Blood
@@ -855,7 +856,7 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_symbol_of_life_dummy_SpellScript();
-        };
+        }
 };
 
 // http://www.wowhead.com/quest=12659 Scalps!
@@ -898,7 +899,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q12659_ahunaes_knife_SpellScript();
-        };
+        }
 };
 
 enum StoppingTheSpread
@@ -944,7 +945,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q9874_liquid_fire_SpellScript();
-        };
+        }
 };
 
 enum SalvagingLifesStength
@@ -988,7 +989,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q12805_lifeblood_dummy_SpellScript();
-        };
+        }
 };
 
 /*
@@ -1076,9 +1077,12 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 // http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
-    SPELL_CAST_NET          = 29866,
-    ITEM_RED_SNAPPER        = 23614,
-    SPELL_NEW_SUMMON_TEST   = 49214,
+    ITEM_RED_SNAPPER             = 23614,
+
+    SPELL_CAST_NET               = 29866,
+    SPELL_NEW_SUMMON_TEST        = 49214,
+
+    GO_SCHOOL_OF_RED_SNAPPER     = 181616
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1095,6 +1099,15 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
+            SpellCastResult CheckCast()
+            {
+                GameObject* go = GetCaster()->FindNearestGameObject(GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
+                if (!go || go->GetRespawnTime())
+                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
@@ -1104,9 +1117,19 @@ class spell_q9452_cast_net: public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
             }
 
+            void HandleActiveObject(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitGObj()->SetRespawnTime(roll_chance_i(50) ? 2 * MINUTE : 3 * MINUTE);
+                GetHitGObj()->Use(GetCaster());
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
             void Register() override
             {
+                OnCheckCast += SpellCheckCastFn(spell_q9452_cast_net_SpellScript::CheckCast);
                 OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 
@@ -2473,6 +2496,35 @@ public:
     }
 };
 
+// 13790 13793 13811 13814 - Among the Champions
+// 13665 13745 13750 13756 13761 13767 13772 13777 13782  13787 - The Grand Melee
+class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
+{
+    public:
+        spell_q13665_q13790_bested_trigger() : SpellScriptLoader("spell_q13665_q13790_bested_trigger") { }
+
+        class spell_q13665_q13790_bested_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13665_q13790_bested_trigger_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
+                target->CastSpell(target, uint32(GetEffectValue()));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13665_q13790_bested_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13665_q13790_bested_trigger_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2532,5 +2584,5 @@ void AddSC_quest_spell_scripts()
     new spell_q14100_q14111_make_player_destroy_totems();
     new spell_q10929_fumping();
     new spell_q28813_get_our_boys_back_dummy();
-    new spell_q28813_set_health_random();
+    new spell_q13665_q13790_bested_trigger();
 }

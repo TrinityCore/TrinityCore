@@ -17,7 +17,6 @@
  */
 
 #include "Common.h"
-#include "Language.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -28,7 +27,6 @@
 #include "Player.h"
 #include "UpdateMask.h"
 #include "NPCHandler.h"
-#include "Pet.h"
 #include "MapManager.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
@@ -145,10 +143,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << float(creatureInfo->ModHealth);                       // dmg/hp modifier
         data << float(creatureInfo->ModMana);                         // dmg/mana modifier
         data << uint8(creatureInfo->RacialLeader);                    // RacialLeader
-
-        for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            data << uint32(creatureInfo->questItems[i]);              // itemId[6], quest drop
-
         data << uint32(creatureInfo->movementId);                     // CreatureMovementInfo.dbc
         data << uint32(creatureInfo->expansionUnknown);               // unknown meaning
 
@@ -209,8 +203,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         data << info->unk1;                                 // 2.0.3, string
         data.append(info->raw.data, MAX_GAMEOBJECT_DATA);
         data << float(info->size);                          // go size
-        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            data << uint32(info->questItems[i]);            // itemId[6], quest drop
+
         data << int32(info->unkInt32);                      // 4.x, unknown
         SendPacket(&data);
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");

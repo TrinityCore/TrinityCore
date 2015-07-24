@@ -28,12 +28,10 @@
 #include "Group.h"
 #include "GuildMgr.h"
 #include "Guild.h"
-#include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
-#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -541,7 +539,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             if (!aura->IsPermanent()
                                 && aura->GetDuration() <= 30*IN_MILLISECONDS
                                 && aurApp->IsPositive()
-                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+                                && (!aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
                                 && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
                                 player->RemoveAura(iter);
                             else

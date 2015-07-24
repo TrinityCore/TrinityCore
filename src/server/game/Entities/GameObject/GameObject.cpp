@@ -20,7 +20,6 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
-#include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -33,7 +32,6 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
-#include <G3D/Quat.h>
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(NULL), m_goValue(), m_AI(NULL)
@@ -192,6 +190,12 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 /*phase
         return false;
     }
 
+    if (goinfo->type == GAMEOBJECT_TYPE_MO_TRANSPORT)
+    {
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: %u Entry: %u) not created: gameobject type GAMEOBJECT_TYPE_MO_TRANSPORT cannot be manually created.", guidlow, name_id);
+        return false;
+    }
+
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag |= UPDATEFLAG_TRANSPORT;
 
@@ -285,6 +289,16 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 /*phase
             SetGoAnimProgress(animprogress);
             break;
     }
+
+    if (GameObjectAddon const* addon = sObjectMgr->GetGameObjectAddon(guidlow))
+    {
+        if (addon->InvisibilityValue)
+        {
+            m_invisibility.AddFlag(addon->invisibilityType);
+            m_invisibility.AddValue(addon->invisibilityType, addon->InvisibilityValue);
+        }
+    }
+
     LastUsedScriptID = GetGOInfo()->ScriptId;
     AIM_Initialize();
 
@@ -1783,6 +1797,9 @@ void GameObject::Use(Unit* user)
         return;
     }
 
+    if (Player* player = user->ToPlayer())
+        sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
+
     if (spellCaster)
         spellCaster->CastSpell(user, spellInfo, triggered);
     else
@@ -2293,8 +2310,11 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                     }
                     case GAMEOBJECT_TYPE_MO_TRANSPORT:
                     {
-                        float timer = float(m_goValue.Transport.PathProgress % GetUInt32Value(GAMEOBJECT_LEVEL));
-                        pathProgress = int16(timer / float(GetUInt32Value(GAMEOBJECT_LEVEL)) * 65535.0f);
+                        if (uint32 transportPeriod = GetTransportPeriod())
+                        {
+                            float timer = float(m_goValue.Transport.PathProgress % transportPeriod);
+                            pathProgress = int16(timer / float(transportPeriod) * 65535.0f);
+                        }
                         break;
                     }
                     default:
@@ -2391,7 +2411,7 @@ void GameObject::UpdateModelPosition()
     if (GetMap()->ContainsGameObjectModel(*m_model))
     {
         GetMap()->RemoveGameObjectModel(*m_model);
-        m_model->Relocate(*this);
+        m_model->UpdatePosition();
         GetMap()->InsertGameObjectModel(*m_model);
     }
 }

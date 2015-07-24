@@ -207,7 +207,7 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
-            if (damage > me->GetHealth() && events.IsInPhase(PHASE_ONE))
+            if (damage >= me->GetHealth() && events.IsInPhase(PHASE_ONE))
             {
                 damage = 0;
                 me->RemoveAllAuras();
@@ -247,14 +247,11 @@ public:
                         DoCastAOE(SPELL_DARKNESS);
                     }
                     else
-                    {
-                        DarkFiend = false;
                         me->SummonCreatureGroup(CREATURE_GROUP_DARKFIENDS);
-                    }
                     events.ScheduleEvent(EVENT_DARKNESS, DarkFiend ? 3000 : 42000, 0, PHASE_ONE);
                     break;
                 case EVENT_SUMMON_HUMANOIDS:
-                    me->SummonCreatureGroup(CREATURE_GROUP_DARKFIENDS);
+                    me->SummonCreatureGroup(CREATURE_GROUP_HUMANOIDS);
                     events.ScheduleEvent(EVENT_SUMMON_HUMANOIDS, 60000, 0, PHASE_ONE);
                     break;
                 case EVENT_SUMMON_SENTINEL:

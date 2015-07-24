@@ -26,7 +26,6 @@ enum Spells
     SPELL_METEOR            = 33814, //infernal visual
     SPELL_IMMOLATION        = 37059,
     SPELL_FLAME_BUFFET      = 31724,
-    NPC_TRIGGER             = 21987, //World Trigger (Tiny)
     MODEL_INVIS             = 11686, //invisible model
     SPELL_DISEASE_CLOUD     = 31607,
     SPELL_KNOCKDOWN         = 31610,
@@ -465,10 +464,7 @@ public:
             }
             if (!meteor)
             {
-                float x, y, z;
-                me->GetPosition(x, y, z);
-                Creature* trigger = me->SummonCreature(NPC_TRIGGER, x + 8, y + 8, z + 25 + rand32() % 10, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 1000);
-                if (trigger)
+                if (Creature* trigger = me->SummonCreature(NPC_WORLD_TRIGGER_TINY, me->GetPositionWithOffset({ 8.0f, 8.0f, frand(25.0f, 35.0f), 0.0f }), TEMPSUMMON_TIMED_DESPAWN, 1000))
                 {
                     trigger->SetVisible(false);
                     trigger->setFaction(me->getFaction());

@@ -58,7 +58,7 @@ enum Misc
     MAX_TEMPEST_MINIONS         = 4
 };
 
-struct Position TempestMinions[MAX_TEMPEST_MINIONS] =
+Position const TempestMinions[MAX_TEMPEST_MINIONS] =
 {
     {-203.980103f, -281.287720f, 91.650223f, 1.598807f},
     {-233.489410f, -281.139282f, 91.652412f, 1.598807f},

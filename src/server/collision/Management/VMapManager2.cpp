@@ -236,9 +236,11 @@ namespace VMAP
                 {
                     floor = info.ground_Z;
                     ASSERT(floor < std::numeric_limits<float>::max());
+                    ASSERT(info.hitModel);
                     type = info.hitModel->GetLiquidType();  // entry from LiquidType.dbc
                     if (reqLiquidType && !(GetLiquidFlagsPtr(type) & reqLiquidType))
                         return false;
+                    ASSERT(info.hitInstance);
                     if (info.hitInstance->GetLiquidLevel(pos, info, level))
                         return true;
                 }
