@@ -773,7 +773,7 @@ CREATE TABLE `character_glyphs` (
   `glyph7` smallint(5) unsigned DEFAULT '0',
   `glyph8` smallint(5) unsigned DEFAULT '0',
   `glyph9` smallint(5) unsigned DEFAULT '0',
-  PRIMARY KEY (`guid`,`spec`)
+  PRIMARY KEY (`guid`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
