@@ -22,7 +22,6 @@
 #include "Unit.h"
 #include "Transport.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
 
 namespace Movement
 {
