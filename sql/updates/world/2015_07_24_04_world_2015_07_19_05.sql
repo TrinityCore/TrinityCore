@@ -3,7 +3,7 @@
 -- Spawn Borderzone to Zul'Drak
 SET @CGUID := 52283;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+39;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
 (@CGUID+0, 26965, 571, 1, 1, 4851.188, -1375.803, 168.173, 2.495821, 120, 0, 0), -- 26965 (Area: 65)
 (@CGUID+1, 26965, 571, 1, 1, 4857.981, -1376.318, 168.6309, 2.670354, 120, 0, 0), -- 26965 (Area: 65)
 (@CGUID+2, 26942, 571, 1, 1, 4835.941, -1356.574, 168.1345, 3.508112, 120, 0, 0), -- 26942 (Area: 65)
