@@ -72,7 +72,7 @@ find_library(ZMQ_LIBRARY
     "${ZMQ_ROOT_DIR}/lib"
 )
 
-if (ZMQ_INCLUDE_DIR AND ZMQ_LIBRARY)
+if (ZMQ_INCLUDE_DIR AND ZMQ_LIBRARY AND NOT ZMQ_LIBRARY-NOTFOUND)
   set(ZMQ_FOUND 1)
   message(STATUS "Found ZMQ library: ${ZMQ_LIBRARY}")
   message(STATUS "Found ZMQ headers: ${ZMQ_INCLUDE_DIR}")
