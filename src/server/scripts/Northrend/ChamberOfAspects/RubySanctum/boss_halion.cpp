@@ -1006,7 +1006,6 @@ class npc_meteor_strike_initial : public CreatureScript
                 if (HalionAI* halionAI = CAST_AI(HalionAI, owner->AI()))
                 {
                     Position const* ownerPos = halionAI->GetMeteorStrikePosition();
-                    // Adjust randomness between 0 and pi.
                     float randomAdjustment = frand(static_cast<float>(M_PI / 14), static_cast<float>(13 * M_PI / 14));
                     float angle[4];
                     angle[0] = me->GetAngle(ownerPos);
@@ -1088,13 +1087,12 @@ class npc_meteor_strike : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 _events.Update(diff);
+
                 if (_events.ExecuteEvent() == EVENT_SPAWN_METEOR_FLAME)
                 {
-                    Position pos = me->GetNearPosition(5.0f, 0.0f);
+                    Position pos = me->GetNearPosition(5.0f, frand(static_cast<float>(-M_PI / 16), static_cast<float>(M_PI / 16)));
                     if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
-                        flame->SetOrientation(me->GetOrientation());
-
                         flame->AI()->SetGUID(GetGUID());
                         flame->AI()->DoAction(ACTION_SUMMON_FLAME);
                     }
@@ -1142,12 +1140,12 @@ class npc_meteor_strike_flame : public CreatureScript
                 if (!meteorStrike || meteorStrike->AI()->GetData(DATA_SPAWNED_FLAMES) > 5)
                     return;
 
-                me->SetOrientation(me->GetOrientation() + frand(static_cast<float>(-M_PI / 16), static_cast<float>(M_PI / 16)));
-                Position pos = me->GetNearPosition(5.0f, 0.0f);
+                Position pos = me->GetNearPosition(5.0f, frand(static_cast<float>(-M_PI / 16), static_cast<float>(M_PI / 16)));
 
                 if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                 {
                     flame->AI()->SetGUID(_rootOwnerGuid);
+                    flame->AI()->DoAction(ACTION_SUMMON_FLAME);
                     meteorStrike->AI()->SetData(DATA_SPAWNED_FLAMES, 1);
                 }
             }
@@ -1165,7 +1163,7 @@ class npc_meteor_strike_flame : public CreatureScript
         private:
             InstanceScript* _instance;
             EventMap _events;
-            ObjectGuid _rootOwnerGuid = ObjectGuid::Empty;
+            ObjectGuid _rootOwnerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
