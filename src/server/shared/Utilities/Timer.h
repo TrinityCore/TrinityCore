@@ -21,10 +21,10 @@
 
 #include <chrono>
 
-using namespace std::chrono;
-
 inline uint32 getMSTime()
 {
+    using namespace std::chrono;
+
     static const system_clock::time_point ApplicationStartTime = system_clock::now();
 
     return uint32(duration_cast<milliseconds>(system_clock::now() - ApplicationStartTime).count());

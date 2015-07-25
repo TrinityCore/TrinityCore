@@ -81,12 +81,23 @@ void RotateMovementGenerator::Finalize(Unit* unit)
 
 void DistractMovementGenerator::Initialize(Unit* owner)
 {
+    // Distracted creatures stand up if not standing
+    if (!owner->IsStandState())
+        owner->SetStandState(UNIT_STAND_STATE_STAND);
+
     owner->AddUnitState(UNIT_STATE_DISTRACTED);
 }
 
 void DistractMovementGenerator::Finalize(Unit* owner)
 {
     owner->ClearUnitState(UNIT_STATE_DISTRACTED);
+
+    // If this is a creature, then return orientation to original position (for idle movement creatures)
+    if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature())
+    {
+        float angle = owner->ToCreature()->GetHomePosition().GetOrientation();
+        owner->SetFacingTo(angle);
+    }
 }
 
 bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 time_diff)

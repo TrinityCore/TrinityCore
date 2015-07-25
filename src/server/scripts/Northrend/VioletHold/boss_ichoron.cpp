@@ -345,7 +345,7 @@ public:
 
                     events.Update(diff);
 
-                    switch (uint32 eventId = events.ExecuteEvent())
+                    switch (events.ExecuteEvent())
                     {
                         case EVENT_WATER_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -367,7 +367,7 @@ public:
                         bIsDrained = true;
                         drainedTimer = 50;
                         uint32 damage = me->CountPctFromMaxHealth(30);
-                        if (me->GetHealth() < damage)                            
+                        if (me->GetHealth() < damage)
                             me->SetHealth(me->CountPctFromMaxHealth(1));
                         else
                         {
@@ -398,7 +398,7 @@ public:
 
                 events.Update(diff);
 
-                switch (uint32 eventId = events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_WATER_BLAST:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))

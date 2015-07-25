@@ -180,7 +180,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_SUMMON_VOID:
                     DoCast(SPELL_SUMMON_VOID_SENTRY);
