@@ -404,7 +404,7 @@ Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
     // Check owner victim
     // 3.0.2 - Pets now start attacking their owners victim in defensive mode as soon as the hunter does
     if (Unit* ownerVictim = me->GetCharmerOrOwner()->GetVictim())
-            return ownerVictim;
+        return ownerVictim;
 
     // Neither pet or owner had a target and aggressive pets can pick any target
     // To prevent aggressive pets from chain selecting targets and running off, we

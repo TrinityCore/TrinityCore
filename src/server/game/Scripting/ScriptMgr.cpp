@@ -1359,17 +1359,17 @@ void ScriptMgr::OnGuildRemoveMember(Guild* guild, ObjectGuid guid, bool isDisban
     FOREACH_SCRIPT(GuildScript)->OnRemoveMember(guild, guid, isDisbanding, isKicked);
 }
 
-void ScriptMgr::OnGuildMOTDChanged(Guild* guild, const std::string& newMotd)
+void ScriptMgr::OnGuildMOTDChanged(Guild* guild, std::string const& newMotd)
 {
     FOREACH_SCRIPT(GuildScript)->OnMOTDChanged(guild, newMotd);
 }
 
-void ScriptMgr::OnGuildInfoChanged(Guild* guild, const std::string& newInfo)
+void ScriptMgr::OnGuildInfoChanged(Guild* guild, std::string const& newInfo)
 {
     FOREACH_SCRIPT(GuildScript)->OnInfoChanged(guild, newInfo);
 }
 
-void ScriptMgr::OnGuildCreate(Guild* guild, Player* leader, const std::string& name)
+void ScriptMgr::OnGuildCreate(Guild* guild, Player* leader, std::string const& name)
 {
     FOREACH_SCRIPT(GuildScript)->OnCreate(guild, leader, name);
 }
