@@ -24,7 +24,6 @@
 #include "Corpse.h"
 #include "Player.h"
 #include "Garrison.h"
-#include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
 #include "Battleground.h"

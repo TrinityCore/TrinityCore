@@ -28,7 +28,6 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "MapInstanced.h"
-#include "MapManager.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

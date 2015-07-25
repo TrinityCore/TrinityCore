@@ -17,7 +17,6 @@
  */
 
 #include "Totem.h"
-#include "Log.h"
 #include "Group.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

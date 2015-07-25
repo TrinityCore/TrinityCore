@@ -22,11 +22,8 @@
 #include "WorldSession.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
-#include "ObjectDefines.h"
 #include "Vehicle.h"
-#include "VehicleDefines.h"
 #include "Player.h"
-#include "Opcodes.h"
 #include "CombatPackets.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)

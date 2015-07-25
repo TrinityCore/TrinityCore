@@ -16,7 +16,6 @@
  */
 
 #include "SpellPackets.h"
-#include "SpellAuraEffects.h"
 #include "MovementPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
