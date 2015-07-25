@@ -104,23 +104,35 @@ class ObjectGuid
         PackedGuid WriteAsPacked() const;
 
         uint64   GetRawValue() const { return _data._guid; }
-        HighGuid GetHigh() const { return HighGuid((_data._guid >> 48) & 0x0000FFFF); }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
-        LowType  GetCounter()  const
+        HighGuid GetHigh() const
         {
-            return HasEntry()
-                ? LowType(_data._guid & UI64LIT(0x0000000000FFFFFF))
-                : LowType(_data._guid & UI64LIT(0x00000000FFFFFFFF));
+            uint32 temp = ((uint64(_data._guid) >> 48) & 0x0000FFFF);
+            return HighGuid((temp == HIGHGUID_CORPSE || temp == HIGHGUID_AREATRIGGER) ? temp : ((temp >> 4) & 0x00000FFF));
+        }
+        uint32   GetEntry() const { return HasEntry() ? uint32((_data._guid >> 32) & UI64LIT(0x00000000000FFFFF)) : 0; }
+        uint32   GetCounter()  const
+        {
+            return uint32(_data._guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
-        static uint32 GetMaxCounter(HighGuid high)
+        static uint32 GetMaxCounter(HighGuid /*high*/)
         {
-            return HasEntry(high)
-                   ? uint32(0x00FFFFFF)
-                   : uint32(0xFFFFFFFF);
+            return uint32(0xFFFFFFFF);
         }
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
+
+        uint8& operator[](uint32 index)
+        {
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index];
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+            return _data._bytes[index];
+        }
 
         bool IsEmpty()             const { return _data._guid == 0; }
         bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT; }
@@ -174,17 +186,6 @@ class ObjectGuid
         bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
         bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
         bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
-        uint8& operator[] (uint32 index) 
-        { 
-            ASSERT(index < sizeof(uint64));
-            return _data._bytes[index]; 
-        }
-
-        uint8 const& operator[](uint32 index) const
-        {
-            ASSERT(index < sizeof(uint64));
-            return _data._bytes[index];
-        }
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
