@@ -1008,9 +1008,9 @@ bool logChildren)
                         // Get the size of the child member
                         ULONG64 length;
                         SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_LENGTH, &length);
-                        char buffer[50];
-                        FormatOutputValue(buffer, basicType, length, (PVOID)address, sizeof(buffer));
-                        symbolDetails.top().Value = buffer;
+                        char buffer2[50];
+                        FormatOutputValue(buffer2, basicType, length, (PVOID)address, sizeof(buffer));
+                        symbolDetails.top().Value = buffer2;
                     }
                     bHandled = true;
                     return pszCurrBuffer;
@@ -1233,16 +1233,16 @@ size_t countOverride)
                 else
                     length = strlen((char*)pAddress);
                 if (length > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", bufferSize - 6, (char*)pAddress);
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), (char*)pAddress);
                 else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s\"", length, (char*)pAddress);
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s\"", (DWORD)length, (char*)pAddress);
                 break;
             }
             case btStdString:
             {
                 std::string* value = static_cast<std::string*>(pAddress);
                 if (value->length() > bufferSize - 6)
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", bufferSize - 6, value->c_str());
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "\"%.*s...\"", (DWORD)(bufferSize - 6), value->c_str());
                 else
                     pszCurrBuffer += sprintf(pszCurrBuffer, "\"%s\"", value->c_str());
                 break;
@@ -1264,7 +1264,7 @@ size_t countOverride)
                 {
                     if (basicType == btFloat)
                     {
-                        pszCurrBuffer += sprintf(pszCurrBuffer, "%lf",
+                        pszCurrBuffer += sprintf(pszCurrBuffer, "%f",
                             *(double *)pAddress);
                     }
                     else
@@ -1274,9 +1274,9 @@ size_t countOverride)
                 else
                 {
     #if _WIN64
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X", (DWORD64*)pAddress);
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X", (DWORD64)pAddress);
     #else
-                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", (PDWORD)pAddress);
+                    pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X", (DWORD)pAddress);
     #endif
                 }
                 break;
@@ -1285,9 +1285,9 @@ size_t countOverride)
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
 #if _WIN64
-        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X <Unable to read memory>", (DWORD64*)pAddress);
+        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%I64X <Unable to read memory>", (DWORD64)pAddress);
 #else
-        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X <Unable to read memory>", (PDWORD)pAddress);
+        pszCurrBuffer += sprintf(pszCurrBuffer, "0x%X <Unable to read memory>", (DWORD)pAddress);
 #endif
     }
 }
