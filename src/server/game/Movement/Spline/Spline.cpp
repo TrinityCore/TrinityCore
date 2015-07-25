@@ -204,7 +204,7 @@ void SplineBase::init_spline(const Vector3 * controls, index_type count, Evaluat
     m_mode = m;
     cyclic = false;
 
-    (this->*initializers[m_mode])(controls, count, cyclic, 0);
+    (this->*initializers[m_mode])(controls, count, 0);
 }
 
 void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point)
@@ -212,10 +212,10 @@ void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, 
     m_mode = m;
     cyclic = true;
 
-    (this->*initializers[m_mode])(controls, count, cyclic, cyclic_point);
+    (this->*initializers[m_mode])(controls, count, cyclic_point);
 }
 
-void SplineBase::InitLinear(const Vector3* controls, index_type count, bool cyclic, index_type cyclic_point)
+void SplineBase::InitLinear(const Vector3* controls, index_type count, index_type cyclic_point)
 {
     ASSERT(count >= 2);
     const int real_size = count + 1;
@@ -235,7 +235,7 @@ void SplineBase::InitLinear(const Vector3* controls, index_type count, bool cycl
     index_hi = cyclic ? count : (count - 1);
 }
 
-void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, bool cyclic, index_type cyclic_point)
+void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, index_type cyclic_point)
 {
     const int real_size = count + (cyclic ? (1+2) : (1+1));
 
@@ -268,7 +268,7 @@ void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, bool 
     index_hi = high_index + (cyclic ? 1 : 0);
 }
 
-void SplineBase::InitBezier3(const Vector3* controls, index_type count, bool /*cyclic*/, index_type /*cyclic_point*/)
+void SplineBase::InitBezier3(const Vector3* controls, index_type count, index_type /*cyclic_point*/)
 {
     index_type c = count / 3u * 3u;
     index_type t = c / 3u;

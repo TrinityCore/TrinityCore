@@ -236,7 +236,7 @@ class OutdoorPvP : public ZoneScript
         // awards rewards for player kill
         virtual void AwardKillBonus(Player* /*player*/) { }
 
-        uint32 GetTypeId() {return m_TypeId;}
+        uint32 GetTypeId() const {return m_TypeId;}
 
         virtual bool HandleDropFlag(Player* player, uint32 spellId);
 

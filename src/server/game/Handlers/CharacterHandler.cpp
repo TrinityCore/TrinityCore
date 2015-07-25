@@ -1983,9 +1983,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 stmt->setUInt32(0, oldReputation);
                 stmt->setUInt32(1, lowGuid);
 
-                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+                if (PreparedQueryResult reputationResult = CharacterDatabase.Query(stmt))
                 {
-                    Field* fields = result->Fetch();
+                    fields = reputationResult->Fetch();
                     int32 oldDBRep = fields[0].GetInt32();
                     FactionEntry const* factionEntry = sFactionStore.LookupEntry(oldReputation);
 

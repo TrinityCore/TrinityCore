@@ -288,7 +288,7 @@ class WorldSession
 
         uint32 GetGuidLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
-        std::string const& GetRemoteAddress() { return m_Address; }
+        std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
 
