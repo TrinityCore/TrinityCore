@@ -4,10 +4,11 @@
 
 ## Build Status
 
-6.x | 3.3.5
-:------------: | :------------:
-[![6.x Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=6.x)](https://travis-ci.org/TrinityCore/TrinityCore) | [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=3.3.5)](https://travis-ci.org/TrinityCore/TrinityCore)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) | [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656)
+
+6.x | 4.3.4 | 3.3.5
+:------------: | :------------: | :------------:
+[![6.x Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=6.x)](https://travis-ci.org/TrinityCore/TrinityCore) | [![4.3.4 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/TrinityCore/TrinityCore) | [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=3.3.5)](https://travis-ci.org/TrinityCore/TrinityCore)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) | |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656)
 
 ## Introduction
 
@@ -35,7 +36,7 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
-+ MS Visual Studio ≥ 12 (2013) (Windows only)
++ MS Visual Studio ≥ 12 (2013) update 4 (Windows only)
 
 
 ## Install
