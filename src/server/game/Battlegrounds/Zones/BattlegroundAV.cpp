@@ -1377,10 +1377,10 @@ bool BattlegroundAV::SetupBattleground()
 
     //creatures
     TC_LOG_DEBUG("bg.battleground", "BG_AV start poputlating nodes");
-    for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+    for (BG_AV_Nodes n = BG_AV_NODES_FIRSTAID_STATION; n < BG_AV_NODES_MAX; ++n)
     {
-        if (m_Nodes[i].Owner)
-            PopulateNode(i);
+        if (m_Nodes[n].Owner)
+            PopulateNode(n);
     }
     //all creatures which don't get despawned through the script are static
     TC_LOG_DEBUG("bg.battleground", "BG_AV: start spawning static creatures");

@@ -32,7 +32,7 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
 
-        MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override { return FLEEING_MOTION_TYPE; }
 
     private:
         void _setTargetLocation(T*);
@@ -49,7 +49,7 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
             FleeingMovementGenerator<Creature>(fright),
             i_totalFleeTime(time) { }
 
-        MovementGeneratorType GetMovementGeneratorType() override { return TIMED_FLEEING_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override { return TIMED_FLEEING_MOTION_TYPE; }
         bool Update(Unit*, uint32) override;
         void Finalize(Unit*) override;
 
