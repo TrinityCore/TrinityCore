@@ -23,6 +23,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "Util.h"
+#include "ObjectAccessor.h"
 
 // these variables aren't used outside of this file, so declare them only here
 uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
