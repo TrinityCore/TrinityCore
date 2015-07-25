@@ -20,6 +20,7 @@
 #include "ScriptMgr.h"
 #include "WorldSession.h"
 #include "gundrak.h"
+#include "EventMap.h"
 
 DoorData const doorData[] =
 {
