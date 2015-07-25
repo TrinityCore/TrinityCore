@@ -2912,7 +2912,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint8 m_grantableLevels;
 
-        std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles = {};
+        std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles;
 
     private:
         // internal common parts for CanStore/StoreItem functions

@@ -21,12 +21,11 @@
 #include "BigNumber.h"
 #include "CharacterPackets.h"
 #include "Opcodes.h"
-#include "Player.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "PacketLog.h"
-#include "BattlenetAccountMgr.h"
 #include "World.h"
+
 #include <zlib.h>
 #include <memory>
 

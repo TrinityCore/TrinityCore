@@ -16,16 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
-#include <functional>
 #include "ItemEnchantmentMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include <list>
-#include <vector>
 #include "Util.h"
 #include "DBCStores.h"
+
+#include <list>
+#include <vector>
+#include <stdlib.h>
 
 struct EnchStoreItem
 {

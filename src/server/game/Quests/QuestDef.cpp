@@ -19,7 +19,6 @@
 #include "QuestDef.h"
 #include "Player.h"
 #include "World.h"
-#include "ObjectMgr.h"
 #include "QuestPackets.h"
 
 Quest::Quest(Field* questRecord)
