@@ -1181,8 +1181,8 @@ class Player : public Unit, public GridObject<Player>
         time_t m_logintime;
         time_t m_Last_tick;
         uint32 m_Played_time[MAX_PLAYED_TIME_INDEX];
-        uint32 GetTotalPlayedTime() { return m_Played_time[PLAYED_TIME_TOTAL]; }
-        uint32 GetLevelPlayedTime() { return m_Played_time[PLAYED_TIME_LEVEL]; }
+        uint32 GetTotalPlayedTime() const { return m_Played_time[PLAYED_TIME_TOTAL]; }
+        uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
@@ -1658,7 +1658,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
-        uint32 GetLastPotionId() { return m_lastPotionId; }
+        uint32 GetLastPotionId() const { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -1718,7 +1718,7 @@ class Player : public Unit, public GridObject<Player>
         Guild* GetGuild();
         static uint32 GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
-        int GetGuildIdInvited() { return m_GuildIdInvited; }
+        int GetGuildIdInvited() const { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid, uint32 type);
 
         // Arena Team
@@ -1729,7 +1729,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
         uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
-        uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
+        uint32 GetArenaTeamIdInvited() const { return m_ArenaTeamIdInvited; }
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -1917,7 +1917,7 @@ class Player : public Unit, public GridObject<Player>
         bool isHonorOrXPTarget(Unit* victim) const;
 
         bool GetsRecruitAFriendBonus(bool forXP);
-        uint8 GetGrantableLevels() { return m_grantableLevels; }
+        uint8 GetGrantableLevels() const { return m_grantableLevels; }
         void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
         ReputationMgr&       GetReputationMgr()       { return *m_reputationMgr; }
@@ -2062,7 +2062,7 @@ class Player : public Unit, public GridObject<Player>
         bool isTotalImmune();
         bool CanCaptureTowerPoint();
 
-        bool GetRandomWinner() { return m_IsBGRandomWinner; }
+        bool GetRandomWinner() const { return m_IsBGRandomWinner; }
         void SetRandomWinner(bool isWinner);
 
         /*********************************************************/
@@ -2257,7 +2257,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
         uint32 GetRuneBaseCooldown(uint8 index);
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
-        RuneType GetLastUsedRune() { return m_runes->lastUsedRune; }
+        RuneType GetLastUsedRune() const { return m_runes->lastUsedRune; }
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }

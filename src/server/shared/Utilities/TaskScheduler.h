@@ -29,6 +29,7 @@
 #include <boost/optional.hpp>
 
 #include "Util.h"
+#include "Duration.h"
 
 class TaskContext;
 
@@ -645,17 +646,5 @@ private:
     /// Invokes the associated hook of the task.
     void Invoke();
 };
-
-/// Milliseconds shorthand typedef.
-typedef std::chrono::milliseconds Milliseconds;
-
-/// Seconds shorthand typedef.
-typedef std::chrono::seconds Seconds;
-
-/// Minutes shorthand typedef.
-typedef std::chrono::minutes Minutes;
-
-/// Hours shorthand typedef.
-typedef std::chrono::hours Hours;
 
 #endif /// _TASK_SCHEDULER_H_

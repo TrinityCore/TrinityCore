@@ -26,6 +26,7 @@
 #include "WorldPacket.h"
 #include "Object.h"
 #include "GameObject.h"
+#include "EventMap.h"
 
 class Creature;
 class GameObject;
