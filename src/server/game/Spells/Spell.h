@@ -149,7 +149,6 @@ class SpellCastTargets
         SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
         ~SpellCastTargets();
 
-        void Read(ByteBuffer& data, Unit* caster);
         void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }

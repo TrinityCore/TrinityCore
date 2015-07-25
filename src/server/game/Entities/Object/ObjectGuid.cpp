@@ -121,46 +121,43 @@ void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
 
 void PackedGuid::Set(ObjectGuid const& guid)
 {
-    uint8 lowMask = 0;
-    uint8 highMask = 0;
     _packedGuid.clear();
-    _packedGuid << uint8(lowMask);
-    _packedGuid << uint8(highMask);
-
-    uint8 packed[8];
-    if (size_t packedSize = _packedGuid.PackUInt64(guid._low, &lowMask, packed))
-        _packedGuid.append(packed, packedSize);
-    if (size_t packedSize = _packedGuid.PackUInt64(guid._high, &highMask, packed))
-        _packedGuid.append(packed, packedSize);
-
-    _packedGuid.put(0, lowMask);
-    _packedGuid.put(1, highMask);
+    _packedGuid << guid;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
-    buf << guid.WriteAsPacked();
+    uint8 lowMask = 0;
+    uint8 highMask = 0;
+    buf.FlushBits();    // flush any unwritten bits to make wpos return a meaningful value
+    std::size_t pos = buf.wpos();
+    buf << uint8(lowMask);
+    buf << uint8(highMask);
+
+    uint8 packed[8];
+    if (size_t packedSize = ByteBuffer::PackUInt64(guid._low, &lowMask, packed))
+        buf.append(packed, packedSize);
+    if (size_t packedSize = ByteBuffer::PackUInt64(guid._high, &highMask, packed))
+        buf.append(packed, packedSize);
+
+    buf.put(pos, lowMask);
+    buf.put(pos + 1, highMask);
+
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    buf >> guid.ReadAsPacked();
+    uint8 lowMask, highMask;
+    buf >> lowMask >> highMask;
+    buf.ReadPackedUInt64(lowMask, guid._low);
+    buf.ReadPackedUInt64(highMask, guid._high);
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
 {
     buf.append(guid._packedGuid);
-    return buf;
-}
-
-ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
-{
-    uint8 lowMask, highMask;
-    buf >> lowMask >> highMask;
-    buf.ReadPackedUInt64(lowMask, guid.GuidPtr->_low);
-    buf.ReadPackedUInt64(highMask, guid.GuidPtr->_high);
     return buf;
 }
 
