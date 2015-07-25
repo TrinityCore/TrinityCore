@@ -1,3 +1,4 @@
+--
 SET @GUID := 12481; -- 1 free Cguid set by TC
 SET @OGUID := 9468; -- 5 free Oguid set by TC
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+4;
