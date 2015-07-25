@@ -380,6 +380,7 @@ WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
 {
     _worldPacket << ItemGuid;
     _worldPacket << uint32(SpellID);
+    _worldPacket << uint32(UnkID);
 
     return &_worldPacket;
 }
