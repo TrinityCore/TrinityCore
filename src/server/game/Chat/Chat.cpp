@@ -917,19 +917,15 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
 
     Player* pl = m_session->GetPlayer();
 
-    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, entry, lowguid));
+    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, entry, lowguid));
 
     if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
     {
-        // search near player then
-        CellCoord p(Trinity::ComputeCellCoord(pl->GetPositionX(), pl->GetPositionY()));
-        Cell cell(p);
+        auto bounds = pl->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
+        if (bounds.first == bounds.second)
+            return nullptr;
 
-        Trinity::GameObjectWithDbGUIDCheck go_check(*pl, lowguid);
-        Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(pl, obj, go_check);
-
-        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
-        cell.Visit(p, object_checker, *pl->GetMap(), *pl, pl->GetGridActivationRange());
+        return bounds.first->second;
     }
 
     return obj;
@@ -1067,7 +1063,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             uint32 lowguid = atoul(idS);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return ObjectGuid(HIGHGUID_UNIT, data->id, lowguid);
+                return ObjectGuid(HighGuid::Unit, data->id, lowguid);
             else
                 return ObjectGuid::Empty;
         }
@@ -1076,7 +1072,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             uint32 lowguid = atoul(idS);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, lowguid);
+                return ObjectGuid(HighGuid::GameObject, data->id, lowguid);
             else
                 return ObjectGuid::Empty;
         }

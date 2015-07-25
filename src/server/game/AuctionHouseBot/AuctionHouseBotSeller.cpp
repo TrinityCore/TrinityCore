@@ -991,7 +991,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         AuctionEntry* auctionEntry = new AuctionEntry();
         auctionEntry->Id = sObjectMgr->GenerateAuctionID();
         auctionEntry->owner = 0;
-        auctionEntry->itemGUIDLow = item->GetGUIDLow();
+        auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
         auctionEntry->itemEntry = item->GetEntry();
         auctionEntry->startbid = bidPrice;
         auctionEntry->buyout = buyoutPrice;
