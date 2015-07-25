@@ -385,7 +385,7 @@ private:
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
         bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
-        bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
+        bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
         void ChangeRank(uint8 newRank);
 
@@ -857,7 +857,7 @@ public:
     void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
     bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
     bool IsMember(ObjectGuid guid) const;
-    uint32 GetMembersCount() { return uint32(m_members.size()); }
+    uint32 GetMembersCount() const { return uint32(m_members.size()); }
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

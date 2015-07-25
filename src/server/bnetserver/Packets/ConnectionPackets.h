@@ -64,7 +64,7 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
             uint8* GetRemainingData() { return _stream.GetBuffer() + (((_stream.GetReadPos() + 7) & ~7) / 8); }
-            size_t GetRemainingSize() { return _stream.GetSize() - (((_stream.GetReadPos() + 7) & ~7) / 8); }
+            size_t GetRemainingSize() const { return _stream.GetSize() - (((_stream.GetReadPos() + 7) & ~7) / 8); }
         };
 
         class LogoutRequest final : public ClientPacket
