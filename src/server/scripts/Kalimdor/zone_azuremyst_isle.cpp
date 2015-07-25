@@ -465,13 +465,13 @@ public:
             SayTimer = 8000;
         }
 
-        uint32 NextStep(uint8 Step)
+        uint32 NextStep(uint8 step)
         {
             Creature* Spark = ObjectAccessor::GetCreature(*me, SparkGUID);
             if (!Spark)
                 return 99999999;
 
-            switch (Step)
+            switch (step)
             {
                 case 0:
                     Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);

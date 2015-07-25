@@ -71,21 +71,21 @@ class ChatHandler
         void SendSysMessage(uint32 entry);
 
         template<typename... Args>
-        void PSendSysMessage(const char* fmt, Args const&... args)
+        void PSendSysMessage(const char* fmt, Args&&... args)
         {
-            SendSysMessage(Trinity::StringFormat(fmt, args...).c_str());
+            SendSysMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
         }
 
         template<typename... Args>
-        void PSendSysMessage(uint32 entry, Args const&... args)
+        void PSendSysMessage(uint32 entry, Args&&... args)
         {
-            SendSysMessage(PGetParseString(entry, args...).c_str());
+            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...).c_str());
         }
 
         template<typename... Args>
-        std::string PGetParseString(uint32 entry, Args const&... args) const
+        std::string PGetParseString(uint32 entry, Args&&... args) const
         {
-            return Trinity::StringFormat(GetTrinityString(entry), args...);
+            return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
         bool ParseCommands(const char* text);

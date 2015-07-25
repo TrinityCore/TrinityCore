@@ -509,6 +509,8 @@ void WorldSocket::SendAuthResponseError(uint8 code)
 
 bool WorldSocket::HandlePing(WorldPacket& recvPacket)
 {
+    using namespace std::chrono;
+
     uint32 ping;
     uint32 latency;
 

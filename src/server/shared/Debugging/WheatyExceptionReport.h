@@ -7,6 +7,7 @@
 #include <set>
 #include <stdlib.h>
 #include <stack>
+#include <mutex>
 #define countof  _countof
 
 #define WER_MAX_ARRAY_ELEMENTS_COUNT 10
