@@ -1852,6 +1852,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
 
+    TC_LOG_INFO("server.loading", "Loading mount definitions...");
+    sObjectMgr->LoadMountDefinitions();
+
     TC_LOG_INFO("server.loading", "Loading GM bugs...");
     sSupportMgr->LoadBugTickets();
 

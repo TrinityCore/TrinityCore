@@ -1239,3 +1239,9 @@ void WorldSession::SendLoadCUFProfiles()
             loadCUFProfiles.CUFProfiles.push_back(cufProfile);
     SendPacket(loadCUFProfiles.Write());
 }
+
+void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite)
+{
+    if (Player* player = GetPlayer())
+        player->MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
+}

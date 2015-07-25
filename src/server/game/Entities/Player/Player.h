@@ -992,6 +992,12 @@ enum PlayerLoginQueryIndex
     MAX_PLAYER_LOGIN_QUERY
 };
 
+enum PlayerCollectionsLoginQueryIndex
+{
+    PLAYER_COLLECTIONS_LOGIN_QUERY_LOAD_MOUNTS,
+    MAX_PLAYER_COLLECTIONS_LOGIN_QUERY
+};
+
 enum PlayerDelayedOperations
 {
     DELAYED_SAVE_PLAYER         = 0x01,
@@ -1323,6 +1329,23 @@ struct PlayerTalentInfo
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
+};
+
+enum MountSaveState : uint8
+{
+    MOUNTSTATE_UNCHANGED    = 0,
+    MOUNTSTATE_NEW          = 1,
+    MOUNTSTATE_CHANGED      = 2,
+    MOUNTSTATE_CONVERTED    = 4,
+};
+
+struct MountData
+{
+    MountData() : m_favorite(false), m_state(MOUNTSTATE_UNCHANGED) { }
+    MountData(bool favorite, MountSaveState state) : m_favorite(favorite), m_state(state) { }
+
+    bool m_favorite : 1;
+    uint8 m_state : 3;
 };
 
 class Player : public Unit, public GridObject<Player>
@@ -1756,7 +1779,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
+        bool LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder, SQLQueryHolder* collectionsHolder);
         bool IsLoading() const override;
 
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -2633,6 +2656,11 @@ class Player : public Unit, public GridObject<Player>
         void DeleteGarrison();
         Garrison* GetGarrison() { return _garrison.get(); }
 
+        bool AddMount(uint32 spellId, bool isFavorite = false, bool isNew = false);
+        void ConvertMount(uint32 spellId);
+        void LearnOtherFactionMount(uint32 spellId);
+        void MountSetFavorite(uint32 spellId, bool state);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2712,6 +2740,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
+        void _LoadAccountMounts(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2737,6 +2766,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCUFProfiles(SQLTransaction& trans);
+        void _SaveAccountMounts(SQLTransaction& authTrans, SQLTransaction& charTrans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2913,6 +2943,9 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_grantableLevels;
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles = {};
+
+        std::unordered_map<uint32, MountData> mounts;
+        uint32 m_mountCount;
 
     private:
         // internal common parts for CanStore/StoreItem functions

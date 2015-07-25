@@ -890,6 +890,8 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr<Player>(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    m_mountCount = 0;
 }
 
 Player::~Player()
@@ -3424,6 +3426,9 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         return false;
     }
+
+    if (!loading && sDB2Manager.GetMount(spellId))
+        return AddMount(spellId, false, true);
 
     PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
 
@@ -16661,7 +16666,7 @@ bool Player::IsLoading() const
     return GetSession()->PlayerLoading();
 }
 
-bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
+bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder, SQLQueryHolder* collectionsHolder)
 {
     ////                                                     0     1        2     3     4        5      6    7      8     9           10              11
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
@@ -17217,6 +17222,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
+    _LoadAccountMounts(collectionsHolder->GetPreparedResult(PLAYER_COLLECTIONS_LOGIN_QUERY_LOAD_MOUNTS));
 
     LearnSpecializationSpells();
 
@@ -19104,6 +19110,7 @@ void Player::SaveToDB(bool create /*=false*/)
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SQLTransaction trans2 = LoginDatabase.BeginTransaction();
 
     trans->Append(stmt);
 
@@ -19134,6 +19141,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveCUFProfiles(trans);
     if (_garrison)
         _garrison->SaveToDB(trans);
+    _SaveAccountMounts(trans2, trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -19141,6 +19149,7 @@ void Player::SaveToDB(bool create /*=false*/)
         _SaveStats(trans);
 
     CharacterDatabase.CommitTransaction(trans);
+    LoginDatabase.CommitTransaction(trans2);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
@@ -22585,6 +22594,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendDirectMessage(worldServerInfo.Write());
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
+    WorldPackets::Misc::AccountMountUpdate accountMountUpdate;
+    accountMountUpdate.InitializeMounts(mounts, true);
+    SendDirectMessage(accountMountUpdate.Write());
+
     // SMSG_ACCOUNT_TOYS_UPDATE
 
     WorldPackets::Character::InitialSetup initialSetup;
@@ -26744,4 +26757,123 @@ void Player::SendSpellCategoryCooldowns()
     }
 
     SendDirectMessage(cooldowns.Write());
+}
+
+void Player::_LoadAccountMounts(PreparedQueryResult result)
+{
+    std::vector<uint32> oldMounts;
+    for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+        if (itr->second->state != PLAYERSPELL_REMOVED && itr->second->state != PLAYERSPELL_TEMPORARY && !itr->second->disabled && sDB2Manager.GetMount(itr->first))
+            oldMounts.push_back(itr->first);
+
+    if (result)
+    {
+        do
+        {
+            uint32 spellId = (*result)[0].GetUInt32();
+
+            AddMount((*result)[0].GetUInt32(), (*result)[1].GetBool(), false);
+        } while (result->NextRow());
+    }
+
+    for (uint32 spellId : oldMounts)
+        ConvertMount(spellId);
+}
+
+void Player::ConvertMount(uint32 spellId)
+{
+    AddMount(spellId, false, true);
+    LearnOtherFactionMount(spellId);
+    mounts[spellId].m_state |= MOUNTSTATE_CONVERTED;
+}
+
+void Player::LearnOtherFactionMount(uint32 spellId)
+{
+    MountDefinitionMap::const_iterator itr = sObjectMgr->MountDefinitionStore.find(spellId);
+    if (itr != sObjectMgr->MountDefinitionStore.end())
+    {
+        if (itr->second.m_otherSpell)
+            AddMount(itr->second.m_otherSpell, false, true);
+    }
+}
+
+bool Player::AddMount(uint32 spellId, bool isFavorite /*= false*/, bool isNew /*= false*/)
+{
+    if (mounts.find(spellId) != mounts.end())
+        return false;
+
+    MountDefinitionMap::const_iterator itr = sObjectMgr->MountDefinitionStore.find(spellId);
+    if (itr == sObjectMgr->MountDefinitionStore.end())
+        return false;
+
+    bool isDisabled = false;
+    if (uint8 faction = itr->second.m_faction)
+    {
+        if (GetTeam() == ALLIANCE)
+            isDisabled = faction == 2;
+        else
+            isDisabled = faction == 1;
+    }
+
+    if (isDisabled && itr->second.m_otherSpell)
+        return false;
+    if (!(getClassMask() & itr->second.m_classMask))
+        return false;
+    if (!(getRaceMask() & itr->second.m_raceMask))
+        return false;
+
+    MountData data(isFavorite, isNew ? MOUNTSTATE_NEW : MOUNTSTATE_UNCHANGED);
+    mounts[spellId] = data;
+
+    if (!isDisabled)
+        AddTemporarySpell(spellId);
+
+    if (isNew)
+        LearnOtherFactionMount(spellId);
+    return true;
+}
+
+void Player::MountSetFavorite(uint32 spellId, bool state)
+{
+    if (mounts.find(spellId) == mounts.end())
+    {
+        TC_LOG_ERROR("misc", "Player::MountSetFavorite - Player (%s, name: %s) tried to set mount as favorite without owning it (spellId: %u).", GetGUID().ToString().c_str(), GetName().c_str(), spellId);
+        return;
+    }
+
+    mounts[spellId].m_state |= MOUNTSTATE_CHANGED;
+    mounts[spellId].m_favorite = state;
+}
+
+void Player::_SaveAccountMounts(SQLTransaction& authTrans, SQLTransaction& charTrans)
+{
+    PreparedStatement* stmt = nullptr;
+    for (std::unordered_map<uint32, MountData>::iterator itr = mounts.begin(); itr != mounts.end(); ++itr)
+    {
+        if (itr->second.m_state & MOUNTSTATE_CONVERTED)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
+            stmt->setUInt32(0, itr->first);
+            stmt->setUInt32(1, GetGUID().GetCounter());
+            charTrans->Append(stmt);
+        }
+
+        if (itr->second.m_state & MOUNTSTATE_NEW)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MOUNTS);
+            stmt->setUInt32(0, GetSession()->GetAccountId());
+            stmt->setUInt32(1, itr->first);
+            stmt->setBool(2, itr->second.m_favorite);
+            authTrans->Append(stmt);
+        }
+        else if (itr->second.m_state & MOUNTSTATE_CHANGED)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MOUNTS_FAVORITE);
+            stmt->setBool(0, itr->second.m_favorite);
+            stmt->setUInt32(1, GetSession()->GetAccountId());
+            stmt->setUInt32(2, itr->first);
+            authTrans->Append(stmt);
+        }
+        itr->second.m_state = MOUNTSTATE_UNCHANGED;
+    }
 }

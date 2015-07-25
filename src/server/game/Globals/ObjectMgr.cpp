@@ -9354,3 +9354,64 @@ void ObjectMgr::LoadCreatureQuestItems()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::LoadMountDefinitions()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT spell, faction, otherSpell, raceMask, classMask FROM mount_definitions");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 mount definitions. DB table `mount_definitions` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 spell = fields[0].GetUInt32();
+        uint8 faction = fields[1].GetUInt8();
+        uint32 otherSpell = fields[2].GetUInt32();
+        uint32 raceMask = fields[3].GetUInt32();
+        uint32 classMask = fields[4].GetUInt32();
+
+        if (!sDB2Manager.GetMount(spell))
+        {
+            TC_LOG_ERROR("sql.sql", "Mount spell %u defined in `mount_definitions` does not exists in Mount.db2, skipped", spell);
+            continue;
+        }
+        if (faction > 2)
+        {
+            TC_LOG_ERROR("sql.sql", "Faction %u defined in `mount_definitions` for spell %u is invalid, skipped", faction, spell);
+            continue;
+        }
+        if (otherSpell && !sDB2Manager.GetMount(otherSpell))
+        {
+            TC_LOG_ERROR("sql.sql", "OtherSpell %u defined in `mount_definitions` for spell %u does not exists in Mount.db2, skipped", otherSpell, spell);
+            continue;
+        }
+
+        if (!(raceMask & RACEMASK_ALL_PLAYABLE))
+        {
+            TC_LOG_ERROR("sql.sql", "RaceMask %u defined in `mount_definitions` for spell %u has non existing RaceMask, skipped.", raceMask & ~RACEMASK_ALL_PLAYABLE, spell);
+            continue;
+        }
+
+        if (!(classMask & CLASSMASK_ALL_PLAYABLE))
+        {
+            TC_LOG_ERROR("sql.sql", "ClassMask %u defined in `mount_definitions` for spell %u has non existing classmask (%u), skipped.", classMask & ~CLASSMASK_ALL_PLAYABLE, spell);
+            continue;
+        }
+
+        MountDefinition mountDefinition(faction, otherSpell, raceMask, classMask);
+        MountDefinitionStore[spell] = mountDefinition;
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u mount definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}

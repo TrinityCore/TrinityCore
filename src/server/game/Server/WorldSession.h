@@ -41,6 +41,7 @@ class GameObject;
 class InstanceSave;
 class Item;
 class LoginQueryHolder;
+class LoginCollectionsQueryHolder;
 class Object;
 class Player;
 class Quest;
@@ -348,6 +349,8 @@ namespace WorldPackets
         class FarSight;
         class LoadCUFProfiles;
         class SaveCUFProfiles;
+        class AccountMountUpdate;
+        class MountSetFavorite;
     }
 
     namespace Movement
@@ -958,7 +961,7 @@ class WorldSession
         void HandleContinuePlayerLogin();
         void AbortLogin(WorldPackets::Character::LoginFailureReason reason);
         void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify);
-        void HandlePlayerLogin(LoginQueryHolder * holder);
+        void HandlePlayerLogin(LoginQueryHolder* holder, LoginCollectionsQueryHolder* collectionsHolder);
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo* renameInfo);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
@@ -1504,6 +1507,7 @@ class WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
+        void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);
 
         // Scenes
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
@@ -1545,6 +1549,7 @@ class WorldSession
         QueryCallback<PreparedQueryResult, bool, true> _undeleteCooldownStatusCallback;
         QueryCallback<PreparedQueryResult, std::shared_ptr<WorldPackets::Character::CharacterUndeleteInfo>, true> _charUndeleteCallback;
         QueryResultHolderFuture _charLoginCallback;
+        QueryResultHolderFuture _charLoginCollectionsCallback;
 
     friend class World;
     protected:
