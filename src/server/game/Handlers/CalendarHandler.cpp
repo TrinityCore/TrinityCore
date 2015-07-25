@@ -69,12 +69,12 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent((*itr)->GetEventId()))
         {
             data << uint8(calendarEvent->IsGuildEvent());
-            data << calendarEvent->GetCreatorGUID().WriteAsPacked();
+            data << calendarEvent->GetCreatorGUID();
         }
         else
         {
             data << uint8(0);
-            data << (*itr)->GetSenderGUID().WriteAsPacked();
+            data << (*itr)->GetSenderGUID();
         }
     }
 
@@ -94,7 +94,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         Guild* guild = sGuildMgr->GetGuildById(calendarEvent->GetGuildId());
         data << (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
-        data << calendarEvent->GetCreatorGUID().WriteAsPacked();
+        data << calendarEvent->GetCreatorGUID();
     }
 
     data << uint32(currTime);                              // server time
@@ -269,7 +269,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
             for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
             {
-                recvData >> invitee[i].ReadAsPacked();
+                recvData >> invitee[i];
                 recvData >> status[i] >> rank[i];
             }
         }
@@ -571,7 +571,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
     uint64 ownerInviteId; // isn't it sender's inviteId?
     uint64 inviteId;
 
-    recvData >> invitee.ReadAsPacked();
+    recvData >> invitee;
     recvData >> inviteId >> ownerInviteId >> eventId;
 
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_REMOVE_INVITE [%s] EventId [" UI64FMTD
@@ -601,7 +601,7 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket& recvData)
     uint64 ownerInviteId; // isn't it sender's inviteId?
     uint8 status;
 
-    recvData >> invitee.ReadAsPacked();
+    recvData >> invitee;
     recvData >> eventId >> inviteId >> ownerInviteId >> status;
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_STATUS [%s] EventId ["
         UI64FMTD "] ownerInviteId [" UI64FMTD "], Invitee ([%s] id: ["
@@ -635,7 +635,7 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
     uint64 ownerInviteId; // isn't it sender's inviteId?
     uint8 rank;
 
-    recvData >> invitee.ReadAsPacked();
+    recvData >> invitee;
     recvData >> eventId >> inviteId >> ownerInviteId >> rank;
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [%s] EventId ["
         UI64FMTD "] ownerInviteId [" UI64FMTD "], Invitee ([%s] id: ["

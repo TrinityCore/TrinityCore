@@ -935,7 +935,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     data << creature->GetGUID();
 
     if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
-        data << GetMasterLooterGuid().WriteAsPacked();
+        data << GetMasterLooterGuid();
     else
         data << uint8(0);
 

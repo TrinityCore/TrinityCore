@@ -56,7 +56,7 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
         *packet << uint32(m_outOfRangeGUIDs.size());
 
         for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
-            *packet << i->WriteAsPacked();
+            *packet << *i;
     }
 
     *packet << uint32(m_data.size());
