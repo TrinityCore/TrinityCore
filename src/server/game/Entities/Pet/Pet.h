@@ -130,8 +130,8 @@ class Pet : public Guardian
         static void resetTalentsForAllPetsOf(Player* owner, Pet* online_pet = nullptr);
         void InitTalentForLevel();
 
-        uint8 GetMaxTalentPointsForLevel(uint8 level);
-        uint8 GetFreeTalentPoints() { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
+        uint8 GetMaxTalentPointsForLevel(uint8 level) const;
+        uint8 GetFreeTalentPoints() const { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
         void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
 
         uint32  m_usedTalentCount;

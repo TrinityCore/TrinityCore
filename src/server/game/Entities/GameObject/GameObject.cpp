@@ -2253,12 +2253,12 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             }
             else if (index == GAMEOBJECT_FLAGS)
             {
-                uint32 flags = m_uint32Values[GAMEOBJECT_FLAGS];
+                uint32 goFlags = m_uint32Values[GAMEOBJECT_FLAGS];
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
                     if (GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
-                        flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+                        goFlags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
-                fieldBuffer << flags;
+                fieldBuffer << goFlags;
             }
             else
                 fieldBuffer << m_uint32Values[index];                // other cases
