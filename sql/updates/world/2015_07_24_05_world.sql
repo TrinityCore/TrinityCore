@@ -23,5 +23,5 @@ INSERT INTO `item_loot_template` (`entry`,`item`,`Chance`,`LootMode`,`GroupId`,`
 (45878,45105,0,1,1,1,1),
 (45878,47241,100,1,0,10,10);
 
-UPDATE `item_template` SET `minMoneyLoot`=1000000, `maxMoneyLoot`=1000000 WHERE `entry`=45875;
-UPDATE `item_template` SET `minMoneyLoot`=1500000, `maxMoneyLoot`=1500000 WHERE `entry`=45878;
+-- UPDATE `item_template` SET `minMoneyLoot`=1000000, `maxMoneyLoot`=1000000 WHERE `entry`=45875;
+-- UPDATE `item_template` SET `minMoneyLoot`=1500000, `maxMoneyLoot`=1500000 WHERE `entry`=45878;
