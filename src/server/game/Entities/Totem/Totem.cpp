@@ -19,12 +19,11 @@
 #include "Totem.h"
 #include "Group.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
-#include "WorldPacket.h"
+#include "TotemPackets.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
 {
@@ -55,19 +54,20 @@ void Totem::Update(uint32 time)
 void Totem::InitStats(uint32 duration)
 {
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER
-            && m_Properties->Slot >= SUMMON_SLOT_TOTEM
-            && m_Properties->Slot < MAX_TOTEM_SLOT)
+    if (Player* owner = GetOwner()->ToPlayer())
     {
-        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
-        data << uint8(m_Properties->Slot - 1);
-        data << GetGUID();
-        data << uint32(duration);
-        data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        GetOwner()->ToPlayer()->SendDirectMessage(&data);
+        if (m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
+        {
+            WorldPackets::Totem::TotemCreated data;
+            data.Totem = GetGUID();
+            data.Slot = m_Properties->Slot - SUMMON_SLOT_TOTEM;
+            data.Duration = duration;
+            data.SpellID = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+            owner->SendDirectMessage(data.Write());
+        }
 
         // set display id depending on caster's race
-        SetDisplayId(GetOwner()->GetModelForTotem(PlayerTotemType(m_Properties->ID)));
+        SetDisplayId(owner->GetModelForTotem(PlayerTotemType(m_Properties->ID)));
     }
 
     Minion::InitStats(duration);
