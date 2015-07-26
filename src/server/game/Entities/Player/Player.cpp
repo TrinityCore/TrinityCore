@@ -14999,8 +14999,8 @@ bool Player::SatisfyQuestLog(bool msg)
 
     if (msg)
     {
-        WorldPacket data(SMSG_QUEST_LOG_FULL, 0);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Quest::QuestLogFull data;
+        GetSession()->SendPacket(data.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTLOG_FULL");
     }
     return false;
