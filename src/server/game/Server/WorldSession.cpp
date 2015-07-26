@@ -46,6 +46,7 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 #include "WardenMac.h"
+#include "BattlenetServerManager.h"
 
 #include <zlib.h>
 

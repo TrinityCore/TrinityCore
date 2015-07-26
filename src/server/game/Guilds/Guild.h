@@ -390,6 +390,7 @@ private:
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
         bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
+        uint32 GetAchievementPoints() const { return m_achievementPoints; }
         uint64 GetTotalActivity() const { return m_totalActivity; }
         uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
