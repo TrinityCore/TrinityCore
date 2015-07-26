@@ -28,10 +28,8 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
-#include "Opcodes.h"
 #include "Packet.h"
 #include "Cryptography/BigNumber.h"
-#include "Opcodes.h"
 #include "AccountMgr.h"
 #include <unordered_set>
 
@@ -523,6 +521,11 @@ namespace WorldPackets
     {
         class UpdateListedAuctionableTokens;
         class RequestWowTokenMarketPrice;
+    }
+
+    namespace Totem
+    {
+        class TotemDestroyed;
     }
 
     namespace Trade
@@ -1350,7 +1353,7 @@ class WorldSession
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
-        void HandleTotemDestroyed(WorldPacket& recvData);
+        void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
         void HandleDismissCritter(WorldPacket& recvData);
 
         //Battleground
