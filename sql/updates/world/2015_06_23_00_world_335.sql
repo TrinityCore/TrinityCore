@@ -1,3 +1,4 @@
+/*
 -- areatrigger_teleport
 ALTER TABLE `areatrigger_teleport`
 CHANGE `id` `ID` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
@@ -174,3 +175,4 @@ CHANGE `target_position_x` `PositionX` FLOAT NOT NULL DEFAULT '0',
 CHANGE `target_position_y` `PositionY` FLOAT NOT NULL DEFAULT '0',
 CHANGE `target_position_z` `PositionZ` FLOAT NOT NULL DEFAULT '0',
 CHANGE `target_orientation` `Orientation` FLOAT NOT NULL DEFAULT '0';
+*/
