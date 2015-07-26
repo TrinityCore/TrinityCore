@@ -181,6 +181,8 @@ class spell_hun_cobra_shot : public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, true);
+                                if (Player* modOwner = caster->GetSpellModOwner())
+                                    modOwner->ApplySpellMod(aura->GetSpellInfo()->Id, SPELLMOD_DOT, basePoint);
 
                 if (Aura* aur = GetHitUnit()->GetAura(SPELL_HUNTER_SERPENT_STING, GetCaster()->GetGUID()))
                 {

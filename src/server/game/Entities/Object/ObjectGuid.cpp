@@ -18,6 +18,7 @@
 
 #include "ObjectGuid.h"
 #include "World.h"
+#include "ObjectMgr.h"
 #include <sstream>
 #include <iomanip>
 

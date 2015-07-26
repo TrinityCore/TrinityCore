@@ -364,21 +364,21 @@ class boss_vazruden_the_herald : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summoned) override
+            void JustSummoned(Creature* summon) override
             {
-                if (!summoned)
+                if (!summon)
                     return;
                 Unit* victim = me->GetVictim();
-                if (summoned->GetEntry() == NPC_NAZAN)
+                if (summon->GetEntry() == NPC_NAZAN)
                 {
-                    summoned->SetDisableGravity(true);
-                    summoned->SetSpeed(MOVE_FLIGHT, 2.5f);
+                    summon->SetDisableGravity(true);
+                    summon->SetSpeed(MOVE_FLIGHT, 2.5f);
                     if (victim)
                         AttackStartNoMove(victim);
                 }
                 else
                     if (victim)
-                        summoned->AI()->AttackStart(victim);
+                        summon->AI()->AttackStart(victim);
             }
 
             void SentryDownBy(Unit* killer)

@@ -20,7 +20,6 @@
 #define _MMAP_MANAGER_H
 
 #include "Define.h"
-#include "DetourAlloc.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "World.h"
@@ -92,9 +91,10 @@ namespace MMAP
     class MMapManager
     {
         public:
-            MMapManager() : loadedTiles(0) { }
+            MMapManager() : loadedTiles(0), thread_safe_environment(true) {}
             ~MMapManager();
 
+            void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
             bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
@@ -115,9 +115,10 @@ namespace MMAP
             bool loadMapData(uint32 mapId);
             uint32 packTileID(int32 x, int32 y);
 
+            MMapDataSet::const_iterator GetMMapData(uint32 mapId) const;
             MMapDataSet loadedMMaps;
             uint32 loadedTiles;
-
+            bool thread_safe_environment;
             PhasedTile* LoadTile(uint32 mapId, int32 x, int32 y);
             PhaseTileMap _phaseTiles;
     };

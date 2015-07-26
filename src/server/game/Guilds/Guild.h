@@ -389,7 +389,7 @@ private:
         uint8 GetLevel() const { return m_level; }
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
-        uint32 GetAchievementPoints() const { return m_achievementPoints; }
+        bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
         uint64 GetTotalActivity() const { return m_totalActivity; }
         uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
@@ -399,7 +399,6 @@ private:
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
         bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
-        bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
         void ChangeRank(uint8 newRank);
 

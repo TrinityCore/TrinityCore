@@ -113,7 +113,7 @@ public:
         {
             if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
                 pGuard1->Respawn();
-            
+
             if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
                 pGuard2->Respawn();
         }
@@ -254,7 +254,7 @@ public:
             else
                 breakBondsCd -= diff;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_EARTH_SHIELD:
                     if (Unit* ally = DoSelectLowestHpFriendly(30.0f))

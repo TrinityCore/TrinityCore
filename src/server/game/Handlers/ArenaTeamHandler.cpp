@@ -17,17 +17,14 @@
  */
 
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
-
 #include "ArenaTeam.h"
-#include "Log.h"
-#include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "ArenaTeamMgr.h"
 #include "Opcodes.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 
 void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 {
