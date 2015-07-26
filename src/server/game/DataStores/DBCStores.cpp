@@ -17,15 +17,11 @@
  */
 
 #include "DBCStores.h"
-#include "Containers.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "DBCfmt.h"
-#include "ItemTemplate.h"
 #include "Timer.h"
-#include "ObjectDefines.h"
 #include "DB2Stores.h"
 
 #include <map>

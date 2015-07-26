@@ -18,7 +18,6 @@
 
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "MapManager.h"
 #include "FleeingMovementGenerator.h"
 #include "PathGenerator.h"
 #include "ObjectAccessor.h"
