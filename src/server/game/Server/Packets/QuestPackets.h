@@ -495,6 +495,14 @@ namespace WorldPackets
             ObjectGuid SenderGUID;
             uint8 Result = 0;
         };
+
+        class QuestLogFull final : public ServerPacket
+        {
+        public:
+            QuestLogFull() : ServerPacket(SMSG_QUEST_LOG_FULL, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 
