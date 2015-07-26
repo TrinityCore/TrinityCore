@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,27 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VMapFactory.h"
-#include "VMapManager2.h"
+#ifndef _DURATION_H_
+#define _DURATION_H_
 
-namespace VMAP
-{
-    IVMapManager* gVMapManager = NULL;
+#include <chrono>
 
-    //===============================================
-    // just return the instance
-    IVMapManager* VMapFactory::createOrGetVMapManager()
-    {
-        if (gVMapManager == nullptr)
-            gVMapManager= new VMapManager2();                // should be taken from config ... Please change if you like :-)
-        return gVMapManager;
-    }
+/// Milliseconds shorthand typedef.
+typedef std::chrono::milliseconds Milliseconds;
 
-    //===============================================
-    // delete all internal data structures
-    void VMapFactory::clear()
-    {
-        delete gVMapManager;
-        gVMapManager = NULL;
-    }
-}
+/// Seconds shorthand typedef.
+typedef std::chrono::seconds Seconds;
+
+/// Minutes shorthand typedef.
+typedef std::chrono::minutes Minutes;
+
+/// Hours shorthand typedef.
+typedef std::chrono::hours Hours;
+
+/// Makes std::chrono_literals globally available.
+// ToDo: Enable this when TC supports C++14.
+// using namespace std::chrono_literals;
+
+#endif // _DURATION_H_

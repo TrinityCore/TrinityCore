@@ -32,7 +32,7 @@ class BasicStatementTask : public SQLOperation
         ~BasicStatementTask();
 
         bool Execute() override;
-        QueryResultFuture GetFuture() { return m_result->get_future(); }
+        QueryResultFuture GetFuture() const { return m_result->get_future(); }
 
     private:
         const char* m_sql;      //- Raw query to be executed

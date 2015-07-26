@@ -20,10 +20,10 @@
 #include "GameObject.h"
 #include "Language.h"
 #include "Object.h"
-#include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "ObjectAccessor.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards

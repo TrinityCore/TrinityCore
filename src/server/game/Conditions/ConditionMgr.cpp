@@ -27,7 +27,6 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "Spell.h"
 
 char const* ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {

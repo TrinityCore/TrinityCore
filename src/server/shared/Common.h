@@ -38,6 +38,7 @@
 #include <queue>
 #include <sstream>
 #include <algorithm>
+#include <memory>
 
 #include "Debugging/Errors.h"
 
@@ -160,5 +161,15 @@ struct LocalizedString
 #endif
 
 #define MAX_QUERY_LEN 32*1024
+
+namespace Trinity
+{
+    //! std::make_unique implementation (TODO: remove this once C++14 is supported)
+    template<typename T, typename ...Args>
+    std::unique_ptr<T> make_unique(Args&& ...args)
+    {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
 
 #endif

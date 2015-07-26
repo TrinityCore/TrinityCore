@@ -968,7 +968,7 @@ class BattlegroundIC : public Battleground
         Transport* gunshipAlliance;
         Transport* gunshipHorde;
 
-        uint32 GetNextBanner(ICNodePoint* nodePoint, uint32 team, bool returnDefinitve);
+        uint32 GetNextBanner(ICNodePoint* node, uint32 team, bool returnDefinitve);
 
         uint32 GetGateIDFromEntry(uint32 id)
         {
@@ -1013,9 +1013,9 @@ class BattlegroundIC : public Battleground
             return uws;
         }
 
-        void UpdateNodeWorldState(ICNodePoint* nodePoint);
-        void HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture);
-        void HandleContestedNodes(ICNodePoint* nodePoint);
+        void UpdateNodeWorldState(ICNodePoint* node);
+        void HandleCapturedNodes(ICNodePoint* node, bool recapture);
+        void HandleContestedNodes(ICNodePoint* node);
 };
 
 #endif

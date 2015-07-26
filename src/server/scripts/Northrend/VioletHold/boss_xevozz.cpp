@@ -63,7 +63,7 @@ enum XevozzEvents
     EVENT_ARCANE_BUFFET,
     EVENT_SUMMON_SPHERE,
     EVENT_SUMMON_SPHERE_2,
-    EVENT_RANGE_CHECK, 
+    EVENT_RANGE_CHECK,
     EVENT_SUMMON_PLAYERS,
     EVENT_DESPAWN_SPHERE
 };
@@ -196,7 +196,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_ARCANE_BARRAGE:
                     DoCast(SPELL_ARCANE_BARRAGE_VOLLEY);
@@ -220,11 +220,14 @@ public:
                     DoCast(SPELL_SUMMON_ETHEREAL_SPHERE_2);
                     break;
                 case EVENT_SUMMON_PLAYERS:
-                    if (Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE, 150.0f))
-                        sphere->GetAI()->DoAction(ACTION_SUMMON);
-                    else if (Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE2, 150.0f))
+                {
+                    Creature* sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE, 150.0f);
+                    if (!sphere)
+                        sphere = me->FindNearestCreature(NPC_ETHEREAL_SPHERE2, 150.0f);
+                    if (sphere)
                         sphere->GetAI()->DoAction(ACTION_SUMMON);
                     break;
+                }
                 default:
                     break;
             }
@@ -286,7 +289,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (uint32 eventId = events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_RANGE_CHECK:
                     if (Creature* xevozz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XEVOZZ)))

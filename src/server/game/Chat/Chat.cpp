@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
 
@@ -29,9 +28,7 @@
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "UpdateMask.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
 
