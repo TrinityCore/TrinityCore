@@ -18565,9 +18565,9 @@ void Player::BindToInstance()
     if (!mapSave) //it seems sometimes mapSave is NULL, but I did not check why
         return;
 
-    WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Instance::InstanceSaveCreated data;
+    data.Gm = IsGameMaster();
+    GetSession()->SendPacket(data.Write());
     BindToInstance(mapSave, true);
 
     GetSession()->SendCalendarRaidLockout(mapSave, true);
