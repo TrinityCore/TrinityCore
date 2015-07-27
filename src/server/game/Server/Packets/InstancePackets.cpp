@@ -72,3 +72,11 @@ WorldPacket const* WorldPackets::Instance::InstanceResetFailed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::InstanceSaveCreated::Write()
+{
+    _worldPacket.WriteBit(Gm);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

@@ -105,6 +105,16 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class InstanceSaveCreated final : public ServerPacket
+        {
+        public:
+            InstanceSaveCreated() : ServerPacket(SMSG_INSTANCE_SAVE_CREATED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Gm = false;
+        };
     }
 }
 
