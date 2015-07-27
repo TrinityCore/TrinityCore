@@ -397,7 +397,7 @@ template<class T>
 AchievementMgr<T>::~AchievementMgr() { }
 
 template<class T>
-void AchievementMgr<T>::SendPacket(WorldPacket const* /*data*/) const { }
+void AchievementMgr<T>::SendPacket(WorldPacket* /*data*/) const { }
 
 template<>
 void AchievementMgr<Guild>::SendPacket(WorldPacket* data) const
