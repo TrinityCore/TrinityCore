@@ -104,7 +104,7 @@ enum Spells
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808, // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809, // Summons go 202794
-    SPELL_SUMMON_EXIT_PORTALS           = 74805, // Custom spell created in spell_dbc.
+    SPELL_SUMMON_EXIT_PORTALS           = 74805, // Custom spell created in spell_dbc. // Used in Cataclysm, need a sniff of cata and up
     SPELL_TWILIGHT_MENDING              = 75509,
     SPELL_TWILIGHT_REALM                = 74807,
     SPELL_DUSK_SHROUD                   = 75476,
@@ -123,20 +123,20 @@ enum Events
     EVENT_TAIL_LASH             = 6,
 
     // Twilight Halion
-    EVENT_SOUL_CONSUMPTION      = 8,
+    EVENT_SOUL_CONSUMPTION      = 7,
 
     // Meteor Strike
-    EVENT_SPAWN_METEOR_FLAME    = 9,
+    EVENT_SPAWN_METEOR_FLAME    = 8,
 
     // Halion Controller
-    EVENT_START_INTRO           = 10,
-    EVENT_INTRO_PROGRESS_1      = 11,
-    EVENT_INTRO_PROGRESS_2      = 12,
-    EVENT_INTRO_PROGRESS_3      = 13,
-    EVENT_CHECK_CORPOREALITY    = 14,
-    EVENT_SHADOW_PULSARS_SHOOT  = 15,
-    EVENT_TRIGGER_BERSERK       = 16,
-    EVENT_TWILIGHT_MENDING      = 17,
+    EVENT_START_INTRO           = 9,
+    EVENT_INTRO_PROGRESS_1      = 10,
+    EVENT_INTRO_PROGRESS_2      = 11,
+    EVENT_INTRO_PROGRESS_3      = 12,
+    EVENT_CHECK_CORPOREALITY    = 13,
+    EVENT_SHADOW_PULSARS_SHOOT  = 14,
+    EVENT_TRIGGER_BERSERK       = 15,
+    EVENT_TWILIGHT_MENDING      = 16
 };
 
 enum Actions
@@ -1005,7 +1005,7 @@ class npc_meteor_strike_initial : public CreatureScript
                 if (HalionAI* halionAI = CAST_AI(HalionAI, owner->AI()))
                 {
                     Position const* ownerPos = halionAI->GetMeteorStrikePosition();
-                    float randomAdjustment = frand(static_cast<float>(M_PI / 14), static_cast<float>(13 * M_PI / 14));
+                    float randomAdjustment = frand(0.0f, static_cast<float>(M_PI / 7.0f));
                     float angle[4];
                     angle[0] = me->GetAngle(ownerPos);
                     angle[1] = angle[0] + randomAdjustment;
@@ -1089,12 +1089,9 @@ class npc_meteor_strike : public CreatureScript
 
                 if (_events.ExecuteEvent() == EVENT_SPAWN_METEOR_FLAME)
                 {
-                    Position pos = me->GetNearPosition(5.0f, frand(static_cast<float>(-M_PI / 16), static_cast<float>(M_PI / 16)));
+                    Position pos = me->GetNearPosition(5.0f, frand(0.0f, static_cast<float>(M_PI / 8.0f)));
                     if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
-                    {
-                        flame->AI()->SetGUID(GetGUID());
-                        flame->AI()->DoAction(ACTION_SUMMON_FLAME);
-                    }
+                        flame->AI()->SetGUID(me->GetGUID());
                 }
             }
 
@@ -1126,27 +1123,7 @@ class npc_meteor_strike_flame : public CreatureScript
             void SetGUID(ObjectGuid guid, int32 /*id = 0 */) override
             {
                 _rootOwnerGuid = guid;
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action != ACTION_SUMMON_FLAME || _rootOwnerGuid.IsEmpty())
-                    return;
-
-                me->CastSpell(me, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
-
-                Creature* meteorStrike = ObjectAccessor::GetCreature(*me, _rootOwnerGuid);
-                if (!meteorStrike || meteorStrike->AI()->GetData(DATA_SPAWNED_FLAMES) > 5)
-                    return;
-
-                Position pos = me->GetNearPosition(5.0f, frand(static_cast<float>(-M_PI / 16), static_cast<float>(M_PI / 16)));
-
-                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
-                {
-                    flame->AI()->SetGUID(_rootOwnerGuid);
-                    flame->AI()->DoAction(ACTION_SUMMON_FLAME);
-                    meteorStrike->AI()->SetData(DATA_SPAWNED_FLAMES, 1);
-                }
+                _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, 800);
             }
 
             void IsSummonedBy(Unit* /*summoner*/) override
@@ -1156,7 +1133,28 @@ class npc_meteor_strike_flame : public CreatureScript
                     controller->AI()->JustSummoned(me);
             }
 
-            void UpdateAI(uint32 /*diff*/) override { }
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+                if (_events.ExecuteEvent() != EVENT_SPAWN_METEOR_FLAME)
+                    return;
+
+                me->CastSpell(me, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
+
+                Creature* meteorStrike = ObjectAccessor::GetCreature(*me, _rootOwnerGuid);
+                if (!meteorStrike)
+                    return;
+
+                meteorStrike->AI()->SetData(DATA_SPAWNED_FLAMES, 1);
+                if (meteorStrike->AI()->GetData(DATA_SPAWNED_FLAMES) > 5)
+                    return;
+
+                Position pos = me->GetNearPosition(5.0f, frand(0.0f, static_cast<float>(M_PI / 8.0f)));
+
+                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    flame->AI()->SetGUID(_rootOwnerGuid);
+            }
+            
             void EnterEvadeMode() override { }
 
         private:
