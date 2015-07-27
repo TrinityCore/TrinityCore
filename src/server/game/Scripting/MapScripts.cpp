@@ -18,6 +18,7 @@
 
 #include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "GossipDef.h"
 #include "Map.h"
 #include "ObjectMgr.h"
