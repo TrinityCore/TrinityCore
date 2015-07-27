@@ -260,9 +260,9 @@ namespace MMAP
 
         for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         {
-            if (const MapEntry* const map = sMapStore.LookupEntry(i))
+            if (MapEntry const* map = sMapStore.LookupEntry(i))
             {
-                if (map->rootPhaseMap == mapId)
+                if (map->ParentMapID == int32(mapId))
                 {
                     PhasedTile* data = LoadTile(map->MapID, x, y);
                     // only a few tiles have terrain swaps, do not write error for them
