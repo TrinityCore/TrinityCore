@@ -13682,7 +13682,6 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     if (!item)  // prevent crash
         return;
 
-    /// @todo: fix 6.x implementation
     WorldPackets::Item::ItemPushResult packet;
 
     packet.PlayerGUID = GetGUID();
@@ -13692,20 +13691,22 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
 
     packet.Item.Initialize(item);
 
-    //packet.ReadUInt32("WodUnk");
+    //packet.QuestLogItemID;
     packet.Quantity = quantity;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
-    //packet.ReadUInt32("BattlePetBreedID");
-    //packet.ReadUInt32("BattlePetBreedQuality");
-    //packet.ReadUInt32("BattlePetSpeciesID");
-    //packet.ReadUInt32("BattlePetLevel");
+    //packet.DungeonEncounterID;
+    //packet.BattlePetBreedID;
+    //packet.BattlePetBreedQuality;
+    //packet.BattlePetSpeciesID;
+    //packet.BattlePetLevel;
 
     packet.ItemGUID = item->GetGUID();
 
     packet.Pushed = pushed;
-    packet.DisplayText = true;
+    packet.DisplayText = WorldPackets::Item::ItemPushResult::DISPLAY_TYPE_NORMAL;
     packet.Created = created;
-    //packet.ReadBit("IsBonusRoll");
+    //packet.IsBonusRoll;
+    //packet.IsEncounterLoot;
 
     if (broadcast && GetGroup())
         GetGroup()->BroadcastPacket(packet.Write(), true);

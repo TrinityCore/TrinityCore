@@ -288,6 +288,13 @@ namespace WorldPackets
         class ItemPushResult final : public ServerPacket
         {
         public:
+            enum DisplayType
+            {
+                DISPLAY_TYPE_ENCOUNTER_LOOT = 1,
+                DISPLAY_TYPE_NORMAL = 2,
+                DISPLAY_TYPE_HIDDEN = 3
+            };
+
             ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
@@ -296,18 +303,21 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            uint32 WodUnk                   = 0;
+            uint32 QuestLogItemID           = 0; // Item ID used for updating quest progress
+                                                 // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
+            uint32 DungeonEncounterID       = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;
-            bool DisplayText                = false;
+            DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
             bool IsBonusRoll                = false;
+            bool IsEncounterLoot            = false;
         };
 
         class ReadItem final : public ClientPacket
