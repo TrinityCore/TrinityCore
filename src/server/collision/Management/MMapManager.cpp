@@ -400,7 +400,7 @@ namespace MMAP
         return true;
     }
 
-    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId, TerrainSet swaps)
+    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId, TerrainSet /*swaps*/)
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
