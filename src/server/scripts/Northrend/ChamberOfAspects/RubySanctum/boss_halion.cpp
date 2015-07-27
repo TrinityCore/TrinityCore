@@ -1154,7 +1154,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     flame->AI()->SetGUID(_rootOwnerGuid);
             }
-            
+
             void EnterEvadeMode() override { }
 
         private:
