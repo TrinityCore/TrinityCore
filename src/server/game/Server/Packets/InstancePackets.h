@@ -115,6 +115,16 @@ namespace WorldPackets
 
             bool Gm = false;
         };
+
+        class InstanceLockResponse final : public ClientPacket
+        {
+        public:
+            InstanceLockResponse(WorldPacket&& packet) : ClientPacket(CMSG_INSTANCE_LOCK_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool AcceptLock = false;
+        };
     }
 }
 

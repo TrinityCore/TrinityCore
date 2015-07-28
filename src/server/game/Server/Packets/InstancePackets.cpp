@@ -80,3 +80,8 @@ WorldPacket const* WorldPackets::Instance::InstanceSaveCreated::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Instance::InstanceLockResponse::Read()
+{
+    AcceptLock = _worldPacket.ReadBit();
+}
