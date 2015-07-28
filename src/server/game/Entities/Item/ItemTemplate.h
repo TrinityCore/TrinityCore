@@ -763,6 +763,7 @@ struct ItemTemplate
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     bool CanWinForPlayer(Player const* player) const;
+    bool IsWeapon() const { return GetClass() == ITEM_CLASS_WEAPON; }
 };
 
 // Benchmarked: Faster than std::map (insert/find)

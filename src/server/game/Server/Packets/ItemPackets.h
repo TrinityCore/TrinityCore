@@ -382,6 +382,7 @@ namespace WorldPackets
 
             ObjectGuid ItemGuid;
             uint32 SpellID = 0;
+            uint32 UnkID = 0;
         };
 
         class ItemEnchantTimeUpdate final : public ServerPacket

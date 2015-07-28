@@ -166,6 +166,20 @@ namespace WorldPackets
             ObjectGuid LootObj;
             ObjectGuid Owner;
         };
+
+        class LootList final : public ServerPacket
+        {
+            LootList() : ServerPacket(SMSG_LOOT_LIST) { };
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid RoundRobinWinner;
+            ObjectGuid Master;
+            ObjectGuid Owner;
+
+            bool UnkBit1 = false;
+            bool UnkBit2 = false;
+        };
     }
 }
 

@@ -307,6 +307,7 @@ namespace WorldPackets
         class LootRelease;
         class LootMoney;
         class LootRoll;
+        class LootList;
     }
 
     namespace Mail

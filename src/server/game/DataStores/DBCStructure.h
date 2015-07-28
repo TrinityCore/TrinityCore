@@ -773,6 +773,11 @@ struct gtOCTHpPerStaminaEntry
     float    ratio;
 };
 
+struct GtArmorMitigationByLvlEntry
+{
+    float    ratio;
+};
+
 struct GtRegenHPPerSptEntry
 {
     float    ratio;

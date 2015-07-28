@@ -57,6 +57,7 @@ char const GtBarberShopCostBasefmt[] = "xf";
 char const GtCombatRatingsfmt[] = "xf";
 char const GtOCTHpPerStaminafmt[] = "df";
 char const GtOCTLevelExperiencefmt[] = "xf";
+char const GtArmorMitigationByLvlfmt[] = "df";
 char const GtChanceToMeleeCritBasefmt[] = "xf";
 char const GtChanceToMeleeCritfmt[] = "xf";
 char const GtChanceToSpellCritBasefmt[] = "xf";
