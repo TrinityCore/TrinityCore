@@ -46,6 +46,7 @@
 #include "MiscPackets.h"
 #include "AchievementPackets.h"
 #include "WhoPackets.h"
+#include "InstancePackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -1110,11 +1111,8 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     SendPacket(phaseShift.Write());
 }
 
-void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
+void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet)
 {
-    uint8 accept;
-    recvPacket >> accept;
-
     if (!_player->HasPendingBind())
     {
         TC_LOG_INFO("network", "InstanceLockResponse: Player %s (%s) tried to bind himself/teleport to graveyard without a pending bind!",
@@ -1122,7 +1120,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
         return;
     }
 
-    if (accept)
+    if (packet.AcceptLock)
         _player->BindToInstance();
     else
         _player->RepopAtGraveyard();

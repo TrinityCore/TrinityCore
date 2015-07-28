@@ -278,6 +278,7 @@ namespace WorldPackets
     namespace Instance
     {
         class InstanceInfo;
+        class InstanceLockResponse;
         class ResetInstances;
     }
 
@@ -1396,7 +1397,7 @@ class WorldSession
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
         void HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& packet);
-        void HandleInstanceLockResponse(WorldPacket& recvPacket);
+        void HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet);
 
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
