@@ -271,16 +271,16 @@ DROP TABLE IF EXISTS `calendar_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `calendar_events` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `creator` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `title` varchar(255) NOT NULL DEFAULT '',
-  `description` varchar(255) NOT NULL DEFAULT '',
-  `type` tinyint(1) unsigned NOT NULL DEFAULT '4',
-  `dungeon` int(10) NOT NULL DEFAULT '-1',
-  `eventtime` int(10) unsigned NOT NULL DEFAULT '0',
-  `flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `time2` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `EventID` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Owner` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Title` varchar(255) NOT NULL DEFAULT '',
+  `Description` varchar(255) NOT NULL DEFAULT '',
+  `EventType` tinyint(1) unsigned NOT NULL DEFAULT '4',
+  `TextureID` int(10) NOT NULL DEFAULT '-1',
+  `Date` int(10) unsigned NOT NULL DEFAULT '0',
+  `Flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `LockDate` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`EventID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -301,15 +301,15 @@ DROP TABLE IF EXISTS `calendar_invites`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `calendar_invites` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `event` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `invitee` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `sender` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `statustime` int(10) unsigned NOT NULL DEFAULT '0',
-  `rank` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `text` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
+  `InviteID` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `EventID` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Invitee` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Sender` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `Status` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `ResponseTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `ModerationRank` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `Note` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`InviteID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
