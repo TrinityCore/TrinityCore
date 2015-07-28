@@ -95,18 +95,6 @@ void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidSt
 
 void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStorageTransfer& voidStorageTransfer)
 {
-    if (voidStorageTransfer.DepositsCount > VOID_STORAGE_MAX_DEPOSIT)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) wants to deposit more than 9 items (%u).", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), voidStorageTransfer.DepositsCount);
-        return;
-    }
-
-    if (voidStorageTransfer.WithdrawalsCount > VOID_STORAGE_MAX_WITHDRAW)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) wants to withdraw more than 9 items (%u).", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), voidStorageTransfer.WithdrawalsCount);
-        return;
-    }
-
     Creature* unit = _player->GetNPCIfCanInteractWith(voidStorageTransfer.Npc, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
@@ -120,14 +108,14 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         return;
     }
 
-    if (voidStorageTransfer.DepositsCount > _player->GetNumOfVoidStorageFreeSlots())
+    if (voidStorageTransfer.Deposits.size() > _player->GetNumOfVoidStorageFreeSlots())
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return;
     }
 
     uint32 freeBagSlots = 0;
-    if (voidStorageTransfer.WithdrawalsCount)
+    if (!voidStorageTransfer.Withdrawals.empty())
     {
         // make this a Player function
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
@@ -139,13 +127,13 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
                 ++freeBagSlots;
     }
 
-    if (voidStorageTransfer.WithdrawalsCount > freeBagSlots)
+    if (voidStorageTransfer.Withdrawals.size() > freeBagSlots)
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
         return;
     }
 
-    if (!_player->HasEnoughMoney(uint64(voidStorageTransfer.DepositsCount * VOID_STORAGE_STORE_ITEM_COST)))
+    if (!_player->HasEnoughMoney(uint64(voidStorageTransfer.Deposits.size() * VOID_STORAGE_STORE_ITEM_COST)))
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NOT_ENOUGH_MONEY);
         return;
@@ -153,7 +141,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
     std::pair<VoidStorageItem, uint8> depositItems[VOID_STORAGE_MAX_DEPOSIT];
     uint8 depositCount = 0;
-    for (uint32 i = 0; i < voidStorageTransfer.DepositsCount; ++i)
+    for (uint32 i = 0; i < voidStorageTransfer.Deposits.size(); ++i)
     {
         Item* item = _player->GetItemByGuid(voidStorageTransfer.Deposits[i]);
         if (!item)
@@ -181,7 +169,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
     VoidStorageItem withdrawItems[VOID_STORAGE_MAX_WITHDRAW];
     uint8 withdrawCount = 0;
-    for (uint32 i = 0; i < voidStorageTransfer.WithdrawalsCount; ++i)
+    for (uint32 i = 0; i < voidStorageTransfer.Withdrawals.size(); ++i)
     {
         uint8 slot = 0;
         VoidStorageItem* itemVS = _player->GetVoidStorageItem(voidStorageTransfer.Withdrawals[i].GetCounter(), slot);

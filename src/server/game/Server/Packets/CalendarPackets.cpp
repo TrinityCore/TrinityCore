@@ -97,30 +97,37 @@ void WorldPackets::Calendar::CalendarGuildFilter::Read()
     _worldPacket >> MaxRankOrder;
 }
 
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Calendar::CalendarAddEventInviteInfo& invite)
+{
+    buffer >> invite.Guid;
+    buffer >> invite.Status;
+    buffer >> invite.Moderator;
+    return buffer;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Calendar::CalendarAddEventInfo& addEventInfo)
+{
+    uint8 titleLength = buffer.ReadBits(8);
+    uint16 descriptionLength = buffer.ReadBits(11);
+
+    buffer >> addEventInfo.EventType;
+    buffer >> addEventInfo.TextureID;
+    addEventInfo.Time = buffer.ReadPackedTime();
+    buffer >> addEventInfo.Flags;
+    addEventInfo.Invites.resize(buffer.read<uint32>());
+
+    addEventInfo.Title = buffer.ReadString(titleLength);
+    addEventInfo.Description = buffer.ReadString(descriptionLength);
+
+    for (WorldPackets::Calendar::CalendarAddEventInviteInfo& invite : addEventInfo.Invites)
+        buffer >> invite;
+
+    return buffer;
+}
+
 void WorldPackets::Calendar::CalendarAddEvent::Read()
 {
-    uint8 titleLength = _worldPacket.ReadBits(8);
-    uint16 descriptionLength = _worldPacket.ReadBits(11);
-
-    _worldPacket >> EventInfo.EventType;
-    _worldPacket >> EventInfo.TextureID;
-    EventInfo.Time = _worldPacket.ReadPackedTime();
-    _worldPacket >> EventInfo.Flags;
-    uint32 count = _worldPacket.read<uint32>();
-
-    EventInfo.Title = _worldPacket.ReadString(titleLength);
-    EventInfo.Description = _worldPacket.ReadString(descriptionLength);
-
-    for (uint32 i = 0; i < count && i < CALENDAR_MAX_INVITES; i++)
-    {
-        WorldPackets::Calendar::CalendarAddEventInviteInfo invite;
-        _worldPacket >> invite.Guid;
-        _worldPacket >> invite.Status;
-        _worldPacket >> invite.Moderator;
-
-        EventInfo.Invites.push_back(invite);
-    }
-
+    _worldPacket >> EventInfo;
     _worldPacket >> MaxSize;
 }
 

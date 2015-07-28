@@ -48,6 +48,7 @@
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "ChatPackets.h"
+#include "PacketUtilities.h"
 
 #include <zlib.h>
 
@@ -426,6 +427,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             , GetPlayerInfo().c_str());
                     break;
             }
+        }
+        catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
+        {
+            TC_LOG_ERROR("network", "PacketArrayMaxCapacityException: %s while parsing %s from %s.",
+                pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
         }
         catch (ByteBufferException const&)
         {

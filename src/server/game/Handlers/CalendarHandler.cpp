@@ -173,36 +173,15 @@ void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEve
     }
     else
     {
-        // client limits the amount of players to be invited to 100
-        ObjectGuid invitee[CALENDAR_MAX_INVITES];
-        uint8 status[CALENDAR_MAX_INVITES];
-        uint8 rank[CALENDAR_MAX_INVITES];
-
-        memset(status, 0, sizeof(status));
-        memset(rank, 0, sizeof(rank));
-        try
-        {
-            for (uint32 i = 0; i < calendarAddEvent.EventInfo.Invites.size() && i < CALENDAR_MAX_INVITES; ++i)
-            {
-                invitee[i] = calendarAddEvent.EventInfo.Invites[i].Guid;
-                status[i] = calendarAddEvent.EventInfo.Invites[i].Status;
-                rank[i] = calendarAddEvent.EventInfo.Invites[i].Moderator;
-            }
-        }
-        catch (ByteBufferException const&)
-        {
-            delete calendarEvent;
-            calendarEvent = NULL;
-            throw;
-        }
-
         SQLTransaction trans;
         if (calendarAddEvent.EventInfo.Invites.size() > 1)
             trans = CharacterDatabase.BeginTransaction();
 
-        for (uint32 i = 0; i < calendarAddEvent.EventInfo.Invites.size() && i < CALENDAR_MAX_INVITES; ++i)
+        for (uint32 i = 0; i < calendarAddEvent.EventInfo.Invites.size(); ++i)
         {
-            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee[i], guid, CALENDAR_DEFAULT_RESPONSE_TIME, CalendarInviteStatus(status[i]), CalendarModerationRank(rank[i]), "");
+            CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), calendarAddEvent.EventInfo.Invites[i].Guid,
+                guid, CALENDAR_DEFAULT_RESPONSE_TIME, CalendarInviteStatus(calendarAddEvent.EventInfo.Invites[i].Status),
+                CalendarModerationRank(calendarAddEvent.EventInfo.Invites[i].Moderator), "");
             sCalendarMgr->AddInvite(calendarEvent, invite, trans);
         }
 
