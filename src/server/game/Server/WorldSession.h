@@ -28,10 +28,8 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
-#include "Opcodes.h"
 #include "Packet.h"
 #include "Cryptography/BigNumber.h"
-#include "Opcodes.h"
 #include "AccountMgr.h"
 #include <unordered_set>
 
@@ -309,6 +307,7 @@ namespace WorldPackets
         class LootRelease;
         class LootMoney;
         class LootRoll;
+        class LootList;
     }
 
     namespace Mail
@@ -523,6 +522,11 @@ namespace WorldPackets
     {
         class UpdateListedAuctionableTokens;
         class RequestWowTokenMarketPrice;
+    }
+
+    namespace Totem
+    {
+        class TotemDestroyed;
     }
 
     namespace Trade
@@ -782,7 +786,7 @@ class WorldSession
         std::string GetPlayerInfo() const;
 
         void SetSecurity(AccountTypes security) { _security = security; }
-        std::string const& GetRemoteAddress() { return m_Address; }
+        std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
         uint8 GetExpansion() const { return m_expansion; }
 
@@ -1350,7 +1354,7 @@ class WorldSession
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
-        void HandleTotemDestroyed(WorldPacket& recvData);
+        void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
         void HandleDismissCritter(WorldPacket& recvData);
 
         //Battleground

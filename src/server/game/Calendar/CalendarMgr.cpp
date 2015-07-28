@@ -429,7 +429,7 @@ void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)
     uint8 level = player ? player->getLevel() : Player::GetLevelFromDB(invitee);
 
     WorldPacket data(SMSG_CALENDAR_EVENT_INVITE, 8 + 8 + 8 + 1 + 1 + 1 + (statusTime ? 4 : 0) + 1);
-    data << invitee.WriteAsPacked();
+    data << invitee;
     data << uint64(invite.GetEventId());
     data << uint64(invite.GetInviteId());
     data << uint8(level);
@@ -474,7 +474,7 @@ void CalendarMgr::SendCalendarEventUpdateAlert(CalendarEvent const& calendarEven
 void CalendarMgr::SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite)
 {
     WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_STATUS, 8 + 8 + 4 + 4 + 1 + 1 + 4);
-    data << invite.GetInviteeGUID().WriteAsPacked();
+    data << invite.GetInviteeGUID();
     data << uint64(calendarEvent.GetEventId());
     data.AppendPackedTime(calendarEvent.GetEventTime());
     data << uint32(calendarEvent.GetFlags());
@@ -498,7 +498,7 @@ void CalendarMgr::SendCalendarEventRemovedAlert(CalendarEvent const& calendarEve
 void CalendarMgr::SendCalendarEventInviteRemove(CalendarEvent const& calendarEvent, CalendarInvite const& invite, uint32 flags)
 {
     WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_REMOVED, 8 + 4 + 4 + 1);
-    data << invite.GetInviteeGUID().WriteAsPacked();
+    data << invite.GetInviteeGUID();
     data << uint64(invite.GetEventId());
     data << uint32(flags);
     data << uint8(1); // FIXME
@@ -509,7 +509,7 @@ void CalendarMgr::SendCalendarEventInviteRemove(CalendarEvent const& calendarEve
 void CalendarMgr::SendCalendarEventModeratorStatusAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite)
 {
     WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_MODERATOR_STATUS, 8 + 8 + 1 + 1);
-    data << invite.GetInviteeGUID().WriteAsPacked();
+    data << invite.GetInviteeGUID();
     data << uint64(invite.GetEventId());
     data << uint8(invite.GetRank());
     data << uint8(1); // Unk boolean - Display to client?
@@ -533,8 +533,8 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& calendarEven
 
     data << uint8(invite.GetStatus());
     data << uint8(invite.GetRank());
-    data << calendarEvent.GetCreatorGUID().WriteAsPacked();
-    data << invite.GetSenderGUID().WriteAsPacked();
+    data << calendarEvent.GetCreatorGUID();
+    data << invite.GetSenderGUID();
 
     if (calendarEvent.IsGuildEvent() || calendarEvent.IsGuildAnnouncement())
     {
@@ -556,7 +556,7 @@ void CalendarMgr::SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calend
 
     WorldPacket data(SMSG_CALENDAR_SEND_EVENT, 60 + eventInviteeList.size() * 32);
     data << uint8(sendType);
-    data << calendarEvent.GetCreatorGUID().WriteAsPacked();
+    data << calendarEvent.GetCreatorGUID();
     data << uint64(calendarEvent.GetEventId());
     data << calendarEvent.GetTitle();
     data << calendarEvent.GetDescription();
@@ -581,7 +581,7 @@ void CalendarMgr::SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calend
         uint8 inviteeLevel = invitee ? invitee->getLevel() : Player::GetLevelFromDB(inviteeGuid);
         ObjectGuid::LowType inviteeGuildId = invitee ? invitee->GetGuildId() : Player::GetGuildIdFromDB(inviteeGuid);
 
-        data << inviteeGuid.WriteAsPacked();
+        data << inviteeGuid;
         data << uint8(inviteeLevel);
         data << uint8(calendarInvite->GetStatus());
         data << uint8(calendarInvite->GetRank());

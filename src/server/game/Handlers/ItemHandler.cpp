@@ -24,9 +24,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Item.h"
-#include "UpdateData.h"
-#include "ObjectAccessor.h"
-#include "SpellInfo.h"
 #include "DB2Stores.h"
 #include "NPCPackets.h"
 #include "ItemPackets.h"
@@ -707,8 +704,8 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
 void WorldSession::SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId)
 {
     WorldPacket data(SMSG_ENCHANTMENT_LOG, (8+8+4+4));
-    data << target.WriteAsPacked();
-    data << caster.WriteAsPacked();
+    data << target;
+    data << caster;
     data << uint32(itemId);
     data << uint32(enchantId);
     GetPlayer()->SendMessageToSet(&data, true);

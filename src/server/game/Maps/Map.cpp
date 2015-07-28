@@ -26,9 +26,9 @@
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
 #include "Group.h"
+#include "InstancePackets.h"
 #include "InstanceScript.h"
 #include "MapInstanced.h"
-#include "MapManager.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -3221,9 +3221,9 @@ void InstanceMap::PermBindAllPlayers(Player* source)
         if (!bind || !bind->perm)
         {
             player->BindToInstance(save, true);
-            WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-            data << uint32(0);
-            player->GetSession()->SendPacket(&data);
+            WorldPackets::Instance::InstanceSaveCreated data;
+            data.Gm = player->IsGameMaster();
+            player->GetSession()->SendPacket(data.Write());
 
             player->GetSession()->SendCalendarRaidLockout(save, true);
         }

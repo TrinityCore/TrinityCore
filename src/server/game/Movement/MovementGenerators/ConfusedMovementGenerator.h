@@ -33,7 +33,7 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
 
-        MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override { return CONFUSED_MOTION_TYPE; }
     private:
         TimeTracker i_nextMoveTime;
         float i_x, i_y, i_z;

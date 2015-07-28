@@ -24,11 +24,9 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Pet.h"
-#include "Formulas.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
@@ -1718,7 +1716,7 @@ void Pet::InitTalentForLevel()
     */
 }
 
-uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)
+uint8 Pet::GetMaxTalentPointsForLevel(uint8 level) const
 {
     uint8 points = (level >= 20) ? ((level - 16) / 4) : 0;
     // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS

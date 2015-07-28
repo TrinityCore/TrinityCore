@@ -121,3 +121,17 @@ WorldPacket const* WorldPackets::Loot::LootReleaseResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Loot::LootList::Write()
+{
+    _worldPacket << RoundRobinWinner;
+
+    _worldPacket.WriteBit(UnkBit1);
+    _worldPacket.WriteBit(UnkBit2);
+    _worldPacket.FlushBits();
+
+    _worldPacket << Master;
+    _worldPacket << Owner;
+
+    return &_worldPacket;
+}

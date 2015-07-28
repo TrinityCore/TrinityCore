@@ -32,7 +32,6 @@
 #include "BattlegroundMgr.h"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
-#include "MapInstanced.h"
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
@@ -935,7 +934,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     data << creature->GetGUID();
 
     if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
-        data << GetMasterLooterGuid().WriteAsPacked();
+        data << GetMasterLooterGuid();
     else
         data << uint8(0);
 

@@ -19,7 +19,6 @@
 #include "ThreatManager.h"
 #include "Unit.h"
 #include "Creature.h"
-#include "CreatureAI.h"
 #include "Map.h"
 #include "Player.h"
 #include "ObjectAccessor.h"

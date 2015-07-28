@@ -21,14 +21,9 @@
 #include "GridDefines.h"
 #include "GridNotifiers.h"
 #include "SpellMgr.h"
-#include "GridNotifiersImpl.h"
 #include "Cell.h"
-#include "CellImpl.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "GameEventMgr.h"
 #include "CreatureTextMgr.h"
-#include "SpellMgr.h"
 #include "SpellInfo.h"
 
 #include "SmartScriptMgr.h"
@@ -1178,6 +1173,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_STORE_TARGET_LIST:
         case SMART_ACTION_EVADE:
         case SMART_ACTION_FLEE_FOR_ASSIST:
+        case SMART_ACTION_COMBAT_STOP:
         case SMART_ACTION_DIE:
         case SMART_ACTION_SET_IN_COMBAT_WITH_ZONE:
         case SMART_ACTION_SET_ACTIVE:

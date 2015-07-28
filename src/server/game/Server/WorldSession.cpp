@@ -21,7 +21,6 @@
 */
 
 #include "WorldSocket.h"
-#include <zlib.h>
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -40,19 +39,17 @@
 #include "ObjectAccessor.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "MapManager.h"
 #include "SocialMgr.h"
-#include "zlib.h"
 #include "ScriptMgr.h"
-#include "Transport.h"
 #include "WardenWin.h"
-#include "WardenMac.h"
 #include "BattlenetServerManager.h"
 #include "AuthenticationPackets.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "ChatPackets.h"
+
+#include <zlib.h>
 
 namespace {
 

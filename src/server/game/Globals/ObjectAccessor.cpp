@@ -16,32 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
 #include "ObjectAccessor.h"
-#include "CellImpl.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Map.h"
-#include "MapInstanced.h"
-#include "MapManager.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "Transport.h"
-#include "Vehicle.h"
 #include "World.h"
-#include "WorldPacket.h"
 
-#include <cmath>
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 ObjectAccessor::ObjectAccessor() { }
 

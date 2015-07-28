@@ -23,7 +23,6 @@
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 #include "GridNotifiers.h"
-#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
