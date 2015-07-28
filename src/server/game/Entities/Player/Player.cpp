@@ -18829,9 +18829,11 @@ void Player::BindToInstance()
     WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
     data << uint32(0);
     GetSession()->SendPacket(&data);
-    BindToInstance(mapSave, true);
-
-    GetSession()->SendCalendarRaidLockout(mapSave, true);
+    if (!IsGameMaster())
+    {
+        BindToInstance(mapSave, true);
+        GetSession()->SendCalendarRaidLockout(mapSave, true);
+    }
 }
 
 void Player::SetPendingBind(uint32 instanceId, uint32 bindTimer)

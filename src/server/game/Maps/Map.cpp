@@ -3249,8 +3249,8 @@ void InstanceMap::PermBindAllPlayers(Player* source)
             WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
             data << uint32(0);
             player->GetSession()->SendPacket(&data);
-
-            player->GetSession()->SendCalendarRaidLockout(save, true);
+            if (!player->IsGameMaster())
+                player->GetSession()->SendCalendarRaidLockout(save, true);
         }
 
         // if the leader is not in the instance the group will not get a perm bind
