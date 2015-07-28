@@ -277,18 +277,27 @@ void Garrison::Upgrade()
 
 void Garrison::Enter() const
 {
-    WorldLocation loc(_siteLevel->MapID);
-    loc.Relocate(_owner);
-    _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+    if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
+    {
+        if (int32(_owner->GetMapId()) == map->ParentMapID)
+        {
+            WorldLocation loc(_siteLevel->MapID);
+            loc.Relocate(_owner);
+            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+        }
+    }
 }
 
 void Garrison::Leave() const
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
     {
-        WorldLocation loc(map->ParentMapID);
-        loc.Relocate(_owner);
-        _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+        if (_owner->GetMapId() == _siteLevel->MapID)
+        {
+            WorldLocation loc(map->ParentMapID);
+            loc.Relocate(_owner);
+            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+        }
     }
 }
 
