@@ -316,10 +316,15 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
     return &_worldPacket;
 }
 
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)),
+    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+{
+
+}
+
 void WorldPackets::Character::ReorderCharacters::Read()
 {
-    uint32 count = std::min<uint32>(_worldPacket.ReadBits(9), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
-    Entries.resize(count);
+    Entries.resize(_worldPacket.ReadBits(9));
     for (ReorderInfo& reorderInfo : Entries)
     {
         _worldPacket >> reorderInfo.PlayerGUID;

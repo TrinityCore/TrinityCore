@@ -21,6 +21,7 @@
 #include "ByteBuffer.h"
 #include <G3D/Vector2.h>
 #include <G3D/Vector3.h>
+#include <sstream>
 
 inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v)
 {
@@ -48,6 +49,85 @@ inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
 
 namespace WorldPackets
 {
+    class PacketArrayMaxCapacityException : public ByteBufferException
+    {
+    public:
+        PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
+        {
+            std::ostringstream builder;
+            builder << "Attempted to read more array elements from packet " << requestedSize << " than allowed " << sizeLimit;
+            message().assign(builder.str());
+        }
+    };
+
+    /**
+     * Utility class for automated prevention of loop counter spoofing in client packets
+     */
+    template<typename T, std::size_t N = 1000 /*select a sane default limit*/>
+    class Array
+    {
+        typedef std::vector<T> storage_type;
+
+        typedef typename storage_type::value_type value_type;
+        typedef typename storage_type::size_type size_type;
+        typedef typename storage_type::reference reference;
+        typedef typename storage_type::const_reference const_reference;
+        typedef typename storage_type::iterator iterator;
+        typedef typename storage_type::const_iterator const_iterator;
+
+    public:
+        Array() : _limit(N) { }
+        Array(size_type limit) : _limit(limit) { }
+
+        iterator begin() { return _storage.begin(); }
+        const_iterator begin() const { return _storage.begin(); }
+
+        iterator end() { return _storage.end(); }
+        const_iterator end() const { return _storage.end(); }
+
+        size_type size() const { return _storage.size(); }
+        bool empty() const { return _storage.empty(); }
+
+        reference operator[](size_type i) { return _storage[i]; }
+        const_reference operator[](size_type i) const { return _storage[i]; }
+
+        void resize(size_type newSize)
+        {
+            if (newSize > _limit)
+                throw PacketArrayMaxCapacityException(newSize, _limit);
+
+            _storage.resize(newSize);
+        }
+
+        void reserve(size_type newSize)
+        {
+            if (newSize > _limit)
+                throw PacketArrayMaxCapacityException(newSize, _limit);
+
+            _storage.reserve(newSize);
+        }
+
+        void push_back(value_type const& value)
+        {
+            if (_storage.size() >= _limit)
+                throw PacketArrayMaxCapacityException(newSize, _limit);
+
+            _storage.push_back(value);
+        }
+
+        void push_back(value_type&& value)
+        {
+            if (_storage.size() >= _limit)
+                throw PacketArrayMaxCapacityException(newSize, _limit);
+
+            _storage.push_back(std::forward<value_type>(value));
+        }
+
+    private:
+        storage_type _storage;
+        size_type _limit;
+    };
+
     template <typename T>
     class CompactArray
     {
