@@ -20,6 +20,7 @@
 #include "SpellAuraEffects.h"
 #include "Spell.h"
 #include "Vehicle.h"
+#include "MapManager.h"
 #include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ruby_sanctum.h"
@@ -136,7 +137,7 @@ enum Events
     EVENT_CHECK_CORPOREALITY    = 13,
     EVENT_SHADOW_PULSARS_SHOOT  = 14,
     EVENT_TRIGGER_BERSERK       = 15,
-    EVENT_TWILIGHT_MENDING      = 16,
+    EVENT_TWILIGHT_MENDING      = 16
 };
 
 enum Actions
@@ -1153,6 +1154,7 @@ class npc_meteor_strike_flame : public CreatureScript
 
                 if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     flame->AI()->SetGUID(_rootOwnerGuid);
+            }
 
             void EnterEvadeMode() override { }
 
