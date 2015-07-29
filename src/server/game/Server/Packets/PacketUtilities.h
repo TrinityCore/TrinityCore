@@ -110,7 +110,7 @@ namespace WorldPackets
         void push_back(value_type const& value)
         {
             if (_storage.size() >= _limit)
-                throw PacketArrayMaxCapacityException(newSize, _limit);
+                throw PacketArrayMaxCapacityException(_storage.size() + 1, _limit);
 
             _storage.push_back(value);
         }
@@ -118,7 +118,7 @@ namespace WorldPackets
         void push_back(value_type&& value)
         {
             if (_storage.size() >= _limit)
-                throw PacketArrayMaxCapacityException(newSize, _limit);
+                throw PacketArrayMaxCapacityException(_storage.size() + 1, _limit);
 
             _storage.push_back(std::forward<value_type>(value));
         }
