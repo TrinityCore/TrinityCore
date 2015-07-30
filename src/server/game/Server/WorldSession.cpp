@@ -39,13 +39,15 @@
 #include "BattlegroundMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "SocialMgr.h"
-#include "zlib.h"
 #include "ScriptMgr.h"
 #include "WardenWin.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
 #include "MoveSpline.h"
+#include "WardenMac.h"
+
+#include <zlib.h>
 
 namespace {
 
