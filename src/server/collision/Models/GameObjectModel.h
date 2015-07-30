@@ -25,6 +25,7 @@
 #include <G3D/Ray.h>
 
 #include "Define.h"
+#include <memory>
 
 namespace VMAP
 {
@@ -34,21 +35,21 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
+class GameObjectModelOwnerBase
+{
+public:
+    virtual bool IsSpawned() const { return false; }
+    virtual uint32 GetDisplayId() const { return 0; }
+    virtual uint32 GetPhaseMask() const { return 0; }
+    virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
+    virtual float GetOrientation() const { return 0.0f; }
+    virtual float GetScale() const { return 1.0f; }
+    virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
+};
+
 class GameObjectModel /*, public Intersectable*/
 {
-    uint32 phasemask;
-    G3D::AABox iBound;
-    G3D::Matrix3 iInvRot;
-    G3D::Vector3 iPos;
-    //G3D::Vector3 iRot;
-    float iInvScale;
-    float iScale;
-    VMAP::WorldModel* iModel;
-    GameObject const* owner;
-
-    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL), owner(NULL) { }
-    bool initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info);
-
+    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
 public:
     std::string name;
 
@@ -66,9 +67,21 @@ public:
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
 
-    static GameObjectModel* Create(const GameObject& go);
+    static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
     bool UpdatePosition();
+
+private:
+    bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
+
+    uint32 phasemask;
+    G3D::AABox iBound;
+    G3D::Matrix3 iInvRot;
+    G3D::Vector3 iPos;
+    float iInvScale;
+    float iScale;
+    VMAP::WorldModel* iModel;
+    std::unique_ptr<GameObjectModelOwnerBase> owner;
 };
 
 #endif // _GAMEOBJECT_MODEL_H

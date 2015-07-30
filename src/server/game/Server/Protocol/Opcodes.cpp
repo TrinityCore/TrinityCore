@@ -1273,7 +1273,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4DC*/ { "SMSG_PVP_QUEUE_STATS",                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4DD*/ { "CMSG_SET_PAID_SERVICE_CHEAT",                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x4DE*/ { "SMSG_BATTLEFIELD_MGR_ENTRY_INVITE",            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x4DF*/ { "CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE",   STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleBfEntryInviteResponse     },
+    /*0x4DF*/ { "CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE",   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBfEntryInviteResponse     },
     /*0x4E0*/ { "SMSG_BATTLEFIELD_MGR_ENTERED",                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4E1*/ { "SMSG_BATTLEFIELD_MGR_QUEUE_INVITE",            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4E2*/ { "CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE",   STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleBfQueueInviteResponse     },

@@ -226,7 +226,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
 
-    m_model = GameObjectModel::Create(*this);
+    m_model = CreateModel();
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -2128,7 +2128,7 @@ void GameObject::UpdateModel()
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
     delete m_model;
-    m_model = GameObjectModel::Create(*this);
+    m_model = CreateModel();
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);
 }
@@ -2320,4 +2320,26 @@ void GameObject::UpdateModelPosition()
         m_model->UpdatePosition();
         GetMap()->InsertGameObjectModel(*m_model);
     }
+}
+
+class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
+{
+public:
+    explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
+
+    virtual bool IsSpawned() const override { return _owner->isSpawned(); }
+    virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
+    virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
+    virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
+    virtual float GetOrientation() const override { return _owner->GetOrientation(); }
+    virtual float GetScale() const override { return _owner->GetObjectScale(); }
+    virtual void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+
+private:
+    GameObject const* _owner;
+};
+
+GameObjectModel* GameObject::CreateModel()
+{
+    return GameObjectModel::Create(Trinity::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
 }

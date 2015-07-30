@@ -24,7 +24,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <openssl/md5.h>
 #include "Database/DatabaseEnv.h"
 #include "World.h"
 #include "Player.h"
@@ -32,6 +31,7 @@
 #include "WardenWin.h"
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
+#include <openssl/md5.h>
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 

@@ -134,3 +134,11 @@
    Helgrind:Race
    fun:_ZNK3Log9ShouldLogERKSs8LogLevel
 }
+{
+   [5] ignored static variables
+   Helgrind:Race
+   fun:_ZN3G3D7Vector3aSERKS0_
+   fun:_ZN3G3D18CollisionDetection41collisionLocationForMovingPointFixedAABoxERKNS_7Vector3ES3_RKNS_5AABoxERS1_RbS7_
+   fun:_ZN3G3D18CollisionDetection37collisionTimeForMovingPointFixedAABoxERKNS_7Vector3ES3_RKNS_5AABoxERS1_RbS7_
+   fun:_ZNK3G3D3Ray16intersectionTimeERKNS_5AABoxE
+}
