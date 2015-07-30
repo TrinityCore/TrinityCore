@@ -25,9 +25,7 @@
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 

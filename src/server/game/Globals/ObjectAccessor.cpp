@@ -16,9 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
 #include "ObjectAccessor.h"
 #include "Corpse.h"
 #include "Creature.h"
@@ -32,7 +29,9 @@
 #include "Pet.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
+
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 ObjectAccessor::ObjectAccessor() { }
 

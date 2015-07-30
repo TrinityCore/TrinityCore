@@ -20,11 +20,12 @@
 #define _MMAP_MANAGER_H
 
 #include "Define.h"
-#include "DetourAlloc.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 //  move map related classes
 namespace MMAP
