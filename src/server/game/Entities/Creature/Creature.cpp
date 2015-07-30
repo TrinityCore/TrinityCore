@@ -178,9 +178,6 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
-#ifdef ELUNA
-        sEluna->OnAddToWorld(this);
-#endif
         if (GetZoneScript())
             GetZoneScript()->OnCreatureCreate(this);
         sObjectAccessor->AddObject(this);
@@ -189,6 +186,9 @@ void Creature::AddToWorld()
         AIM_Initialize();
         if (IsVehicle())
             GetVehicleKit()->Install();
+#ifdef ELUNA
+        sEluna->OnAddToWorld(this);
+#endif
     }
 }
 

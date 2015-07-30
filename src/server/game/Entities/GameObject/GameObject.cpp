@@ -126,9 +126,6 @@ void GameObject::AddToWorld()
     ///- Register the gameobject for guid lookup
     if (!IsInWorld())
     {
-#ifdef ELUNA
-        sEluna->OnAddToWorld(this);
-#endif
         if (m_zoneScript)
             m_zoneScript->OnGameObjectCreate(this);
 
@@ -146,6 +143,10 @@ void GameObject::AddToWorld()
 
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
+
+#ifdef ELUNA
+        sEluna->OnAddToWorld(this);
+#endif
     }
 }
 
