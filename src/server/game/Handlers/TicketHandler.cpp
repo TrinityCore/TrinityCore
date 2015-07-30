@@ -24,7 +24,6 @@
 #include "Player.h"
 #include "TicketMgr.h"
 #include "Util.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 

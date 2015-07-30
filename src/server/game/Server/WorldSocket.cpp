@@ -19,10 +19,10 @@
 #include "WorldSocket.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
-#include "Player.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "PacketLog.h"
+
 #include <memory>
 
 using boost::asio::ip::tcp;
