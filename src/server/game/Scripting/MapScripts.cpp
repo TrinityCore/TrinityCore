@@ -23,6 +23,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "Item.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
