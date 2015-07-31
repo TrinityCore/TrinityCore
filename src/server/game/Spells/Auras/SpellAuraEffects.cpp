@@ -33,6 +33,7 @@
 #include "Battleground.h"
 #include "OutdoorPvPMgr.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "Battlefield.h"
