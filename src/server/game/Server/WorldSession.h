@@ -619,11 +619,11 @@ enum AccountDataType
 
 #define REGISTERED_ADDON_PREFIX_SOFTCAP 64
 
-enum TutorialAction
+enum TutorialAction : uint8
 {
-    TUTORIAL_ACTION_RESET   = 0,
-    TUTORIAL_ACTION_UPDATE  = 1,
-    TUTORIAL_ACTION_CLEAR   = 2
+    TUTORIAL_ACTION_RESET   = 1,
+    TUTORIAL_ACTION_CLEAR   = 2,
+    TUTORIAL_ACTION_UPDATE  = 3
 };
 
 /*
