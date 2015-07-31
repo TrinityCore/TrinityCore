@@ -3075,17 +3075,32 @@ void InstanceMap::CreateInstanceData(bool load)
     if (i_data != NULL)
         return;
 
-    InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(GetId());
-    if (mInstance)
+    bool isElunaAI = false;
+
+#ifdef ELUNA
+    i_data = sEluna->GetInstanceData(this);
+    if (i_data)
+        isElunaAI = true;
+#endif
+
+    // if Eluna AI was fetched succesfully we should not call CreateInstanceData nor set the unused scriptID
+    if (!isElunaAI)
     {
-        i_script_id = mInstance->ScriptId;
-        i_data = sScriptMgr->CreateInstanceData(this);
+        InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(GetId());
+        if (mInstance)
+        {
+            i_script_id = mInstance->ScriptId;
+            i_data = sScriptMgr->CreateInstanceData(this);
+        }
     }
 
     if (!i_data)
         return;
 
-    i_data->Initialize();
+    // use mangos behavior if we are dealing with Eluna AI
+    // initialize should then be called only if load is false
+    if (!isElunaAI || !load)
+        i_data->Initialize();
 
     if (load)
     {
@@ -3102,7 +3117,7 @@ void InstanceMap::CreateInstanceData(bool load)
             i_data->SetCompletedEncountersMask(fields[1].GetUInt32());
             if (!data.empty())
             {
-                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id), i_InstanceId);
+                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", isElunaAI ? "ElunaAI" : sObjectMgr->GetScriptName(i_script_id), i_InstanceId);
                 i_data->Load(data.c_str());
             }
         }
