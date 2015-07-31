@@ -967,7 +967,7 @@ class boss_lord_sanguinar : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_SANGUINAR_AGGRO);
             }
@@ -1063,7 +1063,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_CAPERNIAN_AGGRO);
             }
@@ -1173,7 +1173,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 advisorbase_ai::JustDied(killer);
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_TELONICUS_AGGRO);
             }
