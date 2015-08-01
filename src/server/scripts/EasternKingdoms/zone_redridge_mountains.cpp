@@ -68,6 +68,7 @@ public:
             if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
             {
                 Talk(SAY_CORPORAL_1, player);
+                player->setFaction(250);
                 npc_escortAI::Start(true, false, player->GetGUID(), quest);
             }
         }
