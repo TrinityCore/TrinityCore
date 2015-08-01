@@ -83,7 +83,7 @@ struct CreatureTemplate
     uint32  Modelid3;
     uint32  Modelid4;
     std::string  Name;
-    std::string  SubName;
+    std::string  Title;
     std::string  IconName;
     uint32  GossipMenuId;
     uint8   minlevel;
@@ -218,7 +218,7 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 struct CreatureLocale
 {
     StringVector Name;
-    StringVector SubName;
+    StringVector Title;
 };
 
 struct GossipMenuItemsLocale
