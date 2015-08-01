@@ -302,17 +302,8 @@ void ObjectMgr::LoadCreatureLocales()
 
     _creatureLocaleStore.clear(); // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, "
-        "name_loc1, femaleName_loc1, subname_loc1, "
-        "name_loc2, femaleName_loc2, subname_loc2, "
-        "name_loc3, femaleName_loc3, subname_loc3, "
-        "name_loc4, femaleName_loc4, subname_loc4, "
-        "name_loc5, femaleName_loc5, subname_loc5, "
-        "name_loc6, femaleName_loc6, subname_loc6, "
-        "name_loc7, femaleName_loc7, subname_loc7, "
-        "name_loc8, femaleName_loc8, subname_loc8 "
-        "FROM locales_creature");
-
+    //                                               0      1       2     3        4      5
+    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
     if (!result)
         return;
 
@@ -320,17 +311,24 @@ void ObjectMgr::LoadCreatureLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id               = fields[0].GetUInt32();
+        std::string localeName  = fields[1].GetString();
 
-        CreatureLocale& data = _creatureLocaleStore[entry];
+        std::string name        = fields[2].GetString();
+        std::string nameAlt     = fields[3].GetString();
+        std::string title       = fields[4].GetString();
+        std::string titleAlt    = fields[5].GetString();
 
-        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.FemaleName);
-            AddLocaleString(fields[1 + 3 * (i - 1) + 2].GetString(), locale, data.SubName);
-        }
+        CreatureLocale& data = _creatureLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        AddLocaleString(name,       locale, data.Name);
+        AddLocaleString(nameAlt,    locale, data.NameAlt);
+        AddLocaleString(title,      locale, data.Title);
+        AddLocaleString(titleAlt,   locale, data.TitleAlt);
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature locale strings in %u ms", uint32(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -394,6 +392,8 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(name, locale, data.Name);
     } while (result->NextRow());
@@ -4467,6 +4467,8 @@ void ObjectMgr::LoadQuestTemplateLocale()
 
         QuestTemplateLocale& data = _questTemplateLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(logTitle,               locale, data.LogTitle);
         AddLocaleString(logDescription,         locale, data.LogDescription);
@@ -4503,6 +4505,8 @@ void ObjectMgr::LoadQuestObjectivesLocale()
 
         QuestObjectivesLocale& data = _questObjectivesLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(Description, locale, data.Description);
     }
@@ -5116,6 +5120,8 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
@@ -6403,6 +6409,8 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(name, locale, data.Name);
         AddLocaleString(castBarCaption, locale, data.CastBarCaption);
