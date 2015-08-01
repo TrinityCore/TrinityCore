@@ -174,6 +174,12 @@ enum AuctionBotConfigBoolValues
     CONFIG_UINT32_AHBOT_BOOL_COUNT
 };
 
+enum AuctionBotConfigFloatValues
+{
+    CONFIG_AHBOT_BUYER_CHANCE_FACTOR,
+    CONFIG_AHBOT_FLOAT_COUNT
+};
+
 // All basic config data used by other AHBot classes for self-configure.
 class AuctionBotConfig
 {
@@ -196,8 +202,10 @@ public:
 
     uint32 GetConfig(AuctionBotConfigUInt32Values index) const { return _configUint32Values[index]; }
     bool GetConfig(AuctionBotConfigBoolValues index) const { return _configBoolValues[index]; }
+    float GetConfig(AuctionBotConfigFloatValues index) const { return _configFloatValues[index]; }
     void SetConfig(AuctionBotConfigBoolValues index, bool value) { _configBoolValues[index] = value; }
     void SetConfig(AuctionBotConfigUInt32Values index, uint32 value) { _configUint32Values[index] = value; }
+    void SetConfig(AuctionBotConfigFloatValues index, float value) { _configFloatValues[index] = value; }
 
     uint32 GetConfigItemAmountRatio(AuctionHouseType houseType) const;
     bool GetConfigBuyerEnabled(AuctionHouseType houseType) const;
@@ -217,6 +225,7 @@ private:
 
     uint32 _configUint32Values[CONFIG_UINT32_AHBOT_UINT32_COUNT];
     bool _configBoolValues[CONFIG_UINT32_AHBOT_BOOL_COUNT];
+    float _configFloatValues[CONFIG_AHBOT_FLOAT_COUNT];
 
     void SetAHBotIncludes(const std::string& AHBotIncludes) { _AHBotIncludes = AHBotIncludes; }
     void SetAHBotExcludes(const std::string& AHBotExcludes) { _AHBotExcludes = AHBotExcludes; }
@@ -225,6 +234,7 @@ private:
     void SetConfigMax(AuctionBotConfigUInt32Values index, char const* fieldname, uint32 defvalue, uint32 maxvalue);
     void SetConfigMinMax(AuctionBotConfigUInt32Values index, char const* fieldname, uint32 defvalue, uint32 minvalue, uint32 maxvalue);
     void SetConfig(AuctionBotConfigBoolValues index, char const* fieldname, bool defvalue);
+    void SetConfig(AuctionBotConfigFloatValues index, char const* fieldname, float defvalue);
     void GetConfigFromFile();
 };
 

@@ -97,6 +97,11 @@ void AuctionBotConfig::SetConfig(AuctionBotConfigBoolValues index, char const* f
     SetConfig(index, sConfigMgr->GetBoolDefault(fieldname, defvalue));
 }
 
+void AuctionBotConfig::SetConfig(AuctionBotConfigFloatValues index, char const* fieldname, float defvalue)
+{
+    SetConfig(index, sConfigMgr->GetFloatDefault(fieldname, defvalue));
+}
+
 //Get AuctionHousebot configuration file
 void AuctionBotConfig::GetConfigFromFile()
 {
@@ -110,6 +115,8 @@ void AuctionBotConfig::GetConfigFromFile()
     SetConfig(CONFIG_AHBOT_BUYER_ALLIANCE_ENABLED, "AuctionHouseBot.Buyer.Alliance.Enabled", false);
     SetConfig(CONFIG_AHBOT_BUYER_HORDE_ENABLED, "AuctionHouseBot.Buyer.Horde.Enabled", false);
     SetConfig(CONFIG_AHBOT_BUYER_NEUTRAL_ENABLED, "AuctionHouseBot.Buyer.Neutral.Enabled", false);
+
+    SetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR, "AuctionHouseBot.Buyer.ChanceFactor", 2.0f);
 
     SetConfig(CONFIG_AHBOT_ITEMS_VENDOR, "AuctionHouseBot.Items.Vendor", false);
     SetConfig(CONFIG_AHBOT_ITEMS_LOOT, "AuctionHouseBot.Items.Loot", true);
