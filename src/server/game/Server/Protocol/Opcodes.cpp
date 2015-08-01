@@ -723,7 +723,7 @@ void OpcodeTable::Initialize()
     /*0x250*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPELLNONMELEEDAMAGELOG,    STATUS_NEVER);
     /*0x251*/ DEFINE_HANDLER(CMSG_LEARN_TALENT,                            STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleLearnTalentOpcode         );
     /*0x252*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESURRECT_FAILED,          STATUS_NEVER);
-    /*0x253*/ DEFINE_HANDLER(CMSG_TOGGLE_PVP,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTogglePvP                 );
+    /*0x253*/ DEFINE_HANDLER(CMSG_TOGGLE_PVP,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleTogglePvP);
     /*0x254*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ZONE_UNDER_ATTACK,         STATUS_NEVER);
     /*0x255*/ DEFINE_HANDLER(MSG_AUCTION_HELLO,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionHelloOpcode        );
     /*0x256*/ DEFINE_HANDLER(CMSG_AUCTION_SELL_ITEM,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionSellItem           );

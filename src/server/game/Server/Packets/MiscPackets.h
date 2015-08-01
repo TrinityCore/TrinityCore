@@ -222,6 +222,14 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
             float Facing = 0.0f;
         };
+
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 
