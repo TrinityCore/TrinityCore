@@ -686,6 +686,14 @@ namespace WorldPackets
             ObjectGuid UnitGUID;
             bool PlayHoverAnim = false;
         };
+
+        class OpeningCinematic final : public ClientPacket
+        {
+        public:
+            OpeningCinematic(WorldPacket&& packet) : ClientPacket(CMSG_OPENING_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

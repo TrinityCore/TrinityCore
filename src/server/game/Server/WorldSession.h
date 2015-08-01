@@ -366,6 +366,7 @@ namespace WorldPackets
         class FarSight;
         class LoadCUFProfiles;
         class SaveCUFProfiles;
+        class OpeningCinematic;
     }
 
     namespace Movement
@@ -992,7 +993,7 @@ class WorldSession
         void HandleCharRaceOrFactionChangeCallback(PreparedQueryResult result, WorldPackets::Character::CharRaceOrFactionChangeInfo* factionChangeInfo);
         void HandleRandomizeCharNameOpcode(WorldPackets::Character::GenerateRandomCharacterName& packet);
         void HandleReorderCharacters(WorldPackets::Character::ReorderCharacters& reorderChars);
-        void HandleOpeningCinematic(WorldPacket& recvData);
+        void HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& packet);
         void HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*getCooldown*/);
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
         void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
