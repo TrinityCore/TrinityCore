@@ -694,6 +694,14 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 
