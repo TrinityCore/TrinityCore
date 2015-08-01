@@ -50,6 +50,7 @@ enum HunterSpells
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED       = 54045,
+    SPELL_HUNTER_RAPID_RECUPERATION_TRIGGERED       = 58883,
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
@@ -640,6 +641,45 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
         }
 };
 
+// 56654, 58882 - Rapid Recuperation
+class spell_hun_rapid_recuperation : public SpellScriptLoader
+{
+public:
+    spell_hun_rapid_recuperation() : SpellScriptLoader("spell_hun_rapid_recuperation") { }
+
+    class spell_hun_rapid_recuperation_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_rapid_recuperation_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_RAPID_RECUPERATION_TRIGGERED))
+                return false;
+            return true;
+        }
+
+        void HandlePeriodic(AuraEffect const* aurEff)
+        {
+            PreventDefaultAction();
+
+            Unit* target = GetTarget();
+            int32 bp = CalculatePct(int32(target->GetMaxPower(POWER_MANA)), aurEff->GetAmount());
+
+            target->CastCustomSpell(target, SPELL_HUNTER_RAPID_RECUPERATION_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff, target->GetGUID());
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_rapid_recuperation_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hun_rapid_recuperation_AuraScript();
+    }
+};
+
 // 23989 - Readiness
 class spell_hun_readiness : public SpellScriptLoader
 {
@@ -921,6 +961,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
+    new spell_hun_rapid_recuperation();
     new spell_hun_readiness();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
