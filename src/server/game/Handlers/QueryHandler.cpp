@@ -77,35 +77,50 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 
         WorldPackets::Query::CreatureStats& stats = response.Stats;
 
-        stats.Title = creatureInfo->SubName;
-        stats.CursorName = creatureInfo->IconName;
+        stats.Leader = creatureInfo->RacialLeader;
+
+        stats.Name[0] = creatureInfo->Name;
+        stats.NameAlt[0] = creatureInfo->FemaleName;
+
+        stats.Flags[0] = creatureInfo->type_flags;
+        stats.Flags[1] = creatureInfo->type_flags2;
+
         stats.CreatureType = creatureInfo->type;
         stats.CreatureFamily = creatureInfo->family;
         stats.Classification = creatureInfo->rank;
-        stats.HpMulti = creatureInfo->ModHealth;
-        stats.EnergyMulti = creatureInfo->ModMana;
-        stats.Leader = creatureInfo->RacialLeader;
 
-        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
-        if (items)
-            for (uint32 item : *items)
-                stats.QuestItems.push_back(item);
-
-        stats.CreatureMovementInfoID = creatureInfo->movementId;
-        stats.RequiredExpansion = creatureInfo->expansionUnknown;
-        stats.Flags[0] = creatureInfo->type_flags;
-        stats.Flags[1] = creatureInfo->type_flags2;
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
+
         stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
         stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
         stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
         stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
-        stats.Name[0] = creatureInfo->Name;
-        stats.NameAlt[0] = creatureInfo->FemaleName;
+
+        stats.HpMulti = creatureInfo->ModHealth;
+        stats.EnergyMulti = creatureInfo->ModMana;
+
+        stats.CreatureMovementInfoID = creatureInfo->movementId;
+        stats.RequiredExpansion = creatureInfo->expansionUnknown;
+
+        stats.Title = creatureInfo->SubName;
+        //stats.TitleAlt = ;
+        stats.CursorName = creatureInfo->IconName;
+
+        if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
+            for (uint32 item : *items)
+                stats.QuestItems.push_back(item);
+
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
+            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
+            {
+                ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
+                ObjectMgr::GetLocaleString(creatureLocale->NameAlt, localeConstant, stats.NameAlt[0]);
+                ObjectMgr::GetLocaleString(creatureLocale->Title, localeConstant, stats.Title);
+                ObjectMgr::GetLocaleString(creatureLocale->TitleAlt, localeConstant, stats.TitleAlt);
+            }
     }
-    else
-        response.Allow = false;
 
     SendPacket(response.Write());
 }
