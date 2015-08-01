@@ -349,9 +349,9 @@ public:
      the magnitude.
      */
     Quat toUnit() const {
-        Quat x = *this;
-        x.unitize();
-        return x;
+        Quat copyOfThis = *this;
+        copyOfThis.unitize();
+        return copyOfThis;
     }
 
     /**
