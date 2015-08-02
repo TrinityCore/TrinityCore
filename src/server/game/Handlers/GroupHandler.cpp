@@ -348,7 +348,7 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    if (packet.LootMethod > NEED_BEFORE_GREED)
+    if (packet.LootMethod > PERSONAL_LOOT)
         return;
 
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
@@ -359,9 +359,9 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     /********************/
 
     // everything's fine, do it
-    group->SetLootMethod((LootMethod)packet.LootMethod);
+    group->SetLootMethod(static_cast<LootMethod>(packet.LootMethod));
     group->SetMasterLooterGuid(packet.LootMasterGUID);
-    group->SetLootThreshold((ItemQualities)packet.LootThreshold);
+    group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
 }
 
