@@ -336,7 +336,6 @@ void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
             GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
-        GetPlayer()->SetPvP(true);
     }
 }
 
