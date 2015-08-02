@@ -702,6 +702,16 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class SetPvP final : public ClientPacket
+        {
+        public:
+            SetPvP(WorldPacket&& packet) : ClientPacket(CMSG_SET_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            bool EnablePVP = false;
+        };
     }
 }
 

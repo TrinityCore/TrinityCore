@@ -368,6 +368,7 @@ namespace WorldPackets
         class SaveCUFProfiles;
         class OpeningCinematic;
         class TogglePvP;
+        class SetPvP;
     }
 
     namespace Movement
@@ -1062,6 +1063,7 @@ class WorldSession
         void HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugReport);
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
+        void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
 
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
