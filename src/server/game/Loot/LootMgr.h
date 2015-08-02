@@ -68,7 +68,8 @@ enum LootMethod
     ROUND_ROBIN       = 1,
     MASTER_LOOT       = 2,
     GROUP_LOOT        = 3,
-    NEED_BEFORE_GREED = 4
+    NEED_BEFORE_GREED = 4,
+    PERSONAL_LOOT     = 5
 };
 
 enum PermissionTypes
