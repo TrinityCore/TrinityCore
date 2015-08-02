@@ -22727,15 +22727,10 @@ void Player::ApplyEquipCooldown(Item* pItem)
         if (effectData->Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
-        // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(effectData->SpellID) > 30 * IN_MILLISECONDS)
-            continue;
-
-        GetSpellHistory()->AddCooldown(effectData->SpellID, pItem->GetEntry(), std::chrono::seconds(30));
-
         WorldPackets::Item::ItemCooldown data;
         data.ItemGuid = pItem->GetGUID();
         data.SpellID = effectData->SpellID;
+        data.Cooldown = 30 * IN_MILLISECONDS; // Always 30secs?
         GetSession()->SendPacket(data.Write());
     }
 }
