@@ -67,6 +67,8 @@
 #include "CombatPackets.h"
 #include "CombatLogPackets.h"
 #include "VehiclePackets.h"
+#include "LootPackets.h"
+#include "PartyPackets.h"
 
 #include <cmath>
 
@@ -13453,9 +13455,9 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        WorldPacket data(SMSG_PARTY_KILL_LOG, (8+8)); // send event PARTY_KILL
-        data << player->GetGUID(); // player with killing blow
-        data << victim->GetGUID(); // victim
+        WorldPackets::Party::PartyKillLog partyKillLog;
+        partyKillLog.Player = player->GetGUID();
+        partyKillLog.Victim = victim->GetGUID();
 
         Player* looter = player;
         Group* group = player->GetGroup();
@@ -13463,7 +13465,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (group)
         {
-            group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()) != 0);
+            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
 
             if (creature)
             {
@@ -13481,15 +13483,14 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         }
         else
         {
-            player->SendDirectMessage(&data);
+            player->SendDirectMessage(partyKillLog.Write());
 
             if (creature)
             {
-                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
-                data2 << creature->GetGUID();
-                data2 << uint8(0); // unk1
-                data2 << uint8(0); // no group looter
-                player->SendMessageToSet(&data2, true);
+                WorldPackets::Loot::LootList lootList;
+                lootList.Owner = creature->GetGUID();
+
+                player->SendMessageToSet(lootList.Write(), true);
             }
         }
 

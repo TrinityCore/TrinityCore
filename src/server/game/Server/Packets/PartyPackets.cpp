@@ -541,6 +541,14 @@ void WorldPackets::Party::PartyMemberStats::Initialize(Player const* player)
     }
 }
 
+WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
+{
+    _worldPacket << Player;
+    _worldPacket << Victim;
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPhase const& phase)
 {
     data << phase.Flags;

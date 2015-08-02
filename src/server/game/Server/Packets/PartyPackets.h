@@ -594,6 +594,17 @@ namespace WorldPackets
 
             std::vector<RaidMarker*> RaidMarkers;
         };
+
+        class PartyKillLog final : public ServerPacket
+        {
+        public:
+            PartyKillLog() : ServerPacket(SMSG_PARTY_KILL_LOG, 2 * 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            ObjectGuid Victim;
+        };
     }
 }
 
