@@ -17442,6 +17442,8 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
     switch (thisGroup->GetLootMethod())
     {
+        case PERSONAL_LOOT: /// @todo implement personal loot (http://wow.gamepedia.com/Loot#Personal_Loot)
+            return false;
         case MASTER_LOOT:
         case FREE_FOR_ALL:
             return true;
