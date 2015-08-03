@@ -357,6 +357,16 @@ namespace WorldPackets
 
             ObjectGuid Guid;
         };
+
+        class DestroyArenaUnit final : public ServerPacket
+        {
+        public:
+            DestroyArenaUnit() : ServerPacket(SMSG_DESTROY_ARENA_UNIT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 

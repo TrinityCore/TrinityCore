@@ -15475,7 +15475,6 @@ void Unit::SendThreatListUpdate()
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPackets::Combat::ThreatUpdate packet;
         packet.UnitGUID = GetGUID();
         ThreatContainer::StorageType const &tlist = getThreatManager().getThreatList();
@@ -15495,7 +15494,6 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
     if (!getThreatManager().isThreatListEmpty())
     {
-        TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPackets::Combat::HighestThreatUpdate packet;
         packet.UnitGUID = GetGUID();
         packet.HighestThreatGUID = pHostileReference->getUnitGuid();
@@ -15514,7 +15512,6 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 
 void Unit::SendClearThreatListOpcode()
 {
-    TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_CLEAR Message");
     WorldPackets::Combat::ThreatClear packet;
     packet.UnitGUID = GetGUID();
     SendMessageToSet(packet.Write(), false);
@@ -15522,7 +15519,6 @@ void Unit::SendClearThreatListOpcode()
 
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 {
-    TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_REMOVE Message");
     WorldPackets::Combat::ThreatRemove packet;
     packet.UnitGUID = GetGUID();
     packet.AboutGUID = pHostileReference->getUnitGuid();
@@ -16250,9 +16246,9 @@ void Unit::DestroyForPlayer(Player* target) const
     {
         if (bg->isArena())
         {
-            WorldPacket data(SMSG_DESTROY_ARENA_UNIT, 18);
-            data << GetGUID();
-            target->GetSession()->SendPacket(&data);
+            WorldPackets::Battleground::DestroyArenaUnit destroyArenaUnit;
+            destroyArenaUnit.Guid = GetGUID();
+            target->GetSession()->SendPacket(destroyArenaUnit.Write());
         }
     }
 

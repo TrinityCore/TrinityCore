@@ -265,3 +265,9 @@ WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerLeft::Write()
     _worldPacket << Guid;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::DestroyArenaUnit::Write()
+{
+    _worldPacket << Guid;
+    return &_worldPacket;
+}
