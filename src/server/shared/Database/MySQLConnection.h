@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ace/Activation_Queue.h>
-
 #include "DatabaseWorkerPool.h"
 #include "Transaction.h"
 #include "Util.h"
+#include "ProducerConsumerQueue.h"
 
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
@@ -33,15 +32,14 @@ enum ConnectionFlags
 {
     CONNECTION_ASYNC = 0x1,
     CONNECTION_SYNCH = 0x2,
-    CONNECTION_BOTH = CONNECTION_ASYNC | CONNECTION_SYNCH,
+    CONNECTION_BOTH = CONNECTION_ASYNC | CONNECTION_SYNCH
 };
 
 struct MySQLConnectionInfo
 {
-    MySQLConnectionInfo() {}
-    MySQLConnectionInfo(const std::string& infoString)
+    explicit MySQLConnectionInfo(std::string const& infoString)
     {
-        Tokens tokens(infoString, ';');
+        Tokenizer tokens(infoString, ';');
 
         if (tokens.size() != 5)
             return;
@@ -62,9 +60,7 @@ struct MySQLConnectionInfo
     std::string port_or_socket;
 };
 
-typedef std::map<uint32 /*index*/, std::pair<const char* /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
-
-#define PREPARE_STATEMENT(a, b, c) m_queries[a] = std::make_pair(strdup(b), c);
+typedef std::map<uint32 /*index*/, std::pair<std::string /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
 
 class MySQLConnection
 {
@@ -73,11 +69,13 @@ class MySQLConnection
 
     public:
         MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchronous connections.
-        MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
+        MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
         virtual ~MySQLConnection();
 
-        virtual bool Open();
+        virtual uint32 Open();
         void Close();
+
+        bool PrepareStatements();
 
     public:
         bool Execute(const char* sql);
@@ -90,7 +88,7 @@ class MySQLConnection
         void BeginTransaction();
         void RollbackTransaction();
         void CommitTransaction();
-        bool ExecuteTransaction(SQLTransaction& transaction);
+        int ExecuteTransaction(SQLTransaction& transaction);
 
         operator bool () const { return m_Mysql != NULL; }
         void Ping() { mysql_ping(m_Mysql); }
@@ -102,20 +100,19 @@ class MySQLConnection
         {
             /// Tries to acquire lock. If lock is acquired by another thread
             /// the calling parent will just try another connection
-            return m_Mutex.tryacquire() != -1;
+            return m_Mutex.try_lock();
         }
 
         void Unlock()
         {
             /// Called by parent databasepool. Will let other threads access this connection
-            m_Mutex.release();
+            m_Mutex.unlock();
         }
 
         MYSQL* GetHandle()  { return m_Mysql; }
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
         void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
 
-        bool PrepareStatements();
         virtual void DoPrepareStatements() = 0;
 
     protected:
@@ -128,12 +125,15 @@ class MySQLConnection
         bool _HandleMySQLErrno(uint32 errNo);
 
     private:
-        ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchronous connections.
+        ProducerConsumerQueue<SQLOperation*>* m_queue;      //! Queue shared with other asynchronous connections.
         DatabaseWorker*       m_worker;                     //! Core worker task.
         MYSQL *               m_Mysql;                      //! MySQL Handle.
         MySQLConnectionInfo&  m_connectionInfo;             //! Connection info (used for logging)
         ConnectionFlags       m_connectionFlags;            //! Connection flags (for preparing relevant statements)
-        ACE_Thread_Mutex      m_Mutex;
+        std::mutex            m_Mutex;
+
+        MySQLConnection(MySQLConnection const& right) = delete;
+        MySQLConnection& operator=(MySQLConnection const& right) = delete;
 };
 
 #endif

@@ -85,7 +85,7 @@
 
 
 #ifndef _SOCKLEN_T
-#   if defined(G3D_WIN32) || defined(G3D_OSX)
+#   if defined(G3D_WINDOWS) || defined(G3D_OSX)
         typedef int socklen_t;
 #   endif
 #endif

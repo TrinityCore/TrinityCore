@@ -2,7 +2,7 @@ DELETE FROM `spell_bonus_data` WHERE entry IN (31893, 32221, 31898, 32220, 53719
 INSERT INTO `spell_bonus_data` VALUES
 (31893, 0, 0, 0, "Paladin - Seal of Blood Proc Enemy"),
 (32221, 0, 0, 0, "Paladin - Seal of Blood Proc Self"),
-(31898, 0.25, 0, 0.16, "Paladin - Judgement of Blood Enemy"), 
+(31898, 0.25, 0, 0.16, "Paladin - Judgement of Blood Enemy"),
 (32220, 0.0833, 0, 0.0533, "Paladin - Judgement of Blood Self"),
 (53719, 0, 0, 0, "Paladin - Seal of the Martyr Proc Enemy"),
 (53718, 0, 0, 0, "Paladin - Seal of the Martyr Proc Self"),

@@ -24,7 +24,7 @@ std::string license() {
 "%s"
 "This program uses the G3D Library (http://g3d.sf.net), which\n"
 "is licensed under the \"Modified BSD\" Open Source license.  The G3D library\n"
-"source code is Copyright © 2000-2010, Morgan McGuire, All rights reserved.\n"
+"source code is Copyright © 2000-2011, Morgan McGuire, All rights reserved.\n"
 "This program uses The OpenGL Extension Wrangler Library, which \n"
 "is licensed under the \"Modified BSD\" Open Source license.  \n"
 "The OpenGL Extension Wrangler Library source code is\n"
@@ -59,7 +59,7 @@ std::string license() {
 "\n\n"
 "G3D VERSION %d\n", 
 
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
     "" // Win32 doesn't use SDL
 #else
     "This software uses the Simple DirectMedia Layer library (\"SDL\",\n"

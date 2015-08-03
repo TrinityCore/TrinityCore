@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,16 @@
 #define OUTDOOR_PVP_TF_
 
 #include "OutdoorPvP.h"
+
+enum DefenseMessages
+{
+    TEXT_BONE_WASTES_TAKEN_ALLIANCE     = 16120, // (NYI) '|cffffff00The Alliance has taken control of The Bone Wastes!|r'
+    TEXT_BONE_WASTES_TAKEN_HORDE        = 16119, // (NYI) '|cffffff00The Horde has taken control of The Bone Wastes!|r'
+    TEXT_SPIRIT_TOWER_TAKEN_ALLIANCE    = 18285, // '|cffffff00The Alliance has taken control of a Spirit Tower!|r'
+    TEXT_SPIRIT_TOWER_TAKEN_HORDE       = 18286, // '|cffffff00The Horde has taken control of a Spirit Tower!|r'
+    TEXT_SPIRIT_TOWER_LOSE_ALLIANCE     = 18288, // '|cffffff00The Alliance has lost control of a Spirit Tower!|r'
+    TEXT_SPIRIT_TOWER_LOSE_HORDE        = 18287  // '|cffffff00The Horde has lost control of a Spirit Tower!|r'
+};
 
 const uint8 OutdoorPvPTFBuffZonesNum = 5;
 
@@ -98,10 +108,6 @@ const uint32 TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
 
 enum TFWorldStates
 {
-    TF_UI_TOWER_SLIDER_POS = 0xa41,
-    TF_UI_TOWER_SLIDER_N = 0xa40,
-    TF_UI_TOWER_SLIDER_DISPLAY = 0xa3f,
-
     TF_UI_TOWER_COUNT_H = 0xa3e,
     TF_UI_TOWER_COUNT_A = 0xa3d,
     TF_UI_TOWERS_CONTROLLED_DISPLAY = 0xa3c,
@@ -124,25 +130,17 @@ enum TFTowerStates
 class OPvPCapturePointTF : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type);
 
         bool Update(uint32 diff);
 
         void ChangeState();
 
-        void SendChangePhase();
-
-        void FillInitialWorldStates(WorldPacket & data);
-
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void UpdateTowerState();
 
     protected:
-
         OutdoorPvPTF_TowerType m_TowerType;
 
         uint32 m_TowerState;
@@ -151,7 +149,6 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 class OutdoorPvPTF : public OutdoorPvP
 {
     public:
-
         OutdoorPvPTF();
 
         bool SetupOutdoorPvP();
@@ -161,7 +158,7 @@ class OutdoorPvPTF : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 
@@ -174,7 +171,6 @@ class OutdoorPvPTF : public OutdoorPvP
         bool IsLocked() const;
 
     private:
-
         bool m_IsLocked;
         uint32 m_LockTimer;
         uint32 m_LockTimerUpdate;

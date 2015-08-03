@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Outland/nagrand.cpp
+  Outland/zone_nagrand.cpp
   Outland/HellfireCitadel/MagtheridonsLair/magtheridons_lair.h
   Outland/HellfireCitadel/MagtheridonsLair/instance_magtheridons_lair.cpp
   Outland/HellfireCitadel/MagtheridonsLair/boss_magtheridon.cpp
@@ -27,6 +27,7 @@ set(scripts_STAT_SRCS
   Outland/HellfireCitadel/ShatteredHalls/shattered_halls.h
   Outland/HellfireCitadel/ShatteredHalls/boss_warchief_kargath_bladefist.cpp
   Outland/HellfireCitadel/ShatteredHalls/boss_nethekurse.cpp
+  Outland/HellfireCitadel/ShatteredHalls/shattered_halls.cpp
   Outland/HellfireCitadel/ShatteredHalls/instance_shattered_halls.cpp
   Outland/HellfireCitadel/ShatteredHalls/boss_warbringer_omrogg.cpp
   Outland/CoilfangReservoir/SteamVault/boss_mekgineer_steamrigger.cpp
@@ -42,9 +43,15 @@ set(scripts_STAT_SRCS
   Outland/CoilfangReservoir/SerpentShrine/boss_leotheras_the_blind.cpp
   Outland/CoilfangReservoir/SerpentShrine/boss_lurker_below.cpp
   Outland/CoilfangReservoir/SerpentShrine/boss_morogrim_tidewalker.cpp
-  Outland/CoilfangReservoir/underbog/boss_hungarfen.cpp
-  Outland/CoilfangReservoir/underbog/boss_the_black_stalker.cpp
-  Outland/shattrath_city.cpp
+  Outland/CoilfangReservoir/TheSlavePens/instance_the_slave_pens.cpp
+  Outland/CoilfangReservoir/TheSlavePens/the_slave_pens.h
+  Outland/CoilfangReservoir/TheSlavePens/boss_mennu_the_betrayer.cpp
+  Outland/CoilfangReservoir/TheSlavePens/boss_rokmar_the_crackler.cpp
+  Outland/CoilfangReservoir/TheSlavePens/boss_quagmirran.cpp
+  Outland/CoilfangReservoir/TheUnderbog/instance_the_underbog.cpp
+  Outland/CoilfangReservoir/TheUnderbog/boss_hungarfen.cpp
+  Outland/CoilfangReservoir/TheUnderbog/boss_the_black_stalker.cpp
+  Outland/zone_shattrath_city.cpp
   Outland/TempestKeep/Mechanar/boss_mechano_lord_capacitus.cpp
   Outland/TempestKeep/Mechanar/boss_pathaleon_the_calculator.cpp
   Outland/TempestKeep/Mechanar/boss_nethermancer_sepethrea.cpp
@@ -59,30 +66,42 @@ set(scripts_STAT_SRCS
   Outland/TempestKeep/Eye/boss_alar.cpp
   Outland/TempestKeep/Eye/boss_kaelthas.cpp
   Outland/TempestKeep/Eye/the_eye.cpp
+  Outland/TempestKeep/botanica/the_botanica.h
+  Outland/TempestKeep/botanica/instance_the_botanica.cpp
+  Outland/TempestKeep/botanica/boss_commander_sarannis.cpp
+  Outland/TempestKeep/botanica/boss_thorngrin_the_tender.cpp
   Outland/TempestKeep/botanica/boss_high_botanist_freywinn.cpp
   Outland/TempestKeep/botanica/boss_warp_splinter.cpp
   Outland/TempestKeep/botanica/boss_laj.cpp
+  Outland/TempestKeep/arcatraz/boss_zereketh_the_unbound.cpp
+  Outland/TempestKeep/arcatraz/boss_dalliah_the_doomsayer.cpp
+  Outland/TempestKeep/arcatraz/boss_wrath_scryer_soccothrates.cpp
   Outland/TempestKeep/arcatraz/boss_harbinger_skyriss.cpp
   Outland/TempestKeep/arcatraz/instance_arcatraz.cpp
   Outland/TempestKeep/arcatraz/arcatraz.h
   Outland/TempestKeep/arcatraz/arcatraz.cpp
   Outland/Auchindoun/AuchenaiCrypts/boss_shirrak_the_dead_watcher.cpp
   Outland/Auchindoun/AuchenaiCrypts/boss_exarch_maladaar.cpp
+  Outland/Auchindoun/AuchenaiCrypts/instance_auchenai_crypts.cpp
+  Outland/Auchindoun/AuchenaiCrypts/auchenai_crypts.h
   Outland/Auchindoun/ManaTombs/boss_pandemonius.cpp
   Outland/Auchindoun/ManaTombs/boss_nexusprince_shaffar.cpp
-  Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
+  Outland/Auchindoun/ManaTombs/instance_mana_tombs.cpp
+  Outland/Auchindoun/ManaTombs/mana_tombs.h
   Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
+  Outland/Auchindoun/SethekkHalls/boss_talon_king_ikiss.cpp
+  Outland/Auchindoun/SethekkHalls/boss_anzu.cpp
   Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
   Outland/Auchindoun/SethekkHalls/sethekk_halls.h
-  Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp
   Outland/Auchindoun/ShadowLabyrinth/boss_ambassador_hellmaw.cpp
   Outland/Auchindoun/ShadowLabyrinth/boss_blackheart_the_inciter.cpp
+  Outland/Auchindoun/ShadowLabyrinth/boss_grandmaster_vorpil.cpp
+  Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp
   Outland/Auchindoun/ShadowLabyrinth/instance_shadow_labyrinth.cpp
   Outland/Auchindoun/ShadowLabyrinth/shadow_labyrinth.h
-  Outland/Auchindoun/ShadowLabyrinth/boss_grandmaster_vorpil.cpp
   Outland/boss_doomwalker.cpp
-  Outland/terokkar_forest.cpp
-  Outland/hellfire_peninsula.cpp
+  Outland/zone_terokkar_forest.cpp
+  Outland/zone_hellfire_peninsula.cpp
   Outland/boss_doomlord_kazzak.cpp
   Outland/BlackTemple/boss_teron_gorefiend.cpp
   Outland/BlackTemple/black_temple.h
@@ -94,16 +113,16 @@ set(scripts_STAT_SRCS
   Outland/BlackTemple/instance_black_temple.cpp
   Outland/BlackTemple/boss_reliquary_of_souls.cpp
   Outland/BlackTemple/boss_warlord_najentus.cpp
-  Outland/BlackTemple/boss_bloodboil.cpp
+  Outland/BlackTemple/boss_gurtogg_bloodboil.cpp
   Outland/BlackTemple/boss_illidan.cpp
-  Outland/shadowmoon_valley.cpp
-  Outland/blades_edge_mountains.cpp
+  Outland/zone_shadowmoon_valley.cpp
+  Outland/zone_blades_edge_mountains.cpp
   Outland/GruulsLair/boss_high_king_maulgar.cpp
   Outland/GruulsLair/boss_gruul.cpp
   Outland/GruulsLair/gruuls_lair.h
   Outland/GruulsLair/instance_gruuls_lair.cpp
-  Outland/netherstorm.cpp
-  Outland/zangarmarsh.cpp
+  Outland/zone_netherstorm.cpp
+  Outland/zone_zangarmarsh.cpp
 )
 
 message("  -> Prepared: Outland")

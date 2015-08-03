@@ -1,0 +1,144 @@
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIlE5storeElSt12memory_order
+   fun:_ZNSt13__atomic_baseIlEaSEl
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNKSt13__atomic_baseIlE4loadESt12memory_order
+   fun:_ZNKSt13__atomic_baseIlEcvlEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIbE5storeEbSt12memory_order
+   fun:_ZNSt13__atomic_baseIbEaSEb
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNKSt13__atomic_baseIbE4loadESt12memory_order
+   fun:_ZNKSt11atomic_boolcvbEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIiE5storeEiSt12memory_order
+   fun:_ZNSt13__atomic_baseIiEaSEi
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIiEmIEi
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNSt13__atomic_baseIjE5storeEjSt12memory_order
+   fun:_ZNSt13__atomic_baseIjEaSEj
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:_ZNKSt13__atomic_baseIjE4loadESt12memory_order
+   fun:_ZNKSt13__atomic_baseIjEcvjEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:load
+   fun:_ZNKSt13__atomic_baseIjEcvjEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:store
+   fun:_ZNSt13__atomic_baseIiEaSEi
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:store
+   fun:_ZNSt13__atomic_baseIbEaSEb
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:load
+   fun:_ZNKSt11atomic_boolcvbEv
+}
+{
+   [1] std::atomic
+   Helgrind:Race
+   fun:store
+   fun:_ZNSt13__atomic_baseIjEaSEj
+}
+{
+   [2] integer counters
+   Helgrind:Race
+   fun:_ZN4MMAP11MMapManager7loadMapERKSsjii
+   fun:_ZN3Map8LoadMMapEii
+}
+{
+   [2] integer counters
+   Helgrind:Race
+   fun:_ZN8Movement7counterIjLj4294967295EE8IncreaseEv
+}
+{
+   [2] integer counters
+   Helgrind:Race
+   fun:_ZN3G3D10BufferPool6mallocEm
+}
+{
+   [3] System libraries
+   Helgrind:Race
+   fun:__GI_mempcpy
+   fun:_IO_file_xsputn@@GLIBC_2.2.5
+   fun:vfprintf
+}
+{
+   [3] System libraries
+   Helgrind:Race
+   fun:__GI_mempcpy
+   fun:_IO_file_xsputn@@GLIBC_2.2.5
+   fun:fwrite
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZN3Log14LoadFromConfigEv
+   fun:_ZN5World18LoadConfigSettingsEb
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZN3Log22CreateLoggerFromConfigERKSs
+   fun:_ZN3Log21ReadLoggersFromConfigEv
+   fun:_ZN3Log14LoadFromConfigEv
+   fun:_ZN5World18LoadConfigSettingsEb
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZN5World18LoadConfigSettingsEb
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZNK5World12getIntConfigE15WorldIntConfigs
+}
+{
+   [4] integer assignments
+   Helgrind:Race
+   fun:_ZNK3Log9ShouldLogERKSs8LogLevel
+}
+{
+   [5] ignored static variables
+   Helgrind:Race
+   fun:_ZN3G3D7Vector3aSERKS0_
+   fun:_ZN3G3D18CollisionDetection41collisionLocationForMovingPointFixedAABoxERKNS_7Vector3ES3_RKNS_5AABoxERS1_RbS7_
+   fun:_ZN3G3D18CollisionDetection37collisionTimeForMovingPointFixedAABoxERKNS_7Vector3ES3_RKNS_5AABoxERS1_RbS7_
+   fun:_ZNK3G3D3Ray16intersectionTimeERKNS_5AABoxE
+}

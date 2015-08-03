@@ -43,7 +43,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
     // allocate it on the stack because this saves
     // the malloc/free time.
     const int bufSize = 161;
-	char stackBuffer[bufSize];
+    char stackBuffer[bufSize];
 
     // MSVC does not support va_copy
     int actualSize = _vscprintf(fmt, argPtr) + 1;
@@ -83,12 +83,12 @@ std::string vformat(const char *fmt, va_list argPtr) {
     // allocate it on the stack because this saves
     // the malloc/free time.
     const int bufSize = 161;
-	char stackBuffer[bufSize];
+    char stackBuffer[bufSize];
 
-	// MSVC6 doesn't support va_copy, however it also seems to compile
-	// correctly if we just pass our argument list along.  Note that 
-	// this whole code block is only compiled if we're on MSVC6 anyway
-	int actualWritten = _vsnprintf(stackBuffer, bufSize, fmt, argPtr);
+    // MSVC6 doesn't support va_copy, however it also seems to compile
+    // correctly if we just pass our argument list along.  Note that 
+    // this whole code block is only compiled if we're on MSVC6 anyway
+    int actualWritten = _vsnprintf(stackBuffer, bufSize, fmt, argPtr);
 
     // Not a big enough buffer, bufSize characters written
     if (actualWritten == -1) {

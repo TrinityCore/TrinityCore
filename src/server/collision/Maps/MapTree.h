@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,8 +20,8 @@
 #define _MAPTREE_H
 
 #include "Define.h"
-#include "Dynamic/UnorderedMap.h"
 #include "BoundingIntervalHierarchy.h"
+#include <unordered_map>
 
 namespace VMAP
 {
@@ -31,7 +31,7 @@ namespace VMAP
 
     struct LocationInfo
     {
-        LocationInfo(): hitInstance(0), hitModel(0), ground_Z(-G3D::inf()) {};
+        LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
         const ModelInstance* hitInstance;
         const GroupModel* hitModel;
         float ground_Z;
@@ -39,8 +39,8 @@ namespace VMAP
 
     class StaticMapTree
     {
-        typedef UNORDERED_MAP<uint32, bool> loadedTileMap;
-        typedef UNORDERED_MAP<uint32, uint32> loadedSpawnMap;
+        typedef std::unordered_map<uint32, bool> loadedTileMap;
+        typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
         private:
             uint32 iMapID;
             bool iIsTiled;
@@ -72,19 +72,25 @@ namespace VMAP
             bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
             float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
-            bool GetLocationInfo(const Vector3 &pos, LocationInfo &info) const;
+            bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
             bool InitMap(const std::string &fname, VMapManager2* vm);
             void UnloadMap(VMapManager2* vm);
             bool LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             bool isTiled() const { return iIsTiled; }
-            uint32 numLoadedTiles() const { return iLoadedTiles.size(); }
+            uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
+            void getModelInstances(ModelInstance* &models, uint32 &count);
+
+        private:
+            StaticMapTree(StaticMapTree const& right) = delete;
+            StaticMapTree& operator=(StaticMapTree const& right) = delete;
     };
 
     struct AreaInfo
     {
-        AreaInfo(): result(false), ground_Z(-G3D::inf()) {};
+        AreaInfo(): result(false), ground_Z(-G3D::finf()), flags(0), adtId(0),
+            rootId(0), groupId(0) { }
         bool result;
         float ground_Z;
         uint32 flags;

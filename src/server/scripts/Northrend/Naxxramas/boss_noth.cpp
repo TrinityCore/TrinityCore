@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,37 +19,38 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SAY_AGGRO               RAND(-1533075, -1533076, -1533077)
-#define SAY_SUMMON              -1533078
-#define SAY_SLAY                RAND(-1533079, -1533080)
-#define SAY_DEATH               -1533081
+enum Noth
+{
+    SAY_AGGRO                       = 0,
+    SAY_SUMMON                      = 1,
+    SAY_SLAY                        = 2,
+    SAY_DEATH                       = 3,
 
-#define SOUND_DEATH      8848
+    SOUND_DEATH                     = 8848,
 
-#define SPELL_CURSE_PLAGUEBRINGER       RAID_MODE(29213, 54835)
-#define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
-#define SPELL_CRIPPLE                   RAID_MODE(29212, 54814)
-#define SPELL_TELEPORT                  29216
+    SPELL_CURSE_PLAGUEBRINGER       = 29213, // 25-man: 54835
+    SPELL_CRIPPLE                   = 29212, // 25-man: 54814
+    SPELL_TELEPORT                  = 29216,
 
-#define MOB_WARRIOR         16984
-#define MOB_CHAMPION        16983
-#define MOB_GUARDIAN        16981
+    NPC_WARRIOR                     = 16984,
+    NPC_CHAMPION                    = 16983,
+    NPC_GUARDIAN                    = 16981
+};
+
+#define SPELL_BLINK                 RAND(29208, 29209, 29210, 29211)
 
 // Teleport position of Noth on his balcony
-#define TELE_X 2631.370f
-#define TELE_Y -3529.680f
-#define TELE_Z 274.040f
-#define TELE_O 6.277f
+Position const Teleport = { 2631.370f, -3529.680f, 274.040f, 6.277f };
 
 #define MAX_SUMMON_POS 5
 
-const float SummonPos[MAX_SUMMON_POS][4] =
+Position const SummonPos[MAX_SUMMON_POS] =
 {
-    {2728.12f, -3544.43f, 261.91f, 6.04f},
-    {2729.05f, -3544.47f, 261.91f, 5.58f},
-    {2728.24f, -3465.08f, 264.20f, 3.56f},
-    {2704.11f, -3456.81f, 265.53f, 4.51f},
-    {2663.56f, -3464.43f, 262.66f, 5.20f},
+    { 2728.12f, -3544.43f, 261.91f, 6.04f },
+    { 2729.05f, -3544.47f, 261.91f, 5.58f },
+    { 2728.24f, -3465.08f, 264.20f, 3.56f },
+    { 2704.11f, -3456.81f, 265.53f, 4.51f },
+    { 2663.56f, -3464.43f, 262.66f, 5.20f }
 };
 
 enum Events
@@ -61,7 +62,7 @@ enum Events
     EVENT_WARRIOR,
     EVENT_BALCONY,
     EVENT_WAVE,
-    EVENT_GROUND,
+    EVENT_GROUND
 };
 
 class boss_noth : public CreatureScript
@@ -69,28 +70,25 @@ class boss_noth : public CreatureScript
 public:
     boss_noth() : CreatureScript("boss_noth") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_nothAI (creature);
-    }
-
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH) {}
+        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH)
+        {
+            balconyCount = 0;
+            waveCount = 0;
+        }
 
-        uint32 waveCount, balconyCount;
-
-        void Reset()
+        void Reset() override
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             balconyCount = 0;
             EnterPhaseGround();
         }
@@ -100,53 +98,53 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoZoneInCombat();
+
             if (me->getThreatManager().isThreatListEmpty())
                 EnterEvadeMode();
             else
             {
                 events.ScheduleEvent(EVENT_BALCONY, 110000);
-                events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
+                events.ScheduleEvent(EVENT_CURSE, 10000 + rand32() % 15000);
                 events.ScheduleEvent(EVENT_WARRIOR, 30000);
-                if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_25_N)
                     events.ScheduleEvent(EVENT_BLINK, urand(20000, 40000));
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+            if (!(rand32() % 5))
+                Talk(SAY_SLAY);
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) override
         {
             summons.Summon(summon);
             summon->setActive(true);
             summon->AI()->DoZoneInCombat();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void SummonUndead(uint32 entry, uint32 num)
         {
             for (uint32 i = 0; i < num; ++i)
-            {
-                uint32 pos = rand()%MAX_SUMMON_POS;
-                me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
-                    SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
-            }
+                me->SummonCreature(entry, SummonPos[rand32() % MAX_SUMMON_POS], TEMPSUMMON_CORPSE_DESPAWN, 60000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
 
             events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -157,8 +155,8 @@ public:
                         events.ScheduleEvent(EVENT_CURSE, urand(50000, 60000));
                         return;
                     case EVENT_WARRIOR:
-                        DoScriptText(SAY_SUMMON, me);
-                        SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
+                        Talk(SAY_SUMMON);
+                        SummonUndead(NPC_WARRIOR, RAID_MODE(2, 3));
                         events.ScheduleEvent(EVENT_WARRIOR, 30000);
                         return;
                     case EVENT_BLINK:
@@ -172,21 +170,29 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->AttackStop();
                         me->RemoveAllAuras();
-                        me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
+                        me->NearTeleportTo(Teleport.GetPositionX(), Teleport.GetPositionY(), Teleport.GetPositionZ(), Teleport.GetOrientation());
                         events.Reset();
                         events.ScheduleEvent(EVENT_WAVE, urand(2000, 5000));
                         waveCount = 0;
                         return;
                     case EVENT_WAVE:
-                        DoScriptText(SAY_SUMMON, me);
+                        Talk(SAY_SUMMON);
                         switch (balconyCount)
                         {
-                            case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2, 4)); break;
-                            case 1: SummonUndead(MOB_CHAMPION, RAID_MODE(1, 2));
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(1, 2)); break;
-                            case 2: SummonUndead(MOB_GUARDIAN, RAID_MODE(2, 4)); break;
-                            default:SummonUndead(MOB_CHAMPION, RAID_MODE(5, 10));
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(5, 10));break;
+                            case 0:
+                                SummonUndead(NPC_CHAMPION, RAID_MODE(2, 4));
+                                break;
+                            case 1:
+                                SummonUndead(NPC_CHAMPION, RAID_MODE(1, 2));
+                                SummonUndead(NPC_GUARDIAN, RAID_MODE(1, 2));
+                                break;
+                            case 2:
+                                SummonUndead(NPC_GUARDIAN, RAID_MODE(2, 4));
+                                break;
+                            default:
+                                SummonUndead(NPC_CHAMPION, RAID_MODE(5, 10));
+                                SummonUndead(NPC_GUARDIAN, RAID_MODE(5, 10));
+                                break;
                         }
                         ++waveCount;
                         events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, urand(30000, 45000));
@@ -207,8 +213,16 @@ public:
             if (me->HasReactState(REACT_AGGRESSIVE))
                 DoMeleeAttackIfReady();
         }
+
+        private:
+            uint32 waveCount;
+            uint32 balconyCount;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_nothAI>(creature);
+    }
 };
 
 void AddSC_boss_noth()

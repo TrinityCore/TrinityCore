@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,63 +19,17 @@
 #ifndef TRINITYCORE_COMMON_H
 #define TRINITYCORE_COMMON_H
 
-// config.h needs to be included 1st
-// TODO this thingy looks like hack, but its not, need to
-// make separate header however, because It makes mess here.
-#ifdef HAVE_CONFIG_H
-// Remove Some things that we will define
-// This is in case including another config.h
-// before trinity config.h
-#ifdef PACKAGE
-#undef PACKAGE
-#endif //PACKAGE
-#ifdef PACKAGE_BUGREPORT
-#undef PACKAGE_BUGREPORT
-#endif //PACKAGE_BUGREPORT
-#ifdef PACKAGE_NAME
-#undef PACKAGE_NAME
-#endif //PACKAGE_NAME
-#ifdef PACKAGE_STRING
-#undef PACKAGE_STRING
-#endif //PACKAGE_STRING
-#ifdef PACKAGE_TARNAME
-#undef PACKAGE_TARNAME
-#endif //PACKAGE_TARNAME
-#ifdef PACKAGE_VERSION
-#undef PACKAGE_VERSION
-#endif //PACKAGE_VERSION
-#ifdef VERSION
-#undef VERSION
-#endif //VERSION
-
-# include "Config.h"
-
-#undef PACKAGE
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-#undef VERSION
-#endif //HAVE_CONFIG_H
-
 #include "Define.h"
 
-#include "Dynamic/UnorderedMap.h"
+#include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
+#include <cmath>
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
-
-#if PLATFORM == PLATFORM_WINDOWS
-#define STRCASECMP stricmp
-#else
-#define STRCASECMP strcasecmp
-#endif
 
 #include <set>
 #include <list>
@@ -84,22 +38,24 @@
 #include <queue>
 #include <sstream>
 #include <algorithm>
+#include <memory>
+
+#include <boost/optional.hpp>
+#include <boost/utility/in_place_factory.hpp>
+
+#include "Debugging/Errors.h"
 
 #include "Threading/LockedQueue.h"
-#include "Threading/Threading.h"
-
-#include <ace/Basic_Types.h>
-#include <ace/Guard_T.h>
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  include <ace/config-all.h>
-// XP winver - needed to compile with standard leak check in MemoryLeaks.h
-// uncomment later if needed
-//#define _WIN32_WINNT 0x0501
 #  include <ws2tcpip.h>
-//#undef WIN32_WINNT
+
+#  if defined(__INTEL_COMPILER)
+#    if !defined(BOOST_ASIO_HAS_MOVE)
+#      define BOOST_ASIO_HAS_MOVE
+#    endif // !defined(BOOST_ASIO_HAS_MOVE)
+#  endif // if defined(__INTEL_COMPILER)
+
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -113,34 +69,22 @@
 
 #include <float.h>
 
-#define I32FMT "%08I32X"
-#define I64FMT "%016I64X"
 #define snprintf _snprintf
-#define atoll __atoi64
+#define atoll _atoi64
 #define vsnprintf _vsnprintf
-#define finite(X) _finite(X)
 #define llabs _abs64
 
 #else
 
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
-#define I32FMT "%08X"
-#define I64FMT "%016llX"
 
 #endif
 
-#define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
-#define UI64LIT(N) ACE_UINT64_LITERAL(N)
+inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 
-#define SI64FMTD ACE_INT64_FORMAT_SPECIFIER
-#define SI64LIT(N) ACE_INT64_LITERAL(N)
-
-#define SIZEFMTD ACE_SIZE_T_FORMAT_SPECIFIER
-
-inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
-
-#define atol(a) strtoul( a, NULL, 10)
+inline unsigned long atoul(char const* str) { return strtoul(str, nullptr, 10); }
+inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr, 10); }
 
 #define STRINGIZE(a) #a
 
@@ -174,20 +118,33 @@ enum LocaleConstant
     LOCALE_zhTW = 5,
     LOCALE_esES = 6,
     LOCALE_esMX = 7,
-    LOCALE_ruRU = 8
+    LOCALE_ruRU = 8,
+    LOCALE_none = 9,
+    LOCALE_ptBR = 10,
+    LOCALE_itIT = 11,
+
+    TOTAL_LOCALES
 };
 
-const uint8 TOTAL_LOCALES = 9;
-const LocaleConstant DEFAULT_LOCALE = LOCALE_enUS;
+const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
+#define DEFAULT_LOCALE LOCALE_enUS
 
-#define MAX_LOCALES 8
-#define MAX_ACCOUNT_TUTORIAL_VALUES 8
+#define MAX_LOCALES 11
 
 extern char const* localeNames[TOTAL_LOCALES];
 
 LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
+
+#pragma pack(push, 1)
+
+struct LocalizedString
+{
+    char const* Str[TOTAL_LOCALES];
+};
+
+#pragma pack(pop)
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max
@@ -199,25 +156,23 @@ typedef std::vector<std::string> StringVector;
 #endif
 
 #ifndef M_PI
-#define M_PI            3.14159265358979323846f
+#define M_PI            3.14159265358979323846
 #endif
 
 #define MAX_QUERY_LEN 32*1024
 
-#define TRINITY_GUARD(MUTEX, LOCK) \
-  ACE_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
+//! Optional helper class to wrap optional values within.
+template <typename T>
+using Optional = boost::optional<T>;
 
-//! For proper implementation of multiple-read, single-write pattern, use
-//! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_WRITE_GUARD(MUTEX, LOCK) \
-  ACE_Write_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
-
-//! For proper implementation of multiple-read, single-write pattern, use
-//! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_READ_GUARD(MUTEX, LOCK) \
-  ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
+namespace Trinity
+{
+    //! std::make_unique implementation (TODO: remove this once C++14 is supported)
+    template<typename T, typename ...Args>
+    std::unique_ptr<T> make_unique(Args&& ...args)
+    {
+        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+}
 
 #endif

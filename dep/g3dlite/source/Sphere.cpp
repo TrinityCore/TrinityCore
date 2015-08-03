@@ -1,12 +1,12 @@
 /**
- @file Sphere.cpp
+   \file G3D.lib/source/Sphere.cpp
  
  Sphere class
  
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2001-04-17
- @edited  2009-01-20
+ \created 2001-04-17
+ \edited  2011-02-10
  */
 
 #include "G3D/platform.h"
@@ -16,10 +16,36 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/AABox.h"
 #include "G3D/Plane.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
 int32 Sphere::dummy;
+
+Sphere::Sphere(const Any& a) : radius(0) {
+    a.verifyName("Sphere");
+    a.verifyType(Any::ARRAY);
+    if (a.size() == 1) {
+        radius = a[0];
+    } else if (a.size() == 2) {
+        center = a[0];
+        radius = a[1];
+    } else {
+        a.verify(false, "Sphere must recieve exactly 1 or two arguments.");
+    }
+}
+
+
+Any Sphere::toAny() const {
+    Any a(Any::ARRAY, "Sphere");
+    if (center != Point3::zero()) {
+        a.append(center);
+    }
+
+    a.append(radius);
+    return a;
+}
+
 
 Sphere::Sphere(class BinaryInput& b) {
     deserialize(b);
@@ -35,6 +61,12 @@ void Sphere::serialize(class BinaryOutput& b) const {
 void Sphere::deserialize(class BinaryInput& b) {
     center.deserialize(b);
     radius = (float)b.readFloat64();
+}
+
+
+const Sphere& Sphere::inf() {
+    static const Sphere s(Point3::zero(), finf());
+    return s;
 }
 
 
@@ -82,19 +114,19 @@ void Sphere::merge(const Sphere& other) {
 
 
 bool Sphere::culledBy(
-    const Array<Plane>&		plane,
-    int&				    cullingPlaneIndex,
-    const uint32			inMask,
-    uint32&					outMask) const {
+    const Array<Plane>&        plane,
+    int&                    cullingPlaneIndex,
+    const uint32            inMask,
+    uint32&                    outMask) const {
     
     return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
 }
     
 
 bool Sphere::culledBy(
-                      const Array<Plane>&		plane,
-                      int&				    cullingPlaneIndex,
-                      const uint32			inMask) const {
+                      const Array<Plane>&        plane,
+                      int&                    cullingPlaneIndex,
+                      const uint32            inMask) const {
     
     return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
 }
@@ -103,8 +135,8 @@ bool Sphere::culledBy(
 bool Sphere::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-    int&				cullingPlane,
-    const uint32		_inMask,
+    int&                cullingPlane,
+    const uint32        _inMask,
     uint32&             childMask) const {
 
     if (radius == finf()) {
@@ -112,45 +144,45 @@ bool Sphere::culledBy(
         return false;
     }
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     childMask = 0;
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
-    for (int p = 0; p < numPlanes; p++) {
+    // vertices are in the negative half space.
+    for (int p = 0; p < numPlanes; ++p) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+        
             bool culledLow = ! plane[p].halfSpaceContainsFinite(center + plane[p].normal() * radius);
             bool culledHigh = ! plane[p].halfSpaceContainsFinite(center - plane[p].normal() * radius);
 
-			if (culledLow) {
-				// Plane p culled the sphere
-				cullingPlane = p;
+            if (culledLow) {
+                // Plane p culled the sphere
+                cullingPlane = p;
 
                 // The caller should not recurse into the children,
                 // since the parent is culled.  If they do recurse,
                 // make them only test against this one plane, which
                 // will immediately cull the volume.
                 childMask = 1 << p;
-				return true;
+                return true;
 
             } else if (culledHigh) {
                 // The bounding volume straddled the plane; we have
                 // to keep testing against this plane
                 childMask |= (1 << p);
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 
@@ -158,32 +190,34 @@ bool Sphere::culledBy(
 bool Sphere::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask) const {
+    int&                cullingPlane,
+    const uint32        _inMask) const {
+    // Don't cull if the sphere has infinite radius
+    if(!isFinite(radius)) return false;
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
-    for (int p = 0; p < numPlanes; p++) {
+    // vertices are in the negative half space.
+    for (int p = 0; p < numPlanes; ++p) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-			bool culled = ! plane[p].halfSpaceContains(center + plane[p].normal() * radius);
-			if (culled) {
-				// Plane p culled the sphere
-				cullingPlane = p;
-				return true;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+            bool culled = ! plane[p].halfSpaceContains(center + plane[p].normal() * radius);
+            if (culled) {
+                // Plane p culled the sphere
+                cullingPlane = p;
+                return true;
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 

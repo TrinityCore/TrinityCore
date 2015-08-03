@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,49 +18,46 @@
 #ifndef _CALLBACK_H
 #define _CALLBACK_H
 
-#include <ace/Future.h>
-#include <ace/Future_Set.h>
+#include <future>
 #include "QueryResult.h"
 
-typedef ACE_Future<QueryResult> QueryResultFuture;
-typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;
+typedef std::future<QueryResult> QueryResultFuture;
+typedef std::promise<QueryResult> QueryResultPromise;
+typedef std::future<PreparedQueryResult> PreparedQueryResultFuture;
+typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
-/*! A simple template using ACE_Future to manage callbacks from the thread and object that
-    issued the request. <ParamType> is variable type of parameter that is used as parameter
-    for the callback function.
-*/
 #define CALLBACK_STAGE_INVALID uint8(-1)
 
 template <typename Result, typename ParamType, bool chain = false>
 class QueryCallback
 {
     public:
-        QueryCallback() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  {}
+        QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
-        void SetFutureResult(ACE_Future<Result> value)
+        void SetFutureResult(std::future<Result> value)
         {
-            _result = value;
+            _result = std::move(value);
         }
 
-        ACE_Future<Result> GetFutureResult()
+        std::future<Result>& GetFutureResult()
         {
             return _result;
         }
 
-        int IsReady()
+        bool IsReady()
         {
-            return _result.ready();
+            return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         }
 
         void GetResult(Result& res)
         {
-            _result.get(res);
+            res = _result.get();
         }
 
         void FreeResult()
         {
-            _result.cancel();
+            // Nothing to do here, the constructor of std::future will take care of the cleanup
         }
 
         void SetParam(ParamType value)
@@ -100,47 +97,50 @@ class QueryCallback
         //! Resets all underlying variables (param, result and stage)
         void Reset()
         {
-            SetParam(NULL);
+            SetParam(ParamType());
             FreeResult();
             ResetStage();
         }
 
     private:
-        ACE_Future<Result> _result;
+        std::future<Result> _result;
         ParamType _param;
         uint8 _stage;
+
+        QueryCallback(QueryCallback const& right) = delete;
+        QueryCallback& operator=(QueryCallback const& right) = delete;
 };
 
 template <typename Result, typename ParamType1, typename ParamType2, bool chain = false>
 class QueryCallback_2
 {
     public:
-        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) {}
+        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
-        void SetFutureResult(ACE_Future<Result> value)
+        void SetFutureResult(std::future<Result> value)
         {
-            _result = value;
+            _result = std::move(value);
         }
 
-        ACE_Future<Result> GetFutureResult()
+        std::future<Result>& GetFutureResult()
         {
             return _result;
         }
 
-        int IsReady()
+        bool IsReady()
         {
-            return _result.ready();
+            return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         }
 
         void GetResult(Result& res)
         {
-            _result.get(res);
+            res = _result.get();
         }
 
         void FreeResult()
         {
-            _result.cancel();
+            // Nothing to do here, the constructor of std::future will take care of the cleanup
         }
 
         void SetFirstParam(ParamType1 value)
@@ -197,10 +197,13 @@ class QueryCallback_2
         }
 
     private:
-        ACE_Future<Result> _result;
+        std::future<Result> _result;
         ParamType1 _param_1;
         ParamType2 _param_2;
         uint8 _stage;
+
+        QueryCallback_2(QueryCallback_2 const& right) = delete;
+        QueryCallback_2& operator=(QueryCallback_2 const& right) = delete;
 };
 
 #endif

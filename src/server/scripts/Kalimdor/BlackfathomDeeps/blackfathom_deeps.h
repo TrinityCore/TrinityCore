@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_BFD_H
-#define DEF_BFD_H
+#ifndef BFD_H_
+#define BFD_H_
+
+#define DataHeader "BFD"
+
+uint32 const EncounterCount = 3;
 
 enum Data64
 {
@@ -33,15 +37,14 @@ enum Data64
 
 enum Data
 {
-    TYPE_GELIHAST,
-    TYPE_KELRIS,
-    TYPE_SHRINE,
-    TYPE_AKU_MAI,
+    DATA_GELIHAST,
+    DATA_KELRIS,
+    DATA_AKU_MAI,
     DATA_FIRE,
     DATA_EVENT
 };
 
-enum Creatures
+enum CreatureIds
 {
     NPC_TWILIGHT_LORD_KELRIS                               = 4832,
     NPC_LORGUS_JETT                                        = 12902,
@@ -54,7 +57,7 @@ enum Creatures
     NPC_MORRIDUNE                                          = 6729
 };
 
-enum GameObjects
+enum GameObjectIds
 {
     GO_SHRINE_OF_GELIHAST                                  = 103015,
     GO_FIRE_OF_AKU_MAI_1                                   = 21118,
@@ -64,4 +67,5 @@ enum GameObjects
     GO_AKU_MAI_DOOR                                        = 21117,
     GO_ALTAR_OF_THE_DEEPS                                  = 103016
 };
-#endif
+
+#endif // BFD_H_

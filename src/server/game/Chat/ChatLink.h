@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,8 @@
 #include "SharedDefines.h"
 #include <sstream>
 #include <list>
+#include <cstring>
+#include "Common.h"
 
 struct ItemLocale;
 struct ItemTemplate;
@@ -56,15 +58,19 @@ protected:
 class ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL) { }
-    virtual bool Initialize(std::istringstream& iss);
-    virtual bool ValidateName(char* buffer, const char* context);
+    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL)
+    {
+        memset(_data, 0, sizeof(_data));
+    }
+    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
-    std::string FormatName(uint8 index, ItemLocale const* locale, char* const* suffixStrings) const;
+    std::string FormatName(uint8 index, LocalizedString* suffixStrings) const;
 
     ItemTemplate const* _item;
-    int32 _data[8];
+    int32 _data[11];
+    std::vector<int32> _bonusListIDs;
     ItemRandomSuffixEntry const* _suffix;
     ItemRandomPropertiesEntry const* _property;
 };
@@ -73,9 +79,9 @@ protected:
 class QuestChatLink : public ChatLink
 {
 public:
-    QuestChatLink() : ChatLink(), _quest(NULL), _questLevel(0) { }
-    virtual bool Initialize(std::istringstream& iss);
-    virtual bool ValidateName(char* buffer, const char* context);
+    QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0) { }
+    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     Quest const* _quest;
@@ -86,9 +92,9 @@ protected:
 class SpellChatLink : public ChatLink
 {
 public:
-    SpellChatLink() : ChatLink(), _spell(NULL) { }
-    virtual bool Initialize(std::istringstream& iss);
-    virtual bool ValidateName(char* buffer, const char* context);
+    SpellChatLink() : ChatLink(), _spell(nullptr) { }
+    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     SpellInfo const* _spell;
@@ -98,9 +104,12 @@ protected:
 class AchievementChatLink : public ChatLink
 {
 public:
-    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL) { }
-    virtual bool Initialize(std::istringstream& iss);
-    virtual bool ValidateName(char* buffer, const char* context);
+    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL)
+    {
+        memset(_data, 0, sizeof(_data));
+    }
+    virtual bool Initialize(std::istringstream& iss) override;
+    virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     uint32 _guid;
@@ -113,7 +122,7 @@ class TradeChatLink : public SpellChatLink
 {
 public:
     TradeChatLink() : SpellChatLink(), _minSkillLevel(0), _maxSkillLevel(0), _guid(0) { }
-    virtual bool Initialize(std::istringstream& iss);
+    virtual bool Initialize(std::istringstream& iss) override;
 private:
     int32 _minSkillLevel;
     int32 _maxSkillLevel;
@@ -126,7 +135,7 @@ class TalentChatLink : public SpellChatLink
 {
 public:
     TalentChatLink() : SpellChatLink(), _talentId(0), _rankId(0) { }
-    virtual bool Initialize(std::istringstream& iss);
+    virtual bool Initialize(std::istringstream& iss) override;
 
 private:
     uint32 _talentId;
@@ -138,7 +147,7 @@ class EnchantmentChatLink : public SpellChatLink
 {
 public:
     EnchantmentChatLink() : SpellChatLink() { }
-    virtual bool Initialize(std::istringstream& iss);
+    virtual bool Initialize(std::istringstream& iss) override;
 };
 
 // GlyphChatLink - link to glyph
@@ -146,7 +155,7 @@ class GlyphChatLink : public SpellChatLink
 {
 public:
     GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
-    virtual bool Initialize(std::istringstream& iss);
+    virtual bool Initialize(std::istringstream& iss) override;
 private:
     uint32 _slotId;
     GlyphPropertiesEntry const* _glyph;

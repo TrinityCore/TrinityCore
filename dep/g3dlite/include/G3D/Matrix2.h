@@ -9,7 +9,7 @@ namespace G3D {
 /** @beta */
 class Matrix2 {
 private:
-
+    // Row, column
     float          data[2][2];
 
 public:
@@ -57,14 +57,22 @@ public:
                        data[1][0] / f, data[1][1] / f);
     }
 
-    float* operator[](int i) {
-        debugAssert(i >= 0 && i <= 2);
-        return data[i];
+    inline float* operator[] (int i) {
+        debugAssert(i >= 0 && i <= 1);
+        return (float*)&data[i][0];
     }
 
-    const float* operator[](int i) const {
+    inline const float* operator[] (int i) const {
         debugAssert(i >= 0 && i <= 1);
-        return data[i];
+        return (const float*)&data[i][0];
+    }
+
+    inline operator float* () {
+        return (float*)&data[0][0];
+    }
+
+    inline operator const float* () const{
+        return (const float*)&data[0][0];
     }
 
 };

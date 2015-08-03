@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,7 +42,7 @@ namespace VMAP
         const Vector3 p(ray.direction().cross(e2));
         const float a = e1.dot(p);
 
-        if (fabs(a) < EPS) {
+        if (std::fabs(a) < EPS) {
             // Determinant is ill-conditioned; abort early
             return false;
         }
@@ -84,7 +84,7 @@ namespace VMAP
     class TriBoundFunc
     {
         public:
-            TriBoundFunc(std::vector<Vector3> &vert): vertices(vert.begin()) {}
+            TriBoundFunc(std::vector<Vector3> &vert): vertices(vert.begin()) { }
             void operator()(const MeshTriangle &tri, G3D::AABox &out) const
             {
                 G3D::Vector3 lo = vertices[tri.idx0];
@@ -108,7 +108,7 @@ namespace VMAP
         iFlags = new uint8[width*height];
     }
 
-    WmoLiquid::WmoLiquid(const WmoLiquid &other): iHeight(0), iFlags(0)
+    WmoLiquid::WmoLiquid(const WmoLiquid &other): iHeight(nullptr), iFlags(nullptr)
     {
         *this = other; // use assignment operator...
     }
@@ -135,14 +135,14 @@ namespace VMAP
             memcpy(iHeight, other.iHeight, (iTilesX+1)*(iTilesY+1)*sizeof(float));
         }
         else
-            iHeight = 0;
+            iHeight = nullptr;
         if (other.iFlags)
         {
             iFlags = new uint8[iTilesX * iTilesY];
             memcpy(iFlags, other.iFlags, iTilesX * iTilesY);
         }
         else
-            iFlags = 0;
+            iFlags = nullptr;
         return *this;
     }
 
@@ -205,35 +205,48 @@ namespace VMAP
 
     bool WmoLiquid::writeToFile(FILE* wf)
     {
-        bool result = true;
-        if (result && fwrite(&iTilesX, sizeof(uint32), 1, wf) != 1) result = false;
-        if (result && fwrite(&iTilesY, sizeof(uint32), 1, wf) != 1) result = false;
-        if (result && fwrite(&iCorner, sizeof(Vector3), 1, wf) != 1) result = false;
-        if (result && fwrite(&iType, sizeof(uint32), 1, wf) != 1) result = false;
-        uint32 size = (iTilesX + 1)*(iTilesY + 1);
-        if (result && fwrite(iHeight, sizeof(float), size, wf) != size) result = false;
-        size = iTilesX*iTilesY;
-        if (result && fwrite(iFlags, sizeof(uint8), size, wf) != size) result = false;
+        bool result = false;
+        if (fwrite(&iTilesX, sizeof(uint32), 1, wf) == 1 &&
+            fwrite(&iTilesY, sizeof(uint32), 1, wf) == 1 &&
+            fwrite(&iCorner, sizeof(Vector3), 1, wf) == 1 &&
+            fwrite(&iType, sizeof(uint32), 1, wf) == 1)
+        {
+            uint32 size = (iTilesX + 1) * (iTilesY + 1);
+            if (fwrite(iHeight, sizeof(float), size, wf) == size)
+            {
+                size = iTilesX*iTilesY;
+                result = fwrite(iFlags, sizeof(uint8), size, wf) == size;
+            }
+        }
+
         return result;
     }
 
     bool WmoLiquid::readFromFile(FILE* rf, WmoLiquid* &out)
     {
-        bool result = true;
+        bool result = false;
         WmoLiquid* liquid = new WmoLiquid();
-        if (result && fread(&liquid->iTilesX, sizeof(uint32), 1, rf) != 1) result = false;
-        if (result && fread(&liquid->iTilesY, sizeof(uint32), 1, rf) != 1) result = false;
-        if (result && fread(&liquid->iCorner, sizeof(Vector3), 1, rf) != 1) result = false;
-        if (result && fread(&liquid->iType, sizeof(uint32), 1, rf) != 1) result = false;
-        uint32 size = (liquid->iTilesX + 1)*(liquid->iTilesY + 1);
-        liquid->iHeight = new float[size];
-        if (result && fread(liquid->iHeight, sizeof(float), size, rf) != size) result = false;
-        size = liquid->iTilesX * liquid->iTilesY;
-        liquid->iFlags = new uint8[size];
-        if (result && fread(liquid->iFlags, sizeof(uint8), size, rf) != size) result = false;
+
+        if (fread(&liquid->iTilesX, sizeof(uint32), 1, rf) == 1 &&
+            fread(&liquid->iTilesY, sizeof(uint32), 1, rf) == 1 &&
+            fread(&liquid->iCorner, sizeof(Vector3), 1, rf) == 1 &&
+            fread(&liquid->iType, sizeof(uint32), 1, rf) == 1)
+        {
+            uint32 size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
+            liquid->iHeight = new float[size];
+            if (fread(liquid->iHeight, sizeof(float), size, rf) == size)
+            {
+                size = liquid->iTilesX * liquid->iTilesY;
+                liquid->iFlags = new uint8[size];
+                result = fread(liquid->iFlags, sizeof(uint8), size, rf) == size;
+            }
+        }
+
         if (!result)
             delete liquid;
-        out = liquid;
+        else
+            out = liquid;
+
         return result;
     }
 
@@ -241,7 +254,7 @@ namespace VMAP
 
     GroupModel::GroupModel(const GroupModel &other):
         iBound(other.iBound), iMogpFlags(other.iMogpFlags), iGroupWMOID(other.iGroupWMOID),
-        vertices(other.vertices), triangles(other.triangles), meshTree(other.meshTree), iLiquid(0)
+        vertices(other.vertices), triangles(other.triangles), meshTree(other.meshTree), iLiquid(nullptr)
     {
         if (other.iLiquid)
             iLiquid = new WmoLiquid(*other.iLiquid);
@@ -347,7 +360,7 @@ namespace VMAP
     struct GModelRayCallback
     {
         GModelRayCallback(const std::vector<MeshTriangle> &tris, const std::vector<Vector3> &vert):
-            vertices(vert.begin()), triangles(tris.begin()), hit(false) {}
+            vertices(vert.begin()), triangles(tris.begin()), hit(false) { }
         bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool /*pStopAtFirstHit*/)
         {
             bool result = IntersectTriangle(triangles[entry], vertices, ray, distance);
@@ -375,7 +388,7 @@ namespace VMAP
             return false;
         GModelRayCallback callback(triangles, vertices);
         Vector3 rPos = pos - 0.1f * down;
-        float dist = G3D::inf();
+        float dist = G3D::finf();
         G3D::Ray ray(rPos, down);
         bool hit = IntersectRay(ray, dist, false);
         if (hit)
@@ -407,7 +420,7 @@ namespace VMAP
 
     struct WModelRayCallBack
     {
-        WModelRayCallBack(const std::vector<GroupModel> &mod): models(mod.begin()), hit(false) {}
+        WModelRayCallBack(const std::vector<GroupModel> &mod): models(mod.begin()), hit(false) { }
         bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit)
         {
             bool result = models[entry].IntersectRay(ray, distance, pStopAtFirstHit);
@@ -433,7 +446,7 @@ namespace VMAP
     class WModelAreaCallback {
         public:
             WModelAreaCallback(const std::vector<GroupModel> &vals, const Vector3 &down):
-                prims(vals.begin()), hit(vals.end()), minVol(G3D::inf()), zDist(G3D::inf()), zVec(down) {}
+                prims(vals.begin()), hit(vals.end()), minVol(G3D::finf()), zDist(G3D::finf()), zVec(down) { }
             std::vector<GroupModel>::const_iterator prims;
             std::vector<GroupModel>::const_iterator hit;
             float minVol;

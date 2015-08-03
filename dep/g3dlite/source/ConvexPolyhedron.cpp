@@ -27,7 +27,7 @@ ConvexPolygon::ConvexPolygon(const Vector3& v0, const Vector3& v1, const Vector3
 
 
 bool ConvexPolygon::isEmpty() const {
-    return (_vertex.length() == 0) || (getArea() <= fuzzyEpsilon);
+    return (_vertex.length() == 0) || (getArea() <= fuzzyEpsilon32);
 }
 
 
@@ -41,7 +41,7 @@ float ConvexPolygon::getArea() const {
 
     int length = _vertex.length();
     // Split into triangle fan, compute individual area
-    for (int v = 2; v < length; v++) {
+    for (int v = 2; v < length; ++v) {
         int i0 = 0;
         int i1 = v - 1;
         int i2 = v;
@@ -110,7 +110,7 @@ void ConvexPolygon::cut(const Plane& plane, ConvexPolygon &above, ConvexPolygon 
         below._vertex.append(_vertex[v]);
     }
 
-    for (v = 1; v < length; v++) {
+    for (v = 1; v < length; ++v) {
         bool isAbove = plane.halfSpaceContains(_vertex[v]);
     
         if (lastAbove ^ isAbove) {
@@ -141,7 +141,7 @@ void ConvexPolygon::cut(const Plane& plane, ConvexPolygon &above, ConvexPolygon 
             } else {
                 newEdge.start = interp;
             }
-            count++;
+            ++count;
         }
 
         lastAbove = isAbove;
@@ -191,7 +191,7 @@ ConvexPolygon ConvexPolygon::inverse() const {
     int length = _vertex.length();
     result._vertex.resize(length);
     
-    for (int v = 0; v < length; v++) {
+    for (int v = 0; v < length; ++v) {
         result._vertex[v] = _vertex[length - v - 1];
     }
 
@@ -210,7 +210,7 @@ void ConvexPolygon::removeDuplicateVertices(){
                 --i; // Don't move forward.
             }
         }
-	
+    
         // Check the last vertex against the first.
         if (_vertex[_vertex.size()-1].fuzzyEq(_vertex[0])){
             _vertex.pop();
@@ -239,7 +239,7 @@ float ConvexPolyhedron::getVolume() const {
     // Choose the first _vertex of the first face as the origin.
     // This lets us skip one face, too, and avoids negative heights.
     Vector3 v0 = face[0]._vertex[0];
-    for (int f = 1; f < face.length(); f++) {        
+    for (int f = 1; f < face.length(); ++f) {        
         const ConvexPolygon& poly = face[f];
         
         float height = (poly._vertex[0] - v0).dot(poly.normal());
@@ -252,7 +252,7 @@ float ConvexPolyhedron::getVolume() const {
 }
 
 bool ConvexPolyhedron::isEmpty() const {
-    return (face.length() == 0) || (getVolume() <= fuzzyEpsilon);
+    return (face.length() == 0) || (getVolume() <= fuzzyEpsilon32);
 }
 
 void ConvexPolyhedron::cut(const Plane& plane, ConvexPolyhedron &above, ConvexPolyhedron &below) {
@@ -280,11 +280,11 @@ void ConvexPolyhedron::cut(const Plane& plane, ConvexPolyhedron &above, ConvexPo
             for (int v = poly._vertex.length() - 1; (v >= 0) && (!ruledOut); v--) { 
                 double r = abc.dot(poly._vertex[v]) + d;
                 if (r > eps) {
-                    numAbove++;
+                    ++numAbove;
                 } else if (r < -eps) {
-                    numBelow++;
+                    ++numBelow;
                 } else {
-                    numIn++;
+                    ++numIn;
                 }
 
                 ruledOut = (numAbove != 0) && (numBelow !=0);
@@ -333,11 +333,11 @@ void ConvexPolyhedron::cut(const Plane& plane, ConvexPolyhedron &above, ConvexPo
             const Array<Vector3>& _vertex = (aEmpty ? b._vertex : a._vertex);
             int L = _vertex.length();
             int count = 0;
-            for (int v = 0; v < L; v++) {
+            for (int v = 0; v < L; ++v) {
                 if (plane.fuzzyContains(_vertex[v]) && plane.fuzzyContains(_vertex[(v + 1) % L])) {
                     e.start = _vertex[v];
                     e.stop = _vertex[(v + 1) % L];
-                    count++;
+                    ++count;
                 }
             }
 
@@ -366,7 +366,7 @@ void ConvexPolyhedron::cut(const Plane& plane, ConvexPolyhedron &above, ConvexPo
         // Collect the final polgyon by sorting the edges
         int numVertices = edge.length();
 /*debugPrintf("\n");
-for (int xx=0; xx < numVertices; xx++) {
+for (int xx=0; xx < numVertices; ++xx) {
     std::string s1 = edge[xx].start.toString();
     std::string s2 = edge[xx].stop.toString();
     debugPrintf("%s -> %s\n", s1.c_str(), s2.c_str());
@@ -387,7 +387,7 @@ for (int xx=0; xx < numVertices; xx++) {
             int index = 0;
             int num = edge.length();
             double distance = (edge[index].start - last_vertex).squaredMagnitude();
-            for (int e = 1; e < num; e++) {
+            for (int e = 1; e < num; ++e) {
                 double d = (edge[e].start - last_vertex).squaredMagnitude();
 
                 if (d < distance) {
@@ -430,7 +430,7 @@ bool ConvexPolygon2D::contains(const Vector2& p, bool reverse) const {
     // the polygon.  (To adapt this algorithm for a concave polygon,
     // the *sum* of the areas must be non-negative).
 
-    float r = reverse ? -1 : 1;
+    float r = reverse ? -1.0f : 1.0f;
 
     for (int i0 = 0; i0 < m_vertex.size(); ++i0) {
         int i1 = (i0 + 1) % m_vertex.size();

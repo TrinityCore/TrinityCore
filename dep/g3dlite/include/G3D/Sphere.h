@@ -1,21 +1,20 @@
 /**
- @file Sphere.h
+ \file G3D/Sphere.h
  
  Sphere class
  
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2001-06-02
- @edited  2008-10-07
+ \created 2001-06-02
+ \edited  2011-02-07
  */
 
-#ifndef G3D_SPHERE_H
-#define G3D_SPHERE_H
+#ifndef G3D_Sphere_h
+#define G3D_Sphere_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
 #include "G3D/Array.h"
-#include "G3D/Sphere.h"
 
 namespace G3D {
 
@@ -28,27 +27,35 @@ private:
     static int32     dummy;
 
 public:
-    Vector3          center;
+    Point3           center;
     float            radius;
 
-    Sphere() {
-        center = Vector3::zero();
-        radius = 0;
+    Sphere() : center(Point3::zero()), radius(0) {
     }
+
+    explicit Sphere(float radius) : radius(radius) {}
 
     Sphere(class BinaryInput& b);
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
 
-    Sphere(
-        const Vector3&  center,
-        float           radius) {
+    /** Format is one of:
+        - Sphere(point, radius)
+        - Sphere(radius)
+    */
+    explicit Sphere(const class Any& a);
 
-        this->center = center;
-        this->radius = radius;
+    Any toAny() const;
+
+    Sphere
+    (const Point3&  center,
+     float          radius) : center(center), radius(radius) {
     }
 
     virtual ~Sphere() {}
+
+    /** Returns the infinite sphere. */
+    static const Sphere& inf();
 
     bool operator==(const Sphere& other) const {
         return (center == other.center) && (radius == other.radius);
@@ -62,7 +69,7 @@ public:
      Returns true if point is less than or equal to radius away from
      the center.
      */
-    bool contains(const Vector3& point) const;
+    bool contains(const Point3& point) const;
 
     bool contains(const Sphere& other) const;
 
@@ -72,7 +79,7 @@ public:
     bool culledBy(
                   const class Plane*  plane,
                   int                 numPlanes,
-                  int32&	          cullingPlaneIndex,
+                  int32&              cullingPlaneIndex,
                   const uint32        testMask,
                   uint32&             childMask) const;
     
@@ -89,18 +96,18 @@ public:
        See AABox::culledBy
     */
     bool culledBy(
-                  const Array<Plane>&		plane,
-                  int32&					cullingPlaneIndex,
-                  const uint32  			testMask,
+                  const Array<Plane>&        plane,
+                  int32&                    cullingPlaneIndex,
+                  const uint32              testMask,
                   uint32&                 childMask) const;
     
     /**
      Conservative culling test that does not produce a mask for children.
      */
     bool culledBy(
-                  const Array<Plane>&		plane,
-                  int32&					cullingPlaneIndex = dummy,
-                  const uint32  			testMask		  = 0xFFFFFFFF) const;
+                  const Array<Plane>&        plane,
+                  int32&                    cullingPlaneIndex = dummy,
+                  const uint32              testMask          = 0xFFFFFFFF) const;
 
     virtual std::string toString() const;
 
@@ -111,12 +118,12 @@ public:
     /**
      Uniformly distributed on the surface.
      */
-    Vector3 randomSurfacePoint() const;
+    Point3 randomSurfacePoint() const;
 
     /**
      Uniformly distributed on the interior (includes surface)
      */
-    Vector3 randomInteriorPoint() const;
+    Point3 randomInteriorPoint() const;
 
     void getBounds(class AABox& out) const;
 

@@ -1,9 +1,9 @@
 /**
- @file NetMessage.cpp
+ \file NetAddress.cpp
 
- @maintainer Morgan McGuire, morgan@cs.brown.edu
- @created 2005-02-06
- @edited  2005-02-06
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \created 2005-02-06
+ \edited  2013-03-17
  */
 #include "G3D/platform.h"
 #include "G3D/NetAddress.h"
@@ -13,6 +13,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/System.h"
 #include "G3D/NetworkDevice.h"
+#include "G3D/Log.h"
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     #include <unistd.h>
@@ -23,6 +24,7 @@
     #include <netdb.h>
     #include <netinet/tcp.h>
     #define _alloca alloca
+    #define SOCKET_ERROR -1
 
 #   ifndef SOCKADDR_IN
 #       define SOCKADDR_IN struct sockaddr_in
@@ -40,6 +42,7 @@
 
 namespace G3D {
 
+    
 NetAddress::NetAddress() {
     System::memset(&addr, 0, sizeof(addr));
 }
@@ -58,15 +61,15 @@ void NetAddress::init(uint32 host, uint16 port) {
 }
 
 
-NetAddress::NetAddress(
-    const std::string&          hostname,
+NetAddress::NetAddress
+   (const std::string&          hostname,
     uint16                      port) {
     init(hostname, port);
 }
 
 
-void NetAddress::init(
-    const std::string&          hostname,
+void NetAddress::init
+   (const std::string&          hostname,
     uint16                      port) {
 
     uint32 addr;
@@ -77,7 +80,7 @@ void NetAddress::init(
         addr = inet_addr(hostname.c_str());
     }
 
-	// The address wasn't in numeric form, resolve it
+    // The address wasn't in numeric form, resolve it
     if (addr == INADDR_NONE) {
         // Get the IP address of the server and store it in host
         struct hostent* host = gethostbyname(hostname.c_str());
@@ -122,13 +125,35 @@ NetAddress::NetAddress(const SOCKADDR_IN& a) {
 
 
 NetAddress::NetAddress(const struct in_addr& addr, uint16 port) {
-    #ifdef G3D_WIN32
+    #ifdef G3D_WINDOWS
         init(ntohl(addr.S_un.S_addr), port);
     #else
         init(htonl(addr.s_addr), port);
     #endif
 }
 
+void NetAddress::localHostAddresses(Array<NetAddress>& array) {
+    array.resize(0);
+
+    char ac[256];
+
+    if (gethostname(ac, sizeof(ac)) == SOCKET_ERROR) {
+        Log::common()->printf("Error while getting local host name\n");
+        return;
+    }
+
+    struct hostent* phe = gethostbyname(ac);
+    if (phe == 0) {
+        Log::common()->printf("Error while getting local host address\n");
+        return;
+    }
+
+    for (int i = 0; (phe->h_addr_list[i] != 0); ++i) {
+        struct in_addr addr;
+        memcpy(&addr, phe->h_addr_list[i], sizeof(struct in_addr));
+        array.append(NetAddress(addr));
+    }    
+}
 
 void NetAddress::serialize(class BinaryOutput& b) const {
     b.writeUInt32(ip());

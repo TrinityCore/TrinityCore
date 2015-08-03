@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 
 class MovementGenerator;
 class Unit;
+class PathGenerator;
 
 // Creature Entry ID used for waypoints show, visible only for GMs
 #define VISUAL_WAYPOINT 1
@@ -51,7 +52,7 @@ enum MovementGeneratorType
     FOLLOW_MOTION_TYPE    = 14,
     ROTATE_MOTION_TYPE    = 15,
     EFFECT_MOTION_TYPE    = 16,
-    NULL_MOTION_TYPE      = 17,
+    NULL_MOTION_TYPE      = 17
 };
 
 enum MovementSlot
@@ -59,7 +60,7 @@ enum MovementSlot
     MOTION_SLOT_IDLE,
     MOTION_SLOT_ACTIVE,
     MOTION_SLOT_CONTROLLED,
-    MAX_MOTION_SLOT,
+    MAX_MOTION_SLOT
 };
 
 enum MMCleanFlag
@@ -72,7 +73,7 @@ enum MMCleanFlag
 enum RotateDirection
 {
     ROTATE_DIRECTION_LEFT,
-    ROTATE_DIRECTION_RIGHT,
+    ROTATE_DIRECTION_RIGHT
 };
 
 // assume it is 25 yard per 0.6 second
@@ -86,13 +87,21 @@ class MotionMaster //: private std::stack<MovementGenerator *>
 
         void pop()
         {
+            if (empty())
+                return;
+
             Impl[_top] = NULL;
-            while (!top())
+            while (!empty() && !top())
                 --_top;
         }
         void push(_Ty _Val) { ++_top; Impl[_top] = _Val; }
 
-        bool needInitTop() const { return _needInit[_top]; }
+        bool needInitTop() const
+        {
+            if (empty())
+                return false;
+            return _needInit[_top];
+        }
         void InitTop();
     public:
 
@@ -111,8 +120,16 @@ class MotionMaster //: private std::stack<MovementGenerator *>
 
         bool empty() const { return (_top < 0); }
         int size() const { return _top + 1; }
-        _Ty top() const { return Impl[_top]; }
-        _Ty GetMotionSlot(int slot) const { return Impl[slot]; }
+        _Ty top() const
+        {
+            ASSERT(!empty());
+            return Impl[_top];
+        }
+        _Ty GetMotionSlot(int slot) const
+        {
+            ASSERT(slot >= 0);
+            return Impl[slot];
+        }
 
         void DirectDelete(_Ty curr);
         void DelayedDelete(_Ty curr);
@@ -152,18 +169,22 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveChase(Unit* target, float dist = 0.0f, float angle = 0.0f);
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
-        void MovePoint(uint32 id, const Position &pos)
-            { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ); }
-        void MovePoint(uint32 id, float x, float y, float z);
+        void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
+            { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath); }
+        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
 
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
 
-        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE);
+        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
+        void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = 0);
+        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP)
+            { MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speedXY, speedZ, id); }
+        void MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = EVENT_JUMP);
+        void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveFall(uint32 id = 0);
 
         void MoveSeekAssistance(float x, float y, float z);
@@ -197,4 +218,3 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         uint8 _cleanFlag;
 };
 #endif
-

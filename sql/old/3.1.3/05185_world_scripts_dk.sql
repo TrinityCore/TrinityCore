@@ -49,8 +49,8 @@ INSERT INTO `creature_ai_scripts` VALUES ('2918103', '29181', '0', '0', '100', '
 INSERT INTO `creature_ai_scripts` VALUES ('2918104', '29181', '0', '0', '100', '3', '10000', '20000', '10000', '20000', '11', '21807', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Rayne - SPELL_WRATH');
 
 
-  
-   
+
+
 DELETE FROM script_texts WHERE entry BETWEEN -1609286 AND -1609201;
 INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 -- The Light of Dawn

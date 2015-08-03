@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,20 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  World/achievement_scripts.cpp
-  World/areatrigger_scripts.cpp
-  World/boss_emerald_dragons.cpp
-  World/chat_log.cpp
-  World/go_scripts.cpp
-  World/guards.cpp
-  World/item_scripts.cpp
-  World/mob_generic_creature.cpp
-  World/npc_innkeeper.cpp
-  World/npc_professions.cpp
-  World/npc_taxi.cpp
-  World/npcs_special.cpp
+  ${sources_World}
 )
 
 message("  -> Prepared: World")

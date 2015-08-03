@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,10 +39,13 @@
 #define SOUND_DEATH     8860
 #define SOUND_AGGROMIX  8847
 
-#define SPELL_UNBALANCING_STRIKE    26613
-#define SPELL_DISRUPTING_SHOUT      RAID_MODE(29107, 55543)
-#define SPELL_JAGGED_KNIFE          55550
-#define SPELL_HOPELESS              29125
+enum Spells
+{
+    SPELL_UNBALANCING_STRIKE   = 26613,
+    SPELL_DISRUPTING_SHOUT     = 29107,
+    SPELL_JAGGED_KNIFE         = 55550,
+    SPELL_HOPELESS             = 29125
+};
 
 enum Events
 {
@@ -58,22 +61,22 @@ class boss_razuvious : public CreatureScript
 public:
     boss_razuvious() : CreatureScript("boss_razuvious") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_razuviousAI (creature);
+        return new boss_razuviousAI(creature);
     }
 
     struct boss_razuviousAI : public BossAI
     {
-        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) {}
+        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) { }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
-            if (!(rand()%3))
+            if (!(rand32() % 3))
                 DoPlaySoundToSet(me, SOUND_SLAY);
         }
 
-        void DamageTaken(Unit* pDone_by, uint32& uiDamage)
+        void DamageTaken(Unit* pDone_by, uint32& uiDamage) override
         {
             // Damage done by the controlled Death Knight understudies should also count toward damage done by players
             if (pDone_by->GetTypeId() == TYPEID_UNIT && (pDone_by->GetEntry() == 16803 || pDone_by->GetEntry() == 29941))
@@ -82,14 +85,14 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
             DoPlaySoundToSet(me, SOUND_DEATH);
-            me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
+            me->CastSpell(me, SPELL_HOPELESS, true); /// @todo this may affect other creatures
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             DoPlaySoundToSet(me, SOUND_AGGRO);
@@ -99,7 +102,7 @@ public:
             events.ScheduleEvent(EVENT_KNIFE, 10000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -111,7 +114,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_STRIKE:
-                        DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                        DoCastVictim(SPELL_UNBALANCING_STRIKE);
                         events.ScheduleEvent(EVENT_STRIKE, 30000);
                         return;
                     case EVENT_SHOUT:

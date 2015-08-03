@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "TemporarySummon.h"
+#include "WorldPacket.h"
 #include "ruby_sanctum.h"
-
 
 DoorData const doorData[] =
 {
@@ -35,23 +38,23 @@ class instance_ruby_sanctum : public InstanceMapScript
         {
             instance_ruby_sanctum_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                BaltharusTheWarbornGUID = 0;
-                GeneralZarithrianGUID   = 0;
-                SavianaRagefireGUID     = 0;
-                HalionGUID              = 0;
-                HalionControllerGUID    = 0;
-                CrystalChannelTargetGUID = 0;
-                XerestraszaGUID         = 0;
-                BaltharusSharedHealth   = 0;
-                FlameWallsGUID          = 0;
-                FlameRingGUID           = 0;
-                memset(ZarithianSpawnStalkerGUID, 0, 2*sizeof(uint64));
-                memset(BurningTreeGUID, 0, 4*sizeof(uint64));
+                BaltharusSharedHealth    = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnPlayerEnter(Player* /*player*/) override
+            {
+                if (!GetGuidData(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                {
+                    instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
+                    if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                }
+            }
+
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -67,26 +70,36 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case NPC_HALION:
                         HalionGUID = creature->GetGUID();
                         break;
+                    case NPC_TWILIGHT_HALION:
+                        TwilightHalionGUID = creature->GetGUID();
+                        break;
                     case NPC_HALION_CONTROLLER:
                         HalionControllerGUID = creature->GetGUID();
+                        break;
+                    case NPC_ORB_CARRIER:
+                        OrbCarrierGUID = creature->GetGUID();
+                        break;
+                    case NPC_ORB_ROTATION_FOCUS:
+                        OrbRotationFocusGUID = creature->GetGUID();
+                        break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
                         break;
                     case NPC_XERESTRASZA:
                         XerestraszaGUID = creature->GetGUID();
                         break;
-                    case NPC_ZARITHIAN_SPAWN_STALKER:
-                        if (!ZarithianSpawnStalkerGUID[0])
-                            ZarithianSpawnStalkerGUID[0] = creature->GetGUID();
+                    case NPC_ZARITHRIAN_SPAWN_STALKER:
+                        if (!ZarithrianSpawnStalkerGUID[0])
+                            ZarithrianSpawnStalkerGUID[0] = creature->GetGUID();
                         else
-                            ZarithianSpawnStalkerGUID[1] = creature->GetGUID();
+                            ZarithrianSpawnStalkerGUID[1] = creature->GetGUID();
                         break;
                     default:
                         break;
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -100,6 +113,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case GO_FLAME_RING:
                         FlameRingGUID = go->GetGUID();
+                        break;
+                    case GO_TWILIGHT_FLAME_RING:
+                        TwilightFlameRingGUID = go->GetGUID();
                         break;
                     case GO_BURNING_TREE_1:
                         BurningTreeGUID[0] = go->GetGUID();
@@ -126,7 +142,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -138,7 +154,21 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            void OnUnitDeath(Unit* unit) override
+            {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                if (creature->GetEntry() == NPC_GENERAL_ZARITHRIAN && GetBossState(DATA_HALION) != DONE)
+                {
+                    instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
+                    if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                }
+            }
+
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -152,32 +182,36 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return SavianaRagefireGUID;
                     case DATA_GENERAL_ZARITHRIAN:
                         return GeneralZarithrianGUID;
-                    case DATA_ZARITHIAN_SPAWN_STALKER_1:
-                        return ZarithianSpawnStalkerGUID[0];
-                    case DATA_ZARITHIAN_SPAWN_STALKER_2:
-                        return ZarithianSpawnStalkerGUID[1];
+                    case DATA_ZARITHRIAN_SPAWN_STALKER_1:
+                    case DATA_ZARITHRIAN_SPAWN_STALKER_2:
+                        return ZarithrianSpawnStalkerGUID[type - DATA_ZARITHRIAN_SPAWN_STALKER_1];
                     case DATA_HALION:
                         return HalionGUID;
+                    case DATA_TWILIGHT_HALION:
+                        return TwilightHalionGUID;
+                    case DATA_ORB_CARRIER:
+                        return OrbCarrierGUID;
+                    case DATA_ORB_ROTATION_FOCUS:
+                        return OrbRotationFocusGUID;
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
                     case DATA_BURNING_TREE_1:
-                        return BurningTreeGUID[0];
                     case DATA_BURNING_TREE_2:
-                        return BurningTreeGUID[1];
                     case DATA_BURNING_TREE_3:
-                        return BurningTreeGUID[2];
                     case DATA_BURNING_TREE_4:
-                        return BurningTreeGUID[3];
+                        return BurningTreeGUID[type - DATA_BURNING_TREE_1];
                     case DATA_FLAME_RING:
                         return FlameRingGUID;
+                    case DATA_TWILIGHT_FLAME_RING:
+                        return TwilightFlameRingGUID;
                     default:
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
@@ -205,20 +239,25 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     }
                     case DATA_GENERAL_ZARITHRIAN:
+                    {
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
-                        /*
-                        if (state == DONE)
-                            if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                                halionController->AI()->DoAction(ACTION_INTRO_HALION);
-                        */
                         break;
+                    }
                     case DATA_HALION:
-                        /*
-                        if (state != IN_PROGRESS)
+                    {
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 0);
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 0);
+
+                        // Reopen rings on wipe or success
+                        if (state == DONE || state == FAIL)
+                        {
                             HandleGameObject(FlameRingGUID, true);
-                        */
+                            HandleGameObject(TwilightFlameRingGUID, true);
+                        }
                         break;
+                    }
                     default:
                         break;
                 }
@@ -226,89 +265,50 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
-                switch (type)
-                {
-                    case DATA_BALTHARUS_SHARED_HEALTH:
-                        BaltharusSharedHealth = data;
-                        break;
-                }
-            }
-
-            uint32 GetData(uint32 type)
-            {
-                switch (type)
-                {
-                    case DATA_BALTHARUS_SHARED_HEALTH:
-                        return BaltharusSharedHealth;
-                    default:
-                        break;
-                }
-
-                return 0;
-            }
-
-            std::string GetSaveData()
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "R S " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* str)
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
+                if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return;
-                }
 
-                OUT_LOAD_INST_DATA(str);
+                BaltharusSharedHealth = data;
+            }
 
-                char dataHead1, dataHead2;
+            uint32 GetData(uint32 type) const override
+            {
+                if (type != DATA_BALTHARUS_SHARED_HEALTH)
+                    return 0;
 
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
+                return BaltharusSharedHealth;
+            }
 
-                if (dataHead1 == 'R' && dataHead2 == 'S')
-                {
-                    for (uint8 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+            {
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_MATERIAL), 50);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TWILIGHT), 50);
+                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TOGGLE), 0);
             }
 
         protected:
-            uint64 BaltharusTheWarbornGUID;
-            uint64 GeneralZarithrianGUID;
-            uint64 SavianaRagefireGUID;
-            uint64 HalionGUID;
-            uint64 HalionControllerGUID;
-            uint64 CrystalChannelTargetGUID;
-            uint64 XerestraszaGUID;
-            uint64 FlameWallsGUID;
-            uint64 ZarithianSpawnStalkerGUID[2];
-            uint64 BurningTreeGUID[4];
-            uint64 FlameRingGUID;
+            ObjectGuid BaltharusTheWarbornGUID;
+            ObjectGuid GeneralZarithrianGUID;
+            ObjectGuid SavianaRagefireGUID;
+            ObjectGuid HalionGUID;
+            ObjectGuid TwilightHalionGUID;
+            ObjectGuid HalionControllerGUID;
+            ObjectGuid OrbCarrierGUID;
+            ObjectGuid OrbRotationFocusGUID;
+            ObjectGuid CrystalChannelTargetGUID;
+            ObjectGuid XerestraszaGUID;
+            ObjectGuid FlameWallsGUID;
+            ObjectGuid ZarithrianSpawnStalkerGUID[2];
+            ObjectGuid BurningTreeGUID[4];
+            ObjectGuid FlameRingGUID;
+            ObjectGuid TwilightFlameRingGUID;
+
             uint32 BaltharusSharedHealth;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ruby_sanctum_InstanceMapScript(map);
         }

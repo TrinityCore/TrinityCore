@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,8 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+# file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+#  ${sources_Custom}
 )
 
 message("  -> Prepared: Custom")

@@ -29,14 +29,14 @@ UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1427' WHERE `entry`=27214;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1427' WHERE `entry`=47822;
 UPDATE `spell_bonus_data` SET `dot_bonus` = '0.0949' WHERE `entry`=1949;
 UPDATE `spell_bonus_data` SET `ap_bonus` = '0.025' WHERE `entry`=31803;
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42208; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42209; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42210; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42211; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42212; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42213; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42198; 
-UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42937; 
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42208;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42209;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42210;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42211;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42212;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42213;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42198;
+UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42937;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.1437' WHERE `entry`= 42938;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.2861' WHERE `entry` =49821;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.2861' WHERE `entry` =53022;
@@ -56,7 +56,7 @@ UPDATE `spell_bonus_data` SET `direct_bonus` = '0.81' WHERE `entry`=33074;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.81' WHERE `entry`=48821;
 UPDATE `spell_bonus_data` SET `direct_bonus` = '0.6453' WHERE `entry`=33763;
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (53742,61391,47897,50796,50590,58597,974,47757,52986,52987,52988);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `comments`) VALUES
 ('53742', '0.013', '0', '0.025', 'Paladin - Blood Corruption'),
 ('61391', '0.193', '0', '0', 'Druid - Typhoon'),
 ('47897', '0.1064', '0.0667', '0', 'Warlock - Shadowflame'),
@@ -80,7 +80,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 
 -- by nesocip
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (48721, 55078, 52212, 47632, 55095, 49184, 45477, 50536, 51373, 51374, 51375);
-INSERT INTO spell_bonus_data( entry, ap_bonus, comments ) VALUES 
+INSERT INTO spell_bonus_data( entry, ap_bonus, comments ) VALUES
 ('48721', '0.04', 'DK - Blood Boil'),
 ('55078', '0.055', 'DK - Blood Plague'),
 ('52212', '0.0475', 'DK - Death and Decay'),

@@ -1,12 +1,12 @@
 /**
- @file CoordinateFrame.h
+ \file G3D/CoordinateFrame.h
 
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2001-03-04
- @edited  2009-04-29
+ \created 2001-03-04
+ \edited  2012-07-29
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
 */
 
@@ -33,9 +33,10 @@
 
 namespace G3D {
 class Any;
+class Frustum;
 
 /**
- A rigid body RT (rotation-translation) transformation.
+\brief A rigid body RT (rotation-translation) transformation.
     
 CoordinateFrame abstracts a 4x4 matrix that maps object space to world space:
   
@@ -53,28 +54,28 @@ Convert to Matrix4 using CoordinateFrame::toMatrix4.  You <I>can</I> construct a
 from a Matrix4 using Matrix4::approxCoordinateFrame, however, because a Matrix4 is more 
 general than a CoordinateFrame, some information may be lost.
 
-@sa G3D::UprightFrame, G3D::PhysicsFrame, G3D::Matrix4, G3D::Quat
+\sa G3D::UprightFrame, G3D::PhysicsFrame, G3D::Matrix4, G3D::Quat
 */
 class CoordinateFrame {
 public:
 
     /**  Takes object space points to world space.  */
-    Matrix3							rotation;
+    Matrix3  rotation;
 
-    /** Takes object space points to world space. */
-    Vector3							translation;
+    /** The origin of this coordinate frame in world space (or its parent's space, if nested). */
+    Point3   translation;
 
     /** \param any Must be in one of the following forms: 
-        - CFrame((matrix3 expr), (vector3 expr))
+        - CFrame((matrix3 expr), (Point3 expr))
         - CFrame::fromXYZYPRDegrees(#, #, #, #, #, #)
-        - CFrame {  rotation = (matrix3 expr), translation = (vector3 expr) }
-        - Vector3( ... )
+        - CFrame {  rotation = (Matrix3 expr), translation = (Point3 expr) }
+        - Point3( ... )
         - Matrix3( ... )
         */
     CoordinateFrame(const Any& any);
     
     /** Converts the CFrame to an Any. */
-    operator Any() const;
+    Any toAny() const;
 
     inline bool operator==(const CoordinateFrame& other) const {
         return (translation == other.translation) && (rotation == other.rotation);
@@ -95,16 +96,16 @@ public:
      */
     CoordinateFrame();
 
-    CoordinateFrame(const Vector3& _translation) :
+    CoordinateFrame(const Point3& _translation) :
         rotation(Matrix3::identity()), translation(_translation) {
     }
     
-    CoordinateFrame(const Matrix3 &rotation, const Vector3 &translation) :
+    CoordinateFrame(const Matrix3& rotation, const Point3& translation) :
         rotation(rotation), translation(translation) {
     }
 
-    CoordinateFrame(const Matrix3 &rotation) :
-        rotation(rotation), translation(Vector3::zero()) {
+    CoordinateFrame(const Matrix3& rotation) :
+        rotation(rotation), translation(Point3::zero()) {
     }
 
     CoordinateFrame(const class UprightFrame& f);
@@ -187,26 +188,25 @@ public:
     /**
      Transforms the point into world space.
      */
-    inline Vector3 pointToWorldSpace(const Vector3& v) const {
-        return Vector3(
-			rotation[0][0] * v[0] + rotation[0][1] * v[1] + rotation[0][2] * v[2] + translation[0],
-			rotation[1][0] * v[0] + rotation[1][1] * v[1] + rotation[1][2] * v[2] + translation[1],
-			rotation[2][0] * v[0] + rotation[2][1] * v[1] + rotation[2][2] * v[2] + translation[2]);
+    inline Point3 pointToWorldSpace(const Point3& v) const {
+        return Point3
+        (rotation[0][0] * v[0] + rotation[0][1] * v[1] + rotation[0][2] * v[2] + translation[0],
+         rotation[1][0] * v[0] + rotation[1][1] * v[1] + rotation[1][2] * v[2] + translation[1],
+         rotation[2][0] * v[0] + rotation[2][1] * v[1] + rotation[2][2] * v[2] + translation[2]);
     }
 
     /**
      Transforms the point into object space.  Assumes that the rotation matrix is orthonormal.
      */
-    inline Vector3 pointToObjectSpace(const Vector3& v) const {
+    inline Point3 pointToObjectSpace(const Point3& v) const {
         float p[3];
         p[0] = v[0] - translation[0];
         p[1] = v[1] - translation[1];
         p[2] = v[2] - translation[2];
-        debugAssert(G3D::fuzzyEq(rotation.determinant(), 1.0f));
-        return Vector3(
-                       rotation[0][0] * p[0] + rotation[1][0] * p[1] + rotation[2][0] * p[2],
-                       rotation[0][1] * p[0] + rotation[1][1] * p[1] + rotation[2][1] * p[2],
-                       rotation[0][2] * p[0] + rotation[1][2] * p[1] + rotation[2][2] * p[2]);
+        debugAssert(G3D::fuzzyEq(fabsf(rotation.determinant()), 1.0f));
+        return Point3(rotation[0][0] * p[0] + rotation[1][0] * p[1] + rotation[2][0] * p[2],
+                      rotation[0][1] * p[0] + rotation[1][1] * p[1] + rotation[2][1] * p[2],
+                      rotation[0][2] * p[0] + rotation[1][2] * p[1] + rotation[2][2] * p[2]);
     }
 
     /**
@@ -224,6 +224,8 @@ public:
 
     Ray toWorldSpace(const Ray& r) const;
 
+    Frustum toWorldSpace(const Frustum& f) const;
+
     /**
      Transforms the vector into object space (no translation).
      */
@@ -237,17 +239,19 @@ public:
         return v * rotation;
     }
 
-    void pointToWorldSpace(const Array<Vector3>& v, Array<Vector3>& vout) const;
+    void pointToWorldSpace(const Array<Point3>& v, Array<Point3>& vout) const;
 
     void normalToWorldSpace(const Array<Vector3>& v, Array<Vector3>& vout) const;
 
     void vectorToWorldSpace(const Array<Vector3>& v, Array<Vector3>& vout) const;
 
-    void pointToObjectSpace(const Array<Vector3>& v, Array<Vector3>& vout) const;
+    void pointToObjectSpace(const Array<Point3>& v, Array<Point3>& vout) const;
 
     void normalToObjectSpace(const Array<Vector3>& v, Array<Vector3>& vout) const;
 
     void vectorToObjectSpace(const Array<Vector3>& v, Array<Vector3>& vout) const;
+
+    void toWorldSpace(const class AABox& b, class AABox& result) const;
 
     class Box toWorldSpace(const class AABox& b) const;
 
@@ -260,7 +264,7 @@ public:
     class Plane toWorldSpace(const class Plane& p) const;
 
     class Sphere toWorldSpace(const class Sphere& b) const;
-
+    
     class Triangle toWorldSpace(const class Triangle& t) const;
 
     class Box toObjectSpace(const AABox& b) const;
@@ -287,17 +291,32 @@ public:
         return CoordinateFrame(rotation, translation - v);
     }
 
-    void lookAt(const Vector3& target);
 
-    void lookAt(
-        const Vector3&  target,
-        Vector3         up);
+    /**
+    Transform this coordinate frame towards \a goal, but not past it, goverened by maximum
+    rotation and translations.  This is a useful alternative to \a lerp, especially if the
+    goal is expected to change every transformation step so that constant start and end positions will
+    not be available.
+
+    \param goal            Step from this towards goal
+    \param maxTranslation  Meters 
+    \param maxRotation     Radians
+
+    \sa lerp
+    */
+    void moveTowards(const CoordinateFrame& goal, float maxTranslation, float maxRotation);
+
+    void lookAt(const Point3& target);
+
+    void lookAt
+    (const Point3&  target,
+     Vector3         up);
 
     /** The direction this camera is looking (its negative z axis)*/
-	inline Vector3 lookVector() const {
-		return -rotation.column(2);
-	}
-
+    inline Vector3 lookVector() const {
+        return -rotation.column(2);
+    }
+    
     /** Returns the ray starting at the camera origin travelling in direction CoordinateFrame::lookVector. */
     class Ray lookRay() const;
 
@@ -307,24 +326,26 @@ public:
     }
 
     inline Vector3 rightVector() const {
-		return rotation.column(0);
-	}
+        return rotation.column(0);
+    }
 
     /**
      If a viewer looks along the look vector, this is the viewer's "left".
      Useful for strafing motions and building alternative coordinate frames.
      */
     inline Vector3 leftVector() const {
-		return -rotation.column(0);
+        return -rotation.column(0);
     }
 
     /**
      Linearly interpolates between two coordinate frames, using
      Quat::slerp for the rotations.
+
+     \sa moveTowards
      */
-    CoordinateFrame lerp(
-        const CoordinateFrame&  other,
-        float                   alpha) const;
+    CoordinateFrame lerp
+    (const CoordinateFrame&  other,
+     float                   alpha) const;
 
 };
 

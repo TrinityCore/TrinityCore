@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,8 @@
 #ifndef APPENDERCONSOLE_H
 #define APPENDERCONSOLE_H
 
-#include "Appender.h"
 #include <string>
+#include "Appender.h"
 
 enum ColorTypes
 {
@@ -51,7 +51,7 @@ class AppenderConsole: public Appender
     private:
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
-        void _write(LogMessage& message);
+        void _write(LogMessage const* message) override;
         bool _colored;
         ColorTypes _colors[MaxLogLevels];
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,10 @@
 #include "Battleground.h"
 #include "EventProcessor.h"
 
+#include <deque>
+
 //this container can't be deque, because deque doesn't like removing the last element - if you remove it, it invalidates next iterator and crash appears
-typedef std::list<Battleground*> BGFreeSlotQueueType;
+typedef std::list<Battleground*> BGFreeSlotQueueContainer;
 
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
@@ -38,7 +40,7 @@ struct PlayerQueueInfo                                      // stores informatio
 
 struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
 {
-    std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
+    std::map<ObjectGuid, PlayerQueueInfo*> Players;         // player queue info map
     uint32  Team;                                           // Player team (ALLIANCE/HORDE)
     BattlegroundTypeId BgTypeId;                            // battleground type id
     bool    IsRated;                                        // rated
@@ -77,16 +79,16 @@ class BattlegroundQueue
         bool CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
         GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 ArenaTeamId = 0);
-        void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
-        bool IsPlayerInvited(uint64 pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
-        bool GetPlayerGroupInfoData(uint64 guid, GroupQueueInfo* ginfo);
+        void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount);
+        bool IsPlayerInvited(ObjectGuid pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
+        bool GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo);
         void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id);
         uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id) const;
 
-        typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
+        typedef std::map<ObjectGuid, PlayerQueueInfo> QueuedPlayersMap;
         QueuedPlayersMap m_QueuedPlayers;
 
-        //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
+        //do NOT use deque because deque.erase() invalidates ALL iterators
         typedef std::list<GroupQueueInfo*> GroupsQueueType;
 
         /*
@@ -104,7 +106,7 @@ class BattlegroundQueue
         class SelectionPool
         {
         public:
-            SelectionPool(): PlayerCount(0) {};
+            SelectionPool(): PlayerCount(0) { }
             void Init();
             bool AddGroup(GroupQueueInfo* ginfo, uint32 desiredCount);
             bool KickGroup(uint32 size);
@@ -117,7 +119,7 @@ class BattlegroundQueue
 
         //one selection pool for horde, other one for alliance
         SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
-
+        uint32 GetPlayersInQueue(TeamId id);
     private:
 
         bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side);
@@ -136,16 +138,15 @@ class BattlegroundQueue
 class BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
+        BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
           m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime)
-          {
-          };
-        virtual ~BGQueueInviteEvent() {};
+          { }
+        virtual ~BGQueueInviteEvent() { }
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
     private:
-        uint64 m_PlayerGuid;
+        ObjectGuid m_PlayerGuid;
         uint32 m_BgInstanceGUID;
         BattlegroundTypeId m_BgTypeId;
         uint8  m_ArenaType;
@@ -160,17 +161,18 @@ class BGQueueInviteEvent : public BasicEvent
 class BGQueueRemoveEvent : public BasicEvent
 {
     public:
-        BGQueueRemoveEvent(uint64 pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
-            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
-        {}
+        BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
+            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_ArenaType(arenaType), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
+        { }
 
-        virtual ~BGQueueRemoveEvent() {}
+        virtual ~BGQueueRemoveEvent() { }
 
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+        virtual void Abort(uint64 e_time) override;
     private:
-        uint64 m_PlayerGuid;
+        ObjectGuid m_PlayerGuid;
         uint32 m_BgInstanceGUID;
+        uint8 m_ArenaType;
         uint32 m_RemoveTime;
         BattlegroundTypeId m_BgTypeId;
         BattlegroundQueueTypeId m_BgQueueTypeId;

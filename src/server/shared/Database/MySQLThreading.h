@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,31 +23,6 @@
 class MySQL
 {
     public:
-        /*! Create a thread on the MySQL server to mirrior the calling thread,
-            initializes thread-specific variables and allows thread-specific
-            operations without concurrence from other threads.
-            This should only be called if multiple core threads are running
-            on the same MySQL connection. Seperate MySQL connections implicitly
-            create a mirror thread.
-        */
-        static void Thread_Init()
-        {
-            mysql_thread_init();
-            sLog->outWarn(LOG_FILTER_SQL, "Core thread with ID ["UI64FMTD"] initializing MySQL thread.",
-                    (uint64)ACE_Based::Thread::currentId());
-        }
-
-        /*! Shuts down MySQL thread and frees resources, should only be called
-            when we terminate. MySQL threads and connections are not configurable
-            during runtime.
-        */
-        static void Thread_End()
-        {
-            mysql_thread_end();
-            sLog->outWarn(LOG_FILTER_SQL, "Core thread with ID ["UI64FMTD"] shutting down MySQL thread.",
-                (uint64)ACE_Based::Thread::currentId());
-        }
-
         static void Library_Init()
         {
             mysql_library_init(-1, NULL, NULL);

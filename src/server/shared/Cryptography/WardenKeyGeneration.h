@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,8 @@
 
 #include "SHA1.h"
 
+#include <cstring>
+
 #ifndef _WARDEN_KEY_GENERATION_H
 #define _WARDEN_KEY_GENERATION_H
 
@@ -26,16 +28,16 @@ class SHA1Randx
 public:
     SHA1Randx(uint8* buff, uint32 size)
     {
-        uint32 taken = size/2;
+        uint32 halfSize = size / 2;
 
         sh.Initialize();
-        sh.UpdateData(buff, taken);
+        sh.UpdateData(buff, halfSize);
         sh.Finalize();
 
         memcpy(o1, sh.GetDigest(), 20);
 
         sh.Initialize();
-        sh.UpdateData(buff + taken, size - taken);
+        sh.UpdateData(buff + halfSize, size - halfSize);
         sh.Finalize();
 
         memcpy(o2, sh.GetDigest(), 20);
@@ -73,7 +75,7 @@ private:
 
     SHA1Hash sh;
     uint32 taken;
-    uint8 o0[20],o1[20],o2[20];
+    uint8 o0[20], o1[20], o2[20];
 };
 
 #endif

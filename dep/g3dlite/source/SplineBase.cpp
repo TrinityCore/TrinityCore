@@ -4,7 +4,7 @@
 namespace G3D {
 
 float SplineBase::getFinalInterval() const {
-    if (! cyclic) {
+    if (extrapolationMode != SplineExtrapolationMode::CYCLIC) {
         return 0;
     } else if (finalInterval <= 0) {
         int N = time.size();
@@ -97,7 +97,7 @@ void SplineBase::computeIndex(float s, int& i, float& u) const {
         // No control points to work with
         i = 0;
         u = 0.0;
-    } else if (cyclic) {
+    } else if (extrapolationMode == SplineExtrapolationMode::CYCLIC) {
         float fi = getFinalInterval();
         
         // Cyclic spline
@@ -156,7 +156,7 @@ void SplineBase::computeIndex(float s, int& i, float& u) const {
             computeIndexInBounds(s, i, u);
             
         } // if in bounds
-    } // if cyclic
+    } // extrapolation Mode
 }
 
 }

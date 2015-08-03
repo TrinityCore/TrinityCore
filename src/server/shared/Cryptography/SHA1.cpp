@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,11 +18,13 @@
 
 #include "SHA1.h"
 #include "BigNumber.h"
+#include <cstring>
 #include <stdarg.h>
 
 SHA1Hash::SHA1Hash()
 {
     SHA1_Init(&mC);
+    memset(mDigest, 0, SHA_DIGEST_LENGTH * sizeof(uint8));
 }
 
 SHA1Hash::~SHA1Hash()
@@ -49,7 +51,7 @@ void SHA1Hash::UpdateBigNumbers(BigNumber* bn0, ...)
     bn = bn0;
     while (bn)
     {
-        UpdateData(bn->AsByteArray(), bn->GetNumBytes());
+        UpdateData(bn->AsByteArray().get(), bn->GetNumBytes());
         bn = va_arg(v, BigNumber*);
     }
     va_end(v);

@@ -1,16 +1,16 @@
 /**
-  @file TextOutput.h
+  \file G3D/TextOutput.h
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
-  @created 2004-06-21
-  @edited  2006-10-24
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \created 2004-06-21
+  \edited  2011-05-24
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2012, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_TEXTOUTPUT_H
-#define G3D_TEXTOUTPUT_H
+#ifndef G3D_TextOutput_h
+#define G3D_TextOutput_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -112,7 +112,7 @@ public:
             convertNewlines(true),
             trueSymbol("true"),
             falseSymbol("false") {
-            #ifdef G3D_WIN32
+            #ifdef G3D_WINDOWS
                 newlineStyle = NEWLINE_WINDOWS;
             #else
                 newlineStyle = NEWLINE_UNIX;
@@ -156,6 +156,9 @@ private:
     /** the newline character(s) */
     std::string             newline;
 
+    /** Starts at 1 */
+    int                     m_currentLine;
+
     void setOptions(const Settings& _opt);
 
     /** Converts to the desired newlines.  Called from vprintf */
@@ -174,6 +177,11 @@ public:
 
     /** Constructs a text output that can later be commited to a string instead of a file.*/
     explicit TextOutput(const Settings& options = Settings());
+
+    /** Returns one plus the number of newlines written since the output was created. */
+    int line() const {
+        return m_currentLine;
+    }
 
     /** Commit to the filename specified on the constructor. 
          <B>Not</B> called from the destructor; you must call
@@ -206,12 +214,17 @@ public:
     void writeNewline();
     void writeNewlines(int numLines);
 
+    /** If the most recently written character was a space, remove it and return true. Can be called repeatedly to back up over multiple spaces. */
+    bool deleteSpace();
+
     /** The symbol is written without quotes.  Symbols are required to begin with a
         letter or underscore and contain only letters, underscores, and numbers 
         or be a C++ symbol (e.g. "{", "(", "++", etc.)
         so that they may be properly parsed by TextInput::readSymbol. Symbols are
         printed with a trailing space.*/
     void writeSymbol(const std::string& string);
+
+    void writeSymbol(char s);
 
     /** Convenient idiom for writing multiple symbols in a row, e.g.
         writeSymbols("name", "=");  The empty symbols are not written.

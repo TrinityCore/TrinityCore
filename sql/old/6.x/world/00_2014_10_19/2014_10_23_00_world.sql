@@ -1,0 +1,13 @@
+UPDATE `trinity_string` SET `content_default`='Player selected NPC\nDB GUID: %u, current %s.\nFaction: %u.\nnpcFlags: %u.\nEntry: %u.\nDisplayID: %u (Native: %u).' WHERE `entry`=539;
+UPDATE `trinity_string` SET `content_default`='%s, faction is %i, flags is %i, npcflag is %i, DY flag is %i' WHERE `entry`=128;
+UPDATE `trinity_string` SET `content_default`='You changed %s Faction to %i, flags to %i, npcflag to %i, dyflag to %i.' WHERE `entry`=130;
+UPDATE `trinity_string` SET `content_default`='Game Object (%s) removed' WHERE `entry`=275;
+UPDATE `trinity_string` SET `content_default`='Game Object |cffffffff|Hgameobject:%d|h[%s]|h|r (%s) turned' WHERE `entry`=276;
+UPDATE `trinity_string` SET `content_default`='Game Object |cffffffff|Hgameobject:%d|h[%s]|h|r (%s) moved' WHERE `entry`=277;
+UPDATE `trinity_string` SET `content_default`='%s (%s) movement generators stack:' WHERE `entry`=526;
+UPDATE `trinity_string` SET `content_default`='   Targeted to player %s (%s)' WHERE `entry`=532;
+UPDATE `trinity_string` SET `content_default`='   Targeted to creature %s (%s)' WHERE `entry`=533;
+UPDATE `trinity_string` SET `content_default`='   Follow player %s (%s)' WHERE `entry`=1139;
+UPDATE `trinity_string` SET `content_default`='   Follow creature %s (%s)' WHERE `entry`=1140;
+UPDATE `trinity_string` SET `content_default`='%s updateIndex: %i, value: %i.' WHERE `entry`=562;
+UPDATE `trinity_string` SET `content_default`='You change %s UpdateIndex: %i value to %i.' WHERE `entry`=563;

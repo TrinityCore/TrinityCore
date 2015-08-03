@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,10 +37,12 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
+#include "Implementation/HotfixDatabase.h"
 
 extern WorldDatabaseWorkerPool WorldDatabase;
 extern CharacterDatabaseWorkerPool CharacterDatabase;
 extern LoginDatabaseWorkerPool LoginDatabase;
+extern HotfixDatabaseWorkerPool HotfixDatabase;
 
 #endif
 

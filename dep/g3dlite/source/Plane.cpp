@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2003-02-06
- @edited  2006-01-29
+ \edited  2011-02-29
  */
 
 #include "G3D/platform.h"
@@ -12,31 +12,47 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/stringutils.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
+Plane::Plane(const Any& a) {
+    a.verifyName("Plane");
+    a.verifySize(2);
+    a.verifyType(Any::ARRAY);
+    *this = Plane(Vector3(a[0]), Point3(a[1]));
+}
+
+
+Any Plane::toAny() const {
+    Any a(Any::ARRAY, "Plane");
+    a.append(normal(), normal() * _distance);
+    return a;
+}
+
+
 Plane::Plane(class BinaryInput& b) {
-	deserialize(b);
+    deserialize(b);
 }
 
 
 void Plane::serialize(class BinaryOutput& b) const {
-	_normal.serialize(b);
-	b.writeFloat64(_distance);
+    _normal.serialize(b);
+    b.writeFloat64(_distance);
 }
 
 
 void Plane::deserialize(class BinaryInput& b) {
-	_normal.deserialize(b);
-	_distance = (float)b.readFloat64();
+    _normal.deserialize(b);
+    _distance = (float)b.readFloat64();
 }
 
 
-Plane::Plane(
-    Vector4      point0,
-    Vector4      point1,
-    Vector4      point2) {
-
+Plane::Plane
+(Vector4      point0,
+ Vector4      point1,
+ Vector4      point2) {
+    
     debugAssertM(
         point0.w != 0 || 
         point1.w != 0 || 

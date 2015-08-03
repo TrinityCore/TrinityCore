@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,53 +16,77 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include "Util.h"
+#include "Common.h"
+#include "CompilerDefs.h"
 #include "utf8.h"
 #include "SFMT.h"
-#include <ace/TSS_T.h>
-#include <ace/INET_Addr.h>
+#include "Errors.h" // for ASSERT
+#include <stdarg.h>
+#include <boost/thread/tss.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 
-typedef ACE_TSS<SFMTRand> SFMTRandTSS;
-static SFMTRandTSS sfmtRand;
+#if COMPILER == COMPILER_GNU
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+#endif
+
+static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+
+static SFMTRand* GetRng()
+{
+    SFMTRand* rand = sfmtRand.get();
+
+    if (!rand)
+    {
+        rand = new SFMTRand();
+        sfmtRand.reset(rand);
+    }
+
+    return rand;
+}
 
 int32 irand(int32 min, int32 max)
 {
-    return int32(sfmtRand->IRandom(min, max));
+    ASSERT(max >= min);
+    return int32(GetRng()->IRandom(min, max));
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
-    return sfmtRand->URandom(min, max);
+    ASSERT(max >= min);
+    return GetRng()->URandom(min, max);
 }
 
 float frand(float min, float max)
 {
-    return float(sfmtRand->Random() * (max - min) + min);
+    ASSERT(max >= min);
+    return float(GetRng()->Random() * (max - min) + min);
 }
 
-int32 rand32()
+uint32 rand32()
 {
-    return int32(sfmtRand->BRandom());
+    return GetRng()->BRandom();
 }
 
-double rand_norm(void)
+double rand_norm()
 {
-    return sfmtRand->Random();
+    return GetRng()->Random();
 }
 
-double rand_chance(void)
+double rand_chance()
 {
-    return sfmtRand->Random() * 100.0;
+    return GetRng()->Random() * 100.0;
 }
 
-Tokens::Tokens(const std::string &src, const char sep, uint32 vectorReserve)
+Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
 {
     m_str = new char[src.length() + 1];
     memcpy(m_str, src.c_str(), src.length() + 1);
 
     if (vectorReserve)
-        reserve(vectorReserve);
+        m_storage.reserve(vectorReserve);
 
     char* posold = m_str;
     char* posnew = m_str;
@@ -71,17 +95,17 @@ Tokens::Tokens(const std::string &src, const char sep, uint32 vectorReserve)
     {
         if (*posnew == sep)
         {
-            push_back(posold);
+            m_storage.push_back(posold);
             posold = posnew + 1;
 
-            *posnew = 0x00;
+            *posnew = '\0';
         }
-        else if (*posnew == 0x00)
+        else if (*posnew == '\0')
         {
             // Hack like, but the old code accepted these kind of broken strings,
             // so changing it would break other things
             if (posold != posnew)
-                push_back(posold);
+                m_storage.push_back(posold);
 
             break;
         }
@@ -92,7 +116,7 @@ Tokens::Tokens(const std::string &src, const char sep, uint32 vectorReserve)
 
 void stripLineInvisibleChars(std::string &str)
 {
-    static std::string invChars = " \t\7\n";
+    static std::string const invChars = " \t\7\n";
 
     size_t wpos = 0;
 
@@ -124,6 +148,14 @@ void stripLineInvisibleChars(std::string &str)
 
 }
 
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+struct tm* localtime_r(const time_t* time, struct tm *result)
+{
+    localtime_s(result, time);
+    return result;
+}
+#endif
+
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
@@ -145,6 +177,37 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     }
 
     return ss.str();
+}
+
+int64 MoneyStringToMoney(const std::string& moneyString)
+{
+    int64 money = 0;
+
+    if (!(std::count(moneyString.begin(), moneyString.end(), 'g') == 1 ||
+        std::count(moneyString.begin(), moneyString.end(), 's') == 1 ||
+        std::count(moneyString.begin(), moneyString.end(), 'c') == 1))
+        return 0; // Bad format
+
+    Tokenizer tokens(moneyString, ' ');
+    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+    {
+        std::string tokenString(*itr);
+        size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
+        size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
+        size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
+        if (gCount + sCount + cCount != 1)
+            return 0;
+
+        uint64 amount = atoull(*itr);
+        if (gCount == 1)
+            money += amount * 100 * 100;
+        else if (sCount == 1)
+            money += amount * 100;
+        else if (cCount == 1)
+            money += amount;
+    }
+
+    return money;
 }
 
 uint32 TimeStringToSecs(const std::string& timestring)
@@ -181,7 +244,8 @@ uint32 TimeStringToSecs(const std::string& timestring)
 
 std::string TimeToTimestampStr(time_t t)
 {
-    tm* aTm = localtime(&t);
+    tm aTm;
+    localtime_r(&t, &aTm);
     //       YYYY   year
     //       MM     month (2 digits 01-12)
     //       DD     day (2 digits 01-31)
@@ -189,7 +253,7 @@ std::string TimeToTimestampStr(time_t t)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
     char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm->tm_year+1900, aTm->tm_mon+1, aTm->tm_mday, aTm->tm_hour, aTm->tm_min, aTm->tm_sec);
+    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
     return std::string(buf);
 }
 
@@ -217,7 +281,7 @@ uint32 CreatePIDFile(const std::string& filename)
     pid_t pid = getpid();
 #endif
 
-    fprintf(pid_file, "%d", pid );
+    fprintf(pid_file, "%u", pid );
     fclose(pid_file);
 
     return (uint32)pid;
@@ -231,7 +295,7 @@ size_t utf8length(std::string& utf8str)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
         return 0;
     }
 }
@@ -253,7 +317,7 @@ void utf8truncate(std::string& utf8str, size_t len)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
     }
 }
 
@@ -297,7 +361,7 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
     }
     catch(std::exception)
     {
-        wstr = L"";
+        wstr.clear();
         return false;
     }
 
@@ -320,14 +384,14 @@ bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
         return false;
     }
 
     return true;
 }
 
-bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
+bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
 {
     try
     {
@@ -343,7 +407,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
     }
     catch(std::exception)
     {
-        utf8str = "";
+        utf8str.clear();
         return false;
     }
 
@@ -352,7 +416,7 @@ bool WStrToUtf8(std::wstring wstr, std::string& utf8str)
 
 typedef wchar_t const* const* wstrlist;
 
-std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
+std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
     // supported only Cyrillic cases
     if (wname.size() < 1 || !isCyrillicCharacter(wname[0]) || declension > 5)
@@ -429,7 +493,7 @@ bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
 #endif
 }
 
-bool Utf8FitTo(const std::string& str, std::wstring search)
+bool Utf8FitTo(const std::string& str, std::wstring const& search)
 {
     std::wstring temp;
 
@@ -460,6 +524,9 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
     wchar_t wtemp_buf[32*1024];
 
     size_t temp_len = vsnprintf(temp_buf, 32*1024, str, *ap);
+    //vsnprintf returns -1 if the buffer is too small
+    if (temp_len == size_t(-1))
+        temp_len = 32*1024-1;
 
     size_t wtemp_len = 32*1024-1;
     Utf8toWStr(temp_buf, temp_len, wtemp_buf, wtemp_len);
@@ -471,34 +538,68 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
 #endif
 }
 
-void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
+bool Utf8ToUpperOnlyLatin(std::string& utf8String)
 {
-    std::ostringstream ss;
-    for (uint32 i=0; i<arrayLen; ++i)
-    {
-        for (uint8 j=0; j<2; ++j)
-        {
-            unsigned char nibble = 0x0F & (bytes[i]>>((1-j)*4));
-            char encodedNibble;
-            if (nibble < 0x0A)
-                encodedNibble = '0'+nibble;
-            else
-                encodedNibble = 'A'+nibble-0x0A;
-            ss << encodedNibble;
-        }
-    }
-    result = ss.str();
+    std::wstring wstr;
+    if (!Utf8toWStr(utf8String, wstr))
+        return false;
+
+    std::transform(wstr.begin(), wstr.end(), wstr.begin(), wcharToUpperOnlyLatin);
+
+    return WStrToUtf8(wstr, utf8String);
 }
 
-std::string ByteArrayToHexStr(uint8* bytes, uint32 length)
+std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse /* = false */)
 {
+    int32 init = 0;
+    int32 end = arrayLen;
+    int8 op = 1;
+
+    if (reverse)
+    {
+        init = arrayLen - 1;
+        end = -1;
+        op = -1;
+    }
+
     std::ostringstream ss;
-    for (uint32 i = 0; i < length; ++i)
+    for (int32 i = init; i != end; i += op)
     {
         char buffer[4];
-        sprintf(buffer, "%02X ", bytes[i]);
+        sprintf(buffer, "%02X", bytes[i]);
         ss << buffer;
     }
 
     return ss.str();
+}
+
+void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= false*/)
+{
+    // string must have even number of characters
+    if (str.length() & 1)
+        return;
+
+    int32 init = 0;
+    int32 end = str.length();
+    int8 op = 1;
+
+    if (reverse)
+    {
+        init = str.length() - 2;
+        end = -2;
+        op = -1;
+    }
+
+    uint32 j = 0;
+    for (int32 i = init; i != end; i += 2 * op)
+    {
+        char buffer[3] = { str[i], str[i + 1], '\0' };
+        out[j++] = strtoul(buffer, NULL, 16);
+    }
+}
+
+bool StringToBool(std::string const& str)
+{
+    std::string lowerStr = boost::algorithm::to_lower_copy(str);
+    return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
 }

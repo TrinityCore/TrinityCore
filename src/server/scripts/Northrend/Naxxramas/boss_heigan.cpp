@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,15 +19,19 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "naxxramas.h"
+#include "Player.h"
 
-#define SAY_AGGRO           RAND(-1533109, -1533110, -1533111)
-#define SAY_SLAY            -1533112
-#define SAY_TAUNT           RAND(-1533113, -1533114, -1533115, -1533116, -1533117)
-#define SAY_DEATH           -1533118
+enum Heigan
+{
+    SPELL_DECREPIT_FEVER        = 29998, // 25-man: 55011
+    SPELL_SPELL_DISRUPTION      = 29310,
+    SPELL_PLAGUE_CLOUD          = 29350,
 
-#define SPELL_SPELL_DISRUPTION  29310
-#define SPELL_DECREPIT_FEVER    RAID_MODE(29998, 55011)
-#define SPELL_PLAGUE_CLOUD      29350
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_TAUNT                   = 2,
+    SAY_DEATH                   = 3
+};
 
 enum Events
 {
@@ -44,43 +48,52 @@ enum Phases
     PHASE_DANCE,
 };
 
-#define ACTION_SAFETY_DANCE_FAIL 1
-#define DATA_SAFETY_DANCE        19962139
+enum Misc
+{
+    ACTION_SAFETY_DANCE_FAIL        = 1,
+    DATA_SAFETY_DANCE               = 19962139
+};
 
 class boss_heigan : public CreatureScript
 {
 public:
     boss_heigan() : CreatureScript("boss_heigan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_heiganAI (creature);
+        return GetInstanceAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN)
+        {
+            eruptSection = 0;
+            eruptDirection = false;
+            safetyDance = false;
+            phase = PHASE_FIGHT;
+        }
 
         uint32 eruptSection;
         bool eruptDirection;
         bool safetyDance;
         Phases phase;
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
-            if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+            if (!(rand32() % 5))
+                Talk(SAY_SLAY);
             if (who->GetTypeId() == TYPEID_PLAYER)
                 safetyDance = false;
         }
 
-        void SetData(uint32 id, uint32 data)
+        void SetData(uint32 id, uint32 data) override
         {
             if (id == DATA_SAFETY_DANCE)
                 safetyDance = data ? true : false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_SAFETY_DANCE)
                 return safetyDance ? 1 : 0;
@@ -88,16 +101,16 @@ public:
             return 0;
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             EnterPhase(PHASE_FIGHT);
             safetyDance = true;
         }
@@ -113,19 +126,23 @@ public:
                 events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_PHASE, 90000);
                 events.ScheduleEvent(EVENT_ERUPT, 15000);
+                me->GetMotionMaster()->MoveChase(me->GetVictim());
             }
             else
             {
                 float x, y, z, o;
                 me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o);
+                me->NearTeleportTo(x, y, z, o - (float(M_PI) / 2));
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveIdle();
+                me->SetTarget(ObjectGuid::Empty);
                 DoCastAOE(SPELL_PLAGUE_CLOUD);
                 events.ScheduleEvent(EVENT_PHASE, 45000);
                 events.ScheduleEvent(EVENT_ERUPT, 8000);
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -145,7 +162,7 @@ public:
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
                     case EVENT_PHASE:
-                        // TODO : Add missing texts for both phase switches
+                        /// @todo Add missing texts for both phase switches
                         EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
                         break;
                     case EVENT_ERUPT:
@@ -187,17 +204,17 @@ class spell_heigan_eruption : public SpellScriptLoader
 
                 if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
+                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_HEIGAN)))
                             Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_heigan_eruption_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_heigan_eruption_SpellScript();
         }
@@ -210,7 +227,7 @@ class achievement_safety_dance : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;

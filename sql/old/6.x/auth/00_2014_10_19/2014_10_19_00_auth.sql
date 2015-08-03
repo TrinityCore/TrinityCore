@@ -1,0 +1,2 @@
+ALTER TABLE account MODIFY COLUMN expansion TINYINT(3) UNSIGNED DEFAULT 5 NOT NULL;
+UPDATE account SET expansion = 5;

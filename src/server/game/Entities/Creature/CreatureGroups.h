@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
-#include "UnorderedMap.h"
+#include <unordered_map>
 #include <map>
 
 class Creature;
@@ -28,21 +28,30 @@ class CreatureGroup;
 
 struct FormationInfo
 {
-    uint32 leaderGUID;
+    ObjectGuid::LowType leaderGUID;
     float follow_dist;
     float follow_angle;
     uint8 groupAI;
+    uint16 point_1;
+    uint16 point_2;
 };
 
-typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
+typedef std::unordered_map<ObjectGuid::LowType/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
 class FormationMgr
 {
-    friend class ACE_Singleton<FormationMgr, ACE_Null_Mutex>;
-    public:
+    private:
         FormationMgr() { }
         ~FormationMgr();
-        void AddCreatureToGroup(uint32 group_id, Creature* creature);
+
+    public:
+        static FormationMgr* instance()
+        {
+            static FormationMgr instance;
+            return &instance;
+        }
+
+        void AddCreatureToGroup(ObjectGuid::LowType leaderGuid, Creature* creature);
         void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
         void LoadCreatureFormations();
         CreatureGroupInfoType CreatureGroupMap;
@@ -55,16 +64,16 @@ class CreatureGroup
         typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 
-        uint32 m_groupID;
+        ObjectGuid::LowType m_groupID;
         bool m_Formed;
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) {}
-        ~CreatureGroup() {}
+        explicit CreatureGroup(ObjectGuid::LowType id) : m_leader(NULL), m_groupID(id), m_Formed(false) { }
+        ~CreatureGroup() { }
 
         Creature* getLeader() const { return m_leader; }
-        uint32 GetId() const { return m_groupID; }
+        ObjectGuid::LowType GetId() const { return m_groupID; }
         bool isEmpty() const { return m_members.empty(); }
         bool isFormed() const { return m_Formed; }
 
@@ -76,6 +85,6 @@ class CreatureGroup
         void MemberAttackStart(Creature* member, Unit* target);
 };
 
-#define sFormationMgr ACE_Singleton<FormationMgr, ACE_Null_Mutex>::instance()
+#define sFormationMgr FormationMgr::instance()
 
 #endif

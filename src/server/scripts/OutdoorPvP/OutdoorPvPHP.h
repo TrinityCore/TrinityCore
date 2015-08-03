@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,16 @@
 #define OUTDOOR_PVP_HP_
 
 #include "OutdoorPvP.h"
+
+enum DefenseMessages
+{
+    TEXT_OVERLOOK_TAKEN_ALLIANCE        = 14841, // '|cffffff00The Overlook has been taken by the Alliance!|r'
+    TEXT_OVERLOOK_TAKEN_HORDE           = 14842, // '|cffffff00The Overlook has been taken by the Horde!|r'
+    TEXT_STADIUM_TAKEN_ALLIANCE         = 14843, // '|cffffff00The Stadium has been taken by the Alliance!|r'
+    TEXT_STADIUM_TAKEN_HORDE            = 14844, // '|cffffff00The Stadium has been taken by the Horde!|r'
+    TEXT_BROKEN_HILL_TAKEN_ALLIANCE     = 14845, // '|cffffff00Broken Hill has been taken by the Alliance!|r'
+    TEXT_BROKEN_HILL_TAKEN_HORDE        = 14846, // '|cffffff00Broken Hill has been taken by the Horde!|r'
+};
 
 #define OutdoorPvPHPBuffZonesNum 6
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
@@ -52,11 +62,7 @@ enum OutdoorPvPHPWorldStates
     HP_UI_TOWER_DISPLAY_H = 0x9b9,
 
     HP_UI_TOWER_COUNT_H = 0x9ae,
-    HP_UI_TOWER_COUNT_A = 0x9ac,
-
-    HP_UI_TOWER_SLIDER_N = 2475,
-    HP_UI_TOWER_SLIDER_POS = 2474,
-    HP_UI_TOWER_SLIDER_DISPLAY = 2473
+    HP_UI_TOWER_COUNT_A = 0x9ac
 };
 
 const uint32 HP_MAP_N[HP_TOWER_NUM] = {0x9b5, 0x9b2, 0x9a8};
@@ -88,28 +94,19 @@ const go_type HPTowerFlags[HP_TOWER_NUM] =
 class OPvPCapturePointHP : public OPvPCapturePoint
 {
     public:
-
         OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
 
         void ChangeState();
 
-        void SendChangePhase();
-
-        void FillInitialWorldStates(WorldPacket & data);
-
-        // used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* player);
-        void HandlePlayerLeave(Player* player);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     private:
-
         OutdoorPvPHPTowerType m_TowerType;
 };
 
 class OutdoorPvPHP : public OutdoorPvP
 {
     public:
-
         OutdoorPvPHP();
 
         bool SetupOutdoorPvP();
@@ -119,7 +116,7 @@ class OutdoorPvPHP : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 
@@ -132,7 +129,6 @@ class OutdoorPvPHP : public OutdoorPvP
         void SetHordeTowersControlled(uint32 count);
 
     private:
-
         // how many towers are controlled
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;

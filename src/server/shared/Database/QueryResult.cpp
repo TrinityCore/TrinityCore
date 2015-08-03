@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,7 +59,10 @@ m_length(NULL)
     //- This is where we store the (entire) resultset
     if (mysql_stmt_store_result(m_stmt))
     {
-        sLog->outWarn(LOG_FILTER_SQL, "%s:mysql_stmt_store_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        TC_LOG_WARN("sql.sql", "%s:mysql_stmt_store_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        delete[] m_rBind;
+        delete[] m_isNull;
+        delete[] m_length;
         return;
     }
 
@@ -86,7 +89,7 @@ m_length(NULL)
     //- This is where we bind the bind the buffer to the statement
     if (mysql_stmt_bind_result(m_stmt, m_rBind))
     {
-        sLog->outWarn(LOG_FILTER_SQL, "%s:mysql_stmt_bind_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        TC_LOG_WARN("sql.sql", "%s:mysql_stmt_bind_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
         delete[] m_rBind;
         delete[] m_isNull;
         delete[] m_length;
@@ -102,10 +105,10 @@ m_length(NULL)
         for (uint64 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
         {
             if (!*m_rBind[fIndex].is_null)
-                m_rows[uint32(m_rowPosition)][fIndex].SetByteValue( m_rBind[fIndex].buffer,
+                m_rows[uint32(m_rowPosition)][fIndex].SetByteValue(m_rBind[fIndex].buffer,
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
-                                                           *m_rBind[fIndex].length );
+                                                           *m_rBind[fIndex].length);
             else
                 switch (m_rBind[fIndex].buffer_type)
                 {
@@ -115,16 +118,16 @@ m_length(NULL)
                     case MYSQL_TYPE_BLOB:
                     case MYSQL_TYPE_STRING:
                     case MYSQL_TYPE_VAR_STRING:
-                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue( "",
+                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue("",
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
-                                                           *m_rBind[fIndex].length );
+                                                           *m_rBind[fIndex].length);
                     break;
                     default:
-                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue( 0,
+                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue(nullptr,
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
-                                                           *m_rBind[fIndex].length );
+                                                           *m_rBind[fIndex].length);
                 }
         }
         m_rowPosition++;
@@ -160,8 +163,16 @@ bool ResultSet::NextRow()
         return false;
     }
 
+    unsigned long* lengths = mysql_fetch_lengths(_result);
+    if (!lengths)
+    {
+        TC_LOG_WARN("sql.sql", "%s:mysql_fetch_lengths, cannot retrieve value lengths. Error %s.", __FUNCTION__, mysql_error(_result->handle));
+        CleanUp();
+        return false;
+    }
+
     for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetStructuredValue(row[i], _fields[i].type);
+        _currentRow[i].SetStructuredValue(row[i], _fields[i].type, lengths[i]);
 
     return true;
 }
@@ -183,15 +194,8 @@ bool PreparedResultSet::_NextRow()
     if (m_rowPosition >= m_rowCount)
         return false;
 
-    int retval = mysql_stmt_fetch( m_stmt );
-
-    if (!retval || retval == MYSQL_DATA_TRUNCATED)
-        retval = true;
-
-    if (retval == MYSQL_NO_DATA)
-        retval = false;
-
-    return retval;
+    int retval = mysql_stmt_fetch(m_stmt);
+    return retval == 0 || retval == MYSQL_DATA_TRUNCATED;
 }
 
 void ResultSet::CleanUp()

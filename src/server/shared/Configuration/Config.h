@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,17 +20,44 @@
 #define CONFIG_H
 
 #include <string>
+#include <list>
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
 
-namespace ConfigMgr
+class ConfigMgr
 {
-    bool Load(const char *file = NULL);
+    ConfigMgr() { }
+    ~ConfigMgr() { }
 
-    std::string GetStringDefault(const char* name, const std::string& def);
-    bool GetBoolDefault(const char* name, bool def);
-    int GetIntDefault(const char* name, int def);
-    float GetFloatDefault(const char* name, float def);
+public:
+    /// Method used only for loading main configuration files
+    bool LoadInitial(std::string const& file, std::string& error);
 
-    const std::string & GetFilename();
-}
+    static ConfigMgr* instance()
+    {
+        static ConfigMgr instance;
+        return &instance;
+    }
+
+    bool Reload(std::string& error);
+
+    std::string GetStringDefault(std::string const& name, const std::string& def);
+    bool GetBoolDefault(std::string const& name, bool def);
+    int GetIntDefault(std::string const& name, int def);
+    float GetFloatDefault(std::string const& name, float def);
+
+    std::string const& GetFilename();
+    std::list<std::string> GetKeysByString(std::string const& name);
+
+private:
+    std::string _filename;
+    boost::property_tree::ptree _config;
+    std::mutex _configLock;
+
+    ConfigMgr(ConfigMgr const&);
+    ConfigMgr& operator=(ConfigMgr const&);
+};
+
+#define sConfigMgr ConfigMgr::instance()
 
 #endif

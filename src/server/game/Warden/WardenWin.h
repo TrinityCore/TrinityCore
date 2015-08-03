@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,11 +25,7 @@
 #include "ByteBuffer.h"
 #include "Warden.h"
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
-#pragma pack(push,1)
-#endif
+#pragma pack(push, 1)
 
 struct WardenInitModuleRequest
 {
@@ -61,11 +57,7 @@ struct WardenInitModuleRequest
     uint8 Function3_set;
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 class WorldSession;
 class Warden;
@@ -76,13 +68,13 @@ class WardenWin : public Warden
         WardenWin();
         ~WardenWin();
 
-        void Init(WorldSession* session, BigNumber* K);
-        ClientWardenModule* GetModuleForClient();
-        void InitializeModule();
-        void RequestHash();
-        void HandleHashResult(ByteBuffer &buff);
-        void RequestData();
-        void HandleData(ByteBuffer &buff);
+        void Init(WorldSession* session, BigNumber* K) override;
+        ClientWardenModule* GetModuleForClient() override;
+        void InitializeModule() override;
+        void RequestHash() override;
+        void HandleHashResult(ByteBuffer &buff) override;
+        void RequestData() override;
+        void HandleData(ByteBuffer &buff) override;
 
     private:
         uint32 _serverTicks;

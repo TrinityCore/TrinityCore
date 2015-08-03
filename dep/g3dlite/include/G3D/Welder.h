@@ -22,30 +22,38 @@ public:
         /** Surfaces with normals that are within this angle of each
             other are considered to be curved.  Default value is toRadians(70.0f).*/
         float   normalSmoothingAngle;
-        float  	vertexWeldRadius;
-        float  	textureWeldRadius;
-        float  	normalWeldRadius;
+
+        /** Default value is 0 */
+        float      vertexWeldRadius;
+
+        float      textureWeldRadius;
+
+        float      normalWeldRadius;
 
         inline Settings(float normalSmoothAngle = toRadians(70.0f)) : 
             normalSmoothingAngle(normalSmoothAngle),
-            vertexWeldRadius(0.0001f), 
+            vertexWeldRadius(0.001f), 
             textureWeldRadius(0.0001f), 
             normalWeldRadius(0.01f) {}
 
 
         Settings(const Any& any);
-        operator Any() const;
+        
+        Any toAny() const;
+
+        void serialize(class BinaryOutput& b) const;
+
+        void deserialize(class BinaryInput& b);
     };
 
 /**
-     Mutates geometry, texCoord, and indexArray so that the output has collocated vertices collapsed (welded).
+     Mutates geometry, texCoord, and indexArray so that the output has
+     collocated vertices collapsed (welded).
 
      @param vertices Input and output
      @param textureCoords Input and output
      @param normals Output only
      @param indices Input and output. This is an array of trilist indices. 
-     @param oldToNewIndex Output argument
-     @param normalSmoothingAngle Varies from 0 (flat shading) to toRadians(180) for extremely smooth shading. Default is toRadians(70)
      */
     static void weld(
         Array<Vector3>&     vertices,
@@ -61,8 +69,6 @@ public:
      @param textureCoords Input and output
      @param normals Output only
      @param indices Input and output. This is an array of trilist indices. 
-     @param oldToNewIndex Output argument
-     @param normalSmoothingAngle Varies from 0 (flat shading) to toRadians(180) for extremely smooth shading. Default is toRadians(70)
      */
     inline static void weld(
         Array<Vector3>&     vertices,

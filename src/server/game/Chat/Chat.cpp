@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
 
@@ -29,12 +28,10 @@
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "UpdateMask.h"
-#include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#include "Group.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -63,7 +60,7 @@ ChatCommand* ChatHandler::getCommandTable()
     // cache for commands, needed because some commands are loaded dynamically through ScriptMgr
     // cache is never freed and will show as a memory leak in diagnostic tools
     // can't use vector as vector storage is implementation-dependent, eg, there can be alignment gaps between elements
-    static ChatCommand* commandTableCache = 0;
+    static ChatCommand* commandTableCache = NULL;
 
     if (LoadCommandTable())
     {
@@ -79,9 +76,10 @@ ChatCommand* ChatHandler::getCommandTable()
 
             // cache top-level commands
             size_t added = 0;
+            free(commandTableCache);
             commandTableCache = (ChatCommand*)malloc(sizeof(ChatCommand) * total);
+            ASSERT(commandTableCache);
             memset(commandTableCache, 0, sizeof(ChatCommand) * total);
-            ACE_ASSERT(commandTableCache);
             for (std::vector<ChatCommand*>::const_iterator it = dynamic.begin(); it != dynamic.end(); ++it)
                 added += appendCommandTable(commandTableCache + added, *it);
         }
@@ -95,8 +93,7 @@ ChatCommand* ChatHandler::getCommandTable()
                 Field* fields = result->Fetch();
                 std::string name = fields[0].GetString();
 
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt8(), fields[2].GetString(), name);
-
+                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
             }
             while (result->NextRow());
         }
@@ -105,37 +102,25 @@ ChatCommand* ChatHandler::getCommandTable()
     return commandTableCache;
 }
 
-std::string ChatHandler::PGetParseString(int32 entry, ...) const
-{
-    const char *format = GetTrinityString(entry);
-    char str[1024];
-    va_list ap;
-    va_start(ap, entry);
-    vsnprintf(str, 1024, format, ap);
-    va_end(ap);
-    return std::string(str);
-}
-
-const char *ChatHandler::GetTrinityString(int32 entry) const
+char const* ChatHandler::GetTrinityString(uint32 entry) const
 {
     return m_session->GetTrinityString(entry);
 }
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
-    // check security level only for simple  command (without child commands)
-    return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
+    return HasPermission(cmd.Permission);
 }
 
-bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
+bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
 {
     WorldSession* target_session = NULL;
     uint32 target_account = 0;
 
     if (target)
         target_session = target->GetSession();
-    else if (guid)
-        target_account = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+    else if (!guid.IsEmpty())
+        target_account = ObjectMgr::GetPlayerAccountIdByGUID(guid);
 
     if (!target_session && !target_account)
     {
@@ -156,13 +141,13 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
         return false;
 
     // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
+    if (m_session->HasPermission(rbac::RBAC_PERM_CHECK_FOR_LOWER_SECURITY) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
         return false;
 
     if (target)
         target_sec = target->GetSecurity();
     else if (target_account)
-        target_sec = AccountMgr::GetSecurity(target_account, realmID);
+        target_sec = AccountMgr::GetSecurity(target_account, realmHandle.Index);
     else
         return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
@@ -186,7 +171,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
         if (!*part)
             return false;
 
-        for (;;)
+        while (true)
         {
             if (!*part)
                 return true;
@@ -204,7 +189,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
 
 void ChatHandler::SendSysMessage(const char *str)
 {
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(str);
@@ -212,8 +197,8 @@ void ChatHandler::SendSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        FillSystemMessageData(&data, line);
-        m_session->SendPacket(&data);
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        m_session->SendPacket(packet.Write());
     }
 
     free(buf);
@@ -222,7 +207,7 @@ void ChatHandler::SendSysMessage(const char *str)
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
     // Chat output
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(str);
@@ -230,8 +215,8 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        FillSystemMessageData(&data, line);
-        sWorld->SendGlobalMessage(&data);
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        sWorld->SendGlobalMessage(packet.Write());
     }
 
     free(buf);
@@ -240,7 +225,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
     // Chat output
-    WorldPacket data;
+    WorldPackets::Chat::Chat packet;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(str);
@@ -248,39 +233,19 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        FillSystemMessageData(&data, line);
-        sWorld->SendGlobalGMMessage(&data);
-     }
+        packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        sWorld->SendGlobalGMMessage(packet.Write());
+    }
+
     free(buf);
 }
 
-void ChatHandler::SendSysMessage(int32 entry)
+void ChatHandler::SendSysMessage(uint32 entry)
 {
     SendSysMessage(GetTrinityString(entry));
 }
 
-void ChatHandler::PSendSysMessage(int32 entry, ...)
-{
-    const char *format = GetTrinityString(entry);
-    va_list ap;
-    char str [2048];
-    va_start(ap, entry);
-    vsnprintf(str, 2048, format, ap);
-    va_end(ap);
-    SendSysMessage(str);
-}
-
-void ChatHandler::PSendSysMessage(const char *format, ...)
-{
-    va_list ap;
-    char str [2048];
-    va_start(ap, format);
-    vsnprintf(str, 2048, format, ap);
-    va_end(ap);
-    SendSysMessage(str);
-}
-
-bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd)
+bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)
 {
     char const* oldtext = text;
     std::string cmd = "";
@@ -306,9 +271,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 if (!hasStringAbbr(table[j].Name, cmd.c_str()))
                     continue;
 
-                if (strcmp(table[j].Name, cmd.c_str()) != 0)
-                    continue;
-                else
+                if (strcmp(table[j].Name, cmd.c_str()) == 0)
                 {
                     match = true;
                     break;
@@ -323,7 +286,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         {
             if (!ExecuteCommandInTable(table[i].ChildCommands, text, fullcmd))
             {
-                if (text && text[0] != '\0')
+                if (text[0] != '\0')
                     SendSysMessage(LANG_NO_SUBCMD);
                 else
                     SendSysMessage(LANG_CMD_SYNTAX);
@@ -342,17 +305,31 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
-            if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
+            if (!m_session) // ignore console
+                return true;
+
+            Player* player = m_session->GetPlayer();
+            if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
             {
-                // chat case
-                if (m_session)
+                ObjectGuid guid = player->GetTarget();
+                uint32 areaId = player->GetAreaId();
+                std::string areaName = "Unknown";
+                std::string zoneName = "Unknown";
+                if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                 {
-                    Player* p = m_session->GetPlayer();
-                    uint64 sel_guid = p->GetSelection();
-                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
-                        fullcmd.c_str(), p->GetName(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
-                        GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName() : "", GUID_LOPART(sel_guid));
+                    areaName = area->AreaName_lang;
+                    if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID))
+                        zoneName = zone->AreaName_lang;
                 }
+
+                sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",
+                    fullcmd.c_str(), player->GetName().c_str(), player->GetGUID().ToString().c_str(),
+                    m_session->GetAccountId(), player->GetPositionX(), player->GetPositionY(),
+                    player->GetPositionZ(), player->GetMapId(),
+                    player->GetMap() ? player->GetMap()->GetMapName() : "Unknown",
+                    areaId, areaName.c_str(), zoneName.c_str(),
+                    (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
+                    guid.ToString().c_str());
             }
         }
         // some commands have custom error messages. Don't send the default one in these cases.
@@ -370,7 +347,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
     return false;
 }
 
-bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand)
+bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, uint32 permission, std::string const& help, std::string const& fullcommand)
 {
     std::string cmd = "";
 
@@ -391,7 +368,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
         // select subcommand from child commands list (including "")
         if (table[i].ChildCommands != NULL)
         {
-            if (SetDataForCommandInTable(table[i].ChildCommands, text, security, help, fullcommand))
+            if (SetDataForCommandInTable(table[i].ChildCommands, text, permission, help, fullcommand))
                 return true;
             else if (*text)
                 return false;
@@ -401,14 +378,14 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
         // expected subcommand by full name DB content
         else if (*text)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
             return false;
         }
 
-        if (table[i].SecurityLevel != security)
-            sLog->outInfo(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
+        if (table[i].Permission != permission)
+            TC_LOG_INFO("misc", "Table `command` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].Permission, permission);
 
-        table[i].SecurityLevel = security;
+        table[i].Permission = permission;
         table[i].Help          = help;
         return true;
     }
@@ -417,39 +394,36 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
     if (!cmd.empty())
     {
         if (table == getCommandTable())
-            sLog->outError(LOG_FILTER_SQL, "Table `command` have not existed command '%s', skip.", cmd.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` have not existed command '%s', skip.", cmd.c_str());
         else
-            sLog->outError(LOG_FILTER_SQL, "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
     }
 
     return false;
 }
 
-int ChatHandler::ParseCommands(const char* text)
+bool ChatHandler::ParseCommands(char const* text)
 {
     ASSERT(text);
     ASSERT(*text);
 
     std::string fullcmd = text;
 
-    if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
-       return 0;
-
     /// chat case (.command or !command format)
     if (m_session)
     {
         if (text[0] != '!' && text[0] != '.')
-            return 0;
+            return false;
     }
 
     /// ignore single . and ! in line
     if (strlen(text) < 2)
-        return 0;
+        return false;
     // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
     if ((text[0] == '.' && text[1] == '.') || (text[0] == '!' && text[1] == '!'))
-        return 0;
+        return false;
 
     /// skip first . or ! (in console allowed use command with . and ! and without its)
     if (text[0] == '!' || text[0] == '.')
@@ -457,15 +431,15 @@ int ChatHandler::ParseCommands(const char* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
-            return 0;
+        if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
+            return false;
 
         SendSysMessage(LANG_NO_CMD);
     }
-    return 1;
+    return true;
 }
 
-bool ChatHandler::isValidChatMessage(const char* message)
+bool ChatHandler::isValidChatMessage(char const* message)
 {
 /*
 Valid examples:
@@ -620,98 +594,16 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
     return ShowHelpForSubCommands(table, "", cmd);
 }
 
-//Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker)
-{
-    uint32 messageLength = (message ? strlen(message) : 0) + 1;
-
-    data->Initialize(SMSG_MESSAGECHAT, 100);                // guess size
-    *data << uint8(type);
-    if ((type != CHAT_MSG_CHANNEL && type != CHAT_MSG_WHISPER) || language == LANG_ADDON)
-        *data << uint32(language);
-    else
-        *data << uint32(LANG_UNIVERSAL);
-
-    switch (type)
-    {
-        case CHAT_MSG_SAY:
-        case CHAT_MSG_PARTY:
-        case CHAT_MSG_PARTY_LEADER:
-        case CHAT_MSG_RAID:
-        case CHAT_MSG_GUILD:
-        case CHAT_MSG_OFFICER:
-        case CHAT_MSG_YELL:
-        case CHAT_MSG_WHISPER:
-        case CHAT_MSG_CHANNEL:
-        case CHAT_MSG_RAID_LEADER:
-        case CHAT_MSG_RAID_WARNING:
-        case CHAT_MSG_BG_SYSTEM_NEUTRAL:
-        case CHAT_MSG_BG_SYSTEM_ALLIANCE:
-        case CHAT_MSG_BG_SYSTEM_HORDE:
-        case CHAT_MSG_BATTLEGROUND:
-        case CHAT_MSG_BATTLEGROUND_LEADER:
-            target_guid = session ? session->GetPlayer()->GetGUID() : 0;
-            break;
-        case CHAT_MSG_MONSTER_SAY:
-        case CHAT_MSG_MONSTER_PARTY:
-        case CHAT_MSG_MONSTER_YELL:
-        case CHAT_MSG_MONSTER_WHISPER:
-        case CHAT_MSG_MONSTER_EMOTE:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
-        case CHAT_MSG_RAID_BOSS_EMOTE:
-        case CHAT_MSG_BATTLENET:
-        {
-            *data << uint64(speaker->GetGUID());
-            *data << uint32(0);                             // 2.1.0
-            *data << uint32(strlen(speaker->GetName()) + 1);
-            *data << speaker->GetName();
-            uint64 listener_guid = 0;
-            *data << uint64(listener_guid);
-            if (listener_guid && !IS_PLAYER_GUID(listener_guid))
-            {
-                *data << uint32(1);                         // string listener_name_length
-                *data << uint8(0);                          // string listener_name
-            }
-            *data << uint32(messageLength);
-            *data << message;
-            *data << uint8(0);
-            return;
-        }
-        default:
-            if (type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_IGNORED && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-                target_guid = 0;                            // only for CHAT_MSG_WHISPER_INFORM used original value target_guid
-            break;
-    }
-
-    *data << uint64(target_guid);                           // there 0 for BG messages
-    *data << uint32(0);                                     // can be chat msg group or something
-
-    if (type == CHAT_MSG_CHANNEL)
-    {
-        ASSERT(channelName);
-        *data << channelName;
-    }
-
-    *data << uint64(target_guid);
-    *data << uint32(messageLength);
-    *data << message;
-    if (session != 0 && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-        *data << uint8(session->GetPlayer()->GetChatTag());
-    else
-        *data << uint8(0);
-}
-
 Player* ChatHandler::getSelectedPlayer()
 {
     if (!m_session)
         return NULL;
 
-    uint64 guid  = m_session->GetPlayer()->GetSelection();
-
-    if (guid == 0)
+    ObjectGuid selected = m_session->GetPlayer()->GetTarget();
+    if (!selected)
         return m_session->GetPlayer();
 
-    return ObjectAccessor::FindPlayer(guid);
+    return ObjectAccessor::FindConnectedPlayer(selected);
 }
 
 Unit* ChatHandler::getSelectedUnit()
@@ -719,12 +611,10 @@ Unit* ChatHandler::getSelectedUnit()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    if (Unit* selected = m_session->GetPlayer()->GetSelectedUnit())
+        return selected;
 
-    if (guid == 0)
-        return m_session->GetPlayer();
-
-    return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
+    return m_session->GetPlayer();
 }
 
 WorldObject* ChatHandler::getSelectedObject()
@@ -732,9 +622,9 @@ WorldObject* ChatHandler::getSelectedObject()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    ObjectGuid guid = m_session->GetPlayer()->GetTarget();
 
-    if (guid == 0)
+    if (!guid)
         return GetNearbyGameObject();
 
     return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
@@ -745,7 +635,25 @@ Creature* ChatHandler::getSelectedCreature()
     if (!m_session)
         return NULL;
 
-    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetSelection());
+    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
+}
+
+Player* ChatHandler::getSelectedPlayerOrSelf()
+{
+    if (!m_session)
+        return NULL;
+
+    ObjectGuid selected = m_session->GetPlayer()->GetTarget();
+    if (!selected)
+        return m_session->GetPlayer();
+
+    // first try with selected target
+    Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(selected);
+    // if the target is not a player, then return self
+    if (!targetPlayer)
+        targetPlayer = m_session->GetPlayer();
+
+    return targetPlayer;
 }
 
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)
@@ -873,26 +781,22 @@ GameObject* ChatHandler::GetNearbyGameObject()
     return obj;
 }
 
-GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid, uint32 entry)
+GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry)
 {
     if (!m_session)
         return NULL;
 
     Player* pl = m_session->GetPlayer();
 
-    GameObject* obj = pl->GetMap()->GetGameObject(MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
+    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(pl->GetMapId(), entry, lowguid));
 
     if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
     {
-        // search near player then
-        CellCoord p(Trinity::ComputeCellCoord(pl->GetPositionX(), pl->GetPositionY()));
-        Cell cell(p);
+        auto bounds = pl->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
+        if (bounds.first == bounds.second)
+            return nullptr;
 
-        Trinity::GameObjectWithDbGUIDCheck go_check(*pl, lowguid);
-        Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(pl, obj, go_check);
-
-        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
-        cell.Visit(p, object_checker, *pl->GetMap(), *pl, pl->GetGridActivationRange());
+        return bounds.first->second;
     }
 
     return obj;
@@ -914,7 +818,7 @@ static char const* const spellKeys[] =
     "Henchant",                                             // enchanting recipe spell
     "Htrade",                                               // profession/skill spell
     "Hglyph",                                               // glyph
-    0
+    nullptr
 };
 
 uint32 ChatHandler::extractSpellIdFromLink(char* text)
@@ -930,7 +834,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     if (!idS)
         return 0;
 
-    uint32 id = (uint32)atol(idS);
+    uint32 id = atoul(idS);
 
     switch (type)
     {
@@ -943,27 +847,20 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (!talentEntry)
                 return 0;
 
-            int32 rank = param1_str ? (uint32)atol(param1_str) : 0;
-            if (rank >= MAX_TALENT_RANK)
-                return 0;
-
-            if (rank < 0)
-                rank = 0;
-
-            return talentEntry->RankID[rank];
+            return talentEntry->SpellID;
         }
         case SPELL_LINK_ENCHANT:
         case SPELL_LINK_TRADE:
             return id;
         case SPELL_LINK_GLYPH:
         {
-            uint32 glyph_prop_id = param1_str ? (uint32)atol(param1_str) : 0;
+            uint32 glyph_prop_id = param1_str ? atoul(param1_str) : 0;
 
             GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
             if (!glyphPropEntry)
                 return 0;
 
-            return glyphPropEntry->SpellId;
+            return glyphPropEntry->SpellID;
         }
     }
 
@@ -998,10 +895,10 @@ static char const* const guidKeys[] =
     "Hplayer",
     "Hcreature",
     "Hgameobject",
-    0
+    nullptr
 };
 
-uint64 ChatHandler::extractGuidFromLink(char* text)
+ObjectGuid ChatHandler::extractGuidFromLink(char* text)
 {
     int type = 0;
 
@@ -1010,7 +907,7 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
     // |color|Hplayer:name|h[name]|h|r
     char* idS = extractKeyFromLink(text, guidKeys, &type);
     if (!idS)
-        return 0;
+        return ObjectGuid::Empty;
 
     switch (type)
     {
@@ -1018,38 +915,35 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
         {
             std::string name = idS;
             if (!normalizePlayerName(name))
-                return 0;
+                return ObjectGuid::Empty;
 
-            if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
+            if (Player* player = ObjectAccessor::FindPlayerByName(name))
                 return player->GetGUID();
 
-            if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
-                return guid;
-
-            return 0;
+            return ObjectMgr::GetPlayerGUIDByName(name);
         }
         case SPELL_LINK_CREATURE:
         {
-            uint32 lowguid = (uint32)atol(idS);
+            ObjectGuid::LowType lowguid = strtoull(idS, nullptr, 10);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return MAKE_NEW_GUID(lowguid, data->id, HIGHGUID_UNIT);
+                return ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, lowguid);
             else
-                return 0;
+                return ObjectGuid::Empty;
         }
         case SPELL_LINK_GAMEOBJECT:
         {
-            uint32 lowguid = (uint32)atol(idS);
+            ObjectGuid::LowType lowguid = strtoull(idS, nullptr, 10);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return MAKE_NEW_GUID(lowguid, data->id, HIGHGUID_GAMEOBJECT);
+                return ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, lowguid);
             else
-                return 0;
+                return ObjectGuid::Empty;
         }
     }
 
     // unknown type?
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 std::string ChatHandler::extractPlayerNameFromLink(char* text)
@@ -1066,7 +960,7 @@ std::string ChatHandler::extractPlayerNameFromLink(char* text)
     return name;
 }
 
-bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* player_guid /*=NULL*/, std::string* player_name /*= NULL*/)
+bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid /*=NULL*/, std::string* player_name /*= NULL*/)
 {
     if (args && *args)
     {
@@ -1078,31 +972,31 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
             return false;
         }
 
-        Player* pl = sObjectAccessor->FindPlayerByName(name.c_str());
+        Player* pl = ObjectAccessor::FindPlayerByName(name);
 
         // if allowed player pointer
         if (player)
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
-        uint64 guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : 0;
+        ObjectGuid guid = !pl && (player_guid || player_name) ? ObjectMgr::GetPlayerGUIDByName(name) : ObjectGuid::Empty;
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
             *player_guid = pl ? pl->GetGUID() : guid;
 
         if (player_name)
-            *player_name = pl || guid ? name : "";
+            *player_name = pl || !guid.IsEmpty() ? name : "";
     }
     else
     {
-        Player* pl = getSelectedPlayer();
+        Player* pl = getSelectedPlayerOrSelf();
         // if allowed player pointer
         if (player)
             *player = pl;
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
-            *player_guid = pl ? pl->GetGUID() : 0;
+            *player_guid = pl ? pl->GetGUID() : ObjectGuid::Empty;
 
         if (player_name)
             *player_name = pl ? pl->GetName() : "";
@@ -1146,10 +1040,34 @@ char* ChatHandler::extractQuotedArg(char* args)
         return strtok(args+1, "\"");
     else
     {
-        char* space = strtok(args, "\"");
-        if (!space)
+        // skip spaces
+        while (*args == ' ')
+        {
+            args += 1;
+            continue;
+        }
+
+        // return NULL if we reached the end of the string
+        if (!*args)
             return NULL;
-        return strtok(NULL, "\"");
+
+        // since we skipped all spaces, we expect another token now
+        if (*args == '"')
+        {
+            // return an empty string if there are 2 "" in a row.
+            // strtok doesn't handle this case
+            if (*(args + 1) == '"')
+            {
+                strtok(args, " ");
+                static char arg[1];
+                arg[0] = '\0';
+                return arg;
+            }
+            else
+                return strtok(args + 1, "\"");
+        }
+        else
+            return NULL;
     }
 }
 
@@ -1169,7 +1087,12 @@ int ChatHandler::GetSessionDbLocaleIndex() const
     return m_session->GetSessionDbLocaleIndex();
 }
 
-const char *CliHandler::GetTrinityString(int32 entry) const
+std::string ChatHandler::GetNameLink(Player* chr) const
+{
+    return playerLink(chr->GetName());
+}
+
+char const* CliHandler::GetTrinityString(uint32 entry) const
 {
     return sObjectMgr->GetTrinityStringForDBCLocale(entry);
 }
@@ -1196,10 +1119,10 @@ bool CliHandler::needReportToTarget(Player* /*chr*/) const
     return true;
 }
 
-bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, uint64 &guid, bool offline)
+bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline)
 {
-    player  = NULL;
-    guid = 0;
+    player = NULL;
+    guid.Clear();
 
     if (cname)
     {
@@ -1213,9 +1136,9 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player
                 return false;
             }
 
-            player = sObjectAccessor->FindPlayerByName(name.c_str());
+            player = ObjectAccessor::FindPlayerByName(name);
             if (offline)
-                guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+                guid = ObjectMgr::GetPlayerGUIDByName(name.c_str());
         }
     }
 

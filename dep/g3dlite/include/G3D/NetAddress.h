@@ -1,3 +1,9 @@
+/**
+ \file G3D/NetAddress.h
+
+ \created 2010-01-03
+ \edited  2013-03-17
+ */   
 #ifndef G3D_NetAddress_h
 #define G3D_NetAddress_h
 
@@ -24,20 +30,31 @@ private:
     SOCKADDR_IN                 addr;
 
 public:
+
+    enum { 
+        /** 
+         Use the host portion of the IP address of the default adapter on this machine.
+        */
+        // Must match ENET_HOST_ANY
+        DEFAULT_ADAPTER_HOST = 0
+    };
+
     /**
-     In host byte order
+     In host byte order.
+
+     \sa DEFAULT_ADAPTER_HOST
      */
-    NetAddress(uint32 host, uint16 port = 0);
+    explicit NetAddress(uint32 host, uint16 port = 0);
 
     /**
      @param port Specified in host byte order (i.e., don't worry about endian issues)
-     */
+    */
     NetAddress(const std::string& hostname, uint16 port);
 
     /**
        @param hostnameAndPort in the form "hostname:port" or "ip:port"
      */
-    NetAddress(const std::string& hostnameAndPort);
+    explicit NetAddress(const std::string& hostnameAndPort);
 
     /**
        @deprecated Use G3D::NetworkDevice::broadcastAddressArray()
@@ -55,6 +72,8 @@ public:
     static NetAddress broadcastAddress(uint16 port);
 
     NetAddress();
+
+    static void localHostAddresses(Array<NetAddress>& array);
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
@@ -76,6 +95,13 @@ public:
     std::string ipString() const;
     std::string toString() const;
 
+    /** Name of this address, without the domain.  Performs reverse DNS lookup on this address.  This may make a network 
+    connection to a DNS server and block until that communication completes
+    if the address is one that has not been recently checked.*/
+    std::string hostname() const;
+
+    /** Name of the local machine machine, without the domain.  The value is cached after the first call.*/
+    static std::string localHostname();
 };
 
 std::ostream& operator<<(std::ostream& os, const NetAddress&);
@@ -95,7 +121,7 @@ namespace G3D {
  they have different IP's.
  */
 inline bool operator==(const NetAddress& a, const NetAddress& b) {
-	return (a.ip() == b.ip()) && (a.port() == b.port());
+    return (a.ip() == b.ip()) && (a.port() == b.port());
 }
 
 

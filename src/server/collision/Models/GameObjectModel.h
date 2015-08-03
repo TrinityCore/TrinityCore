@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 #include <G3D/Ray.h>
 
 #include "Define.h"
+#include <memory>
 
 namespace VMAP
 {
@@ -34,20 +35,21 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
+class GameObjectModelOwnerBase
+{
+public:
+    virtual bool IsSpawned() const { return false; }
+    virtual uint32 GetDisplayId() const { return 0; }
+    virtual uint32 GetPhaseMask() const { return 0; }
+    virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
+    virtual float GetOrientation() const { return 0.0f; }
+    virtual float GetScale() const { return 1.0f; }
+    virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
+};
+
 class GameObjectModel /*, public Intersectable*/
 {
-    uint32 phasemask;
-    G3D::AABox iBound;
-    G3D::Matrix3 iInvRot;
-    G3D::Vector3 iPos;
-    //G3D::Vector3 iRot;
-    float iInvScale;
-    float iScale;
-    VMAP::WorldModel* iModel;
-
-    GameObjectModel() : phasemask(0), iModel(NULL) {}
-    bool initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info);
-
+    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
 public:
     std::string name;
 
@@ -61,9 +63,25 @@ public:
     void disable() { phasemask = 0;}
     void enable(uint32 ph_mask) { phasemask = ph_mask;}
 
+    bool isEnabled() const {return phasemask != 0;}
+
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
 
-    static GameObjectModel* Create(const GameObject& go);
+    static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
+
+    bool UpdatePosition();
+
+private:
+    bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
+
+    uint32 phasemask;
+    G3D::AABox iBound;
+    G3D::Matrix3 iInvRot;
+    G3D::Vector3 iPos;
+    float iInvScale;
+    float iScale;
+    VMAP::WorldModel* iModel;
+    std::unique_ptr<GameObjectModelOwnerBase> owner;
 };
 
 #endif // _GAMEOBJECT_MODEL_H

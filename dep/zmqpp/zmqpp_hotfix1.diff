@@ -1,0 +1,106 @@
+diff --git a/dep/zmqpp/zmqpp/inet.hpp b/dep/zmqpp/zmqpp/inet.hpp
+index 5245aa4..e0c3b14 100644
+--- a/dep/zmqpp/zmqpp/inet.hpp
++++ b/dep/zmqpp/zmqpp/inet.hpp
+@@ -76,10 +76,12 @@ inline uint64_t swap_if_needed(uint64_t const value_to_check)
+  * \param hostlonglong unsigned 64 bit host order integer
+  * \return unsigned 64 bit network order integer
+  */
++#ifndef htonll
+ inline uint64_t htonll(uint64_t const hostlonglong)
+ {
+ 	return zmqpp::swap_if_needed(hostlonglong);
+ }
++#endif
+ 
+ /*!
+  * 64 bit version of the ntohs/ntohl
+@@ -89,10 +91,12 @@ inline uint64_t htonll(uint64_t const hostlonglong)
+  * \param networklonglong unsigned 64 bit network order integer
+  * \return unsigned 64 bit host order integer
+  */
++#ifndef ntohll
+ inline uint64_t ntohll(uint64_t const networklonglong)
+ {
+ 	return zmqpp::swap_if_needed(networklonglong);
+ }
++#endif
+ 
+ /*!
+  * floating point version of the htons/htonl
+@@ -142,7 +146,7 @@ inline double htond(double value)
+ 
+ 	uint64_t temp;
+ 	memcpy(&temp, &value, sizeof(uint64_t));
+-	temp = zmqpp::htonll(temp);
++	temp = htonll(temp);
+ 	memcpy(&value, &temp, sizeof(uint64_t));
+ 
+ 	return value;
+@@ -160,7 +164,7 @@ inline double ntohd(double value)
+ 
+ 	uint64_t temp;
+ 	memcpy(&temp, &value, sizeof(uint64_t));
+-	temp = zmqpp::ntohll(temp);
++	temp = ntohll(temp);
+ 	memcpy(&value, &temp, sizeof(uint64_t));
+ 
+ 	return value;
+diff --git a/dep/zmqpp/zmqpp/message.cpp b/dep/zmqpp/zmqpp/message.cpp
+index 5858730..4d81d24 100644
+--- a/dep/zmqpp/zmqpp/message.cpp
++++ b/dep/zmqpp/zmqpp/message.cpp
+@@ -138,7 +138,7 @@ void message::get(int64_t& integer, size_t const part) const
+ 	assert(sizeof(int64_t) == size(part));
+ 
+ 	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
+-	integer = static_cast<int64_t>(zmqpp::htonll(*network_order));
++	integer = static_cast<int64_t>(htonll(*network_order));
+ }
+ 
+ void message::get(uint8_t& unsigned_integer, size_t const part) const
+@@ -170,7 +170,7 @@ void message::get(uint64_t& unsigned_integer, size_t const part) const
+ 	assert(sizeof(uint64_t) == size(part));
+ 
+ 	uint64_t const* network_order = static_cast<uint64_t const*>(raw_data(part));
+-	unsigned_integer = zmqpp::ntohll(*network_order);
++	unsigned_integer = ntohll(*network_order);
+ }
+ 
+ void message::get(float& floating_point, size_t const part) const
+@@ -228,7 +228,7 @@ message& message::operator<<(int32_t const integer)
+ 
+ message& message::operator<<(int64_t const integer)
+ {
+-	uint64_t network_order = zmqpp::htonll(static_cast<uint64_t>(integer));
++	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
+ 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
+ 
+ 	return *this;
+@@ -259,7 +259,7 @@ message& message::operator<<(uint32_t const unsigned_integer)
+ 
+ message& message::operator<<(uint64_t const unsigned_integer)
+ {
+-	uint64_t network_order = zmqpp::htonll(unsigned_integer);
++	uint64_t network_order = htonll(unsigned_integer);
+ 	add(reinterpret_cast<void const*>(&network_order), sizeof(uint64_t));
+ 
+ 	return *this;
+@@ -329,7 +329,7 @@ void message::push_front(int32_t const integer)
+ 
+ void message::push_front(int64_t const integer)
+ {
+-	uint64_t network_order = zmqpp::htonll(static_cast<uint64_t>(integer));
++	uint64_t network_order = htonll(static_cast<uint64_t>(integer));
+ 	push_front(&network_order, sizeof(uint64_t));
+ }
+ 
+@@ -353,7 +353,7 @@ void message::push_front(uint32_t const unsigned_integer)
+ 
+ void message::push_front(uint64_t const unsigned_integer)
+ {
+-	uint64_t network_order = zmqpp::htonll(unsigned_integer);
++	uint64_t network_order = htonll(unsigned_integer);
+ 	push_front(&network_order, sizeof(uint64_t));
+ }
+ 

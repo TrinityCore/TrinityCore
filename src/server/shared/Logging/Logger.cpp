@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,32 +17,17 @@
 
 #include "Logger.h"
 
-Logger::Logger(): name(""), type(LOG_FILTER_GENERAL), level(LOG_LEVEL_DISABLED)
-{
-}
+Logger::Logger(): name(""), level(LOG_LEVEL_DISABLED) { }
 
-void Logger::Create(std::string const& _name, LogFilterType _type, LogLevel _level)
+void Logger::Create(std::string const& _name, LogLevel _level)
 {
     name = _name;
-    type = _type;
     level = _level;
-}
-
-Logger::~Logger()
-{
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
-        it->second = NULL;
-    appenders.clear();
 }
 
 std::string const& Logger::getName() const
 {
     return name;
-}
-
-LogFilterType Logger::getType() const
-{
-    return type;
 }
 
 LogLevel Logger::getLogLevel() const
@@ -57,12 +42,7 @@ void Logger::addAppender(uint8 id, Appender* appender)
 
 void Logger::delAppender(uint8 id)
 {
-    AppenderMap::iterator it = appenders.find(id);
-    if (it != appenders.end())
-    {
-        it->second = NULL;
-        appenders.erase(it);
-    }
+    appenders.erase(id);
 }
 
 void Logger::setLogLevel(LogLevel _level)
@@ -70,15 +50,15 @@ void Logger::setLogLevel(LogLevel _level)
     level = _level;
 }
 
-void Logger::write(LogMessage& message)
+void Logger::write(LogMessage* message) const
 {
-    if (!level || level > message.level || message.text.empty())
+    if (!level || level > message->level || message->text.empty())
     {
-        //fprintf(stderr, "Logger::write: Logger %s, Level %u. Msg %s Level %u WRONG LEVEL MASK OR EMPTY MSG\n", getName().c_str(), messge.level, message.text.c_str(), .message.level); // DEBUG - RemoveMe
+        //fprintf(stderr, "Logger::write: Logger %s, Level %u. Msg %s Level %u WRONG LEVEL MASK OR EMPTY MSG\n", getName().c_str(), getLogLevel(), message.text.c_str(), message.level);
         return;
     }
 
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
+    for (AppenderMap::const_iterator it = appenders.begin(); it != appenders.end(); ++it)
         if (it->second)
             it->second->write(message);
 }

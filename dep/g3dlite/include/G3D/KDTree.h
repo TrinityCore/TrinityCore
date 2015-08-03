@@ -10,8 +10,8 @@
   All rights reserved.  
   */
 
-#ifndef G3D_KDTREE_H
-#define G3D_KDTREE_H
+#ifndef G3D_KDTree_h
+#define G3D_KDTree_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -24,11 +24,10 @@
 #include "G3D/Box.h"
 #include "G3D/Triangle.h"
 #include "G3D/Ray.h"
-#include "G3D/GCamera.h"
+#include "G3D/Frustum.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
-#include "G3D/GCamera.h"
 #include "G3D/BoundsTrait.h"
 #include <algorithm>
 
@@ -260,11 +259,11 @@ protected:
     /** Compares centers */
     class CenterComparator {
     public:
-	    Vector3::Axis sortAxis;
+        Vector3::Axis sortAxis;
 
-	    CenterComparator(Vector3::Axis a) : sortAxis(a) {}
+        CenterComparator(Vector3::Axis a) : sortAxis(a) {}
 
-	    inline int operator()(Handle* A, const Handle* B) const {
+        inline int operator()(Handle* A, const Handle* B) const {
             float a = A->center[sortAxis];
             float b = B->center[sortAxis];
 
@@ -275,18 +274,18 @@ protected:
             } else {
                 return 0;
             }
-	    }
+        }
     };
 
 
     /** Compares bounds for strict >, <, or overlap*/
     class BoundsComparator {
     public:
-	    Vector3::Axis sortAxis;
+        Vector3::Axis sortAxis;
 
-	    BoundsComparator(Vector3::Axis a) : sortAxis(a) {}
+        BoundsComparator(Vector3::Axis a) : sortAxis(a) {}
 
-	    inline int operator()(Handle* A, const Handle* B) const {
+        inline int operator()(Handle* A, const Handle* B) const {
             const AABox& a = A->bounds;
             const AABox& b = B->bounds;
 
@@ -297,34 +296,34 @@ protected:
             } else {
                 return 0;
             }
-	    }
+        }
     };
 
 
     /** Compares bounds to the sort location */
     class Comparator {
     public:
-	    Vector3::Axis sortAxis;
-	    float sortLocation;
+        Vector3::Axis sortAxis;
+        float sortLocation;
 
-	    Comparator(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
+        Comparator(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
 
-	    inline int operator()(Handle* ignore, const Handle* handle) const {
+        inline int operator()(Handle* ignore, const Handle* handle) const {
             (void)ignore;
             const AABox& box = handle->bounds;
             debugAssert(ignore == NULL);
 
-		    if (box.high()[sortAxis] < sortLocation) {
+            if (box.high()[sortAxis] < sortLocation) {
                 // Box is strictly below the sort location
                 return -1;
-		    } else if (box.low()[sortAxis] > sortLocation) {
+            } else if (box.low()[sortAxis] > sortLocation) {
                 // Box is strictly above the sort location
-			    return 1;
-		    } else {
+                return 1;
+            } else {
                 // Box overlaps the sort location
-			    return 0;
-		    }
-	    }
+                return 0;
+            }
+        }
     };
 
     // Using System::malloc with this class provided no speed improvement.
@@ -433,8 +432,8 @@ protected:
         }
 
         void verifyNode(const Vector3& lo, const Vector3& hi) {
-            //		debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
-            //			    splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
+            //        debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
+            //                splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
             
             debugAssertM(lo == splitBounds.low(),
                          format("lo = %s, splitBounds.lo = %s",
@@ -444,6 +443,7 @@ protected:
             for (int i = 0; i < valueArray.length(); ++i) {
                 const AABox& b = valueArray[i]->bounds;
                 debugAssert(b == boundsArray[i]);
+                (void)b;
                 
                 for(int axis = 0; axis < 3; ++axis) {
                     debugAssert(b.low()[axis] <= b.high()[axis]);
@@ -714,27 +714,27 @@ protected:
         int numMeanSplits,
         Array<Handle*>& temp)  {
 
-	    Node* node = NULL;
-	    
-	    if (source.size() <= valuesPerNode) {
-		    // Make a new leaf node
-		    node = new Node(source);
-		    
-		    // Set the pointers in the memberTable
-		    for (int i = 0; i < source.size(); ++i) {
-			    memberTable.set(Member(source[i]), node);
-		    }
+        Node* node = NULL;
+        
+        if (source.size() <= valuesPerNode) {
+            // Make a new leaf node
+            node = new Node(source);
+            
+            // Set the pointers in the memberTable
+            for (int i = 0; i < source.size(); ++i) {
+                memberTable.set(Member(source[i]), node);
+            }
             source.clear();
-		    
+            
         } else {
-		    // Make a new internal node
-		    node = new Node();
-		    
+            // Make a new internal node
+            node = new Node();
+            
             const AABox& bounds = computeBounds(source, 0, source.size() - 1);
-		    const Vector3& extent = bounds.high() - bounds.low();
-		    
-		    Vector3::Axis splitAxis = extent.primaryAxis();
-		    
+            const Vector3& extent = bounds.high() - bounds.low();
+            
+            Vector3::Axis splitAxis = extent.primaryAxis();
+            
             float splitLocation;
 
             // Arrays for holding the children
@@ -829,20 +829,20 @@ protected:
             for (int i = 0; i < node->valueArray.size(); ++i) {
                 Handle* v = node->valueArray[i];
                 node->boundsArray[i] = v->bounds;
-			    memberTable.set(Member(v), node);
+                memberTable.set(Member(v), node);
             }
 
-            if (lt.size() > 0) {		    
-			    node->child[0] = makeNode(lt, valuesPerNode, numMeanSplits - 1, temp);
-		    }
-		    
-		    if (gt.size() > 0) {
-			    node->child[1] = makeNode(gt, valuesPerNode, numMeanSplits - 1, temp);
-		    }
-		    
-	    }
-	    
-	    return node;
+            if (lt.size() > 0) {            
+                node->child[0] = makeNode(lt, valuesPerNode, numMeanSplits - 1, temp);
+            }
+            
+            if (gt.size() > 0) {
+                node->child[1] = makeNode(gt, valuesPerNode, numMeanSplits - 1, temp);
+            }
+            
+        }
+        
+        return node;
     }
 
     /**
@@ -1211,7 +1211,7 @@ public:
 
     /**
      Typically used to find all visible
-     objects inside the view frustum (see also GCamera::getClipPlanes)... i.e. all objects
+     objects inside the view frustum (see also Camera::getClipPlanes)... i.e. all objects
      <B>not</B> culled by frustum.
 
      Example:
@@ -1222,7 +1222,7 @@ public:
       </PRE>
       @param members The results are appended to this array.
       */
-    void getIntersectingMembers(const GCamera::Frustum& frustum, Array<T*>& members) const {
+    void getIntersectingMembers(const Frustum& frustum, Array<T*>& members) const {
         Array<Plane> plane;
         
         for (int i = 0; i < frustum.faceArray.size(); ++i) {
@@ -1232,7 +1232,7 @@ public:
         getIntersectingMembers(plane, members);
     }
 
-    void getIntersectingMembers(const GCamera::Frustum& frustum, Array<T>& members) const {
+    void getIntersectingMembers(const Frustum& frustum, Array<T>& members) const {
         Array<T*> temp;
         getIntersectingMembers(frustum, temp);
         for (int i = 0; i < temp.size(); ++i) {
@@ -1450,49 +1450,50 @@ public:
     /**
      Invoke a callback for every member along a ray until the closest intersection is found.
 
-     @param callback either a function or an instance of a class with an overloaded operator() of the form:
-             
-     <code>void callback(const Ray& ray, const T& object, float& distance)</code>.  If the ray hits the object
-     before travelling distance <code>distance</code>, updates <code>distance</code> with the new distance to
-     the intersection, otherwise leaves it unmodified.  A common example is:
-
+     @param intersectCallback Either a function or an instance of a class with an overloaded operator() of the form:
+     <pre>
+         void callback(const Ray& ray, const T& object, float& distance).
+     </pre>
+     If the ray hits the object before travelling distance <code>distance</code>, updates
+     <code>distance</code> with the new distance to the intersection, otherwise leaves it
+     unmodified.  A common example is:
+     \htmlonly
      <pre>
      class Entity {
      public:
+         void intersect(const Ray& ray, float& maxDist, Vector3& outLocation, Vector3& outNormal) {
+             float d = maxDist;
 
-                void intersect(const Ray& ray, float& maxDist, Vector3& outLocation, Vector3& outNormal) {
-                    float d = maxDist;
+             // ... search for intersection distance d
 
-                    // ... search for intersection distance d
+             if ((d > 0) && (d < maxDist)) {
+                 // Intersection occured
+                 maxDist = d;
+                 outLocation = ...;
+                 outNormal = ...;
+             }
+         }
+     };
 
-                    if ((d > 0) && (d < maxDist)) {
-                        // Intersection occured
-                        maxDist = d;
-                        outLocation = ...;
-                        outNormal = ...;
-                    }
-                }
-            };
+     // Finds the surface normal and location of the first intersection with the scene
+     class Intersection {
+     public:
+         Entity*     closestEntity;
+         Vector3     hitLocation;
+         Vector3     hitNormal;
 
-            // Finds the surface normal and location of the first intersection with the scene
-            class Intersection {
-            public:
-                Entity*     closestEntity;
-                Vector3     hitLocation;
-                Vector3     hitNormal;
+         void operator()(const Ray& ray, const Entity* entity, float& distance) {
+             entity->intersect(ray, distance, hitLocation, hitNormal);
+         }
+     };
 
-                void operator()(const Ray& ray, const Entity* entity, float& distance) {
-                    entity->intersect(ray, distance, hitLocation, hitNormal);
-                }
-            };
+     KDTree<Entity*> scene;
 
-            KDTree<Entity*> scene;
-
-            Intersection intersection;
-            float distance = finf();
-            scene.intersectRay(camera.worldRay(x, y), intersection, distance);
-          </pre>
-
+     Intersection intersection;
+     float distance = finf();
+     scene.intersectRay(camera.worldRay(x, y), intersection, distance);
+     </pre>
+     \endhtmlonly
 
      @param distance When the method is invoked, this is the maximum
      distance that the tree should search for an intersection.  On

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
 {
     if (m_queries.size() <= index)
     {
-        sLog->outError(LOG_FILTER_SQL, "Query index (%zu) out of range (size: %u) for query: %s", index, (uint32)m_queries.size(), sql);
+        TC_LOG_ERROR("sql.sql", "Query index (%u) out of range (size: %u) for query: %s", uint32(index), (uint32)m_queries.size(), sql);
         return false;
     }
 
@@ -40,34 +40,11 @@ bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
     return true;
 }
 
-bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
-{
-    if (!format)
-    {
-        sLog->outError(LOG_FILTER_SQL, "Query (index: %zu) is empty.", index);
-        return false;
-    }
-
-    va_list ap;
-    char szQuery [MAX_QUERY_LEN];
-    va_start(ap, format);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
-    va_end(ap);
-
-    if (res == -1)
-    {
-        sLog->outError(LOG_FILTER_SQL, "SQL Query truncated (and not execute) for format: %s", format);
-        return false;
-    }
-
-    return SetQuery(index, szQuery);
-}
-
 bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatement* stmt)
 {
     if (m_queries.size() <= index)
     {
-        sLog->outError(LOG_FILTER_SQL, "Query index (%zu) out of range (size: %u) for prepared statement", index, (uint32)m_queries.size());
+        TC_LOG_ERROR("sql.sql", "Query index (%u) out of range (size: %u) for prepared statement", uint32(index), (uint32)m_queries.size());
         return false;
     }
 
@@ -89,10 +66,9 @@ QueryResult SQLQueryHolder::GetResult(size_t index)
     if (index < m_queries.size())
     {
         ResultSet* result = m_queries[index].second.qresult;
-        if (!result || !result->GetRowCount())
+        if (!result || !result->GetRowCount() || !result->NextRow())
             return QueryResult(NULL);
 
-        result->NextRow();
         return QueryResult(result);
     }
     else
@@ -116,6 +92,12 @@ PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
 
 void SQLQueryHolder::SetResult(size_t index, ResultSet* result)
 {
+    if (result && !result->GetRowCount())
+    {
+        delete result;
+        result = NULL;
+    }
+
     /// store the result in the holder
     if (index < m_queries.size())
         m_queries[index].second.qresult = result;
@@ -123,6 +105,12 @@ void SQLQueryHolder::SetResult(size_t index, ResultSet* result)
 
 void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
 {
+    if (result && !result->GetRowCount())
+    {
+        delete result;
+        result = NULL;
+    }
+
     /// store the result in the holder
     if (index < m_queries.size())
         m_queries[index].second.presult = result;
@@ -155,8 +143,16 @@ void SQLQueryHolder::SetSize(size_t size)
     m_queries.resize(size);
 }
 
+SQLQueryHolderTask::~SQLQueryHolderTask()
+{
+    if (!m_executed)
+        delete m_holder;
+}
+
 bool SQLQueryHolderTask::Execute()
 {
+    m_executed = true;
+
     if (!m_holder)
         return false;
 
@@ -188,6 +184,6 @@ bool SQLQueryHolderTask::Execute()
         }
     }
 
-    m_result.set(m_holder);
+    m_result.set_value(m_holder);
     return true;
 }

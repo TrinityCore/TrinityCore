@@ -1,4 +1,4 @@
-DELETE FROM spell_pet_auras where `spell` in (56314,56315,56316, 56317, 56318); 
+DELETE FROM spell_pet_auras where `spell` in (56314,56315,56316, 56317, 56318);
 INSERT INTO spell_pet_auras VALUES
 (56314, 0, 0, 57447),
 (56314, 1, 0, 57485),

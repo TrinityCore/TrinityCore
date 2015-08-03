@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,7 +37,7 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
         explicit HostileRefManager(Unit* owner) { iOwner = owner; }
         ~HostileRefManager();
 
-        Unit* getOwner() { return iOwner; }
+        Unit* GetOwner() { return iOwner; }
 
         // send threat to all my hateres for the victim
         // The victim is hated than by them as well
