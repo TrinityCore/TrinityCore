@@ -1391,7 +1391,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             // ...or immuned
             if (IsImmunedToDamage(i_spellProto))
             {
-                victim->SendSpellDamageImmune(this, i_spellProto->Id);
+                victim->SendSpellDamageImmune(this, i_spellProto->Id, false);
                 continue;
             }
 
@@ -1403,20 +1403,20 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
                 damage = this->SpellDamageBonusTaken(caster, i_spellProto, damage, SPELL_DIRECT_DAMAGE, (*dmgShieldItr)->GetSpellEffectInfo());
             }
 
+            uint32 absorb = 0, resist = 0;
+            victim->CalcAbsorbResist(this, SpellSchoolMask(i_spellProto->SchoolMask), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, i_spellProto);
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
             victim->DealDamageMods(this, damage, NULL);
 
-            /// @todo Move this to a packet handler
-            WorldPacket data(SMSG_SPELL_DAMAGE_SHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
-            data << victim->GetGUID();
-            data << GetGUID();
-            data << uint32(i_spellProto->Id);
-            data << uint32(damage);                  // Damage
-            int32 overkill = int32(damage) - int32(GetHealth());
-            data << uint32(overkill > 0 ? overkill : 0); // Overkill
-            data << uint32(i_spellProto->SchoolMask);
-            data << uint32(0); // FIX ME: Send resisted damage, both fully resisted and partly resisted
-            victim->SendMessageToSet(&data, true);
+            WorldPackets::CombatLog::SpellDamageShield damageShield;
+            damageShield.Attacker = victim->GetGUID();
+            damageShield.Defender = GetGUID();
+            damageShield.SpellID = i_spellProto->Id;
+            damageShield.TotalDamage = damage;
+            damageShield.OverKill = std::max(int32(damage) - int32(GetHealth()), 0);
+            damageShield.SchoolMask = i_spellProto->SchoolMask;
+            damageShield.LogAbsorbed = absorb;
+            victim->SendMessageToSet(damageShield.Write(), true);
 
             victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
         }
@@ -4876,36 +4876,30 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
 
 void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 {
-    WorldPacket data(SMSG_SPELL_MISS_LOG, (4+8+1+4+8+1));
-    data << uint32(spellID);
-    data << GetGUID();
-    data << uint8(0);                                       // can be 0 or 1
-    data << uint32(1);                                      // target count
-    // for (i = 0; i < target count; ++i)
-    data << target->GetGUID();                              // target GUID
-    data << uint8(missInfo);
-    // end loop
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellMissLog spellMissLog;
+    spellMissLog.SpellID = spellID;
+    spellMissLog.Caster = GetGUID();
+    spellMissLog.Entries.emplace_back(target->GetGUID(), missInfo);
+    SendMessageToSet(spellMissLog.Write(), true);
 }
 
 void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 {
-    WorldPacket data(SMSG_PROC_RESIST, 8+8+4+1);
-    data << GetGUID();
-    data << target->GetGUID();
-    data << uint32(spellId);
-    data << uint8(0); // bool - log format: 0-default, 1-debug
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::ProcResist procResist;
+    procResist.Caster = GetGUID();
+    procResist.SpellID = spellId;
+    procResist.Target = target->GetGUID();
+    SendMessageToSet(procResist.Write(), true);
 }
 
-void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
+void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic)
 {
-    WorldPacket data(SMSG_SPELL_OR_DAMAGE_IMMUNE, 8+8+4+1);
-    data << GetGUID();
-    data << target->GetGUID();
-    data << uint32(spellId);
-    data << uint8(0); // bool - log format: 0-default, 1-debug
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellOrDamageImmune spellOrDamageImmune;
+    spellOrDamageImmune.CasterGUID = GetGUID();
+    spellOrDamageImmune.VictimGUID = target->GetGUID();
+    spellOrDamageImmune.SpellID = spellId;
+    spellOrDamageImmune.IsPeriodic = isPeriodic;
+    SendMessageToSet(spellOrDamageImmune.Write(), true);
 }
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
