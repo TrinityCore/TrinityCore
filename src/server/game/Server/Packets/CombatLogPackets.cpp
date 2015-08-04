@@ -22,16 +22,16 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
     _worldPacket << Me;
     _worldPacket << CasterGUID;
-    _worldPacket << SpellID;
-    _worldPacket << Damage;
-    _worldPacket << Overkill;
-    _worldPacket << SchoolMask;
-    _worldPacket << ShieldBlock;
-    _worldPacket << Resisted;
-    _worldPacket << Absorbed;
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Damage);
+    _worldPacket << int32(Overkill);
+    _worldPacket << uint8(SchoolMask);
+    _worldPacket << int32(ShieldBlock);
+    _worldPacket << int32(Resisted);
+    _worldPacket << int32(Absorbed);
 
     _worldPacket.WriteBit(Periodic);
-    _worldPacket.WriteBits(Flags, 9);
+    _worldPacket.WriteBits(Flags, 8);
     _worldPacket.WriteBit(false); // Debug info
     _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
@@ -218,5 +218,79 @@ WorldPacket const* WorldPackets::CombatLog::SpellInstakillLog::Write()
     _worldPacket << Caster;
     _worldPacket << int32(SpellID);
 
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellLogMissDebug const& missDebug)
+{
+    buffer << float(missDebug.HitRoll);
+    buffer << float(missDebug.HitRollNeeded);
+    return buffer;
+}
+
+ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellLogMissEntry const& missEntry)
+{
+    buffer << missEntry.Victim;
+    buffer << uint8(missEntry.MissReason);
+    if (buffer.WriteBit(missEntry.Debug.is_initialized()))
+        buffer << *missEntry.Debug;
+
+    buffer.FlushBits();
+    return buffer;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellMissLog::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << Caster;
+    _worldPacket << uint32(Entries.size());
+    for (SpellLogMissEntry const& missEntry : Entries)
+        _worldPacket << missEntry;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::ProcResist::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << Target;
+    _worldPacket << int32(SpellID);
+    _worldPacket.WriteBit(Rolled.is_initialized());
+    _worldPacket.WriteBit(Needed.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (Rolled)
+        _worldPacket << *Rolled;
+
+    if (Needed)
+        _worldPacket << *Needed;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellOrDamageImmune::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << VictimGUID;
+    _worldPacket << uint32(SpellID);
+    _worldPacket.WriteBit(IsPeriodic);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellDamageShield::Write()
+{
+    _worldPacket << Attacker;
+    _worldPacket << Defender;
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(TotalDamage);
+    _worldPacket << int32(OverKill);
+    _worldPacket << int32(SchoolMask);
+    _worldPacket << int32(LogAbsorbed);
+    if (_worldPacket.WriteBit(LogData.is_initialized()))
+        _worldPacket << *LogData;
+
+    _worldPacket.FlushBits();
     return &_worldPacket;
 }

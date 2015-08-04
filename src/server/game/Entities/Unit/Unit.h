@@ -1625,7 +1625,7 @@ class Unit : public WorldObject
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
-        void SendSpellDamageImmune(Unit* target, uint32 spellId);
+        void SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
         void SendTeleportPacket(Position& pos);

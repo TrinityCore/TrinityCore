@@ -1162,7 +1162,7 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
 void AuraEffect::SendTickImmune(Unit* target, Unit* caster) const
 {
     if (caster)
-        caster->SendSpellDamageImmune(target, m_spellInfo->Id);
+        caster->SendSpellDamageImmune(target, m_spellInfo->Id, true);
 }
 
 void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
