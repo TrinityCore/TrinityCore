@@ -276,17 +276,17 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(RewardText.size(), 12);
-    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
-    _worldPacket.WriteBits(PortraitGiverName.size(), 8);
     _worldPacket.WriteBits(PortraitGiverText.size(), 10);
+    _worldPacket.WriteBits(PortraitGiverName.size(), 8);
+    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
     _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(RewardText);
-    _worldPacket.WriteString(PortraitTurnInText);
-    _worldPacket.WriteString(PortraitGiverName);
     _worldPacket.WriteString(PortraitGiverText);
+    _worldPacket.WriteString(PortraitGiverName);
+    _worldPacket.WriteString(PortraitTurnInText);
     _worldPacket.WriteString(PortraitTurnInName);
 
     return &_worldPacket;

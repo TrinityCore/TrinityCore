@@ -251,11 +251,11 @@ namespace WorldPackets
 
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
-            std::string PortraitGiverText;
             std::string QuestTitle;
-            std::string PortraitTurnInText;
-            std::string PortraitGiverName;
             std::string RewardText;
+            std::string PortraitGiverText;
+            std::string PortraitGiverName;
+            std::string PortraitTurnInText;
             std::string PortraitTurnInName;
             QuestGiverOfferReward QuestData;
             int32 QuestPackageID = 0;
