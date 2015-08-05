@@ -333,7 +333,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEve
             return;
         }
 
-        CalendarInvite invite(sCalendarMgr->GetFreeInviteId(), NULL, inviteeGuid, playerGuid, CALENDAR_DEFAULT_RESPONSE_TIME, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
+        CalendarInvite invite(sCalendarMgr->GetFreeInviteId(), 0L, inviteeGuid, playerGuid, CALENDAR_DEFAULT_RESPONSE_TIME, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
         sCalendarMgr->SendCalendarEventInvite(invite);
     }
 }
