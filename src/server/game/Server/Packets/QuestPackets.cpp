@@ -359,10 +359,10 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(DescriptionText.size(), 12);
     _worldPacket.WriteBits(LogDescription.size(), 12);
-    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
-    _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.WriteBits(PortraitGiverText.size(), 10);
     _worldPacket.WriteBits(PortraitGiverName.size(), 8);
+    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
+    _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.WriteBit(DisplayPopup);
     _worldPacket.WriteBit(StartCheat);
     _worldPacket.WriteBit(AutoLaunched);
@@ -371,10 +371,10 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(DescriptionText);
     _worldPacket.WriteString(LogDescription);
-    _worldPacket.WriteString(PortraitTurnInText);
-    _worldPacket.WriteString(PortraitTurnInName);
     _worldPacket.WriteString(PortraitGiverText);
     _worldPacket.WriteString(PortraitGiverName);
+    _worldPacket.WriteString(PortraitTurnInText);
+    _worldPacket.WriteString(PortraitTurnInName);
 
     return &_worldPacket;
 }

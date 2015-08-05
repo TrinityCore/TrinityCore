@@ -332,10 +332,10 @@ namespace WorldPackets
             std::vector<int32> LearnSpells;
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
-            std::string PortraitTurnInText;
-            std::string PortraitTurnInName;
             std::string PortraitGiverText;
             std::string PortraitGiverName;
+            std::string PortraitTurnInText;
+            std::string PortraitTurnInName;
             std::string QuestTitle;
             std::string LogDescription;
             std::string DescriptionText;
