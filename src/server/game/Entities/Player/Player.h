@@ -2633,6 +2633,8 @@ class Player : public Unit, public GridObject<Player>
         void DeleteGarrison();
         Garrison* GetGarrison() { return _garrison.get(); }
 
+        bool HasAdvancedCombatLogging() const { return false; }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2938,7 +2940,6 @@ class Player : public Unit, public GridObject<Player>
         MapReference m_mapRef;
 
         void UpdateCharmedAI();
-
         uint32 m_lastFallTime;
         float  m_lastFallZ;
 

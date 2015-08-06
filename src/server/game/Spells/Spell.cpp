@@ -4083,7 +4083,7 @@ void Spell::SendSpellExecuteLog()
         spellExecuteLog.Effects.push_back(spellLogEffect);
     }
 
-    m_caster->SendMessageToSet(spellExecuteLog.Write(), true);
+    m_caster->SendCombatLogMessage(&spellExecuteLog);
 }
 
 void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude)

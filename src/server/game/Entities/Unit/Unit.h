@@ -410,6 +410,13 @@ namespace Movement
 {
     class MoveSpline;
 }
+namespace WorldPackets
+{
+    namespace CombatLog
+    {
+        class CombatLogServerPacket;
+    }
+}
 
 typedef std::list<Unit*> UnitList;
 typedef std::list<std::pair<Aura*, uint8>> DispelChargesList;
@@ -1324,6 +1331,8 @@ class Unit : public WorldObject
 
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
+
+        void SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const;
 
         DiminishingLevels GetDiminishing(DiminishingGroup  group);
         void IncrDiminishing(DiminishingGroup group);
