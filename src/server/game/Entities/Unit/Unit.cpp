@@ -1416,9 +1416,9 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             damageShield.OverKill = std::max(int32(damage) - int32(GetHealth()), 0);
             damageShield.SchoolMask = i_spellProto->SchoolMask;
             damageShield.LogAbsorbed = absorb;
-            victim->SendMessageToSet(damageShield.Write(), true);
 
             victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
+            victim->SendCombatLogMessage(&damageShield);
         }
     }
 }
@@ -4822,7 +4822,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
     packet.Absorbed = log->absorb;
     packet.Periodic = false;
     packet.Flags = log->HitInfo;
-    SendMessageToSet(packet.Write(), true);
+    SendCombatLogMessage(&packet);
 }
 
 void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
@@ -4871,7 +4871,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
 
     data.Effects.push_back(spellLogEffect);
 
-    SendMessageToSet(data.Write(), true);
+    SendCombatLogMessage(&data);
 }
 
 void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
@@ -4904,7 +4904,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
-    WorldPackets::Combat::AttackerStateUpdate packet;
+    WorldPackets::CombatLog::AttackerStateUpdate packet;
     packet.HitInfo = damageInfo->HitInfo;
     packet.AttackerGUID = damageInfo->attacker->GetGUID();
     packet.VictimGUID = damageInfo->target->GetGUID();
@@ -4912,7 +4912,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    packet.SubDmg = WorldPackets::Combat::SubDamage();
+    packet.SubDmg = boost::in_place();
     packet.SubDmg->SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
     packet.SubDmg->FDamage = damageInfo->damage;                // sub damage
     packet.SubDmg->Damage = damageInfo->damage;                 // Sub Damage
@@ -4922,7 +4922,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     packet.VictimState = damageInfo->TargetState;
     packet.BlockAmount = damageInfo->blocked_amount;
 
-    SendMessageToSet(packet.Write(), true);
+    SendCombatLogMessage(&packet);
 }
 
 void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType*/, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount)
@@ -8135,7 +8135,7 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 
     if (hasLogData)
         SpellParsers.ReadSpellCastLogData(packet);
     */
-    SendMessageToSet(spellHealLog.Write(), true);
+    SendCombatLogMessage(&spellHealLog);
 }
 
 int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical)
@@ -8158,7 +8158,7 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powe
     data.Type = powerType;
     data.Amount = damage;
 
-    SendMessageToSet(data.Write(), true);
+    SendCombatLogMessage(&data);
 }
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
@@ -16429,4 +16429,106 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
     }
 
     return spellInfo;
+}
+
+struct CombatLogSender
+{
+    WorldObject const* i_source;
+    WorldPackets::CombatLog::CombatLogServerPacket const* i_message;
+    float const i_distSq;
+    CombatLogSender(WorldObject const* src, WorldPackets::CombatLog::CombatLogServerPacket* msg, float dist)
+        : i_source(src), i_message(msg), i_distSq(dist * dist)
+    {
+        msg->Write();
+    }
+
+    bool IsInRangeHelper(WorldObject const* object) const;
+    void Visit(PlayerMapType &m);
+    void Visit(CreatureMapType &m);
+    void Visit(DynamicObjectMapType &m);
+    template<class SKIP> void Visit(GridRefManager<SKIP>&) { }
+
+    void SendPacket(Player* player)
+    {
+        if (!player->HaveAtClient(i_source))
+            return;
+
+        if (player->HasAdvancedCombatLogging())
+            player->SendDirectMessage(i_message->GetFullLogPacket());
+        else
+            player->SendDirectMessage(i_message->GetBasicLogPacket());
+    }
+};
+
+bool CombatLogSender::IsInRangeHelper(WorldObject const* object) const
+{
+    if (!object->IsInPhase(i_source))
+        return false;
+
+    return object->GetExactDist2dSq(i_source) <= i_distSq;
+}
+
+void CombatLogSender::Visit(PlayerMapType& m)
+{
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Player* target = iter->GetSource();
+        if (!IsInRangeHelper(target))
+            continue;
+
+        // Send packet to all who are sharing the player's vision
+        if (target->HasSharedVision())
+        {
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
+                    SendPacket(*i);
+        }
+
+        if (target->m_seer == target || target->GetVehicle())
+            SendPacket(target);
+    }
+}
+
+void CombatLogSender::Visit(CreatureMapType& m)
+{
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        Creature* target = iter->GetSource();
+        if (!IsInRangeHelper(target))
+            continue;
+
+        // Send packet to all who are sharing the creature's vision
+        if (target->HasSharedVision())
+        {
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
+                    SendPacket(*i);
+        }
+    }
+}
+
+void CombatLogSender::Visit(DynamicObjectMapType& m)
+{
+    for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        DynamicObject* target = iter->GetSource();
+        if (!IsInRangeHelper(target))
+            continue;
+
+        if (Unit* caster = target->GetCaster())
+        {
+            // Send packet back to the caster if the caster has vision of dynamic object
+            Player* player = caster->ToPlayer();
+            if (player && player->m_seer == target)
+                SendPacket(player);
+        }
+    }
+}
+
+void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const
+{
+    CombatLogSender notifier(this, combatLog, GetVisibilityRange());
+    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }

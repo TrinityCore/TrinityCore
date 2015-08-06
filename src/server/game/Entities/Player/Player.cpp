@@ -1305,7 +1305,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     packet.Amount = damage;
     packet.Absorbed = absorb;
     packet.Resisted = resist;
-    SendMessageToSet(packet.Write(), true);
+    SendCombatLogMessage(&packet);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 

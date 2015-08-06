@@ -130,54 +130,6 @@ namespace WorldPackets
             uint32 Reaction = 0;
         };
 
-        struct SubDamage
-        {
-            int32 SchoolMask    = 0;
-            float FDamage       = 0.0f; // Float damage (Most of the time equals to Damage)
-            int32 Damage        = 0;
-            int32 Absorbed      = 0;
-            int32 Resisted      = 0;
-        };
-
-        struct UnkAttackerState
-        {
-            int32 State1 = 0;
-            float State2 = 0.0f;
-            float State3 = 0.0f;
-            float State4 = 0.0f;
-            float State5 = 0.0f;
-            float State6 = 0.0f;
-            float State7 = 0.0f;
-            float State8 = 0.0f;
-            float State9 = 0.0f;
-            float State10 = 0.0f;
-            float State11 = 0.0f;
-            int32 State12 = 0;
-        };
-
-        class AttackerStateUpdate final : public ServerPacket
-        {
-        public:
-            AttackerStateUpdate() : ServerPacket(SMSG_ATTACKER_STATE_UPDATE, 70) { }
-
-            WorldPacket const* Write() override;
-
-            Optional<Spells::SpellCastLogData> LogData;
-            uint32 HitInfo          = 0; // Flags
-            ObjectGuid AttackerGUID;
-            ObjectGuid VictimGUID;
-            int32 Damage            = 0;
-            int32 OverDamage        = -1; // (damage - health) or -1 if unit is still alive
-            Optional<SubDamage> SubDmg;
-            uint8 VictimState       = 0;
-            int32 AttackerState     = -1;
-            int32 MeleeSpellID      = 0;
-            int32 BlockAmount       = 0;
-            int32 RageGained        = 0;
-            UnkAttackerState UnkState;
-            float Unk               = 0.0f;
-        };
-
         class CancelCombat final : public ServerPacket
         {
         public:
