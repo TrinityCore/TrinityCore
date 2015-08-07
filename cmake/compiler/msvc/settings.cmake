@@ -20,7 +20,7 @@ if(PLATFORM EQUAL 64)
 
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0)
     #Enable extended object support for debug compiles on X64 (not required on X86)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
     message(STATUS "MSVC: Enabled increased number of sections in object files")
   endif()
 else()
