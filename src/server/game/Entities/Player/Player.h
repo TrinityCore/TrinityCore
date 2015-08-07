@@ -1725,7 +1725,7 @@ class Player : public Unit, public GridObject<Player>
         void SendQuestTimerFailed(uint32 questId);
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver);
-        void SendPushToPartyResponse(Player* player, uint8 msg);
+        void SendPushToPartyResponse(Player* player, QuestPushReason reason);
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required);
 

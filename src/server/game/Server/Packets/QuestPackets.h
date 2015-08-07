@@ -485,10 +485,10 @@ namespace WorldPackets
             int32 QuestID = 0;
         };
 
-        class QuestPushResult final : public ServerPacket
+        class QuestPushResultResponse final : public ServerPacket
         {
         public:
-            QuestPushResult() : ServerPacket(SMSG_QUEST_PUSH_RESULT, 16 + 1) { }
+            QuestPushResultResponse() : ServerPacket(SMSG_QUEST_PUSH_RESULT, 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -502,6 +502,18 @@ namespace WorldPackets
             QuestLogFull() : ServerPacket(SMSG_QUEST_LOG_FULL, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class QuestPushResult final : public ClientPacket
+        {
+        public:
+            QuestPushResult(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_PUSH_RESULT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SenderGUID;
+            uint32 QuestID = 0;
+            uint8 Result = 0;
         };
     }
 }

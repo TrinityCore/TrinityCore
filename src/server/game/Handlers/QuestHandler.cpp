@@ -149,7 +149,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
             Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
             if (player)
             {
-                player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_ACCEPT_QUEST);
+                player->SendPushToPartyResponse(_player, QUEST_PUSH_ACCEPTED);
                 _player->SetDivider(ObjectGuid::Empty);
             }
         }
@@ -586,35 +586,35 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
         if (!receiver->SatisfyQuestStatus(quest, false))
         {
-            sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_HAVE_QUEST);
+            sender->SendPushToPartyResponse(receiver, QUEST_PUSH_ONQUEST);
             continue;
         }
 
         if (receiver->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
         {
-            sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_FINISH_QUEST);
+            sender->SendPushToPartyResponse(receiver, QUEST_PUSH_ALREADY_DONE);
             continue;
         }
 
         if (!receiver->CanTakeQuest(quest, false))
         {
-            sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_CANT_TAKE_QUEST);
+            sender->SendPushToPartyResponse(receiver, QUEST_PUSH_INVALID);
             continue;
         }
 
         if (!receiver->SatisfyQuestLog(false))
         {
-            sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_LOG_FULL);
+            sender->SendPushToPartyResponse(receiver, QUEST_PUSH_LOG_FULL);
             continue;
         }
 
         if (!receiver->GetDivider().IsEmpty())
         {
-            sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_BUSY);
+            sender->SendPushToPartyResponse(receiver, QUEST_PUSH_BUSY);
             continue;
         }
 
-        sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_SHARING_QUEST);
+        sender->SendPushToPartyResponse(receiver, QUEST_PUSH_SUCCESS);
 
         if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
             receiver->AddQuestAndCheckCompletion(quest, sender);
@@ -629,19 +629,13 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
+void WorldSession::HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet)
 {
-    ObjectGuid guid;
-    uint32 questId;
-    uint8 msg;
-    recvPacket >> guid >> questId >> msg;
-
-    if (!_player->GetDivider().IsEmpty() && _player->GetDivider() == guid)
+    if (!_player->GetDivider().IsEmpty() && _player->GetDivider() == packet.SenderGUID)
     {
-        Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
-        if (player)
+        if (Player* player = ObjectAccessor::FindPlayer(_player->GetDivider()))
         {
-            player->SendPushToPartyResponse(_player, msg);
+            player->SendPushToPartyResponse(_player, static_cast<QuestPushReason>(packet.Result));
             _player->SetDivider(ObjectGuid::Empty);
         }
     }
