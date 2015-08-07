@@ -16426,19 +16426,16 @@ void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)
     packet.QuestTitle = questTitle;
 
     receiver->GetSession()->SendPacket(packet.Write());
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
 }
 
-void Player::SendPushToPartyResponse(Player* player, uint8 msg)
+void Player::SendPushToPartyResponse(Player* player, QuestPushReason reason)
 {
     if (player)
     {
-        WorldPackets::Quest::QuestPushResult data;
+        WorldPackets::Quest::QuestPushResultResponse data;
         data.SenderGUID = player->GetGUID();
-        data.Result = msg;                          // valid values: 0-8
+        data.Result = reason; // valid values: 0-13
         SendDirectMessage(data.Write());
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
     }
 }
 
