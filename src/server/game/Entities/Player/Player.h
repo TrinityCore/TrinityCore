@@ -2153,7 +2153,7 @@ class Player : public Unit, public GridObject<Player>
         void SpawnCorpseBones();
         void CreateCorpse();
         void KillPlayer();
-        uint32 GetResurrectionSpellId();
+        uint32 GetResurrectionSpellId() const;
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
@@ -2390,7 +2390,6 @@ class Player : public Unit, public GridObject<Player>
 
         void UpdateSpeakTime();
         bool CanSpeak() const;
-        void ChangeSpeakTime(int utime);
 
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
@@ -2572,7 +2571,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetAchievementPoints() const;
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
-        void CheckAllAchievementCriteria();
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
@@ -2633,7 +2631,8 @@ class Player : public Unit, public GridObject<Player>
         void DeleteGarrison();
         Garrison* GetGarrison() { return _garrison.get(); }
 
-        bool HasAdvancedCombatLogging() const { return false; }
+        bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
+        void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2984,6 +2983,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _maxPersonalArenaRate;
 
         std::unique_ptr<Garrison> _garrison;
+
+        bool _advancedCombatLoggingEnabled;
 };
 
 void AddItemsSetItem(Player* player, Item* item);

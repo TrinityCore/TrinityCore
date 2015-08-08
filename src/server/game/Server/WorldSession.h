@@ -181,6 +181,7 @@ namespace WorldPackets
     {
         class RequestAccountData;
         class UserClientUpdateAccountData;
+        class SetAdvancedCombatLogging;
     }
 
     namespace Channel
@@ -1091,6 +1092,7 @@ class WorldSession
 
         void HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet);
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
+        void HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging);
         void HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet);
 
         void HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet);

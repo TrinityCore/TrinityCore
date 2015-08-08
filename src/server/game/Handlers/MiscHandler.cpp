@@ -1230,3 +1230,8 @@ void WorldSession::SendLoadCUFProfiles()
             loadCUFProfiles.CUFProfiles.push_back(cufProfile);
     SendPacket(loadCUFProfiles.Write());
 }
+
+void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging)
+{
+    _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
+}

@@ -135,6 +135,8 @@ namespace WorldPackets
 
         struct SpellLogPowerData
         {
+            SpellLogPowerData(int32 powerType, int32 amount) : PowerType(powerType), Amount(amount) { }
+
             int32 PowerType = 0;
             int32 Amount    = 0;
         };
@@ -145,6 +147,8 @@ namespace WorldPackets
             int32 AttackPower   = 0;
             int32 SpellPower    = 0;
             std::vector<SpellLogPowerData> PowerData;
+
+            void Initialize(Unit const* unit);
         };
 
         struct AuraDataInfo

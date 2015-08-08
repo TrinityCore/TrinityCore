@@ -2294,7 +2294,7 @@ public:
 
             handler->GetSession()->GetPlayer()->DealDamageMods(target, damage, &absorb);
             handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
-            handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
+            handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
             return true;
         }
 
@@ -2306,9 +2306,10 @@ public:
             return false;
 
         SpellNonMeleeDamage damageInfo(handler->GetSession()->GetPlayer(), target, spellid, sSpellMgr->GetSpellInfo(spellid)->SchoolMask);
+        damageInfo.damage = damage;
         handler->GetSession()->GetPlayer()->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+        damageInfo.damage = target->DealSpellDamage(&damageInfo, true);
         target->SendSpellNonMeleeDamageLog(&damageInfo);
-        target->DealSpellDamage(&damageInfo, true);
         return true;
     }
 
