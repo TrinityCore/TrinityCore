@@ -16392,14 +16392,13 @@ void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
     }
 }
 
-void Player::SendQuestTimerFailed(uint32 quest_id)
+void Player::SendQuestTimerFailed(uint32 questID)
 {
-    if (quest_id)
+    if (questID)
     {
-        WorldPacket data(SMSG_QUEST_UPDATE_FAILED_TIMER, 4);
-        data << uint32(quest_id);
-        GetSession()->SendPacket(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTUPDATE_FAILEDTIMER");
+        WorldPackets::Quest::QuestUpdateFailedTimer questUpdateFailedTimer;
+        questUpdateFailedTimer.QuestID = questID;
+        GetSession()->SendPacket(questUpdateFailedTimer.Write());
     }
 }
 
