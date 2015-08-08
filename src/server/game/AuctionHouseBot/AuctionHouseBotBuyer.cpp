@@ -157,18 +157,18 @@ bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* ite
     if (!auction->buyout)
         return false;
 
-    uint32 itemBuyPrice = auction->buyout / item->GetCount();
-    uint32 itemPrice = item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality);
+    float itemBuyPrice = float(auction->buyout / item->GetCount());
+    float itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
     // This value is between 0 and 100 and is used directly as the chance to buy or bid
     // Value equal or above 100 means 100% chance and value below 0 means 0% chance
-    float chance = 100 / sqrt(itemBuyPrice / float(itemPrice));
+    float chance = std::min(100.f, std::pow(100.f, 1.f + (1.f - itemBuyPrice / itemPrice) / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)));
 
     // If a player has bidded on item, have fifth of normal chance
     if (auction->bidder)
-        chance = chance / 5;
+        chance = chance / 5.f;
 
     if (ahInfo)
     {
@@ -178,31 +178,29 @@ bool AuctionBotBuyer::RollBuyChance(const BuyerItemInfo* ahInfo, const Item* ite
 
         // If there are more than 5 items on AH of this entry, try weigh in the average buyout price
         if (ahInfo->BuyItemCount > 5)
-        {
-            chance *= 1 / sqrt(itemBuyPrice / avgBuyPrice);
-        }
+            chance *= 1.f / std::sqrt(itemBuyPrice / avgBuyPrice);
     }
 
     // Add config weigh in for quality
     chance *= GetChanceMultiplier(item->GetTemplate()->Quality) / 100.0f;
 
-    float rand = frand(0, 100);
+    float rand = frand(0.f, 100.f);
     bool win = rand <= chance;
-    TC_LOG_DEBUG("ahbot", "AHBot: %s BUY! chance = %.2f, price = %u, buyprice = %u.", win ? "WIN" : "LOSE", chance, itemPrice, itemBuyPrice);
+    TC_LOG_DEBUG("ahbot", "AHBot: %s BUY! chance = %.2f, price = %u, buyprice = %u.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBuyPrice));
     return win;
 }
 
 // ahInfo can be NULL
 bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice)
 {
-    uint32 itemBidPrice = bidPrice / item->GetCount();
-    uint32 itemPrice = item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality);
+    float itemBidPrice = float(bidPrice / item->GetCount());
+    float itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
     // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
 
     // This value is between 0 and 100 and is used directly as the chance to buy or bid
     // Value equal or above 100 means 100% chance and value below 0 means 0% chance
-    float chance = 100 / sqrt(itemBidPrice / float(itemPrice));
+    float chance = std::min(100.f, std::pow(100.f, 1.f + (1.f - itemBidPrice / itemPrice) / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)));
 
     if (ahInfo)
     {
@@ -212,21 +210,19 @@ bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* ite
 
         // If there are more than 5 items on AH of this entry, try weigh in the average bid price
         if (ahInfo->BidItemCount >= 5)
-        {
-            chance *= 1 / sqrt(itemBidPrice / avgBidPrice);
-        }
+            chance *= 1.f / std::sqrt(itemBidPrice / avgBidPrice);
     }
 
     // If a player has bidded on item, have fifth of normal chance
     if (auction->bidder)
-        chance = chance / 5;
+        chance = chance / 5.f;
 
     // Add config weigh in for quality
     chance *= GetChanceMultiplier(item->GetTemplate()->Quality) / 100.0f;
 
-    float rand = frand(0, 100);
+    float rand = frand(0.f, 100.f);
     bool win = rand <= chance;
-    TC_LOG_DEBUG("ahbot", "AHBot: %s BID! chance = %.2f, price = %u, bidprice = %u.", win ? "WIN" : "LOSE", chance, itemPrice, itemBidPrice);
+    TC_LOG_DEBUG("ahbot", "AHBot: %s BID! chance = %.2f, price = %u, bidprice = %u.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBidPrice));
     return win;
 }
 
