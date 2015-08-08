@@ -85,3 +85,11 @@ void WorldPackets::Instance::InstanceLockResponse::Read()
 {
     AcceptLock = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Instance::RaidGroupOnly::Write()
+{
+    _worldPacket << Delay;
+    _worldPacket << Reason;
+
+    return &_worldPacket;
+}
