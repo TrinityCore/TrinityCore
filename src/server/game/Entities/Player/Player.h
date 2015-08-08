@@ -1894,6 +1894,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetReputation(uint32 factionentry) const;
         std::string GetGuildName();
 
+        // Loot Spec
+        void SetLootSpecId(uint32 id) { SetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID, id); }
+        uint32 GetLootSpecId() const { return GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID); }
+
         // Talents
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }

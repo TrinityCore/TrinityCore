@@ -482,3 +482,17 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     loot->NotifyItemRemoved(slotid);
     --loot->unlootedCount;
 }
+
+void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet)
+{
+    if (packet.SpecID)
+    {
+        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(packet.SpecID))
+        {
+            if (chrSpec->ClassID == GetPlayer()->getClass())
+                GetPlayer()->SetLootSpecId(packet.SpecID);
+        }
+    }
+    else
+        GetPlayer()->SetLootSpecId(packet.SpecID);
+}

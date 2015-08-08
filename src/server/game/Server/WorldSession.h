@@ -328,6 +328,7 @@ namespace WorldPackets
         class LootRelease;
         class LootMoney;
         class LootRoll;
+        class SetLootSpecialization;
     }
 
     namespace Mail
@@ -1052,6 +1053,8 @@ class WorldSession
         void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         void HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
+        void HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet);
+
         void HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest);
         void HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& logoutRequest);
         void HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& logoutCancel);
