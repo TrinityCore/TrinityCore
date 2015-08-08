@@ -155,9 +155,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
             /// @todo this is not a good place to send the message
-            WorldPacket data(SMSG_RAID_GROUP_ONLY);
-            data << uint32(0) << uint32(2);
-            player->GetSession()->SendPacket(&data);
+            player->SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
             TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName().c_str(), mapName);
             return false;
         }

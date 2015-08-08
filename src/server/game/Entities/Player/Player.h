@@ -2051,6 +2051,7 @@ class Player : public Unit, public GridObject<Player>
         static Difficulty CheckLoadedDungeonDifficultyID(Difficulty difficulty);
         static Difficulty CheckLoadedRaidDifficultyID(Difficulty difficulty);
         static Difficulty CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty);
+        void SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay);
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
