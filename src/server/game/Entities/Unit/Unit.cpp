@@ -2099,6 +2099,9 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
         }
     }
 
+    minDamage = std::max(0.f, minDamage);
+    maxDamage = std::max(0.f, maxDamage);
+
     if (minDamage > maxDamage)
         std::swap(minDamage, maxDamage);
 
