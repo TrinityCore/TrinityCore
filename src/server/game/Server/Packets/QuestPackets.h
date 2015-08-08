@@ -537,6 +537,17 @@ namespace WorldPackets
 
             uint32 QuestID = 0;
         };
+
+        class QuestGiverQuestFailed final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestFailed() : ServerPacket(SMSG_QUEST_GIVER_QUEST_FAILED, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            uint32 Reason  = 0;
+        };
     }
 }
 

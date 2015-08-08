@@ -1721,8 +1721,8 @@ class Player : public Unit, public GridObject<Player>
         void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP);
-        void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
-        void SendQuestTimerFailed(uint32 questId);
+        void SendQuestFailed(uint32 questID, InventoryResult reason = EQUIP_ERR_OK);
+        void SendQuestTimerFailed(uint32 questID);
         void SendCanTakeQuestResponse(QuestFailedReason reason, bool sendErrorMessage = true, std::string reasonText = "") const;
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver);
         void SendPushToPartyResponse(Player* player, QuestPushReason reason);
