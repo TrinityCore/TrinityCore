@@ -2417,9 +2417,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
-        // Send log damage message to client
-        caster->SendSpellNonMeleeDamageLog(&damageInfo);
-
         procEx |= createProcExtendMask(&damageInfo, missInfo);
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
@@ -2434,7 +2431,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         m_damage = damageInfo.damage;
 
-        caster->DealSpellDamage(&damageInfo, true);
+        damageInfo.damage = caster->DealSpellDamage(&damageInfo, true);
+
+        // Send log damage message to client
+        caster->SendSpellNonMeleeDamageLog(&damageInfo);
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else

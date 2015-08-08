@@ -651,7 +651,7 @@ void KillRewarder::Reward()
 
 }
 
-Player::Player(WorldSession* session): Unit(true)
+Player::Player(WorldSession* session) : Unit(true)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -891,6 +891,8 @@ Player::Player(WorldSession* session): Unit(true)
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         _CUFProfiles[i] = nullptr;
+
+    _advancedCombatLoggingEnabled = false;
 }
 
 Player::~Player()
@@ -1305,9 +1307,11 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     packet.Amount = damage;
     packet.Absorbed = absorb;
     packet.Resisted = resist;
-    SendCombatLogMessage(&packet);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+
+    packet.LogData.Initialize(this);
+    SendCombatLogMessage(&packet);
 
     if (!IsAlive())
     {
@@ -23626,7 +23630,7 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
                 InterruptSpell(CurrentSpellTypes(i));
 }
 
-uint32 Player::GetResurrectionSpellId()
+uint32 Player::GetResurrectionSpellId() const
 {
     // search priceless resurrection possibilities
     uint32 prio = 0;
