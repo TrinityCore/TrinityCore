@@ -2943,6 +2943,19 @@ AuctionHouseBot.Horde.Price.Ratio = 100
 AuctionHouseBot.Neutral.Price.Ratio = 100
 
 #
+#    AuctionHouseBot.Items.QUALITY.Price.Ratio
+#       Description: Percentage by which the price of items sold of each quality is incremented / decreased (for all houses)
+#       Default:     100 - (No change)
+
+AuctionHouseBot.Items.Gray.Price.Ratio = 100
+AuctionHouseBot.Items.White.Price.Ratio = 100
+AuctionHouseBot.Items.Green.Price.Ratio = 100
+AuctionHouseBot.Items.Blue.Price.Ratio = 100
+AuctionHouseBot.Items.Purple.Price.Ratio = 100
+AuctionHouseBot.Items.Orange.Price.Ratio = 100
+AuctionHouseBot.Items.Yellow.Price.Ratio = 100
+
+#
 #    AuctionHouseBot.Items.ItemLevel.*
 #       Description: Prevent seller from listing items below/above this item level
 #       Default:     0 - (Disabled)
@@ -3114,6 +3127,13 @@ AuctionHouseBot.Buyer.Enabled = 0
 AuctionHouseBot.Buyer.Alliance.Enabled = 0
 AuctionHouseBot.Buyer.Horde.Enabled = 0
 AuctionHouseBot.Buyer.Neutral.Enabled = 0
+
+#    AuctionHouseBot.Buyer.ChanceFactor
+#       Description: k value in the formula used for the chance to buy an item "100^(1 + (1 - (AuctionBid / ItemPrice)) / k)"
+#                    It must be a decimal number in the range of (0, +infinity). The higher the number the higher chance to buy overpriced auctions
+#       Default:     2
+
+AuctionHouseBot.Buyer.ChanceFactor = 2
 
 #
 #    AuctionHouseBot.Buyer.Baseprice.QUALITY

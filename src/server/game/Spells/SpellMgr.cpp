@@ -3147,6 +3147,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
+            case 49224: // Magic Suppression - DK
+            case 49610: // Magic Suppression - DK
+            case 49611: // Magic Suppression - DK
+                spellInfo->ProcCharges = 0;
+                break;
             case 37408: // Oscillation Field
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
