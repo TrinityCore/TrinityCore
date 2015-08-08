@@ -4939,4 +4939,12 @@ enum TokenResult
     TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 8
 };
 
+enum RaidGroupReason
+{    
+    RAID_GROUP_ERR_LOWLEVEL 			= 1,
+    RAID_GROUP_ERR_ONLY 				= 2,
+    RAID_GROUP_ERR_FULL 				= 3,
+    RAID_GROUP_ERR_REQUIREMENTS_UNMATCH = 4
+};
+
 #endif
