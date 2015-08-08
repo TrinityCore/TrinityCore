@@ -149,3 +149,10 @@ WorldPacket const* WorldPackets::Combat::PvPCredit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Combat::BreakTarget::Write()
+{
+    _worldPacket << UnitGUID;
+
+    return &_worldPacket;
+}
