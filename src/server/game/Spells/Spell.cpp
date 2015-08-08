@@ -721,7 +721,7 @@ void Spell::SelectExplicitTargets()
     {
         // check for explicit target redirection, for Grounding Totem for example
         if (m_spellInfo->GetExplicitTargetMask() & TARGET_FLAG_UNIT_ENEMY
-            || (m_spellInfo->GetExplicitTargetMask() & TARGET_FLAG_UNIT && !m_spellInfo->IsPositive()))
+            || (m_spellInfo->GetExplicitTargetMask() & TARGET_FLAG_UNIT && !m_caster->IsFriendlyTo(target)))
         {
             Unit* redirect;
             switch (m_spellInfo->DmgClass)
