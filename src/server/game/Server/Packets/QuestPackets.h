@@ -519,13 +519,23 @@ namespace WorldPackets
         class QuestGiverInvalidQuest final : public ServerPacket
         {
         public:
-            QuestGiverInvalidQuest() : ServerPacket(SMSG_QUEST_GIVER_INVALID_QUEST, 16 + 1) { }
+            QuestGiverInvalidQuest() : ServerPacket(SMSG_QUEST_GIVER_INVALID_QUEST, 6) { }
 
             WorldPacket const* Write() override;
 
             uint32 Reason = 0;
             bool SendErrorMessage = false;
             std::string ReasonText;
+        };
+
+        class QuestUpdateFailedTimer final : public ServerPacket
+        {
+        public:
+            QuestUpdateFailedTimer() : ServerPacket(SMSG_QUEST_UPDATE_FAILED_TIMER, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
         };
     }
 }
