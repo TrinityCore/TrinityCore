@@ -210,6 +210,16 @@ namespace WorldPackets
             int32 Honor = 0;
             int32 Rank = 0;
         };
+
+        class BreakTarget final : public ServerPacket
+        {
+        public:
+            BreakTarget() : ServerPacket(SMSG_BREAK_TARGET, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
     }
 }
 
