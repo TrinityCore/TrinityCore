@@ -509,3 +509,17 @@ void WorldPackets::Quest::QuestPushResult::Read()
     _worldPacket >> QuestID;
     _worldPacket >> Result;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverInvalidQuest::Write()
+{
+    _worldPacket << Reason;
+
+    _worldPacket.WriteBit(SendErrorMessage);
+    _worldPacket.WriteBits(ReasonText.length(), 9);
+
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(ReasonText);
+
+    return &_worldPacket;
+}

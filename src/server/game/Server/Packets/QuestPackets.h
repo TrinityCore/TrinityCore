@@ -515,6 +515,18 @@ namespace WorldPackets
             uint32 QuestID = 0;
             uint8 Result = 0;
         };
+
+        class QuestGiverInvalidQuest final : public ServerPacket
+        {
+        public:
+            QuestGiverInvalidQuest() : ServerPacket(SMSG_QUEST_GIVER_INVALID_QUEST, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            bool SendErrorMessage = false;
+            std::string ReasonText;
+        };
     }
 }
 

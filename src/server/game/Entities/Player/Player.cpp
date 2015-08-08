@@ -16399,12 +16399,15 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
     }
 }
 
-void Player::SendCanTakeQuestResponse(QuestFailedReason msg) const
+void Player::SendCanTakeQuestResponse(QuestFailedReason reason, bool sendErrorMessage /*= true*/, std::string reasonText /*= ""*/) const
 {
-    WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4);
-    data << uint32(msg);
-    GetSession()->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
+    WorldPackets::Quest::QuestGiverInvalidQuest questGiverInvalidQuest;
+
+    questGiverInvalidQuest.Reason = reason;
+    questGiverInvalidQuest.SendErrorMessage = sendErrorMessage;
+    questGiverInvalidQuest.ReasonText = reasonText;
+
+    GetSession()->SendPacket(questGiverInvalidQuest.Write());
 }
 
 void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)

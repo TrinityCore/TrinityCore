@@ -1723,7 +1723,7 @@ class Player : public Unit, public GridObject<Player>
         void SendQuestReward(Quest const* quest, uint32 XP);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
         void SendQuestTimerFailed(uint32 questId);
-        void SendCanTakeQuestResponse(QuestFailedReason msg) const;
+        void SendCanTakeQuestResponse(QuestFailedReason reason, bool sendErrorMessage = true, std::string reasonText = "") const;
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver);
         void SendPushToPartyResponse(Player* player, QuestPushReason reason);
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count);
