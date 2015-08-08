@@ -116,7 +116,8 @@ void GameObject::RemoveFromOwner()
         return;
     }
 
-    TC_LOG_FATAL("misc", "Removed GameObject (%s SpellId: %u LinkedGO: %u) that just lost any reference to the owner (%s) GO list",
+    // This happens when a mage portal is despawned after the caster changes map (for example using the portal)
+    TC_LOG_DEBUG("misc", "Removed GameObject (%s SpellId: %u LinkedGO: %u) that just lost any reference to the owner (%s) GO list",
         GetGUID().ToString().c_str(), m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.ToString().c_str());
     SetOwnerGUID(ObjectGuid::Empty);
 }
