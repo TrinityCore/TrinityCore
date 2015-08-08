@@ -530,3 +530,11 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateFailedTimer::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestFailed::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << Reason;
+
+    return &_worldPacket;
+}

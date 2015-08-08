@@ -16380,15 +16380,14 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
     GetSession()->SendPacket(packet.Write());
 }
 
-void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
+void Player::SendQuestFailed(uint32 questID, InventoryResult reason)
 {
-    if (questId)
+    if (questID)
     {
-        WorldPacket data(SMSG_QUEST_GIVER_QUEST_FAILED, 4 + 4);
-        data << uint32(questId);
-        data << uint32(reason);                             // failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
-        GetSession()->SendPacket(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_FAILED");
+        WorldPackets::Quest::QuestGiverQuestFailed questGiverQuestFailed;
+        questGiverQuestFailed.QuestID = questID;
+        questGiverQuestFailed.Reason = reason; // failed reason (valid reasons: 4, 16, 50, 17, other values show default message)
+        GetSession()->SendPacket(questGiverQuestFailed.Write());
     }
 }
 
