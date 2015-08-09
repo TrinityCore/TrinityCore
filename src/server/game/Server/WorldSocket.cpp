@@ -206,13 +206,15 @@ void WorldSocket::ReadHandler()
         }
 
         // just received fresh new payload
-        if (!ReadDataHandler())
+        ReadDataHandlerResult result = ReadDataHandler();
+        _headerBuffer.Reset();
+        if (result != ReadDataHandlerResult::Ok)
         {
-            CloseSocket();
+            if (result != ReadDataHandlerResult::WaitingForQuery)
+                CloseSocket();
+
             return;
         }
-
-        _headerBuffer.Reset();
     }
 
     AsyncRead();
@@ -264,7 +266,7 @@ bool WorldSocket::ReadHeaderHandler()
     return true;
 }
 
-bool WorldSocket::ReadDataHandler()
+WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 {
     if (_initialized)
     {
@@ -287,7 +289,7 @@ bool WorldSocket::ReadDataHandler()
         {
             case CMSG_PING:
                 LogOpcodeText(opcode, sessionGuard);
-                return HandlePing(packet);
+                return HandlePing(packet) ? ReadDataHandlerResult::Ok : ReadDataHandlerResult::Error;
             case CMSG_AUTH_SESSION:
             {
                 LogOpcodeText(opcode, sessionGuard);
@@ -296,13 +298,13 @@ bool WorldSocket::ReadDataHandler()
                     // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
                     if (sessionGuard.try_lock())
                         TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                    return false;
+                    return ReadDataHandlerResult::Error;
                 }
 
                 std::shared_ptr<WorldPackets::Auth::AuthSession> authSession = std::make_shared<WorldPackets::Auth::AuthSession>(std::move(packet));
                 authSession->Read();
                 HandleAuthSession(authSession);
-                break;
+                return ReadDataHandlerResult::WaitingForQuery;
             }
             case CMSG_AUTH_CONTINUED_SESSION:
             {
@@ -312,13 +314,13 @@ bool WorldSocket::ReadDataHandler()
                     // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
                     if (sessionGuard.try_lock())
                         TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_CONTINUED_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                    return false;
+                    return ReadDataHandlerResult::Error;
                 }
 
                 std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession = std::make_shared<WorldPackets::Auth::AuthContinuedSession>(std::move(packet));
                 authSession->Read();
                 HandleAuthContinuedSession(authSession);
-                break;
+                return ReadDataHandlerResult::WaitingForQuery;
             }
             case CMSG_KEEP_ALIVE:
                 LogOpcodeText(opcode, sessionGuard);
@@ -326,7 +328,7 @@ bool WorldSocket::ReadDataHandler()
             case CMSG_LOG_DISCONNECT:
                 LogOpcodeText(opcode, sessionGuard);
                 packet.rfinish();   // contains uint32 disconnectReason;
-                return true;
+                break;
             case CMSG_ENABLE_NAGLE:
                 LogOpcodeText(opcode, sessionGuard);
                 SetNoDelay(false);
@@ -350,14 +352,14 @@ bool WorldSocket::ReadDataHandler()
                 if (!_worldSession)
                 {
                     TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                    return false;
+                    return ReadDataHandlerResult::Error;
                 }
 
                 OpcodeHandler const* handler = opcodeTable[opcode];
                 if (!handler)
                 {
                     TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())).c_str(), _worldSession->GetPlayerInfo().c_str());
-                    return true;
+                    break;
                 }
 
                 // Our Idle timer will reset on any non PING opcodes.
@@ -374,7 +376,7 @@ bool WorldSocket::ReadDataHandler()
     {
         std::string initializer(reinterpret_cast<char const*>(_packetBuffer.GetReadPointer()), std::min(_packetBuffer.GetActiveSize(), ClientConnectionInitialize.length()));
         if (initializer != ClientConnectionInitialize)
-            return false;
+            return ReadDataHandlerResult::Error;
 
         _compressionStream = new z_stream();
         _compressionStream->zalloc = (alloc_func)NULL;
@@ -386,7 +388,7 @@ bool WorldSocket::ReadDataHandler()
         if (z_res != Z_OK)
         {
             TC_LOG_ERROR("network", "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-            return false;
+            return ReadDataHandlerResult::Error;
         }
 
         _initialized = true;
@@ -395,7 +397,7 @@ bool WorldSocket::ReadDataHandler()
         HandleSendAuthSession();
     }
 
-    return true;
+    return ReadDataHandlerResult::Ok;
 }
 
 void WorldSocket::LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const
@@ -765,6 +767,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _queryCallback = io_service().wrap(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1));
     _queryFuture = _worldSession->LoadPermissionsAsync();
+    AsyncRead();
 }
 
 void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
@@ -831,6 +834,7 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
     }
 
     sWorld->AddInstanceSocket(shared_from_this(), accountId);
+    AsyncRead();
 }
 
 void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed)

@@ -95,7 +95,15 @@ protected:
     void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
-    bool ReadDataHandler();
+
+    enum class ReadDataHandlerResult
+    {
+        Ok = 0,
+        Error = 1,
+        WaitingForQuery = 2
+    };
+
+    ReadDataHandlerResult ReadDataHandler();
 private:
     void CheckIpCallback(PreparedQueryResult result);
 
