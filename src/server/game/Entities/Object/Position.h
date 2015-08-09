@@ -197,6 +197,7 @@ public:
 
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
     bool HasInLine(Position const* pos, float width) const;
+    bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI
