@@ -8197,7 +8197,6 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
     {
         if (Unit* magnet = (*itr)->GetBase()->GetCaster())
             if (spellInfo->CheckExplicitTarget(this, magnet) == SPELL_CAST_OK
-                && spellInfo->CheckTarget(this, magnet, false) == SPELL_CAST_OK
                 && _IsValidAttackTarget(magnet, spellInfo))
             {
                 /// @todo handle this charge drop by proc in cast phase on explicit target
