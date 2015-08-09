@@ -166,13 +166,15 @@ void WorldSocket::ReadHandler()
         }
 
         // just received fresh new payload
-        if (!ReadDataHandler())
+        ReadDataHandlerResult result = ReadDataHandler();
+        _headerBuffer.Reset();
+        if (result != ReadDataHandlerResult::Ok)
         {
-            CloseSocket();
+            if (result != ReadDataHandlerResult::WaitingForQuery)
+                CloseSocket();
+
             return;
         }
-
-        _headerBuffer.Reset();
     }
 
     AsyncRead();
@@ -265,7 +267,7 @@ struct AccountInfo
     }
 };
 
-bool WorldSocket::ReadDataHandler()
+WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 {
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
 
@@ -282,7 +284,7 @@ bool WorldSocket::ReadDataHandler()
     {
         case CMSG_PING:
             LogOpcodeText(opcode, sessionGuard);
-            return HandlePing(packet);
+            return HandlePing(packet) ? ReadDataHandlerResult::Ok : ReadDataHandlerResult::Error;
         case CMSG_AUTH_SESSION:
             LogOpcodeText(opcode, sessionGuard);
             if (_authed)
@@ -290,11 +292,11 @@ bool WorldSocket::ReadDataHandler()
                 // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
                 if (sessionGuard.try_lock())
                     TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
-                return false;
+                return ReadDataHandlerResult::Error;
             }
 
             HandleAuthSession(packet);
-            break;
+            return ReadDataHandlerResult::WaitingForQuery;
         case CMSG_KEEP_ALIVE:
             LogOpcodeText(opcode, sessionGuard);
             break;
@@ -306,7 +308,7 @@ bool WorldSocket::ReadDataHandler()
             {
                 TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
                 CloseSocket();
-                return false;
+                return ReadDataHandlerResult::Error;
             }
 
             // Our Idle timer will reset on any non PING opcodes.
@@ -319,7 +321,7 @@ bool WorldSocket::ReadDataHandler()
         }
     }
 
-    return true;
+    return ReadDataHandlerResult::Ok;
 }
 
 void WorldSocket::LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const
@@ -559,6 +561,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     _queryCallback = io_service().wrap(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1));
     _queryFuture = _worldSession->LoadPermissionsAsync();
+    AsyncRead();
 }
 
 void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
