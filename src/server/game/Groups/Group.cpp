@@ -2110,7 +2110,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
         if (SendMsgTo)
         {
             if (!isEmpty)
-                SendMsgTo->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                SendMsgTo->SendResetInstanceFailed(INSTANCE_RESET_FAILED_OFFLINE, instanceSave->GetMapId());
             else if (sWorld->getBoolConfig(CONFIG_INSTANCES_RESET_ANNOUNCE))
             {
                 if (Group* group = SendMsgTo->GetGroup())

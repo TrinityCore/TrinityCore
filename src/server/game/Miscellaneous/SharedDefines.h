@@ -4948,4 +4948,11 @@ enum RaidGroupReason
     RAID_GROUP_ERR_REQUIREMENTS_UNMATCH = 4  // "You do not meet the requirements to enter this instance."
 };
 
+enum ResetFailedReason
+{
+    INSTANCE_RESET_FAILED_OFFLINE   = 0, // "Cannot reset %s.  There are players offline in your party."
+    INSTANCE_RESET_FAILED_ZONING    = 1, // "Cannot reset %s.  There are players in your party attempting to zone into an instance."
+    INSTANCE_RESET_FAILED           = 2  // "Cannot reset %s.  There are players still inside the instance."
+};
+
 #endif

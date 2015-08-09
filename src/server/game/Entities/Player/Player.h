@@ -2142,7 +2142,7 @@ class Player : public Unit, public GridObject<Player>
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
-        void SendResetInstanceFailed(uint32 reason, uint32 MapId);
+        void SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID);
         void SendResetFailedNotify(uint32 mapid);
 
         virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
