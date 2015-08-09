@@ -205,7 +205,7 @@ struct RotfaceHeightCheck
 
     bool operator()(Creature* stalker) const
     {
-        return stalker->GetPositionZ() < _rotface->GetPositionZ() + 5.0f;
+        return stalker->GetPositionZ() > _rotface->GetPositionZ() + 5.0f;
     }
 
 private:
