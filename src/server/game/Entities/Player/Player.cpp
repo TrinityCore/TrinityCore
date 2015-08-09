@@ -20089,7 +20089,7 @@ void Player::SendResetInstanceSuccess(uint32 MapId)
     GetSession()->SendPacket(data.Write());
 }
 
-void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
+void Player::SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID)
 {
     /*reasons for instance reset failure:
     // 0: There are players inside the instance.
@@ -20098,7 +20098,7 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
     */
 
     WorldPackets::Instance::InstanceResetFailed data;
-    data.MapID = MapId;
+    data.MapID = mapID;
     data.ResetFailedReason = reason;
     GetSession()->SendPacket(data.Write());
 }
