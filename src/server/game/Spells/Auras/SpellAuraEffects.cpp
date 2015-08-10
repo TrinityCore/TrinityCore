@@ -6200,7 +6200,6 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
     }
 
-    log.damage = new_damage;
     caster->SendSpellNonMeleeDamageLog(&log);
 }
 
@@ -6488,7 +6487,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
     caster->ProcDamageAndSpell(damageInfo.target, procAttacker, procVictim, procEx, damageInfo.damage, BASE_ATTACK, spellProto);
 
-    damageInfo.damage = caster->DealSpellDamage(&damageInfo, true);
+    caster->DealSpellDamage(&damageInfo, true);
     caster->SendSpellNonMeleeDamageLog(&damageInfo);
 }
 
@@ -6533,7 +6532,7 @@ void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEv
     target->CalculateSpellDamageTaken(&damageInfo, damage, GetSpellInfo());
     target->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
     TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerDamageAuraProc: Triggering %u spell damage from aura %u proc", damage, GetId());
-    damageInfo.damage = target->DealSpellDamage(&damageInfo, true);
+    target->DealSpellDamage(&damageInfo, true);
     target->SendSpellNonMeleeDamageLog(&damageInfo);
 }
 

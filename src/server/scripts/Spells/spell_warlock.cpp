@@ -796,7 +796,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
                 damageInfo.periodicLog = true;
                 damageInfo.damage = damage;
-                damageInfo.damage = caster->DealSpellDamage(&damageInfo, false);
+                caster->DealSpellDamage(&damageInfo, false);
                 caster->SendSpellNonMeleeDamageLog(&damageInfo);
             }
 

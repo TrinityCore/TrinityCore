@@ -2431,7 +2431,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         m_damage = damageInfo.damage;
 
-        damageInfo.damage = caster->DealSpellDamage(&damageInfo, true);
+        caster->DealSpellDamage(&damageInfo, true);
 
         // Send log damage message to client
         caster->SendSpellNonMeleeDamageLog(&damageInfo);

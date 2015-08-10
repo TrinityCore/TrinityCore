@@ -396,7 +396,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
     log.absorb = absorb;
     log.resist = resist;
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        log.damage = unitTarget->ToPlayer()->EnvironmentalDamage(DAMAGE_FIRE, damage);
+        unitTarget->ToPlayer()->EnvironmentalDamage(DAMAGE_FIRE, damage);
 
     m_caster->SendSpellNonMeleeDamageLog(&log);
 }
