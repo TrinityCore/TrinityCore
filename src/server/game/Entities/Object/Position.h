@@ -195,6 +195,7 @@ public:
         return GetExactDistSq(pos) < dist * dist;
     }
 
+    bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
     bool HasInLine(Position const* pos, float width) const;
     std::string ToString() const;

@@ -471,57 +471,11 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
         return;
     }
 
-    if (player->GetMapId() != atEntry->MapID)
+    if (!player->IsInAreaTriggerRadius(atEntry))
     {
-        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->MapID, player->GetMapId(), packet.AreaTriggerID);
+        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far, ignore Area Trigger ID: %u",
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), packet.AreaTriggerID);
         return;
-    }
-
-    // delta is safe radius
-    const float delta = 5.0f;
-
-    if (atEntry->Radius > 0)
-    {
-        // if we have radius check it
-        float dist = player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
-        if (dist > atEntry->Radius + delta)
-        {
-            TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->Radius, dist, packet.AreaTriggerID);
-            return;
-        }
-    }
-    else
-    {
-        // we have only extent
-
-        // rotate the players position instead of rotating the whole cube, that way we can make a simplified
-        // is-in-cube check and we have to calculate only one point instead of 4
-
-        // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
-        double rotation = 2 * M_PI - atEntry->BoxYaw;
-        double sinVal = std::sin(rotation);
-        double cosVal = std::cos(rotation);
-
-        float playerBoxDistX = player->GetPositionX() - atEntry->Pos.X;
-        float playerBoxDistY = player->GetPositionY() - atEntry->Pos.Y;
-
-        float rotPlayerX = float(atEntry->Pos.X + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = float(atEntry->Pos.Y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
-
-        // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = player->GetPositionZ() - atEntry->Pos.Z;
-        float dx = rotPlayerX - atEntry->Pos.X;
-        float dy = rotPlayerY - atEntry->Pos.Y;
-        if ((std::fabs(dx) > atEntry->BoxLength / 2 + delta) ||
-            (std::fabs(dy) > atEntry->BoxWidth / 2 + delta) ||
-            (std::fabs(dz) > atEntry->BoxHeight / 2 + delta))
-        {
-            TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, packet.AreaTriggerID);
-            return;
-        }
     }
 
     if (player->isDebugAreaTriggers)
@@ -556,7 +510,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
     {
         // set resting flag we are in the inn
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->InnEnter(time(NULL), atEntry->MapID, atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
+        player->InnEnter(time(nullptr), atEntry->ID);
         player->SetRestType(REST_TYPE_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())

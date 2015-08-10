@@ -635,10 +635,7 @@ Player::Player(WorldSession* session) : Unit(true)
 
     ////////////////////Rest System/////////////////////
     time_inn_enter = 0;
-    inn_pos_mapid = 0;
-    inn_pos_x = 0.0f;
-    inn_pos_y = 0.0f;
-    inn_pos_z = 0.0f;
+    inn_triggerId = 0;
     m_rest_bonus = 0;
     rest_type = REST_TYPE_NO;
     ////////////////////Rest System/////////////////////
@@ -1597,6 +1594,17 @@ void Player::Update(uint32 p_time)
     {
         if (p_time >= m_zoneUpdateTimer)
         {
+            // On zone update tick check if we are still in an inn if we are supposed to be in one
+            if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && GetRestType() == REST_TYPE_IN_TAVERN)
+            {
+                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(GetInnTriggerId());
+                if (!atEntry || !IsInAreaTriggerRadius(atEntry))
+                {
+                    RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+                    SetRestType(REST_TYPE_NO);
+                }
+            }
+
             uint32 newzone, newarea;
             GetZoneAndAreaId(newzone, newarea);
 
@@ -1787,12 +1795,9 @@ void Player::setDeathState(DeathState s)
         SetUInt32Value(PLAYER_SELF_RES_SPELL, 0);
 }
 
-void Player::InnEnter(time_t time, uint32 mapid, float x, float y, float z)
+void Player::InnEnter(time_t time, uint32 triggerId)
 {
-    inn_pos_mapid = mapid;
-    inn_pos_x = x;
-    inn_pos_y = y;
-    inn_pos_z = z;
+    inn_triggerId = triggerId;
     time_inn_enter = time;
 }
 
@@ -2571,6 +2576,28 @@ void Player::SetInWater(bool apply)
     RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 
     getHostileRefManager().updateThreatTables();
+}
+
+bool Player::IsInAreaTriggerRadius(const AreaTriggerEntry* trigger) const
+{
+    if (!trigger || GetMapId() != trigger->MapID)
+        return false;
+
+    if (trigger->Radius > 0.f)
+    {
+        // if we have radius check it
+        float dist = GetDistance(trigger->Pos.X, trigger->Pos.Y, trigger->Pos.Z);
+        if (dist > trigger->Radius)
+            return false;
+    }
+    else
+    {
+        Position center(trigger->Pos.X, trigger->Pos.Y, trigger->Pos.Z, trigger->BoxYaw);
+        if (!IsWithinBox(center, trigger->BoxLength / 2.f, trigger->BoxWidth / 2.f, trigger->BoxHeight / 2.f))
+            return false;
+    }
+
+    return true;
 }
 
 void Player::SetGameMaster(bool on)
@@ -7214,7 +7241,7 @@ void Player::UpdateArea(uint32 newArea)
     {
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
         SetRestType(REST_TYPE_IN_FACTION_AREA);
-        InnEnter(time(0), GetMapId(), 0, 0, 0);
+        InnEnter(time(nullptr), 0);
     }
     else if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && GetRestType() == REST_TYPE_IN_FACTION_AREA)
     {
@@ -7293,7 +7320,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         {
             SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
             SetRestType(REST_TYPE_IN_CITY);
-            InnEnter(time(0), GetMapId(), 0, 0, 0);
+            InnEnter(time(nullptr), 0);
         }
         pvpInfo.IsInNoPvPArea = true;
     }
@@ -7303,8 +7330,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         {
             if (GetRestType() == REST_TYPE_IN_TAVERN)        // Still inside a tavern or has recently left
             {
-                // Remove rest state if we have recently left a tavern.
-                if (GetMapId() != GetInnPosMapId() || GetExactDist(GetInnPosX(), GetInnPosY(), GetInnPosZ()) > 1.0f)
+                // check that we are still inside the tavern (in areatrigger radius)
+
+                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(GetInnTriggerId());
+                if (!atEntry || !IsInAreaTriggerRadius(atEntry))
                 {
                     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
                     SetRestType(REST_TYPE_NO);
