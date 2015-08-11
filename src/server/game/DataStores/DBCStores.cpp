@@ -940,42 +940,29 @@ std::string GetDBCLocaleFolder(std::string const& dataPath)
 bool DBCLocaleFolderMatch(boost::filesystem::path const& dataPath, int const& localeID)
 {
     const std::string lastPathItem=dataPath.filename().string();
-    bool match=false;
     switch (localeID) {
         default:
         case LOCALE_enUS: //Does this also applies to enGB for european client?
-            match=(lastPathItem=="enGB" || lastPathItem=="enUS");
-            break;
+            return (lastPathItem=="enGB" || lastPathItem=="enUS");
         case LOCALE_koKR:
-            match=(lastPathItem=="koKR");
-            break;
+            return lastPathItem=="koKR";
         case LOCALE_frFR:
-            match=(lastPathItem=="frFR");
-            break;
+            return lastPathItem=="frFR";
         case LOCALE_deDE:
-            match=(lastPathItem=="deDE");
-            break;
+            return lastPathItem=="deDE";
         case LOCALE_zhCN:
-            match=(lastPathItem=="zhCN");
-            break;
+            return lastPathItem=="zhCN";
         case LOCALE_zhTW:
-            match=(lastPathItem=="zhTW");
-            break;
+            return lastPathItem=="zhTW";
         case LOCALE_esES:
-            match=(lastPathItem=="esES");
-            break;
+            return lastPathItem=="esES";
         case LOCALE_esMX:
-            match=(lastPathItem=="esMX");
-            break;
+            return lastPathItem=="esMX";
         case LOCALE_ruRU:
-            match=(lastPathItem=="ruRU");
-            break;
+            return lastPathItem=="ruRU";
         case LOCALE_ptBR:
-            match=(lastPathItem=="prBR");
-            break;
+            return lastPathItem=="prBR";
         case LOCALE_itIT:
-            match=(lastPathItem=="itIT");
-            break;
+            return lastPathItem=="itIT";
     }
-    return match;
 }
