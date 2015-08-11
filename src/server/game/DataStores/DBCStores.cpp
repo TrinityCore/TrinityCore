@@ -26,6 +26,7 @@
 #include "Config.h"
 
 #include <map>
+#include <boost/filesystem.hpp>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;

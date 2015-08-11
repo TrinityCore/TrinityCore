@@ -24,8 +24,6 @@
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 
-#include <boost/filesystem.hpp>
-
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
