@@ -26,7 +26,6 @@
 #include "Config.h"
 
 #include <map>
-#include <boost/filesystem.hpp>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
@@ -969,5 +968,5 @@ bool DBCLocaleFolderMatch(const boost::filesystem::path& dataPath, const int& lo
 			match=(lastPathItem=="ruRU");
 			break;
 	}
-	return result;
+	return match;
 }
