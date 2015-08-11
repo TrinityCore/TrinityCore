@@ -14352,6 +14352,10 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         if (!GetQuestObjectiveData(qInfo, obj.StorageIndex))
                             return false;
                         break;
+                    case QUEST_OBJECTIVE_LEARNSPELL:
+                        if (!HasSpell(obj.ObjectID))
+                            return false;
+                        break;
                     default:
                         TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest unknown objective type %u", obj.Type);
                         return false;
