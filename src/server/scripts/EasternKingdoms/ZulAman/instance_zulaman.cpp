@@ -113,7 +113,7 @@ class instance_zulaman : public InstanceMapScript
                 return false;
             }
 
-            void OnPlayerEnter(Player* /*player*/)
+            void OnPlayerEnter(Player* /*player*/) override
             {
                 if (!HarrisonJonesGUID)
                     instance->SummonCreature(NPC_HARRISON_JONES, HarrisonJonesLoc);
@@ -197,7 +197,7 @@ class instance_zulaman : public InstanceMapScript
                 return ss.str();
             }
 
-            void Load(const char* load)
+            void Load(const char* load) override
             {
                 if (!load)
                     return;
