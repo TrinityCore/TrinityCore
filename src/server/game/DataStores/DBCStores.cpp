@@ -920,7 +920,8 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     return NULL;
 }
 
-std::string GetDBCLocaleFolder(const std::string& dataPath) {
+std::string GetDBCLocaleFolder(std::string const& dataPath)
+{
     boost::filesystem::path result=dataPath;
     boost::filesystem::directory_iterator end_iter;
     std::string detectedLocalePath="";
@@ -936,37 +937,44 @@ std::string GetDBCLocaleFolder(const std::string& dataPath) {
     return result.string();
 }
 
-bool DBCLocaleFolderMatch(const boost::filesystem::path& dataPath, const int& localeID) {
+bool DBCLocaleFolderMatch(boost::filesystem::path const& dataPath, int const& localeID)
+{
     const std::string lastPathItem=dataPath.filename().string();
     bool match=false;
     switch (localeID) {
         default:
-        case 0:
+        case LOCALE_enUS: //Does this also applies to enGB for european client?
             match=(lastPathItem=="enGB" || lastPathItem=="enUS");
             break;
-        case 1:
+        case LOCALE_koKR:
             match=(lastPathItem=="koKR");
             break;
-        case 2:
+        case LOCALE_frFR:
             match=(lastPathItem=="frFR");
             break;
-        case 3:
+        case LOCALE_deDE:
             match=(lastPathItem=="deDE");
             break;
-        case 4:
+        case LOCALE_zhCN:
             match=(lastPathItem=="zhCN");
             break;
-        case 5:
+        case LOCALE_zhTW:
             match=(lastPathItem=="zhTW");
             break;
-        case 6:
+        case LOCALE_esES:
             match=(lastPathItem=="esES");
             break;
-        case 7:
+        case LOCALE_esMX:
             match=(lastPathItem=="esMX");
             break;
-        case 8:
+        case LOCALE_ruRU:
             match=(lastPathItem=="ruRU");
+            break;
+        case LOCALE_ptBR:
+            match=(lastPathItem=="prBR");
+            break;
+        case LOCALE_itIT:
+            match=(lastPathItem=="itIT");
             break;
     }
     return match;
