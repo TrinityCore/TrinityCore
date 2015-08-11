@@ -228,5 +228,7 @@ extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 void LoadDBCStores(const std::string& dataPath);
 void LoadGameTables(const std::string& dataPath);
+std::string GetDBCLocaleFolder(const std::string& dataPath);
+bool DBCLocaleFolderMatch(const std::string& dataPath, const int& localeID);
 
 #endif

@@ -23,8 +23,10 @@
 #include "DBCfmt.h"
 #include "Timer.h"
 #include "DB2Stores.h"
+#include "Config.h"
 
 #include <map>
+#include <boost/filesystem.hpp>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
@@ -302,7 +304,7 @@ void LoadDBCStores(const std::string& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
-    std::string dbcPath = dataPath+"dbc/";
+    std::string dbcPath = GetDBCLocaleFolder(dataPath+"dbc/");
 
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
@@ -917,4 +919,55 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     }
 
     return NULL;
+}
+
+std::string GetDBCLocaleFolder(const std::string& dataPath) {
+    boost::filesystem::path result=dataPath;
+    boost::filesystem::directory_iterator end_iter;
+    std::string detectedLocalePath="";
+    int locale=ConfigMgr::instance()->GetIntDefault("DBC.Locale", 0);
+    for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && !detectedLocalePath.empty(); ++dir_iter) {
+	    std::string dir=(*(--((*dir_iter).path().end()))).string();
+	    if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(dir, locale)) detectedLocalePath=dir;
+    }
+    if (detectedLocalePath.empty())
+	    TC_LOG_WARN("server.loading", "DBC files detected at DataDir/dbc root folder instead of its locale subfolder, this will be removed in a future");
+    else
+	    result/=detectedLocalePath;
+    return result.string();
+}
+
+bool DBCLocaleFolderMatch(const std::string& dataPath, const int& localeID) {
+	bool result=false;
+	switch (localeID) {
+		default:
+		case 0:
+			result=(dataPath=="enGB" || dataPath=="enUS");
+			break;
+		case 1:
+			result=(dataPath=="koKR");
+			break;
+		case 2:
+			result=(dataPath=="frFR");
+			break;
+		case 3:
+			result=(dataPath=="deDE");
+			break;
+		case 4:
+			result=(dataPath=="zhCN");
+			break;
+		case 5:
+			result=(dataPath=="zhTW");
+			break;
+		case 6:
+			result=(dataPath=="esES");
+			break;
+		case 7:
+			result=(dataPath=="esMX");
+			break;
+		case 8:
+			result=(dataPath=="ruRU");
+			break;
+	}
+	return result;
 }
