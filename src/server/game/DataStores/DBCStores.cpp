@@ -922,19 +922,19 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 
 std::string GetDBCLocaleFolder(std::string const& dataPath)
 {
-    boost::filesystem::path result=dataPath;
+    boost::filesystem::directory_iterator dir_iter(dataPath);
     boost::filesystem::directory_iterator end_iter;
-    std::string detectedLocalePath="";
-    int locale=ConfigMgr::instance()->GetIntDefault("DBC.Locale", 0);
-    for(boost::filesystem::directory_iterator dir_iter(dataPath); dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter)
-        if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale))
-            detectedLocalePath=(*dir_iter).path().string(); //Get only the last part of the path, the locale part (esES, esMX, etc)
+    
+    if (dir_iter==end_iter)
+	    return dataPath; //Folder is empty, so we return as is, the caller will throw the error
 
-    if (detectedLocalePath.empty())
-        TC_LOG_WARN("server.loading", "DBC files detected at DataDir/dbc root folder instead of its locale subfolder, this will be removed in a future");
-    else
-        result/=detectedLocalePath; //Append detected locale path to dbc folder
-    return result.string();
+    int locale=sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS);
+    for(; dir_iter != end_iter; ++dir_iter)
+        if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale))
+            return (boost::filesystem::path(dataPath)/(*dir_iter).path()).string(); //Return the full path appending detected locale folder
+    
+    //No subfolder detected but files were present, so we return it unmodified and let the caller throw error if necesary
+    return dataPath;
 }
 
 bool DBCLocaleFolderMatch(boost::filesystem::path const& dataPath, int const& localeID)
@@ -942,7 +942,8 @@ bool DBCLocaleFolderMatch(boost::filesystem::path const& dataPath, int const& lo
     const std::string lastPathItem=dataPath.filename().string();
     switch (localeID) {
         default:
-        case LOCALE_enUS: //Does this also applies to enGB for european client?
+        case LOCALE_enUS:
+            //The following is needed for compatibility when extractor generated enGB locale, now it only generates enUS
             return (lastPathItem=="enGB" || lastPathItem=="enUS");
         case LOCALE_koKR:
             return lastPathItem=="koKR";
