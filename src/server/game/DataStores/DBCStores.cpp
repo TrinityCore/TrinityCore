@@ -926,10 +926,9 @@ std::string GetDBCLocaleFolder(const std::string& dataPath) {
     boost::filesystem::directory_iterator end_iter;
     std::string detectedLocalePath="";
     int locale=ConfigMgr::instance()->GetIntDefault("DBC.Locale", 0);
-    for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter) {
-	    std::string dir=(*(--((*dir_iter).path().end()))).string();
-	    if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(dir, locale)) detectedLocalePath=dir;
-    }
+    for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter)
+	    if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale)) detectedLocalePath=(*dir_iter).string();
+
     if (detectedLocalePath.empty())
 	    TC_LOG_WARN("server.loading", "DBC files detected at DataDir/dbc root folder instead of its locale subfolder, this will be removed in a future");
     else
@@ -937,36 +936,37 @@ std::string GetDBCLocaleFolder(const std::string& dataPath) {
     return result.string();
 }
 
-bool DBCLocaleFolderMatch(const std::string& dataPath, const int& localeID) {
-	bool result=false;
+bool DBCLocaleFolderMatch(const boost::filesystem::path& dataPath, const int& localeID) {
+	const std::string lastPathItem=dataPath.filename().string();
+	bool match=false;
 	switch (localeID) {
 		default:
 		case 0:
-			result=(dataPath=="enGB" || dataPath=="enUS");
+			match=(lastPathItem=="enGB" || lastPathItem=="enUS");
 			break;
 		case 1:
-			result=(dataPath=="koKR");
+			match=(lastPathItem=="koKR");
 			break;
 		case 2:
-			result=(dataPath=="frFR");
+			match=(lastPathItem=="frFR");
 			break;
 		case 3:
-			result=(dataPath=="deDE");
+			match=(lastPathItem=="deDE");
 			break;
 		case 4:
-			result=(dataPath=="zhCN");
+			match=(lastPathItem=="zhCN");
 			break;
 		case 5:
-			result=(dataPath=="zhTW");
+			match=(lastPathItem=="zhTW");
 			break;
 		case 6:
-			result=(dataPath=="esES");
+			match=(lastPathItem=="esES");
 			break;
 		case 7:
-			result=(dataPath=="esMX");
+			match=(lastPathItem=="esMX");
 			break;
 		case 8:
-			result=(dataPath=="ruRU");
+			match=(lastPathItem=="ruRU");
 			break;
 	}
 	return result;
