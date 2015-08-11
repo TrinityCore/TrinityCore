@@ -235,7 +235,7 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, AmbushMoveTo[spawnId]);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest)
+        void sQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_RINJI_TRAPPED)
             {
