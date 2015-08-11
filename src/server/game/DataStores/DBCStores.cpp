@@ -924,46 +924,12 @@ std::string GetDBCLocaleFolder(std::string const& dataPath)
 {
     boost::filesystem::directory_iterator dir_iter(dataPath);
     boost::filesystem::directory_iterator end_iter;
-    
-    if (dir_iter==end_iter)
-	    return dataPath; //Folder is empty, so we return as is, the caller will throw the error
 
-    int locale=sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS);
+    const int locale = sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS);
     for(; dir_iter != end_iter; ++dir_iter)
-        if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale))
-            return (boost::filesystem::path(dataPath)/(*dir_iter).path()).string(); //Return the full path appending detected locale folder
+        if (boost::filesystem::is_directory(*dir_iter) && GetLocaleByName((*dir_iter).path().filename()) == locale)
+            return (boost::filesystem::path(dataPath) / (*dir_iter).path()).string(); //Return the full path appending detected locale folder
     
     //No subfolder detected but files were present, so we return it unmodified and let the caller throw error if necesary
     return dataPath;
-}
-
-bool DBCLocaleFolderMatch(boost::filesystem::path const& dataPath, int const& localeID)
-{
-    const std::string lastPathItem=dataPath.filename().string();
-    switch (localeID) {
-        default:
-        case LOCALE_enUS:
-            //The following is needed for compatibility when extractor generated enGB locale, now it only generates enUS
-            return (lastPathItem=="enGB" || lastPathItem=="enUS");
-        case LOCALE_koKR:
-            return lastPathItem=="koKR";
-        case LOCALE_frFR:
-            return lastPathItem=="frFR";
-        case LOCALE_deDE:
-            return lastPathItem=="deDE";
-        case LOCALE_zhCN:
-            return lastPathItem=="zhCN";
-        case LOCALE_zhTW:
-            return lastPathItem=="zhTW";
-        case LOCALE_esES:
-            return lastPathItem=="esES";
-        case LOCALE_esMX:
-            return lastPathItem=="esMX";
-        case LOCALE_ruRU:
-            return lastPathItem=="ruRU";
-        case LOCALE_ptBR:
-            return lastPathItem=="prBR";
-        case LOCALE_itIT:
-            return lastPathItem=="itIT";
-    }
 }
