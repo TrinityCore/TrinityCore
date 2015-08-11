@@ -926,47 +926,47 @@ std::string GetDBCLocaleFolder(const std::string& dataPath) {
     std::string detectedLocalePath="";
     int locale=ConfigMgr::instance()->GetIntDefault("DBC.Locale", 0);
     for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter)
-	    if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale)) detectedLocalePath=(*dir_iter).path().string();
+        if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale)) detectedLocalePath=(*dir_iter).path().string();
 
     if (detectedLocalePath.empty())
-	    TC_LOG_WARN("server.loading", "DBC files detected at DataDir/dbc root folder instead of its locale subfolder, this will be removed in a future");
+        TC_LOG_WARN("server.loading", "DBC files detected at DataDir/dbc root folder instead of its locale subfolder, this will be removed in a future");
     else
-	    result/=detectedLocalePath;
+        result/=detectedLocalePath;
     return result.string();
 }
 
 bool DBCLocaleFolderMatch(const boost::filesystem::path& dataPath, const int& localeID) {
-	const std::string lastPathItem=dataPath.filename().string();
-	bool match=false;
-	switch (localeID) {
-		default:
-		case 0:
-			match=(lastPathItem=="enGB" || lastPathItem=="enUS");
-			break;
-		case 1:
-			match=(lastPathItem=="koKR");
-			break;
-		case 2:
-			match=(lastPathItem=="frFR");
-			break;
-		case 3:
-			match=(lastPathItem=="deDE");
-			break;
-		case 4:
-			match=(lastPathItem=="zhCN");
-			break;
-		case 5:
-			match=(lastPathItem=="zhTW");
-			break;
-		case 6:
-			match=(lastPathItem=="esES");
-			break;
-		case 7:
-			match=(lastPathItem=="esMX");
-			break;
-		case 8:
-			match=(lastPathItem=="ruRU");
-			break;
-	}
-	return match;
+    const std::string lastPathItem=dataPath.filename().string();
+    bool match=false;
+    switch (localeID) {
+        default:
+        case 0:
+            match=(lastPathItem=="enGB" || lastPathItem=="enUS");
+            break;
+        case 1:
+            match=(lastPathItem=="koKR");
+            break;
+        case 2:
+            match=(lastPathItem=="frFR");
+            break;
+        case 3:
+            match=(lastPathItem=="deDE");
+            break;
+        case 4:
+            match=(lastPathItem=="zhCN");
+            break;
+        case 5:
+            match=(lastPathItem=="zhTW");
+            break;
+        case 6:
+            match=(lastPathItem=="esES");
+            break;
+        case 7:
+            match=(lastPathItem=="esMX");
+            break;
+        case 8:
+            match=(lastPathItem=="ruRU");
+            break;
+    }
+    return match;
 }
