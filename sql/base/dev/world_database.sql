@@ -1066,6 +1066,21 @@ CREATE TABLE `gameobject` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `gameobject_addon`
+--
+
+DROP TABLE IF EXISTS `gameobject_addon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_addon` (
+  `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `invisibilityType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `invisibilityValue` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `gameobject_loot_template`
 --
 
