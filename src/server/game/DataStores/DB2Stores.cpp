@@ -178,7 +178,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
-    std::string db2Path = dataPath + "dbc/";
+    std::string db2Path = GetDBCLocaleFolder(dataPath);
 
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
