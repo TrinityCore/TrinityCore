@@ -303,7 +303,7 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
 void LoadDBCStores(const std::string& dataPath)
 {
     uint32 oldMSTime = getMSTime();
-    std::cout << "DETECTED DBC LOCALE: " << GetDBCLocaleFolder(dataPath+"dbc/") << std::endl;
+    
     std::string dbcPath = GetDBCLocaleFolder(dataPath+"dbc/");
 
     StoreProblemList bad_dbc_files;
