@@ -304,7 +304,7 @@ void LoadDBCStores(const std::string& dataPath)
 {
     uint32 oldMSTime = getMSTime();
     
-    std::string dbcPath = GetDBCLocaleFolder(dataPath+"dbc/");
+    std::string dbcPath = GetDBCLocaleFolder(dataPath + "dbc/");
 
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
