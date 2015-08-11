@@ -925,13 +925,14 @@ std::string GetDBCLocaleFolder(const std::string& dataPath) {
     boost::filesystem::directory_iterator end_iter;
     std::string detectedLocalePath="";
     int locale=ConfigMgr::instance()->GetIntDefault("DBC.Locale", 0);
-    for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter)
-        if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale)) detectedLocalePath=(*dir_iter).path().string();
+    for(boost::filesystem::directory_iterator dir_iter(dataPath); dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter)
+        if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(*dir_iter, locale))
+            detectedLocalePath=(*dir_iter).path().string(); //Get only the last part of the path, the locale part (esES, esMX, etc)
 
     if (detectedLocalePath.empty())
         TC_LOG_WARN("server.loading", "DBC files detected at DataDir/dbc root folder instead of its locale subfolder, this will be removed in a future");
     else
-        result/=detectedLocalePath;
+        result/=detectedLocalePath; //Append detected locale path to dbc folder
     return result.string();
 }
 
