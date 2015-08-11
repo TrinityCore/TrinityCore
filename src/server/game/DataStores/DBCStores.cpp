@@ -23,8 +23,10 @@
 #include "DBCfmt.h"
 #include "Timer.h"
 #include "DB2Stores.h"
+#include "Config.h"
 
 #include <map>
+#include <boost/filesystem.hpp>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
@@ -302,7 +304,7 @@ void LoadDBCStores(const std::string& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
-    std::string dbcPath = dataPath+"dbc/";
+    std::string dbcPath = GetDBCLocaleFolder(dataPath + "dbc/");
 
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
@@ -917,4 +919,18 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     }
 
     return NULL;
+}
+
+std::string GetDBCLocaleFolder(std::string const& dataPath)
+{
+    boost::filesystem::directory_iterator dir_iter(dataPath);
+    boost::filesystem::directory_iterator end_iter;
+
+    const int locale = sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS);
+    for(; dir_iter != end_iter; ++dir_iter)
+        if (boost::filesystem::is_directory(*dir_iter) && GetLocaleByName((*dir_iter).path().filename().string()) == locale)
+            return dir_iter->path().string() + "/";
+    
+    //Empty folder, or it has files but not subfolders (probably the DBC files). Return it unmodified and let caller detect its correctness
+    return dataPath;
 }
