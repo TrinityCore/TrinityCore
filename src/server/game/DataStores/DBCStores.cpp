@@ -926,7 +926,7 @@ std::string GetDBCLocaleFolder(const std::string& dataPath) {
     boost::filesystem::directory_iterator end_iter;
     std::string detectedLocalePath="";
     int locale=ConfigMgr::instance()->GetIntDefault("DBC.Locale", 0);
-    for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && !detectedLocalePath.empty(); ++dir_iter) {
+    for( boost::filesystem::directory_iterator dir_iter(dataPath) ; dir_iter != end_iter && detectedLocalePath.empty(); ++dir_iter) {
 	    std::string dir=(*(--((*dir_iter).path().end()))).string();
 	    if (boost::filesystem::is_directory(*dir_iter) && DBCLocaleFolderMatch(dir, locale)) detectedLocalePath=dir;
     }
