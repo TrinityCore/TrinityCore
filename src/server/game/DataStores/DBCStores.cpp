@@ -303,7 +303,7 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
 void LoadDBCStores(const std::string& dataPath)
 {
     uint32 oldMSTime = getMSTime();
-
+    std::cout << "DETECTED DBC LOCALE: " << GetDBCLocaleFolder(dataPath+"dbc/") << std::endl;
     std::string dbcPath = GetDBCLocaleFolder(dataPath+"dbc/");
 
     StoreProblemList bad_dbc_files;
@@ -929,7 +929,7 @@ std::string GetDBCLocaleFolder(std::string const& dataPath)
     const int locale = sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS);
     for(; dir_iter != end_iter; ++dir_iter)
         if (boost::filesystem::is_directory(*dir_iter) && GetLocaleByName((*dir_iter).path().filename().string()) == locale)
-            return (boost::filesystem::path(dataPath) / (*dir_iter).path()).string(); //Return the full path appending detected locale folder
+            return (boost::filesystem::path(dataPath) / (*dir_iter).path().filename()).string(); //Return the full path appending detected locale folder
     
     //Empty folder, or it has files but not subfolders (probably the DBC files). Return it unmodified and let caller detect its correctness
     return dataPath;
