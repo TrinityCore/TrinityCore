@@ -3814,7 +3814,7 @@ void Spell::SendSpellStart()
         castFlags |= CAST_FLAG_PENDING;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
-        (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
+        (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsPet()))
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
@@ -3916,7 +3916,7 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_PENDING;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
-        (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
+        (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsPet()))
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
