@@ -230,7 +230,7 @@ public:
             }
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) override
         {
             if (events.Empty())
                 return;
