@@ -330,7 +330,7 @@ void Unit::Update(uint32 p_time)
         SendThreatListUpdate();
 
     // update combat timer only for players and pets (only pets with PetAI)
-    if (IsInCombat() && (GetTypeId() == TYPEID_PLAYER || (ToCreature()->IsPet() && IsControlledByPlayer())))
+    if (IsInCombat() && (GetTypeId() == TYPEID_PLAYER || (IsPet() && IsControlledByPlayer())))
     {
         // Check UNIT_STATE_MELEE_ATTACKING or UNIT_STATE_CHASE (without UNIT_STATE_FOLLOW in this case) so pets can reach far away
         // targets without stopping half way there and running off.
@@ -2131,8 +2131,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
     if (attType != RANGED_ATTACK &&
-        (GetTypeId() == TYPEID_PLAYER || ToCreature()->IsPet()) &&
-        victim->GetTypeId() != TYPEID_PLAYER && !victim->ToCreature()->IsPet() &&
+        (GetTypeId() == TYPEID_PLAYER || IsPet()) &&
+        victim->GetTypeId() != TYPEID_PLAYER && !victim->IsPet() &&
         getLevel() < victim->getLevelForTarget(this))
     {
         // cap possible value (with bonuses > max skill)
@@ -8984,7 +8984,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     //if (GetTypeId() == TYPEID_UNIT)
     //    ToCreature()->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
 
-    if (GetTypeId() == TYPEID_UNIT && !ToCreature()->IsPet())
+    if (GetTypeId() == TYPEID_UNIT && !IsPet())
     {
         // should not let player enter combat by right clicking target - doesn't helps
         SetInCombatWith(victim);
@@ -9726,7 +9726,7 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
     if (GetTypeId() == TYPEID_PLAYER)
         player = ToPlayer();
     // Should we enable this also for charmed units?
-    else if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsPet())
+    else if (GetTypeId() == TYPEID_UNIT && IsPet())
         player = GetOwner()->ToPlayer();
 
     if (!player)
@@ -10014,7 +10014,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     float DoneTotalMod = 1.0f;
 
     // Pet damage?
-    if (GetTypeId() == TYPEID_UNIT && !ToCreature()->IsPet())
+    if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
@@ -14518,7 +14518,7 @@ Player* Unit::GetSpellModOwner() const
     if (Player* player = const_cast<Unit*>(this)->ToPlayer())
         return player;
 
-    if (ToCreature()->IsPet() || ToCreature()->IsTotem())
+    if (IsPet() || ToCreature()->IsTotem())
     {
         if (Unit* owner = GetOwner())
             if (Player* player = owner->ToPlayer())
@@ -14789,7 +14789,7 @@ void Unit::ApplyCastTimePercentMod(float val, bool apply)
 uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const
 {
     // Not apply this to creature cast spells with casttime == 0
-    if (CastingTime == 0 && GetTypeId() == TYPEID_UNIT && !ToCreature()->IsPet())
+    if (CastingTime == 0 && GetTypeId() == TYPEID_UNIT && !IsPet())
         return 3500;
 
     if (CastingTime > 7000) CastingTime = 7000;
@@ -14889,7 +14889,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
             player->SetAuraUpdateMaskForRaid(slot);
         }
     }
-    else if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsPet())
+    else if (GetTypeId() == TYPEID_UNIT && IsPet())
     {
         Pet* pet = ((Pet*)this);
         if (pet->isControlled())
