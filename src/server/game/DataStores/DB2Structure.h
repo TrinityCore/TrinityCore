@@ -688,6 +688,7 @@ struct MailTemplateEntry
 struct MountEntry
 {
     uint32 Id;
+    uint32 SpellId;
     uint32 MountTypeId;
     uint32 DisplayId;
     uint32 Flags;
@@ -695,7 +696,6 @@ struct MountEntry
     LocalizedString* Description;
     LocalizedString* SourceDescription;
     uint32 Source;
-    uint32 SpellId;
     uint32 PlayerConditionId;
 };
 

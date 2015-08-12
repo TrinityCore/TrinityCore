@@ -801,6 +801,6 @@ bool DB2Manager::GlyphSlotEntryComparator::Compare(GlyphSlotEntry const* left, G
 bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right)
 {
     if (left->MountTypeID == right->MountTypeID)
-        return left->OrderIndex > right->OrderIndex;
+        return left->OrderIndex < right->OrderIndex;
     return left->ID < right->ID;
 }
