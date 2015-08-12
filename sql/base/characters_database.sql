@@ -1549,6 +1549,8 @@ CREATE TABLE `character_void_storage` (
   `creatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `randomProperty` int(10) unsigned NOT NULL DEFAULT '0',
   `suffixFactor` int(10) unsigned NOT NULL DEFAULT '0',
+  `upgradeId` int(10) unsigned NOT NULL DEFAULT '0',
+  `bonusListIDs` text,
   PRIMARY KEY (`itemId`),
   UNIQUE KEY `idx_player_slot` (`playerGuid`,`slot`),
   KEY `idx_player` (`playerGuid`)

@@ -139,6 +139,10 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         return;
     }
 
+    WorldPackets::VoidStorage::VoidStorageTransferChanges voidStorageTransferChanges;
+    voidStorageTransferChanges.AddedItems.reserve(VOID_STORAGE_MAX_DEPOSIT);
+    voidStorageTransferChanges.RemovedItems.reserve(VOID_STORAGE_MAX_DEPOSIT);
+
     std::pair<VoidStorageItem, uint8> depositItems[VOID_STORAGE_MAX_DEPOSIT];
     uint8 depositCount = 0;
     for (uint32 i = 0; i < voidStorageTransfer.Deposits.size(); ++i)
@@ -150,25 +154,25 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             continue;
         }
 
-        // TODO: Save these fields to database - for now disallow storing these items to prevent data loss
-        if (item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK) || !item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).empty())
-            continue;
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR),
+            item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID), item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        WorldPackets::VoidStorage::VoidItem voidItem;
+        voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);
+        voidItem.Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
+        voidItem.Item.Initialize(&itemVS);
+        voidItem.Slot = _player->AddVoidStorageItem(std::move(itemVS));
 
-        uint8 slot = _player->AddVoidStorageItem(itemVS);
-
-        depositItems[depositCount++] = std::make_pair(itemVS, slot);
+        voidStorageTransferChanges.AddedItems.push_back(voidItem);
 
         _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+        ++depositCount;
     }
 
     int64 cost = depositCount * VOID_STORAGE_STORE_ITEM_COST;
 
     _player->ModifyMoney(-cost);
 
-    VoidStorageItem withdrawItems[VOID_STORAGE_MAX_WITHDRAW];
-    uint8 withdrawCount = 0;
     for (uint32 i = 0; i < voidStorageTransfer.Withdrawals.size(); ++i)
     {
         uint8 slot = 0;
@@ -188,31 +192,16 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
         }
 
-        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId);
+        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId, GuidSet(), itemVS->BonusListIDs);
         item->SetUInt32Value(ITEM_FIELD_PROPERTY_SEED, itemVS->ItemSuffixFactor);
         item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
+        item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemVS->ItemUpgradeId);
         item->SetBinding(true);
-        _player->SendNewItem(item, 1, false, false, false);
 
-        withdrawItems[withdrawCount++] = *itemVS;
+        voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
 
         _player->DeleteVoidStorageItem(slot);
     }
-
-    WorldPackets::VoidStorage::VoidStorageTransferChanges voidStorageTransferChanges;
-    voidStorageTransferChanges.AddedItems.resize(depositCount);
-    voidStorageTransferChanges.RemovedItems.resize(withdrawCount);
-
-    for (uint8 i = 0; i < depositCount; ++i)
-    {
-        voidStorageTransferChanges.AddedItems[i].Guid = ObjectGuid::Create<HighGuid::Item>(depositItems[i].first.ItemId);
-        voidStorageTransferChanges.AddedItems[i].Creator = depositItems[i].first.CreatorGuid;
-        voidStorageTransferChanges.AddedItems[i].Slot = depositItems[i].second;
-        voidStorageTransferChanges.AddedItems[i].Item.Initialize(&depositItems[i].first);
-    }
-
-    for (uint8 i = 0; i < withdrawCount; ++i)
-        voidStorageTransferChanges.RemovedItems[i] = ObjectGuid::Create<HighGuid::Item>(withdrawItems[i].ItemId);
 
     SendPacket(voidStorageTransferChanges.Write());
 
