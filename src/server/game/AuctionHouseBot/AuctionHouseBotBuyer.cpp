@@ -209,6 +209,7 @@ bool AuctionBotBuyer::RollBidChance(const BuyerItemInfo* ahInfo, const Item* ite
         TC_LOG_DEBUG("ahbot", "AHBot: Bid average: %.1f biddable item count: %u", avgBidPrice, ahInfo->BidItemCount);
 
         // If there are more than 5 items on AH of this entry, try weigh in the average bid price
+        if (ahInfo->BidItemCount >= 5)
             chance *= 1.f / std::sqrt(itemBidPrice / avgBidPrice);
     }
 

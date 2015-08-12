@@ -7743,7 +7743,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
                 // check that we are still inside the tavern (in areatrigger radius)
 
                 AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(GetInnTriggerId());
-                if (!atEntry || !IsInAreaTriggerRadius(atEntry))                {
+                if (!atEntry || !IsInAreaTriggerRadius(atEntry))
+                {
                     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
                     SetRestType(REST_TYPE_NO);
                 }
@@ -22730,7 +22731,7 @@ inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/) { }
 template<>
 inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
 {
-    if (p->GetPetGUID() == t->GetGUID() && t->ToCreature()->IsPet())
+    if (p->GetPetGUID() == t->GetGUID() && t->IsPet())
         ((Pet*)t)->Remove(PET_SAVE_NOT_IN_SLOT, true);
 }
 
@@ -24130,11 +24131,11 @@ bool Player::isHonorOrXPTarget(Unit const* victim) const
     if (v_level <= k_grey)
         return false;
 
-    if (Creature const* const creature = victim->ToCreature())
+    if (victim->GetTypeId() == TYPEID_UNIT)
     {
-        if (creature->IsTotem() ||
-            creature->IsPet() ||
-            creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)
+        if (victim->IsTotem() ||
+            victim->IsPet() ||
+            victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)
                 return false;
     }
     return true;
