@@ -185,14 +185,13 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
         ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
     }
 
-    uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-    if (mask != 0)
-        Modifications = WorldPackets::CompactArray<int32>();
-
-    for (size_t i = 0; mask != 0; mask >>= 1, ++i)
+    if (uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK))
     {
-        if ((mask & 1) != 0)
-            Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
+        Modifications = boost::in_place();
+
+        for (size_t i = 0; mask != 0; mask >>= 1, ++i)
+            if ((mask & 1) != 0)
+                Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
     }
 }
 
@@ -216,6 +215,17 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
     ItemID = voidItem->ItemEntry;
     RandomPropertiesID = voidItem->ItemRandomPropertyId;
     RandomPropertiesSeed = voidItem->ItemSuffixFactor;
+    if (voidItem->ItemUpgradeId)
+    {
+        Modifications = boost::in_place();
+        Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, voidItem->ItemUpgradeId);
+    }
+
+    if (!voidItem->BonusListIDs.empty())
+    {
+        ItemBonus = boost::in_place();
+        ItemBonus->BonusListIDs = voidItem->BonusListIDs;
+    }
 }
 
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()

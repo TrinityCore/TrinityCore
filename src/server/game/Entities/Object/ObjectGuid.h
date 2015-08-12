@@ -205,6 +205,10 @@ class ObjectGuid
 
         ObjectGuid() : _low(0), _high(0) { }
         ObjectGuid(ObjectGuid const&) = default;
+        ObjectGuid(ObjectGuid&&) = default;
+
+        ObjectGuid& operator=(ObjectGuid const&) = default;
+        ObjectGuid& operator=(ObjectGuid&&) = default;
 
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);

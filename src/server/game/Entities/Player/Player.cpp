@@ -17787,7 +17787,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
     do
     {
-        // SELECT itemid, itemEntry, slot, creatorGuid FROM character_void_storage WHERE playerGuid = ?
+        // SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, bonusListIDs FROM character_void_storage WHERE playerGuid = ?
         Field* fields = result->Fetch();
 
         uint64 itemId = fields[0].GetUInt64();
@@ -17796,6 +17796,11 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         ObjectGuid creatorGuid = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64());
         uint32 randomProperty = fields[4].GetUInt32();
         uint32 suffixFactor = fields[5].GetUInt32();
+        uint32 upgradeId = fields[6].GetUInt32();
+        std::vector<uint32> bonusListIDs;
+        Tokenizer bonusListIdTokens(fields[7].GetString(), ' ');
+        for (char const* token : bonusListIdTokens)
+            bonusListIDs.push_back(atoul(token));
 
         if (!itemId)
         {
@@ -17822,7 +17827,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             creatorGuid.Clear();
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, upgradeId, bonusListIDs);
     }
     while (result->NextRow());
 }
@@ -19422,7 +19427,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
         }
         else
         {
-            // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)
+            // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, bonusListIDs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
             stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
             stmt->setUInt64(1, GetGUID().GetCounter());
@@ -19431,6 +19436,11 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt64(4, _voidStorageItems[i]->CreatorGuid.GetCounter());
             stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
             stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
+            stmt->setUInt32(7, _voidStorageItems[i]->ItemUpgradeId);
+            std::ostringstream bonusListIDs;
+            for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
+                bonusListIDs << bonusListID << ' ';
+            stmt->setString(8, bonusListIDs.str());
         }
 
         trans->Append(stmt);
@@ -26113,7 +26123,7 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
     return count;
 }
 
-uint8 Player::AddVoidStorageItem(VoidStorageItem const& item)
+uint8 Player::AddVoidStorageItem(VoidStorageItem&& item)
 {
     uint8 slot = GetNextVoidStorageFreeSlot();
 
@@ -26123,28 +26133,8 @@ uint8 Player::AddVoidStorageItem(VoidStorageItem const& item)
         return 255;
     }
 
-    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+    _voidStorageItems[slot] = new VoidStorageItem(std::move(item));
     return slot;
-}
-
-void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
-{
-    if (slot >= VOID_STORAGE_MAX_SLOT)
-    {
-        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
-        return;
-    }
-
-    if (_voidStorageItems[slot])
-    {
-        TC_LOG_ERROR("misc", "Player::AddVoidStorageItemAtSlot - Player (%s, name: %s) tried to add an item to an used slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGUID().ToString().c_str(), GetName().c_str(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
-        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
-        return;
-    }
-
-    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
 }
 
 void Player::DeleteVoidStorageItem(uint8 slot)

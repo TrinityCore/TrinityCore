@@ -1162,28 +1162,22 @@ struct BGData
 
 struct VoidStorageItem
 {
-    VoidStorageItem()
+    VoidStorageItem() : ItemId(0), ItemEntry(0), ItemRandomPropertyId(0), ItemSuffixFactor(0), ItemUpgradeId(0) { }
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor, uint32 upgradeId, std::vector<uint32> const& bonuses)
+        : ItemId(id), ItemEntry(entry), CreatorGuid(creator), ItemRandomPropertyId(randomPropertyId),
+        ItemSuffixFactor(suffixFactor), ItemUpgradeId(upgradeId)
     {
-        ItemId = 0;
-        ItemEntry = 0;
-        ItemRandomPropertyId = 0;
-        ItemSuffixFactor = 0;
+        BonusListIDs.insert(BonusListIDs.end(), bonuses.begin(), bonuses.end());
     }
-
-    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid creator, uint32 randomPropertyId, uint32 suffixFactor)
-    {
-        ItemId = id;
-        ItemEntry = entry;
-        CreatorGuid = creator;
-        ItemRandomPropertyId = randomPropertyId;
-        ItemSuffixFactor = suffixFactor;
-    }
+    VoidStorageItem(VoidStorageItem&& vsi) = default;
 
     uint64 ItemId;
     uint32 ItemEntry;
     ObjectGuid CreatorGuid;
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
+    uint32 ItemUpgradeId;
+    std::vector<int32> BonusListIDs;
 };
 
 class TradeData
@@ -2623,8 +2617,7 @@ class Player : public Unit, public GridObject<Player>
         void LockVoidStorage() { RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_VOID_UNLOCKED); }
         uint8 GetNextVoidStorageFreeSlot() const;
         uint8 GetNumOfVoidStorageFreeSlots() const;
-        uint8 AddVoidStorageItem(VoidStorageItem const& item);
-        void AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item);
+        uint8 AddVoidStorageItem(VoidStorageItem&& item);
         void DeleteVoidStorageItem(uint8 slot);
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
