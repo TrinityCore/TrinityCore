@@ -25524,7 +25524,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt->setString(j++, eqset.IconName.c_str());
                 stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
-                    stmt->setUInt32(j++, eqset.Items[i]);
+                    stmt->setUInt32(j++, eqset.Items[i], true);
                 stmt->setUInt32(j++, GetGUIDLow());
                 stmt->setUInt64(j++, eqset.Guid);
                 stmt->setUInt32(j, index);
@@ -25541,7 +25541,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt->setString(j++, eqset.IconName.c_str());
                 stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
-                    stmt->setUInt32(j++, eqset.Items[i]);
+                    stmt->setUInt32(j++, eqset.Items[i], true);
                 trans->Append(stmt);
                 eqset.state = EQUIPMENT_SET_UNCHANGED;
                 ++itr;
@@ -25564,7 +25564,7 @@ void Player::_SaveBGData(SQLTransaction& trans)
     /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
-    stmt->setUInt32(1, m_bgData.bgInstanceID);
+    stmt->setUInt32(1, m_bgData.bgInstanceID, true);
     stmt->setUInt16(2, m_bgData.bgTeam);
     stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
     stmt->setFloat (4, m_bgData.joinPos.GetPositionY());

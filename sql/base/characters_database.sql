@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.15  Distrib 10.0.21-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters335
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	10.0.21-MariaDB-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -192,10 +192,10 @@ CREATE TABLE `auctionhouse` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `auctioneerguid` int(10) unsigned NOT NULL DEFAULT '0',
   `itemguid` int(10) unsigned NOT NULL DEFAULT '0',
-  `itemowner` int(10) unsigned NOT NULL DEFAULT '0',
+  `itemowner` int(10) unsigned DEFAULT NULL,
   `buyoutprice` int(10) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
-  `buyguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `buyguid` int(10) unsigned DEFAULT NULL,
   `lastbid` int(10) unsigned NOT NULL DEFAULT '0',
   `startbid` int(10) unsigned NOT NULL DEFAULT '0',
   `deposit` int(10) unsigned NOT NULL DEFAULT '0',
@@ -547,7 +547,7 @@ DROP TABLE IF EXISTS `character_battleground_data`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_battleground_data` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `instanceId` int(10) unsigned NOT NULL COMMENT 'Instance Identifier',
+  `instanceId` int(10) unsigned DEFAULT NULL COMMENT 'Instance Identifier',
   `team` smallint(5) unsigned NOT NULL,
   `joinX` float NOT NULL DEFAULT '0',
   `joinY` float NOT NULL DEFAULT '0',
@@ -633,25 +633,25 @@ CREATE TABLE `character_equipmentsets` (
   `name` varchar(31) NOT NULL,
   `iconname` varchar(100) NOT NULL,
   `ignore_mask` int(11) unsigned NOT NULL DEFAULT '0',
-  `item0` int(11) unsigned NOT NULL DEFAULT '0',
-  `item1` int(11) unsigned NOT NULL DEFAULT '0',
-  `item2` int(11) unsigned NOT NULL DEFAULT '0',
-  `item3` int(11) unsigned NOT NULL DEFAULT '0',
-  `item4` int(11) unsigned NOT NULL DEFAULT '0',
-  `item5` int(11) unsigned NOT NULL DEFAULT '0',
-  `item6` int(11) unsigned NOT NULL DEFAULT '0',
-  `item7` int(11) unsigned NOT NULL DEFAULT '0',
-  `item8` int(11) unsigned NOT NULL DEFAULT '0',
-  `item9` int(11) unsigned NOT NULL DEFAULT '0',
-  `item10` int(11) unsigned NOT NULL DEFAULT '0',
-  `item11` int(11) unsigned NOT NULL DEFAULT '0',
-  `item12` int(11) unsigned NOT NULL DEFAULT '0',
-  `item13` int(11) unsigned NOT NULL DEFAULT '0',
-  `item14` int(11) unsigned NOT NULL DEFAULT '0',
-  `item15` int(11) unsigned NOT NULL DEFAULT '0',
-  `item16` int(11) unsigned NOT NULL DEFAULT '0',
-  `item17` int(11) unsigned NOT NULL DEFAULT '0',
-  `item18` int(11) unsigned NOT NULL DEFAULT '0',
+  `item0` int(10) unsigned DEFAULT NULL,
+  `item1` int(10) unsigned DEFAULT NULL,
+  `item2` int(10) unsigned DEFAULT NULL,
+  `item3` int(10) unsigned DEFAULT NULL,
+  `item4` int(10) unsigned DEFAULT NULL,
+  `item5` int(10) unsigned DEFAULT NULL,
+  `item6` int(10) unsigned DEFAULT NULL,
+  `item7` int(10) unsigned DEFAULT NULL,
+  `item8` int(10) unsigned DEFAULT NULL,
+  `item9` int(10) unsigned DEFAULT NULL,
+  `item10` int(10) unsigned DEFAULT NULL,
+  `item11` int(10) unsigned DEFAULT NULL,
+  `item12` int(10) unsigned DEFAULT NULL,
+  `item13` int(10) unsigned DEFAULT NULL,
+  `item14` int(10) unsigned DEFAULT NULL,
+  `item15` int(10) unsigned DEFAULT NULL,
+  `item16` int(10) unsigned DEFAULT NULL,
+  `item17` int(10) unsigned DEFAULT NULL,
+  `item18` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`setguid`),
   UNIQUE KEY `idx_set` (`guid`,`setguid`,`setindex`),
   KEY `Idx_setindex` (`setindex`)
@@ -1349,7 +1349,7 @@ CREATE TABLE `corpse` (
   `dynFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `corpseType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
+  `instanceId` int(10) unsigned DEFAULT NULL COMMENT 'Instance Identifier',
   PRIMARY KEY (`corpseGuid`),
   KEY `idx_type` (`corpseType`),
   KEY `idx_instance` (`instanceId`),
@@ -1536,14 +1536,15 @@ CREATE TABLE `gm_ticket` (
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
   `lastModifiedTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `closedBy` int(10) NOT NULL DEFAULT '0',
-  `assignedTo` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
+  `closedBy` int(10) unsigned DEFAULT NULL,
+  `assignedTo` int(10) unsigned DEFAULT NULL COMMENT 'GUID of admin to whom ticket is assigned',
   `comment` text NOT NULL,
   `response` text NOT NULL,
   `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `needMoreHelp` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `closed` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2511,7 +2512,7 @@ CREATE TABLE `updates` (
 
 LOCK TABLES `updates` WRITE;
 /*!40000 ALTER TABLE `updates` DISABLE KEYS */;
-INSERT INTO `updates` VALUES ('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_01_characters.sql','894F08B70449A5481FFAF394EE5571D7FC4D8A3A','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_02_characters.sql','97D7BE0CAADC79F3F11B9FD296B8C6CD40FE593B','ARCHIVED','2015-03-21 21:44:51',0),('2015_06_26_00_characters_335.sql','C2CC6E50AFA1ACCBEBF77CC519AAEB09F3BBAEBC','ARCHIVED','2015-07-13 23:49:22',0);
+INSERT INTO `updates` VALUES ('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_01_characters.sql','894F08B70449A5481FFAF394EE5571D7FC4D8A3A','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_02_characters.sql','97D7BE0CAADC79F3F11B9FD296B8C6CD40FE593B','ARCHIVED','2015-03-21 21:44:51',0),('2015_06_26_00_characters_335.sql','C2CC6E50AFA1ACCBEBF77CC519AAEB09F3BBAEBC','ARCHIVED','2015-07-13 23:49:22',0),('2015_08_13_00_characters_convert_zero_to_nulls.sql','8DD49553953F05F38CE31A1FC1AEBB6248AA3732','RELEASED','2015-08-21 16:58:57',114);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2596,4 +2597,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-07-14  1:06:50
+-- Dump completed on 2015-08-21 19:06:04

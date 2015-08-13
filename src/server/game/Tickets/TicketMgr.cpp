@@ -34,11 +34,11 @@ inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 // GM ticket
 GmTicket::GmTicket() : _id(0), _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(0), _lastModifiedTime(0),
                        _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false),
-                       _needResponse(false), _needMoreHelp(false) { }
+                       _needResponse(false), _needMoreHelp(false), _closed(false) { }
 
 GmTicket::GmTicket(Player* player) : _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(time(NULL)), _lastModifiedTime(time(NULL)),
                        _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false),
-                       _needResponse(false), _needMoreHelp(false)
+                       _needResponse(false), _needMoreHelp(false), _closed(false)
 {
     _id = sTicketMgr->GenerateTicketId();
     _playerName = player->GetName();
@@ -49,8 +49,8 @@ GmTicket::~GmTicket() { }
 
 bool GmTicket::LoadFromDB(Field* fields)
 {
-    //     0       1     2      3          4        5      6     7     8           9            10         11         12       13        14         15        16        17
-    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket
+    //     0       1     2      3          4        5      6     7     8           9            10         11         12       13        14         15        16        17        18
+    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket, closed
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
     _playerGuid         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt32());
@@ -70,13 +70,14 @@ bool GmTicket::LoadFromDB(Field* fields)
     _escalatedStatus    = GMTicketEscalationStatus(fields[++index].GetUInt8());
     _viewed             = fields[++index].GetBool();
     _needMoreHelp       = fields[++index].GetBool();
+    _closed             = fields[++index].GetBool();
     return true;
 }
 
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
-    //     0       1     2      3          4        5      6     7     8           9            10         11         12        13        14        15
-    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
+    //     0       1     2      3          4        5      6     7     8           9            10         11         12        13        14        15        16        17        18
+    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket, closed
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
@@ -89,14 +90,15 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setFloat (++index, _posY);
     stmt->setFloat (++index, _posZ);
     stmt->setUInt32(++index, uint32(_lastModifiedTime));
-    stmt->setInt32 (++index, int32(_closedBy.GetCounter()));
-    stmt->setUInt32(++index, _assignedTo.GetCounter());
+    stmt->setInt32 (++index, int32(_closedBy.GetCounter()), true);
+    stmt->setUInt32(++index, _assignedTo.GetCounter(), true);
     stmt->setString(++index, _comment);
     stmt->setString(++index, _response);
     stmt->setBool  (++index, _completed);
     stmt->setUInt8 (++index, uint8(_escalatedStatus));
     stmt->setBool  (++index, _viewed);
     stmt->setBool  (++index, _needMoreHelp);
+    stmt->setBool  (++index, _closed);
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -355,8 +357,7 @@ void TicketMgr::CloseTicket(uint32 ticketId, ObjectGuid source)
     {
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(source);
-        if (source)
-            --_openTicketCount;
+        --_openTicketCount;
         ticket->SaveToDB(trans);
     }
 }
