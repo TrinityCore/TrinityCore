@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.26, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters335
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.6.26-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -140,7 +140,9 @@ CREATE TABLE `arena_team` (
   `emblemColor` int(10) unsigned NOT NULL DEFAULT '0',
   `borderStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `borderColor` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`arenaTeamId`)
+  PRIMARY KEY (`arenaTeamId`),
+  KEY `captainGuid` (`captainGuid`),
+  CONSTRAINT `arena_team_ibfk_1` FOREIGN KEY (`captainGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -168,7 +170,9 @@ CREATE TABLE `arena_team_member` (
   `seasonGames` smallint(5) unsigned NOT NULL DEFAULT '0',
   `seasonWins` smallint(5) unsigned NOT NULL DEFAULT '0',
   `personalRating` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`arenaTeamId`,`guid`)
+  PRIMARY KEY (`arenaTeamId`,`guid`),
+  KEY `guid` (`guid`),
+  CONSTRAINT `arena_team_member_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -200,7 +204,12 @@ CREATE TABLE `auctionhouse` (
   `startbid` int(10) unsigned NOT NULL DEFAULT '0',
   `deposit` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `item_guid` (`itemguid`)
+  UNIQUE KEY `item_guid` (`itemguid`),
+  KEY `itemowner` (`itemowner`),
+  KEY `buyguid` (`buyguid`),
+  CONSTRAINT `auctionhouse_ibfk_1` FOREIGN KEY (`itemguid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `auctionhouse_ibfk_2` FOREIGN KEY (`itemowner`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `auctionhouse_ibfk_3` FOREIGN KEY (`buyguid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -280,7 +289,9 @@ CREATE TABLE `calendar_events` (
   `eventtime` int(10) unsigned NOT NULL DEFAULT '0',
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `time2` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `creator` (`creator`),
+  CONSTRAINT `calendar_events_ibfk_1` FOREIGN KEY (`creator`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -309,7 +320,11 @@ CREATE TABLE `calendar_invites` (
   `statustime` int(10) unsigned NOT NULL DEFAULT '0',
   `rank` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `text` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `invitee` (`invitee`),
+  KEY `sender` (`sender`),
+  CONSTRAINT `calendar_invites_ibfk_1` FOREIGN KEY (`invitee`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `calendar_invites_ibfk_2` FOREIGN KEY (`sender`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -362,7 +377,8 @@ CREATE TABLE `character_account_data` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `data` blob NOT NULL,
-  PRIMARY KEY (`guid`,`type`)
+  PRIMARY KEY (`guid`,`type`),
+  CONSTRAINT `character_account_data_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -386,7 +402,8 @@ CREATE TABLE `character_achievement` (
   `guid` int(10) unsigned NOT NULL,
   `achievement` smallint(5) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`achievement`)
+  PRIMARY KEY (`guid`,`achievement`),
+  CONSTRAINT `character_achievement_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -411,7 +428,8 @@ CREATE TABLE `character_achievement_progress` (
   `criteria` smallint(5) unsigned NOT NULL,
   `counter` int(10) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`criteria`)
+  PRIMARY KEY (`guid`,`criteria`),
+  CONSTRAINT `character_achievement_progress_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -437,7 +455,8 @@ CREATE TABLE `character_action` (
   `button` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `action` int(10) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spec`,`button`)
+  PRIMARY KEY (`guid`,`spec`,`button`),
+  CONSTRAINT `character_action_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -458,10 +477,11 @@ DROP TABLE IF EXISTS `character_arena_stats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_arena_stats` (
-  `guid` int(10) NOT NULL,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `slot` tinyint(3) NOT NULL,
   `matchMakerRating` smallint(5) NOT NULL,
-  PRIMARY KEY (`guid`,`slot`)
+  PRIMARY KEY (`guid`,`slot`),
+  CONSTRAINT `character_arena_stats_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -483,8 +503,8 @@ DROP TABLE IF EXISTS `character_aura`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `casterGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
-  `itemGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `casterGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `itemGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -498,7 +518,12 @@ CREATE TABLE `character_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`)
+  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`),
+  KEY `casterGuid` (`casterGuid`),
+  KEY `itemGuid` (`itemGuid`),
+  CONSTRAINT `character_aura_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_aura_ibfk_2` FOREIGN KEY (`casterGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_aura_ibfk_3` FOREIGN KEY (`itemGuid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -525,7 +550,8 @@ CREATE TABLE `character_banned` (
   `bannedby` varchar(50) NOT NULL,
   `banreason` varchar(255) NOT NULL,
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`guid`,`bandate`)
+  PRIMARY KEY (`guid`,`bandate`),
+  CONSTRAINT `character_banned_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ban List';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -579,7 +605,8 @@ DROP TABLE IF EXISTS `character_battleground_random`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_battleground_random` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`guid`),
+  CONSTRAINT `character_battleground_random_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -606,7 +633,8 @@ CREATE TABLE `character_declinedname` (
   `accusative` varchar(15) NOT NULL DEFAULT '',
   `instrumental` varchar(15) NOT NULL DEFAULT '',
   `prepositional` varchar(15) NOT NULL DEFAULT '',
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`guid`),
+  CONSTRAINT `character_declinedname_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -627,34 +655,73 @@ DROP TABLE IF EXISTS `character_equipmentsets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_equipmentsets` (
-  `guid` int(10) NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned DEFAULT NULL,
   `setguid` bigint(20) NOT NULL AUTO_INCREMENT,
   `setindex` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `name` varchar(31) NOT NULL,
   `iconname` varchar(100) NOT NULL,
   `ignore_mask` int(11) unsigned NOT NULL DEFAULT '0',
-  `item0` int(11) unsigned NOT NULL DEFAULT '0',
-  `item1` int(11) unsigned NOT NULL DEFAULT '0',
-  `item2` int(11) unsigned NOT NULL DEFAULT '0',
-  `item3` int(11) unsigned NOT NULL DEFAULT '0',
-  `item4` int(11) unsigned NOT NULL DEFAULT '0',
-  `item5` int(11) unsigned NOT NULL DEFAULT '0',
-  `item6` int(11) unsigned NOT NULL DEFAULT '0',
-  `item7` int(11) unsigned NOT NULL DEFAULT '0',
-  `item8` int(11) unsigned NOT NULL DEFAULT '0',
-  `item9` int(11) unsigned NOT NULL DEFAULT '0',
-  `item10` int(11) unsigned NOT NULL DEFAULT '0',
-  `item11` int(11) unsigned NOT NULL DEFAULT '0',
-  `item12` int(11) unsigned NOT NULL DEFAULT '0',
-  `item13` int(11) unsigned NOT NULL DEFAULT '0',
-  `item14` int(11) unsigned NOT NULL DEFAULT '0',
-  `item15` int(11) unsigned NOT NULL DEFAULT '0',
-  `item16` int(11) unsigned NOT NULL DEFAULT '0',
-  `item17` int(11) unsigned NOT NULL DEFAULT '0',
-  `item18` int(11) unsigned NOT NULL DEFAULT '0',
+  `item0` int(10) unsigned DEFAULT NULL,
+  `item1` int(10) unsigned DEFAULT NULL,
+  `item2` int(10) unsigned DEFAULT NULL,
+  `item3` int(10) unsigned DEFAULT NULL,
+  `item4` int(10) unsigned DEFAULT NULL,
+  `item5` int(10) unsigned DEFAULT NULL,
+  `item6` int(10) unsigned DEFAULT NULL,
+  `item7` int(10) unsigned DEFAULT NULL,
+  `item8` int(10) unsigned DEFAULT NULL,
+  `item9` int(10) unsigned DEFAULT NULL,
+  `item10` int(10) unsigned DEFAULT NULL,
+  `item11` int(10) unsigned DEFAULT NULL,
+  `item12` int(10) unsigned DEFAULT NULL,
+  `item13` int(10) unsigned DEFAULT NULL,
+  `item14` int(10) unsigned DEFAULT NULL,
+  `item15` int(10) unsigned DEFAULT NULL,
+  `item16` int(10) unsigned DEFAULT NULL,
+  `item17` int(10) unsigned DEFAULT NULL,
+  `item18` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`setguid`),
   UNIQUE KEY `idx_set` (`guid`,`setguid`,`setindex`),
-  KEY `Idx_setindex` (`setindex`)
+  KEY `Idx_setindex` (`setindex`),
+  KEY `item0` (`item0`),
+  KEY `item1` (`item1`),
+  KEY `item2` (`item2`),
+  KEY `item3` (`item3`),
+  KEY `item4` (`item4`),
+  KEY `item5` (`item5`),
+  KEY `item6` (`item6`),
+  KEY `item7` (`item7`),
+  KEY `item8` (`item8`),
+  KEY `item9` (`item9`),
+  KEY `item10` (`item10`),
+  KEY `item11` (`item11`),
+  KEY `item12` (`item12`),
+  KEY `item13` (`item13`),
+  KEY `item14` (`item14`),
+  KEY `item15` (`item15`),
+  KEY `item16` (`item16`),
+  KEY `item17` (`item17`),
+  KEY `item18` (`item18`),
+  CONSTRAINT `character_equipmentsets_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_10` FOREIGN KEY (`item8`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_11` FOREIGN KEY (`item9`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_12` FOREIGN KEY (`item10`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_13` FOREIGN KEY (`item11`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_14` FOREIGN KEY (`item12`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_15` FOREIGN KEY (`item13`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_16` FOREIGN KEY (`item14`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_17` FOREIGN KEY (`item15`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_18` FOREIGN KEY (`item16`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_19` FOREIGN KEY (`item17`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_2` FOREIGN KEY (`item0`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_20` FOREIGN KEY (`item18`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_3` FOREIGN KEY (`item1`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_4` FOREIGN KEY (`item2`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_5` FOREIGN KEY (`item3`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_6` FOREIGN KEY (`item4`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_7` FOREIGN KEY (`item5`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_8` FOREIGN KEY (`item6`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_equipmentsets_ibfk_9` FOREIGN KEY (`item7`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -680,7 +747,9 @@ CREATE TABLE `character_gifts` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`item_guid`),
-  KEY `idx_guid` (`guid`)
+  KEY `idx_guid` (`guid`),
+  CONSTRAINT `character_gifts_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_gifts_ibfk_2` FOREIGN KEY (`item_guid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -709,7 +778,8 @@ CREATE TABLE `character_glyphs` (
   `glyph4` smallint(5) unsigned DEFAULT '0',
   `glyph5` smallint(5) unsigned DEFAULT '0',
   `glyph6` smallint(5) unsigned DEFAULT '0',
-  PRIMARY KEY (`guid`,`talentGroup`)
+  PRIMARY KEY (`guid`,`talentGroup`),
+  CONSTRAINT `character_glyphs_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -736,7 +806,8 @@ CREATE TABLE `character_homebind` (
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`guid`),
+  CONSTRAINT `character_homebind_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -761,7 +832,9 @@ CREATE TABLE `character_instance` (
   `instance` int(10) unsigned NOT NULL DEFAULT '0',
   `permanent` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
-  KEY `instance` (`instance`)
+  KEY `instance` (`instance`),
+  CONSTRAINT `character_instance_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_instance_ibfk_2` FOREIGN KEY (`instance`) REFERENCES `instance` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -788,7 +861,9 @@ CREATE TABLE `character_inventory` (
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Global Unique Identifier',
   PRIMARY KEY (`item`),
   UNIQUE KEY `guid` (`guid`,`bag`,`slot`),
-  KEY `idx_guid` (`guid`)
+  KEY `idx_guid` (`guid`),
+  CONSTRAINT `character_inventory_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_inventory_ibfk_2` FOREIGN KEY (`item`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -828,7 +903,8 @@ CREATE TABLE `character_pet` (
   `abdata` text,
   PRIMARY KEY (`id`),
   KEY `owner` (`owner`),
-  KEY `idx_slot` (`slot`)
+  KEY `idx_slot` (`slot`),
+  CONSTRAINT `character_pet_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -857,7 +933,9 @@ CREATE TABLE `character_pet_declinedname` (
   `instrumental` varchar(12) NOT NULL DEFAULT '',
   `prepositional` varchar(12) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  KEY `owner_key` (`owner`)
+  KEY `owner_key` (`owner`),
+  CONSTRAINT `character_pet_declinedname_ibfk_1` FOREIGN KEY (`id`) REFERENCES `character_pet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_pet_declinedname_ibfk_2` FOREIGN KEY (`owner`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -892,7 +970,8 @@ CREATE TABLE `character_queststatus` (
   `itemcount3` smallint(5) unsigned NOT NULL DEFAULT '0',
   `itemcount4` smallint(5) unsigned NOT NULL DEFAULT '0',
   `playercount` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`quest`)
+  PRIMARY KEY (`guid`,`quest`),
+  CONSTRAINT `character_queststatus_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -917,7 +996,8 @@ CREATE TABLE `character_queststatus_daily` (
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`quest`),
-  KEY `idx_guid` (`guid`)
+  KEY `idx_guid` (`guid`),
+  CONSTRAINT `character_queststatus_daily_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -941,7 +1021,8 @@ CREATE TABLE `character_queststatus_monthly` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`guid`,`quest`),
-  KEY `idx_guid` (`guid`)
+  KEY `idx_guid` (`guid`),
+  CONSTRAINT `character_queststatus_monthly_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -965,7 +1046,8 @@ CREATE TABLE `character_queststatus_rewarded` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   `active` tinyint(10) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`guid`,`quest`)
+  PRIMARY KEY (`guid`,`quest`),
+  CONSTRAINT `character_queststatus_rewarded_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -990,7 +1072,8 @@ CREATE TABLE `character_queststatus_seasonal` (
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   `event` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event Identifier',
   PRIMARY KEY (`guid`,`quest`),
-  KEY `idx_guid` (`guid`)
+  KEY `idx_guid` (`guid`),
+  CONSTRAINT `character_queststatus_seasonal_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1014,7 +1097,8 @@ CREATE TABLE `character_queststatus_weekly` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `quest` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`guid`,`quest`),
-  KEY `idx_guid` (`guid`)
+  KEY `idx_guid` (`guid`),
+  CONSTRAINT `character_queststatus_weekly_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1039,7 +1123,8 @@ CREATE TABLE `character_reputation` (
   `faction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `standing` int(11) NOT NULL DEFAULT '0',
   `flags` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`faction`)
+  PRIMARY KEY (`guid`,`faction`),
+  CONSTRAINT `character_reputation_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1064,7 +1149,8 @@ CREATE TABLE `character_skills` (
   `skill` smallint(5) unsigned NOT NULL,
   `value` smallint(5) unsigned NOT NULL,
   `max` smallint(5) unsigned NOT NULL,
-  PRIMARY KEY (`guid`,`skill`)
+  PRIMARY KEY (`guid`,`skill`),
+  CONSTRAINT `character_skills_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1090,7 +1176,9 @@ CREATE TABLE `character_social` (
   `flags` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Friend Flags',
   `note` varchar(48) NOT NULL DEFAULT '' COMMENT 'Friend Note',
   PRIMARY KEY (`guid`,`friend`,`flags`),
-  KEY `friend` (`friend`)
+  KEY `friend` (`friend`),
+  CONSTRAINT `character_social_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `character_social_ibfk_2` FOREIGN KEY (`friend`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1115,7 +1203,8 @@ CREATE TABLE `character_spell` (
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`)
+  PRIMARY KEY (`guid`,`spell`),
+  CONSTRAINT `character_spell_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1140,7 +1229,8 @@ CREATE TABLE `character_spell_cooldown` (
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`)
+  PRIMARY KEY (`guid`,`spell`),
+  CONSTRAINT `character_spell_cooldown_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1192,7 +1282,8 @@ CREATE TABLE `character_stats` (
   `rangedAttackPower` int(10) unsigned NOT NULL DEFAULT '0',
   `spellPower` int(10) unsigned NOT NULL DEFAULT '0',
   `resilience` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`guid`),
+  CONSTRAINT `character_stats_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1216,7 +1307,8 @@ CREATE TABLE `character_talent` (
   `guid` int(10) unsigned NOT NULL,
   `spell` mediumint(8) unsigned NOT NULL,
   `talentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`,`talentGroup`)
+  PRIMARY KEY (`guid`,`spell`,`talentGroup`),
+  CONSTRAINT `character_talent_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1354,7 +1446,8 @@ CREATE TABLE `corpse` (
   KEY `idx_type` (`corpseType`),
   KEY `idx_instance` (`instanceId`),
   KEY `idx_player` (`guid`),
-  KEY `idx_time` (`time`)
+  KEY `idx_time` (`time`),
+  CONSTRAINT `corpse_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Death System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1479,7 +1572,8 @@ CREATE TABLE `gm_subsurvey` (
   `questionId` int(10) unsigned NOT NULL DEFAULT '0',
   `answer` int(10) unsigned NOT NULL DEFAULT '0',
   `answerComment` text NOT NULL,
-  PRIMARY KEY (`surveyId`,`questionId`)
+  PRIMARY KEY (`surveyId`,`questionId`),
+  CONSTRAINT `gm_subsurvey_ibfk_1` FOREIGN KEY (`surveyId`) REFERENCES `gm_survey` (`surveyId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1505,7 +1599,9 @@ CREATE TABLE `gm_survey` (
   `mainSurvey` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` longtext NOT NULL,
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`surveyId`)
+  PRIMARY KEY (`surveyId`),
+  KEY `guid` (`guid`),
+  CONSTRAINT `gm_survey_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1536,15 +1632,21 @@ CREATE TABLE `gm_ticket` (
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
   `lastModifiedTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `closedBy` int(10) NOT NULL DEFAULT '0',
-  `assignedTo` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
+  `closedBy` int(10) unsigned DEFAULT NULL,
+  `assignedTo` int(10) unsigned DEFAULT NULL,
   `comment` text NOT NULL,
   `response` text NOT NULL,
   `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `needMoreHelp` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `playerGuid` (`playerGuid`),
+  KEY `closedBy` (`closedBy`),
+  KEY `assignedTo` (`assignedTo`),
+  CONSTRAINT `gm_ticket_ibfk_1` FOREIGN KEY (`playerGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `gm_ticket_ibfk_2` FOREIGN KEY (`closedBy`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `gm_ticket_ibfk_3` FOREIGN KEY (`assignedTo`) REFERENCES `characters` (`guid`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1569,7 +1671,9 @@ CREATE TABLE `group_instance` (
   `instance` int(10) unsigned NOT NULL DEFAULT '0',
   `permanent` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
-  KEY `instance` (`instance`)
+  KEY `instance` (`instance`),
+  CONSTRAINT `group_instance_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `groups` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `group_instance_ibfk_2` FOREIGN KEY (`instance`) REFERENCES `instance` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1595,7 +1699,10 @@ CREATE TABLE `group_member` (
   `memberFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `subgroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `roles` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`memberGuid`)
+  PRIMARY KEY (`memberGuid`),
+  KEY `guid` (`guid`),
+  CONSTRAINT `group_member_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `groups` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `group_member_ibfk_2` FOREIGN KEY (`memberGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1634,7 +1741,10 @@ CREATE TABLE `groups` (
   `raidDifficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `masterLooterGuid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`guid`),
-  KEY `leaderGuid` (`leaderGuid`)
+  KEY `leaderGuid` (`leaderGuid`),
+  KEY `looterGuid` (`looterGuid`),
+  CONSTRAINT `groups_ibfk_1` FOREIGN KEY (`leaderGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `groups_ibfk_2` FOREIGN KEY (`looterGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1667,7 +1777,9 @@ CREATE TABLE `guild` (
   `motd` varchar(128) NOT NULL DEFAULT '',
   `createdate` int(10) unsigned NOT NULL DEFAULT '0',
   `BankMoney` bigint(20) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guildid`)
+  PRIMARY KEY (`guildid`),
+  KEY `leaderguid` (`leaderguid`),
+  CONSTRAINT `guild_ibfk_1` FOREIGN KEY (`leaderguid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1700,7 +1812,9 @@ CREATE TABLE `guild_bank_eventlog` (
   PRIMARY KEY (`guildid`,`LogGuid`,`TabId`),
   KEY `guildid_key` (`guildid`),
   KEY `Idx_PlayerGuid` (`PlayerGuid`),
-  KEY `Idx_LogGuid` (`LogGuid`)
+  KEY `Idx_LogGuid` (`LogGuid`),
+  CONSTRAINT `guild_bank_eventlog_ibfk_1` FOREIGN KEY (`guildid`) REFERENCES `guild` (`guildid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `guild_bank_eventlog_ibfk_2` FOREIGN KEY (`PlayerGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1727,7 +1841,9 @@ CREATE TABLE `guild_bank_item` (
   `item_guid` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`TabId`,`SlotId`),
   KEY `guildid_key` (`guildid`),
-  KEY `Idx_item_guid` (`item_guid`)
+  KEY `Idx_item_guid` (`item_guid`),
+  CONSTRAINT `guild_bank_item_ibfk_1` FOREIGN KEY (`guildid`, `TabId`) REFERENCES `guild_bank_tab` (`guildid`, `TabId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `guild_bank_item_ibfk_2` FOREIGN KEY (`item_guid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1754,7 +1870,10 @@ CREATE TABLE `guild_bank_right` (
   `gbright` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `SlotPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`TabId`,`rid`),
-  KEY `guildid_key` (`guildid`)
+  KEY `guildid_key` (`guildid`),
+  KEY `guildid` (`guildid`,`rid`),
+  CONSTRAINT `guild_bank_right_ibfk_1` FOREIGN KEY (`guildid`, `TabId`) REFERENCES `guild_bank_tab` (`guildid`, `TabId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `guild_bank_right_ibfk_2` FOREIGN KEY (`guildid`, `rid`) REFERENCES `guild_rank` (`guildid`, `rid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1781,7 +1900,8 @@ CREATE TABLE `guild_bank_tab` (
   `TabIcon` varchar(100) NOT NULL DEFAULT '',
   `TabText` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`guildid`,`TabId`),
-  KEY `guildid_key` (`guildid`)
+  KEY `guildid_key` (`guildid`),
+  CONSTRAINT `guild_bank_tab_ibfk_1` FOREIGN KEY (`guildid`) REFERENCES `guild` (`guildid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1812,7 +1932,10 @@ CREATE TABLE `guild_eventlog` (
   PRIMARY KEY (`guildid`,`LogGuid`),
   KEY `Idx_PlayerGuid1` (`PlayerGuid1`),
   KEY `Idx_PlayerGuid2` (`PlayerGuid2`),
-  KEY `Idx_LogGuid` (`LogGuid`)
+  KEY `Idx_LogGuid` (`LogGuid`),
+  CONSTRAINT `guild_eventlog_ibfk_1` FOREIGN KEY (`guildid`) REFERENCES `guild` (`guildid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `guild_eventlog_ibfk_2` FOREIGN KEY (`PlayerGuid1`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `guild_eventlog_ibfk_3` FOREIGN KEY (`PlayerGuid2`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Eventlog';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1840,7 +1963,9 @@ CREATE TABLE `guild_member` (
   `offnote` varchar(31) NOT NULL DEFAULT '',
   UNIQUE KEY `guid_key` (`guid`),
   KEY `guildid_key` (`guildid`),
-  KEY `guildid_rank_key` (`guildid`,`rank`)
+  KEY `guildid_rank_key` (`guildid`,`rank`),
+  CONSTRAINT `guild_member_ibfk_1` FOREIGN KEY (`guildid`) REFERENCES `guild` (`guildid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `guild_member_ibfk_2` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1869,7 +1994,8 @@ CREATE TABLE `guild_member_withdraw` (
   `tab4` int(10) unsigned NOT NULL DEFAULT '0',
   `tab5` int(10) unsigned NOT NULL DEFAULT '0',
   `money` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`guid`),
+  CONSTRAINT `guild_member_withdraw_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `guild` (`guildid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Member Daily Withdraws';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1896,7 +2022,8 @@ CREATE TABLE `guild_rank` (
   `rights` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `BankMoneyPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`rid`),
-  KEY `Idx_rid` (`rid`)
+  KEY `Idx_rid` (`rid`),
+  CONSTRAINT `guild_rank_ibfk_1` FOREIGN KEY (`guildid`) REFERENCES `guild` (`guildid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1926,7 +2053,9 @@ CREATE TABLE `instance` (
   PRIMARY KEY (`id`),
   KEY `map` (`map`),
   KEY `resettime` (`resettime`),
-  KEY `difficulty` (`difficulty`)
+  KEY `difficulty` (`difficulty`),
+  KEY `map_2` (`map`,`difficulty`),
+  CONSTRAINT `instance_ibfk_1` FOREIGN KEY (`map`, `difficulty`) REFERENCES `instance_reset` (`mapid`, `difficulty`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1987,7 +2116,8 @@ CREATE TABLE `item_instance` (
   `playedTime` int(10) unsigned NOT NULL DEFAULT '0',
   `text` text,
   PRIMARY KEY (`guid`),
-  KEY `idx_owner_guid` (`owner_guid`)
+  KEY `idx_owner_guid` (`owner_guid`),
+  CONSTRAINT `item_instance_ibfk_1` FOREIGN KEY (`owner_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2018,7 +2148,9 @@ CREATE TABLE `item_loot_items` (
   `under_threshold` tinyint(1) NOT NULL DEFAULT '0',
   `needs_quest` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'quest drop',
   `rnd_prop` int(10) NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
-  `rnd_suffix` int(10) NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled'
+  `rnd_suffix` int(10) NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled',
+  KEY `container_id` (`container_id`),
+  CONSTRAINT `item_loot_items_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2039,8 +2171,10 @@ DROP TABLE IF EXISTS `item_loot_money`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_money` (
-  `container_id` int(10) NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
-  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)'
+  `container_id` int(10) unsigned DEFAULT NULL,
+  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
+  KEY `container_id` (`container_id`),
+  CONSTRAINT `item_loot_money_ibfk_1` FOREIGN KEY (`container_id`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2065,7 +2199,10 @@ CREATE TABLE `item_refund_instance` (
   `player_guid` int(10) unsigned NOT NULL COMMENT 'Player GUID',
   `paidMoney` int(10) unsigned NOT NULL DEFAULT '0',
   `paidExtendedCost` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`item_guid`,`player_guid`)
+  PRIMARY KEY (`item_guid`,`player_guid`),
+  KEY `player_guid` (`player_guid`),
+  CONSTRAINT `item_refund_instance_ibfk_1` FOREIGN KEY (`item_guid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `item_refund_instance_ibfk_2` FOREIGN KEY (`player_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2088,7 +2225,8 @@ DROP TABLE IF EXISTS `item_soulbound_trade_data`;
 CREATE TABLE `item_soulbound_trade_data` (
   `itemGuid` int(10) unsigned NOT NULL COMMENT 'Item GUID',
   `allowedPlayers` text NOT NULL COMMENT 'Space separated GUID list of players who can receive this item in trade',
-  PRIMARY KEY (`itemGuid`)
+  PRIMARY KEY (`itemGuid`),
+  CONSTRAINT `item_soulbound_trade_data_ibfk_1` FOREIGN KEY (`itemGuid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2118,7 +2256,9 @@ CREATE TABLE `lag_reports` (
   `posZ` float NOT NULL DEFAULT '0',
   `latency` int(10) unsigned NOT NULL DEFAULT '0',
   `createTime` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`reportId`)
+  PRIMARY KEY (`reportId`),
+  KEY `guid` (`guid`),
+  CONSTRAINT `lag_reports_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2178,7 +2318,10 @@ CREATE TABLE `mail` (
   `cod` int(10) unsigned NOT NULL DEFAULT '0',
   `checked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `idx_receiver` (`receiver`)
+  KEY `idx_receiver` (`receiver`),
+  KEY `sender` (`sender`),
+  CONSTRAINT `mail_ibfk_1` FOREIGN KEY (`sender`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `mail_ibfk_2` FOREIGN KEY (`receiver`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Mail System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2204,7 +2347,9 @@ CREATE TABLE `mail_items` (
   `receiver` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   PRIMARY KEY (`item_guid`),
   KEY `idx_receiver` (`receiver`),
-  KEY `idx_mail_id` (`mail_id`)
+  KEY `idx_mail_id` (`mail_id`),
+  CONSTRAINT `mail_items_ibfk_1` FOREIGN KEY (`mail_id`) REFERENCES `mail` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `mail_items_ibfk_2` FOREIGN KEY (`item_guid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2226,7 +2371,7 @@ DROP TABLE IF EXISTS `pet_aura`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `casterGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
+  `casterGuid` int(10) unsigned DEFAULT NULL,
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2240,7 +2385,10 @@ CREATE TABLE `pet_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`,`effectMask`)
+  PRIMARY KEY (`guid`,`spell`,`effectMask`),
+  KEY `casterGuid` (`casterGuid`),
+  CONSTRAINT `pet_aura_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `character_pet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `pet_aura_ibfk_2` FOREIGN KEY (`casterGuid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2264,7 +2412,8 @@ CREATE TABLE `pet_spell` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `active` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`)
+  PRIMARY KEY (`guid`,`spell`),
+  CONSTRAINT `pet_spell_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `character_pet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2288,7 +2437,8 @@ CREATE TABLE `pet_spell_cooldown` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`)
+  PRIMARY KEY (`guid`,`spell`),
+  CONSTRAINT `pet_spell_cooldown_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `character_pet` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2314,7 +2464,10 @@ CREATE TABLE `petition` (
   `name` varchar(24) NOT NULL,
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ownerguid`,`type`),
-  UNIQUE KEY `index_ownerguid_petitionguid` (`ownerguid`,`petitionguid`)
+  UNIQUE KEY `index_ownerguid_petitionguid` (`ownerguid`,`petitionguid`),
+  KEY `petitionguid` (`petitionguid`),
+  CONSTRAINT `petition_ibfk_1` FOREIGN KEY (`ownerguid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `petition_ibfk_2` FOREIGN KEY (`petitionguid`) REFERENCES `item_instance` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2342,7 +2495,10 @@ CREATE TABLE `petition_sign` (
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`petitionguid`,`playerguid`),
   KEY `Idx_playerguid` (`playerguid`),
-  KEY `Idx_ownerguid` (`ownerguid`)
+  KEY `Idx_ownerguid` (`ownerguid`),
+  KEY `ownerguid` (`ownerguid`,`type`),
+  CONSTRAINT `petition_sign_ibfk_1` FOREIGN KEY (`ownerguid`, `type`) REFERENCES `petition` (`ownerguid`, `type`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `petition_sign_ibfk_2` FOREIGN KEY (`playerguid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2425,7 +2581,9 @@ CREATE TABLE `pvpstats_players` (
   `attr_3` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `attr_4` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `attr_5` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`battleground_id`,`character_guid`)
+  PRIMARY KEY (`battleground_id`,`character_guid`),
+  KEY `character_guid` (`character_guid`),
+  CONSTRAINT `pvpstats_players_ibfk_1` FOREIGN KEY (`character_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2453,7 +2611,9 @@ CREATE TABLE `quest_tracker` (
   `quest_abandon_time` datetime DEFAULT NULL,
   `completed_by_gm` tinyint(1) NOT NULL DEFAULT '0',
   `core_hash` varchar(120) NOT NULL DEFAULT '0',
-  `core_revision` varchar(120) NOT NULL DEFAULT '0'
+  `core_revision` varchar(120) NOT NULL DEFAULT '0',
+  KEY `character_guid` (`character_guid`),
+  CONSTRAINT `quest_tracker_ibfk_1` FOREIGN KEY (`character_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2596,4 +2756,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-07-14  1:06:50
+-- Dump completed on 2015-08-13  7:56:08
