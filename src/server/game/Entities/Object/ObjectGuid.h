@@ -204,11 +204,11 @@ class ObjectGuid
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
-        ObjectGuid(ObjectGuid const&) = default;
-        ObjectGuid(ObjectGuid&&) = default;
+        ObjectGuid(ObjectGuid const& r) : _low(r._low), _high(r._high) { }
+        ObjectGuid(ObjectGuid&& r) : _low(r._low), _high(r._high) { }
 
-        ObjectGuid& operator=(ObjectGuid const&) = default;
-        ObjectGuid& operator=(ObjectGuid&&) = default;
+        ObjectGuid& operator=(ObjectGuid const& r) { _low = r._low; _high = r._high; return *this; }
+        ObjectGuid& operator=(ObjectGuid&& r) { _low = r._low; _high = r._high; return *this; }
 
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);
