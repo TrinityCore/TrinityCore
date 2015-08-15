@@ -22,6 +22,7 @@
 #include <string>
 #include <time.h>
 #include <type_traits>
+#include <vector>
 #include <utility>
 #include "Define.h"
 
@@ -126,6 +127,8 @@ class InvalidAppenderArgsException : public std::length_error
 {
 public:
     using std::length_error::length_error;
+
+    explicit InvalidAppenderArgsException(std::string const& message) : length_error(message) { }
 };
 
 #endif
