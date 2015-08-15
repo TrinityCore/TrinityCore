@@ -160,6 +160,8 @@ protected:
     MessageBuffer _writeBuffer;
 #endif
 
+    boost::asio::io_service& io_service() { return _socket.get_io_service(); }
+
 private:
     void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)
     {

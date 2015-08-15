@@ -29,9 +29,13 @@
 using boost::asio::ip::tcp;
 
 struct AuthHandler;
+struct AUTH_LOGON_CHALLENGE_C;
+typedef AUTH_LOGON_CHALLENGE_C sAuthLogonChallenge_C;
 
 class AuthSession : public Socket<AuthSession>
 {
+    typedef Socket<AuthSession> AuthSocket;
+
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
@@ -46,6 +50,7 @@ public:
     {
         AsyncRead();
     }
+    bool Update() override;
 
     void SendPacket(ByteBuffer& packet);
 
@@ -58,6 +63,12 @@ private:
     bool HandleReconnectChallenge();
     bool HandleReconnectProof();
     bool HandleRealmList();
+    void CheckIpCallback(sAuthLogonChallenge_C* challenge, PreparedQueryResult result);
+    void HandleLogonChallengeCallback(sAuthLogonChallenge_C* challenge, PreparedQueryResult result);
+    void HandleLogonProofCallback(PreparedQueryResult result);
+    void HandleReconnectChallengeCallback(sAuthLogonChallenge_C* challenge, PreparedQueryResult result);
+    void HandleRealmListCallback(PreparedQueryResult result);
+    void HandleRealmListNumberCallback(PreparedQueryResult result);
 
     //data transfer handle for patch
     bool HandleXferResume();
@@ -79,7 +90,12 @@ private:
     uint16 _build;
     uint8 _expversion;
 
+    std::string _ipCountry;
+
     AccountTypes _accountSecurityLevel;
+
+    PreparedQueryResultFuture _queryFuture;
+    std::function<void(PreparedQueryResult)> _queryCallback;
 };
 
 #pragma pack(push, 1)

@@ -20,6 +20,7 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
+#include "SHA1.h"
 #include "AuthCrypt.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
@@ -29,6 +30,8 @@
 #include <chrono>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/buffer.hpp>
+
+#include "Packets/AuthenticationPackets.h"
 
 using boost::asio::ip::tcp;
 
@@ -47,6 +50,8 @@ struct ClientPktHeader
 
 class WorldSocket : public Socket<WorldSocket>
 {
+    typedef Socket<WorldSocket> BaseSocket;
+
 public:
     WorldSocket(tcp::socket&& socket);
 
@@ -54,6 +59,7 @@ public:
     WorldSocket& operator=(WorldSocket const& right) = delete;
 
     void Start() override;
+    bool Update() override;
 
     void SendPacket(WorldPacket const& packet);
 
@@ -61,16 +67,27 @@ protected:
     void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
-    bool ReadDataHandler();
 
+    enum class ReadDataHandlerResult
+    {
+        Ok = 0,
+        Error = 1,
+        WaitingForQuery = 2
+    };
+
+    ReadDataHandlerResult ReadDataHandler();
 private:
+    void CheckIpCallback(PreparedQueryResult result);
+
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
     void SendPacketAndLogOpcode(WorldPacket const& packet);
     void HandleSendAuthSession();
-    void HandleAuthSession(WorldPacket& recvPacket);
+    void HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession);
+    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result);
+    void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void SendAuthResponseError(uint8 code);
 
     bool HandlePing(WorldPacket& recvPacket);
@@ -87,6 +104,11 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
+
+    std::mutex _queryLock;
+    PreparedQueryResultFuture _queryFuture;
+    std::function<void(PreparedQueryResult&&)> _queryCallback;
+    std::string _ipCountry;
 };
 
 #endif
