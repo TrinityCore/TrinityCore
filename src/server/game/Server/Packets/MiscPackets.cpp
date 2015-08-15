@@ -545,3 +545,11 @@ void WorldPackets::Misc::SetPvP::Read()
 {
     EnablePVP = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> MapID;
+    _worldPacket >> TransportGUID;
+    _worldPacket >> Pos;
+    _worldPacket >> Facing;
+}
