@@ -31,6 +31,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "SystemConfig.h"
@@ -103,6 +104,9 @@ int main(int argc, char** argv)
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
+
+    sLog->RegisterAppender<AppenderDB>();
+    sLog->Initialize(nullptr);
 
     TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");

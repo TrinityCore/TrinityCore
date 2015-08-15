@@ -21,12 +21,15 @@
 #include <atomic>
 #include "Appender.h"
 
-class AppenderFile: public Appender
+class AppenderFile : public Appender
 {
     public:
-        AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* filename, const char* logDir, const char* mode, AppenderFlags flags, uint64 maxSize);
+        typedef std::integral_constant<AppenderType, APPENDER_FILE>::type TypeIndex;
+
+        AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs);
         ~AppenderFile();
         FILE* OpenFile(std::string const& name, std::string const& mode, bool backup);
+        AppenderType getType() const override { return TypeIndex::value; }
 
     private:
         void CloseFile();

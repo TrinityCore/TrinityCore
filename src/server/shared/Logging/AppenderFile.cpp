@@ -17,24 +17,45 @@
 
 #include "AppenderFile.h"
 #include "Common.h"
+#include "StringFormat.h"
+#include "Log.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
 # include <Windows.h>
 #endif
 
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* filename, const char* logDir, const char* mode, AppenderFlags flags, uint64 fileSize):
-    Appender(id, name, APPENDER_FILE, level, flags),
+AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs) :
+    Appender(id, name, level, flags),
     logfile(NULL),
-    _fileName(filename),
-    _logDir(logDir),
-    _maxFileSize(fileSize),
+    _logDir(sLog->GetLogsDir()),
     _fileSize(0)
 {
+    if (extraArgs.empty())
+        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender %s\n", name.c_str()));
+
+    _fileName = extraArgs[0];
+
+    char const* mode = "a";
+    if (extraArgs.size() > 1)
+        mode = extraArgs[1];
+
+    if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
+    {
+        size_t dot_pos = _fileName.find_last_of(".");
+        if (dot_pos != std::string::npos)
+            _fileName.insert(dot_pos, sLog->GetLogsTimestamp());
+        else
+            _fileName += sLog->GetLogsTimestamp();
+    }
+
+    if (extraArgs.size() > 2)
+        _maxFileSize = atoi(extraArgs[2]);
+
     _dynamicName = std::string::npos != _fileName.find("%s");
     _backup = (flags & APPENDER_FLAGS_MAKE_FILE_BACKUP) != 0;
 
     if (!_dynamicName)
-        logfile = OpenFile(filename, mode, !strcmp(mode, "w") && _backup);
+        logfile = OpenFile(_fileName, mode, !strcmp(mode, "w") && _backup);
 }
 
 AppenderFile::~AppenderFile()

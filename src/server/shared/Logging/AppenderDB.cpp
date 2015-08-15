@@ -18,8 +18,8 @@
 #include "AppenderDB.h"
 #include "Database/DatabaseEnv.h"
 
-AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level)
-    : Appender(id, name, APPENDER_DB, level), realmId(0), enabled(false) { }
+AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags /*flags*/, ExtraAppenderArgs /*extraArgs*/)
+    : Appender(id, name, level), realmId(0), enabled(false) { }
 
 AppenderDB::~AppenderDB() { }
 
