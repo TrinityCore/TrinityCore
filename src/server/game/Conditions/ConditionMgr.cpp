@@ -55,7 +55,8 @@ char const* ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
     "SmartScript",
     "Npc Vendor",
     "Spell Proc",
-    "Phase Def"
+    "Terrain Swap",
+    "Phase"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -100,7 +101,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Health Value",         true, true,  false },
     { "Health Pct",           true, true, false  },
     { "Realm Achievement",    true, false, false },
-    { "In Water",            false, false, false }
+    { "In Water",            false, false, false },
+    { "Terrain Swap",         true, false, false }
 };
 
 // Checks if object meets the condition
