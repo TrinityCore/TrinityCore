@@ -117,7 +117,7 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
     }
     catch (InvalidAppenderArgsException const& iaae)
     {
-        fprintf(stderr, iaae.what());
+        fprintf(stderr, "%s", iaae.what());
     }
 }
 
