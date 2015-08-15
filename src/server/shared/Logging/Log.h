@@ -44,19 +44,13 @@ class Log
 
     public:
 
-        static Log* instance(boost::asio::io_service* ioService = nullptr)
+        static Log* instance()
         {
             static Log instance;
-
-            if (ioService != nullptr)
-            {
-                instance._ioService = ioService;
-                instance._strand = new boost::asio::strand(*ioService);
-            }
-
             return &instance;
         }
 
+        void Initialize(boost::asio::io_service* ioService);
         void LoadFromConfig();
         void Close();
         bool ShouldLog(std::string const& type, LogLevel level) const;
@@ -88,6 +82,18 @@ class Log
 
         void SetRealmId(uint32 id);
 
+        template<class AppenderImpl>
+        void RegisterAppender()
+        {
+            using Index = typename AppenderImpl::TypeIndex;
+            auto itr = appenderFactory.find(Index::value);
+            ASSERT(itr == appenderFactory.end());
+            appenderFactory[Index::value] = &CreateAppender<AppenderImpl>;
+        }
+
+        std::string const& GetLogsDir() const { return m_logsDir; }
+        std::string const& GetLogsTimestamp() const { return m_logsTimestamp; }
+
     private:
         static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage>&& msg) const;
@@ -100,6 +106,7 @@ class Log
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
 
+        AppenderCreatorMap appenderFactory;
         AppenderMap appenders;
         LoggerMap loggers;
         uint8 AppenderId;
