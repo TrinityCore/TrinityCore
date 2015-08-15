@@ -25,11 +25,14 @@
   #include <Windows.h>
 #endif
 
-AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags):
-Appender(id, name, APPENDER_CONSOLE, level, flags), _colored(false)
+AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs)
+    : Appender(id, name, level, flags), _colored(false)
 {
     for (uint8 i = 0; i < MaxLogLevels; ++i)
         _colors[i] = ColorTypes(MaxColors);
+
+    if (!extraArgs.empty())
+        InitColors(extraArgs[0]);
 }
 
 void AppenderConsole::InitColors(std::string const& str)

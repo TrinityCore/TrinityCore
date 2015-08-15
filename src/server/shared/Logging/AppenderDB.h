@@ -23,10 +23,13 @@
 class AppenderDB: public Appender
 {
     public:
-        AppenderDB(uint8 _id, std::string const& _name, LogLevel level);
+        typedef std::integral_constant<AppenderType, APPENDER_DB>::type TypeIndex;
+
+        AppenderDB(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs);
         ~AppenderDB();
 
-        void setRealmId(uint32 realmId);
+        void setRealmId(uint32 realmId) override;
+        AppenderType getType() const override { return TypeIndex::value; }
 
     private:
         uint32 realmId;
