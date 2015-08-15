@@ -12,41 +12,48 @@ if( USE_COREPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
-file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
-file(GLOB_RECURSE sources_Models Models/*.cpp Models/*.h)
+file(GLOB_RECURSE sources_Common Common.cpp Common.h)
+file(GLOB_RECURSE sources_Collision Collision/*.cpp Collision/*.h)
+file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
+file(GLOB_RECURSE sources_Threading Utilities/*.cpp Utilities/*.h)
+file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
+file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
+
+# Manually set sources for Debugging directory as we don't want to include WheatyExceptionReport in common project
+# It needs to be included both in authserver and worldserver for the static global variable to be properly initialized
+# and to handle crash logs on windows
+set(sources_Debugging Debugging/Errors.cpp Debugging/Errors.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 if (USE_COREPCH)
-  set(collision_STAT_PCH_HDR PrecompiledHeaders/collisionPCH.h)
-  set(collision_STAT_PCH_SRC PrecompiledHeaders/collisionPCH.cpp)
+  set(common_STAT_PCH_HDR PrecompiledHeaders/commonPCH.h)
+  set(common_STAT_PCH_SRC PrecompiledHeaders/commonPCH.cpp)
 endif ()
 
-set(collision_STAT_SRCS
-  ${collision_STAT_SRCS}
-  ${sources_Management}
-  ${sources_Maps}
-  ${sources_Models}
-  ${sources_localdir}
+set(common_STAT_SRCS
+  ${common_STAT_SRCS}
+  ${sources_Common}
+  ${sources_Collision}
+  ${sources_Threading}
+  ${sources_Debugging}
+  ${sources_Configuration}
+  ${sources_Logging}
 )
 
 include_directories(
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
+  ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/src/server/database
+  ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Configuration
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/shared/DataStores
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
   ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
@@ -73,25 +80,26 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Management
-  ${CMAKE_CURRENT_SOURCE_DIR}/Maps
-  ${CMAKE_CURRENT_SOURCE_DIR}/Models
-  ${MYSQL_INCLUDE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Threading
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
+  ${CMAKE_CURRENT_SOURCE_DIR}/Collision
+  ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Management
+  ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Maps
+  ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Models
+  ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
+  ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
+  ${CMAKE_CURRENT_SOURCE_DIR}/Logging
   ${VALGRIND_INCLUDE_DIR}
 )
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(collision STATIC
-  ${collision_STAT_SRCS}
-  ${collision_STAT_PCH_SRC}
-)
-
-target_link_libraries(collision
-  shared
+add_library(common STATIC
+  ${common_STAT_SRCS}
+  ${common_STAT_PCH_SRC}
 )
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(collision ${collision_STAT_PCH_HDR} ${collision_STAT_PCH_SRC})
+  add_cxx_pch(common ${common_STAT_PCH_HDR} ${common_STAT_PCH_SRC})
 endif ()
