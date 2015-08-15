@@ -1422,12 +1422,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
                 // Ice barrier - dispel/absorb remove
-                if (removeMode == AURA_REMOVE_BY_ENEMY_SPELL && GetSpellInfo()->SpellFamilyFlags[1] & 0x1)
+                if ((removeMode == AURA_REMOVE_BY_ENEMY_SPELL) &&
+                    (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000001) &&
+                    (GetEffect(EFFECT_0)->GetAmount() <= 0))
                 {
                     // Shattered Barrier
-                    if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, 2945, 0))
-                        if (roll_chance_i(dummy->GetSpellInfo()->ProcChance))
-                            caster->CastSpell(target, 55080, true, NULL, GetEffect(0));
+                    if (AuraEffect * dummy = target->GetDummyAuraEffect(SPELLFAMILY_MAGE, 2945, EFFECT_0))
+                    {
+                        int32 chance = dummy->GetSpellInfo()->ProcChance;
+                        if ((chance >= 100) || roll_chance_i(chance))
+                            target->CastSpell(target, 55080, true, NULL, GetEffect(EFFECT_0));
+                    }
                 }
                 break;
             case SPELLFAMILY_WARRIOR:
