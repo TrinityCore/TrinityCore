@@ -17,7 +17,7 @@
 
 #include "DBUpdater.h"
 #include "Log.h"
-#include "Revision.h"
+#include "GitRevision.h"
 #include "UpdateFetcher.h"
 #include "DatabaseLoader.h"
 #include "Config.h"
@@ -40,7 +40,7 @@ std::string DBUpdater<T>::GetSourceDirectory()
     if (!entry.empty())
         return entry;
     else
-        return Revision::GetSourceDirectory();
+        return GitRevision::GetSourceDirectory();
 }
 
 template<class T>
@@ -50,7 +50,7 @@ std::string DBUpdater<T>::GetMySqlCli()
     if (!entry.empty())
         return entry;
     else
-        return Revision::GetMySQLExecutable();
+        return GitRevision::GetMySQLExecutable();
 }
 
 // Auth Database
@@ -95,7 +95,7 @@ std::string DBUpdater<WorldDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<WorldDatabaseConnection>::GetBaseFile()
 {
-    return Revision::GetFullDatabase();
+    return GitRevision::GetFullDatabase();
 }
 
 template<>
@@ -153,7 +153,7 @@ std::string DBUpdater<HotfixDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<HotfixDatabaseConnection>::GetBaseFile()
 {
-    return Revision::GetHotfixesDatabase();
+    return GitRevision::GetHotfixesDatabase();
 }
 
 template<>
