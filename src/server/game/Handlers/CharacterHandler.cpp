@@ -44,10 +44,10 @@
 #include "Player.h"
 #include "QueryPackets.h"
 #include "ReputationMgr.h"
+#include "Revision.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
-#include "SystemConfig.h"
 #include "SystemPackets.h"
 #include "UpdateMask.h"
 #include "Util.h"
@@ -956,7 +956,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // send server info
     {
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
-            chH.PSendSysMessage(_FULLVERSION);
+            chH.PSendSysMessage(Revision::GetFullVersion());
 
         TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }

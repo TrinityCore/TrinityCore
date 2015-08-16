@@ -34,7 +34,7 @@
 #include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "SystemConfig.h"
+#include "Revision.h"
 #include "Util.h"
 #include "ZmqContext.h"
 #include "DatabaseLoader.h"
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     sLog->RegisterAppender<AppenderDB>();
     sLog->Initialize(nullptr);
 
-    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
+    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", Revision::GetFullVersion());
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -307,7 +307,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     }
     else if (variablesMap.count("version"))
     {
-        std::cout << _FULLVERSION << "\n";
+        std::cout << Revision::GetFullVersion() << "\n";
     }
 
     return variablesMap;

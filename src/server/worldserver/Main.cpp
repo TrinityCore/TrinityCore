@@ -39,7 +39,7 @@
 #include "BattlegroundMgr.h"
 #include "TCSoap.h"
 #include "CliRunnable.h"
-#include "SystemConfig.h"
+#include "Revision.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "BattlenetServerManager.h"
@@ -130,7 +130,7 @@ extern int main(int argc, char** argv)
     // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
     sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? &_ioService : nullptr);
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", _FULLVERSION);
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", Revision::GetFullVersion());
     TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.worldserver", " ______                       __");
     TC_LOG_INFO("server.worldserver", "/\\__  _\\       __          __/\\ \\__");
@@ -247,7 +247,7 @@ extern int main(int argc, char** argv)
 
     sBattlenetServer.InitializeConnection();
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", Revision::GetFullVersion());
 
     sScriptMgr->OnStartup();
 
@@ -556,7 +556,7 @@ bool StartDB()
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", Revision::GetFullVersion(), Revision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
@@ -624,7 +624,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     }
     else if (vm.count("version"))
     {
-        std::cout << _FULLVERSION << "\n";
+        std::cout << Revision::GetFullVersion() << "\n";
     }
 
     return vm;
