@@ -60,7 +60,7 @@
 #include "Pet.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
-#include "Revision.h"
+#include "GitRevision.h"
 #include "SkillDiscovery.h"
 #include "SocialMgr.h"
 #include "Spell.h"
@@ -15123,8 +15123,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_TRACK);
         stmt->setUInt32(0, quest_id);
         stmt->setUInt32(1, GetGUIDLow());
-        stmt->setString(2, Revision::GetHash());
-        stmt->setString(3, Revision::GetDate());
+        stmt->setString(2, GitRevision::GetHash());
+        stmt->setString(3, GitRevision::GetDate());
 
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);
