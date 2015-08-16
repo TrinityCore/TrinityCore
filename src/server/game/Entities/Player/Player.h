@@ -28,6 +28,7 @@
 #include "QuestDef.h"
 #include "SpellMgr.h"
 #include "Unit.h"
+#include "InstanceSaveMgr.h"
 
 #include <limits>
 #include <string>
@@ -839,14 +840,26 @@ enum PlayerDelayedOperations
 // Maximum money amount : 2^31 - 1
 extern uint32 const MAX_MONEY_AMOUNT;
 
+enum InstanceExtend
+{
+    Extend = 1,
+    Lock = 2
+};
+
 struct InstancePlayerBind
 {
     InstanceSave* save;
     bool perm;
+    uint8 extend;
+
     /* permanent PlayerInstanceBinds are created in Raid/Heroic instances for players
        that aren't already permanently bound when they are inside when a boss is killed
        or when they enter an instance that the group leader is permanently bound to. */
     InstancePlayerBind() : save(NULL), perm(false) { }
+
+    bool IsExtended() const { return (extend & InstanceExtend::Extend) != 0; }
+    bool IsLock() const { return (extend & InstanceExtend::Lock) != 0; }
+    bool IsExpired() const { return save && (save->GetResetTime() < time(NULL) && !IsExtended() && !IsLock()); }
 };
 
 struct AccessRequirement
@@ -2195,7 +2208,7 @@ class Player : public Unit, public GridObject<Player>
         InstanceSave* GetInstanceSave(uint32 mapid, bool raid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
-        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
+        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false, uint8 extend = 0);
         void BindToInstance();
         void SetPendingBind(uint32 instanceId, uint32 bindTimer);
         bool HasPendingBind() const { return _pendingBindId > 0; }

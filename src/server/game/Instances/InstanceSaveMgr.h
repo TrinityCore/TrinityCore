@@ -74,6 +74,9 @@ class InstanceSave
         time_t GetResetTime() const { return m_resetTime; }
         void SetResetTime(time_t resetTime) { m_resetTime = resetTime; }
         time_t GetResetTimeForDB();
+        time_t GetDefaultResetTime();
+        time_t GetNextResetTime();
+        bool IsExpired() { return time(NULL) > m_resetTime; }
 
         InstanceTemplate const* GetTemplate();
         MapEntry const* GetMapEntry();

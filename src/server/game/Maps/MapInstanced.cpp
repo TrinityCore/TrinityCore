@@ -141,7 +141,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
     else
     {
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
-        InstanceSave* pSave = pBind ? pBind->save : NULL;
+        InstanceSave* pSave = pBind && !pBind->IsExpired() ? pBind->save : NULL;
 
         // the player's permanent player bind is taken into consideration first
         // then the player's group bind and finally the solo bind.
