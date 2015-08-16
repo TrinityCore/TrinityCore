@@ -32,7 +32,7 @@ char const* GitRevision::GetFullDatabase()
     return _FULL_DATABASE;
 }
 
-char const* Revision::GetHotfixesDatabase()
+char const* GitRevision::GetHotfixesDatabase()
 {
     return _HOTFIXES_DATABASE;
 }
