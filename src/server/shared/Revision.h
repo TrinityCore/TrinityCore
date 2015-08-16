@@ -22,7 +22,8 @@
 
 #include <string>
 
-namespace Revision {
+namespace Revision
+{
     std::string GetHash();
     std::string GetDate();
     std::string GetBranch();
