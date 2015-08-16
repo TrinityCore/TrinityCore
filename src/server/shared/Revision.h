@@ -22,18 +22,17 @@
 
 namespace Revision
 {
-    std::string GetPackageName();
-    std::string GetHash();
-    std::string GetDate();
-    std::string GetBranch();
-    std::string GetSourceDirectory();
-    std::string GetMySQLExecutable();
-    std::string GetFullDatabase();
-    std::string GetFullVersion();
-    std::string GetCompanyNameStr();
-    std::string GetLegalCopyrightStr();
-    std::string GetFileVersionStr();
-    std::string GetProductVersionStr();
+    char const* GetHash();
+    char const* GetDate();
+    char const* GetBranch();
+    char const* GetSourceDirectory();
+    char const* GetMySQLExecutable();
+    char const* GetFullDatabase();
+    char const* GetFullVersion();
+    char const* GetCompanyNameStr();
+    char const* GetLegalCopyrightStr();
+    char const* GetFileVersionStr();
+    char const* GetProductVersionStr();
 }
 
 #endif

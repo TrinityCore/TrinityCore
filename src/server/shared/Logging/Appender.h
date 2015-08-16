@@ -107,7 +107,6 @@ class Appender
 
         uint8 id;
         std::string name;
-        AppenderType type;
         LogLevel level;
         AppenderFlags flags;
 };
