@@ -726,6 +726,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT                 = 832,
     RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION                = 833,
     RBAC_PERM_COMMAND_GO_QUEST                               = 834,
+    RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
