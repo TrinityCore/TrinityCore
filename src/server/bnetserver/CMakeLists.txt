@@ -80,8 +80,6 @@ add_executable(bnetserver
   ${bnetserver_PCH_SRC}
 )
 
-add_dependencies(bnetserver revision.h)
-
 if( NOT WIN32 )
   set_target_properties(bnetserver PROPERTIES
     COMPILE_DEFINITIONS _TRINITY_BNET_CONFIG="${CONF_DIR}/bnetserver.conf"
