@@ -72,7 +72,7 @@ if(NOT WITHOUT_GIT)
 endif()
 
 # Find revision ID and hash of the sourcetree
-include(cmake/genrev.cmake)
+include(cmake/common.cmake)
 
 # print out the results before continuing
 include(cmake/showoptions.cmake)

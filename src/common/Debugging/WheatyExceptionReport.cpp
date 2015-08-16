@@ -20,8 +20,7 @@
 #include "WheatyExceptionReport.h"
 
 #include "Common.h"
-#include "SystemConfig.h"
-#include "revision.h"
+#include "Revision.h"
 
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")

@@ -8,11 +8,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+# Need to pass old ${CMAKE_BINARY_DIR} as param because its different at build stage
+add_custom_target(revision_data.h ALL
+  COMMAND "${CMAKE_COMMAND}" -DBUILDDIR="${CMAKE_BINARY_DIR}" -P "${CMAKE_SOURCE_DIR}/cmake/common.cmake" "${CMAKE_BINARY_DIR}"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
 if( USE_COREPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-file(GLOB_RECURSE sources_Common Common.cpp Common.h)
 file(GLOB_RECURSE sources_Collision Collision/*.cpp Collision/*.h)
 file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
 file(GLOB_RECURSE sources_Threading Utilities/*.cpp Utilities/*.h)
@@ -32,7 +37,7 @@ endif ()
 
 set(common_STAT_SRCS
   ${common_STAT_SRCS}
-  ${sources_Common}
+  ${sources_localdir}
   ${sources_Collision}
   ${sources_Threading}
   ${sources_Debugging}
@@ -98,6 +103,8 @@ add_library(common STATIC
   ${common_STAT_SRCS}
   ${common_STAT_PCH_SRC}
 )
+
+add_dependencies(common revision_data.h)
 
 # Generate precompiled header
 if (USE_COREPCH)
