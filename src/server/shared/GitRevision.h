@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __REVISION_H__
-#define __REVISION_H__
+#ifndef __GITREVISION_H__
+#define __GITREVISION_H__
 
 #include <string>
 
-namespace Revision
+namespace GitRevision
 {
     char const* GetHash();
     char const* GetDate();
