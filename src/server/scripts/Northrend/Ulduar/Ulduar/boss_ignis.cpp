@@ -117,10 +117,9 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
+            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS)
             {
                 Initialize();
-                ASSERT(_vehicle);
             }
 
             void Initialize()
@@ -133,7 +132,7 @@ class boss_ignis : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                if (_vehicle)
+                if (Vehicle* _vehicle = me->GetVehicleKit())
                     _vehicle->RemoveAllPassengers();
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
@@ -284,7 +283,6 @@ class boss_ignis : public CreatureScript
 
         private:
             ObjectGuid _slagPotGUID;
-            Vehicle* _vehicle;
             time_t _firstConstructKill;
             bool _shattered;
 
