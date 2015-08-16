@@ -18,7 +18,8 @@
 
 #include "MMapManager.h"
 #include "Log.h"
-#include "World.h"
+#include "Config.h"
+#include "SharedDefines.h"
 
 namespace MMAP
 {
@@ -69,9 +70,10 @@ namespace MMAP
         }
 
         // load and init dtNavMesh - read parameters from file
-        uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i.mmap")+1;
+        std::string dataDir = sConfigMgr->GetStringDefault("DataDir", "./");
+        uint32 pathLen = dataDir.length() + strlen("/mmaps/%03i.mmap") + 1;
         char *fileName = new char[pathLen];
-        snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i.mmap").c_str(), mapId);
+        snprintf(fileName, pathLen, (dataDir + "/mmaps/%03i.mmap").c_str(), mapId);
 
         FILE* file = fopen(fileName, "rb");
         if (!file)
@@ -118,7 +120,7 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(const std::string& /*basePath*/, uint32 mapId, int32 x, int32 y)
+    bool MMapManager::loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
@@ -134,10 +136,10 @@ namespace MMAP
             return false;
 
         // load this tile :: mmaps/MMMXXYY.mmtile
-        uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile")+1;
+        uint32 pathLen = basePath.length() + strlen("/%03i%02i%02i.mmtile") + 1;
         char *fileName = new char[pathLen];
 
-        snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
+        snprintf(fileName, pathLen, (basePath + "/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
 
         FILE* file = fopen(fileName, "rb");
         if (!file)
