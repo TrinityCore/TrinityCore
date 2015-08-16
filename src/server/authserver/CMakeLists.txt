@@ -73,8 +73,6 @@ add_executable(authserver
   ${authserver_PCH_SRC}
 )
 
-add_dependencies(authserver revision.h)
-
 if( NOT WIN32 )
   set_target_properties(authserver PROPERTIES
     COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
