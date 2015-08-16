@@ -153,8 +153,6 @@ add_library(scripts STATIC
   ${scripts_STAT_PCH_SRC}
 )
 
-add_dependencies(scripts revision.h)
-
 # Generate precompiled header
 if (USE_SCRIPTPCH)
   add_cxx_pch(scripts ${scripts_STAT_PCH_HDR} ${scripts_STAT_PCH_SRC})

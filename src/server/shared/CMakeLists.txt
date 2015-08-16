@@ -91,6 +91,8 @@ add_library(shared STATIC
   ${shared_STAT_PCH_SRC}
 )
 
+add_dependencies(shared revision_data.h)
+
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(shared ${shared_STAT_PCH_HDR} ${shared_STAT_PCH_SRC})
