@@ -1,33 +1,33 @@
-#include "Revision.h"
+#include "GitRevision.h"
 #include "CompilerDefs.h"
 #include "revision_data.h"
 
-char const* Revision::GetHash()
+char const* GitRevision::GetHash()
 {
     return _HASH;
 }
 
-char const* Revision::GetDate()
+char const* GitRevision::GetDate()
 {
     return _DATE;
 }
 
-char const* Revision::GetBranch()
+char const* GitRevision::GetBranch()
 {
     return _BRANCH;
 }
 
-char const* Revision::GetSourceDirectory()
+char const* GitRevision::GetSourceDirectory()
 {
     return _SOURCE_DIRECTORY;
 }
 
-char const* Revision::GetMySQLExecutable()
+char const* GitRevision::GetMySQLExecutable()
 {
     return _MYSQL_EXECUTABLE;
 }
 
-char const* Revision::GetFullDatabase()
+char const* GitRevision::GetFullDatabase()
 {
     return _FULL_DATABASE;
 }
@@ -39,7 +39,7 @@ char const* Revision::GetHotfixesDatabase()
 
 #define _PACKAGENAME "TrinityCore"
 
-char const* Revision::GetFullVersion()
+char const* GitRevision::GetFullVersion()
 {
 #if PLATFORM == PLATFORM_WINDOWS
 # ifdef _WIN64
@@ -52,22 +52,22 @@ char const* Revision::GetFullVersion()
 #endif
 }
 
-char const* GetCompanyNameStr()
+char const* GitRevision::GetCompanyNameStr()
 {
     return VER_COMPANYNAME_STR;
 }
 
-char const* GetLegalCopyrightStr()
+char const* GitRevision::GetLegalCopyrightStr()
 {
     return VER_LEGALCOPYRIGHT_STR;
 }
 
-char const* GetFileVersionStr()
+char const* GitRevision::GetFileVersionStr()
 {
     return VER_FILEVERSION_STR;
 }
 
-char const* GetProductVersionStr()
+char const* GitRevision::GetProductVersionStr()
 {
     return VER_PRODUCTVERSION_STR;
 }
