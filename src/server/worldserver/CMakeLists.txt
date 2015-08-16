@@ -49,24 +49,23 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/process
-  ${CMAKE_SOURCE_DIR}/src/server/collision
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Management
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${CMAKE_SOURCE_DIR}/src/server/database
+  ${CMAKE_SOURCE_DIR}/src/server/database/Database
+  ${CMAKE_SOURCE_DIR}/src/server/database/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
+  ${CMAKE_SOURCE_DIR}/src/common/Collision
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common/Configuration
   ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Configuration
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography/Authentication
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
   ${CMAKE_SOURCE_DIR}/src/server/shared/DataStores
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Updater
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Service
   ${CMAKE_SOURCE_DIR}/src/server/game
   ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
@@ -135,6 +134,14 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
+  ${CMAKE_SOURCE_DIR}/src/common/
+  ${CMAKE_SOURCE_DIR}/src/common/Collision
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common/Debugging
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/common/Threading
+  ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLine
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteAccess
@@ -165,9 +172,10 @@ set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAG
 
 target_link_libraries(worldserver
   game
+  common
   shared
+  database
   scripts
-  collision
   g3dlib
   gsoap
   Detour
