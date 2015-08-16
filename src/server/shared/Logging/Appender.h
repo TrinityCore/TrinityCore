@@ -19,6 +19,7 @@
 #define APPENDER_H
 
 #include <unordered_map>
+#include <stdexcept>
 #include <string>
 #include <time.h>
 #include <type_traits>
