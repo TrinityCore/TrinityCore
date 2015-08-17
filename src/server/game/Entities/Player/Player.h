@@ -1131,6 +1131,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInWater() const override { return m_isInWater; }
         bool IsUnderWater() const override;
         bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
+        bool IsInAreaTriggerRadius(const AreaTriggerEntry* trigger) const;
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -1193,7 +1194,7 @@ class Player : public Unit, public GridObject<Player>
 
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
-        void InnEnter(time_t time, uint32 mapid, float x, float y, float z);
+        void InnEnter(time_t time, uint32 triggerId);
 
         float GetRestBonus() const { return m_rest_bonus; }
         void SetRestBonus(float rest_bonus_new);
@@ -1201,10 +1202,7 @@ class Player : public Unit, public GridObject<Player>
         RestType GetRestType() const { return rest_type; }
         void SetRestType(RestType n_r_type) { rest_type = n_r_type; }
 
-        uint32 GetInnPosMapId() const { return inn_pos_mapid; }
-        float GetInnPosX() const { return inn_pos_x; }
-        float GetInnPosY() const { return inn_pos_y; }
-        float GetInnPosZ() const { return inn_pos_z; }
+        uint32 GetInnTriggerId() const { return inn_triggerId; }
 
         time_t GetTimeInnEnter() const { return time_inn_enter; }
         void UpdateInnerTime (time_t time) { time_inn_enter = time; }
@@ -1636,9 +1634,9 @@ class Player : public Unit, public GridObject<Player>
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
-        uint32 GetActiveSpec() { return m_activeSpec; }
+        uint32 GetActiveSpec() const { return m_activeSpec; }
         void SetActiveSpec(uint8 spec){ m_activeSpec = spec; }
-        uint8 GetSpecsCount() { return m_specsCount; }
+        uint8 GetSpecsCount() const { return m_specsCount; }
         void SetSpecsCount(uint8 count) { m_specsCount = count; }
         void ActivateSpec(uint8 spec);
 
@@ -2538,10 +2536,7 @@ class Player : public Unit, public GridObject<Player>
 
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;
-        uint32 inn_pos_mapid;
-        float  inn_pos_x;
-        float  inn_pos_y;
-        float  inn_pos_z;
+        uint32 inn_triggerId;
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////

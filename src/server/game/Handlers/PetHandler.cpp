@@ -52,7 +52,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 
     if (_player->GetCritterGUID() == pet->GetGUID())
     {
-         if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->IsSummon())
+         if (pet->GetTypeId() == TYPEID_UNIT && pet->IsSummon())
              pet->ToTempSummon()->UnSummon();
     }
 }
@@ -217,7 +217,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                             pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
                             //10% chance to play special pet attack talk, else growl
-                            if (pet->ToCreature()->IsPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
+                            if (pet->IsPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
                                 pet->SendPetTalk((uint32)PET_TALK_ATTACK);
                             else
                             {
@@ -349,7 +349,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
                 //10% chance to play special pet attack talk, else growl
                 //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                if (pet->ToCreature()->IsPet() && (((Pet*)pet)->getPetType() == SUMMON_PET) && (pet != unit_target) && (urand(0, 100) < 10))
+                if (pet->IsPet() && (((Pet*)pet)->getPetType() == SUMMON_PET) && (pet != unit_target) && (urand(0, 100) < 10))
                     pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
                 else
                 {
@@ -555,7 +555,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
                 //sign for autocast
                 if (act_state == ACT_ENABLED)
                 {
-                    if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->IsPet())
+                    if (pet->GetTypeId() == TYPEID_UNIT && pet->IsPet())
                         ((Pet*)pet)->ToggleAutocast(spellInfo, true);
                     else
                         for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
@@ -565,7 +565,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
                 //sign for no/turn off autocast
                 else if (act_state == ACT_DISABLED)
                 {
-                    if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->IsPet())
+                    if (pet->GetTypeId() == TYPEID_UNIT && pet->IsPet())
                         ((Pet*)pet)->ToggleAutocast(spellInfo, false);
                     else
                         for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)

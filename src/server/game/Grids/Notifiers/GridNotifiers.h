@@ -950,7 +950,7 @@ namespace Trinity
             bool operator()(Unit* u)
             {
                 // Check contains checks for: live, non-selectable, non-attackable flags, flight check and GM check, ignore totems
-                if (u->GetTypeId() == TYPEID_UNIT && u->ToCreature()->IsTotem())
+                if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
                 if (i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : NULL) && i_obj->IsWithinDistInMap(u, i_range))
