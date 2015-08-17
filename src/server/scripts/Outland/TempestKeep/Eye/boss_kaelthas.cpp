@@ -689,10 +689,9 @@ class boss_kaelthas : public CreatureScript
                             //Respawn advisors
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                            Creature* Advisor;
                             for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                             {
-                                Advisor = ObjectAccessor::GetCreature(*me, m_auiAdvisorGuid[i]);
+                                Creature* Advisor = ObjectAccessor::GetCreature(*me, m_auiAdvisorGuid[i]);
 
                                 if (!Advisor)
                                     TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
