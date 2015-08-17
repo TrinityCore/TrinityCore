@@ -664,10 +664,9 @@ struct boss_faction_championsAI : public BossAI
     {
         std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
         std::list<HostileReference*>::const_iterator iter;
-        Unit* target;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
+            Unit* target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
             if (target && target->getPowerType() == POWER_MANA)
                 return target;
         }
@@ -679,10 +678,9 @@ struct boss_faction_championsAI : public BossAI
         std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
         std::list<HostileReference*>::const_iterator iter;
         uint32 count = 0;
-        Unit* target;
         for (iter = tList.begin(); iter != tList.end(); ++iter)
         {
-            target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
+            Unit* target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
                 if (target && me->GetDistance2d(target) < distance)
                     ++count;
         }

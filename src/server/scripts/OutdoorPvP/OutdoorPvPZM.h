@@ -188,7 +188,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void ChangeState() override { }
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPacket & data) override;
 
         void UpdateTowerState();
 
