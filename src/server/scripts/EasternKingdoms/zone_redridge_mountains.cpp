@@ -63,7 +63,7 @@ public:
             Initialize();
         }
 
-        void sQuestAccept(Player* player, Quest const* quest)
+        void sQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
             {

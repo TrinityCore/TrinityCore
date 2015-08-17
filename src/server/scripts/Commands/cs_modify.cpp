@@ -421,7 +421,7 @@ public:
             target->ToPlayer()->SendTalentsInfoData(false);
             return true;
         }
-        else if (target->ToCreature()->IsPet())
+        else if (target->IsPet())
         {
             Unit* owner = target->GetOwner();
             if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet*)target)->IsPermanentPetFor(owner->ToPlayer()))

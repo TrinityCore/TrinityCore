@@ -13,9 +13,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
-  ${CMAKE_SOURCE_DIR}/src/server/collision
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common
+  ${CMAKE_SOURCE_DIR}/src/common/Collision
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Maps
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
   ${ZLIB_INCLUDE_DIR}
 )
 
@@ -26,7 +27,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 target_link_libraries(vmap4assembler
-  collision
+  common
   g3dlib
   ${ZLIB_LIBRARIES}
 )
