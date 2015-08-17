@@ -95,7 +95,7 @@ namespace MMAP
             MMapManager() : loadedTiles(0), thread_safe_environment(true) {}
             ~MMapManager();
 
-            void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
+            void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
@@ -108,9 +108,16 @@ namespace MMAP
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
 
-            void LoadPhaseTiles(uint32 mapId, int32 x, int32 y);
-            void UnloadPhaseTile(uint32 mapId, int32 x, int32 y);
-            PhaseTileContainer GetPhaseTileContainer(uint32 mapId) { return _phaseTiles[mapId]; }
+            typedef std::unordered_map<uint32, std::vector<uint32>> PhaseChildMapContainer;
+            void LoadPhaseTiles(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y);
+            void UnloadPhaseTile(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y);
+            PhaseTileContainer const* GetPhaseTileContainer(uint32 mapId) const
+            {
+                auto itr = _phaseTiles.find(mapId);
+                if (itr != _phaseTiles.end())
+                    return &itr->second;
+                return nullptr;
+            }
 
         private:
             bool loadMapData(uint32 mapId);
@@ -118,6 +125,7 @@ namespace MMAP
 
             MMapDataSet::const_iterator GetMMapData(uint32 mapId) const;
             MMapDataSet loadedMMaps;
+            PhaseChildMapContainer phaseMapData;
             uint32 loadedTiles;
             bool thread_safe_environment;
 
