@@ -15,7 +15,7 @@ endif()
 file(GLOB_RECURSE sources_Common Common.cpp Common.h)
 file(GLOB_RECURSE sources_Collision Collision/*.cpp Collision/*.h)
 file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
-file(GLOB_RECURSE sources_Threading Utilities/*.cpp Utilities/*.h)
+file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h)
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
 file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
 
@@ -35,9 +35,11 @@ set(common_STAT_SRCS
   ${sources_Common}
   ${sources_Collision}
   ${sources_Threading}
+  ${sources_Utilities}
   ${sources_Debugging}
   ${sources_Configuration}
   ${sources_Logging}
+  ${sources_localdir}
 )
 
 include_directories(
