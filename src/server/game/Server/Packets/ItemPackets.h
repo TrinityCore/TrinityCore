@@ -399,6 +399,28 @@ namespace WorldPackets
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
+
+        class TransmogrifyItems final : public ClientPacket
+        {
+        public:
+            struct TransmogrifyInfo
+            {
+                ItemInstance Item;
+                int32 Slot = 0;
+                ObjectGuid SrcItemGUID;
+                ObjectGuid SrcVoidItemGUID;
+            };
+
+            TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ItemCount = 0;
+            ObjectGuid NpcGUID;
+            std::vector<TransmogrifyInfo> Info;
+
+            static bool compareBonusList(std::vector<uint32, std::allocator<char32_t>> const &bonusList, ItemInstance const &itemInst);
+        };
     }
 }
 
