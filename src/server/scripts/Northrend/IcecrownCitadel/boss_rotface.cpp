@@ -480,8 +480,8 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
 
                 // .resize() runs pop_back();
-                if (targets.size() > 4)
-                    targets.resize(4);
+                if (targets.size() > 5)
+                    targets.resize(5);
 
                 while (targets.size() > 2)
                     targets.pop_front();

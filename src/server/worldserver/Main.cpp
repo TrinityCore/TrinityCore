@@ -44,10 +44,11 @@
 #include "BattlegroundMgr.h"
 #include "TCSoap.h"
 #include "CliRunnable.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "DatabaseLoader.h"
+#include "AppenderDB.h"
 
 using namespace boost::program_options;
 
@@ -120,13 +121,11 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
-    {
-        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
-        Log::instance(&_ioService);
-    }
+    sLog->RegisterAppender<AppenderDB>();
+    // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
+    sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? &_ioService : nullptr);
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", _FULLVERSION);
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.worldserver", " ______                       __");
     TC_LOG_INFO("server.worldserver", "/\\__  _\\       __          __/\\ \\__");
@@ -235,7 +234,7 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
 
@@ -471,7 +470,7 @@ bool StartDB()
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
@@ -537,7 +536,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     }
     else if (vm.count("version"))
     {
-        std::cout << _FULLVERSION << "\n";
+        std::cout << GitRevision::GetFullVersion() << "\n";
     }
 
     return vm;

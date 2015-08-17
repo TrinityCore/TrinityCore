@@ -536,8 +536,7 @@ public:
 
         void SpawnEyeTentacle(float x, float y)
         {
-            Creature* Spawned;
-            Spawned = DoSpawnCreature(NPC_EYE_TENTACLE, x, y, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 500);
+            Creature* Spawned = DoSpawnCreature(NPC_EYE_TENTACLE, x, y, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 500);
             if (Spawned && Spawned->AI())
                 if (Unit* target = SelectRandomNotStomach())
                     Spawned->AI()->AttackStart(target);

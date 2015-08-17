@@ -110,9 +110,8 @@ class npc_iceborn_protodrake : public CreatureScript
 
         struct npc_iceborn_protodrakeAI: public ScriptedAI
         {
-            npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
+            npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature)
             {
-                ASSERT(_vehicle);
                 Initialize();
             }
 
@@ -128,7 +127,8 @@ class npc_iceborn_protodrake : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _vehicle->RemoveAllPassengers();
+                if (Vehicle* _vehicle = me->GetVehicleKit())
+                    _vehicle->RemoveAllPassengers();
             }
 
             void UpdateAI(uint32 diff) override
@@ -148,7 +148,6 @@ class npc_iceborn_protodrake : public CreatureScript
             }
 
         private:
-            Vehicle* _vehicle;
             uint32 _frostBreathCooldown;
         };
 

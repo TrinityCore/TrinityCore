@@ -117,14 +117,12 @@ class boss_keristrasza : public CreatureScript
                 ContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMET_SPHERE);
                 ContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMET_SPHERE);
 
-                GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
-
                 for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
                 {
-                    ContainmentSpheres[i] = ObjectAccessor::GetGameObject(*me, ContainmentSphereGUIDs[i]);
-                    if (!ContainmentSpheres[i])
+                    GameObject* ContainmentSphere = ObjectAccessor::GetGameObject(*me, ContainmentSphereGUIDs[i]);
+                    if (!ContainmentSphere)
                         return false;
-                    if (ContainmentSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
+                    if (ContainmentSphere->GetGoState() != GO_STATE_ACTIVE)
                         return false;
                 }
                 if (remove_prison)

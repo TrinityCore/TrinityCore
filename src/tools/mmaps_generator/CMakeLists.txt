@@ -21,13 +21,15 @@ set(mmap_gen_Includes
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
-  ${CMAKE_SOURCE_DIR}/src/server/collision
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Management
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
-  ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common
+  ${CMAKE_SOURCE_DIR}/src/common/Collision
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Maps
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common/Debugging
+  ${CMAKE_SOURCE_DIR}/src/common/Threading
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
 )
 
 if( WIN32 )
@@ -42,7 +44,7 @@ include_directories(${mmap_gen_Includes})
 add_executable(mmaps_generator ${mmap_gen_sources})
 
 target_link_libraries(mmaps_generator
-  collision
+  common
   g3dlib
   Recast
   Detour
