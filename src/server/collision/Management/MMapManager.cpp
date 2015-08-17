@@ -19,7 +19,6 @@
 #include "MMapManager.h"
 #include "Log.h"
 #include "World.h"
-#include "DBCStores.h"
 #include "MMapFactory.h"
 
 namespace MMAP
@@ -37,11 +36,19 @@ namespace MMAP
         // if we had, tiles in MMapData->mmapLoadedTiles, their actual data is lost!
     }
 
-    void MMapManager::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
+    void MMapManager::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
     {
-        // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
-        for (const uint32& mapId : mapIds)
-            loadedMMaps.insert(MMapDataSet::value_type(mapId, nullptr));
+        // the caller must pass the list of all mapIds that will be used in the MMapManager lifetime
+        for (auto const& p : mapData)
+        {
+            loadedMMaps.insert(MMapDataSet::value_type(p.first, nullptr));
+            if (!p.second.empty())
+            {
+                phaseMapData[p.first] = p.second;
+                for (uint32 phasedMapId : p.second)
+                    _phaseTiles.insert(PhaseTileMap::value_type(phasedMapId, PhaseTileContainer()));
+            }
+        }
 
         thread_safe_environment = false;
     }
@@ -178,7 +185,9 @@ namespace MMAP
             ++loadedTiles;
             TC_LOG_DEBUG("maps", "MMAP:loadMap: Loaded mmtile %04i[%02i, %02i] into %04i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
 
-            LoadPhaseTiles(mapId, x, y);
+            PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
+            if (phasedMaps != phaseMapData.end())
+                LoadPhaseTiles(phasedMaps, x, y);
 
             return true;
         }
@@ -237,45 +246,43 @@ namespace MMAP
         return pTile;
     }
 
-    void MMapManager::LoadPhaseTiles(uint32 mapId, int32 x, int32 y)
+    void MMapManager::LoadPhaseTiles(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y)
     {
-        TC_LOG_DEBUG("phase", "MMAP:LoadPhaseTiles: Loading phased mmtiles for map %u, x: %i, y: %i", mapId, x, y);
+        TC_LOG_DEBUG("phase", "MMAP:LoadPhaseTiles: Loading phased mmtiles for map %u, x: %i, y: %i", phasedMapData->first, x, y);
 
         uint32 packedGridPos = packTileID(x, y);
 
-        for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+        for (uint32 phaseMapId : phasedMapData->second)
         {
-            if (MapEntry const* map = sMapStore.LookupEntry(i))
+            // only a few tiles have terrain swaps, do not write error for them
+            if (PhasedTile* data = LoadTile(phaseMapId, x, y))
             {
-                if (map->ParentMapID == int32(mapId))
-                {
-                    PhasedTile* data = LoadTile(map->ID, x, y);
-                    // only a few tiles have terrain swaps, do not write error for them
-                    if (data)
-                    {
-                        TC_LOG_DEBUG("phase", "MMAP:LoadPhaseTiles: Loaded phased %04u%02i%02i.mmtile for root phase map %u", map->ID, x, y, mapId);
-                        _phaseTiles[map->ID][packedGridPos] = data;
-                    }
-                }
+                TC_LOG_DEBUG("phase", "MMAP:LoadPhaseTiles: Loaded phased %04u%02i%02i.mmtile for root phase map %u", phaseMapId, x, y, phasedMapData->first);
+                _phaseTiles[phaseMapId][packedGridPos] = data;
             }
         }
     }
 
-    void MMapManager::UnloadPhaseTile(uint32 mapId, int32 x, int32 y)
+    void MMapManager::UnloadPhaseTile(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y)
     {
-        TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloading phased mmtile for map %u, x: %i, y: %i", mapId, x, y);
+        TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloading phased mmtile for map %u, x: %i, y: %i", phasedMapData->first, x, y);
 
         uint32 packedGridPos = packTileID(x, y);
 
-        const MapEntry* const map = sMapStore.LookupEntry(mapId); // map existence already checked when loading
-        uint32 rootMapId = map->ParentMapID;
-
-        if (_phaseTiles[mapId][packedGridPos])
+        for (uint32 phaseMapId : phasedMapData->second)
         {
-            TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloaded phased %04u%02i%02i.mmtile for root phase map %u", mapId, x, y, rootMapId);
-            delete _phaseTiles[mapId][packedGridPos]->data;
-            delete _phaseTiles[mapId][packedGridPos];
-            _phaseTiles[mapId].erase(packedGridPos);
+            auto phasedTileItr = _phaseTiles.find(phaseMapId);
+            if (phasedTileItr == _phaseTiles.end())
+                continue;
+
+            auto dataItr = phasedTileItr->second.find(packedGridPos);
+            if (dataItr != phasedTileItr->second.end())
+            {
+                TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloaded phased %04u%02i%02i.mmtile for root phase map %u", phaseMapId, x, y, phasedMapData->first);
+                delete dataItr->second->data;
+                delete dataItr->second;
+                phasedTileItr->second.erase(dataItr);
+            }
         }
     }
 
@@ -318,7 +325,9 @@ namespace MMAP
             --loadedTiles;
             TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %04i", mapId, x, y, mapId);
 
-            UnloadPhaseTile(mapId, x, y);
+            PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
+            if (phasedMaps != phaseMapData.end())
+                UnloadPhaseTile(phasedMaps, x, y);
             return true;
         }
 
@@ -345,7 +354,9 @@ namespace MMAP
                 TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload %04u%02i%02i.mmtile from navmesh", mapId, x, y);
             else
             {
-                UnloadPhaseTile(mapId, x, y);
+                PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
+                if (phasedMaps != phaseMapData.end())
+                    UnloadPhaseTile(phasedMaps, x, y);
                 --loadedTiles;
                 TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %04i[%02i, %02i] from %04i", mapId, x, y, mapId);
             }
@@ -545,9 +556,9 @@ namespace MMAP
         {
             if (!swaps.count(swap)) // swap not active
             {
-                PhaseTileContainer ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap);
-                for (PhaseTileContainer::const_iterator itr = ptc.begin(); itr != ptc.end(); ++itr)
-                    RemoveSwap(itr->second, swap, itr->first); // remove swap
+                if (PhaseTileContainer const* ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap))
+                    for (PhaseTileContainer::const_iterator itr = ptc->begin(); itr != ptc->end(); ++itr)
+                        RemoveSwap(itr->second, swap, itr->first); // remove swap
             }
         }
 
@@ -557,9 +568,9 @@ namespace MMAP
             if (!_activeSwaps.count(swap)) // swap not active
             {
                 // for each of the terrain swap's xy tiles
-                PhaseTileContainer ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap);
-                for (PhaseTileContainer::const_iterator itr = ptc.begin(); itr != ptc.end(); ++itr)
-                    AddSwap(itr->second, swap, itr->first); // add swap
+                if (PhaseTileContainer const* ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap))
+                    for (PhaseTileContainer::const_iterator itr = ptc->begin(); itr != ptc->end(); ++itr)
+                        AddSwap(itr->second, swap, itr->first); // add swap
             }
         }
 
