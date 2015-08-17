@@ -1485,7 +1485,7 @@ public:
                 creature->AI()->SetGUID(me->GetGUID(), DATA_LAST_OVERLOAD_GUID);
         }
 
-        void UpdateAI(uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/) override
         {
         }
 
