@@ -1298,10 +1298,9 @@ bool Item::CheckSoulboundTradeExpire()
     return false;
 }
 
-bool Item::CanBeTransmogrified() const
+bool Item::CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto = GetTemplate();
-
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
     if (!proto)
         return false;
 
@@ -1318,7 +1317,7 @@ bool Item::CanBeTransmogrified() const
     if (proto->GetFlags2() & ITEM_FLAG2_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats())
+    if (!HasStats(transmogrifier, bonus))
         return false;
 
     return true;
@@ -1327,7 +1326,6 @@ bool Item::CanBeTransmogrified() const
 bool Item::CanTransmogrify() const
 {
     ItemTemplate const* proto = GetTemplate();
-
     if (!proto)
         return false;
 
@@ -1353,18 +1351,41 @@ bool Item::CanTransmogrify() const
     return true;
 }
 
-bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier)
+bool Item::HasStats() const
 {
-    if (!transmogrifier || !transmogrified)
-        return false;
+    if (GetItemRandomPropertyId() != 0)
+        return true;
 
-    ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
+    ItemTemplate const* proto = GetTemplate();
+    Player const* owner = GetOwner();
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatValue(i)) != 0)
+            return true;
+
+    return false;
+}
+
+bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus)
+{
+    if (itemInstance.RandomPropertiesID != 0)
+        return true;
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if (bonus->ItemStatValue[i] != 0)
+            return true;
+
+    return false;
+}
+
+bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
+{
+    ItemTemplate const* proto1 = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
     ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
 
-    if (proto1->GetId() == proto2->GetId())
+    if (sDB2Manager.GetItemDisplayId(proto1->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
         return false;
 
-    if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+    if (!transmogrified->CanTransmogrify() || !CanBeTransmogrified(transmogrifier, bonus))
         return false;
 
     if (proto1->GetInventoryType() == INVTYPE_BAG ||
@@ -1385,19 +1406,6 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* t
         return false;
 
     return true;
-}
-
-bool Item::HasStats() const
-{
-    if (GetItemRandomPropertyId() != 0)
-        return true;
-
-    ItemTemplate const* proto = GetTemplate();
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->GetItemStatValue(i) != 0)
-            return true;
-
-    return false;
 }
 
 // used by mail items, transmog cost, stationeryinfo and others
@@ -1784,8 +1792,8 @@ uint32 Item::GetVisibleEntry() const
 
 uint32 Item::GetVisibleAppearanceModId() const
 {
-    if (uint32 transmogMod = GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD))
-        return transmogMod;
+    if (GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
+        return GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD);
 
     return GetAppearanceModId();
 }
@@ -1821,6 +1829,21 @@ void BonusData::Initialize(ItemTemplate const* proto)
         SocketColor[i] = proto->GetSocketColor(i);
 
     AppearanceModID = 0;
+}
+
+void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
+{
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemInstance.ItemID);
+    if (!proto)
+        return;
+
+    Initialize(proto);
+
+    if (itemInstance.ItemBonus)
+        for (uint32 bonusListID : itemInstance.ItemBonus->BonusListIDs)
+            if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
+                for (ItemBonusEntry const* bonus : *bonuses)
+                    AddBonus(bonus->Type, bonus->Value);
 }
 
 void BonusData::AddBonus(uint32 type, int32 const (&values)[2])

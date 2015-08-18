@@ -52,7 +52,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPackets::VoidStorage::UnlockVoid
 
 void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidStorage& queryVoidStorage)
 {
-    Creature* unit = _player->GetNPCIfCanInteractWith(queryVoidStorage.Npc, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = _player->GetNPCIfCanInteractWith(queryVoidStorage.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - %s not found or player can't interact with it.", queryVoidStorage.Npc.ToString().c_str());

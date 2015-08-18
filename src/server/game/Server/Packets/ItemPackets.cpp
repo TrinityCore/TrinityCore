@@ -18,6 +18,17 @@
 #include "ItemPackets.h"
 #include "Player.h"
 
+bool WorldPackets::Item::ItemBonusInstanceData::operator==(ItemBonusInstanceData const& r) const
+{
+    if (Context != r.Context)
+        return false;
+
+    if (BonusListIDs.size() != r.BonusListIDs.size())
+        return false;
+
+    return std::is_permutation(BonusListIDs.begin(), BonusListIDs.end(), r.BonusListIDs.begin());
+}
+
 void WorldPackets::Item::BuyBackItem::Read()
 {
     _worldPacket >> VendorGUID
@@ -228,6 +239,23 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
     }
 }
 
+bool WorldPackets::Item::ItemInstance::operator==(ItemInstance const& r) const
+{
+    if (ItemID != r.ItemID || RandomPropertiesID != r.RandomPropertiesID || RandomPropertiesSeed != r.RandomPropertiesSeed)
+        return false;
+
+    if (ItemBonus.is_initialized() != r.ItemBonus.is_initialized() || Modifications.is_initialized() != r.Modifications.is_initialized())
+        return false;
+
+    if (Modifications.is_initialized() && *Modifications != *r.Modifications)
+        return false;
+
+    if (ItemBonus.is_initialized() && *ItemBonus != *r.ItemBonus)
+        return false;
+
+    return true;
+}
+
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
 {
     _worldPacket << int8(BagResult);
@@ -404,4 +432,32 @@ WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
     _worldPacket << OwnerGuid;
 
     return &_worldPacket;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::TransmogrifyItem& transmogItem)
+{
+    if (data.ReadBit())
+        transmogItem.SrcItemGUID = boost::in_place();
+
+    if (data.ReadBit())
+        transmogItem.SrcVoidItemGUID = boost::in_place();
+
+    data >> transmogItem.Item;
+    data >> transmogItem.Slot;
+
+    if (transmogItem.SrcItemGUID.is_initialized())
+        data >> *transmogItem.SrcItemGUID;
+
+    if (transmogItem.SrcVoidItemGUID.is_initialized())
+        data >> *transmogItem.SrcVoidItemGUID;
+
+    return data;
+}
+
+void WorldPackets::Item::TransmogrifyItems::Read()
+{
+    Items.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Npc;
+    for (TransmogrifyItem& item : Items)
+        _worldPacket >> item;
 }

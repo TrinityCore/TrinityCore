@@ -319,6 +319,7 @@ namespace WorldPackets
         class SwapItem;
         class WrapItem;
         class CancelTempEnchantment;
+        class TransmogrifyItems;
     }
 
     namespace Loot
@@ -1519,7 +1520,7 @@ class WorldSession
         void SendVoidStorageTransferResult(VoidTransferError result);
 
         // Transmogrification
-        void HandleTransmogrifyItems(WorldPacket& recvData);
+        void HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems& transmogrifyItems);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);
