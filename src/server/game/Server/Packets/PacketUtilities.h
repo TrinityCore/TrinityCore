@@ -178,6 +178,16 @@ namespace WorldPackets
             _contents.clear();
         }
 
+        bool operator==(CompactArray const& r) const
+        {
+            if (_mask != r._mask)
+                return false;
+
+            return _contents == r._contents;
+        }
+
+        bool operator!=(CompactArray const& r) const { return !(*this == r); }
+
     private:
         uint32 _mask;
         std::vector<T> _contents;
