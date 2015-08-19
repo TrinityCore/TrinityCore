@@ -7,3 +7,4 @@
 #include "RegularGrid.h"
 #include "BoundingIntervalHierarchyWrapper.h"
 #include "GameObjectModel.h"
+#include "GitRevision.h"
