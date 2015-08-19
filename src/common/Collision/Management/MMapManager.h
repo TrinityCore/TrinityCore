@@ -23,10 +23,11 @@
 #include "DetourAlloc.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include "World.h"
+#include "MapDefines.h"
 #include <string>
 #include <unordered_map>
 #include <set>
+#include <vector>
 
 //  move map related classes
 namespace MMAP

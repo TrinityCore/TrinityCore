@@ -22,7 +22,6 @@
 #include "Util.h"
 #include "AppenderConsole.h"
 #include "AppenderFile.h"
-#include "AppenderDB.h"
 #include "LogOperation.h"
 
 #include <cstdarg>
