@@ -1183,7 +1183,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
         // entry of transmogrifier and from packet
         if (itemInstance != transmogItem.Item)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid item instance data for %s.", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Item.ItemID, transmogItem.SrcItemGUID->ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid item instance data for %s.", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcItemGUID->ToString().c_str());
             return;
         }
 
