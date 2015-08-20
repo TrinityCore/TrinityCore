@@ -32,6 +32,9 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 #include <Shlobj.h>
+#elif PLATFORM == PLATFORM_UNIX
+#include <wordexp.h>
+#include <string>
 #endif
 
 namespace po = boost::program_options;
@@ -141,6 +144,9 @@ namespace Connection_Patcher
             ("help,h", "print usage message")
             ("path", po::value<std::string>()->required(), "Path to the Wow.exe")
             ("extra,e", po::value<uint32_t>()->implicit_value(0), "Enable patching of versions file download path. Version can be specified explicitly.")
+#if PLATFORM == PLATFORM_UNIX
+            ("winProgramData", po::value<std::string>()->required()->default_value("~/.wine/drive_c/users/Public/Application Data"), "Path to windows program data")
+#endif
             ;
 
         po::positional_options_description pos;
@@ -167,6 +173,18 @@ namespace Connection_Patcher
     }
 }
 
+#if PLATFORM == PLATFORM_UNIX
+std::wstring expand_user(std::string path)
+{
+    std::string expanded;
+    wordexp_t exp_result;
+    wordexp(std::string(path.begin(), path.end()).c_str(), &exp_result, 0);
+    expanded=exp_result.we_wordv[0];
+    wordfree(&exp_result);
+    return std::wstring(expanded.begin(), expanded.end());
+}
+#endif
+
 int main(int argc, char** argv)
 {
     using namespace Connection_Patcher;
@@ -188,9 +206,11 @@ int main(int argc, char** argv)
         std::string const binary_path(std::move(vm["path"].as<std::string>()));
         std::string renamed_binary_path(binary_path);
 
-        wchar_t* commonAppData(nullptr);
 #if PLATFORM == PLATFORM_WINDOWS
+        wchar_t* commonAppData(nullptr);
         SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &commonAppData);
+#else
+        std::wstring commonAppData=expand_user(vm["winProgramData"].as<std::string>());
 #endif
 
         std::cout << "Creating patched binary..." << std::endl;
