@@ -28,6 +28,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
     Appender(id, name, level, flags),
     logfile(NULL),
     _logDir(sLog->GetLogsDir()),
+    _maxFileSize(0),
     _fileSize(0)
 {
     if (extraArgs.empty())
