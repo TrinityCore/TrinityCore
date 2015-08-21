@@ -30,7 +30,7 @@ enum Spells
     SPELL_FROST_NOVA                                        = 865,
     SPELL_FROST_BOLT_VOLLEY                                 = 8398,
     SPELL_TELEPORT_DARNASSUS                                = 9268,
-    SPELL_DARKNESS_CALLS_DUMMY                              = 151159,
+    SPELL_DARKNESS_CALLS                                    = 151159,
 };
 
 const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
@@ -251,10 +251,7 @@ class spell_subjugator_korul_darkness_calls : public SpellScriptLoader    // 151
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Creature* caster = GetCaster()->ToCreature())
-                {
-                    caster->CastSpell(target, uint32(GetEffectValue()))
-                }
+                caster->CastSpell(GetHitUnit(), uint32(GetEffectValue()))
             }
 
             void Register() override
