@@ -18,7 +18,7 @@
 
 #include "MMapManager.h"
 #include "Log.h"
-#include "World.h"
+#include "Config.h"
 #include "MMapFactory.h"
 
 namespace MMAP
@@ -81,7 +81,7 @@ namespace MMAP
         }
 
         // load and init dtNavMesh - read parameters from file
-        std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, sWorld->GetDataPath().c_str(), mapId);
+        std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "./").c_str(), mapId);
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
@@ -137,7 +137,7 @@ namespace MMAP
             return false;
 
         // load this tile :: mmaps/MMMMXXYY.mmtile
-        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sWorld->GetDataPath().c_str(), mapId, x, y);
+        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "./").c_str(), mapId, x, y);
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
@@ -200,7 +200,7 @@ namespace MMAP
     PhasedTile* MMapManager::LoadTile(uint32 mapId, int32 x, int32 y)
     {
         // load this tile :: mmaps/MMMXXYY.mmtile
-        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sWorld->GetDataPath().c_str(), mapId, x, y);
+        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "./").c_str(), mapId, x, y);
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
