@@ -251,7 +251,7 @@ class spell_subjugator_korul_darkness_calls : public SpellScriptLoader    // 151
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                caster->CastSpell(GetHitUnit(), uint32(GetEffectValue()))
+                GetHitUnit->CastSpell(GetHitUnit(), uint32(GetEffectValue()))
             }
 
             void Register() override
