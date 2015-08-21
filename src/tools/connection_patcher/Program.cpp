@@ -201,7 +201,8 @@ int main(int argc, char** argv)
         if ((tempPath = getenv("HOME")) == nullptr)
             tempPath = getpwuid(getuid())->pw_dir;
         std::string tempPathStr(tempPath);
-        appDataPath.assign(tempPathStr.begin(), tempPathStr.end()) + std::wstring(L"/.wine/drive_c/users/Public/Application Data");
+        appDataPath.assign(tempPathStr.begin(), tempPathStr.end());
+        appDataPath += std::wstring(L"/.wine/drive_c/users/Public/Application Data");
 #endif
         if (vm.count("modulePath"))
             appDataPath.assign(vm["modulePath"].as<std::string>().begin(), vm["modulePath"].as<std::string>().end());
