@@ -86,6 +86,7 @@ class boss_ragnaros : public CreatureScript
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                SetCombatMovement(false);
             }
 
             void Initialize()
