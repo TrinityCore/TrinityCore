@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#include "SpellScript.h"
 #include "the_eye.h"
 
 enum Yells
