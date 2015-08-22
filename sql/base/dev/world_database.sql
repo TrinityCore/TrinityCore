@@ -190,6 +190,26 @@ CREATE TABLE `battlemaster_entry` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `blackmarket_template`
+--
+
+DROP TABLE IF EXISTS `blackmarket_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `blackmarket_template` (
+  `marketId` int(10) NOT NULL DEFAULT '0',
+  `sellerNpc` mediumint(8) NOT NULL DEFAULT '0',
+  `itemEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `quantity` int(10) NOT NULL DEFAULT '1',
+  `minBid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `duration` int(10) NOT NULL DEFAULT '0',
+  `chance` float NOT NULL DEFAULT '0',
+  `bonusListIDs` text,
+  PRIMARY KEY (`marketId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `class_expansion_requirement`
 --
 
