@@ -33,10 +33,14 @@ enum DataTypes
 
     DATA_ASTROMANCER                    = 4,
     DATA_GRANDASTROMANCERCAPERNIAN      = 5,
-    DATA_KAELTHASEVENT                  = 6,
-    DATA_LORDSANGUINAR                  = 7,
-    DATA_MASTERENGINEERTELONICUS        = 8,
-    DATA_THALADREDTHEDARKENER           = 9
+    DATA_LORDSANGUINAR                  = 6,
+    DATA_MASTERENGINEERTELONICUS        = 7,
+    DATA_THALADREDTHEDARKENER           = 8,
+
+    // Additional Data
+    DATA_KAEL_STATUE_LEFT               = 9,
+    DATA_KAEL_STATUE_RIGHT              = 10,
+    DATA_TEMPEST_BRIDGE_WINDOW          = 11
 };
 
 enum CreatureIds
@@ -48,6 +52,15 @@ enum CreatureIds
     NPC_KAELTHAS                        = 19622,
     NPC_HIGH_ASTROMANCER_SOLARIAN       = 18805,
     NPC_ALAR                            = 19514
+};
+
+enum GameObjectIds
+{
+    GO_TEMPEST_BRIDDGE_WINDOW           = 184069,
+    GO_KAEL_STATUE_RIGHT                = 184596,
+    GO_KAEL_STATUE_LEFT                 = 184597,
+    GO_ARCANE_DOOR_LEFT                 = 184324,
+    GO_ARCANE_DOOR_RIGHT                = 184325
 };
 
 #endif
