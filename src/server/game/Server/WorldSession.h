@@ -37,6 +37,7 @@ class BattlePetMgr;
 class Channel;
 class CollectionMgr;
 class Creature;
+class BlackMarketEntry;
 class GameObject;
 class InstanceSave;
 class Item;
@@ -55,6 +56,7 @@ struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
+struct BlackMarketTemplate;
 
 namespace lfg
 {
@@ -149,6 +151,9 @@ namespace WorldPackets
     namespace BlackMarket
     {
         class BlackMarketOpen;
+        class BlackMarketRequestItems;
+        class BlackMarketBidOnItem;
+        class BlackMarketOutbid;
     }
 
     namespace Calendar
@@ -1034,6 +1039,9 @@ class TC_GAME_API WorldSession
 
         // Black Market
         void SendBlackMarketOpenResult(ObjectGuid guid, Creature* auctioneer);
+        void SendBlackMarketBidOnItemResult(int32 result, int32 marketId, WorldPackets::Item::ItemInstance& item);
+        void SendBlackMarketWonNotification(BlackMarketEntry const* entry, Item const* item);
+        void SendBlackMarketOutbidNotification(BlackMarketTemplate const* templ);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId);
@@ -1383,7 +1391,9 @@ class TC_GAME_API WorldSession
         void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& packet);
 
         // Black Market
-        void HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& packet);
+        void HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& blackMarketOpen);
+        void HandleBlackMarketRequestItems(WorldPackets::BlackMarket::BlackMarketRequestItems& blackMarketRequestItems);
+        void HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMarketBidOnItem& blackMarketBidOnItem);
 
         void HandleGetMailList(WorldPackets::Mail::MailGetList& packet);
         void HandleSendMail(WorldPackets::Mail::SendMail& packet);

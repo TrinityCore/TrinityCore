@@ -91,6 +91,7 @@ enum WorldTimers
     WUPDATE_AHBOT,
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
+    WUPDATE_BLACKMARKET,
     WUPDATE_COUNT
 };
 
@@ -179,6 +180,7 @@ enum WorldBoolConfigs
     CONFIG_RESET_DUEL_HEALTH_MANA,
     CONFIG_BASEMAP_LOAD_GRIDS,
     CONFIG_INSTANCEMAP_LOAD_GRIDS,
+    CONFIG_BLACKMARKET_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -378,6 +380,8 @@ enum WorldIntConfigs
     CONFIG_AUCTION_GETALL_DELAY,
     CONFIG_AUCTION_SEARCH_DELAY,
     CONFIG_TALENTS_INSPECTING,
+    CONFIG_BLACKMARKET_MAXAUCTIONS,
+    CONFIG_BLACKMARKET_UPDATE_PERIOD,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -809,6 +813,7 @@ class TC_GAME_API World
         IntervalTimer m_timers[WUPDATE_COUNT];
         time_t mail_timer;
         time_t mail_timer_expires;
+        time_t blackmarket_timer;
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
