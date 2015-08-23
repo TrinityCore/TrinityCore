@@ -64,8 +64,10 @@ public:
         ObjectGuid uiGrandChampion1GUID;
         ObjectGuid uiGrandChampion2GUID;
         ObjectGuid uiGrandChampion3GUID;
-        ObjectGuid uiChampionLootGUID;
+        ObjectGuid uiGrandChampionLootGUID;
         ObjectGuid uiArgentChampionGUID;
+        ObjectGuid uiEadricLootGUID;
+        ObjectGuid uiPaletressLootGUID;
         ObjectGuid uiTirionGUID;
         ObjectGuid uiVarianGUID;
         ObjectGuid uiJainaGUID;
@@ -187,7 +189,15 @@ public:
                     break;
                 case GO_CHAMPIONS_LOOT:
                 case GO_CHAMPIONS_LOOT_H:
-                    uiChampionLootGUID = go->GetGUID();
+                    uiGrandChampionLootGUID = go->GetGUID();
+                    break;
+                case GO_EADRIC_LOOT:
+                case GO_EADRIC_LOOT_H:
+                    uiEadricLootGUID = go->GetGUID();
+                    break;
+                case GO_PALETRESS_LOOT:
+                case GO_PALETRESS_LOOT_H:
+                    uiPaletressLootGUID = go->GetGUID();
                     break;
             }
         }
@@ -209,18 +219,17 @@ public:
                 case DATA_PLAYERS_TEAM:
                     m_playersTeam = uiData;
                     break;
-                case BOSS_GRAND_CHAMPIONS:
-                    m_auiEncounter[0] = uiData;
-                    if (uiData == IN_PROGRESS)
+                case DATA_REMOVE_VEHICLES:
+                    for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                     {
-                        for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
-                            if (Creature* summon = instance->GetCreature(*itr))
-                                summon->RemoveFromWorld();
+                        if (Creature* summon = instance->GetCreature(*itr))
+                            summon->RemoveFromWorld();
                         // We must remove defense spells from players
                         Map::PlayerList const &players = instance->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
-                            if (Player *plr = itr->GetSource())
+                            Player *plr = itr->GetSource();
+                            if (plr && plr->IsAlive() && !plr->IsGameMaster())
                             {
                                 plr->RemoveAura(62552); // Actual defense spell
                                 plr->RemoveAura(63130); // Shield Level 1 (visual only)
@@ -228,15 +237,37 @@ public:
                                 plr->RemoveAura(63132); // Shield Level 3 (visual only)
                             }
                         }
-                    }else if (uiData == DONE)
+                    }
+                    break;
+                case BOSS_GRAND_CHAMPIONS:
+                    if (uiData == IN_PROGRESS)
+                        SetData(DATA_REMOVE_VEHICLES, 0);
+                    else if (uiData == DONE && GetData(BOSS_GRAND_CHAMPIONS) != DONE)
                     {
                         if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
-                            pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                            pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, 0, 0, 0, 0, 90000);
+                            // On heroic mode we must bind players to the instance
+                            if (instance->IsHeroic())
+                            {
+                                Map::PlayerList const &players = instance->GetPlayers();
+                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                {
+                                    Player *plr = itr->GetSource();
+                                    if (plr && !plr->IsGameMaster())
+                                    {
+                                        if (instance->ToInstanceMap())
+                                            instance->ToInstanceMap()->PermBindAllPlayers(plr);
+                                        break;
+                                    }
+                                }
+                            }
+                            pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
+                            DoRespawnGameObject(uiGrandChampionLootGUID, 1 * DAY);
+                            if (GameObject* cache = instance->GetGameObject(uiGrandChampionLootGUID))
+                                cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                     }
+                    m_auiEncounter[0] = uiData;
                     break;
                 case DATA_ARGENT_SOLDIER_DEFEATED:
                     uiArgentSoldierDeaths = uiData;
@@ -254,18 +285,20 @@ public:
                     m_auiEncounter[1] = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
-                        pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                        pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
+                        DoRespawnGameObject(uiEadricLootGUID, 1 * DAY);
+                        if (GameObject* cache = instance->GetGameObject(uiEadricLootGUID))
+                            cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
                     m_auiEncounter[2] = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
-                        pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                        pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
+                        DoRespawnGameObject(uiPaletressLootGUID, 1 * DAY);
+                        if (GameObject* cache = instance->GetGameObject(uiPaletressLootGUID))
+                            cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
             }
