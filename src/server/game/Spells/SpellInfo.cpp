@@ -2918,6 +2918,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case 62344: // Fists of Stone
                 case 61819: // Manabonked! (item)
                 case 61834: // Manabonked! (minigob)
+                case 73523: // Rigor Mortis
                     return true;
                 default:
                     break;
