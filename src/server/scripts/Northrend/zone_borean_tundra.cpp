@@ -1818,7 +1818,7 @@ public:
                 player->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
-        void UpdateEscortAI(const uint32 /*diff*/) override
+        void UpdateEscortAI(uint32 /*diff*/) override
         {
             if (GetAttack() && UpdateVictim())
             {

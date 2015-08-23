@@ -16,11 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
 enum Spells
 {
+    SPELL_SUMMON_PLAYER                         = 21150,
     SPELL_ARCANE_VACUUM                         = 58694,
     SPELL_BLIZZARD                              = 58693,
     SPELL_MANA_DESTRUCTION                      = 59374,
@@ -42,119 +44,91 @@ enum Yells
 
 class boss_cyanigosa : public CreatureScript
 {
-public:
-    boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
+    public:
+        boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
 
-    struct boss_cyanigosaAI : public BossAI
-    {
-        boss_cyanigosaAI(Creature* creature) : BossAI(creature, DATA_CYANIGOSA)
+        struct boss_cyanigosaAI : public BossAI
         {
-            Initialize();
-        }
+            boss_cyanigosaAI(Creature* creature) : BossAI(creature, DATA_CYANIGOSA) { }
 
-        void Initialize()
-        {
-            uiArcaneVacuumTimer = 10000;
-            uiBlizzardTimer = 15000;
-            uiManaDestructionTimer = 30000;
-            uiTailSweepTimer = 20000;
-            uiUncontrollableEnergyTimer = 25000;
-        }
-
-        uint32 uiArcaneVacuumTimer;
-        uint32 uiBlizzardTimer;
-        uint32 uiManaDestructionTimer;
-        uint32 uiTailSweepTimer;
-        uint32 uiUncontrollableEnergyTimer;
-
-        void Reset() override
-        {
-            Initialize();
-            BossAI::Reset();
-        }
-
-        void EnterCombat(Unit* who) override
-        {
-            BossAI::EnterCombat(who);
-            Talk(SAY_AGGRO);
-        }
-
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (instance->GetData(DATA_REMOVE_NPC) == 1)
+            void EnterCombat(Unit* who) override
             {
-                me->DespawnOrUnsummon();
-                instance->SetData(DATA_REMOVE_NPC, 0);
+                BossAI::EnterCombat(who);
+                Talk(SAY_AGGRO);
             }
 
-            if (!UpdateVictim())
-                return;
-
-            if (uiArcaneVacuumTimer <= diff)
+            void KilledUnit(Unit* victim) override
             {
-                DoCastAOE(SPELL_ARCANE_VACUUM);
-                uiArcaneVacuumTimer = 10000;
-            } else uiArcaneVacuumTimer -= diff;
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
 
-            if (uiBlizzardTimer <= diff)
+            void JustDied(Unit* killer) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_BLIZZARD);
-                uiBlizzardTimer = 15000;
-            } else uiBlizzardTimer -= diff;
+                BossAI::JustDied(killer);
+                Talk(SAY_DEATH);
+            }
 
-            if (uiTailSweepTimer <= diff)
-            {
-                DoCastVictim(SPELL_TAIL_SWEEP);
-                uiTailSweepTimer = 20000;
-            } else uiTailSweepTimer -= diff;
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            if (uiUncontrollableEnergyTimer <= diff)
+            void UpdateAI(uint32 diff) override
             {
-                DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
-                uiUncontrollableEnergyTimer = 25000;
-            } else uiUncontrollableEnergyTimer -= diff;
+                if (!UpdateVictim())
+                    return;
 
-            if (IsHeroic())
+                scheduler.Update(diff,
+                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
+            }
+
+            void ScheduleTasks() override
             {
-                if (uiManaDestructionTimer <= diff)
+                scheduler.Schedule(Seconds(10), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_MANA_DESTRUCTION);
-                    uiManaDestructionTimer = 30000;
-                } else uiManaDestructionTimer -= diff;
+                    DoCastAOE(SPELL_ARCANE_VACUUM);
+                    task.Repeat();
+                });
+
+                scheduler.Schedule(Seconds(15), [this](TaskContext task)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                        DoCast(target, SPELL_BLIZZARD);
+                    task.Repeat();
+                });
+
+                scheduler.Schedule(Seconds(20), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_TAIL_SWEEP);
+                    task.Repeat();
+                });
+
+                scheduler.Schedule(Seconds(25), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
+                    task.Repeat();
+                });
+
+                if (IsHeroic())
+                {
+                    scheduler.Schedule(Seconds(30), [this](TaskContext task)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            DoCast(target, SPELL_MANA_DESTRUCTION);
+                        task.Repeat();
+                    });
+                }
             }
+        };
 
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* killer) override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            BossAI::JustDied(killer);
-            Talk(SAY_DEATH);
+            return GetVioletHoldAI<boss_cyanigosaAI>(creature);
         }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_cyanigosaAI>(creature);
-    }
 };
 
 class achievement_defenseless : public AchievementCriteriaScript
 {
     public:
-        achievement_defenseless() : AchievementCriteriaScript("achievement_defenseless")
-        {
-        }
+        achievement_defenseless() : AchievementCriteriaScript("achievement_defenseless") { }
 
         bool OnCheck(Player* /*player*/, Unit* target) override
         {
@@ -165,10 +139,40 @@ class achievement_defenseless : public AchievementCriteriaScript
             if (!instance)
                 return false;
 
-            if (!instance->GetData(DATA_DEFENSELESS))
-                return false;
+            return instance->GetData(DATA_DEFENSELESS) != 0;
+        }
+};
 
-            return true;
+class spell_cyanigosa_arcane_vacuum : public SpellScriptLoader
+{
+    public:
+        spell_cyanigosa_arcane_vacuum() : SpellScriptLoader("spell_cyanigosa_arcane_vacuum") { }
+
+        class spell_cyanigosa_arcane_vacuum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_cyanigosa_arcane_vacuum_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PLAYER))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_PLAYER, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_cyanigosa_arcane_vacuum_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_cyanigosa_arcane_vacuum_SpellScript();
         }
 };
 
@@ -176,4 +180,5 @@ void AddSC_boss_cyanigosa()
 {
     new boss_cyanigosa();
     new achievement_defenseless();
+    new spell_cyanigosa_arcane_vacuum();
 }

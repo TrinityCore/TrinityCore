@@ -18,7 +18,6 @@
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "WorldSession.h"
 #include "gundrak.h"
 #include "EventMap.h"
 
@@ -191,7 +190,7 @@ class instance_gundrak : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
             {
-                if (player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES))
+                if (_SkipCheckRequiredBosses(player))
                     return true;
 
                 switch (bossId)

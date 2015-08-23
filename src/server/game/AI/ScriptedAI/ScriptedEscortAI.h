@@ -68,8 +68,8 @@ struct npc_escortAI : public ScriptedAI
 
         void EnterEvadeMode() override;
 
-        void UpdateAI(uint32 diff) override;                   //the "internal" update, calls UpdateEscortAI()
-        virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
+        void UpdateAI(uint32 diff) override;        // the "internal" update, calls UpdateEscortAI()
+        virtual void UpdateEscortAI(uint32 diff);   // used when it's needed to add code in update (abilities, scripted events, etc)
 
         void MovementInform(uint32, uint32) override;
 
