@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
+#include "WorldPacket.h"
 #include "violet_hold.h"
 #include "Player.h"
 
