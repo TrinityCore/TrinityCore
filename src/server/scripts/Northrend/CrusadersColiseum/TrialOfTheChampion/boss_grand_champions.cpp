@@ -1104,12 +1104,12 @@ public:
 
         void Initialize()
         {
-            pEvents.Reset();
+            _events.Reset();
         }
 
         InstanceScript* instance;
 
-        EventMap pEvents;
+        EventMap _events;
 
         void Reset() override
         {
@@ -1119,17 +1119,17 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            pEvents.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
-            pEvents.ScheduleEvent(EVENT_INTERCEPT, 7000);
-            pEvents.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
-            pEvents.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
+            _events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
+            _events.ScheduleEvent(EVENT_INTERCEPT, 7000);
+            _events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
+            _events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
             toc_bossAI::EnterCombat(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            pEvents.Update(uiDiff);
+            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1138,7 +1138,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = pEvents.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1171,17 +1171,17 @@ public:
                                 }
                             }
                         }
-                        pEvents.ScheduleEvent(EVENT_INTERCEPT, 7000);
+                        _events.ScheduleEvent(EVENT_INTERCEPT, 7000);
                         break;
                     }
                     case EVENT_BLADESTORM:
                         DoCastVictim(SPELL_BLADESTORM);
-                        pEvents.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
+                        _events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
                         break;
                     case EVENT_MORTAL_STRIKE:
                         if (!me->HasAura(SPELL_BLADESTORM))
                             DoCastVictim(SPELL_MORTAL_STRIKE);
-                        pEvents.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
+                        _events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
                         break;
                     case EVENT_ROLLING_THROW:
                         // TODO: FIXME
@@ -1189,7 +1189,7 @@ public:
                         // without hackfix caster jumps forward, when caster should jump backwards and player jump forwards
                         if (!me->HasAura(SPELL_BLADESTORM))
                             DoCastVictim(SPELL_ROLLING_THROW);
-                        pEvents.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
+                        _events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
                         break;
                     default:
                         break;
@@ -1221,12 +1221,12 @@ public:
 
         void Initialize()
         {
-            pEvents.Reset();
+            _events.Reset();
         }
 
         InstanceScript* instance;
 
-        EventMap pEvents;
+        EventMap _events;
 
         void Reset() override
         {
@@ -1236,10 +1236,10 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            pEvents.ScheduleEvent(EVENT_FIREBALL, 2000);
-            pEvents.ScheduleEvent(EVENT_POLYMORPH, 8000);
-            pEvents.ScheduleEvent(EVENT_BLASTWAVE, 12000);
-            pEvents.ScheduleEvent(EVENT_HASTE, 22000);
+            _events.ScheduleEvent(EVENT_FIREBALL, 2000);
+            _events.ScheduleEvent(EVENT_POLYMORPH, 8000);
+            _events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
+            _events.ScheduleEvent(EVENT_HASTE, 22000);
             toc_bossAI::EnterCombat(who);
         }
 
@@ -1252,7 +1252,7 @@ public:
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            pEvents.Update(uiDiff);
+            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1261,7 +1261,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = pEvents.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1270,11 +1270,11 @@ public:
                         {
                             DoCast(target, SPELL_POLYMORPH);
                             if (me->HasAura(SPELL_HASTE))
-                                pEvents.ScheduleEvent(EVENT_FIREBALL, 2000);
+                                _events.ScheduleEvent(EVENT_FIREBALL, 2000);
                             else
-                                pEvents.ScheduleEvent(EVENT_FIREBALL, 3000);
+                                _events.ScheduleEvent(EVENT_FIREBALL, 3000);
                         }
-                        pEvents.ScheduleEvent(EVENT_POLYMORPH, 8000);
+                        _events.ScheduleEvent(EVENT_POLYMORPH, 8000);
                         break;
                     case EVENT_BLASTWAVE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
@@ -1283,23 +1283,23 @@ public:
                             {
                                 me->InterruptNonMeleeSpells(true);
                                 DoCastAOE(SPELL_BLAST_WAVE);
-                                pEvents.ScheduleEvent(EVENT_FIREBALL, 1500);
+                                _events.ScheduleEvent(EVENT_FIREBALL, 1500);
                             }
                         }
-                        pEvents.ScheduleEvent(EVENT_BLASTWAVE, 13000);
+                        _events.ScheduleEvent(EVENT_BLASTWAVE, 13000);
                         break;
                     case EVENT_HASTE:
                         me->InterruptNonMeleeSpells(true);
                         DoCast(me, SPELL_HASTE);
-                        pEvents.ScheduleEvent(EVENT_FIREBALL, 1500);
-                        pEvents.ScheduleEvent(EVENT_HASTE, 22000);
+                        _events.ScheduleEvent(EVENT_FIREBALL, 1500);
+                        _events.ScheduleEvent(EVENT_HASTE, 22000);
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FIREBALL);
                         if (me->HasAura(SPELL_HASTE))
-                            pEvents.ScheduleEvent(EVENT_FIREBALL, 3000);
+                            _events.ScheduleEvent(EVENT_FIREBALL, 3000);
                         else
-                            pEvents.ScheduleEvent(EVENT_FIREBALL, 4000);
+                            _events.ScheduleEvent(EVENT_FIREBALL, 4000);
                         break;
                     default:
                         break;
@@ -1330,7 +1330,7 @@ public:
 
         void Initialize()
         {
-            pEvents.Reset();
+            _events.Reset();
             earthShieldTarget.Clear();
 
             isDefensive = false;
@@ -1338,7 +1338,7 @@ public:
 
         InstanceScript* instance;
 
-        EventMap pEvents;
+        EventMap _events;
 
         ObjectGuid earthShieldTarget;
 
@@ -1354,11 +1354,11 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            pEvents.ScheduleEvent(EVENT_DEF_CHECK, 5000);
-            pEvents.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
-            pEvents.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
-            pEvents.ScheduleEvent(EVENT_EARTH_SHIELD, 5000);
-            pEvents.ScheduleEvent(EVENT_HEX_MENDING, 7000);
+            _events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
+            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
+            _events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
+            _events.ScheduleEvent(EVENT_EARTH_SHIELD, 5000);
+            _events.ScheduleEvent(EVENT_HEX_MENDING, 7000);
             toc_bossAI::EnterCombat(who);
         }
 
@@ -1367,15 +1367,15 @@ public:
             if (interrupt)
                 me->InterruptNonMeleeSpells(true);
             isDefensive = false;
-            pEvents.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 1000);
+            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 1000);
         }
 
         void EnterDefensiveMode()
         {
             me->InterruptNonMeleeSpells(true);
             isDefensive = true;
-            pEvents.ScheduleEvent(EVENT_EARTH_SHIELD, 1000);
-            pEvents.ScheduleEvent(EVENT_HEALING_WAVE, 1500);
+            _events.ScheduleEvent(EVENT_EARTH_SHIELD, 1000);
+            _events.ScheduleEvent(EVENT_HEALING_WAVE, 1500);
         }
 
         Unit* FindChampionWithLowestHp(float range)
@@ -1422,7 +1422,7 @@ public:
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            pEvents.Update(uiDiff);
+            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1431,7 +1431,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = pEvents.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1450,14 +1450,14 @@ public:
                             else
                                 EnterCombatMode(true);
                         }
-                        pEvents.ScheduleEvent(EVENT_DEF_CHECK, 5000);
+                        _events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
                         break;
                     case EVENT_CHAIN_LIGHTNING:
                         if (!isDefensive)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            pEvents.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
+                            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
                         }
                         break;
                     case EVENT_HEALING_WAVE:
@@ -1470,9 +1470,9 @@ public:
                                 DoCast(pFriend, SPELL_HEALING_WAVE);
                         }
                         if (isDefensive)
-                            pEvents.ScheduleEvent(EVENT_HEALING_WAVE, 4000);
+                            _events.ScheduleEvent(EVENT_HEALING_WAVE, 4000);
                         else
-                            pEvents.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
+                            _events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
                         break;
                     case EVENT_EARTH_SHIELD:
                         if (Unit* pFriend = FindChampionWithLowestHp(40.0f))
@@ -1492,11 +1492,11 @@ public:
                                 earthShieldTarget = pFriend->GetGUID();
                             }
                         }
-                        pEvents.ScheduleEvent(EVENT_EARTH_SHIELD, urand(30000, 35000));
+                        _events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(30000, 35000));
                         break;
                     case EVENT_HEX_MENDING:
                         DoCastVictim(SPELL_HEX_OF_MENDING);
-                        pEvents.ScheduleEvent(EVENT_HEX_MENDING, urand(20000, 25000));
+                        _events.ScheduleEvent(EVENT_HEX_MENDING, urand(20000, 25000));
                         break;
                     default:
                         break;
@@ -1530,12 +1530,12 @@ public:
 
         void Initialize()
         {
-            pEvents.Reset();
+            _events.Reset();
         }
 
         InstanceScript* instance;
 
-        EventMap pEvents;
+        EventMap _events;
 
         void Reset() override
         {
@@ -1545,9 +1545,9 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            pEvents.ScheduleEvent(EVENT_MULTI_SHOT, 7500);
-            pEvents.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 15000);
-            pEvents.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
+            _events.ScheduleEvent(EVENT_MULTI_SHOT, 7500);
+            _events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 15000);
+            _events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
             toc_bossAI::EnterCombat(who);
         }
 
@@ -1560,7 +1560,7 @@ public:
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            pEvents.Update(uiDiff);
+            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1569,7 +1569,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = pEvents.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1582,7 +1582,7 @@ public:
                                 DoCast(me, SPELL_DISENGAGE);
                             }
                         }
-                        pEvents.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
+                        _events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
                         break;
                     case EVENT_LIGHTNING_ARROWS:
                         if (!me->HasAura(SPELL_LIGHTNING_ARROWS_AURA) && !me->IsWithinDist(me->GetVictim(), 2.0f))
@@ -1590,7 +1590,7 @@ public:
                             me->InterruptNonMeleeSpells(true);
                             DoCastAOE(SPELL_LIGHTNING_ARROWS);
                         }
-                        pEvents.ScheduleEvent(EVENT_LIGHTNING_ARROWS, urand(20000, 30000));
+                        _events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, urand(20000, 30000));
                         break;
                     case EVENT_MULTI_SHOT:
                         if (me->IsInRange(me->GetVictim(), 5.0f, 30.0f, false) && !me->HasAura(SPELL_LIGHTNING_ARROWS))
@@ -1598,7 +1598,7 @@ public:
                             me->InterruptNonMeleeSpells(true);
                             DoCastVictim(SPELL_MULTI_SHOT);
                         }
-                        pEvents.ScheduleEvent(EVENT_MULTI_SHOT, 8000);
+                        _events.ScheduleEvent(EVENT_MULTI_SHOT, 8000);
                         break;
                     default:
                         break;
@@ -1634,12 +1634,12 @@ public:
 
         void Initialize()
         {
-            pEvents.Reset();
+            _events.Reset();
         }
 
         InstanceScript* instance;
 
-        EventMap pEvents;
+        EventMap _events;
 
         void Reset() override
         {
@@ -1649,16 +1649,16 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            pEvents.ScheduleEvent(EVENT_EVISCERATE, 8000);
-            pEvents.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
-            pEvents.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
+            _events.ScheduleEvent(EVENT_EVISCERATE, 8000);
+            _events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
+            _events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
             toc_bossAI::EnterCombat(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            pEvents.Update(uiDiff);
+            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1670,13 +1670,13 @@ public:
             if (!me->HasAura(SPELL_DEADLY_POISON))
                 DoCast(me, SPELL_DEADLY_POISON);
 
-            while (uint32 eventId = pEvents.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
-                        pEvents.ScheduleEvent(EVENT_EVISCERATE, 8000);
+                        _events.ScheduleEvent(EVENT_EVISCERATE, 8000);
                         break;
                     case EVENT_FAN_OF_KNIVES:
                         if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
@@ -1684,12 +1684,12 @@ public:
                             if (me->IsWithinDist(target, 8.0f, false)) // 8 yards is minimum range
                                 DoCastAOE(SPELL_FAN_OF_KNIVES);
                         }
-                        pEvents.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
+                        _events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
                         break;
                     case EVENT_POISON_BOTTLE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_POISON_BOTTLE);
-                        pEvents.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
+                        _events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
                         break;
                     default:
                         break;

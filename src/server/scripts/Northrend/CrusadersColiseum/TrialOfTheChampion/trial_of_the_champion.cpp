@@ -419,15 +419,19 @@ public:
 
         void SetGrandChampionsForEncounter()
         {
-            /*uiFirstBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
+            uiFirstBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
             while (uiSecondBoss == uiFirstBoss || uiThirdBoss == uiFirstBoss || uiThirdBoss == uiSecondBoss)
             {
                 uiSecondBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
                 uiThirdBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
+<<<<<<< HEAD
             }*/
             uiFirstBoss = BOSS_WARRIOR;
             uiSecondBoss = BOSS_MAGE;
             uiThirdBoss = BOSS_SHAMAN;
+=======
+            }
+>>>>>>> Forgot one file from previous commit and renamed few variables
         }
 
         void SetArgentChampion()

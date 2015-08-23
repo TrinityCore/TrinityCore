@@ -57,10 +57,12 @@ Position const GrandChampFinalLoc[6] =
     { 785.75f, 625.89f, 411.89f }
 };
 
+Position const announcerEncounterPos = { 732.5243f, 663.007f, 412.3932f };
+Position const announcerWaitPos = { 742.7739f, 629.849f, 411.1722f };
 Position const bossExitPos = { 746.776f, 665.221f, 411.743f, 4.82f };
 
 float const hordeOrientation = 6.175f; // Facing towards alliance spectators
-float const allianceOrientation = 2.982f; // Facing towards horde spectators
+float const allianceOrientation = 3.114f; // Facing towards horde spectators
 float const centerOrientation = 4.714f; // Facing towards the center of arena
 
 enum Data
@@ -210,6 +212,11 @@ enum WaypointPaths
     WAYPOINT_MAP_BOSS_2,
     WAYPOINT_MAP_BOSS_3,
     WAYPOINT_MAP_ADDS
+};
+
+enum Seats
+{
+    SEAT_ID_0                                       = 0
 };
 
 enum FlagSpells
