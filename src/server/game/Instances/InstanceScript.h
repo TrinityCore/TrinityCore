@@ -273,6 +273,8 @@ class InstanceScript : public ZoneScript
         void WriteSaveDataBossStates(std::ostringstream& data);
         virtual void WriteSaveDataMore(std::ostringstream& /*data*/) { }
 
+        bool _SkipCheckRequiredBosses(Player const* player = nullptr) const;
+
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
 
