@@ -907,12 +907,11 @@ enum ArenaTeamInfoType
 
 class InstanceSave;
 
-enum RestType
+enum RestFlag
 {
-    REST_TYPE_NO                = 0,
-    REST_TYPE_IN_TAVERN         = 1,
-    REST_TYPE_IN_CITY           = 2,
-    REST_TYPE_IN_FACTION_AREA   = 3     // used with AREA_FLAG_REST_ZONE_*
+    REST_FLAG_IN_TAVERN         = 0x1,
+    REST_FLAG_IN_CITY           = 0x2,
+    REST_FLAG_IN_FACTION_AREA   = 0x4, // used with AREA_FLAG_REST_ZONE_*
 };
 
 enum TeleportToOptions
@@ -1368,18 +1367,15 @@ class Player : public Unit, public GridObject<Player>
 
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
-        void InnEnter(time_t time, uint32 triggerId);
-
         float GetRestBonus() const { return m_rest_bonus; }
         void SetRestBonus(float rest_bonus_new);
 
-        RestType GetRestType() const { return rest_type; }
-        void SetRestType(RestType n_r_type) { rest_type = n_r_type; }
+        bool HasRestFlag(RestFlag restFlag) const { return (_restFlagMask & restFlag) != 0; }
+        void SetRestFlag(RestFlag restFlag, uint32 triggerId = 0);
+        void RemoveRestFlag(RestFlag restFlag);
 
+        uint32 GetXPRestBonus(uint32 xp);
         uint32 GetInnTriggerId() const { return inn_triggerId; }
-
-        time_t GetTimeInnEnter() const { return time_inn_enter; }
-        void UpdateInnerTime (time_t time) { time_inn_enter = time; }
 
         Pet* GetPet() const;
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
@@ -2317,15 +2313,6 @@ class Player : public Unit, public GridObject<Player>
         bool IsOutdoorPvPActive();
 
         /*********************************************************/
-        /***                    REST SYSTEM                    ***/
-        /*********************************************************/
-
-        bool isRested() const { return GetRestTime() >= 10*IN_MILLISECONDS; }
-        uint32 GetXPRestBonus(uint32 xp);
-        uint32 GetRestTime() const { return m_restTime;}
-        void SetRestTime(uint32 v) { m_restTime = v;}
-
-        /*********************************************************/
         /***              ENVIROMENTAL SYSTEM                  ***/
         /*********************************************************/
 
@@ -2810,8 +2797,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_deathTimer;
         time_t m_deathExpireTime;
 
-        uint32 m_restTime;
-
         uint32 m_WeaponProficiency;
         uint32 m_ArmorProficiency;
         bool m_canParry;
@@ -2820,10 +2805,10 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_swingErrorMsg;
 
         ////////////////////Rest System/////////////////////
-        time_t time_inn_enter;
+        time_t _restTime;
         uint32 inn_triggerId;
         float m_rest_bonus;
-        RestType rest_type;
+        uint32 _restFlagMask;
         ////////////////////Rest System/////////////////////
 
         // Social
