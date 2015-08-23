@@ -67,7 +67,7 @@ void BugTicket::LoadFromDB(Field* fields)
     _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note               = fields[++idx].GetString();
     _createTime         = fields[++idx].GetUInt32();
-    _mapId              = fields[++idx].GetUInt32();
+    _mapId              = fields[++idx].GetUInt16();
     _pos.x              = fields[++idx].GetFloat();
     _pos.y              = fields[++idx].GetFloat();
     _pos.z              = fields[++idx].GetFloat();
@@ -97,7 +97,7 @@ void BugTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
-    stmt->setUInt32(++idx, _mapId);
+    stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.x);
     stmt->setFloat(++idx, _pos.y);
     stmt->setFloat(++idx, _pos.z);
@@ -153,7 +153,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     _playerGuid             = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note                   = fields[++idx].GetString();
     _createTime             = fields[++idx].GetUInt32();
-    _mapId                  = fields[++idx].GetUInt32();
+    _mapId                  = fields[++idx].GetUInt16();
     _pos.x                  = fields[++idx].GetFloat();
     _pos.y                  = fields[++idx].GetFloat();
     _pos.z                  = fields[++idx].GetFloat();
@@ -195,7 +195,7 @@ void ComplaintTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
-    stmt->setUInt32(++idx, _mapId);
+    stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.x);
     stmt->setFloat(++idx, _pos.y);
     stmt->setFloat(++idx, _pos.z);
@@ -276,7 +276,7 @@ void SuggestionTicket::LoadFromDB(Field* fields)
     _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note               = fields[++idx].GetString();
     _createTime         = fields[++idx].GetUInt32();
-    _mapId              = fields[++idx].GetUInt32();
+    _mapId              = fields[++idx].GetUInt16();
     _pos.x              = fields[++idx].GetFloat();
     _pos.y              = fields[++idx].GetFloat();
     _pos.z              = fields[++idx].GetFloat();
@@ -306,7 +306,7 @@ void SuggestionTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
-    stmt->setUInt32(++idx, _mapId);
+    stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.x);
     stmt->setFloat(++idx, _pos.y);
     stmt->setFloat(++idx, _pos.z);
