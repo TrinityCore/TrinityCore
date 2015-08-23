@@ -568,7 +568,7 @@ public:
 
         }
 
-        void UpdateEscortAI(const uint32 diff) override
+        void UpdateEscortAI(uint32 diff) override
         {
             DialogueUpdate(diff);
 

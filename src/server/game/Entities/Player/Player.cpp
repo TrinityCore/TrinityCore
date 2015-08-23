@@ -9267,6 +9267,17 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 packet.Worldstates.emplace_back(4131, 0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
             }
             break;
+        // Violet Hold
+        case 4415:
+            if (instance && mapid == 608)
+                instance->FillInitialWorldStates(packet);
+            else
+            {
+                packet.Worldstates.emplace_back(3816, 0);              // 9  WORLD_STATE_VH_SHOW
+                packet.Worldstates.emplace_back(3815, 100);            // 10 WORLD_STATE_VH_PRISON_STATE
+                packet.Worldstates.emplace_back(3810, 0);              // 11 WORLD_STATE_VH_WAVE_COUNT
+            }
+            break;
         // Halls of Refection
         case 4820:
             if (instance && mapid == 668)

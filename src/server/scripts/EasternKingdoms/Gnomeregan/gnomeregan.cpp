@@ -361,7 +361,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(const uint32 uiDiff) override
+        void UpdateEscortAI(uint32 uiDiff) override
         {
             if (uiPhase)
             {

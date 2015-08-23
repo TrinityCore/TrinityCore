@@ -263,7 +263,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 }
             }
 
-            void UpdateEscortAI(uint32 const diff) override
+            void UpdateEscortAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

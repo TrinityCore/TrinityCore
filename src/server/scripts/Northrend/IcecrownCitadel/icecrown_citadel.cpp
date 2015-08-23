@@ -1140,7 +1140,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void UpdateEscortAI(uint32 const diff) override
+            void UpdateEscortAI(uint32 diff) override
             {
                 if (_wipeCheckTimer <= diff)
                     _wipeCheckTimer = 0;
