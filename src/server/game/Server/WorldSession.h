@@ -117,6 +117,11 @@ namespace WorldPackets
         class ReportPvPPlayerAFK;
     }
 
+    namespace Battlepay
+    {
+        class BattlePayGetProductList;
+    }
+
     namespace BlackMarket
     {
         class BlackMarketOpen;
@@ -1559,6 +1564,12 @@ class WorldSession
         void HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& garrisonCancelConstruction);
         void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& garrisonRequestBlueprintAndSpecializationData);
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
+
+        // BattlePay
+        void HandleBattlePayGetProductList(WorldPackets::Battlepay::BattlePayGetProductList& packet);
+        void SendBattlePayProductList();
+        void SendBattlePayPurchaseList();
+        void SendBattlePayDistributionList();
 
     private:
         void InitializeQueryCallbackParameters();

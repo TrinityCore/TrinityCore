@@ -27,6 +27,7 @@
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
+#include "BattlepayMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
@@ -1906,6 +1907,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Battle Pay store data...");
+    sBattlepayMgr->LoadFromDb(nullptr);
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
