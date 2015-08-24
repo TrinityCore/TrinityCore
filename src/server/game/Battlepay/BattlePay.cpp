@@ -27,8 +27,10 @@ BattlePay::BattlePay(Player* owner) : _owner(owner), m_enabled(false), m_availab
 void BattlePay::SendBattlePayPurchaseList()
 {
     WorldPackets::BattlePay::BattlePayGetPurchaseListResponse response;
-
     response.Result = 0;
+
+    for (auto const& p : _purchase)
+        response.Purchases.push_back(&p.second.PacketInfo);
 
     _owner->SendDirectMessage(response.Write());
 }
@@ -36,8 +38,10 @@ void BattlePay::SendBattlePayPurchaseList()
 void BattlePay::SendBattlePayDistributionList()
 {
     WorldPackets::BattlePay::BattlePayGetDistributionListResponse response;
-
     response.Result = 0;
+
+    for (auto const& p : _object)
+        response.DistributionObjects.push_back(&p.second.PacketInfo);
 
     _owner->SendDirectMessage(response.Write());
 }
@@ -58,6 +62,7 @@ void BattlePay::SendBattlePayProductList()
     for (auto const& p : _entry)
         response.ShopEntries.push_back(&p.second.PacketInfo);
 
+    TC_LOG_INFO("network", "WORLD: Received SMSG_BATTLE_PAY_GET_PRODUCT_LIST");
     _owner->SendDirectMessage(response.Write());
 }
 

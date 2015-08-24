@@ -18,31 +18,40 @@
 #include "BattlepayPackets.h"
 #include "BattlepayMgr.h"
 #include "Player.h"
+#include <deflate.h>
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDisplayInfo const& display)
 {
+    data.WriteBit(display.HasCreatureDisplayInfoID);
+    data.WriteBit(display.HasFileDataID);
     data.WriteBits(display.Name1.length(), 10);
-    data.WriteBits(display.Name1.length(), 10);
-    data.WriteBits(display.Name1.length(), 13);
+    data.WriteBits(display.Name2.length(), 10);
+    data.WriteBits(display.Name3.length(), 13);
+    data.WriteBit(display.HasFlags);
 
     data.WriteBit(display.CreatureDisplayInfoID.is_initialized());
     data.WriteBit(display.FileDataID.is_initialized());
     data.WriteBit(display.Flags.is_initialized());
     data.FlushBits();
 
-    if (display.CreatureDisplayInfoID)
+    if (display.HasCreatureDisplayInfoID)
         data <<  *display.CreatureDisplayInfoID;
 
-    if (display.FileDataID)
+    if (display.HasFileDataID)
         data <<  *display.FileDataID;
 
-    if (display.Flags)
+    if (display.HasFlags)
         data <<  *display.Flags;
 
     data.WriteString(display.Name1);
     data.WriteString(display.Name2);
     data.WriteString(display.Name3);
 
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BATTLEPETRESULT const& pet)
+{
     return data;
 }
 
@@ -58,13 +67,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     data.WriteBit(item.HasPet);
     data.WriteBit(item.HasMount);
     data.WriteBit(item.HasBattlePayDisplayInfo);
+    data.WriteBit(item.HasDisplayInfo);
     data.FlushBits();
 
-    if (item.DisplayInfo)
+    if (item.HasDisplayInfo)
         data << *item.DisplayInfo;
     
-    /*if (item.PetResult)
-        data << *item.PetResult;*/
+    if (item.HasPet)
+        data.WriteBits(item.PetResult, 4);
 
     return data;
 }
@@ -94,9 +104,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayShopE
     data << shop.BannerType;
 
     data.WriteBit(shop.DisplayInfo.is_initialized());
+    data.WriteBit(shop.HasDisplayInfo);
     data.FlushBits();
 
-    if (shop.DisplayInfo)
+    if (shop.HasDisplayInfo)
         data << *shop.DisplayInfo;
 
     return data;
@@ -107,18 +118,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     data << product.ProductID;
     data << product.NormalPriceFixedPoint;
     data << product.CurrentPriceFixedPoint;
-    
-    for (WorldPackets::BattlePay::BattlePayProductItem const* item : product.Items)
-        data << *item;
-
     data << product.Type;
-    data << product.ChoiceType;
     data << product.Flags;
-    
+    data << product.Items.size();
+
+    data.WriteBits(product.ItemCount, 7);
+    data.WriteBits(product.Unk62_1, 7);
+    data.WriteBit(product.HasBattlePayDisplayInfo);
     data.WriteBit(product.DisplayInfo.is_initialized());
     data.FlushBits();
 
-    if (product.DisplayInfo)
+    for (WorldPackets::BattlePay::BattlePayProductItem const* item : product.Items)
+        data << *item;
+
+    if (product.HasBattlePayDisplayInfo)
         data << *product.DisplayInfo;
 
     return data;
@@ -136,9 +149,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDistr
     
     data.WriteBit(object.Product.is_initialized());
     data.WriteBit(object.Revoked);
+    data.WriteBit(object.HasBattlePayProduct);
     data.FlushBits();
 
-    if (object.Product)
+    if (object.HasBattlePayProduct)
         data << *object.Product;
 
     return data;

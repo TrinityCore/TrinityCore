@@ -43,6 +43,16 @@ public:
         WorldPackets::BattlePay::BattlePayShopEntry PacketInfo;
     };
 
+    struct Distribution
+    {
+        WorldPackets::BattlePay::BattlePayDistributionObject PacketInfo;
+    };
+
+    struct Purchase
+    {
+        WorldPackets::BattlePay::BattlePayPurchase PacketInfo;
+    };
+
     explicit BattlePay(Player* owner);
 
     void SendBattlePayProductList();
@@ -56,12 +66,13 @@ private:
     bool m_enabled;
     bool m_available;
     bool m_disabledByParentalControls;
-
     uint32 m_currency;
+
     std::unordered_map<uint32 /*productID*/, Product> _product;
     std::unordered_map<uint32 /*GroupID*/, ProductGroup> _group;
     std::unordered_map<uint32 /*EntryID*/, ShopEntries> _entry;
-
+    std::unordered_map<uint64 /*DistributionID*/, Distribution> _object;
+    std::unordered_map<uint64 /*PurchaseID*/, Purchase> _purchase;
 };
 
 #endif // BATTLEPAY_H__

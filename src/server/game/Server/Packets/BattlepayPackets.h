@@ -34,6 +34,9 @@ namespace WorldPackets
     {
         struct BattlePayDisplayInfo
         {
+            bool HasCreatureDisplayInfoID = false;
+            bool HasFileDataID = false;
+            bool HasFlags = false;
             Optional<uint32> CreatureDisplayInfoID;
             Optional<uint32> FileDataID;
             std::string Name1;
@@ -57,6 +60,7 @@ namespace WorldPackets
             Optional<BATTLEPETRESULT> PetResult;
             bool HasMount = false;
             bool HasBattlePayDisplayInfo = false;
+            bool HasDisplayInfo = false;
         };
 
         struct BattlePayProduct
@@ -66,9 +70,11 @@ namespace WorldPackets
             uint64 CurrentPriceFixedPoint = 0;
             std::vector<BattlePayProductItem const*> Items;
             uint8 Type = 0;
-            uint8 ChoiceType = 0;
             uint32 Flags = 0;
             Optional<BattlePayDisplayInfo> DisplayInfo;
+            uint32 Unk62_1 = 0;
+            bool HasBattlePayDisplayInfo = false;
+            uint32 ItemCount = 0;
         };
 
         struct BattlePayProductGroup
@@ -89,6 +95,7 @@ namespace WorldPackets
             uint32 Flags = 0;
             uint8 BannerType = 0;
             Optional<BattlePayDisplayInfo> DisplayInfo;
+            bool HasDisplayInfo = false;
         };
 
         struct BattlePayDistributionObject
@@ -102,6 +109,7 @@ namespace WorldPackets
             uint64 PurchaseID = 0;
             Optional<BattlePayProduct> Product;
             bool Revoked = false;
+            bool HasBattlePayProduct = false;
         };
 
         class BattlePayStartPurchaseResponse final : public ServerPacket

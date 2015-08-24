@@ -22,14 +22,15 @@
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 
-void WorldSession::HandleBattlePayGetProductList(WorldPackets::Battlepay::BattlePayGetProductList& packet)
+void WorldSession::HandleBattlePayGetProductList(WorldPackets::BattlePay::BattlePayGetProductList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PRODUCT_LIST");
+
     if (BattlePay* battlePay = nullptr)
         battlePay->SendBattlePayProductList();
 }
 
-void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::BattlePayGetPurchaseList& packet)
+void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PURCHSE_LIST");
 
@@ -37,7 +38,7 @@ void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::Battl
         battlePay->SendBattlePayPurchaseList();
 }
 
-void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates& packet)
+void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
 
