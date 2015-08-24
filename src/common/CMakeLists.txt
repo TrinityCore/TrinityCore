@@ -29,7 +29,7 @@ file(GLOB sources_localdir *.cpp *.h)
 if (USE_COREPCH)
   set(common_STAT_PCH_HDR PrecompiledHeaders/commonPCH.h)
   set(common_STAT_PCH_SRC PrecompiledHeaders/commonPCH.cpp)
-endif ()
+endif (USE_COREPCH)
 
 set(common_STAT_SRCS
   ${common_STAT_SRCS}
@@ -55,21 +55,21 @@ set(common_STAT_SRCS
 # Linker Depencency requirements: none
 include_directories(
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
-  ${CMAKE_SOURCE_DIR}/dep/SFMT
-  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Management
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Maps
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Models
-  ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
   ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
-  ${CMAKE_CURRENT_SOURCE_DIR}/Logging
   ${CMAKE_CURRENT_SOURCE_DIR}/Cryptography
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
+  ${CMAKE_CURRENT_SOURCE_DIR}/Logging
+  ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
+  ${CMAKE_SOURCE_DIR}/dep/SFMT
+  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
 )
