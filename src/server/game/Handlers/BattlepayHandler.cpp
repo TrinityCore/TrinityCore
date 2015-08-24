@@ -19,7 +19,6 @@
 #include "BattlepayPackets.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
-#include "Player.h"
 #include "ObjectMgr.h"
 
 void WorldSession::HandleBattlePayGetProductList(WorldPackets::Battlepay::BattlePayGetProductList& packet)
@@ -30,4 +29,24 @@ void WorldSession::HandleBattlePayGetProductList(WorldPackets::Battlepay::Battle
         return;
 
     SendBattlePayProductList();
+}
+
+void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::BattlePayGetPurchaseList& packet)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PURCHSE_LIST");
+
+    if (!sBattlepayMgr->IsStoreEnabled())
+        return;
+
+    SendBattlePayPurchaseList();
+}
+
+void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates& packet)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
+
+    if (!sBattlepayMgr->IsStoreEnabled())
+        return;
+
+    //SendBattlePayUpdateVasPurchaseStates();
 }

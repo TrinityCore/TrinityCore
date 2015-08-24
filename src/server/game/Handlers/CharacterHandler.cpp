@@ -21,6 +21,7 @@
 #include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
+#include "BattlepayMgr.h"
 #include "BattlenetServerManager.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
@@ -1153,6 +1154,9 @@ void WorldSession::SendFeatureSystemStatus()
     features.TokenRedeemIndex = 0;
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
+    features.BpayStoreEnabled = sBattlepayMgr->IsStoreEnabled();
+    features.BpayStoreAvailable = sBattlepayMgr->IsStoreAvailable();
+    features.BpayStoreDisabledByParentalControls = sBattlepayMgr->IsStoreDisabled();
 
     features.EuropaTicketSystemStatus = boost::in_place();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;

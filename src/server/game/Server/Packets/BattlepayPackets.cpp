@@ -180,10 +180,6 @@ WorldPacket const* WorldPackets::Battlepay::BattlePayGetProductListResponse::Wri
     return &_worldPacket;
 }
 
-void WorldPackets::Battlepay::BattlePayGetProductList::Read()
-{
-}
-
 WorldPacket const* WorldPackets::Battlepay::BattlepayStartPurchaseResponse::Write()
 {
     return &_worldPacket;
@@ -191,7 +187,6 @@ WorldPacket const* WorldPackets::Battlepay::BattlepayStartPurchaseResponse::Writ
 
 void WorldPackets::Battlepay::BattlePayConfirmPurchaseResponse::Read()
 {
-
 }
 
 WorldPacket const* WorldPackets::Battlepay::BattlePayGetPurchaseListResponse::Write()
@@ -208,4 +203,16 @@ WorldPacket const* WorldPackets::Battlepay::BattlePayGetDistributionListResponse
     _worldPacket << Result;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates::Read()
+{  
+}
+
+void WorldPackets::Battlepay::BattlePayGetPurchaseList::Read()
+{
+}
+
+void WorldPackets::Battlepay::BattlePayGetProductList::Read()
+{
 }

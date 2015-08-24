@@ -94,10 +94,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool BpayStoreAvailable                  = false; // NYI
-            bool BpayStoreDisabledByParentalControls = false; // NYI
+            bool BpayStoreAvailable                  = false; 
+            bool BpayStoreDisabledByParentalControls = false; 
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
+            bool BpayStoreEnabled                    = false; 
             bool CommerceSystemEnabled               = false; // NYI
             bool Unk14                               = false; // NYI
             bool WillKickFromWorld                   = false; // NYI

@@ -1162,6 +1162,11 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] > GUILD_BANKLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = GUILD_BANKLOG_MAX_RECORDS;
 
+    // BattlePay
+    sBattlepayMgr->SetEnableState(sConfigMgr->GetIntDefault("BattlePay.StoreEnabled", 1) ? true : false);
+    sBattlepayMgr->SetAvailableState(sConfigMgr->GetIntDefault("BattlePay.StoreAvailable", 1) ? true : false);
+    sBattlepayMgr->SetStoreCurrency(sConfigMgr->GetIntDefault("BattlePay.StoreEnabled", BATTLE_PAY_CURRENCY_DOLLAR));
+
     //visibility on continents
     m_MaxVisibleDistanceOnContinents = sConfigMgr->GetFloatDefault("Visibility.Distance.Continents", DEFAULT_VISIBILITY_DISTANCE);
     if (m_MaxVisibleDistanceOnContinents < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
@@ -1909,7 +1914,7 @@ void World::SetInitialWorldSettings()
     sCalendarMgr->LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Loading Battle Pay store data...");
-    sBattlepayMgr->LoadFromDb(nullptr);
+    sBattlepayMgr->LoadFromDb();
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");

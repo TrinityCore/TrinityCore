@@ -16,7 +16,6 @@
 */
 
 #include "BattlepayMgr.h"
-#include "Player.h"
 #include "Language.h"
 
 BattlepayMgr::~BattlepayMgr()
@@ -35,27 +34,29 @@ BattlepayMgr::~BattlepayMgr()
     m_shopEntryStore.clear();
 }
 
-void BattlepayMgr::LoadFromDb(Field* fields)
+void BattlepayMgr::LoadFromDb()
 {
-    LoadProductsFromDb(fields);
-    LoadGroupsFromDb(fields);
-    LoadEntriesFromDb(fields);
+    LoadProductsFromDb();
+    LoadGroupsFromDb();
+    LoadEntriesFromDb();
 }
 
-bool BattlepayMgr::LoadProductsFromDb(Field* fields)
+bool BattlepayMgr::LoadProductsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
     QueryResult result = WorldDatabase.Query("SELECT id, title, description, normalPrice, currentPrice, itemId, quantity, displayId, type, choiceType, flags FROM battle_pay_product");
     if (!result)
     {
-        TC_LOG_INFO("sql.sql", ">> Loaded 0 Battle Pay store products, table `battle_pay_produce` is empty!");
+        TC_LOG_INFO("sql.sql", ">> Loaded 0 Battle Pay store products, table `battle_pay_product` is empty!");
         return false;
     }
 
     uint32 count = 0;
     do
     {
+        Field* fields = result->Fetch();
+
         uint32 id = fields[0].GetUInt32();
         std::string title = fields[1].GetString();
         std::string description = fields[2].GetString();
@@ -104,6 +105,7 @@ bool BattlepayMgr::LoadProductsFromDb(Field* fields)
             continue;
         }
 
+        ++count;
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store products in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -111,7 +113,7 @@ bool BattlepayMgr::LoadProductsFromDb(Field* fields)
     return true;
 }
 
-bool BattlepayMgr::LoadGroupsFromDb(Field* fields)
+bool BattlepayMgr::LoadGroupsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -125,6 +127,8 @@ bool BattlepayMgr::LoadGroupsFromDb(Field* fields)
     uint32 count = 0;
     do
     {
+        Field* fields = result->Fetch();
+
         uint32 id = fields[0].GetUInt32();
         uint32 order = fields[1].GetUInt32();
         std::string name = fields[2].GetString();
@@ -157,6 +161,8 @@ bool BattlepayMgr::LoadGroupsFromDb(Field* fields)
             continue;
         }
 
+        //m_groupStore.insert(new BattlePayGroup(id, order, name, icon, type));
+        count++;
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store groups in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -164,7 +170,7 @@ bool BattlepayMgr::LoadGroupsFromDb(Field* fields)
     return true;
 }
 
-bool BattlepayMgr::LoadEntriesFromDb(Field* fields)
+bool BattlepayMgr::LoadEntriesFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -178,38 +184,41 @@ bool BattlepayMgr::LoadEntriesFromDb(Field* fields)
     uint32 count = 0;
     do
     {
-        uint32 EntryID = fields[0].GetUInt32();
-        uint32 Ordering = fields[1].GetUInt32();
-        uint32 GroupID = fields[2].GetUInt32();
-        uint32 ProductID = fields[3].GetUInt32();
-        uint32 Flags = fields[4].GetUInt32();
-        uint32 BannerType = fields[5].GetUInt32();
-        // DisplayInfo = fields[6].GetUInt32();
+        Field* fields = result->Fetch();
 
-        if (!EntryID)
+        uint32 id        = fields[0].GetUInt32();
+        uint32 order     = fields[1].GetUInt32();
+        uint32 groupId   = fields[2].GetUInt32();
+        uint32 productId = fields[3].GetUInt32();
+        uint32 flags     = fields[4].GetUInt32();
+        uint32 banner    = fields[5].GetUInt32();
+
+        if (!id)
         {
             TC_LOG_ERROR("sql.sql", "Id defined in `battle_pay_entry` is invalid because it has a value of 0, skipped!");
             continue;
         }
 
-        if (!HasGroupId(GroupID))
+        if (!HasGroupId(groupId))
         {
-            TC_LOG_ERROR("sql.sql", "Group id %u for entry id %u defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", GroupID, EntryID);
+            TC_LOG_ERROR("sql.sql", "Group id %u for entry id %u defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", groupId, id);
             continue;
         }
 
-        if (!HasProductId(ProductID))
+        if (!HasProductId(productId))
         {
-            TC_LOG_ERROR("sql.sql", "Product id %u for entry id %u defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", ProductID, EntryID);
+            TC_LOG_ERROR("sql.sql", "Product id %u for entry id %u defined in `battle_pay_entry` is invalid because the group doesn't exists, skipped!", productId, id);
             continue;
         }
 
-        if (BannerType >= BATTLE_PAY_BANNER_TYPE_END)
+        if (banner >= BATTLE_PAY_BANNER_TYPE_END)
         {
-            TC_LOG_ERROR("sql.sql", "Entry id %u defined in `battle_pay_entry` has invalid banner type %u, skipped!", EntryID, BannerType);
+            TC_LOG_ERROR("sql.sql", "Entry id %u defined in `battle_pay_entry` has invalid banner type %u, skipped!", id, banner);
             continue;
         }
 
+        m_shopEntryStore.insert(new BattlePayShopEntry(id, order, groupId, productId, flags, banner));
+        count++;
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u Battle Pay store entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -248,7 +257,7 @@ void WorldSession::SendBattlePayPurchaseList()
 {
     WorldPackets::Battlepay::BattlePayGetPurchaseListResponse response;
 
-    response.Purchases;
+    //response.Purchases;
     response.Result = 0;
 
     SendPacket(response.Write());
@@ -259,7 +268,7 @@ void WorldSession::SendBattlePayDistributionList()
     WorldPackets::Battlepay::BattlePayGetDistributionListResponse response;
 
     response.Result = 0;
-    response.DistributionObjects;
+    //response.DistributionObjects;
 
     SendPacket(response.Write());
 }
@@ -268,11 +277,16 @@ void WorldSession::SendBattlePayProductList()
 {
     WorldPackets::Battlepay::BattlePayGetProductListResponse response;
 
-    SendBattlePayDistributionList();
-    SendBattlePayPurchaseList();
+    //SendBattlePayDistributionList();
+    //SendBattlePayPurchaseList();
 
-    response.CurrencyID = BattlePayCurrency();
+    response.CurrencyID = sBattlepayMgr->GetStoreCurrency();
     response.Result = 0; // NYI
 
     SendPacket(response.Write());
+}
+
+void WorldSession::SendBattlePayUpdateVasPurchaseStates()
+{
+    SendBattlePayProductList();
 }

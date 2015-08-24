@@ -22,12 +22,19 @@
 #include "ObjectGuid.h"
 #include "BattlepayPackets.h"
 #include "ItemPackets.h"
-#include "Item.h"
 
 #define MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE       50
 #define MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE 500
 #define MAX_BATTLE_PAY_GROUP_NAME_SIZE          16
 #include <Server/Packets/BattlepayPackets.h>
+
+enum BattlePayStatus
+{
+    BATTLE_PAY_STATUS_ENABLED                       = 0,
+    BATTLE_PAY_STATUS_AVAILABLE                     = 1,
+    BATTLE_PAY_STATUS_DIABLED_BY_PARENTAL_CONTROLS  = 2,
+    BATTLE_PAY_STATUS_END
+};
 
 enum BattlePayCurrency
 {
@@ -49,13 +56,71 @@ enum BattlePayGroupType
 enum BattlePayBannerType
 {
     BATTLE_PAY_BANNER_TYPE_FEATURED         = 0,
+    BATTLE_PAY_BANNER_TYPE_DISCOUNT         = 1,
     BATTLE_PAY_BANNER_TYPE_NEW              = 2,
     BATTLE_PAY_BANNER_TYPE_END
 };
 
-typedef std::set<WorldPackets::Battlepay::BattlePayProduct*> BattlePayProductSet;
-typedef std::set<WorldPackets::Battlepay::BattlePayProductGroup*> BattlePayProductGroupSet;
-typedef std::set<WorldPackets::Battlepay::BattlePayShopEntry*> BattlePayShopEntryset;
+enum BattlePayErrors
+{
+    BATTLE_PAY_ERROR_ITEM_UNAVAILABLE               = 0,
+    BATTLE_PAY_ERROR_TOO_MANY_TOKENS                = 1,
+    BATTLE_PAY_ERROR_CONSUMABLE_TOKEN_OWNED         = 2,
+    BATTLE_PAY_ERROR_PURCHASE_DENIED                = 3,
+    BATTLE_PAY_ERROR_PARENTAL_CONTROLS_NO_PURCHASE  = 4,
+    BATTLE_PAY_ERROR_ALREADY_OWNED                  = 5,
+    BATTLE_PAY_ERROR_OTHER                          = 6,
+    BATTLE_PAY_ERROR_INSUFFICIENT_BALANCE           = 7,
+    BATTLE_PAY_ERROR_WRONG_CURRENCY                 = 8,
+    BATTLE_PAY_ERROR_BATTLEPAY_DISABLED             = 9,
+    BATTLE_PAY_ERROR_PAYMENT_FAILED                 = 10,
+    BATTLE_PAY_ERROR_INVALID_PAYMENT_INFO           = 11,
+    BATTLE_PAY_ERROR_END
+};
+
+struct BattlePayProduct
+{
+    BattlePayProduct(uint32 id, uint64 normalPrice, uint64 currentPrice, 
+        uint8 type, uint8 choiceType, uint32 flags)
+    : ProductID(id), NormalPriceFixedPoint(normalPrice), CurrentPriceFixedPoint(currentPrice), 
+        Type(type), ChoiceType(choiceType), Flags(flags) { }
+
+    uint32 ProductID;
+    uint64 NormalPriceFixedPoint;
+    uint32 CurrentPriceFixedPoint;
+    uint8 Type;
+    uint8 ChoiceType;
+    uint32 Flags;
+};
+
+struct BattlePayProductGroup
+{
+    BattlePayProductGroup(uint32 id, uint32 order, std::string name, uint32 icon, uint8 type)
+        : GroupID(id), Ordering(order), Name(name), IconFileDataID(icon), DisplayType(type) { }
+
+    uint32 GroupID;
+    uint32 Ordering;
+    std::string Name;
+    uint32 IconFileDataID;
+    uint8 DisplayType;
+};
+
+struct BattlePayShopEntry
+{
+    BattlePayShopEntry(uint32 id, uint32 order, uint32 groupId, uint32 productId, uint32 flags, uint8 banner)
+        : EntryID(id), Ordering(order), GroupID(groupId), ProductID(productId), Flags(flags), BannerType(banner) { }
+
+    uint32 EntryID;
+    uint32 Ordering;
+    uint32 GroupID;
+    uint32 ProductID;
+    uint32 Flags;
+    uint8 BannerType;
+};
+
+typedef std::set<BattlePayProduct*> BattlePayProductSet;
+typedef std::set<BattlePayProductGroup*> BattlePayProductGroupSet;
+typedef std::set<BattlePayShopEntry*> BattlePayShopEntryset;
 
 class BattlepayMgr
 {
@@ -66,11 +131,21 @@ public:
         return &instance;
     }
 
-    BattlepayMgr() : m_enabled(false), m_currency(BATTLE_PAY_CURRENCY_DOLLAR) { }
+    BattlepayMgr() : m_enabled(false), m_available(false), m_currency(BATTLE_PAY_CURRENCY_DOLLAR) { }
     ~BattlepayMgr();
 
+    // Store states
     bool IsStoreEnabled() { return m_enabled; }
-    void LoadFromDb(Field* fields);
+    void SetEnableState(bool enabled) { m_enabled = enabled; }
+    bool IsStoreAvailable() { return m_available; }
+    void SetAvailableState(bool available) { m_available = available; }
+    bool IsStoreDisabled() { return m_disabledByParentalControls; }
+    void SetDiabledState(bool disabled) { m_disabledByParentalControls = disabled; }
+
+    uint32 GetStoreCurrency() { return m_currency; }
+    void SetStoreCurrency(uint32 currency) { m_currency = currency; }
+
+    void LoadFromDb();
 
 private:
     BattlePayProductSet m_productStore;
@@ -78,6 +153,9 @@ private:
     BattlePayShopEntryset m_shopEntryStore;
 
     bool m_enabled;
+    bool m_available;
+    bool m_disabledByParentalControls;
+
     uint32 m_currency;
 
     bool HasProductId(uint32 productId);
@@ -85,9 +163,9 @@ private:
     bool HasGroupId(uint32 groupId);
     bool HasGroupName(std::string name);
 
-    bool LoadProductsFromDb(Field* fields);
-    bool LoadGroupsFromDb(Field* fields);
-    bool LoadEntriesFromDb(Field* fields);
+    bool LoadProductsFromDb();
+    bool LoadGroupsFromDb();
+    bool LoadEntriesFromDb();
 };
 
 #define sBattlepayMgr BattlepayMgr::instance()

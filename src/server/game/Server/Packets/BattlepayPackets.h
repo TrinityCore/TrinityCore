@@ -317,6 +317,28 @@ namespace WorldPackets
 
             void Read() override;
         };
+
+        class BattlePayGetPurchaseList final : public ClientPacket
+        {
+        public:
+            BattlePayGetPurchaseList(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PAY_GET_PURCHASE_LIST, std::move(packet)) { }
+
+            void Read() override;
+        };
+
+        class BattlePayUpdateVasPurchaseStates final : ClientPacket
+        {
+        public:
+            BattlePayUpdateVasPurchaseStates(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_VAS_PURCHASE_STATES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 PurchaseID = 0;
+            uint32 State = 0;
+            ObjectGuid Guid;
+            uint32 Unk = 0;
+            std::string Name;
+        };
     }
 }
 
