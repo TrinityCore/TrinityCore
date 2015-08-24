@@ -124,6 +124,41 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayProdu
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayDistributionObject const& object)
+{
+    data << object.DistributionID;
+    data << object.Status;
+    data << object.ProductID;
+    data << object.TargetPlayer;
+    data << object.TargetVirtualRealm;
+    data << object.TargetNativeRealm;
+    data << object.PurchaseID;
+    
+    data.WriteBit(object.Product.is_initialized());
+    data.WriteBit(object.Revoked);
+    data.FlushBits();
+
+    if (object.Product)
+        data << *object.Product;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayPurchase const& purchase)
+{
+    data << purchase.PurchaseID;
+    data << purchase.Status;
+    data << purchase.ResultCode;
+    data << purchase.ProductID;
+
+    data.WriteBits(purchase.WalletName.length(), 8);
+    data.FlushBits();
+
+    data.WriteString(purchase.WalletName);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Battlepay::BattlePayGetProductListResponse::Write()
 {
     _worldPacket << Result;
@@ -151,7 +186,7 @@ void WorldPackets::Battlepay::BattlePayGetProductList::Read()
 
 WorldPacket const* WorldPackets::Battlepay::BattlepayStartPurchaseResponse::Write()
 {
-
+    return &_worldPacket;
 }
 
 void WorldPackets::Battlepay::BattlePayConfirmPurchaseResponse::Read()
