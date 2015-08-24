@@ -2047,66 +2047,6 @@ class spell_gen_mount : public SpellScriptLoader
               damaging spell on target with a small chance of failing it.
 */
 
-class spell_toc5_trample_aura : public SpellScriptLoader
-{
-    public:
-        spell_toc5_trample_aura() : SpellScriptLoader("spell_toc5_trample_aura") { }
-
-        class spell_toc5_trample_aura_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_toc5_trample_aura_SpellScript);
-
-        public:
-            spell_toc5_trample_aura_SpellScript()
-            {
-                _removed = false;
-            }
-
-        private:
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                // The aura should not be applied if there is already a trample aura on target
-                targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
-            }
-
-            void HandleStun()
-            {
-                if (Unit* target = GetHitUnit())
-                {
-                    // If target is mounted, do not apply
-                    if (target->GetVehicleKit() // Grand Champions
-                    || target->GetVehicleBase() // Players
-                    || target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT)) // Lesser Champions
-                    {
-                        PreventHitEffect(EFFECT_0);
-                        _removed = true;
-                    }
-                }
-            }
-
-            void RemoveAura()
-            {
-                if (_removed)
-                    PreventHitAura();
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_toc5_trample_aura_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                BeforeHit += SpellHitFn(spell_toc5_trample_aura_SpellScript::HandleStun);
-                AfterHit += SpellHitFn(spell_toc5_trample_aura_SpellScript::RemoveAura);
-            }
-
-            bool _removed;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_toc5_trample_aura_SpellScript();
-        }
-};
-
-
 enum ChargeSpells
 {
     SPELL_CHARGE_DAMAGE_8K5             = 62874,
@@ -4499,7 +4439,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mount("spell_celestial_steed", 0, SPELL_CELESTIAL_STEED_60, SPELL_CELESTIAL_STEED_100, SPELL_CELESTIAL_STEED_150, SPELL_CELESTIAL_STEED_280, SPELL_CELESTIAL_STEED_310);
     new spell_gen_mount("spell_x53_touring_rocket", 0, 0, 0, SPELL_X53_TOURING_ROCKET_150, SPELL_X53_TOURING_ROCKET_280, SPELL_X53_TOURING_ROCKET_310);
     new spell_gen_mounted_charge();
-    new spell_toc5_trample_aura();
     new spell_gen_netherbloom();
     new spell_gen_nightmare_vine();
     new spell_gen_obsidian_armor();

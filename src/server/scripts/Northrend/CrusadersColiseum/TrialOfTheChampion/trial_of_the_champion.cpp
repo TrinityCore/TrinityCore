@@ -401,7 +401,12 @@ public:
 
         void DoStartArgentChampionEncounter()
         {
+<<<<<<< HEAD
             me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
+=======
+            instance->SetData(DATA_REMOVE_VEHICLES, 0);
+            me->GetMotionMaster()->MovePoint(1, announcerEncounterPos);
+>>>>>>> Add missing files part 2 and fixed a warning
 
             if (me->SummonCreature(uiArgentChampion, SpawnPosition))
             {
@@ -566,6 +571,10 @@ public:
                     case 1: // Introducing players to spectators
                     {
                         bool foundPlr = false;
+<<<<<<< HEAD
+=======
+                        Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+>>>>>>> Add missing files part 2 and fixed a warning
                         for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
                         {
                             if (Player* plr = itr->GetSource())

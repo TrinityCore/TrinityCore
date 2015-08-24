@@ -3068,6 +3068,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            case 67546: // Trial of the Champion - Warrior Grand Champion - Rolling Throw
+                // Should hit both caster and target
+                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
+                break;
             case 47476: // Deathknight - Strangulate
             case 15487: // Priest - Silence
             case 5211:  // Druid - Bash  - R1

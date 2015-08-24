@@ -17,6 +17,10 @@ DELETE FROM `disables` WHERE `entry`=650 AND `sourceType`=2;
 DELETE FROM `spell_script_names` WHERE `spell_id`=67868 AND `ScriptName`='spell_toc5_trample_aura';
 INSERT INTO `spell_script_names` VALUES (67868,'spell_toc5_trample_aura');
 
+-- Spellscript for Hunter Grand Champion's Lightning Arrows
+DELETE FROM `spell_script_names` WHERE `spell_id`=66083 AND `ScriptName`='spell_toc5_lightning_arrows';
+INSERT INTO `spell_script_names` VALUES (66083,'spell_toc5_lightning_arrows');
+
 --
 -- Vehicles
 --
@@ -31,7 +35,7 @@ SET @ARGENT_WARHORSE_GC := 35644; -- used by Grand Champions in looking for moun
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256 WHERE `entry`=@ARGENT_BATTLEWORG_GC;
 
 -- Scriptname for cosmetic vehicles
-UPDATE `creature_template` SET `speed_run`=1.57143,`ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (@ARGENT_BATTLEWORG_GC,@ARGENT_WARHORSE_GC);
+UPDATE `creature_template` SET `ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (@ARGENT_BATTLEWORG_GC,@ARGENT_WARHORSE_GC);
 
 -- Argent Battleworg is missing its Trample aura
 UPDATE `creature_template_addon` SET `auras`=67870 WHERE `entry`=@ARGENT_BATTLEWORG_H;
@@ -61,17 +65,6 @@ SET @GOSSIP_MENU := 10614; -- same gossip menu used by both heralds
 -- Arelas Brightstar had no gossip menu set in database
 UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIP_MENU WHERE `entry`=@HERALD_A;
 
--- Gossip menus
-DELETE FROM `gossip_menu` WHERE `entry` IN (@GOSSIP_MENU);
-INSERT INTO `gossip_menu` VALUES
-(@GOSSIP_MENU,14757), -- if you are unmounted and beginning first boss event (for alliance)
-(@GOSSIP_MENU,15043), -- if you are unmounted and beginning first boss event (for horde)
-(@GOSSIP_MENU,14688), -- if you are mounted and beginning first boss event
-(@GOSSIP_MENU,14737), -- if you are beginning second boss event
-(@GOSSIP_MENU,14738); -- if you are beginning third boss event
-
--- TODO: Conditions for gossip menus into database and remove "hardcoded conditions" from source
-
 --
 -- Text updates
 --
@@ -99,12 +92,12 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`probability`,
 -- Most of the texts in instance should be zonewide
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34990,34995) AND `groupid`=50 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34990,34995) AND `groupid`=52 AND `id`=0;
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34994 AND `groupid`=0 AND `id`=0;
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34994 AND `groupid`=2 AND `id`=0;
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34994 AND `groupid` IN (0,2) AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` BETWEEN 34900 AND 34910 AND `groupid`=0 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34996 AND `groupid` BETWEEN 50 AND 58 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (@HERALD_A,@HERALD_H) AND `groupid` BETWEEN 0 AND 8 AND `id`=0;
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34657, 34701, 34702, 34703, 34705, 35569, 35570, 35571, 35572, 35617) AND `groupid`=0 AND `id`=0;
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34657,34701,34702,34703,34705,34883,34887,35569,35570,35571,35572,35617) AND `groupid`=0 AND `id`=0;
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34928,35119);
 
 --
 -- Lesser Champions
@@ -130,6 +123,7 @@ UPDATE `creature_template` SET `AIName`='',`ScriptName`='generic_vehicleAI_toc5'
 --
 
 -- Variables
+-- Normal mode
 SET @MOKRA := 35572;
 SET @ERESSEA := 35569;
 SET @RUNOK := 35571;
@@ -140,6 +134,65 @@ SET @AMBROSE := 34702;
 SET @COLOSOS := 34701;
 SET @JAELYNE := 34657;
 SET @LANA := 34703;
+-- Heroic mode
+SET @MOKRA_H := 36089;
+SET @ERESSEA_H := 36085;
+SET @RUNOK_H := 36090;
+SET @ZULTORE_H := 36091;
+SET @VISCERI_H := 36084;
+SET @JACOB_H := 36088;
+SET @AMBROSE_H := 36082;
+SET @COLOSOS_H := 36083;
+SET @JAELYNE_H := 36086;
+SET @LANA_H := 36087;
 
 -- None of the grand champions had correct unit flags set in database
-UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry` IN (@MOKRA,@ERESSEA,@RUNOK,@ZULTORE,@VISCERI,@JACOB,@AMBROSE,@COLOSOS,@JAELYNE,@LANA);
+UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry` IN (@MOKRA,@ERESSEA,@RUNOK,@ZULTORE,@VISCERI,@JACOB,@AMBROSE,@COLOSOS,@JAELYNE,@LANA,@MOKRA_H,@ERESSEA_H,@RUNOK_H,@ZULTORE_H,@VISCERI_H,@JACOB_H,@AMBROSE_H,@COLOSOS_H,@JAELYNE_H,@LANA_H);
+
+-- Achievement criteria scripts
+-- for achievement IDs 3778, 4296, 4297, 4298
+
+-- Variables
+SET @CRITERIA_JACOB := 11420;
+SET @CRITERIA_LANA := 12298;
+SET @CRITERIA_COLOSOS := 12299;
+SET @CRITERIA_AMBROSE := 12300;
+SET @CRITERIA_JAELYNE := 12301;
+SET @CRITERIA_MOKRA := 12302;
+SET @CRITERIA_VISCERI := 12303;
+SET @CRITERIA_RUNOK := 12304;
+SET @CRITERIA_ERESSEA := 12305;
+SET @CRITERIA_ZULTORE := 12306;
+SET @CRITERIA_JACOB_H := 12310;
+SET @CRITERIA_LANA_H := 12311;
+SET @CRITERIA_COLOSOS_H := 12312;
+SET @CRITERIA_AMBROSE_H := 12313;
+SET @CRITERIA_JAELYNE_H := 12314;
+SET @CRITERIA_MOKRA_H := 12318;
+SET @CRITERIA_VISCERI_H := 12319;
+SET @CRITERIA_RUNOK_H := 12320;
+SET @CRITERIA_ERESSEA_H := 12321;
+SET @CRITERIA_ZULTORE_H := 12322;
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_JACOB,@CRITERIA_LANA,@CRITERIA_COLOSOS,@CRITERIA_AMBROSE,@CRITERIA_JAELYNE,@CRITERIA_MOKRA,@CRITERIA_VISCERI,@CRITERIA_RUNOK,@CRITERIA_ERESSEA,@CRITERIA_ZULTORE,@CRITERIA_JACOB_H,@CRITERIA_LANA_H,@CRITERIA_COLOSOS_H,@CRITERIA_AMBROSE_H,@CRITERIA_JAELYNE_H,@CRITERIA_MOKRA_H,@CRITERIA_VISCERI_H,@CRITERIA_RUNOK_H,@CRITERIA_ERESSEA_H,@CRITERIA_ZULTORE_H);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
+(@CRITERIA_JACOB, 11, 'achievement_toc_credit_jacob'),
+(@CRITERIA_LANA, 11, 'achievement_toc_credit_lana'),
+(@CRITERIA_COLOSOS, 11, 'achievement_toc_credit_colosos'),
+(@CRITERIA_AMBROSE, 11, 'achievement_toc_credit_ambrose'),
+(@CRITERIA_JAELYNE, 11, 'achievement_toc_credit_jaelyne'),
+(@CRITERIA_MOKRA, 11, 'achievement_toc_credit_mokra'),
+(@CRITERIA_VISCERI, 11, 'achievement_toc_credit_visceri'),
+(@CRITERIA_RUNOK, 11, 'achievement_toc_credit_runok'),
+(@CRITERIA_ERESSEA, 11, 'achievement_toc_credit_eressea'),
+(@CRITERIA_ZULTORE, 11, 'achievement_toc_credit_zultore'),
+(@CRITERIA_JACOB_H, 11, 'achievement_toc_credit_jacob_h'),
+(@CRITERIA_LANA_H, 11, 'achievement_toc_credit_lana_h'),
+(@CRITERIA_COLOSOS_H, 11, 'achievement_toc_credit_colosos_h'),
+(@CRITERIA_AMBROSE_H, 11, 'achievement_toc_credit_ambrose_h'),
+(@CRITERIA_JAELYNE_H, 11, 'achievement_toc_credit_jaelyne_h'),
+(@CRITERIA_MOKRA_H, 11, 'achievement_toc_credit_mokra_h'),
+(@CRITERIA_VISCERI_H, 11, 'achievement_toc_credit_visceri_h'),
+(@CRITERIA_RUNOK_H, 11, 'achievement_toc_credit_runok_h'),
+(@CRITERIA_ERESSEA_H, 11, 'achievement_toc_credit_eressea_h'),
+(@CRITERIA_ZULTORE_H, 11, 'achievement_toc_credit_zultore_h');
