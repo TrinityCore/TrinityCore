@@ -108,8 +108,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     data << product.NormalPriceFixedPoint;
     data << product.CurrentPriceFixedPoint;
     
-    for (WorldPackets::BattlePay::BattlePayProductItem const& item : product.Items)
-        data << item;
+    for (WorldPackets::BattlePay::BattlePayProductItem const* item : product.Items)
+        data << *item;
 
     data << product.Type;
     data << product.ChoiceType;

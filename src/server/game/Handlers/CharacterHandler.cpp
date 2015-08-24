@@ -1154,9 +1154,9 @@ void WorldSession::SendFeatureSystemStatus()
     features.TokenRedeemIndex = 0;
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
-    features.BpayStoreEnabled = sBattlepayMgr->IsStoreEnabled();
-    features.BpayStoreAvailable = sBattlepayMgr->IsStoreAvailable();
-    features.BpayStoreDisabledByParentalControls = sBattlepayMgr->IsStoreDisabled();
+    features.BpayStoreEnabled = sBattlePayMgr->IsStoreEnabled();
+    features.BpayStoreAvailable = sBattlePayMgr->IsStoreAvailable();
+    features.BpayStoreDisabledByParentalControls = sBattlePayMgr->IsStoreDisabled();
 
     features.EuropaTicketSystemStatus = boost::in_place();
     features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;

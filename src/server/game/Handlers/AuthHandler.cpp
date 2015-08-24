@@ -94,10 +94,10 @@ void WorldSession::SendSetTimeZoneInformation()
 void WorldSession::SendFeatureSystemStatusGlueScreen()
 {
     WorldPackets::System::FeatureSystemStatusGlueScreen features;
-    features.BpayStoreAvailable = sBattlepayMgr->IsStoreAvailable();
-    features.BpayStoreDisabledByParentalControls = sBattlepayMgr->IsStoreDisabled();
+    features.BpayStoreAvailable = sBattlePayMgr->IsStoreAvailable();
+    features.BpayStoreDisabledByParentalControls = sBattlePayMgr->IsStoreDisabled();
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
-    features.BpayStoreEnabled = sBattlepayMgr->IsStoreEnabled();
+    features.BpayStoreEnabled = sBattlePayMgr->IsStoreEnabled();
 
     SendPacket(features.Write());
 }

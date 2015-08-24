@@ -117,7 +117,7 @@ namespace WorldPackets
         class ReportPvPPlayerAFK;
     }
 
-    namespace Battlepay
+    namespace BattlePay
     {
         class BattlePayGetProductList;
         class BattlePayGetPurchaseList;
@@ -1568,9 +1568,9 @@ class WorldSession
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
 
         // BattlePay
-        void HandleBattlePayGetProductList(WorldPackets::Battlepay::BattlePayGetProductList& packet);
-        void HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::BattlePayGetPurchaseList& packet);
-        void HandleBattlePayUpdateVasPurchaseStates(WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates& packet);
+        void HandleBattlePayGetProductList(WorldPackets::BattlePay::BattlePayGetProductList& packet);
+        void HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& packet);
+        void HandleBattlePayUpdateVasPurchaseStates(WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates& packet);
 
     private:
         void InitializeQueryCallbackParameters();

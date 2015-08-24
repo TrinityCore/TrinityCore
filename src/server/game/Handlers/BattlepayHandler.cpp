@@ -40,4 +40,7 @@ void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::Battl
 void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
+
+    if (BattlePay* battlePay = nullptr)
+        battlePay->SendBattlePayUpdateVasPurchaseStates();
 }
