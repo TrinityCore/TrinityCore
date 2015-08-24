@@ -155,19 +155,16 @@ class boss_xevozz : public CreatureScript
 
                     std::list<uint8> summonSpells = { 0, 1, 2 };
 
-                    auto it = summonSpells.begin();
-                    std::advance(it, urand(0, summonSpells.size() - 1));
-                    DoCast(me, EtherealSphereSummonSpells[*it]);
-                    it = summonSpells.erase(it);
+                    uint8 spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
+                    DoCast(me, EtherealSphereSummonSpells[spell]);
+                    summonSpells.remove(spell);
 
                     if (IsHeroic())
                     {
-                        task.Schedule(Milliseconds(2500), [this, &it, &summonSpells](TaskContext /*task*/)
+                        spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
+                        task.Schedule(Milliseconds(2500), [this, spell](TaskContext /*task*/)
                         {
-                            it = summonSpells.begin();
-                            std::advance(it, urand(0, summonSpells.size() - 1));
-                            DoCast(me, EtherealSphereHeroicSummonSpells[*it]);
-                            it = summonSpells.erase(it);
+                            DoCast(me, EtherealSphereHeroicSummonSpells[spell]);
                         });
                     }
 
