@@ -208,7 +208,7 @@ class boss_erekem : public CreatureScript
                     if (Unit* ally = DoSelectLowestHpFriendly(40.0f))
                         DoCast(ally, SPELL_CHAIN_HEAL);
 
-                    task.Repeat(!CheckGuardAlive() ? Seconds(3) : (Seconds(8), Seconds(11)));
+                    task.Repeat(!CheckGuardAlive() ? Seconds(3) : Seconds(8), Seconds(11));
                 });
 
                 scheduler.Schedule(Seconds(2), Seconds(8), [this](TaskContext task)
