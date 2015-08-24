@@ -46,17 +46,17 @@ set(database_STAT_SRCS
 # include_directories leading to further unnoticed dependency aditions
 # Linker Depencency requirements: common
 include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/dep/process
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Database
   ${CMAKE_CURRENT_SOURCE_DIR}/Updater
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/dep/process
   ${CMAKE_SOURCE_DIR}/src/common/
+  ${CMAKE_SOURCE_DIR}/src/common/Configuration
   ${CMAKE_SOURCE_DIR}/src/common/Debugging
+  ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/common/Configuration
-  ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}

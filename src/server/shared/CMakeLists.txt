@@ -51,30 +51,16 @@ set(shared_STAT_SRCS
 )
 
 include_directories(
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
-  ${CMAKE_SOURCE_DIR}/dep/SFMT
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
-  ${CMAKE_SOURCE_DIR}/dep/process
-  ${CMAKE_SOURCE_DIR}/src/server
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/common/
-  ${CMAKE_SOURCE_DIR}/src/common/Configuration
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/server/database/
-  ${CMAKE_SOURCE_DIR}/src/server/database/Database
-  ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging
   ${CMAKE_CURRENT_SOURCE_DIR}/Dynamic
-  ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_CURRENT_SOURCE_DIR}/Networking
-  ${CMAKE_CURRENT_SOURCE_DIR}/Packets
-  ${CMAKE_CURRENT_SOURCE_DIR}/Realm
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/src/common/
+  ${CMAKE_SOURCE_DIR}/src/common/Debugging
+  ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
+  ${CMAKE_SOURCE_DIR}/src/server/database
+  ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
