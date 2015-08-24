@@ -27,7 +27,7 @@
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
-#include "BattlepayMgr.h"
+#include "BattlePayMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
@@ -1163,9 +1163,9 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = GUILD_BANKLOG_MAX_RECORDS;
 
     // BattlePay
-    sBattlepayMgr->SetEnableState(sConfigMgr->GetIntDefault("BattlePay.StoreEnabled", 1) ? true : false);
-    sBattlepayMgr->SetAvailableState(sConfigMgr->GetIntDefault("BattlePay.StoreAvailable", 1) ? true : false);
-    sBattlepayMgr->SetStoreCurrency(sConfigMgr->GetIntDefault("BattlePay.StoreEnabled", BATTLE_PAY_CURRENCY_DOLLAR));
+    sBattlePayMgr->SetEnableState(sConfigMgr->GetIntDefault("BattlePay.StoreEnabled", 1) ? true : false);
+    sBattlePayMgr->SetAvailableState(sConfigMgr->GetIntDefault("BattlePay.StoreAvailable", 1) ? true : false);
+    sBattlePayMgr->SetStoreCurrency(sConfigMgr->GetIntDefault("BattlePay.StoreEnabled", BATTLE_PAY_CURRENCY_DOLLAR));
 
     //visibility on continents
     m_MaxVisibleDistanceOnContinents = sConfigMgr->GetFloatDefault("Visibility.Distance.Continents", DEFAULT_VISIBILITY_DISTANCE);
@@ -1914,7 +1914,7 @@ void World::SetInitialWorldSettings()
     sCalendarMgr->LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Loading Battle Pay store data...");
-    sBattlepayMgr->LoadFromDb();
+    sBattlePayMgr->LoadFromDb();
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");

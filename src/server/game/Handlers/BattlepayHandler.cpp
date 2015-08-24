@@ -15,8 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BattlepayMgr.h"
-#include "BattlepayPackets.h"
+#include "BattlePayMgr.h"
+#include "BattlePay.h"
+#include "BattlePayPackets.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
@@ -24,29 +25,19 @@
 void WorldSession::HandleBattlePayGetProductList(WorldPackets::Battlepay::BattlePayGetProductList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PRODUCT_LIST");
-
-    if (!sBattlepayMgr->IsStoreEnabled())
-        return;
-
-    SendBattlePayProductList();
+    if (BattlePay* battlePay = nullptr)
+        battlePay->SendBattlePayProductList();
 }
 
 void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::BattlePayGetPurchaseList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PURCHSE_LIST");
 
-    if (!sBattlepayMgr->IsStoreEnabled())
-        return;
-
-    SendBattlePayPurchaseList();
+    if (BattlePay* battlePay = nullptr)
+        battlePay->SendBattlePayPurchaseList();
 }
 
 void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
-
-    if (!sBattlepayMgr->IsStoreEnabled())
-        return;
-
-    //SendBattlePayUpdateVasPurchaseStates();
 }

@@ -15,13 +15,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BATTLEPAY_H__
-#define BATTLEPAY_H__
+#ifndef BATTLEPAY_MGR_H__
+#define BATTLEPAY_MGR_H__
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "BattlepayPackets.h"
+#include "BattlePayPackets.h"
 #include "ItemPackets.h"
+#include "Player.h"
 
 #define MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE       50
 #define MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE 500
@@ -80,18 +81,24 @@ enum BattlePayErrors
 
 struct BattlePayProduct
 {
-    BattlePayProduct(uint32 id, uint64 normalPrice, uint64 currentPrice, 
-        uint8 type, uint8 choiceType, uint32 flags)
-    : ProductID(id), NormalPriceFixedPoint(normalPrice), CurrentPriceFixedPoint(currentPrice), 
-        Type(type), ChoiceType(choiceType), Flags(flags) { }
+    BattlePayProduct(uint32 id, std::string title, std::string description, uint64 normalPrice, uint64 currentPrice, uint32 itemId,
+        uint32 quantity, uint32 displayId, uint8 type, uint8 choiceType, uint32 flags)
+    : ProductID(id), Title(title), Description(description), NormalPrice(normalPrice), CurrentPrice(currentPrice), ItemID(itemId), Quantity(quantity),
+        DisplayId(displayId), Type(type), ChoiceType(choiceType), Flags(flags) { }
 
     uint32 ProductID;
-    uint64 NormalPriceFixedPoint;
-    uint32 CurrentPriceFixedPoint;
+    std::string Title;
+    std::string Description;
+    uint64 NormalPrice;
+    uint32 CurrentPrice;
+    uint32 ItemID;
+    uint32 Quantity;
+    uint32 DisplayId;
     uint8 Type;
     uint8 ChoiceType;
     uint32 Flags;
 };
+
 
 struct BattlePayProductGroup
 {
@@ -122,17 +129,17 @@ typedef std::set<BattlePayProduct*> BattlePayProductSet;
 typedef std::set<BattlePayProductGroup*> BattlePayProductGroupSet;
 typedef std::set<BattlePayShopEntry*> BattlePayShopEntryset;
 
-class BattlepayMgr
+class BattlePayMgr
 {
 public:
-    static BattlepayMgr* instance()
+    static BattlePayMgr* instance()
     {
-        static BattlepayMgr instance;
+        static BattlePayMgr instance;
         return &instance;
     }
 
-    BattlepayMgr() : m_enabled(false), m_available(false), m_currency(BATTLE_PAY_CURRENCY_DOLLAR) { }
-    ~BattlepayMgr();
+    BattlePayMgr() : m_enabled(false), m_available(false), m_currency(BATTLE_PAY_CURRENCY_DOLLAR) { }
+    ~BattlePayMgr();
 
     // Store states
     bool IsStoreEnabled() { return m_enabled; }
@@ -145,6 +152,7 @@ public:
     uint32 GetStoreCurrency() { return m_currency; }
     void SetStoreCurrency(uint32 currency) { m_currency = currency; }
 
+    uint32 GetProducts(uint32 id) const;
     void LoadFromDb();
 
 private:
@@ -168,5 +176,5 @@ private:
     bool LoadEntriesFromDb();
 };
 
-#define sBattlepayMgr BattlepayMgr::instance()
-#endif // BATTLEPAY_H__
+#define sBattlePayMgr BattlePayMgr::instance()
+#endif // BATTLEPAY_MGR_H__

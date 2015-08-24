@@ -15,10 +15,10 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BattlepayMgr.h"
+#include "BattlePayMgr.h"
 #include "Language.h"
 
-BattlepayMgr::~BattlepayMgr()
+BattlePayMgr::~BattlePayMgr()
 {
     for (BattlePayProductSet::iterator itr = m_productStore.begin(); itr != m_productStore.end(); ++itr)
         delete *itr;
@@ -34,14 +34,22 @@ BattlepayMgr::~BattlepayMgr()
     m_shopEntryStore.clear();
 }
 
-void BattlepayMgr::LoadFromDb()
+uint32 BattlePayMgr::GetProducts(uint32 id) const
+{
+    for (BattlePayProductSet::const_iterator citr = m_productStore.begin(); citr != m_productStore.end(); ++citr)
+        (*citr)->ProductID = id;
+           
+    return true;
+}
+
+void BattlePayMgr::LoadFromDb()
 {
     LoadProductsFromDb();
     LoadGroupsFromDb();
     LoadEntriesFromDb();
 }
 
-bool BattlepayMgr::LoadProductsFromDb()
+bool BattlePayMgr::LoadProductsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -105,6 +113,10 @@ bool BattlepayMgr::LoadProductsFromDb()
             continue;
         }
 
+        BattlePayProduct* product = new BattlePayProduct(id, title, description, normalPrice, currentPrice,
+            itemId, quantity, displayId, type, choiceType, flags);
+
+        m_productStore.insert(product);
         ++count;
     } while (result->NextRow());
 
@@ -113,7 +125,7 @@ bool BattlepayMgr::LoadProductsFromDb()
     return true;
 }
 
-bool BattlepayMgr::LoadGroupsFromDb()
+bool BattlePayMgr::LoadGroupsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -161,7 +173,7 @@ bool BattlepayMgr::LoadGroupsFromDb()
             continue;
         }
 
-        //m_groupStore.insert(new BattlePayGroup(id, order, name, icon, type));
+        m_groupStore.insert(new BattlePayProductGroup(id, order, name, icon, type));
         count++;
     } while (result->NextRow());
 
@@ -170,7 +182,7 @@ bool BattlepayMgr::LoadGroupsFromDb()
     return true;
 }
 
-bool BattlepayMgr::LoadEntriesFromDb()
+bool BattlePayMgr::LoadEntriesFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -226,7 +238,7 @@ bool BattlepayMgr::LoadEntriesFromDb()
     return true;
 }
 
-bool BattlepayMgr::HasProductId(uint32 id)
+bool BattlePayMgr::HasProductId(uint32 id)
 {
     for (BattlePayProductSet::const_iterator citr = m_productStore.begin(); citr != m_productStore.end(); ++citr)
         if ((*citr)->ProductID == id)
@@ -235,7 +247,7 @@ bool BattlepayMgr::HasProductId(uint32 id)
     return false;
 }
 
-bool BattlepayMgr::HasGroupId(uint32 id)
+bool BattlePayMgr::HasGroupId(uint32 id)
 {
     for (BattlePayProductGroupSet::const_iterator citr = m_groupStore.begin(); citr != m_groupStore.end(); ++citr)
         if ((*citr)->GroupID == id)
@@ -244,49 +256,11 @@ bool BattlepayMgr::HasGroupId(uint32 id)
     return false;
 }
 
-bool BattlepayMgr::HasGroupName(std::string name)
+bool BattlePayMgr::HasGroupName(std::string name)
 {
     for (BattlePayProductGroupSet::const_iterator citr = m_groupStore.begin(); citr != m_groupStore.end(); ++citr)
         if ((*citr)->Name == name)
             return true;
 
     return false;
-}
-
-void WorldSession::SendBattlePayPurchaseList()
-{
-    WorldPackets::Battlepay::BattlePayGetPurchaseListResponse response;
-
-    //response.Purchases;
-    response.Result = 0;
-
-    SendPacket(response.Write());
-}
-
-void WorldSession::SendBattlePayDistributionList()
-{
-    WorldPackets::Battlepay::BattlePayGetDistributionListResponse response;
-
-    response.Result = 0;
-    //response.DistributionObjects;
-
-    SendPacket(response.Write());
-}
-
-void WorldSession::SendBattlePayProductList()
-{
-    WorldPackets::Battlepay::BattlePayGetProductListResponse response;
-
-    //SendBattlePayDistributionList();
-    //SendBattlePayPurchaseList();
-
-    response.CurrencyID = sBattlepayMgr->GetStoreCurrency();
-    response.Result = 0; // NYI
-
-    SendPacket(response.Write());
-}
-
-void WorldSession::SendBattlePayUpdateVasPurchaseStates()
-{
-    SendBattlePayProductList();
 }

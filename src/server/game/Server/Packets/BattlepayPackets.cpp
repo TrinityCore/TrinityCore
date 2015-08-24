@@ -19,7 +19,7 @@
 #include "BattlepayMgr.h"
 #include "Player.h"
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlepayDisplayInfo const& display)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDisplayInfo const& display)
 {
     data.WriteBits(display.Name1.length(), 10);
     data.WriteBits(display.Name1.length(), 10);
@@ -46,7 +46,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlepayDispl
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlepayProductItem const& item)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProductItem const& item)
 {
     data << item.ID;
     data << item.ItemID;
@@ -69,7 +69,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlepayProdu
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayProductGroup const& group)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProductGroup const& group)
 {
     data << group.GroupID;
     data << group.IconFileDataID;
@@ -84,7 +84,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayProdu
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayShopEntry const& shop)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayShopEntry const& shop)
 {
     data << shop.EntryID;
     data << shop.GroupID;
@@ -102,13 +102,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayShopE
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayProduct const& product)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProduct const& product)
 {
     data << product.ProductID;
     data << product.NormalPriceFixedPoint;
     data << product.CurrentPriceFixedPoint;
     
-    for (WorldPackets::Battlepay::BattlepayProductItem const& item : product.Items)
+    for (WorldPackets::BattlePay::BattlePayProductItem const& item : product.Items)
         data << item;
 
     data << product.Type;
@@ -124,7 +124,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayProdu
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayDistributionObject const& object)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDistributionObject const& object)
 {
     data << object.DistributionID;
     data << object.Status;
@@ -144,7 +144,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayDistr
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayPurchase const& purchase)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayPurchase const& purchase)
 {
     data << purchase.PurchaseID;
     data << purchase.Status;
@@ -159,14 +159,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battlepay::BattlePayPurch
     return data;
 }
 
-WorldPacket const* WorldPackets::Battlepay::BattlePayGetProductListResponse::Write()
+WorldPacket const* WorldPackets::BattlePay::BattlePayGetProductListResponse::Write()
 {
-    _worldPacket << Result;
-    _worldPacket << CurrencyID;
+    _worldPacket.reserve(4 + 4 +
+        Products.size() * sizeof(BattlePayProduct) +
+        Groups.size() * sizeof(BattlePayProductGroup) +
+        ShopEntries.size() * sizeof(BattlePayShopEntry));
 
-    _worldPacket << Products.size();
-    _worldPacket << Groups.size();
-    _worldPacket << ShopEntries.size();
+    _worldPacket << uint32(Result);
+    _worldPacket << uint32(CurrencyID);
+    _worldPacket << uint32(Products.size());
+    _worldPacket << uint32(Groups.size());
+    _worldPacket << uint32(ShopEntries.size());
 
     for (BattlePayProduct const* product : Products)
         _worldPacket << *product;
@@ -180,39 +184,45 @@ WorldPacket const* WorldPackets::Battlepay::BattlePayGetProductListResponse::Wri
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battlepay::BattlepayStartPurchaseResponse::Write()
+WorldPacket const* WorldPackets::BattlePay::BattlePayStartPurchaseResponse::Write()
 {
     return &_worldPacket;
 }
 
-void WorldPackets::Battlepay::BattlePayConfirmPurchaseResponse::Read()
+void WorldPackets::BattlePay::BattlePayConfirmPurchaseResponse::Read()
 {
 }
 
-WorldPacket const* WorldPackets::Battlepay::BattlePayGetPurchaseListResponse::Write()
+WorldPacket const* WorldPackets::BattlePay::BattlePayGetPurchaseListResponse::Write()
 {
     _worldPacket << Result;
-    _worldPacket << Purchases;
+    _worldPacket << Purchases.size();
+
+    for (BattlePayPurchase const* purchase : Purchases)
+        _worldPacket << *purchase;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battlepay::BattlePayGetDistributionListResponse::Write()
+WorldPacket const* WorldPackets::BattlePay::BattlePayGetDistributionListResponse::Write()
 {
-    _worldPacket << DistributionObjects;
     _worldPacket << Result;
+    _worldPacket << DistributionObjects.size();
+
+    for (BattlePayDistributionObject const* object : DistributionObjects)
+        _worldPacket << *object;
 
     return &_worldPacket;
 }
 
-void WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates::Read()
+void WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates::Read()
 {  
 }
 
-void WorldPackets::Battlepay::BattlePayGetPurchaseList::Read()
+void WorldPackets::BattlePay::BattlePayGetPurchaseList::Read()
 {
 }
 
-void WorldPackets::Battlepay::BattlePayGetProductList::Read()
+void WorldPackets::BattlePay::BattlePayGetProductList::Read()
 {
 }

@@ -1571,10 +1571,6 @@ class WorldSession
         void HandleBattlePayGetProductList(WorldPackets::Battlepay::BattlePayGetProductList& packet);
         void HandleBattlePayGetPurchaseList(WorldPackets::Battlepay::BattlePayGetPurchaseList& packet);
         void HandleBattlePayUpdateVasPurchaseStates(WorldPackets::Battlepay::BattlePayUpdateVasPurchaseStates& packet);
-        void SendBattlePayProductList();
-        void SendBattlePayPurchaseList();
-        void SendBattlePayDistributionList();
-        void SendBattlePayUpdateVasPurchaseStates();
 
     private:
         void InitializeQueryCallbackParameters();
