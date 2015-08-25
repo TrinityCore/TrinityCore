@@ -165,10 +165,10 @@ public:
     uint32 GetProducts(uint32 id) const;
     void LoadFromDb();
 
-    void SendBattlePayDistributionList();
+    /*void SendBattlePayDistributionList();
     void SendBattlePayPurchaseList();
     void SendBattlePayProductList();
-    void SendBattlePayUpdateVasPurchaseStates();
+    void SendBattlePayUpdateVasPurchaseStates();*/
 
 private:
     BattlePayProductSet m_productStore;

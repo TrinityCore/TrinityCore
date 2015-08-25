@@ -24,23 +24,23 @@
 void WorldSession::HandleBattlePayGetProductList(WorldPackets::BattlePay::BattlePayGetProductList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PRODUCT_LIST");
-    sBattlePayMgr->SendBattlePayProductList();
+    SendBattlePayProductList();
 }
 
 void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PURCHSE_LIST");
-    sBattlePayMgr->SendBattlePayPurchaseList();
+    SendBattlePayPurchaseList();
 }
 
 void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
-    sBattlePayMgr->SendBattlePayUpdateVasPurchaseStates();
+    SendBattlePayUpdateVasPurchaseStates();
 }
 
 void WorldSession::HandleBattlePayGetDistributionList(WorldPackets::BattlePay::BattlePayGetDistributionList& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
-    sBattlePayMgr->SendBattlePayDistributionList();
+    SendBattlePayDistributionList();
 }

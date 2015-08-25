@@ -17,6 +17,7 @@
 
 #include "BattlePayMgr.h"
 #include "Language.h"
+#include "WorldSession.h"
 
 BattlePayMgr::~BattlePayMgr()
 {
@@ -265,21 +266,21 @@ bool BattlePayMgr::HasGroupName(std::string name)
     return false;
 }
 
-void BattlePayMgr::SendBattlePayPurchaseList()
+void WorldSession::SendBattlePayPurchaseList()
 {
     WorldPackets::BattlePay::BattlePayGetPurchaseListResponse response;
     response.Result = 0;
 
-    for (auto const& p : response.Purchases)
+    /*for (auto const& p : response.Purchases)
     {
         WorldPackets::BattlePay::BattlePayPurchase purchase;
         response.Purchases.push_back(purchase);
-    }
+    }*/
 
-    session->SendPacket(response.Write());
+    SendPacket(response.Write());
 }
 
-void BattlePayMgr::SendBattlePayDistributionList()
+void WorldSession::SendBattlePayDistributionList()
 {
     WorldPackets::BattlePay::BattlePayGetDistributionListResponse response;
     response.Result = 0;
@@ -299,14 +300,14 @@ void BattlePayMgr::SendBattlePayDistributionList()
         response.DistributionObjects.push_back(object);
     }
 
-    session->SendPacket(response.Write());
+    SendPacket(response.Write());
 }
 
-void BattlePayMgr::SendBattlePayUpdateVasPurchaseStates()
+void WorldSession::SendBattlePayUpdateVasPurchaseStates()
 {
 }
 
-void BattlePayMgr::SendBattlePayProductList()
+void WorldSession::SendBattlePayProductList()
 {
     WorldPackets::BattlePay::BattlePayGetProductListResponse response;
 
@@ -316,27 +317,27 @@ void BattlePayMgr::SendBattlePayProductList()
     for (auto const& p : response.Products)
     {
         WorldPackets::BattlePay::BattlePayProduct product;
-        /*product.ProductID = GetProductID();
+        product.ProductID = p.ProductID;
         product.DisplayInfo = boost::in_place();
         product.CurrentPriceFixedPoint = 0;
         product.Flags = 0;
-        product.NormalPriceFixedPoint = 0;*/
+        product.NormalPriceFixedPoint = 0;
 
         for (auto const& i : product.Items)
         {
             WorldPackets::BattlePay::BattlePayProductItem item;
-            /*item.ID = 0;
+            item.ID = 0;
             item.ItemID = 0;
             item.DisplayInfo = boost::in_place();
             item.HasMount = false;
             item.PetResult = boost::in_place();
             item.Quantity = 0;
-            item.HasPet = false;*/
+            item.HasPet = false;
             product.Items.push_back(item);
         }
 
-        /*product.Type = BATTLE_PAY_TYPE_END;
-        product.Unk62_1 = 0;*/
+        product.Type = BATTLE_PAY_TYPE_END;
+        product.Unk62_1 = 0;
         response.Products.push_back(product);
     }
 
@@ -364,5 +365,5 @@ void BattlePayMgr::SendBattlePayProductList()
     }
 
     TC_LOG_INFO("network", "WORLD: Received SMSG_BATTLE_PAY_GET_PRODUCT_LIST");
-    session->SendPacket(response.Write());
+    SendPacket(response.Write());
 }

@@ -170,10 +170,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayPurch
 
 WorldPacket const* WorldPackets::BattlePay::BattlePayGetProductListResponse::Write()
 {
-    _worldPacket.reserve(4 + 4 +
+    /*_worldPacket.reserve(4 + 4 +
         Products.size() * sizeof(BattlePayProduct) +
         Groups.size() * sizeof(BattlePayProductGroup) +
-        ShopEntries.size() * sizeof(BattlePayShopEntry));
+        ShopEntries.size() * sizeof(BattlePayShopEntry));*/
 
     _worldPacket << uint32(Result);
     _worldPacket << uint32(CurrencyID);
