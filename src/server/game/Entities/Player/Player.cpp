@@ -86,6 +86,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "TalentPackets.h"
+#include "ToyPackets.h"
 #include "TradePackets.h"
 #include "Transport.h"
 #include "UpdateData.h"
@@ -17233,6 +17234,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
+    _LoadToys(GetSession()->GetAccountToys());
 
     LearnSpecializationSpells();
 
@@ -18371,6 +18373,23 @@ void Player::_LoadSpells(PreparedQueryResult result)
     }
 }
 
+void Player::_LoadToys(ToyBoxContainer const& toys)
+{
+    for (auto const& t : toys)
+        AddDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, t.first);
+}
+
+bool Player::AddToy(uint32 itemId, bool isFavourite /*= false*/)
+{
+    if (GetSession()->UpdateAccountToys(itemId, isFavourite))
+    {
+        AddDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, itemId);
+        return true;
+    }
+
+    return false;
+}
+
 void Player::_LoadGroup(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
@@ -19170,6 +19189,10 @@ void Player::SaveToDB(bool create /*=false*/)
         _SaveStats(trans);
 
     CharacterDatabase.CommitTransaction(trans);
+
+    SQLTransaction transLogin = LoginDatabase.BeginTransaction();
+    GetSession()->SaveAccountToys(transLogin);
+    LoginDatabase.CommitTransaction(transLogin);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
@@ -22612,6 +22635,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
     // SMSG_ACCOUNT_TOYS_UPDATE
+    WorldPackets::Toy::AccountToysUpdate toysUpdate;
+    toysUpdate.IsFullUpdate = true;
+    toysUpdate.Toys = &GetSession()->GetAccountToys();
+    SendDirectMessage(toysUpdate.Write());
 
     WorldPackets::Character::InitialSetup initialSetup;
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);

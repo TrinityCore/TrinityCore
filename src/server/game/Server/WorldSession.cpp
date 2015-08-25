@@ -748,6 +748,40 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
     while (result->NextRow());
 }
 
+void WorldSession::LoadAccountToys(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 itemId = fields[0].GetUInt32();
+        bool isFavourite = fields[1].GetBool();
+
+        _toys[itemId] = isFavourite;
+    }
+    while (result->NextRow());
+}
+
+void WorldSession::SaveAccountToys(SQLTransaction& trans)
+{
+    PreparedStatement* stmt = NULL;
+    for (ToyBoxContainer::const_iterator itr = _toys.begin(); itr != _toys.end(); ++itr)
+    {
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_TOYS);
+        stmt->setUInt32(0, GetBattlenetAccountId());
+        stmt->setUInt32(1, itr->first);
+        stmt->setBool(2, itr->second);
+        trans->Append(stmt);
+    }
+}
+
+bool WorldSession::UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/)
+{
+    return _toys.insert(ToyBoxContainer::value_type(itemId, isFavourite)).second;
+}
+
 void WorldSession::SetAccountData(AccountDataType type, uint32 time, std::string const& data)
 {
     if ((1 << type) & GLOBAL_CACHE_MASK)
@@ -1156,14 +1190,20 @@ class AccountInfoQueryHolder : public SQLQueryHolder
 public:
     enum
     {
+        GLOBAL_ACCOUNT_TOYS = 0,
+
         MAX_QUERIES
     };
 
     AccountInfoQueryHolder() { SetSize(MAX_QUERIES); }
 
-    bool Initialize(uint32 /*accountId*/, uint32 /*battlenetAccountId*/)
+    bool Initialize(uint32 /*accountId*/, uint32 battlenetAccountId)
     {
         bool ok = true;
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(GLOBAL_ACCOUNT_TOYS, stmt) && ok;
 
         return ok;
     }
@@ -1196,6 +1236,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
 {
     LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
     LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
+    LoadAccountToys(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
 
     if (!m_inQueue)
         SendAuthResponse(AUTH_OK, false);

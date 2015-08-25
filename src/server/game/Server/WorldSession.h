@@ -494,6 +494,14 @@ namespace WorldPackets
         class RequestForcedReactions;
     }
 
+    namespace Toy
+    {
+        class AccountToysUpdate;
+        class AddToy;
+        class ToySetFavorite;
+        class UseToy;
+    }
+
     namespace Scenes
     {
         class SceneTriggerEvent;
@@ -661,6 +669,8 @@ enum Tutorials
 */
 
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
+
+typedef std::map<uint32, bool> ToyBoxContainer;
 
 struct AccountData
 {
@@ -884,6 +894,12 @@ class WorldSession
         AccountData const* GetAccountData(AccountDataType type) const { return &_accountData[type]; }
         void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
+
+        // Account Toys
+        void LoadAccountToys(PreparedQueryResult result);
+        void SaveAccountToys(SQLTransaction& trans);
+        bool UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/);
+        ToyBoxContainer const& GetAccountToys() const { return _toys; }
 
         void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
@@ -1540,6 +1556,11 @@ class WorldSession
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
 
+        // Toys
+        void HandleAddToy(WorldPackets::Toy::AddToy& packet);
+        void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
+        void HandleUseToy(WorldPackets::Toy::UseToy& packet);
+
         // Scenes
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
         void HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete);
@@ -1671,6 +1692,7 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
+        ToyBoxContainer _toys;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

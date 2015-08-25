@@ -92,6 +92,7 @@ extern DB2Storage<SpellXSpellVisualEntry>               sSpellXSpellVisualStore;
 extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
 extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
 extern DB2Storage<TotemCategoryEntry>                   sTotemCategoryStore;
+extern DB2Storage<ToyEntry>                             sToyStore;
 extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBarStore;
 extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
 
@@ -146,6 +147,7 @@ public:
     typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
     typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
+    typedef std::vector<uint32> ToyItemIdsContainer;
 
     static DB2Manager& Instance()
     {
@@ -179,6 +181,7 @@ public:
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
+    bool GetToyItemIdMatch(uint32 toy) const;
 
 private:
     StorageMap _stores;
@@ -202,6 +205,7 @@ private:
     SpecializationSpellsContainer _specializationSpellsBySpec;
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
+    ToyItemIdsContainer _toys;
 };
 
 #define sDB2Manager DB2Manager::Instance()

@@ -417,6 +417,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_TOTEM_CATEGORY, "SELECT ID, Name, CategoryType, CategoryMask FROM totem_category ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_TOTEM_CATEGORY, "SELECT ID, Name_lang FROM totem_category_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // Toy.db2
+    PrepareStatement(HOTFIX_SEL_TOY, "SELECT ID, ItemID, Flags, Description, CategoryFilter  FROM toy ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TOY, "SELECT ID, Description_lang FROM toy_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // TransportAnimation.db2
     PrepareStatement(HOTFIX_SEL_TRANSPORT_ANIMATION, "SELECT ID, TransportID, TimeIndex, PosX, PosY, PosZ, SequenceID FROM transport_animation"
         " ORDER BY ID DESC", CONNECTION_SYNCH);

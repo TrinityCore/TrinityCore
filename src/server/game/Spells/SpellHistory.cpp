@@ -209,23 +209,31 @@ void SpellHistory::Update()
 
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell /*= nullptr*/)
 {
+    HandleCooldowns(spellInfo, item ? item->GetEntry() : 0, spell);
+}
+
+void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 ItemID, Spell* spell /*= nullptr*/)
+{
     if (ConsumeCharge(spellInfo->ChargeCategoryEntry))
         return;
 
     if (Player* player = _owner->ToPlayer())
     {
         // potions start cooldown until exiting combat
-        if (item && (item->IsPotion() || spellInfo->IsCooldownStartedOnEvent()))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(ItemID))
         {
-            player->SetLastPotionId(item->GetEntry());
-            return;
+            if (itemTemplate->IsPotion() || spellInfo->IsCooldownStartedOnEvent())
+            {
+                player->SetLastPotionId(ItemID);
+                return;
+            }
         }
     }
 
     if (spellInfo->IsCooldownStartedOnEvent() || spellInfo->IsPassive() || (spell && spell->IsIgnoringCooldowns()))
         return;
 
-    StartCooldown(spellInfo, item ? item->GetEntry() : 0, spell);
+    StartCooldown(spellInfo, ItemID, spell);
 }
 
 bool SpellHistory::IsReady(SpellInfo const* spellInfo) const
