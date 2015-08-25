@@ -264,3 +264,105 @@ bool BattlePayMgr::HasGroupName(std::string name)
 
     return false;
 }
+
+void BattlePayMgr::SendBattlePayPurchaseList()
+{
+    WorldPackets::BattlePay::BattlePayGetPurchaseListResponse response;
+    response.Result = 0;
+
+    for (auto const& p : response.Purchases)
+    {
+        WorldPackets::BattlePay::BattlePayPurchase purchase;
+        response.Purchases.push_back(purchase);
+    }
+
+    session->SendPacket(response.Write());
+}
+
+void BattlePayMgr::SendBattlePayDistributionList()
+{
+    WorldPackets::BattlePay::BattlePayGetDistributionListResponse response;
+    response.Result = 0;
+
+    for (auto const& p : response.DistributionObjects)
+    {
+        WorldPackets::BattlePay::BattlePayDistributionObject object;
+
+        /*object.ProductID = 0;
+        object.Product = boost::in_place();
+        object.Revoked = false;
+        object.Status = 0;
+        object.TargetNativeRealm = 0;
+        object.TargetVirtualRealm = 0;
+        object.DistributionID = 0;
+        object.TargetPlayer = _owner->GetGUID();*/
+        response.DistributionObjects.push_back(object);
+    }
+
+    session->SendPacket(response.Write());
+}
+
+void BattlePayMgr::SendBattlePayUpdateVasPurchaseStates()
+{
+}
+
+void BattlePayMgr::SendBattlePayProductList()
+{
+    WorldPackets::BattlePay::BattlePayGetProductListResponse response;
+
+    response.Result = 0; // BATTLE_PAY_RESULT_PRODUCT_LISTED
+    response.CurrencyID = sBattlePayMgr->GetStoreCurrency();
+
+    for (auto const& p : response.Products)
+    {
+        WorldPackets::BattlePay::BattlePayProduct product;
+        /*product.ProductID = GetProductID();
+        product.DisplayInfo = boost::in_place();
+        product.CurrentPriceFixedPoint = 0;
+        product.Flags = 0;
+        product.NormalPriceFixedPoint = 0;*/
+
+        for (auto const& i : product.Items)
+        {
+            WorldPackets::BattlePay::BattlePayProductItem item;
+            /*item.ID = 0;
+            item.ItemID = 0;
+            item.DisplayInfo = boost::in_place();
+            item.HasMount = false;
+            item.PetResult = boost::in_place();
+            item.Quantity = 0;
+            item.HasPet = false;*/
+            product.Items.push_back(item);
+        }
+
+        /*product.Type = BATTLE_PAY_TYPE_END;
+        product.Unk62_1 = 0;*/
+        response.Products.push_back(product);
+    }
+
+    for (auto const& p : response.Groups)
+    {
+        WorldPackets::BattlePay::BattlePayProductGroup group;
+        /*group.GroupID = 0;
+        group.IconFileDataID = 0;
+        group.DisplayType = 0;
+        group.Ordering = 0;*/
+        response.Groups.push_back(group);
+    }
+
+    for (auto const& p : response.ShopEntries)
+    {
+        WorldPackets::BattlePay::BattlePayShopEntry entry;
+        /*entry.Ordering = 0;
+        entry.EntryID = 0;
+        entry.DisplayInfo = boost::in_place();
+        entry.BannerType = 0;
+        entry.Flags = 0;
+        entry.ProductID = 0;
+        entry.GroupID = 0;*/
+        response.ShopEntries.push_back(entry);
+    }
+
+    TC_LOG_INFO("network", "WORLD: Received SMSG_BATTLE_PAY_GET_PRODUCT_LIST");
+    session->SendPacket(response.Write());
+}

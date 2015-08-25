@@ -23,9 +23,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDispl
 {
     data.WriteBit(display.CreatureDisplayInfoID.is_initialized());
     data.WriteBit(display.FileDataID.is_initialized());
+
     data.WriteBits(display.Name1.length(), 10);
     data.WriteBits(display.Name2.length(), 10);
     data.WriteBits(display.Name3.length(), 13);
+
     data.WriteBit(display.Flags.is_initialized());
     data.FlushBits();
 
@@ -35,12 +37,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDispl
     if (display.FileDataID)
         data <<  *display.FileDataID;
 
-    if (display.Flags)
-        data <<  *display.Flags;
-
     data.WriteString(display.Name1);
     data.WriteString(display.Name2);
     data.WriteString(display.Name3);
+
+    if (display.Flags)
+        data << *display.Flags;
 
     return data;
 }
@@ -57,16 +59,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     data << item.Quantity;
     
     data.WriteBit(item.DisplayInfo.is_initialized());
-    data.WriteBit(item.PetResult.is_initialized());
     data.WriteBit(item.HasPet);
-    data.WriteBit(item.HasMount);
+    data.WriteBit(item.PetResult.is_initialized());
+    //data.WriteBit(item.HasMount);
     data.FlushBits();
+
+    if (item.HasPet)
+        data.WriteBits(0, 4);
 
     if (item.DisplayInfo)
         data << *item.DisplayInfo;
-    
-    if (item.HasPet)
-        data.WriteBits(0, 4);
 
     return data;
 }
@@ -107,8 +109,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayShopE
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProduct const& product)
 {
     data << uint32(product.ProductID);
+
     data << uint64(product.NormalPriceFixedPoint);
     data << uint64(product.CurrentPriceFixedPoint);
+
     data << uint8(product.Type);
     data << uint32(product.Flags);
 
@@ -129,18 +133,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDistributionObject const& object)
 {
     data << uint64(object.DistributionID);
+
     data << uint32(object.Status);
     data << uint32(object.ProductID);
+
     data << object.TargetPlayer;
     data << uint32(object.TargetVirtualRealm);
     data << uint32(object.TargetNativeRealm);
+
     data << uint64(object.PurchaseID);
     
     data.WriteBit(object.Product.is_initialized());
     data.WriteBit(object.Revoked);
     data.FlushBits();
 
-    if (object.Product.is_initialized())
+    if (object.Product)
         data << *object.Product;
 
     return data;
@@ -209,7 +216,7 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayGetPurchaseListResponse::Wr
 WorldPacket const* WorldPackets::BattlePay::BattlePayGetDistributionListResponse::Write()
 {
     _worldPacket << Result;
-    _worldPacket << DistributionObjects.size();
+    _worldPacket.WriteBits(DistributionObjects.size(), 11);
 
     for (BattlePayDistributionObject const& object : DistributionObjects)
         _worldPacket << object;
@@ -227,4 +234,38 @@ void WorldPackets::BattlePay::BattlePayGetPurchaseList::Read()
 
 void WorldPackets::BattlePay::BattlePayGetProductList::Read()
 {
+}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayDistributionUpdate::Write()
+{
+    _worldPacket << DistributionObject;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::BattlePay::BattlePayStartPurchase::Read()
+{
+    _worldPacket >> ClientToken;
+    _worldPacket >> ProductID;
+    _worldPacket >> TargetCharacter;
+}
+
+void WorldPackets::BattlePay::BattlePayAckFailedResponse::Read()
+{
+    _worldPacket >> ServerToken;
+}
+
+void WorldPackets::BattlePay::BattlePayDistributionAssignToTarget::Read()
+{
+    _worldPacket >> ClientToken;
+    _worldPacket >> DistributionID;
+    _worldPacket >> TargetCharacter;
+}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayPurchaseUpdate::Write()
+{
+    for (auto const& purchase : Purchases)
+        _worldPacket << purchase;
+
+    return &_worldPacket;
 }

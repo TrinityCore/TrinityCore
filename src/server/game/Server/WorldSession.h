@@ -122,6 +122,7 @@ namespace WorldPackets
         class BattlePayGetProductList;
         class BattlePayGetPurchaseList;
         class BattlePayUpdateVasPurchaseStates;
+        class BattlePayGetDistributionList;
     }
 
     namespace BlackMarket
@@ -1571,6 +1572,7 @@ class WorldSession
         void HandleBattlePayGetProductList(WorldPackets::BattlePay::BattlePayGetProductList& packet);
         void HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& packet);
         void HandleBattlePayUpdateVasPurchaseStates(WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates& packet);
+        void HandleBattlePayGetDistributionList(WorldPackets::BattlePay::BattlePayGetDistributionList& packet);
 
     private:
         void InitializeQueryCallbackParameters();

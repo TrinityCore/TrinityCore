@@ -23,11 +23,11 @@
 #include "BattlePayPackets.h"
 #include "ItemPackets.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 #define MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE       50
 #define MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE 500
 #define MAX_BATTLE_PAY_GROUP_NAME_SIZE          16
-#include <Server/Packets/BattlepayPackets.h>
 
 enum BattlePayStatus
 {
@@ -77,6 +77,16 @@ enum BattlePayErrors
     BATTLE_PAY_ERROR_PAYMENT_FAILED                 = 10,
     BATTLE_PAY_ERROR_INVALID_PAYMENT_INFO           = 11,
     BATTLE_PAY_ERROR_END
+};
+
+// Don't know all of the enums just yet
+enum BattlePayTypes
+{
+    BATTLE_PAY_TYPE_DEFAULT = 0,
+    BATTLE_PAY_TYPE_FEATURE = 1,
+    BATTLE_PAY_TYPE_PET = 2,
+    BATTLE_PAY_TYPE_MOUNT = 3,
+    BATTLE_PAY_TYPE_END
 };
 
 struct BattlePayProduct
@@ -155,6 +165,11 @@ public:
     uint32 GetProducts(uint32 id) const;
     void LoadFromDb();
 
+    void SendBattlePayDistributionList();
+    void SendBattlePayPurchaseList();
+    void SendBattlePayProductList();
+    void SendBattlePayUpdateVasPurchaseStates();
+
 private:
     BattlePayProductSet m_productStore;
     BattlePayProductGroupSet m_groupStore;
@@ -174,6 +189,8 @@ private:
     bool LoadProductsFromDb();
     bool LoadGroupsFromDb();
     bool LoadEntriesFromDb();
+
+    WorldSession* session;
 };
 
 #define sBattlePayMgr BattlePayMgr::instance()

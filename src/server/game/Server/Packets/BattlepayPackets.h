@@ -215,7 +215,7 @@ namespace WorldPackets
         public:
             BattlePayStartPurchase(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PAY_START_PURCHASE, std::move(packet)) { }
 
-            void Read();
+            void Read() override;
 
             ObjectGuid TargetCharacter;
             uint32 ProductID = 0;
@@ -227,7 +227,7 @@ namespace WorldPackets
         public:
             BattlePayConfirmPurchaseResponse(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE, std::move(packet)) { }
 
-            void Read();
+            void Read() override;
 
             uint64 ClientCurrentPriceFixedPoint = 0;
             bool ConfirmPurchase = false;
@@ -239,7 +239,7 @@ namespace WorldPackets
         public:
             BattlePayAckFailedResponse(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PAY_ACK_FAILED_RESPONSE, std::move(packet)) { }
 
-            void Read();
+            void Read() override;
 
             uint32 ServerToken = 0;
         };
