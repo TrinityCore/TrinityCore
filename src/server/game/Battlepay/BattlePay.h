@@ -25,34 +25,19 @@
 #include "Player.h"
 #include "BattlePayMgr.h"
 
+// Don't know all of the enums just yet
+enum BattlePayTypes
+{
+    BATTLE_PAY_TYPE_DEFAULT         = 0,
+    BATTLE_PAY_TYPE_FEATURE         = 1,
+    BATTLE_PAY_TYPE_PET             = 2,
+    BATTLE_PAY_TYPE_MOUNT           = 3,
+    BATTLE_PAY_TYPE_END
+};
+
 class BattlePay
 {
 public:
-    struct Product
-    {
-        WorldPackets::BattlePay::BattlePayProduct PacketInfo;
-    };
-
-    struct ProductGroup
-    {
-        WorldPackets::BattlePay::BattlePayProductGroup PacketInfo;
-    };
-
-    struct ShopEntries
-    {
-        WorldPackets::BattlePay::BattlePayShopEntry PacketInfo;
-    };
-
-    struct Distribution
-    {
-        WorldPackets::BattlePay::BattlePayDistributionObject PacketInfo;
-    };
-
-    struct Purchase
-    {
-        WorldPackets::BattlePay::BattlePayPurchase PacketInfo;
-    };
-
     explicit BattlePay(Player* owner);
 
     void SendBattlePayProductList();
@@ -60,19 +45,19 @@ public:
     void SendBattlePayDistributionList();
     void SendBattlePayUpdateVasPurchaseStates();
 
+    // Get functions
+    uint32 GetProductID() const { return _productId; }
+
 private:
     Player* _owner;
+
+    // variables
+    uint32 _productId;
 
     bool m_enabled;
     bool m_available;
     bool m_disabledByParentalControls;
     uint32 m_currency;
-
-    std::unordered_map<uint32 /*productID*/, Product> _product;
-    std::unordered_map<uint32 /*GroupID*/, ProductGroup> _group;
-    std::unordered_map<uint32 /*EntryID*/, ShopEntries> _entry;
-    std::unordered_map<uint64 /*DistributionID*/, Distribution> _object;
-    std::unordered_map<uint64 /*PurchaseID*/, Purchase> _purchase;
 };
 
 #endif // BATTLEPAY_H__

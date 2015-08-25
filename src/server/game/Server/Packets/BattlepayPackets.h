@@ -34,9 +34,6 @@ namespace WorldPackets
     {
         struct BattlePayDisplayInfo
         {
-            bool HasCreatureDisplayInfoID = false;
-            bool HasFileDataID = false;
-            bool HasFlags = false;
             Optional<uint32> CreatureDisplayInfoID;
             Optional<uint32> FileDataID;
             std::string Name1;
@@ -59,8 +56,6 @@ namespace WorldPackets
             bool HasPet = false;
             Optional<BATTLEPETRESULT> PetResult;
             bool HasMount = false;
-            bool HasBattlePayDisplayInfo = false;
-            bool HasDisplayInfo = false;
         };
 
         struct BattlePayProduct
@@ -68,12 +63,11 @@ namespace WorldPackets
             uint32 ProductID = 0;
             uint64 NormalPriceFixedPoint = 0;
             uint64 CurrentPriceFixedPoint = 0;
-            std::vector<BattlePayProductItem const*> Items;
+            std::vector<BattlePayProductItem> Items;
             uint8 Type = 0;
             uint32 Flags = 0;
             Optional<BattlePayDisplayInfo> DisplayInfo;
             uint32 Unk62_1 = 0;
-            bool HasBattlePayDisplayInfo = false;
             uint32 ItemCount = 0;
         };
 
@@ -95,7 +89,6 @@ namespace WorldPackets
             uint32 Flags = 0;
             uint8 BannerType = 0;
             Optional<BattlePayDisplayInfo> DisplayInfo;
-            bool HasDisplayInfo = false;
         };
 
         struct BattlePayDistributionObject
@@ -109,7 +102,6 @@ namespace WorldPackets
             uint64 PurchaseID = 0;
             Optional<BattlePayProduct> Product;
             bool Revoked = false;
-            bool HasBattlePayProduct = false;
         };
 
         class BattlePayStartPurchaseResponse final : public ServerPacket
@@ -164,7 +156,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<BattlePayPurchase const*> Purchases;
+            std::vector<BattlePayPurchase> Purchases;
         };
 
         class BattlePayConfirmPurchase final : public ServerPacket
@@ -259,9 +251,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<BattlePayProduct const*> Products;
-            std::vector<BattlePayProductGroup const*> Groups;
-            std::vector<BattlePayShopEntry const*> ShopEntries;
+            std::vector<BattlePayProduct> Products;
+            std::vector<BattlePayProductGroup> Groups;
+            std::vector<BattlePayShopEntry> ShopEntries;
             uint32 Result = 0;
             uint32 CurrencyID = 0;
         };
@@ -273,7 +265,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<BattlePayPurchase const*> Purchases;
+            std::vector<BattlePayPurchase> Purchases;
             uint32 Result = 0;
         };
 
@@ -285,7 +277,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Result = 0;
-            std::vector<BattlePayDistributionObject const*> DistributionObjects;
+            std::vector<BattlePayDistributionObject> DistributionObjects;
         };
 
         class BattlePayDistributionUpdate final : public ServerPacket
@@ -350,5 +342,12 @@ namespace WorldPackets
         };
     }
 }
-
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayPurchase const& purchase);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDistributionObject const& object);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProduct const& product);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayShopEntry const& shop);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProductGroup const& group);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProductItem const& item);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BATTLEPETRESULT const& pet);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDisplayInfo const& display);
 #endif // BattlePayPacket_h__

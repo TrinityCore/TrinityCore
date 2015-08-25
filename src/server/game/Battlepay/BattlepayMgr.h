@@ -81,21 +81,21 @@ enum BattlePayErrors
 
 struct BattlePayProduct
 {
-    BattlePayProduct(uint32 id, std::string title, std::string description, uint64 normalPrice, uint64 currentPrice, uint32 itemId,
-        uint32 quantity, uint32 displayId, uint8 type, uint8 choiceType, uint32 flags)
-    : ProductID(id), Title(title), Description(description), NormalPrice(normalPrice), CurrentPrice(currentPrice), ItemID(itemId), Quantity(quantity),
-        DisplayId(displayId), Type(type), ChoiceType(choiceType), Flags(flags) { }
+    BattlePayProduct(uint32 _id, std::string _name1, std::string _name2, std::string _name3, uint32 _normal, uint32 _current, 
+        uint32 _itemId, uint32 _quantity, uint32 _displayId, uint8 _type, uint32 _flags) 
+        : ID(_id), Name1(_name1), Name2(_name2), Name3(_name3), NormalPrice(_normal), CurrentPrice(_current), ItemID(_itemId),
+        Quantity(_quantity), DisplayID(_displayId), Type(_type), Flags(_flags) { }
 
-    uint32 ProductID;
-    std::string Title;
-    std::string Description;
-    uint64 NormalPrice;
+    uint32 ID;
+    std::string Name1;
+    std::string Name2;
+    std::string Name3;
+    uint32 NormalPrice;
     uint32 CurrentPrice;
     uint32 ItemID;
     uint32 Quantity;
-    uint32 DisplayId;
+    uint32 DisplayID;
     uint8 Type;
-    uint8 ChoiceType;
     uint32 Flags;
 };
 

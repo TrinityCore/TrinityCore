@@ -18,29 +18,24 @@
 #include "BattlepayPackets.h"
 #include "BattlepayMgr.h"
 #include "Player.h"
-#include <deflate.h>
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDisplayInfo const& display)
 {
-    data.WriteBit(display.HasCreatureDisplayInfoID);
-    data.WriteBit(display.HasFileDataID);
+    data.WriteBit(display.CreatureDisplayInfoID.is_initialized());
+    data.WriteBit(display.FileDataID.is_initialized());
     data.WriteBits(display.Name1.length(), 10);
     data.WriteBits(display.Name2.length(), 10);
     data.WriteBits(display.Name3.length(), 13);
-    data.WriteBit(display.HasFlags);
-
-    data.WriteBit(display.CreatureDisplayInfoID.is_initialized());
-    data.WriteBit(display.FileDataID.is_initialized());
     data.WriteBit(display.Flags.is_initialized());
     data.FlushBits();
 
-    if (display.HasCreatureDisplayInfoID)
+    if (display.CreatureDisplayInfoID)
         data <<  *display.CreatureDisplayInfoID;
 
-    if (display.HasFileDataID)
+    if (display.FileDataID)
         data <<  *display.FileDataID;
 
-    if (display.HasFlags)
+    if (display.Flags)
         data <<  *display.Flags;
 
     data.WriteString(display.Name1);
@@ -63,18 +58,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     
     data.WriteBit(item.DisplayInfo.is_initialized());
     data.WriteBit(item.PetResult.is_initialized());
-
     data.WriteBit(item.HasPet);
     data.WriteBit(item.HasMount);
-    data.WriteBit(item.HasBattlePayDisplayInfo);
-    data.WriteBit(item.HasDisplayInfo);
     data.FlushBits();
 
-    if (item.HasDisplayInfo)
+    if (item.DisplayInfo)
         data << *item.DisplayInfo;
     
     if (item.HasPet)
-        data.WriteBits(item.PetResult, 4);
+        data.WriteBits(0, 4);
 
     return data;
 }
@@ -96,18 +88,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayShopEntry const& shop)
 {
-    data << shop.EntryID;
-    data << shop.GroupID;
-    data << shop.ProductID;
-    data << shop.Ordering;
-    data << shop.Flags;
-    data << shop.BannerType;
+    data << uint32(shop.EntryID);
+    data << uint32(shop.GroupID);
+    data << uint32(shop.ProductID);
+    data << uint32(shop.Ordering);
+    data << uint32(shop.Flags);
+    data << uint8(shop.BannerType);
 
     data.WriteBit(shop.DisplayInfo.is_initialized());
-    data.WriteBit(shop.HasDisplayInfo);
     data.FlushBits();
 
-    if (shop.HasDisplayInfo)
+    if (shop.DisplayInfo)
         data << *shop.DisplayInfo;
 
     return data;
@@ -115,23 +106,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayShopE
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProduct const& product)
 {
-    data << product.ProductID;
-    data << product.NormalPriceFixedPoint;
-    data << product.CurrentPriceFixedPoint;
-    data << product.Type;
-    data << product.Flags;
-    data << product.Items.size();
+    data << uint32(product.ProductID);
+    data << uint64(product.NormalPriceFixedPoint);
+    data << uint64(product.CurrentPriceFixedPoint);
+    data << uint8(product.Type);
+    data << uint32(product.Flags);
 
-    data.WriteBits(product.ItemCount, 7);
+    data.WriteBits(product.Items.size(), 7);
     data.WriteBits(product.Unk62_1, 7);
-    data.WriteBit(product.HasBattlePayDisplayInfo);
     data.WriteBit(product.DisplayInfo.is_initialized());
     data.FlushBits();
 
-    for (WorldPackets::BattlePay::BattlePayProductItem const* item : product.Items)
-        data << *item;
+    for (WorldPackets::BattlePay::BattlePayProductItem const& item : product.Items)
+        data << item;
 
-    if (product.HasBattlePayDisplayInfo)
+    if (product.DisplayInfo)
         data << *product.DisplayInfo;
 
     return data;
@@ -139,20 +128,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayDistributionObject const& object)
 {
-    data << object.DistributionID;
-    data << object.Status;
-    data << object.ProductID;
+    data << uint64(object.DistributionID);
+    data << uint32(object.Status);
+    data << uint32(object.ProductID);
     data << object.TargetPlayer;
-    data << object.TargetVirtualRealm;
-    data << object.TargetNativeRealm;
-    data << object.PurchaseID;
+    data << uint32(object.TargetVirtualRealm);
+    data << uint32(object.TargetNativeRealm);
+    data << uint64(object.PurchaseID);
     
     data.WriteBit(object.Product.is_initialized());
     data.WriteBit(object.Revoked);
-    data.WriteBit(object.HasBattlePayProduct);
     data.FlushBits();
 
-    if (object.HasBattlePayProduct)
+    if (object.Product.is_initialized())
         data << *object.Product;
 
     return data;
@@ -186,14 +174,14 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayGetProductListResponse::Wri
     _worldPacket << uint32(Groups.size());
     _worldPacket << uint32(ShopEntries.size());
 
-    for (BattlePayProduct const* product : Products)
-        _worldPacket << *product;
+    for (BattlePayProduct const& product : Products)
+        _worldPacket << product;
 
-    for (BattlePayProductGroup const* group : Groups)
-        _worldPacket << *group;
+    for (BattlePayProductGroup const& group : Groups)
+        _worldPacket << group;
 
-    for (BattlePayShopEntry const* entry : ShopEntries)
-        _worldPacket << *entry;
+    for (BattlePayShopEntry const& entry : ShopEntries)
+        _worldPacket << entry;
 
     return &_worldPacket;
 }
@@ -212,8 +200,8 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayGetPurchaseListResponse::Wr
     _worldPacket << Result;
     _worldPacket << Purchases.size();
 
-    for (BattlePayPurchase const* purchase : Purchases)
-        _worldPacket << *purchase;
+    for (BattlePayPurchase const& purchase : Purchases)
+        _worldPacket << purchase;
 
     return &_worldPacket;
 }
@@ -223,8 +211,8 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayGetDistributionListResponse
     _worldPacket << Result;
     _worldPacket << DistributionObjects.size();
 
-    for (BattlePayDistributionObject const* object : DistributionObjects)
-        _worldPacket << *object;
+    for (BattlePayDistributionObject const& object : DistributionObjects)
+        _worldPacket << object;
 
     return &_worldPacket;
 }

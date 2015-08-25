@@ -37,7 +37,7 @@ BattlePayMgr::~BattlePayMgr()
 uint32 BattlePayMgr::GetProducts(uint32 id) const
 {
     for (BattlePayProductSet::const_iterator citr = m_productStore.begin(); citr != m_productStore.end(); ++citr)
-        (*citr)->ProductID = id;
+        (*citr)->ID = id;
            
     return true;
 }
@@ -53,7 +53,7 @@ bool BattlePayMgr::LoadProductsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, title, description, normalPrice, currentPrice, itemId, quantity, displayId, type, choiceType, flags FROM battle_pay_product");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Name1, Name2, Name3, NormalPrice, CurrentPrice, ItemId, Quantity, DisplayId, Type, Flags FROM battle_pay_product");
     if (!result)
     {
         TC_LOG_INFO("sql.sql", ">> Loaded 0 Battle Pay store products, table `battle_pay_product` is empty!");
@@ -65,56 +65,56 @@ bool BattlePayMgr::LoadProductsFromDb()
     {
         Field* fields = result->Fetch();
 
-        uint32 id = fields[0].GetUInt32();
-        std::string title = fields[1].GetString();
-        std::string description = fields[2].GetString();
-        uint64 normalPrice = fields[3].GetUInt32();
-        uint64 currentPrice = fields[4].GetUInt64();
-        uint32 itemId = fields[5].GetUInt32();
-        uint32 quantity = fields[6].GetUInt32();
-        uint32 displayId = fields[7].GetUInt32();
-        uint8 type = fields[8].GetUInt8();
-        uint8 choiceType = fields[9].GetUInt8();
-        uint32 flags = fields[10].GetUInt32();
+        uint32 ID = fields[0].GetUInt32();
+        std::string Name1 = fields[1].GetString();
+        std::string Name2 = fields[2].GetString();
+        std::string Name3 = fields[3].GetString();
+        uint32 NormalPrice = fields[4].GetUInt32();
+        uint32 CurrentPrice = fields[5].GetUInt32();
+        uint32 ItemID = fields[6].GetUInt32();
+        uint32 Quantity = fields[7].GetUInt32();
+        uint32 DisplayID = fields[8].GetUInt32();
+        uint8 Type = fields[9].GetUInt8();
+        uint32 Flags = fields[10].GetUInt32();
 
-        if (HasProductId(id))
+        if (HasProductId(ID))
         {
-            TC_LOG_ERROR("sql.sql", "Product id %u defined in `battle_pay_product` already exists, skipped!", id);
+            TC_LOG_ERROR("sql.sql", "Product id %u defined in `battle_pay_product` already exists, skipped!", ID);
             continue;
         }
 
-        if (title.size() > MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE)
+        if (Name1.size() > MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE)
         {
             TC_LOG_ERROR("sql.sql", "Title for product id %u defined in `battle_pay_product` is too large (max %d), skipped!",
-                id, MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE);
+                ID, MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE);
 
             continue;
         }
 
-        if (description.size() > MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE)
+        if (Name2.size() > MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE)
         {
             TC_LOG_ERROR("sql.sql", "Description for product id %u defined in `battle_pay_product` is too large (max %d), skipped!",
-                id, MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE);
+                ID, MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE);
 
             continue;
         }
 
-        if (currentPrice > normalPrice)
+        if (CurrentPrice > NormalPrice)
         {
             TC_LOG_ERROR("sql.sql", "Current price of product id %u defined in `battle_pay_product` is larger then the normal price. "
-                "Current price has been updated to the normal price", id);
+                "Current price has been updated to the normal price", ID);
 
-            currentPrice = normalPrice;
+            CurrentPrice = NormalPrice;
         }
 
-        if (!sObjectMgr->GetItemTemplate(itemId))
+        if (!sObjectMgr->GetItemTemplate(ItemID))
         {
-            TC_LOG_ERROR("sql.sql", "Item id %u for product id %u defined in `battle_pay_product` doesn't exist, skipped!", itemId, id);
+            TC_LOG_ERROR("sql.sql", "Item id %u for product id %u defined in `battle_pay_product` doesn't exist, skipped!", ItemID, ID);
             continue;
         }
 
-        BattlePayProduct* product = new BattlePayProduct(id, title, description, normalPrice, currentPrice,
-            itemId, quantity, displayId, type, choiceType, flags);
+        BattlePayProduct* product = new BattlePayProduct(ID, Name1, Name2, Name3, NormalPrice, CurrentPrice,
+            ItemID, Quantity, DisplayID, Type, Flags);
 
         m_productStore.insert(product);
         ++count;
@@ -241,7 +241,7 @@ bool BattlePayMgr::LoadEntriesFromDb()
 bool BattlePayMgr::HasProductId(uint32 id)
 {
     for (BattlePayProductSet::const_iterator citr = m_productStore.begin(); citr != m_productStore.end(); ++citr)
-        if ((*citr)->ProductID == id)
+        if ((*citr)->ID == id)
             return true;
 
     return false;
