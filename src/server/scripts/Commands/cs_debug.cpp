@@ -33,6 +33,7 @@ EndScriptData */
 #include "GossipDef.h"
 #include "Transport.h"
 #include "Language.h"
+#include "MapManager.h"
 
 #include <fstream>
 
@@ -93,6 +94,7 @@ public:
             { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "", NULL },
             { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "", NULL },
             { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "", NULL },
+            { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "", NULL },
             { NULL,            0,                                     false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1389,6 +1391,30 @@ public:
         }
 
         handler->PSendSysMessage("Transport %s %s", transport->GetName().c_str(), start ? "started" : "stopped");
+        return true;
+    }
+
+    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+
+        Map* map = nullptr;
+
+        if (*args)
+        {
+            int32 mapId = atoi(args);
+            map = sMapMgr->FindBaseNonInstanceMap(mapId);
+        }
+        if (!map)
+            map = player->GetMap();
+
+        for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
+            for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
+                map->LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
+
+        handler->PSendSysMessage("Cells loaded (mapId: %u)", map->GetId());
         return true;
     }
 };
