@@ -123,6 +123,8 @@ m_length(NULL)
                         if (fetched_length < buffer_length)
                             *((char*)buffer + fetched_length) = '\0';
                         break;
+                    default:
+                        break;
                 }
 
                 m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
