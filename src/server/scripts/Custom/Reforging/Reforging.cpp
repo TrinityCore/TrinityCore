@@ -1,4 +1,22 @@
-#include "ScriptPCH.h"
+#include <sstream>
+#include <string>
+#include <vector>
+#include "Creature.h"
+#include "Define.h"
+#include "EventProcessor.h"
+#include "GossipDef.h"
+#include "Item.h"
+#include "ItemPrototype.h"
+#include "ObjectGuid.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "Spell.h"
+#include "Transaction.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 /*
 Reforging by Rochet2
