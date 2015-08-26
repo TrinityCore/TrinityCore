@@ -1,6 +1,22 @@
-#include "ScriptPCH.h"
-#include "MapManager.h"
+#include <math.h>
+#include <set>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include "Chat.h"
+#include "Define.h"
+#include "GameObject.h"
 #include "Language.h"
+#include "Map.h"
+#include "MapManager.h"
+#include "Object.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Position.h"
+#include "RBAC.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "WorldPacket.h"
 
 class GOMove_commandscript : public CommandScript
 {
