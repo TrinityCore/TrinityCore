@@ -15,44 +15,56 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_VIOLET_HOLD_H
-#define DEF_VIOLET_HOLD_H
+#ifndef VIOLET_HOLD_H_
+#define VIOLET_HOLD_H_
 
+#define VioletHoldScriptName "instance_violet_hold"
 #define DataHeader "VH"
 
-uint32 const EncounterCount = 3;
+uint32 const EncounterCount = 3 + 6;
+
+// Defined in instance_violet_hold.cpp
+extern Position const DefenseSystemLocation;
+uint8 const PortalIntroCount = 3;
+extern Position const PortalIntroPositions[];
+
+/*
+ * Violet hold bosses:
+ *
+ * 1 - Moragg
+ * 2 - Erekem
+ * 3 - Ichoron
+ * 4 - Lavanthor
+ * 5 - Xevozz
+ * 6 - Zuramat
+ * 7 - Cyanigosa
+ */
 
 enum Data
 {
     // Main encounters
-    DATA_1ST_BOSS_EVENT,
-    DATA_2ND_BOSS_EVENT,
-    DATA_CYANIGOSA,
+    DATA_1ST_BOSS       = 0,
+    DATA_2ND_BOSS       = 1,
+    DATA_CYANIGOSA      = 2,
+    // Bosses
+    DATA_MORAGG         = 3,
+    DATA_EREKEM         = 4,
+    DATA_ICHORON        = 5,
+    DATA_LAVANTHOR      = 6,
+    DATA_XEVOZZ         = 7,
+    DATA_ZURAMAT        = 8,
 
     // Misc
+    DATA_MAIN_EVENT_STATE,
     DATA_WAVE_COUNT,
-    DATA_REMOVE_NPC,
-    DATA_PORTAL_LOCATION,
     DATA_DOOR_INTEGRITY,
-    DATA_NPC_PRESENCE_AT_DOOR,
-    DATA_NPC_PRESENCE_AT_DOOR_ADD,
-    DATA_NPC_PRESENCE_AT_DOOR_REMOVE,
+    DATA_PORTAL_LOCATION,
     DATA_START_BOSS_ENCOUNTER,
-    DATA_FIRST_BOSS,
-    DATA_SECOND_BOSS,
-    DATA_ACTIVATE_CRYSTAL,
-    DATA_MAIN_EVENT_PHASE,
     DATA_DEFENSELESS,
 
     // Bosses
-    DATA_MORAGG,
-    DATA_EREKEM,
     DATA_EREKEM_GUARD_1,
     DATA_EREKEM_GUARD_2,
-    DATA_ICHORON,
-    DATA_LAVANTHOR,
-    DATA_XEVOZZ,
-    DATA_ZURAMAT,
 
     // Cells
     DATA_MORAGG_CELL,
@@ -67,43 +79,43 @@ enum Data
     // Misc
     DATA_MAIN_DOOR,
     DATA_SINCLARI,
-    DATA_TELEPORTATION_PORTAL,
-    DATA_SABOTEUR_PORTAL,
-    DATA_ADD_TRASH_MOB,
-    DATA_DEL_TRASH_MOB
-};
-
-enum Bosses
-{
-    BOSS_NONE,              // 0 used as marker for not yet randomized
-    BOSS_MORAGG,
-    BOSS_EREKEM,
-    BOSS_ICHORON,
-    BOSS_LAVANTHOR,
-    BOSS_XEVOZZ,
-    BOSS_ZURAMAT,
-    BOSS_CYANIGOSA
+    DATA_SINCLARI_TRIGGER,
+    DATA_HANDLE_CELLS
 };
 
 enum CreaturesIds
 {
-    NPC_TELEPORTATION_PORTAL                    = 31011,
+    NPC_TELEPORTATION_PORTAL                    = 30679,
+    NPC_TELEPORTATION_PORTAL_ELITE              = 32174,
+    NPC_TELEPORTATION_PORTAL_INTRO              = 31011,
     NPC_PORTAL_GUARDIAN                         = 30660,
     NPC_PORTAL_KEEPER                           = 30695,
     NPC_XEVOZZ                                  = 29266,
     NPC_LAVANTHOR                               = 29312,
     NPC_ICHORON                                 = 29313,
+    NPC_ICHOR_GLOBULE                           = 29321,
+    NPC_ICHORON_SUMMON_TARGET                   = 29326,
     NPC_ZURAMAT                                 = 29314,
+    NPC_VOID_SENTRY                             = 29364,
+    NPC_VOID_SENTRY_BALL                        = 29365,
     NPC_EREKEM                                  = 29315,
     NPC_EREKEM_GUARD                            = 29395,
     NPC_MORAGG                                  = 29316,
+
+    NPC_DUMMY_XEVOZZ                            = 32231,
+    NPC_DUMMY_LAVANTHOR                         = 32237,
+    NPC_DUMMY_ICHORON                           = 32234,
+    NPC_DUMMY_ZURAMAT                           = 32230,
+    NPC_DUMMY_EREKEM                            = 32226,
+    NPC_DUMMY_EREKEM_GUARD                      = 32228,
+    NPC_DUMMY_MORAGG                            = 32235,
+
     NPC_CYANIGOSA                               = 31134,
     NPC_SINCLARI                                = 30658,
+    NPC_SINCLARI_TRIGGER                        = 32204,
     NPC_SABOTEOUR                               = 31079,
     NPC_VIOLET_HOLD_GUARD                       = 30659,
-    NPC_DEFENSE_SYSTEM                          = 30837,
-    NPC_VOID_SENTRY                             = 29364,
-    NPC_VOID_SENTRY_BALL                        = 29365
+    NPC_DEFENSE_SYSTEM                          = 30837
 };
 
 enum GameObjectIds
@@ -117,13 +129,13 @@ enum GameObjectIds
     GO_EREKEM_GUARD_1_DOOR                      = 191563,
     GO_EREKEM_GUARD_2_DOOR                      = 191562,
     GO_MORAGG_DOOR                              = 191606,
-    GO_INTRO_ACTIVATION_CRYSTAL                 = 193615,
-    GO_ACTIVATION_CRYSTAL                       = 193611
+    GO_ACTIVATION_CRYSTAL                       = 193611,
+    GO_INTRO_ACTIVATION_CRYSTAL                 = 193615
 };
 
 enum WorldStateIds
 {
-    WORLD_STATE_VH                              = 3816,
+    WORLD_STATE_VH_SHOW                         = 3816,
     WORLD_STATE_VH_PRISON_STATE                 = 3815,
     WORLD_STATE_VH_WAVE_COUNT                   = 3810,
 };
@@ -133,4 +145,16 @@ enum Events
     EVENT_ACTIVATE_CRYSTAL                      = 20001
 };
 
-#endif
+enum InstanceMisc
+{
+    ACTION_SINCLARI_OUTRO                       = 1,
+    POINT_INTRO                                 = 1
+};
+
+template<class AI>
+inline AI* GetVioletHoldAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, VioletHoldScriptName);
+}
+
+#endif // VIOLET_HOLD_H_

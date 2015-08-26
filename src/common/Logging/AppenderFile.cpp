@@ -50,6 +50,8 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
 
     if (extraArgs.size() > 2)
         _maxFileSize = atoi(extraArgs[2]);
+    else
+        _maxFileSize = 0;
 
     _dynamicName = std::string::npos != _fileName.find("%s");
     _backup = (flags & APPENDER_FLAGS_MAKE_FILE_BACKUP) != 0;
