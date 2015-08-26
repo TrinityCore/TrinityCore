@@ -10,12 +10,23 @@ ScriptName for NPC:
 NPC_TransmogDisplayVendor
 
 Compatible with Transmogrification 6.1 by Rochet2
-https://rochet2.github.io/?page=Transmogrification
+http://rochet2.github.io/Transmogrification
 */
 
 // use 0 or 1
 #define TRANSMOGRIFICATION_ALREADY_INSTALLED    0
 // Note! If you use both, set this to true (1) and in scriptloader make transmog load first
+
+#include "Define.h"
+#include "ItemPrototype.h"
+#include "SharedDefines.h"
+#include <set>
+
+class Creature;
+class Item;
+class Player;
+class WorldSession;
+struct ItemTemplate;
 
 enum TransmogDisplayVendorSenders
 {
