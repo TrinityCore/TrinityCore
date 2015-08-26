@@ -14,10 +14,32 @@ Cant transmogrify rediculus items // Foereaper: would be fun to stab people with
 -- Cant think of any good way to handle this easily, could rip flagged items from cata DB
 */
 
-#include "ScriptPCH.h"
-#include "Config.h"
-#include "Language.h"
 #include "Transmogrification.h"
+#include "Bag.h"
+#include "Common.h"
+#include "Config.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "DBCStructure.h"
+#include "Define.h"
+#include "Field.h"
+#include "GameEventMgr.h"
+#include "GossipDef.h"
+#include "Item.h"
+#include "ItemPrototype.h"
+#include "Language.h"
+#include "Log.h"
+#include "Player.h"
+#include "ObjectGuid.h"
+#include "ObjectMgr.h"
+#include "QueryResult.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "Transaction.h"
+#include "WorldSession.h"
+#include <sstream>
+#include <string>
 
 #define GTS session->GetTrinityString
 
