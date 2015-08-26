@@ -319,6 +319,11 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
     return false;
 }
 
+bool InstanceScript::_SkipCheckRequiredBosses(Player const* player /*= nullptr*/) const
+{
+    return player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES);
+}
+
 void InstanceScript::Load(char const* data)
 {
     if (!data)

@@ -23,6 +23,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
+#include "TaskScheduler.h"
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 #define ENSURE_AI(a,b)  (EnsureAI<a>(b))
@@ -359,6 +360,8 @@ class BossAI : public ScriptedAI
         // is supposed to run more than once
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
+        virtual void ScheduleTasks() { }
+
         void Reset() override { _Reset(); }
         void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
@@ -384,6 +387,7 @@ class BossAI : public ScriptedAI
 
         EventMap events;
         SummonList summons;
+        TaskScheduler scheduler;
 
     private:
         BossBoundaryMap const* const _boundary;

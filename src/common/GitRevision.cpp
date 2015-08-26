@@ -66,3 +66,13 @@ char const* GitRevision::GetProductVersionStr()
 {
     return VER_PRODUCTVERSION_STR;
 }
+
+char const* GitRevision::GetCompilerCFlags()
+{
+    return COMPILER_C_FLAGS;
+}
+
+char const* GitRevision::GetCompilerCXXFlags()
+{
+    return COMPILER_CXX_FLAGS;
+}

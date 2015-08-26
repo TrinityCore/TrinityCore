@@ -18,6 +18,9 @@ file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
 file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h)
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
 file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
+if (SERVERS)
+  file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
+endif (SERVERS)
 
 # Manually set sources for Debugging directory as we don't want to include WheatyExceptionReport in common project
 # It needs to be included both in authserver and worldserver for the static global variable to be properly initialized
@@ -28,7 +31,7 @@ file(GLOB sources_localdir *.cpp *.h)
 if (USE_COREPCH)
   set(common_STAT_PCH_HDR PrecompiledHeaders/commonPCH.h)
   set(common_STAT_PCH_SRC PrecompiledHeaders/commonPCH.cpp)
-endif ()
+endif (USE_COREPCH)
 
 set(common_STAT_SRCS
   ${common_STAT_SRCS}
@@ -39,58 +42,37 @@ set(common_STAT_SRCS
   ${sources_Debugging}
   ${sources_Configuration}
   ${sources_Logging}
+  ${sources_Cryptography}
   ${sources_localdir}
 )
 
+# Do NOT add any extra include directory here, as we don't want the common
+# library to depend on anything else than TC deps, and itself.
+# This way we ensure that if either a PR does that without modifying this file,
+# a compile error will be generated, either this file will be modified so it
+# is detected more easily.
+# While it is OK to include files from other libs as long as they don't require
+# linkage (enums, defines...) it is discouraged to do so unless necessary, as it will pullute
+# include_directories leading to further unnoticed dependency aditions
+# Linker Depencency requirements: none
 include_directories(
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
-  ${CMAKE_SOURCE_DIR}/dep/SFMT
-  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/src/server/database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Database
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/DataStores
-  ${CMAKE_SOURCE_DIR}/src/server/game/Addons
-  ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/GameObject
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Creature
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object/Updates
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Unit
-  ${CMAKE_SOURCE_DIR}/src/server/game/Combat
-  ${CMAKE_SOURCE_DIR}/src/server/game/Loot
-  ${CMAKE_SOURCE_DIR}/src/server/game/Miscellaneous
-  ${CMAKE_SOURCE_DIR}/src/server/game/Grids
-  ${CMAKE_SOURCE_DIR}/src/server/game/Grids/Cells
-  ${CMAKE_SOURCE_DIR}/src/server/game/Grids/Notifiers
-  ${CMAKE_SOURCE_DIR}/src/server/game/Maps
-  ${CMAKE_SOURCE_DIR}/src/server/game/DataStores
-  ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Waypoints
-  ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Spline
-  ${CMAKE_SOURCE_DIR}/src/server/game/Movement
-  ${CMAKE_SOURCE_DIR}/src/server/game/Server
-  ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol
-  ${CMAKE_SOURCE_DIR}/src/server/game/World
-  ${CMAKE_SOURCE_DIR}/src/server/game/Spells
-  ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Threading
-  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Management
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Maps
   ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Models
-  ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
   ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
+  ${CMAKE_CURRENT_SOURCE_DIR}/Cryptography
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
   ${CMAKE_CURRENT_SOURCE_DIR}/Logging
+  ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
+  ${CMAKE_SOURCE_DIR}/dep/SFMT
+  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
+  ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
 )
 

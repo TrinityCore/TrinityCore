@@ -694,6 +694,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE                = 796,
     RBAC_PERM_COMMAND_PVPSTATS                               = 797,
     RBAC_PERM_COMMAND_MODIFY_XP                              = 798,
+    // 799 - 834 6.x only
+    RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
