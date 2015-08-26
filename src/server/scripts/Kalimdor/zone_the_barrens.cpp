@@ -612,7 +612,7 @@ public:
                 summoned->AI()->AttackStart(me);
         }
 
-        void UpdateEscortAI(const uint32 Diff) override
+        void UpdateEscortAI(uint32 Diff) override
         {
             if (!UpdateVictim())
             {

@@ -33,6 +33,8 @@ namespace GitRevision
     char const* GetLegalCopyrightStr();
     char const* GetFileVersionStr();
     char const* GetProductVersionStr();
+    char const* GetCompilerCFlags();
+    char const* GetCompilerCXXFlags();
 }
 
 #endif
