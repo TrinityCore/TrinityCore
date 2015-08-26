@@ -12,7 +12,6 @@ if( USE_COREPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_Dynamic Dynamic/*.cpp Dynamic/*.h)
 file(GLOB_RECURSE sources_Networking Networking/*.cpp Networking/*.h)
@@ -33,7 +32,6 @@ endif()
 
 set(shared_STAT_SRCS
   ${shared_STAT_SRCS}
-  ${sources_Cryptography}
   ${sources_DataStores}
   ${sources_Dynamic}
   ${sources_Networking}
@@ -44,32 +42,13 @@ set(shared_STAT_SRCS
 )
 
 include_directories(
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
-  ${CMAKE_SOURCE_DIR}/dep/SFMT
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
-  ${CMAKE_SOURCE_DIR}/dep/process
-  ${CMAKE_SOURCE_DIR}/src/server
-  ${CMAKE_SOURCE_DIR}/src/server/database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Logging
-  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Cryptography
-  ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
   ${CMAKE_CURRENT_SOURCE_DIR}/Dynamic
   ${CMAKE_CURRENT_SOURCE_DIR}/Networking
-  ${CMAKE_CURRENT_SOURCE_DIR}/Packets
-  ${CMAKE_CURRENT_SOURCE_DIR}/Service
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/src/common/
-  ${CMAKE_SOURCE_DIR}/src/common/Collision
-  ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
-  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
   ${CMAKE_SOURCE_DIR}/src/common/Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/common/Configuration
   ${CMAKE_SOURCE_DIR}/src/common/Logging
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}

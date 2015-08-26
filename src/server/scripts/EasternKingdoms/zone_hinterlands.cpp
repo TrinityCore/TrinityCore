@@ -272,7 +272,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(const uint32 diff) override
+        void UpdateEscortAI(uint32 diff) override
         {
             //Check if we have a current target
             if (!UpdateVictim())

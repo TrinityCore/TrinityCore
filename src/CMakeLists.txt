@@ -18,4 +18,3 @@ endif(SERVERS)
 if(TOOLS)
   add_subdirectory(tools)
 endif(TOOLS)
-

@@ -1278,8 +1278,14 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
             // Use the new aura to see on what stance the target will be
-            uint32 newStance = (1<<((newAura ? newAura->GetMiscValue() : 0)-1));
-
+            uint32 newStance = 0;
+            if (newAura)
+            {
+                if (newAura->GetMiscValue() > 0 && newAura->GetMiscValue() <= 32) //Not null and GetMiscValue is not == FORM_NONE
+                    newStance = 1 << (newAura->GetMiscValue() - 1);
+                else
+                    TC_LOG_ERROR("spell.aura", "newAura->GetMiscValue() returned value %i for SpellID: %u when it was expecting a value in range [0..31] for a bitshift", newAura->GetMiscValue(), newAura->GetId());
+            }
             // If the stances are not compatible with the spell, remove it
             if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
                 target->RemoveAura(itr);
