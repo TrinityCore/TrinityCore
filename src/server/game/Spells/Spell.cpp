@@ -569,6 +569,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
     m_CastItem = NULL;
     m_castItemGUID.Clear();
     m_castItemEntry = 0;
+    m_castFlagsEx = 0;
 
     unitTarget = NULL;
     itemTarget = NULL;
@@ -2858,11 +2859,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_castItemGUID = m_CastItem->GetGUID();
         m_castItemEntry = m_CastItem->GetEntry();
     }
-    else
-    {
-        m_castItemGUID.Clear();
-        m_castItemEntry = 0;
-    }
 
     InitExplicitTargets(*targets);
 
@@ -3477,7 +3473,10 @@ void Spell::_handle_finish_phase()
 
 void Spell::SendSpellCooldown()
 {
-    m_caster->GetSpellHistory()->HandleCooldowns(m_spellInfo, m_CastItem, this);
+    if (m_CastItem)
+        m_caster->GetSpellHistory()->HandleCooldowns(m_spellInfo, m_CastItem, this);
+    else
+        m_caster->GetSpellHistory()->HandleCooldowns(m_spellInfo, m_castItemEntry, this);
 }
 
 void Spell::update(uint32 difftime)
@@ -3836,6 +3835,7 @@ void Spell::SendSpellStart()
     castData.SpellID = m_spellInfo->Id;
     castData.SpellXSpellVisualID = m_SpellVisual;
     castData.CastFlags = castFlags;
+    castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = m_casttime;
 
     m_targets.Write(castData.Target);
@@ -3952,6 +3952,7 @@ void Spell::SendSpellGo()
     castData.SpellID = m_spellInfo->Id;
     castData.SpellXSpellVisualID = m_SpellVisual;
     castData.CastFlags = castFlags;
+    castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = getMSTime();
 
     UpdateSpellCastDataTargets(castData);

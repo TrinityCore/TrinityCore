@@ -79,6 +79,7 @@ public:
     void Update();
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
+    void HandleCooldowns(SpellInfo const* spellInfo, uint32 ItemID, Spell* spell = nullptr);
     bool IsReady(SpellInfo const* spellInfo) const;
     template<class PacketType>
     void WritePacket(PacketType* packet) const;

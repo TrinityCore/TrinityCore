@@ -784,5 +784,6 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request);
 
 #endif // SpellPackets_h__

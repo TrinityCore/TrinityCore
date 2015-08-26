@@ -112,6 +112,7 @@ DB2Storage<TaxiNodesEntry>                      sTaxiNodesStore("TaxiNodes.db2",
 DB2Storage<TaxiPathEntry>                       sTaxiPathStore("TaxiPath.db2", TaxiPathFormat, HOTFIX_SEL_TAXI_PATH);
 DB2Storage<TaxiPathNodeEntry>                   sTaxiPathNodeStore("TaxiPathNode.db2", TaxiPathNodeFormat, HOTFIX_SEL_TAXI_PATH_NODE);
 DB2Storage<TotemCategoryEntry>                  sTotemCategoryStore("TotemCategory.db2", TotemCategoryFormat, HOTFIX_SEL_TOTEM_CATEGORY);
+DB2Storage<ToyEntry>                            sToyStore("Toy.db2", ToyFormat, HOTFIX_SEL_TOY);
 DB2Storage<TransportAnimationEntry>             sTransportAnimationStore("TransportAnimation.db2", TransportAnimationFormat, HOTFIX_SEL_TRANSPORT_ANIMATION);
 DB2Storage<TransportRotationEntry>              sTransportRotationStore("TransportRotation.db2", TransportRotationFormat, HOTFIX_SEL_TRANSPORT_ROTATION);
 DB2Storage<UnitPowerBarEntry>                   sUnitPowerBarStore("UnitPowerBar.db2", UnitPowerBarFormat, HOTFIX_SEL_UNIT_POWER_BAR);
@@ -273,6 +274,7 @@ void DB2Manager::LoadStores(std::string const& dataPath)
     LOAD_DB2(sTaxiPathNodeStore);
     LOAD_DB2(sTaxiPathStore);
     LOAD_DB2(sTotemCategoryStore);
+    LOAD_DB2(sToyStore);
     LOAD_DB2(sTransportAnimationStore);
     LOAD_DB2(sTransportRotationStore);
     LOAD_DB2(sUnitPowerBarStore);
@@ -465,6 +467,9 @@ void DB2Manager::LoadStores(std::string const& dataPath)
 
     for (TransportRotationEntry const* rot : sTransportRotationStore)
         sTransportMgr->AddPathRotationToTransport(rot->TransportID, rot->TimeIndex, rot);
+
+    for (ToyEntry const* toy : sToyStore)
+        _toys.push_back(toy->ItemID);
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -803,4 +808,9 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
     if (left->MountTypeID == right->MountTypeID)
         return left->OrderIndex < right->OrderIndex;
     return left->ID < right->ID;
+}
+
+bool DB2Manager::GetToyItemIdMatch(uint32 toy) const
+{
+    return std::find(_toys.begin(), _toys.end(), toy) != _toys.end();
 }
