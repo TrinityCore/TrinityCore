@@ -420,7 +420,7 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
     return stringPool;
 }
 
-char* DB2DatabaseLoader::Load(const char* format, uint32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool)
+char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(preparedStatement));
@@ -561,7 +561,7 @@ char* DB2DatabaseLoader::Load(const char* format, uint32 preparedStatement, uint
     return dataTable;
 }
 
-void DB2DatabaseLoader::LoadStrings(const char* format, uint32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
+void DB2DatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
 {
     PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
     stmt->setString(0, localeNames[locale]);

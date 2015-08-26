@@ -48,7 +48,7 @@ class DB2Storage : public DB2StorageBase
 public:
     typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* fileName, char const* format, uint32 preparedStmtIndex)
+    DB2Storage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
         : _fileName(fileName), _indexTableSize(0), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
         _indexTable.AsT = NULL;
@@ -178,7 +178,7 @@ public:
         if (!DB2FileLoader::GetFormatStringFieldCount(_format))
             return;
 
-        DB2DatabaseLoader(_fileName).LoadStrings(_format, _hotfixStatement + 1, locale, _indexTable.AsChar, _stringPoolList);
+        DB2DatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTable.AsChar, _stringPoolList);
     }
 
     typedef bool(*SortFunc)(T const* left, T const* right);
@@ -205,7 +205,7 @@ private:
     T* _dataTable;
     T* _dataTableEx;
     StringPoolList _stringPoolList;
-    uint32 _hotfixStatement;
+    HotfixDatabaseStatements _hotfixStatement;
 };
 
 #endif
