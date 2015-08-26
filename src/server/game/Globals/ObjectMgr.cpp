@@ -5586,7 +5586,7 @@ void ObjectMgr::LoadQuestGreetings()
                 continue;
         }
 
-        uint16 greetEmoteType       = fields[2].GetUInt32();
+        uint16 greetEmoteType       = fields[2].GetUInt16();
         uint32 greetEmoteDelay      = fields[3].GetUInt32();
         std::string greeting        = fields[4].GetString();
 
