@@ -21,19 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class HotfixDatabaseConnection : public MySQLConnection
-{
-    public:
-        //- Constructors for sync and async connections
-        HotfixDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-        HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
-
-        //- Loads database type specific prepared statements
-        void DoPrepareStatements() override;
-};
-
-typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
-
 enum HotfixDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -262,5 +249,20 @@ enum HotfixDatabaseStatements
 
     MAX_HOTFIXDATABASE_STATEMENTS
 };
+
+class HotfixDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef HotfixDatabaseStatements Statements;
+
+    //- Constructors for sync and async connections
+    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
+    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
 
 #endif

@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
-
+#include "Implementation/HotfixDatabase.h"
 #include <cassert>
 #include <list>
 
@@ -111,8 +111,8 @@ class DB2DatabaseLoader
 public:
     explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
 
-    char* Load(const char* format, uint32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
-    void LoadStrings(const char* format, uint32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
+    char* Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
+    void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
     static char* AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value);
 
 private:
