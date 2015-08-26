@@ -1,4 +1,8 @@
-#include "ScriptPCH.h"
+#include "Define.h"
+#include "GossipDef.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 
 #define MENU_ID 123 // Our menuID used to match the sent menu to select hook (playerscript)
 

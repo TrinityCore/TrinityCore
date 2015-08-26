@@ -1,4 +1,10 @@
-#include "ScriptPCH.h"
+#include "Define.h"
+#include "GossipDef.h"
+#include "Item.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
 
 class example_ItemGossip : public ItemScript
 {
