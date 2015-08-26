@@ -19,7 +19,7 @@
 #include "MMapManager.h"
 #include "Log.h"
 #include "Config.h"
-#include "SharedDefines.h"
+#include "MapDefines.h"
 
 namespace MMAP
 {

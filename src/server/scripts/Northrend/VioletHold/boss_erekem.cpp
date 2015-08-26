@@ -41,269 +41,210 @@ enum Yells
     SAY_BOTH_ADDS_KILLED                        = 5
 };
 
-enum ErekemEvents
-{
-    EVENT_EARTH_SHIELD                          = 1,
-    EVENT_CHAIN_HEAL,
-    EVENT_BLOODLUST,
-    EVENT_LIGHTNING_BOLT,
-    EVENT_EARTH_SHOCK,
-    EVENT_WINDFURY,
-    EVENT_STORMSTRIKE
-};
-
 class boss_erekem : public CreatureScript
 {
-public:
-    boss_erekem() : CreatureScript("boss_erekem") { }
+    public:
+        boss_erekem() : CreatureScript("boss_erekem") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_erekemAI>(creature);
-    }
-
-    struct boss_erekemAI : public ScriptedAI
-    {
-        boss_erekemAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_erekemAI : public BossAI
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            phase = 0;
-            breakBondsCd = 0;
-        }
-
-        void Reset() override
-        {
-            Initialize();
-
-            if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetBossState(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetBossState(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-
-            if (instance->GetData(DATA_MAIN_EVENT_PHASE) == IN_PROGRESS)
+            boss_erekemAI(Creature* creature) : BossAI(creature, DATA_EREKEM)
             {
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
-                    pGuard1->DespawnOrUnsummon();
-                if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
-                    pGuard2->DespawnOrUnsummon();
-            }
-            else
-            {
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
-                {
-                    if (!pGuard1->IsAlive())
-                        pGuard1->Respawn();
-                }
-                if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
-                {
-                    if (!pGuard2->IsAlive())
-                        pGuard2->Respawn();
-                }
+                Initialize();
             }
 
-            events.Reset();
-        }
-
-        void JustReachedHome() override
-        {
-            if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
-                pGuard1->Respawn();
-
-            if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
-                pGuard2->Respawn();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
+            void Initialize()
             {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
-                {
-                    pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    if (!pGuard1->GetVictim() && pGuard1->AI())
-                        pGuard1->AI()->AttackStart(who);
-                }
-                if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
-                {
-                    pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    if (!pGuard2->GetVictim() && pGuard2->AI())
-                        pGuard2->AI()->AttackStart(who);
-                }
+                _phase = 0;
             }
-        }
 
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            DoCast(me, SPELL_EARTH_SHIELD);
+            void Reset() override
+            {
+                Initialize();
+                BossAI::Reset();
+                me->SetCanDualWield(false);
+            }
 
-            if (GameObject* door = instance->GetGameObject(DATA_EREKEM_CELL))
-                if (door->GetGoState() == GO_STATE_READY)
+            void EnterCombat(Unit* who) override
+            {
+                BossAI::EnterCombat(who);
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_EARTH_SHIELD);
+            }
+
+            void MovementInform(uint32 type, uint32 pointId) override
+            {
+                if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
+                    me->SetFacingTo(4.921828f);
+            }
+
+            void JustReachedHome() override
+            {
+                BossAI::JustReachedHome();
+                instance->SetData(DATA_HANDLE_CELLS, DATA_EREKEM);
+            }
+
+            void KilledUnit(Unit* victim) override
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void JustDied(Unit* killer) override
+            {
+                BossAI::JustDied(killer);
+                Talk(SAY_DEATH);
+            }
+
+            bool CheckGuardAuras(Creature* guard) const
+            {
+                static uint32 const MechanicImmunityList =
+                      (1 << MECHANIC_SNARE)
+                    | (1 << MECHANIC_ROOT)
+                    | (1 << MECHANIC_FEAR)
+                    | (1 << MECHANIC_STUN)
+                    | (1 << MECHANIC_SLEEP)
+                    | (1 << MECHANIC_CHARM)
+                    | (1 << MECHANIC_SAPPED)
+                    | (1 << MECHANIC_HORROR)
+                    | (1 << MECHANIC_POLYMORPH)
+                    | (1 << MECHANIC_DISORIENTED)
+                    | (1 << MECHANIC_FREEZE)
+                    | (1 << MECHANIC_TURN);
+
+                static std::list<AuraType> const AuraImmunityList =
                 {
-                    EnterEvadeMode();
+                    SPELL_AURA_MOD_STUN,
+                    SPELL_AURA_MOD_DECREASE_SPEED,
+                    SPELL_AURA_MOD_ROOT,
+                    SPELL_AURA_MOD_CONFUSE,
+                    SPELL_AURA_MOD_FEAR
+                };
+
+                if (guard->HasAuraWithMechanic(MechanicImmunityList))
+                    return true;
+
+                for (AuraType type : AuraImmunityList)
+                    if (guard->HasAuraType(type))
+                        return true;
+
+                return false;
+            }
+
+            bool CheckGuardAlive() const
+            {
+                for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
+                {
+                    if (Creature* guard = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
+                        if (guard->IsAlive())
+                            return true;
+                }
+
+                return false;
+            }
+
+            Unit* GetChainHealTarget() const
+            {
+                if (HealthBelowPct(85))
+                    return me;
+
+                for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
+                {
+                    if (Creature* guard = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
+                        if (guard->IsAlive() && !guard->HealthAbovePct(75))
+                            return guard;
+                }
+
+                return nullptr;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
                     return;
-                }
 
-            if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetBossState(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetBossState(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC);
-
-            events.ScheduleEvent(EVENT_EARTH_SHIELD, 20000);
-            events.ScheduleEvent(EVENT_BLOODLUST, 15000);
-            events.ScheduleEvent(EVENT_CHAIN_HEAL, 10000);
-            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 2000);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-
-            if (instance->GetData(DATA_WAVE_COUNT) == 6)
-            {
-                instance->SetBossState(DATA_1ST_BOSS_EVENT, DONE);
-                instance->SetData(DATA_WAVE_COUNT, 7);
-            }
-            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-            {
-                instance->SetBossState(DATA_2ND_BOSS_EVENT, DONE);
-                instance->SetData(DATA_WAVE_COUNT, 13);
-            }
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (phase == 0)
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
+                if (_phase == 0 && !CheckGuardAlive())
                 {
-                    if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
-                    {
-                        if (!pGuard1->IsAlive() && !pGuard2->IsAlive())
-                        {
-                            phase = 1;
-                            DoCastVictim(SPELL_STORMSTRIKE);
-                            DoCast(SPELL_WINDFURY);
-                            events.Reset();
-                            events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(2000, 8000));
-                            events.ScheduleEvent(EVENT_WINDFURY, urand(1500, 2000));
-                            events.ScheduleEvent(EVENT_STORMSTRIKE, urand(1500, 2000));
-                        }
-                    }
+                    _phase = 1;
+                    me->SetCanDualWield(true);
+                    DoCast(me, SPELL_WINDFURY, true);
                 }
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (breakBondsCd <= 0)
-            {
-                if (Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1)))
+                scheduler.Update(diff, [this]
                 {
-                    if (Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2)))
-                    {
-                        if (pGuard1->IsAlive())
-                        {
-                            if (pGuard1->HasAuraType(SPELL_AURA_MOD_STUN) || pGuard1->HasAuraType(SPELL_AURA_MOD_ROOT)
-                                || pGuard1->HasAuraType(SPELL_AURA_MOD_CONFUSE) || pGuard1->HasAuraType(SPELL_AURA_MOD_PACIFY)
-                                || pGuard1->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                            {
-                                DoCast(SPELL_BREAK_BONDS);
-                                breakBondsCd = 10000;
-                                return;
-                            }
-                        }
-                        if (pGuard2->IsAlive())
-                        {
-                            if (pGuard2->HasAuraType(SPELL_AURA_MOD_STUN) || pGuard2->HasAuraType(SPELL_AURA_MOD_ROOT)
-                                || pGuard2->HasAuraType(SPELL_AURA_MOD_CONFUSE) || pGuard2->HasAuraType(SPELL_AURA_MOD_PACIFY)
-                                || pGuard2->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                            {
-                                DoCast(SPELL_BREAK_BONDS);
-                                breakBondsCd = 10000;
-                                return;
-                            }
-                        }
-                    }
-                }
+                    if (_phase == 1)
+                        DoSpellAttackIfReady(SPELL_STORMSTRIKE);
+                    else
+                        DoMeleeAttackIfReady();
+                });
             }
-            else
-                breakBondsCd -= diff;
 
-            switch (events.ExecuteEvent())
+            void ScheduleTasks() override
             {
-                case EVENT_EARTH_SHIELD:
+                scheduler.Schedule(Seconds(20), [this](TaskContext task)
+                {
                     if (Unit* ally = DoSelectLowestHpFriendly(30.0f))
                         DoCast(ally, SPELL_EARTH_SHIELD);
-                    events.ScheduleEvent(EVENT_EARTH_SHIELD, 20000);
-                    break;
-                case EVENT_BLOODLUST:
+
+                    task.Repeat(Seconds(20));
+                });
+
+                scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                {
                     DoCast(SPELL_BLOODLUST);
-                    events.ScheduleEvent(EVENT_BLOODLUST, urand(35000, 45000));
-                    break;
-                case EVENT_LIGHTNING_BOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    task.Repeat(Seconds(35), Seconds(45));
+                });
+
+                scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
                         DoCast(target, SPELL_LIGHTNING_BOLT);
-                    events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 2500);
-                    break;
-                case EVENT_CHAIN_HEAL:
+
+                    task.Repeat(Milliseconds(2500));
+                });
+
+                scheduler.Schedule(Seconds(10), [this](TaskContext task)
+                {
                     if (Unit* ally = DoSelectLowestHpFriendly(40.0f))
                         DoCast(ally, SPELL_CHAIN_HEAL);
-                    {
-                        Creature* pGuard1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_1));
-                        Creature* pGuard2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EREKEM_GUARD_2));
-                        events.ScheduleEvent(EVENT_CHAIN_HEAL, ((pGuard1 && !pGuard1->IsAlive()) || (pGuard2 && !pGuard2->IsAlive()) ? 3000 : 8000 + rand() % 3000));
-                    }
-                    break;
-                case EVENT_EARTH_SHOCK:
+
+                    if (!CheckGuardAlive())
+                        task.Repeat(Seconds(3));
+                    else
+                        task.Repeat(Seconds(8), Seconds(11));
+                });
+
+                scheduler.Schedule(Seconds(2), Seconds(8), [this](TaskContext task)
+                {
                     DoCastVictim(SPELL_EARTH_SHOCK);
-                    events.ScheduleEvent(EVENT_EARTH_SHOCK, urand(8000, 13000));
-                    break;
-                case EVENT_WINDFURY:
-                    DoCast(SPELL_WINDFURY);
-                    events.ScheduleEvent(EVENT_WINDFURY, urand(1500, 2000));
-                    break;
-                case EVENT_STORMSTRIKE:
-                    DoCastVictim(SPELL_STORMSTRIKE);
-                    events.ScheduleEvent(EVENT_STORMSTRIKE, urand(1500, 2000));
-                    break;
-                default:
-                    break;
+                    task.Repeat(Seconds(8), Seconds(13));
+                });
+
+                scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                {
+                    for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
+                    {
+                        Creature* guard = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i));
+
+                        if (guard && guard->IsAlive() && CheckGuardAuras(guard))
+                        {
+                            DoCastAOE(SPELL_BREAK_BONDS);
+                            task.Repeat(Seconds(10));
+                            return;
+                        }
+                    }
+                    task.Repeat(Milliseconds(500));
+                });
             }
 
-            DoMeleeAttackIfReady();
-        }
+        private:
+            uint8 _phase;
+        };
 
-    private:
-        EventMap events;
-        InstanceScript* instance;
-        uint8 phase;
-        int32 breakBondsCd;
-    };
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetVioletHoldAI<boss_erekemAI>(creature);
+        }
 };
 
 enum GuardSpells
@@ -315,85 +256,61 @@ enum GuardSpells
 
 class npc_erekem_guard : public CreatureScript
 {
-public:
-    npc_erekem_guard() : CreatureScript("npc_erekem_guard") { }
+    public:
+        npc_erekem_guard() : CreatureScript("npc_erekem_guard") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_erekem_guardAI>(creature);
-    }
-
-    struct npc_erekem_guardAI : public ScriptedAI
-    {
-        npc_erekem_guardAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_erekem_guardAI : public ScriptedAI
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
+            npc_erekem_guardAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Initialize()
-        {
-            uiStrikeTimer = urand(4000, 8000);
-            uiHowlingScreechTimer = urand(8000, 13000);
-            uiGushingWoundTimer = urand(1000, 3000);
-        }
-
-        uint32 uiGushingWoundTimer;
-        uint32 uiHowlingScreechTimer;
-        uint32 uiStrikeTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
+            void Reset() override
             {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
+                scheduler.CancelAll();
             }
-        }
 
-        void MoveInLineOfSight(Unit* /*who*/) override { }
+            void EnterCombat(Unit* /*who*/) override
+            {
+                DoZoneInCombat();
+            }
 
-        void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                scheduler.Update(diff,
+                    std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+            }
+
+            void ScheduledTasks()
+            {
+                scheduler.Schedule(Seconds(4), Seconds(8), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_STRIKE);
+                    task.Repeat(Seconds(4), Seconds(8));
+                });
+
+                scheduler.Schedule(Seconds(8), Seconds(13), [this](TaskContext task)
+                {
+                    DoCastAOE(SPELL_HOWLING_SCREECH);
+                    task.Repeat(Seconds(8), Seconds(13));
+                });
+
+                scheduler.Schedule(Seconds(1), Seconds(3), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_GUSHING_WOUND);
+                    task.Repeat(Seconds(7), Seconds(12));
+                });
+            }
+
+        private:
+            TaskScheduler scheduler;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-
-            if (uiStrikeTimer <= diff)
-            {
-                DoCastVictim(SPELL_STRIKE);
-                uiStrikeTimer = urand(4000, 8000);
-            } else uiStrikeTimer -= diff;
-
-            if (uiHowlingScreechTimer <= diff)
-            {
-                DoCastVictim(SPELL_HOWLING_SCREECH);
-                uiHowlingScreechTimer = urand(8000, 13000);
-            } else uiHowlingScreechTimer -= diff;
-
-            if (uiGushingWoundTimer <= diff)
-            {
-                DoCastVictim(SPELL_GUSHING_WOUND);
-                uiGushingWoundTimer = urand(7000, 12000);
-            } else uiGushingWoundTimer -= diff;
+            return GetVioletHoldAI<npc_erekem_guardAI>(creature);
         }
-    };
 };
 
 void AddSC_boss_erekem()
