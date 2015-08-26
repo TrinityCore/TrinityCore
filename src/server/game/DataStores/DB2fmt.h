@@ -106,6 +106,7 @@ char const TaxiNodesFormat[] = "nifffsiiiiiff";
 char const TaxiPathFormat[] = "niii";
 char const TaxiPathNodeFormat[] = "niiifffiiii";
 char const TotemCategoryFormat[] = "nsii";
+char const ToyFormat[] = "niisi";
 char const TransportAnimationFormat[] = "niifffi";
 char const TransportRotationFormat[] = "niiffff";
 char const UnitPowerBarFormat[] = "niiiiffiiiiiiiiiiiiiissssff";

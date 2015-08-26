@@ -1037,6 +1037,15 @@ struct TotemCategoryEntry
     uint32 CategoryMask;                                            // 3
 };
 
+struct ToyEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemID;                                                  // 1
+    uint32 Flags;                                                   // 2
+    LocalizedString* Description;                                   // 3
+    uint32 CategoryFilter;                                          // 4
+};
+
 struct TransportAnimationEntry
 {
     uint32 ID;                                                      // 0
