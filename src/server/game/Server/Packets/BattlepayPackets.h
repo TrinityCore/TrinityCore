@@ -340,6 +340,97 @@ namespace WorldPackets
             uint32 Unk = 0;
             std::string Name;
         };
+
+        class BattlePayUpdateVasPurchaseStatesResponse final : public ServerPacket
+        {
+        public:
+            BattlePayUpdateVasPurchaseStatesResponse() : ServerPacket(SMSG_UPDATE_VAS_PURCHASE_STATES_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Count = 0;
+            ObjectGuid Guid;  // Player guid?
+            uint32 State = 0; // Can only assume based on name of struct
+            uint32 Unk1 = 0;  // No Idea
+            uint32 UnkBits2 = 0; // Get2Bits
+            uint32 Unk2 = 0;  // No Idea
+        };
+
+        class UpdateListedAuctionableTokens final : public ClientPacket
+        {
+        public:
+            UpdateListedAuctionableTokens(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 UnkInt = 0;
+        };
+
+        class UpdateListedAuctionableTokensResponse final : public ServerPacket
+        {
+        public:
+            UpdateListedAuctionableTokensResponse() : ServerPacket(SMSG_WOW_TOKEN_UPDATE_AUCTIONABLE_LIST_RESPONSE, 12) { }
+
+            WorldPacket const* Write() override;
+
+            struct AuctionableTokenAuctionable
+            {
+                uint64 UnkInt1 = 0;
+                uint32 UnkInt2 = 0;
+                uint32 Owner = 0;
+                uint64 BuyoutPrice = 0;
+                uint32 EndTime = 0;
+            };
+
+            uint32 UnkInt = 0; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
+            uint32 Result = 0;
+            std::vector<AuctionableTokenAuctionable> AuctionableTokenAuctionableList;
+        };
+
+        class RequestWowTokenMarketPrice final : public ClientPacket
+        {
+        public:
+            RequestWowTokenMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 UnkInt = 0;
+        };
+
+        class WowTokenMarketPriceResponse final : public ServerPacket
+        {
+        public:
+            WowTokenMarketPriceResponse() : ServerPacket(SMSG_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 CurrentMarketPrice = 0;
+            uint32 UnkInt = 0; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
+            uint32 Result = 0;
+            uint32 UnkInt2 = 0;
+        };
+
+        class WowTokenCheckVeteranEligibility final : public ClientPacket
+        {
+        public:
+            WowTokenCheckVeteranEligibility(WorldPacket&& packet) : ClientPacket(CMSG_CHECK_WOW_TOKEN_VETERAN_ELIGIBILITY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Unk62 = 0;
+        };
+
+        class WowTokenCheckVeteranEligibilityResponse final : public ServerPacket
+        {
+        public:
+            WowTokenCheckVeteranEligibilityResponse() : ServerPacket(SMSG_WOW_TOKEN_VETERAN_ELIGIBILITY_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 CurrentMarketPrice = 0;
+            uint32 Result = 0;
+            uint32 Unk62 = 0;
+        };
     }
 }
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayPurchase const& purchase);

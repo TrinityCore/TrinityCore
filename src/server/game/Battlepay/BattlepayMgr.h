@@ -82,7 +82,7 @@ enum BattlePayErrors
 // Don't know all of the enums just yet
 enum BattlePayTypes
 {
-    BATTLE_PAY_TYPE_DEFAULT = 0,
+    BATTLE_PAY_TYPE_DEFAULT = 0, // -- I think this includes WowTokens. 
     BATTLE_PAY_TYPE_FEATURE = 1,
     BATTLE_PAY_TYPE_PET = 2,
     BATTLE_PAY_TYPE_MOUNT = 3,
@@ -159,16 +159,20 @@ public:
     bool IsStoreDisabled() { return m_disabledByParentalControls; }
     void SetDiabledState(bool disabled) { m_disabledByParentalControls = disabled; }
 
-    uint32 GetStoreCurrency() { return m_currency; }
-    void SetStoreCurrency(uint32 currency) { m_currency = currency; }
+    uint32 GetTokenIndex() const { return m_tokenIndex; }
+    uint32 GetTokenCurrentPrice() const { return m_tokenCurrentPrice; }
 
+    uint32 GetStoreCurrency() const { return m_currency; }
+    void SetStoreCurrency(uint32 currency) { m_currency = currency; }
+    uint32 GetBattlePayType() const { return m_type; }
+    
     uint32 GetProducts(uint32 id) const;
     void LoadFromDb();
 
-    /*void SendBattlePayDistributionList();
-    void SendBattlePayPurchaseList();
-    void SendBattlePayProductList();
-    void SendBattlePayUpdateVasPurchaseStates();*/
+    // Fill data in Handler
+    BattlePayProductSet const& GetStoreProducts() { return m_productStore; }
+    BattlePayProductGroupSet const& GetStoreGroups() { return m_groupStore; }
+    BattlePayShopEntryset const& GetStoreEntries() { return m_shopEntryStore; }
 
 private:
     BattlePayProductSet m_productStore;
@@ -179,7 +183,11 @@ private:
     bool m_available;
     bool m_disabledByParentalControls;
 
+    uint32 m_tokenIndex;
+    uint64 m_tokenCurrentPrice = 300000000;
+
     uint32 m_currency;
+    uint8 m_type;
 
     bool HasProductId(uint32 productId);
 

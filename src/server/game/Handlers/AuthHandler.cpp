@@ -98,6 +98,8 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.BpayStoreDisabledByParentalControls = sBattlePayMgr->IsStoreDisabled();
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sBattlePayMgr->IsStoreEnabled();
+    features.TokenPollTimeSeconds = 300;
+    features.TokenRedeemIndex = sBattlePayMgr->GetTokenIndex();
 
     SendPacket(features.Write());
 }

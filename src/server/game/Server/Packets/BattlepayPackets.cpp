@@ -269,3 +269,75 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayPurchaseUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStatesResponse::Write()
+{
+    _worldPacket.WriteBits(Count, 6);
+    _worldPacket.FlushBits();
+
+    for (auto i = 0; i < Count; i++)
+    {
+        _worldPacket << Guid;
+        _worldPacket << State;
+        _worldPacket << Unk1;
+
+        _worldPacket.WriteBits(UnkBits2, 2);
+        _worldPacket.FlushBits();
+
+        for (auto j = 0; j < UnkBits2; j++)
+            _worldPacket << Unk2;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::BattlePay::UpdateListedAuctionableTokens::Read()
+{
+    _worldPacket >> UnkInt;
+}
+
+WorldPacket const* WorldPackets::BattlePay::UpdateListedAuctionableTokensResponse::Write()
+{
+    _worldPacket << UnkInt;
+    _worldPacket << Result;
+    _worldPacket << uint32(AuctionableTokenAuctionableList.size());
+    for (AuctionableTokenAuctionable const& auctionableTokenAuctionable : AuctionableTokenAuctionableList)
+    {
+        _worldPacket << auctionableTokenAuctionable.UnkInt1;
+        _worldPacket << auctionableTokenAuctionable.UnkInt2;
+        _worldPacket << auctionableTokenAuctionable.Owner;
+        _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
+        _worldPacket << auctionableTokenAuctionable.EndTime;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::BattlePay::RequestWowTokenMarketPrice::Read()
+{
+    _worldPacket >> UnkInt;
+}
+
+WorldPacket const* WorldPackets::BattlePay::WowTokenMarketPriceResponse::Write()
+{
+    _worldPacket << CurrentMarketPrice;
+    _worldPacket << UnkInt;
+    _worldPacket << Result;
+    _worldPacket << UnkInt2;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::BattlePay::WowTokenCheckVeteranEligibility::Read()
+{
+    _worldPacket >> Unk62;
+}
+
+WorldPacket const* WorldPackets::BattlePay::WowTokenCheckVeteranEligibilityResponse::Write()
+{
+    _worldPacket << CurrentMarketPrice;
+    _worldPacket << Result;
+    _worldPacket << Unk62;
+
+    return &_worldPacket;
+}

@@ -271,11 +271,11 @@ void WorldSession::SendBattlePayPurchaseList()
     WorldPackets::BattlePay::BattlePayGetPurchaseListResponse response;
     response.Result = 0;
 
-    /*for (auto const& p : response.Purchases)
+    for (auto const& p : response.Purchases)
     {
         WorldPackets::BattlePay::BattlePayPurchase purchase;
         response.Purchases.push_back(purchase);
-    }*/
+    }
 
     SendPacket(response.Write());
 }
@@ -289,14 +289,14 @@ void WorldSession::SendBattlePayDistributionList()
     {
         WorldPackets::BattlePay::BattlePayDistributionObject object;
 
-        /*object.ProductID = 0;
+        object.ProductID = 0;
         object.Product = boost::in_place();
         object.Revoked = false;
         object.Status = 0;
         object.TargetNativeRealm = 0;
         object.TargetVirtualRealm = 0;
         object.DistributionID = 0;
-        object.TargetPlayer = _owner->GetGUID();*/
+        object.TargetPlayer;
         response.DistributionObjects.push_back(object);
     }
 
@@ -305,6 +305,11 @@ void WorldSession::SendBattlePayDistributionList()
 
 void WorldSession::SendBattlePayUpdateVasPurchaseStates()
 {
+    WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStatesResponse response;
+
+    // Handle
+
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendBattlePayProductList()
@@ -314,56 +319,99 @@ void WorldSession::SendBattlePayProductList()
     response.Result = 0; // BATTLE_PAY_RESULT_PRODUCT_LISTED
     response.CurrencyID = sBattlePayMgr->GetStoreCurrency();
 
-    for (auto const& p : response.Products)
+    for (auto const& storeProduct : sBattlePayMgr->GetStoreProducts())
     {
         WorldPackets::BattlePay::BattlePayProduct product;
-        product.ProductID = p.ProductID;
-        product.DisplayInfo = boost::in_place();
-        product.CurrentPriceFixedPoint = 0;
-        product.Flags = 0;
-        product.NormalPriceFixedPoint = 0;
+        product.ProductID = storeProduct->ID;
+        product.CurrentPriceFixedPoint = storeProduct->CurrentPrice;
+        product.Flags = storeProduct->Flags;
+        product.NormalPriceFixedPoint = storeProduct->NormalPrice;
 
-        for (auto const& i : product.Items)
+        product.DisplayInfo = boost::in_place();
+        product.DisplayInfo->CreatureDisplayInfoID = uint32(storeProduct->DisplayID);
+        product.DisplayInfo->Name1 = storeProduct->Name1;
+        //product.DisplayInfo->Name2     = storeProduct->Name2;
+        product.DisplayInfo->Name3 = storeProduct->Name2;
+
+        //for (auto const& i : product.Items)
         {
             WorldPackets::BattlePay::BattlePayProductItem item;
-            item.ID = 0;
-            item.ItemID = 0;
-            item.DisplayInfo = boost::in_place();
+            item.ID = storeProduct->ID;
+            item.ItemID = storeProduct->ItemID;
+            //item.DisplayInfo = boost::in_place();
             item.HasMount = false;
-            item.PetResult = boost::in_place();
-            item.Quantity = 0;
+            //item.PetResult   = boost::in_place();
+            item.Quantity = storeProduct->Quantity;
             item.HasPet = false;
             product.Items.push_back(item);
         }
 
-        product.Type = BATTLE_PAY_TYPE_END;
+        product.Type = storeProduct->Type;
         product.Unk62_1 = 0;
         response.Products.push_back(product);
     }
 
-    for (auto const& p : response.Groups)
+    for (auto const& storeGroup : sBattlePayMgr->GetStoreGroups())
     {
         WorldPackets::BattlePay::BattlePayProductGroup group;
-        /*group.GroupID = 0;
-        group.IconFileDataID = 0;
-        group.DisplayType = 0;
-        group.Ordering = 0;*/
+        group.GroupID = storeGroup->GroupID;
+        group.IconFileDataID = storeGroup->IconFileDataID;
+        group.DisplayType = storeGroup->DisplayType;
+        group.Ordering = storeGroup->Ordering;
+        group.Name = storeGroup->Name;
         response.Groups.push_back(group);
     }
 
-    for (auto const& p : response.ShopEntries)
+    for (auto const& shopEntry : sBattlePayMgr->GetStoreEntries())
     {
         WorldPackets::BattlePay::BattlePayShopEntry entry;
-        /*entry.Ordering = 0;
-        entry.EntryID = 0;
+        entry.Ordering = shopEntry->Ordering;
+        entry.EntryID = shopEntry->EntryID;
         entry.DisplayInfo = boost::in_place();
-        entry.BannerType = 0;
-        entry.Flags = 0;
-        entry.ProductID = 0;
-        entry.GroupID = 0;*/
+        entry.BannerType = shopEntry->BannerType;
+        entry.Flags = shopEntry->Flags;
+        entry.ProductID = shopEntry->ProductID;
+        entry.GroupID = shopEntry->GroupID;
         response.ShopEntries.push_back(entry);
     }
 
     TC_LOG_INFO("network", "WORLD: Received SMSG_BATTLE_PAY_GET_PRODUCT_LIST");
+    SendPacket(response.Write());
+}
+
+void WorldSession::SendWowTokenEligibilityResponse(uint32 unkInt)
+{
+    WorldPackets::BattlePay::WowTokenCheckVeteranEligibilityResponse response;
+
+    response.CurrentMarketPrice = sBattlePayMgr->GetTokenCurrentPrice();
+    response.Unk62 = unkInt;
+    response.Result = TOKEN_RESULT_SUCCESS;
+
+    std::cout << "Check veteran eligibility responded" << std::endl;
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::SendWowTokenMarketPriceResponse(uint32 currentPrice)
+{
+    WorldPackets::BattlePay::WowTokenMarketPriceResponse response;
+
+    response.CurrentMarketPrice = sBattlePayMgr->GetTokenCurrentPrice();
+    response.UnkInt = currentPrice;
+    response.Result = TOKEN_RESULT_SUCCESS;
+    response.UnkInt2 = 0;
+
+    std::cout << "Check market price sent: Market price is " << response.CurrentMarketPrice << std::endl;
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::SendAuctionableTokenResponse(uint32 unkInt)
+{
+    WorldPackets::BattlePay::UpdateListedAuctionableTokensResponse response;
+
+    response.UnkInt = unkInt;
+    response.Result = TOKEN_RESULT_SUCCESS;
+
     SendPacket(response.Write());
 }

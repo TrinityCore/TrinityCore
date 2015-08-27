@@ -123,6 +123,10 @@ namespace WorldPackets
         class BattlePayGetPurchaseList;
         class BattlePayUpdateVasPurchaseStates;
         class BattlePayGetDistributionList;
+
+        class UpdateListedAuctionableTokens;
+        class RequestWowTokenMarketPrice;
+        class WowTokenCheckVeteranEligibility;
     }
 
     namespace BlackMarket
@@ -551,12 +555,6 @@ namespace WorldPackets
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
         class BugReport;
-    }
-
-    namespace Token
-    {
-        class UpdateListedAuctionableTokens;
-        class RequestWowTokenMarketPrice;
     }
 
     namespace Totem
@@ -1553,10 +1551,6 @@ class WorldSession
         void HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete);
         void HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlaybackCanceled& scenePlaybackCanceled);
 
-        // Token
-        void HandleUpdateListedAuctionableTokens(WorldPackets::Token::UpdateListedAuctionableTokens& updateListedAuctionableTokens);
-        void HandleRequestWowTokenMarketPrice(WorldPackets::Token::RequestWowTokenMarketPrice& requestWowTokenMarketPrice);
-
         // Compact Unit Frames (4.x)
         void HandleSaveCUFProfiles(WorldPackets::Misc::SaveCUFProfiles& packet);
         void SendLoadCUFProfiles();
@@ -1577,6 +1571,12 @@ class WorldSession
         void SendBattlePayPurchaseList();
         void SendBattlePayProductList();
         void SendBattlePayUpdateVasPurchaseStates();
+        void HandleUpdateListedAuctionableTokens(WorldPackets::BattlePay::UpdateListedAuctionableTokens& updateListedAuctionableTokens);
+        void HandleRequestWowTokenMarketPrice(WorldPackets::BattlePay::RequestWowTokenMarketPrice& requestWowTokenMarketPrice);
+        void HandleWowTokenCheckVeteranEligibility(WorldPackets::BattlePay::WowTokenCheckVeteranEligibility& checkEligibility);
+        void SendWowTokenEligibilityResponse(uint32 unkInt);
+        void SendWowTokenMarketPriceResponse(uint32 currentPrice);
+        void SendAuctionableTokenResponse(uint32 unkInt);
 
     private:
         void InitializeQueryCallbackParameters();

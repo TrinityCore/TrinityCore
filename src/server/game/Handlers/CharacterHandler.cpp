@@ -1151,7 +1151,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
     features.TokenPollTimeSeconds = 300;
-    features.TokenRedeemIndex = 0;
+    features.TokenRedeemIndex = sBattlePayMgr->GetTokenIndex();
     features.VoiceEnabled = false;
     features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
     features.BpayStoreEnabled = sBattlePayMgr->IsStoreEnabled();
