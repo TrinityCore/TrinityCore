@@ -2755,7 +2755,8 @@ void ObjectMgr::LoadItemTemplates()
                         itemTemplate.Spells[j].SpellId = 0;
                     }
 
-                    if (spellInfo && itemTemplate.Spells[j].SpellCategory)
+                    if (spellInfo && itemTemplate.Spells[j].SpellCategory
+                        && itemTemplate.Spells[j].SpellCategory != SPELL_CATEGORY_FOOD)
                     {
                         bool added = sSpellsByCategoryStore[itemTemplate.Spells[j].SpellCategory].insert(itemTemplate.Spells[j].SpellId).second;
                         if (added)
