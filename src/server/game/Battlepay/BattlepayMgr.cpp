@@ -54,7 +54,7 @@ bool BattlePayMgr::LoadProductsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Name1, Name2, Name3, NormalPrice, CurrentPrice, ItemID, Quantity, DisplayID, ProductType, Flags, Unk62 FROM battle_pay_product");
+    QueryResult result = WorldDatabase.Query("SELECT `ID`, `Name1`, `Name2`, `Name3`, `NormalPrice`, `CurrentPrice`, `ItemID`, `Quantity`, `DisplayID`, `Type`, `Flags`, `ChoiceType` FROM battle_pay_product");
     if (!result)
     {
         TC_LOG_INFO("sql.sql", ">> Loaded 0 Battle Pay store products, table `battle_pay_product` is empty!");
@@ -66,18 +66,18 @@ bool BattlePayMgr::LoadProductsFromDb()
     {
         Field* fields = result->Fetch();
 
-        uint32 ID = fields[0].GetUInt32();
-        std::string Name1 = fields[1].GetString();
-        std::string Name2 = fields[2].GetString();
-        std::string Name3 = fields[3].GetString();
-        uint32 NormalPrice = fields[4].GetUInt32();
+        uint32 ID           = fields[0].GetUInt32();
+        std::string Name1   = fields[1].GetString();
+        std::string Name2   = fields[2].GetString();
+        std::string Name3   = fields[3].GetString();
+        uint32 NormalPrice  = fields[4].GetUInt32();
         uint32 CurrentPrice = fields[5].GetUInt32();
-        uint32 ItemID = fields[6].GetUInt32();
-        uint32 Quantity = fields[7].GetUInt32();
-        uint32 DisplayID = fields[8].GetUInt32();
-        uint8 Type = fields[9].GetUInt8();
-        uint32 Flags = fields[10].GetUInt32();
-        uint32 Unk62 = fields[11].GetUInt32();
+        uint32 ItemID       = fields[6].GetUInt32();
+        uint32 Quantity     = fields[7].GetUInt32();
+        uint32 DisplayID    = fields[8].GetUInt32();
+        uint8 Type          = fields[9].GetUInt8();
+        uint32 Flags        = fields[10].GetUInt32();
+        uint32 ChoiceType   = fields[11].GetUInt32();
 
         if (HasProductId(ID))
         {
@@ -116,7 +116,7 @@ bool BattlePayMgr::LoadProductsFromDb()
         }
 
         BattlePayProduct* product = new BattlePayProduct(ID, Name1, Name2, Name3, NormalPrice, CurrentPrice,
-            ItemID, Quantity, DisplayID, Type, Flags, Unk62);
+            ItemID, Quantity, DisplayID, Type, Flags, ChoiceType);
 
         m_productStore.insert(product);
         ++count;
@@ -272,7 +272,7 @@ void BattlePayMgr::SendBattlePayPurchaseList(WorldSession* session)
     WorldPackets::BattlePay::BattlePayGetPurchaseListResponse response;
     response.Result = 0;
 
-    for (auto const& p : response.Purchases)
+    /*for (auto const& p : response.Purchases)
     {
         WorldPackets::BattlePay::BattlePayPurchase purchase;
         purchase.ProductID = 0;
@@ -280,7 +280,7 @@ void BattlePayMgr::SendBattlePayPurchaseList(WorldSession* session)
         purchase.ResultCode = 0;
         purchase.Status = 0;
         response.Purchases.push_back(purchase);
-    }
+    }*/
 
     session->SendPacket(response.Write());
 }
@@ -290,7 +290,7 @@ void BattlePayMgr::SendBattlePayDistributionList(WorldSession* session)
     WorldPackets::BattlePay::BattlePayGetDistributionListResponse response;
     response.Result = 0;
 
-    for (auto const& p : response.DistributionObjects)
+    /*for (auto const& p : response.DistributionObjects)
     {
         WorldPackets::BattlePay::BattlePayDistributionObject object;
 
@@ -303,7 +303,7 @@ void BattlePayMgr::SendBattlePayDistributionList(WorldSession* session)
         object.DistributionID = 0;
         object.TargetPlayer = session->GetPlayer()->GetGUID();
         response.DistributionObjects.push_back(object);
-    }
+    }*/
 
     session->SendPacket(response.Write());
 }
@@ -314,7 +314,7 @@ void BattlePayMgr::SendBattlePayUpdateVasPurchaseStates(WorldSession* session)
 
     response.Count = 0;
     
-    for (uint32 i = 0; i < response.Count; i++)
+    /*for (uint32 i = 0; i < response.Count; i++)
     {
         response.Guid = session->GetPlayer()->GetGUID();
         response.Unk1 = 0;
@@ -323,7 +323,7 @@ void BattlePayMgr::SendBattlePayUpdateVasPurchaseStates(WorldSession* session)
 
         for (uint32 j = 0; j < response.UnkBits2; j++)
             response.Unk2 = 0;
-    }
+    }*/
 
     std::cout << "Recieved purchase states, and responding " << std::endl;
 
@@ -357,7 +357,6 @@ void BattlePayMgr::SendBattlePayProductList(WorldSession* session)
             item.ID = storeProduct->ID;
             item.ItemID = storeProduct->ItemID;
             //item.DisplayInfo = boost::in_place();
-            item.HasMount = false;
             //item.PetResult   = boost::in_place();
             item.Quantity = storeProduct->Quantity;
             item.HasPet = false;
@@ -365,7 +364,7 @@ void BattlePayMgr::SendBattlePayProductList(WorldSession* session)
         }
 
         product.Type = storeProduct->Type;
-        product.Unk62_1 = storeProduct->Unk62;
+        product.ChoiceType = storeProduct->ChoiceType;
         response.Products.push_back(product);
     }
 

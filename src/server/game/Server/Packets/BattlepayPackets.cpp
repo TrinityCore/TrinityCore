@@ -116,7 +116,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     data << uint32(product.Flags);
 
     data.WriteBits(product.Items.size(), 7);
-    data.WriteBits(product.Unk62_1, 7);
+    data.WriteBits(product.ChoiceType, 7);
     data.WriteBit(product.DisplayInfo.is_initialized());
     data.FlushBits();
 

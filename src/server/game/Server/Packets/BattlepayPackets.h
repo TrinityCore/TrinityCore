@@ -67,7 +67,7 @@ namespace WorldPackets
             uint8 Type = 0;
             uint32 Flags = 0;
             Optional<BattlePayDisplayInfo> DisplayInfo;
-            uint32 Unk62_1 = 0;
+            uint32 ChoiceType = 0;
             uint32 ItemCount = 0;
         };
 
