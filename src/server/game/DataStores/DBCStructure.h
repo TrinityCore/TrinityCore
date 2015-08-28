@@ -2072,7 +2072,8 @@ struct VehicleSeatEntry
     uint32  m_flagsB;                                       // 45
                                                             // 46-57 added in 3.1, floats mostly
 
-    bool CanEnterOrExit() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0; }
+    bool CanEnterOrExit() const { return (m_flags & (VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT | VEHICLE_SEAT_FLAG_HAS_EXTRA_SEAT)) || CanEnterOrExitReserved(); }
+    bool CanEnterOrExitReserved() const { return m_flags & (VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER | VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE); }  // Veh Id 700 for example.
     bool CanSwitchFromSeat() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0; }
     bool IsUsableByOverride() const { return (m_flags & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
                                     || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
