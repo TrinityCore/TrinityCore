@@ -687,7 +687,7 @@ enum VehicleSeatFlags
 {
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                         = 0x00000001,
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE                          = 0x00000002,
-    VEHICLE_SEAT_FLAG_UNK3                                             = 0x00000004,
+    VEHICLE_SEAT_FLAG_HAS_EXTRA_SEAT                                   = 0x00000004, // For vehicles having 3 seats instead of 1 or 2 which is common (guess from sniff and quest #12973)
     VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT  = 0x00000008,
     VEHICLE_SEAT_FLAG_UNK5                                             = 0x00000010,
     VEHICLE_SEAT_FLAG_UNK6                                             = 0x00000020,
