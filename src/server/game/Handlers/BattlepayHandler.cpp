@@ -23,42 +23,45 @@
 
 void WorldSession::HandleBattlePayGetProductList(WorldPackets::BattlePay::BattlePayGetProductList& packet)
 {
+    if (!sBattlePayMgr->IsStoreEnabled())
+        return;
+
     TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PRODUCT_LIST");
-    SendBattlePayProductList();
+    sBattlePayMgr->SendBattlePayProductList(this);
 }
 
 void WorldSession::HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& packet)
 {
     TC_LOG_INFO("network", "WORLD: Received CMSG_BATTLE_PAY_GET_PURCHSE_LIST");
-    SendBattlePayPurchaseList();
+    sBattlePayMgr->SendBattlePayPurchaseList(this);
 }
 
 void WorldSession::HandleBattlePayUpdateVasPurchaseStates(WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates& packet)
 {
     TC_LOG_INFO("network", "WORLD: Received CMSG_UPDATE_VAS_PURCHASE_STATES");
-    SendBattlePayUpdateVasPurchaseStates();
+    sBattlePayMgr->SendBattlePayUpdateVasPurchaseStates(this);
 }
 
 void WorldSession::HandleBattlePayGetDistributionList(WorldPackets::BattlePay::BattlePayGetDistributionList& packet)
 {
     TC_LOG_INFO("network", "WORLD: Received CMSG_GET_DISTRIBUTION_LISTS");
-    SendBattlePayDistributionList();
+    sBattlePayMgr->SendBattlePayDistributionList(this);
 }
 
 void WorldSession::HandleUpdateListedAuctionableTokens(WorldPackets::BattlePay::UpdateListedAuctionableTokens& updateListedAuctionableTokens)
 {
     TC_LOG_INFO("network", "WORLD: Received CMSG_UPDATE_AUCTIONABLE_TOKENS");
-    SendAuctionableTokenResponse(updateListedAuctionableTokens.UnkInt);
+    sBattlePayMgr->SendAuctionableTokenResponse(this, updateListedAuctionableTokens.UnkInt);
 }
 
 void WorldSession::HandleRequestWowTokenMarketPrice(WorldPackets::BattlePay::RequestWowTokenMarketPrice& requestWowTokenMarketPrice)
 {
     TC_LOG_INFO("network", "WORLD: Received CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE");
-    SendWowTokenMarketPriceResponse(requestWowTokenMarketPrice.UnkInt);
+    sBattlePayMgr->SendWowTokenMarketPriceResponse(this, requestWowTokenMarketPrice.UnkInt);
 }
 
 void WorldSession::HandleWowTokenCheckVeteranEligibility(WorldPackets::BattlePay::WowTokenCheckVeteranEligibility& checkEligibility)
 {
     TC_LOG_INFO("network", "WORLD: Received CMSG_CHECK_WOW_TOKEN_VETERAN_ELIGIBILITY");
-    SendWowTokenEligibilityResponse(checkEligibility.Unk62);
+    sBattlePayMgr->SendWowTokenEligibilityResponse(this, checkEligibility.Unk62);
 }

@@ -54,7 +54,7 @@ bool BattlePayMgr::LoadProductsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Name1, Name2, Name3, NormalPrice, CurrentPrice, ItemId, Quantity, DisplayId, Type, Flags FROM battle_pay_product");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Name1, Name2, Name3, NormalPrice, CurrentPrice, ItemId, Quantity, DisplayId, Type, Flags, Unk62 FROM battle_pay_product");
     if (!result)
     {
         TC_LOG_INFO("sql.sql", ">> Loaded 0 Battle Pay store products, table `battle_pay_product` is empty!");
@@ -77,6 +77,7 @@ bool BattlePayMgr::LoadProductsFromDb()
         uint32 DisplayID = fields[8].GetUInt32();
         uint8 Type = fields[9].GetUInt8();
         uint32 Flags = fields[10].GetUInt32();
+        uint32 Unk62 = fields[11].GetUInt32();
 
         if (HasProductId(ID))
         {
@@ -115,7 +116,7 @@ bool BattlePayMgr::LoadProductsFromDb()
         }
 
         BattlePayProduct* product = new BattlePayProduct(ID, Name1, Name2, Name3, NormalPrice, CurrentPrice,
-            ItemID, Quantity, DisplayID, Type, Flags);
+            ItemID, Quantity, DisplayID, Type, Flags, Unk62);
 
         m_productStore.insert(product);
         ++count;
@@ -266,7 +267,7 @@ bool BattlePayMgr::HasGroupName(std::string name)
     return false;
 }
 
-void WorldSession::SendBattlePayPurchaseList()
+void BattlePayMgr::SendBattlePayPurchaseList(WorldSession* session)
 {
     WorldPackets::BattlePay::BattlePayGetPurchaseListResponse response;
     response.Result = 0;
@@ -274,13 +275,17 @@ void WorldSession::SendBattlePayPurchaseList()
     for (auto const& p : response.Purchases)
     {
         WorldPackets::BattlePay::BattlePayPurchase purchase;
+        purchase.ProductID = 0;
+        purchase.PurchaseID = 0;
+        purchase.ResultCode = 0;
+        purchase.Status = 0;
         response.Purchases.push_back(purchase);
     }
 
-    SendPacket(response.Write());
+    session->SendPacket(response.Write());
 }
 
-void WorldSession::SendBattlePayDistributionList()
+void BattlePayMgr::SendBattlePayDistributionList(WorldSession* session)
 {
     WorldPackets::BattlePay::BattlePayGetDistributionListResponse response;
     response.Result = 0;
@@ -296,23 +301,36 @@ void WorldSession::SendBattlePayDistributionList()
         object.TargetNativeRealm = 0;
         object.TargetVirtualRealm = 0;
         object.DistributionID = 0;
-        object.TargetPlayer;
+        object.TargetPlayer = session->GetPlayer()->GetGUID();
         response.DistributionObjects.push_back(object);
     }
 
-    SendPacket(response.Write());
+    session->SendPacket(response.Write());
 }
 
-void WorldSession::SendBattlePayUpdateVasPurchaseStates()
+void BattlePayMgr::SendBattlePayUpdateVasPurchaseStates(WorldSession* session)
 {
     WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStatesResponse response;
 
-    // Handle
+    response.Count = 0;
+    
+    for (uint32 i = 0; i < response.Count; i++)
+    {
+        response.Guid = session->GetPlayer()->GetGUID();
+        response.Unk1 = 0;
+        response.State = 0;
+        response.UnkBits2 = 0;
 
-    SendPacket(response.Write());
+        for (uint32 j = 0; j < response.UnkBits2; j++)
+            response.Unk2 = 0;
+    }
+
+    std::cout << "Recieved purchase states, and responding " << std::endl;
+
+    session->SendPacket(response.Write());
 }
 
-void WorldSession::SendBattlePayProductList()
+void BattlePayMgr::SendBattlePayProductList(WorldSession* session)
 {
     WorldPackets::BattlePay::BattlePayGetProductListResponse response;
 
@@ -347,7 +365,7 @@ void WorldSession::SendBattlePayProductList()
         }
 
         product.Type = storeProduct->Type;
-        product.Unk62_1 = 0;
+        product.Unk62_1 = storeProduct->unkWod62;
         response.Products.push_back(product);
     }
 
@@ -376,10 +394,10 @@ void WorldSession::SendBattlePayProductList()
     }
 
     TC_LOG_INFO("network", "WORLD: Received SMSG_BATTLE_PAY_GET_PRODUCT_LIST");
-    SendPacket(response.Write());
+    session->SendPacket(response.Write());
 }
 
-void WorldSession::SendWowTokenEligibilityResponse(uint32 unkInt)
+void BattlePayMgr::SendWowTokenEligibilityResponse(WorldSession* session, uint32 unkInt)
 {
     WorldPackets::BattlePay::WowTokenCheckVeteranEligibilityResponse response;
 
@@ -389,10 +407,10 @@ void WorldSession::SendWowTokenEligibilityResponse(uint32 unkInt)
 
     std::cout << "Check veteran eligibility responded" << std::endl;
 
-    SendPacket(response.Write());
+    session->SendPacket(response.Write());
 }
 
-void WorldSession::SendWowTokenMarketPriceResponse(uint32 currentPrice)
+void BattlePayMgr::SendWowTokenMarketPriceResponse(WorldSession* session, uint32 currentPrice)
 {
     WorldPackets::BattlePay::WowTokenMarketPriceResponse response;
 
@@ -403,15 +421,15 @@ void WorldSession::SendWowTokenMarketPriceResponse(uint32 currentPrice)
 
     std::cout << "Check market price sent: Market price is " << response.CurrentMarketPrice << std::endl;
 
-    SendPacket(response.Write());
+    session->SendPacket(response.Write());
 }
 
-void WorldSession::SendAuctionableTokenResponse(uint32 unkInt)
+void BattlePayMgr::SendAuctionableTokenResponse(WorldSession* session, uint32 unkInt)
 {
     WorldPackets::BattlePay::UpdateListedAuctionableTokensResponse response;
 
     response.UnkInt = unkInt;
     response.Result = TOKEN_RESULT_SUCCESS;
 
-    SendPacket(response.Write());
+    session->SendPacket(response.Write());
 }

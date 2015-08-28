@@ -92,9 +92,9 @@ enum BattlePayTypes
 struct BattlePayProduct
 {
     BattlePayProduct(uint32 _id, std::string _name1, std::string _name2, std::string _name3, uint32 _normal, uint32 _current, 
-        uint32 _itemId, uint32 _quantity, uint32 _displayId, uint8 _type, uint32 _flags) 
+        uint32 _itemId, uint32 _quantity, uint32 _displayId, uint8 _type, uint32 _flags, uint32 _unk62) 
         : ID(_id), Name1(_name1), Name2(_name2), Name3(_name3), NormalPrice(_normal), CurrentPrice(_current), ItemID(_itemId),
-        Quantity(_quantity), DisplayID(_displayId), Type(_type), Flags(_flags) { }
+        Quantity(_quantity), DisplayID(_displayId), Type(_type), Flags(_flags), unkWod62(_unk62) { }
 
     uint32 ID;
     std::string Name1;
@@ -107,6 +107,7 @@ struct BattlePayProduct
     uint32 DisplayID;
     uint8 Type;
     uint32 Flags;
+    uint32 unkWod62;
 };
 
 
@@ -148,7 +149,7 @@ public:
         return &instance;
     }
 
-    BattlePayMgr() : m_enabled(false), m_available(false), m_currency(BATTLE_PAY_CURRENCY_DOLLAR) { }
+    BattlePayMgr() : m_enabled(true), m_available(true), m_currency(BATTLE_PAY_CURRENCY_DOLLAR) { }
     ~BattlePayMgr();
 
     // Store states
@@ -173,6 +174,15 @@ public:
     BattlePayProductSet const& GetStoreProducts() { return m_productStore; }
     BattlePayProductGroupSet const& GetStoreGroups() { return m_groupStore; }
     BattlePayShopEntryset const& GetStoreEntries() { return m_shopEntryStore; }
+
+    // Packets
+    void SendBattlePayDistributionList(WorldSession* session);
+    void SendBattlePayPurchaseList(WorldSession* session);
+    void SendBattlePayProductList(WorldSession* session);
+    void SendBattlePayUpdateVasPurchaseStates(WorldSession* session);
+    void SendWowTokenEligibilityResponse(WorldSession* session, uint32 unkInt);
+    void SendWowTokenMarketPriceResponse(WorldSession* session, uint32 currentPrice);
+    void SendAuctionableTokenResponse(WorldSession* session, uint32 unkInt);
 
 private:
     BattlePayProductSet m_productStore;

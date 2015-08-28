@@ -123,6 +123,11 @@ namespace WorldPackets
         class BattlePayGetPurchaseList;
         class BattlePayUpdateVasPurchaseStates;
         class BattlePayGetDistributionList;
+        class BattlePayStartPurchase;
+        class BattlePayDistributionAssignToTarget;
+        class BattlePayAckFailed;
+        class BattlePayConfirmPurchaseResponse;
+        class BattlePayAckFailedResponse;
 
         class UpdateListedAuctionableTokens;
         class RequestWowTokenMarketPrice;
@@ -1567,16 +1572,9 @@ class WorldSession
         void HandleBattlePayGetPurchaseList(WorldPackets::BattlePay::BattlePayGetPurchaseList& packet);
         void HandleBattlePayUpdateVasPurchaseStates(WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates& packet);
         void HandleBattlePayGetDistributionList(WorldPackets::BattlePay::BattlePayGetDistributionList& packet);
-        void SendBattlePayDistributionList();
-        void SendBattlePayPurchaseList();
-        void SendBattlePayProductList();
-        void SendBattlePayUpdateVasPurchaseStates();
         void HandleUpdateListedAuctionableTokens(WorldPackets::BattlePay::UpdateListedAuctionableTokens& updateListedAuctionableTokens);
         void HandleRequestWowTokenMarketPrice(WorldPackets::BattlePay::RequestWowTokenMarketPrice& requestWowTokenMarketPrice);
         void HandleWowTokenCheckVeteranEligibility(WorldPackets::BattlePay::WowTokenCheckVeteranEligibility& checkEligibility);
-        void SendWowTokenEligibilityResponse(uint32 unkInt);
-        void SendWowTokenMarketPriceResponse(uint32 currentPrice);
-        void SendAuctionableTokenResponse(uint32 unkInt);
 
     private:
         void InitializeQueryCallbackParameters();

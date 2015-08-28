@@ -685,7 +685,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_NEXT_SEAT,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleNextSeat, &WorldSession::HandleRequestVehicleNextSeat);
     DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_PREV_SEAT,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehiclePrevSeat, &WorldSession::HandleRequestVehiclePrevSeat);
     DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_SWITCH_SEAT,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleSwitchSeat, &WorldSession::HandleRequestVehicleSwitchSeat);
-    DEFINE_HANDLER(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE,                     STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::BattlePay::RequestWowTokenMarketPrice, &WorldSession::HandleRequestWowTokenMarketPrice);
+    DEFINE_HANDLER(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE,                     STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::BattlePay::RequestWowTokenMarketPrice, &WorldSession::HandleRequestWowTokenMarketPrice);
     DEFINE_HANDLER(CMSG_RESET_CHALLENGE_MODE,                               STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_RESET_INSTANCES,                                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Instance::ResetInstances, &WorldSession::HandleResetInstancesOpcode);
     DEFINE_HANDLER(CMSG_RESURRECT_RESPONSE,                                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Misc::ResurrectResponse, &WorldSession::HandleResurrectResponse);
@@ -807,7 +807,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_MISSILE_TRAJECTORY,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   );
     DEFINE_HANDLER(CMSG_UPDATE_RAID_TARGET,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::UpdateRaidTarget, &WorldSession::HandleUpdateRaidTargetOpcode);
     DEFINE_HANDLER(CMSG_UPDATE_VAS_PURCHASE_STATES,                         STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates, &WorldSession::HandleBattlePayUpdateVasPurchaseStates);
-    DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST,                  STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::BattlePay::UpdateListedAuctionableTokens, &WorldSession::HandleUpdateListedAuctionableTokens);
+    DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST,                  STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::BattlePay::UpdateListedAuctionableTokens, &WorldSession::HandleUpdateListedAuctionableTokens);
     DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_COUNT,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPGRADE_GARRISON,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPGRADE_ITEM,                                       STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);

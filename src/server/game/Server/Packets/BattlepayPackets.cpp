@@ -61,7 +61,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayProdu
     data.WriteBit(item.DisplayInfo.is_initialized());
     data.WriteBit(item.HasPet);
     data.WriteBit(item.PetResult.is_initialized());
-    //data.WriteBit(item.HasMount);
     data.FlushBits();
 
     if (item.HasPet)
@@ -170,10 +169,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::BattlePayPurch
 
 WorldPacket const* WorldPackets::BattlePay::BattlePayGetProductListResponse::Write()
 {
-    /*_worldPacket.reserve(4 + 4 +
+    _worldPacket.reserve(4 + 4 +
         Products.size() * sizeof(BattlePayProduct) +
         Groups.size() * sizeof(BattlePayProductGroup) +
-        ShopEntries.size() * sizeof(BattlePayShopEntry));*/
+        ShopEntries.size() * sizeof(BattlePayShopEntry));
 
     _worldPacket << uint32(Result);
     _worldPacket << uint32(CurrencyID);
@@ -195,11 +194,18 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayGetProductListResponse::Wri
 
 WorldPacket const* WorldPackets::BattlePay::BattlePayStartPurchaseResponse::Write()
 {
+    _worldPacket << PurchaseID;
+    _worldPacket << ClientToken;
+    _worldPacket << PurchaseResult;
+
     return &_worldPacket;
 }
 
 void WorldPackets::BattlePay::BattlePayConfirmPurchaseResponse::Read()
 {
+    ConfirmPurchase = _worldPacket.ReadBit();
+    _worldPacket >> ServerToken;
+    _worldPacket >> ClientCurrentPriceFixedPoint;
 }
 
 WorldPacket const* WorldPackets::BattlePay::BattlePayGetPurchaseListResponse::Write()
@@ -224,6 +230,7 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayGetDistributionListResponse
     return &_worldPacket;
 }
 
+// Zero Length Packets
 void WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStates::Read()
 {  
 }
@@ -235,6 +242,7 @@ void WorldPackets::BattlePay::BattlePayGetPurchaseList::Read()
 void WorldPackets::BattlePay::BattlePayGetProductList::Read()
 {
 }
+// End Zero Length Packets
 
 WorldPacket const* WorldPackets::BattlePay::BattlePayDistributionUpdate::Write()
 {
@@ -275,7 +283,7 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStatesResp
     _worldPacket.WriteBits(Count, 6);
     _worldPacket.FlushBits();
 
-    for (auto i = 0; i < Count; i++)
+    for (uint32 i = 0; i < Count; i++)
     {
         _worldPacket << Guid;
         _worldPacket << State;
@@ -284,7 +292,7 @@ WorldPacket const* WorldPackets::BattlePay::BattlePayUpdateVasPurchaseStatesResp
         _worldPacket.WriteBits(UnkBits2, 2);
         _worldPacket.FlushBits();
 
-        for (auto j = 0; j < UnkBits2; j++)
+        for (uint32 j = 0; j < UnkBits2; j++)
             _worldPacket << Unk2;
     }
 
@@ -298,7 +306,7 @@ void WorldPackets::BattlePay::UpdateListedAuctionableTokens::Read()
 
 WorldPacket const* WorldPackets::BattlePay::UpdateListedAuctionableTokensResponse::Write()
 {
-    _worldPacket << UnkInt;
+    _worldPacket << UnkInt; // SendUpdateListedAuctionableTokens
     _worldPacket << Result;
     _worldPacket << uint32(AuctionableTokenAuctionableList.size());
     for (AuctionableTokenAuctionable const& auctionableTokenAuctionable : AuctionableTokenAuctionableList)
@@ -321,7 +329,7 @@ void WorldPackets::BattlePay::RequestWowTokenMarketPrice::Read()
 WorldPacket const* WorldPackets::BattlePay::WowTokenMarketPriceResponse::Write()
 {
     _worldPacket << CurrentMarketPrice;
-    _worldPacket << UnkInt;
+    _worldPacket << UnkInt; // SendRequestWowTokenMarketPrice
     _worldPacket << Result;
     _worldPacket << UnkInt2;
 
@@ -337,7 +345,62 @@ WorldPacket const* WorldPackets::BattlePay::WowTokenCheckVeteranEligibilityRespo
 {
     _worldPacket << CurrentMarketPrice;
     _worldPacket << Result;
-    _worldPacket << Unk62;
+    _worldPacket << Unk62; // SendWowTokenCheckVeteranEligibility
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayDeliveryEnded::Write()
+{
+    _worldPacket << DistributionID;
+    _worldPacket << Items.size();
+
+    for (auto const& i : Items)
+        _worldPacket << i;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayDeliveryStarted::Write()
+{
+    _worldPacket << DistributionID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayAckFailed::Write()
+{
+    _worldPacket << PurchaseID;
+    _worldPacket << Status;
+    _worldPacket << Result;
+    _worldPacket << ServerToken;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayConfirmPurchase::Write()
+{
+    _worldPacket << CurrentPriceFixedPoint;
+    _worldPacket << PurchaseID;
+    _worldPacket << ServerToken;
+
+    return &_worldPacket;
+}
+
+//WorldPacket const* WorldPackets::BattlePay::BattlePayStartDistributionMakeProductChoiceResponse::Write()
+//{
+//    _worldPacket << ClientToken;
+//    _worldPacket << Result;
+//    _worldPacket << DistributionID;
+//
+//    return &_worldPacket;
+//}
+
+WorldPacket const* WorldPackets::BattlePay::BattlePayStartDistributionAssignToTargetResponse::Write()
+{
+    _worldPacket << DistributionID;
+    _worldPacket << ClientToken;
+    _worldPacket << Result;
 
     return &_worldPacket;
 }

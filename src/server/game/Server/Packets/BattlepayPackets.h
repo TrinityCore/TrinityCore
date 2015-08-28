@@ -189,7 +189,7 @@ namespace WorldPackets
         public:
             BattlePayDistributionAssignToTarget(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET, std::move(packet)) { }
 
-            void Read();
+            void Read() override;
 
             ObjectGuid TargetCharacter;
             uint64 DistributionID = 0;
