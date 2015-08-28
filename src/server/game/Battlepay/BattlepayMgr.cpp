@@ -54,7 +54,7 @@ bool BattlePayMgr::LoadProductsFromDb()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Name1, Name2, Name3, NormalPrice, CurrentPrice, ItemId, Quantity, DisplayId, Type, Flags, Unk62 FROM battle_pay_product");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Name1, Name2, Name3, NormalPrice, CurrentPrice, ItemID, Quantity, DisplayID, ProductType, Flags, Unk62 FROM battle_pay_product");
     if (!result)
     {
         TC_LOG_INFO("sql.sql", ">> Loaded 0 Battle Pay store products, table `battle_pay_product` is empty!");
@@ -365,7 +365,7 @@ void BattlePayMgr::SendBattlePayProductList(WorldSession* session)
         }
 
         product.Type = storeProduct->Type;
-        product.Unk62_1 = storeProduct->unkWod62;
+        product.Unk62_1 = storeProduct->Unk62;
         response.Products.push_back(product);
     }
 
