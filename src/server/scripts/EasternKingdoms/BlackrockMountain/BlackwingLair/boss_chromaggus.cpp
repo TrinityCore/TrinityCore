@@ -71,7 +71,7 @@ public:
 
     struct boss_chromaggusAI : public BossAI
     {
-        boss_chromaggusAI(Creature* creature) : BossAI(creature, BOSS_CHROMAGGUS)
+        boss_chromaggusAI(Creature* creature) : BossAI(creature, DATA_CHROMAGGUS)
         {
             Initialize();
 
@@ -193,11 +193,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (instance->GetBossState(BOSS_FLAMEGOR) != DONE)
-            {
-                EnterEvadeMode();
-                return;
-            }
             _EnterCombat();
 
             events.ScheduleEvent(EVENT_SHIMMER, 0);
