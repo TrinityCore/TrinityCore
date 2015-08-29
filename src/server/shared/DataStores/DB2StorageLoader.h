@@ -85,7 +85,9 @@ class DB2FileLoader
     char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
     static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
     static uint32 GetFormatStringFieldCount(const char * format);
+    static uint32 GetFormatLocalizedStringFieldCount(const char * format);
 private:
+    char const* fileName;
 
     uint32 recordSize;
     uint32 recordCount;
@@ -102,7 +104,7 @@ private:
     int unk1;            // WDB2 (Unix time in WCH2)
     int minIndex;        // WDB2
     int maxIndex;        // WDB2 (index table)
-    int locale;          // WDB2
+    int localeMask;      // WDB2
     int unk5;            // WDB2
 };
 
@@ -113,7 +115,7 @@ public:
 
     char* Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
     void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
-    static char* AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value);
+    static char* AddString(char const** holder, std::string const& value);
 
 private:
     std::string _storageName;

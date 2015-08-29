@@ -111,6 +111,7 @@ enum DBCFormer
     FT_NA = 'x',                                            //not used or unknown, 4 byte size
     FT_NA_BYTE = 'X',                                       //not used or unknown, byte
     FT_STRING = 's',                                        //char*
+    FT_STRING_NOT_LOCALIZED = 'S',                          //char* but without locale in DB2
     FT_FLOAT = 'f',                                         //float
     FT_INT = 'i',                                           //uint32
     FT_BYTE = 'b',                                          //uint8
