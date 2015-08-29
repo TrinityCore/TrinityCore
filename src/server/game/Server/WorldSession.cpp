@@ -889,14 +889,11 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY) && GetSecurity() == SEC_PLAYER &&
         !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
         !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY);
 
     //! Cannot fly and fall at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
         MOVEMENTFLAG_FALLING);
-
-	//! Cannot have gravity disabled as player
-	REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY), MOVEMENTFLAG_DISABLE_GRAVITY);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) &&
         (!GetPlayer()->movespline->Initialized() || GetPlayer()->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
