@@ -727,6 +727,26 @@ struct NameGenEntry
     uint32 Sex;                                                     // 3
 };
 
+struct NamesProfanityEntry
+{
+    uint32 ID;                                                      // 0
+    char const* Name;                                               // 1
+    int32 Language;                                                 // 2
+};
+
+struct NamesReservedEntry
+{
+    uint32 ID;                                                      // 0
+    char const* Name;                                               // 1
+};
+
+struct NamesReservedLocaleEntry
+{
+    uint32 ID;                                                      // 0
+    char const* Name;                                               // 1
+    uint32 LocaleMask;                                              // 2
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry

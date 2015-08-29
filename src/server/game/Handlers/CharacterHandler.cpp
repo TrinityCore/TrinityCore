@@ -458,7 +458,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     // check name limitations
-    ResponseCodes res = ObjectMgr::CheckPlayerName(charCreate.CreateInfo->Name, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(charCreate.CreateInfo->Name, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharCreate(res);
@@ -1271,7 +1271,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRena
         return;
     }
 
-    ResponseCodes res = ObjectMgr::CheckPlayerName(request.RenameInfo->NewName, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(request.RenameInfo->NewName, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharRename(res, request.RenameInfo.get());
@@ -1567,7 +1567,7 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         return;
     }
 
-    ResponseCodes res = ObjectMgr::CheckPlayerName(customizeInfo->CharName, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(customizeInfo->CharName, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharCustomize(res, customizeInfo);
@@ -1811,7 +1811,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         return;
     }
 
-    ResponseCodes res = ObjectMgr::CheckPlayerName(factionChangeInfo->Name, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(factionChangeInfo->Name, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharFactionChange(res, factionChangeInfo);

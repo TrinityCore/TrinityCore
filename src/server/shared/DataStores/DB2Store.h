@@ -105,6 +105,19 @@ public:
                     entry += sizeof(LocalizedString*);
                     break;
                 }
+                case FT_STRING_NOT_LOCALIZED:
+                {
+                    char const* str = *(char const**)entry;
+                    std::size_t len = strlen(str);
+                    buffer << uint16(len ? len + 1 : 0);
+                    if (len)
+                    {
+                        buffer.append(str, len);
+                        buffer << uint8(0);
+                    }
+                    entry += sizeof(char const*);
+                    break;
+                }
             }
         }
     }
@@ -157,7 +170,7 @@ public:
             return false;
 
         // load strings from another locale db2 data
-        if (DB2FileLoader::GetFormatStringFieldCount(_format))
+        if (DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
             if (char* stringBlock = db2.AutoProduceStrings(_format, (char*)_dataTable, locale))
                 _stringPoolList.push_back(stringBlock);
         return true;
@@ -175,7 +188,7 @@ public:
 
     void LoadStringsFromDB(uint32 locale)
     {
-        if (!DB2FileLoader::GetFormatStringFieldCount(_format))
+        if (!DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
             return;
 
         DB2DatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTable.AsChar, _stringPoolList);

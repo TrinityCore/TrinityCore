@@ -21,6 +21,7 @@
 #include "DB2Store.h"
 #include "DB2Structure.h"
 #include "SharedDefines.h"
+#include <boost/regex.hpp>
 #include <array>
 
 extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
@@ -142,6 +143,7 @@ public:
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
+    typedef std::array<std::vector<boost::regex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
     typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
@@ -176,6 +178,7 @@ public:
     MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;
     MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
+    ResponseCodes ValidateName(std::string const& name, LocaleConstant locale) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
@@ -200,6 +203,7 @@ private:
     MountContainer _mountsBySpellId;
     MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
     NameGenContainer _nameGenData;
+    NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
     QuestPackageItemContainer _questPackages;
     SpecializationSpellsContainer _specializationSpellsBySpec;
