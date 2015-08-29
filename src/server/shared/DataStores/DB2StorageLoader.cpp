@@ -564,7 +564,7 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
                     ASSERT(*slot);
 
                     // Value in database in main table field must be for enUS locale
-                    if (char* str = AddString(&(*slot)->Str[LOCALE_enUS], fields[f].GetStringView()))
+                    if (char* str = AddString(&(*slot)->Str[LOCALE_enUS], fields[f].GetString()))
                         stringPool.push_back(str);
 
                     ++stringFieldNumInRecord;
@@ -578,7 +578,7 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
                     ASSERT(*slot);
 
                     // Value in database in main table field must be for enUS locale
-                    if (char* str = AddString(slot, fields[f].GetStringView()))
+                    if (char* str = AddString(slot, fields[f].GetString()))
                         stringPool.push_back(str);
 
                     ++stringFieldNumInRecord;
@@ -659,7 +659,7 @@ void DB2DatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStatements
                         // fill only not filled entries
                         LocalizedString* db2str = *(LocalizedString**)(&dataValue[offset]);
                         if (db2str->Str[locale] == nullStr)
-                            if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetStringView()))
+                            if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetString()))
                                 stringPool.push_back(str);
 
                         ++stringFieldNumInRecord;
