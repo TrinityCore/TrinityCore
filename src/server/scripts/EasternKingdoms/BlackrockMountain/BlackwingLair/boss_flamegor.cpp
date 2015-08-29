@@ -46,15 +46,10 @@ public:
 
     struct boss_flamegorAI : public BossAI
     {
-        boss_flamegorAI(Creature* creature) : BossAI(creature, BOSS_FLAMEGOR) { }
+        boss_flamegorAI(Creature* creature) : BossAI(creature, DATA_FLAMEGOR) { }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (instance->GetBossState(BOSS_BROODLORD) != DONE)
-            {
-                EnterEvadeMode();
-                return;
-            }
             _EnterCombat();
 
             events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
