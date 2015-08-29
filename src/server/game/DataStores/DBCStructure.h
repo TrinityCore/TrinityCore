@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Define.h"
 #include "Util.h"
 
 // Structures using to access raw DBC data and required packing to portability
@@ -1403,6 +1402,20 @@ struct MovieEntry
     uint32      Id;                                         // 0 index
     //char*       filename;                                 // 1
     //uint32      unk2;                                     // 2 always 100
+};
+
+struct NamesProfanityEntry
+{
+    //uint32    ID;                                         // 0
+    char const* Name;                                       // 1
+    int32       Language;                                   // 2
+};
+
+struct NamesReservedEntry
+{
+    //uint32    ID;                                         // 0
+    char const* Name;                                       // 1
+    int32       Language;                                   // 2
 };
 
 #define MAX_OVERRIDE_SPELL 10
