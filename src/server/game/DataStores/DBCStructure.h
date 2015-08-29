@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Define.h"
 #include "Path.h"
 #include "Util.h"
 
@@ -1609,6 +1608,20 @@ struct NumTalentsAtLevelEntry
 {
     //uint32 Level;                                         // 0 index
     float Talents;                                         // 1 talent count
+};
+
+struct NamesProfanityEntry
+{
+    //uint32    ID;                                         // 0
+    char const* Name;                                       // 1
+    int32       Language;                                   // 2
+};
+
+struct NamesReservedEntry
+{
+    //uint32    ID;                                         // 0
+    char const* Name;                                       // 1
+    int32       Language;                                   // 2
 };
 
 #define MAX_OVERRIDE_SPELL 10
