@@ -36,6 +36,10 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include "Common.h"
+#ifdef PLATFORM_WINDOWS
+#undef PLATFORM_WINDOWS
+#endif
 #include "DBFilesClientList.h"
 #include "CascLib.h"
 #include "dbcfile.h"
@@ -98,8 +102,8 @@ map_id *map_ids;
 uint16 *areas;
 uint16 *LiqType;
 #define MAX_PATH_LENGTH 128
-char output_path[MAX_PATH_LENGTH] = ".";
-char input_path[MAX_PATH_LENGTH] = ".";
+char output_path[MAX_PATH_LENGTH];
+char input_path[MAX_PATH_LENGTH];
 uint32 maxAreaId = 0;
 
 // **************************************************
@@ -127,9 +131,9 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
-#define LOCALES_COUNT 17
+#define CASC_LOCALES_COUNT 17
 
-char const* Locales[LOCALES_COUNT] =
+char const* CascLocaleNames[CASC_LOCALES_COUNT] =
 {
     "none", "enUS",
     "koKR", "unknown",
@@ -142,12 +146,28 @@ char const* Locales[LOCALES_COUNT] =
     "ptPT"
 };
 
+uint32 WowLocaleToCascLocaleFlags[12] =
+{
+    CASC_LOCALE_ENUS | CASC_LOCALE_ENGB,
+    CASC_LOCALE_KOKR,
+    CASC_LOCALE_FRFR,
+    CASC_LOCALE_DEDE,
+    CASC_LOCALE_ZHCN,
+    CASC_LOCALE_ZHTW,
+    CASC_LOCALE_ESES,
+    CASC_LOCALE_ESMX,
+    CASC_LOCALE_RURU,
+    0,
+    CASC_LOCALE_PTBR | CASC_LOCALE_PTPT,
+    CASC_LOCALE_ITIT,
+};
+
 void CreateDir(std::string const& path)
 {
     if (chdir(path.c_str()) == 0)
     {
-            chdir("../");
-            return;
+        chdir("../");
+        return;
     }
 
 #ifdef _WIN32
@@ -178,6 +198,7 @@ void Usage(char const* prg)
         "-o set output path (max %d characters)\n"\
         "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
+        "-l dbc locale\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
     exit(1);
 }
@@ -234,8 +255,8 @@ void HandleArgs(int argc, char* arg[])
             case 'l':
                 if (c + 1 < argc)                            // all ok
                 {
-                    for (uint32 i = 0; i < LOCALES_COUNT; ++i)
-                        if (!strcmp(arg[c + 1], Locales[i]))
+                    for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
+                        if (!strcmp(arg[c + 1], localeNames[i]))
                             CONF_Locale = 1 << i;
                     ++c;
                 }
@@ -254,13 +275,13 @@ void HandleArgs(int argc, char* arg[])
 uint32 ReadBuild(int locale)
 {
     // include build info file also
-    std::string filename  = std::string("component.wow-") + Locales[locale] + ".txt";
+    std::string filename  = std::string("component.wow-") + localeNames[locale] + ".txt";
     //printf("Read %s file... ", filename.c_str());
 
     HANDLE dbcFile;
     if (!CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL, 0, &dbcFile))
     {
-        printf("Locale %s not installed.\n", Locales[locale]);
+        printf("Locale %s not installed.\n", localeNames[locale]);
         return 0;
     }
 
@@ -1124,7 +1145,7 @@ void ExtractMaps(uint32 build)
 bool ExtractFile(HANDLE fileInArchive, char const* filename)
 {
     FILE* output = fopen(filename, "wb");
-    if(!output)
+    if (!output)
     {
         printf("Can't create the output file '%s'\n", filename);
         return false;
@@ -1152,9 +1173,11 @@ void ExtractDBFilesClient(int l)
     outputPath += "/dbc/";
 
     CreateDir(outputPath);
-    outputPath += Locales[l];
+    outputPath += localeNames[l];
     outputPath += "/";
     CreateDir(outputPath);
+
+    printf("locale %s output path %s\n", localeNames[l], outputPath.c_str());
 
     uint32 index = 0;
     uint32 count = 0;
@@ -1163,8 +1186,8 @@ void ExtractDBFilesClient(int l)
     while (fileName)
     {
         std::string filename = fileName;
-        if (CascOpenFile(CascStorage, (filename = (filename + ".db2")).c_str(), 1 << l, 0, &dbcFile) ||
-            CascOpenFile(CascStorage, (filename = (filename.substr(0, filename.length() - 4) + ".dbc")).c_str(), 1 << l, 0, &dbcFile))
+        if (CascOpenFile(CascStorage, (filename = (filename + ".db2")).c_str(), WowLocaleToCascLocaleFlags[l], 0, &dbcFile) ||
+            CascOpenFile(CascStorage, (filename = (filename.substr(0, filename.length() - 4) + ".dbc")).c_str(), WowLocaleToCascLocaleFlags[l], 0, &dbcFile))
         {
             filename = outputPath + filename.substr(filename.rfind('\\') + 1);
 
@@ -1175,7 +1198,7 @@ void ExtractDBFilesClient(int l)
             CascCloseFile(dbcFile);
         }
         else
-            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, Locales[l], HumanReadableCASCError(GetLastError()));
+            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, localeNames[l], HumanReadableCASCError(GetLastError()));
 
         fileName = DBFilesClientList[++index];
     }
@@ -1183,17 +1206,17 @@ void ExtractDBFilesClient(int l)
     printf("Extracted %u files\n\n", count);
 }
 
-bool OpenCascStorage()
+bool OpenCascStorage(int locale)
 {
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        if (!CascOpenStorage(storage_dir.string().c_str(), 0, &CascStorage))
+        if (!CascOpenStorage(storage_dir.string().c_str(), WowLocaleToCascLocaleFlags[locale], &CascStorage))
         {
-            printf("error opening casc storage '%s': %s\n", storage_dir.string().c_str(), HumanReadableCASCError(GetLastError()));
+            printf("error opening casc storage '%s' locale %s: %s\n", storage_dir.string().c_str(), localeNames[locale], HumanReadableCASCError(GetLastError()));
             return false;
         }
-        printf("opened casc storage '%s'\n", storage_dir.string().c_str());
+        printf("opened casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
         return true;
     }
     catch (boost::filesystem::filesystem_error& error)
@@ -1208,19 +1231,24 @@ int main(int argc, char * arg[])
     printf("Map & DBC Extractor\n");
     printf("===================\n");
 
+    boost::filesystem::path current(boost::filesystem::current_path());
+    strcpy(input_path, current.string().c_str());
+    strcpy(output_path, current.string().c_str());
+
     HandleArgs(argc, arg);
 
     int FirstLocale = -1;
     uint32 build = 0;
 
-    if (!OpenCascStorage())
-    {
-        return 1;
-    }
-
-    for (int i = 0; i < LOCALES_COUNT; ++i)
+    for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
         if (CONF_Locale && !(CONF_Locale & (1 << i)))
+            continue;
+
+        if (i == LOCALE_none)
+            continue;
+
+        if (!OpenCascStorage(i))
             continue;
 
         if ((CONF_extract & EXTRACT_DBC) == 0)
@@ -1228,7 +1256,10 @@ int main(int argc, char * arg[])
             FirstLocale = i;
             build = ReadBuild(i);
             if (!build)
+            {
+                CascCloseStorage(CascStorage);
                 continue;
+            }
 
             printf("Detected client build: %u\n\n", build);
             break;
@@ -1237,10 +1268,14 @@ int main(int argc, char * arg[])
         //Extract DBC files
         uint32 tempBuild = ReadBuild(i);
         if (!tempBuild)
+        {
+            CascCloseStorage(CascStorage);
             continue;
+        }
 
-        printf("Detected client build %u for locale %s\n\n", tempBuild, Locales[i]);
+        printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[i]);
         ExtractDBFilesClient(i);
+        CascCloseStorage(CascStorage);
 
         if (FirstLocale < 0)
         {
@@ -1257,11 +1292,10 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        printf("Using locale: %s\n", Locales[FirstLocale]);
-
+        OpenCascStorage(0);
         ExtractMaps(build);
+        CascCloseStorage(CascStorage);
     }
 
-    CascCloseStorage(CascStorage);
     return 0;
 }
