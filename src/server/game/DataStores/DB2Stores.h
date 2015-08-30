@@ -157,7 +157,7 @@ public:
         return instance;
     }
 
-    void LoadStores(std::string const& dataPath);
+    void LoadStores(std::string const& dataPath, uint32 defaultLocale);
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData();

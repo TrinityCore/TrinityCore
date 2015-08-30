@@ -226,8 +226,7 @@ extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
 //extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
-void LoadDBCStores(const std::string& dataPath);
-void LoadGameTables(const std::string& dataPath);
-std::string GetDBCLocaleFolder(std::string const& dataPath);
+void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale);
+void LoadGameTables(const std::string& dataPath, uint32 defaultLocale);
 
 #endif

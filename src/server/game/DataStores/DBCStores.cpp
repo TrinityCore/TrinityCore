@@ -23,9 +23,7 @@
 #include "DBCfmt.h"
 #include "Timer.h"
 #include "DB2Stores.h"
-#include "Config.h"
 
-#include <boost/filesystem.hpp>
 #include <map>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
@@ -168,7 +166,6 @@ SpellCategoryStore sSpellsByCategoryStore;
 PetFamilySpellsStore sPetFamilySpellsStore;
 SpellEffectScallingByEffectId sSpellEffectScallingByEffectId;
 
-
 DBCStorage <SpellScalingEntry> sSpellScalingStore(SpellScalingEntryfmt);
 DBCStorage <SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore(SpellTargetRestrictionsEntryfmt);
 DBCStorage <SpellLevelsEntry> sSpellLevelsStore(SpellLevelsEntryfmt);
@@ -200,7 +197,7 @@ uint32 DBCFileCount = 0;
 uint32 GameTableCount = 0;
 
 template<class T>
-inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, std::string const* customFormat = NULL, std::string const* customIndexName = NULL)
+inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, uint32 defaultLocale, std::string const* customFormat = NULL, std::string const* customIndexName = NULL)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T),
@@ -208,7 +205,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
         filename.c_str(), DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), uint32(sizeof(T)));
 
     ++DBCFileCount;
-    std::string dbcFilename = dbcPath + filename;
+    std::string dbcFilename = dbcPath + localeNames[defaultLocale] + '/' + filename;
     SqlDbc * sql = NULL;
     if (customFormat)
         sql = new SqlDbc(&filename, customFormat, customIndexName, storage.GetFormat());
@@ -300,16 +297,16 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
     }
 }
 
-void LoadDBCStores(const std::string& dataPath)
+void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
-    std::string dbcPath = GetDBCLocaleFolder(dataPath);
+    std::string dbcPath = dataPath + "dbc/";
 
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
 
-#define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file)
+#define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
     LOAD_DBC(sAchievementStore, "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);//20201
     LOAD_DBC(sAnimKitStore, "AnimKit.dbc");//20201
@@ -503,7 +500,7 @@ void LoadDBCStores(const std::string& dataPath)
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
     {
-        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc", DBCFileCount, dataPath.c_str());
+        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc/%s/", DBCFileCount, dataPath.c_str(), localeNames[defaultLocale]);
         exit(1);
     }
     else if (!bad_dbc_files.empty())
@@ -530,11 +527,11 @@ void LoadDBCStores(const std::string& dataPath)
     TC_LOG_INFO("server.loading", ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void LoadGameTables(const std::string& dataPath)
+void LoadGameTables(const std::string& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
-    std::string dbcPath = GetDBCLocaleFolder(dataPath);
+    std::string dbcPath = dataPath + "dbc/" + localeNames[defaultLocale] + '/';
 
     StoreProblemList bad_dbc_files;
 
@@ -566,7 +563,7 @@ void LoadGameTables(const std::string& dataPath)
     // error checks
     if (bad_dbc_files.size() >= GameTableCount)
     {
-        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc GameTable files (%d) not found by path: %sdbc", DBCFileCount, dataPath.c_str());
+        TC_LOG_ERROR("misc", "Incorrect DataDir value in worldserver.conf or ALL required *.dbc GameTable files (%d) not found by path: %sdbc/%s/", DBCFileCount, dataPath.c_str(), localeNames[defaultLocale]);
         exit(1);
     }
     else if (!bad_dbc_files.empty())
@@ -919,22 +916,4 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     }
 
     return NULL;
-}
-
-std::string GetDBCLocaleFolder(std::string const& dataPath)
-{
-    using namespace boost::filesystem;
-
-    const std::string dbcPath = dataPath + "dbc/";
-    directory_iterator dir_iter(dbcPath);
-    directory_iterator end_iter;
-
-    const int locale = sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS);
-    for(; dir_iter != end_iter; ++dir_iter)
-        if (is_directory(*dir_iter) && GetLocaleByName((*dir_iter).path().filename().string()) == locale)
-            // Return the full path appending detected locale folder
-            return (*dir_iter).path().string() + "/";
-
-    // Empty folder, or it has files but not subfolders (probably the DBC files).
-    return dbcPath;
 }
