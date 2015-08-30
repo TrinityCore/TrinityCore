@@ -5,6 +5,7 @@ SET @OLDCGUID := 370474;
 SET @OLDCGUID2 := 325984;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+15;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID434+0 AND @CGUID434+3;
 DELETE FROM `creature` WHERE `guid` BETWEEN @OLDCGUID+0 AND @OLDCGUID+15;
 DELETE FROM `creature` WHERE `guid` BETWEEN @OLDCGUID2+0 AND @OLDCGUID2+1;
 INSERT INTO `creature` (`guid`, `id`, `map`, `SpawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
@@ -28,10 +29,10 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+15, 37543, 530, 1, 1, 9467.499, -7287.613, 36.13566, 0, 120, 0, 0); -- 37543 (Area: 3482) 3.3.5a
 
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
-(@CGUID+0, 44244, 530, 1, 1, 9505.31, -6765.01, 16.59573, 4.782202, 120, 0, 0), -- 44244 (Area: 3665) 4.3.4
-(@CGUID+1, 43012, 530, 1, 1, 9521.21, -6865.33, 18.83333, 5.166174, 120, 0, 0), -- 43012 (Area: 3665) 4.3.4
-(@CGUID+2, 50484, 530, 1, 1, 9372.658, -7160.698, 9.261522, 3.909538, 120, 0, 0), -- 50484 (Area: 3482) 4.3.4
-(@CGUID+3, 47421, 530, 1, 1, 9503.18, -6897.75, 28.43053, 2.70526, 120, 0, 0); -- 47421 (Area: 3665) 4.3.4
+(@CGUID434+0, 44244, 530, 1, 1, 9505.31, -6765.01, 16.59573, 4.782202, 120, 0, 0), -- 44244 (Area: 3665) 4.3.4
+(@CGUID434+1, 43012, 530, 1, 1, 9521.21, -6865.33, 18.83333, 5.166174, 120, 0, 0), -- 43012 (Area: 3665) 4.3.4
+(@CGUID434+2, 50484, 530, 1, 1, 9372.658, -7160.698, 9.261522, 3.909538, 120, 0, 0), -- 50484 (Area: 3482) 4.3.4
+(@CGUID434+3, 47421, 530, 1, 1, 9503.18, -6897.75, 28.43053, 2.70526, 120, 0, 0); -- 47421 (Area: 3665) 4.3.4
 
 DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID, @CGUID+1);
 DELETE FROM `creature_addon` WHERE `guid` IN (@OLDCGUID2, @OLDCGUID2+1);
