@@ -649,7 +649,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
         }
@@ -1226,7 +1226,7 @@ class spell_eadric_hammer_of_righteous_faceroller : public SpellScriptLoader
         {
             PrepareSpellScript(spell_eadric_hammer_of_righteous_faceroller_SpellScript);
 
-            void CheckHealth(SpellEffIndex effIndex)
+            void CheckHealth(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster()->ToPlayer() || !GetCaster()->ToPlayer()->GetMap()->IsHeroic())
                     return;

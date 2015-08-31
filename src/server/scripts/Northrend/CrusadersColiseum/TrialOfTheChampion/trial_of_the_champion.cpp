@@ -95,13 +95,15 @@ enum Texts
     EMOTE_SPECTATOR_CHEER       = 0
 };
 
-enum GrandChampionData
+enum BossData
 {
     BOSS_WARRIOR,
     BOSS_MAGE,
     BOSS_SHAMAN,
     BOSS_HUNTER,
-    BOSS_ROGUE
+    BOSS_ROGUE,
+    BOSS_EADRIC,
+    BOSS_PALETRESS
 };
 
 enum GossipTexts
@@ -113,8 +115,6 @@ enum GossipTexts
     GOSSIP_TEXT_THIRD_BOSS      = 14738
 };
 
-<<<<<<< HEAD
-=======
 enum Events
 {
     EVENT_CHEER_RND             = 1,
@@ -163,7 +163,6 @@ enum Events
 
 };
 
->>>>>>> Argent Champion encounter is now fully scripted
 /*######
 ## npc_announcer_toc5
 ######*/
@@ -178,6 +177,7 @@ struct GrandChampionInfo
     uint32 GrandChampionEntry[2];
     uint32 FactionChampionEntry[2];
     uint8 AnnounceText[2];
+    uint32 GrandChampionRealEntry[2]; // used only for cheering at correct champion if event is skipped
     uint32 SpecatatorEntry[2];
 };
 
@@ -187,30 +187,35 @@ GrandChampionInfo const GrandChampionData[5] =
         { VEHICLE_MOKRA_SKILLCRUSHER_MOUNT,     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT },
         { VEHICLE_ORGRIMMAR_CHAMPION,           VEHICLE_STORMWIND_CHAMPION },
         { SAY_INTRO_WARR_H,                     SAY_INTRO_WARR_A },
+        { NPC_MOKRA,                            NPC_JACOB },
         { SpectatorData[RACE_ORC-1],            SpectatorData[RACE_HUMAN-1] },
     },
     {
         { VEHICLE_ERESSEA_DAWNSINGER_MOUNT,     VEHICLE_AMBROSE_BOLTSPARK_MOUNT },
         { VEHICLE_SILVERMOON_CHAMPION,          VEHICLE_GNOMEREGAN_CHAMPION },
         { SAY_INTRO_MAGE_H,                     SAY_INTRO_MAGE_A },
+        { NPC_ERESSEA,                          NPC_AMBROSE },
         { SpectatorData[RACE_BLOODELF-1],       SpectatorData[RACE_GNOME-1] },
     },
     {
         { VEHICLE_RUNOK_WILDMANE_MOUNT,         VEHICLE_COLOSOS_MOUNT },
         { VEHICLE_THUNDER_BLUFF_CHAMPION,       VEHICLE_EXODAR_CHAMPION },
         { SAY_INTRO_SHAM_H,                     SAY_INTRO_SHAM_A },
+        { NPC_RUNOK,                            NPC_COLOSOS },
         { SpectatorData[RACE_TAUREN-1],         SpectatorData[RACE_DRAENEI-1] },
     },
     {
         { VEHICLE_ZUL_TORE_MOUNT,               VEHICLE_EVENSONG_MOUNT },
         { VEHICLE_SENJIN_CHAMPION,              VEHICLE_DARNASSUS_CHAMPION },
         { SAY_INTRO_HUN,                        SAY_INTRO_HUN },
+        { NPC_ZULTORE,                          NPC_JAELYNE },
         { SpectatorData[RACE_TROLL-1],          SpectatorData[RACE_NIGHTELF-1] },
     },
     {
         { VEHICLE_DEATHSTALKER_VESCERI_MOUNT,   VEHICLE_LANA_STOUTHAMMER_MOUNT },
         { VEHICLE_UNDERCITY_CHAMPION,           VEHICLE_IRONFORGE_CHAMPION },
         { SAY_INTRO_ROG_H,                      SAY_INTRO_ROG_A },
+        { NPC_VISCERI,                          NPC_LANA },
         { SpectatorData[RACE_UNDEAD_PLAYER-1],  SpectatorData[RACE_DWARF-1] },
     }
 };
@@ -234,9 +239,7 @@ public:
             uiThirdBoss = 0;
             uiArgentChampion = 0;
 
-            uiPhase = 0;
-            uiTimer = 0;
-            uiCheerTimer = 120000;
+            events.Reset();
 
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -257,22 +260,28 @@ public:
         uint32 uiThirdBoss;
         uint32 uiArgentChampion;
 
-        uint32 uiPhase;
-        uint32 uiTimer;
-        uint32 uiCheerTimer;
+        EventMap events;
 
         GuidList Champion1List;
         GuidList Champion2List;
         GuidList Champion3List;
         GuidList PlayerEventList;
 
-        void NextStep(uint32 uiTimerStep, bool bNextStep = true, uint8 uiPhaseStep = 0)
+        void NextStep(uint32 uiTimerStep, uint32 currentEvent, bool bNextStep = true, uint8 uiPhaseStep = 0)
         {
-            uiTimer = uiTimerStep;
             if (bNextStep)
-                ++uiPhase;
+                events.ScheduleEvent(currentEvent + 1, uiTimerStep);
             else
-                uiPhase = uiPhaseStep;
+            {
+                if (uiPhaseStep > 0)
+                    events.ScheduleEvent(uiPhaseStep, uiTimerStep);
+            }
+        }
+
+        void Reset()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_CHEER_RND, 120000);
         }
 
         void SetData(uint32 uiType, uint32 uiData) override
@@ -282,13 +291,8 @@ public:
                 case DATA_START:
                     if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                         tirion->AI()->Talk(SAY_TIRION_INTRO_1);
-<<<<<<< HEAD
-                    me->GetMotionMaster()->MovePoint(2, 732.5243f, 663.007f, 412.3932f);
-                    NextStep(2000, false, 30);
-=======
                     me->GetMotionMaster()->MovePoint(2, announcerEncounterPos);
                     NextStep(6000, 0, false, EVENT_CHAT_9);
->>>>>>> Argent Champion encounter is now fully scripted
                     break;
                 case DATA_LESSER_CHAMPIONS_PREPARE:
                 {
@@ -355,8 +359,6 @@ public:
 
                     break;
                 }
-<<<<<<< HEAD
-=======
                 case DATA_GRAND_CHAMPIONS_DONE:
                     NextStep(3000, 0, false, EVENT_CHAT_8);
                     break;
@@ -365,7 +367,6 @@ public:
                     break;
                 default:
                     break;
->>>>>>> Argent Champion encounter is now fully scripted
             }
         }
 
@@ -390,9 +391,6 @@ public:
             if (uiPointId == 1)
                 me->SetFacingTo(centerOrientation);
             else if (uiPointId == 2)
-<<<<<<< HEAD
-                NextStep(500, false, 20);
-=======
                 NextStep(500, 0, false, EVENT_WAIT_1);
             else if (uiPointId == 3)
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -413,7 +411,6 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             events.Reset();
->>>>>>> Argent Champion encounter is now fully scripted
         }
 
         void DoSummonNextGrandChampion(bool skipEvent = false)
@@ -455,24 +452,31 @@ public:
                         pBoss->SetFacingTo(hordeOrientation);
                     else
                         pBoss->SetFacingTo(allianceOrientation);
+                    pBoss->SetHomePosition(pBoss->GetPositionX(), pBoss->GetPositionY(), pBoss->GetPositionZ(), TeamInInstance == ALLIANCE ? hordeOrientation : allianceOrientation);
+
+                    // Specatators cheer for champions even if event is skipped
+                    if (Creature* spectator = me->FindNearestCreature(info->SpecatatorEntry[teamIndex], 200.0f))
+                    {
+                        if (Creature* rider = me->FindNearestCreature(info->GrandChampionRealEntry[teamIndex], 200.0f))
+                            spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, rider);
+                    }
                 }
 
                 // Lesser Champions
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    // Calculating spawn positions for lesser champions if event is skipped
+                    // Calculating waiting positions for lesser champions if event is skipped
                     int m = (uiSummonTimes - 1) * 3 + i;
                     if (TeamInInstance == HORDE)
                         m += 9;
 
-                    Position const spawnPoss = skipEvent ? LesserChampLoc[m] : SpawnPosition;
-                    if (Creature* pAdd = me->SummonCreature(info->FactionChampionEntry[teamIndex], spawnPoss, TEMPSUMMON_DEAD_DESPAWN))
+                    if (Creature* pAdd = me->SummonCreature(info->FactionChampionEntry[teamIndex], spawnPos, TEMPSUMMON_DEAD_DESPAWN))
                     {
                         if (uiSummonTimes == 1)
                             Champion1List.push_back(pAdd->GetGUID());
                         else if (uiSummonTimes == 2)
                             Champion2List.push_back(pAdd->GetGUID());
-                        else // uiSummonTimes == 3
+                        else
                             Champion3List.push_back(pAdd->GetGUID());
 
                         if (!skipEvent)
@@ -487,11 +491,8 @@ public:
                         }
                         else
                         {
-                            // Fixing orientation
-                            if (TeamInInstance == ALLIANCE)
-                                pAdd->SetFacingTo(hordeOrientation);
-                            else
-                                pAdd->SetFacingTo(allianceOrientation);
+                            // Lesser Champions walk to their final positions
+                            pAdd->AI()->SetData(DATA_GENERATE_WAYPOINTS_FOR_ADDS, m);
                         }
                     }
                 }
@@ -500,26 +501,15 @@ public:
 
         void DoStartArgentChampionEncounter()
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
-=======
-            instance->SetData(DATA_REMOVE_VEHICLES, 0);
-            me->GetMotionMaster()->MovePoint(1, announcerEncounterPos);
->>>>>>> Add missing files part 2 and fixed a warning
-=======
             // Removing vehicles (if not already been removed)
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
             // Cleaning chest from arena
             if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_CHAMPIONS_LOOT)))
                 cache->Delete();
->>>>>>> Argent Champion encounter is now fully scripted
 
             NextStep(1000, 0, false, EVENT_MOVE_MIDDLE);
         }
 
-<<<<<<< HEAD
-=======
         void DoSummonBlackKnight()
         {
             // Removing vehicles (if not already been removed)
@@ -527,7 +517,6 @@ public:
             me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
         }
 
->>>>>>> Argent Champion encounter is now fully scripted
         void SetGrandChampionsForEncounter()
         {
             uiFirstBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
@@ -535,26 +524,19 @@ public:
             {
                 uiSecondBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
                 uiThirdBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
-<<<<<<< HEAD
-            }*/
-            uiFirstBoss = BOSS_WARRIOR;
-            uiSecondBoss = BOSS_MAGE;
-            uiThirdBoss = BOSS_SHAMAN;
-=======
             }
->>>>>>> Forgot one file from previous commit and renamed few variables
         }
 
         void SetArgentChampion()
         {
-           uint8 uiTempBoss = urand(0, 1);
+           uint8 uiTempBoss = urand(BOSS_EADRIC, BOSS_PALETRESS);
 
            switch (uiTempBoss)
            {
-                case 0:
+                case BOSS_EADRIC:
                     uiArgentChampion = NPC_EADRIC;
                     break;
-                case 1:
+                case BOSS_PALETRESS:
                     uiArgentChampion = NPC_PALETRESS;
                     break;
            }
@@ -568,11 +550,11 @@ public:
             {
                 if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
                 {
-                    // Starting Grand Champion event (roleplaying not skipped)
+                    // Starting Grand Champion event (with roleplaying)
                     if (startRp && instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
                     {
                         me->AI()->Talk(SAY_INTRO_1);
-                        NextStep(7000, false, 1);
+                        NextStep(7000, 0, false, EVENT_INTRODUCE);
                     }
 
                     // Starting Grand Champion event (skipped roleplaying)
@@ -584,10 +566,11 @@ public:
                         DoStartArgentChampionEncounter();
                 }
 
-               if ((instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-                   instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
-                   instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                    me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
+                // Starting Black Knight event
+                if ((instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
+                    instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
+                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
+                    DoSummonBlackKnight();
             }
         }
 
@@ -613,7 +596,7 @@ public:
             me->AI()->Talk(info->AnnounceText[teamIndex]);
 
             // Spectators cheer for the champion
-            if (Creature* spectator = me->FindNearestCreature(info->SpecatatorEntry[teamIndex], 100.0f))
+            if (Creature* spectator = me->FindNearestCreature(info->SpecatatorEntry[teamIndex], 200.0f))
             {
                 if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1 + uiSummonTimes - 1)))
                     spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, boss);
@@ -625,12 +608,30 @@ public:
             temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             temp->SetReactState(REACT_AGGRESSIVE);
             temp->SetWalk(false);
-            temp->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* player = itr->GetSource();
+                if (player && !player->IsGameMaster() && player->IsAlive())
+                {
+                    if (player->GetVehicleBase())
+                    {
+                        temp->AddThreat(player->GetVehicleBase(), 1.0f);
+                        temp->AI()->AttackStart(player->GetVehicleBase());
+                    }
+                    else
+                    {
+                        temp->AddThreat(player, 1.0f);
+                        temp->AI()->AttackStart(player);
+                    }
+                    break;
+                }
+            }
             if (riderAlso)
             {
-                if (temp->GetVehicleKit() && temp->GetVehicleKit()->GetPassenger(0) && temp->GetVehicleKit()->GetPassenger(0)->ToCreature())
+                if (temp->GetVehicleKit() && temp->GetVehicleKit()->GetPassenger(SEAT_ID_0) && temp->GetVehicleKit()->GetPassenger(0)->ToCreature())
                 {
-                    if (Creature* rider = temp->GetVehicleKit()->GetPassenger(0)->ToCreature())
+                    if (Creature* rider = temp->GetVehicleKit()->GetPassenger(SEAT_ID_0)->ToCreature())
                     {
                         rider->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         rider->SetWalk(false);
@@ -643,26 +644,15 @@ public:
        void UpdateAI(uint32 uiDiff) override
         {
             ScriptedAI::UpdateAI(uiDiff);
-            if (uiCheerTimer <= uiDiff)
-            {
-                if (uiPhase == 0 && !me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                {
-                    // Every 2 minutes a player is being cheered by his/her race's spectators
-                    // cheer should only occur during fights
-                    Map::PlayerList const &pList = me->GetMap()->GetPlayers();
-                    std::random_shuffle(pList.begin(), pList.end()); // randomizing
-                    for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-                    {
-                        if (Player* plr = itr->GetSource())
-                        {
-<<<<<<< HEAD
-                            if (!plr->IsAlive())
-                                continue;
+            events.Update(uiDiff);
 
-                            if (Creature* spectator = me->FindNearestCreature(SpectatorData[plr->getRace() - 1], 100.0f))
-                                spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
-                            break;
-=======
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CHEER_RND:
+                        if (events.GetNextEventTime() == 0 && !me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP) && !me->isMoving())
+                        {
                             // Every 2 minutes a random player is being cheered by his/her race's spectators
                             // cheer should only occur during fights
                             Map::PlayerList const &pList = me->GetMap()->GetPlayers();
@@ -695,27 +685,14 @@ public:
                                         --rand;
                                 }
                             }
->>>>>>> Argent Champion encounter is now fully scripted
                         }
-                    }
-                }
-                uiCheerTimer = 120000;
-            } else uiCheerTimer -= uiDiff;
-
-            if (uiTimer <= uiDiff)
-            {
-                Map::PlayerList const &pList = me->GetMap()->GetPlayers();
-                uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
-
-                switch (uiPhase)
-                {
-                    case 1: // Introducing players to spectators
+                        events.ScheduleEvent(EVENT_CHEER_RND, 120000);
+                        break;
+                    case EVENT_INTRODUCE:
                     {
+                        // Introducing players to spectators
                         bool foundPlr = false;
-<<<<<<< HEAD
-=======
                         Map::PlayerList const &pList = me->GetMap()->GetPlayers();
->>>>>>> Add missing files part 2 and fixed a warning
                         for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
                         {
                             if (Player* plr = itr->GetSource())
@@ -734,29 +711,29 @@ public:
                                 else
                                     continue; // no text found, too many players?
 
-                                if (Creature* spectator = me->FindNearestCreature(SpectatorData[plr->getRace() - 1], 100.0f))
+                                if (Creature* spectator = me->FindNearestCreature(SpectatorData[plr->getRace() - 1], 200.0f))
                                     spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
 
                                 foundPlr = true;
                                 PlayerEventList.push_back(plr->GetGUID());
-                                NextStep(7000, false, 1);
+                                NextStep(7000, 0, false, EVENT_INTRODUCE);
                                 break;
                             }
                         }
 
                         // All players introduced, moving on
                         if (!foundPlr)
-                            NextStep(16000);
+                            NextStep(16000, eventId);
                         break;
                     }
-                    // Tirion gets interrupted by Varian Wrynn or Garrosh Hellscream
-                    case 2:
+                    case EVENT_CHAT_1:
                         if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_1);
-                        NextStep(8000);
+                        NextStep(8000, eventId);
                         break;
-                    case 3:
-                        if (TeamInInstance == ALLIANCE)
+                    case EVENT_CHAT_2:
+                        // Tirion gets interrupted by Varian Wrynn or Garrosh Hellscream
+                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         {
                             if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_1);
@@ -766,10 +743,10 @@ public:
                             if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
                                 garrosh->AI()->Talk(SAY_GARROSH_INTRO_1);
                         }
-                        NextStep(6000);
+                        NextStep(6000, eventId);
                         break;
-                    case 4:
-                        if (TeamInInstance == ALLIANCE)
+                    case EVENT_CHAT_3:
+                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         {
                             if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINA)))
                                 jaina->AI()->Talk(SAY_JAINA_INTRO_1);
@@ -779,10 +756,10 @@ public:
                             if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
                                 thrall->AI()->Talk(SAY_THRALL_INTRO_1);
                         }
-                        NextStep(5000);
+                        NextStep(5000, eventId);
                         break;
-                    case 5:
-                        if (TeamInInstance == ALLIANCE)
+                    case EVENT_CHAT_4:
+                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         {
                             if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
                                 garrosh->AI()->Talk(SAY_GARROSH_INTRO_2);
@@ -792,10 +769,10 @@ public:
                             if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_2);
                         }
-                        NextStep(8000);
+                        NextStep(8000, eventId);
                         break;
-                    case 6:
-                        if (TeamInInstance == ALLIANCE)
+                    case EVENT_CHAT_5:
+                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         {
                             if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
                                 thrall->AI()->Talk(SAY_THRALL_INTRO_2);
@@ -805,115 +782,104 @@ public:
                             if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINA)))
                                 jaina->AI()->Talk(SAY_JAINA_INTRO_2);
                         }
-                        NextStep(5000);
+                        NextStep(5000, eventId);
                         break;
-                    case 7:
+                    case EVENT_CHAT_6:
                         if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_2);
-                        NextStep(6000);
+                        NextStep(6000, eventId);
                         break;
-                    case 8:
+                    case EVENT_SUMMON_1:
                         // Summoning first champion
                         DoSummonNextGrandChampion();
                         me->SetFacingTo(ORIENTATION);
-                        NextStep(2000);
+                        NextStep(2000, eventId);
                         break;
-                    case 9:
+                    case EVENT_OPEN_DOOR_1:
                         // Opening doors
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), true);
-                        NextStep(500);
+                        NextStep(500, eventId);
                         break;
-                    case 10:
+                    case EVENT_INTRODUCE_BOSS_1:
                         // Introducing first champion
                         IntroduceChampion();
-                        NextStep(7500);
+                        NextStep(7500, eventId);
                         break;
-                    case 11:
+                    case EVENT_CLOSE_DOOR_1:
                         // Closing door
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), false);
-                        NextStep(8000);
+                        NextStep(8000, eventId);
                         break;
-                    case 12:
+                    case EVENT_SUMMON_2:
                         // Summoning second champion
                         DoSummonNextGrandChampion();
-                        NextStep(2000);
+                        NextStep(2000, eventId);
                         break;
-                    case 13:
+                    case EVENT_OPEN_DOOR_2:
                         // Opening doors
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), true);
-                        NextStep(500);
+                        NextStep(500, eventId);
                         break;
-                    case 14:
+                    case EVENT_INTRODUCE_BOSS_2:
                         // Introducing second champion
                         IntroduceChampion();
-                        NextStep(7500);
+                        NextStep(7500, eventId);
                         break;
-                    case 15:
+                    case EVENT_CLOSE_DOOR_2:
                         // Closing door
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), false);
-                        NextStep(8000);
+                        NextStep(8000, eventId);
                         break;
-                    case 16:
+                    case EVENT_SUMMON_3:
                         // Summoning third and final champion
                         DoSummonNextGrandChampion();
-                        NextStep(2000);
+                        NextStep(2000, eventId);
                         break;
-                    case 17:
+                    case EVENT_OPEN_DOOR_3:
                         // Opening doors
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), true);
-                        NextStep(500);
+                        NextStep(500, eventId);
                         break;
-                    case 18:
+                    case EVENT_INTRODUCE_BOSS_3:
                         // Introducing third champion
                         IntroduceChampion();
-                        NextStep(9500);
+                        NextStep(9500, eventId);
                         break;
-                    case 19:
+                    case EVENT_CLOSE_DOOR_3:
                         // Closing door and announcer walks to the gate
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), false);
-
-                        me->GetMotionMaster()->MovePoint(2, 732.5243f, 663.007f, 412.3932f);
-                        NextStep(0, false);
+                        me->GetMotionMaster()->MovePoint(2, announcerEncounterPos);
+                        NextStep(0, 0, false); // MovementInform continues from this
                         break;
-                    case 20:
+                    case EVENT_WAIT_1:
                         // Lesser champions are moving to their respective positions
-                        NextStep(500);
+                        NextStep(500, eventId);
                         break;
-                    case 21:
+                    case EVENT_FACING:
                         // Correcting facing
                         me->SetFacingTo(centerOrientation);
-                        if (TeamInInstance == ALLIANCE)
-                            NextStep(2000);
-                        else // Alliance champions are slower to correct their positions
-                            NextStep(5000);
+                        NextStep(5000, eventId);
                         break;
-                    case 22:
-                        // First wave of lesser champions aggroes
+                    case EVENT_CHAT_7:
                         if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_3);
-<<<<<<< HEAD
-
-=======
                         NextStep(2000, eventId);
                         break;
                     case EVENT_AGGRO_1:
                         // First wave of lesser champions aggroes
->>>>>>> Argent Champion encounter is now fully scripted
                         for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
+                        {
                             if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                 EnterAggressiveMode(summon);
-                        NextStep(0, false);
+                        }
+                        NextStep(0, 0, false);
                         break;
-<<<<<<< HEAD
-                    // Phases below happen only if event is skipped
-                    case 30:
-=======
                     case EVENT_CHAT_8:
                         // Tirion congratulates players
                         if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
@@ -927,24 +893,18 @@ public:
                         NextStep(3000, eventId);
                         break;
                     case EVENT_SUMMON_1_SKIP:
->>>>>>> Argent Champion encounter is now fully scripted
                         // Summoning first champion
                         DoSummonNextGrandChampion(true);
-                        NextStep(4000);
+                        NextStep(2000, eventId);
                         break;
-                    case 31:
+                    case EVENT_SUMMON_2_SKIP:
                         // Summoning second champion
                         DoSummonNextGrandChampion(true);
-                        NextStep(4000);
+                        NextStep(2000, eventId);
                         break;
-                    case 32:
+                    case EVENT_SUMMON_3_SKIP:
                         // Summoning third champion
-                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
-                            tirion->AI()->Talk(SAY_TIRION_INTRO_2);
                         DoSummonNextGrandChampion(true);
-<<<<<<< HEAD
-                        NextStep(0, false); // MovementInform continues from this
-=======
                         NextStep(0, 0, false); // MovementInform continues from this
                         break;
                     // Phases below happen in Argent Champion encounter
@@ -1054,10 +1014,9 @@ public:
                         NextStep(0, 0, false);
                         break;
                     default:
->>>>>>> Argent Champion encounter is now fully scripted
                         break;
                 }
-            } else uiTimer -= uiDiff;
+            }
 
             if (!UpdateVictim())
                 return;
@@ -1073,6 +1032,9 @@ public:
     {
         if (!player)
             return false;
+
+        if (player->IsGameMaster())
+            return true;
 
         bool seen = true;
         Map::PlayerList const& players = player->GetMap()->GetPlayers();
@@ -1095,15 +1057,8 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
-
-        // TODO: put gossip menu texts into database, I just don't know how to play with conditions
-        // Gossip menus are already set, conditions are only missing
-        // - Appled
         if (instance)
         {
-<<<<<<< HEAD
-            if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && (player->GetVehicleBase() || player->IsGameMaster())) // Game Master mode enabled you can skip the roleplaying event
-=======
             if (player->IsGameMaster())
             {
                 // Gamemaster mode on you can choose which encounter you start
@@ -1126,8 +1081,8 @@ public:
                 player->SEND_GOSSIP_MENU(1, creature->GetGUID());
             }
             else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && player->GetVehicleBase())
->>>>>>> Argent Champion encounter is now fully scripted
             {
+                // If Grand Champions encounter hasn't been started and the player is mounted
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 // Patch 3.2.2: "There is now an option in the herald's dialogue to skip the introductory scripted scene if everyone in the party has already seen it."
                 if (HasAllSeenEvent(player))
@@ -1136,6 +1091,7 @@ public:
             }
             else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && !player->GetVehicleBase())
             {
+                // If Grand Champions encounter hasn't been started and the player is not mounted
                 if (player->GetTeam() == HORDE)
                     player->SEND_GOSSIP_MENU(GOSSIP_TEXT_UNMOUNTED_H, creature->GetGUID());
                 else
@@ -1143,11 +1099,13 @@ public:
             }
             else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE && instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
             {
+                // If Grand Champions encounter is done and Eadric the Pure nor Argent Confessor Paletress encounters have been started
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXT_SECOND_BOSS, creature->GetGUID());
             }
             else if ((instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE || instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE) && instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
             {
+                // If Grand Champions, Eadric the Pure and Argent Confessor Paletress encounters are all done but Black Knight encounter has not been started
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXT_THIRD_BOSS, creature->GetGUID());
             }
@@ -1167,6 +1125,26 @@ public:
         {
             player->CLOSE_GOSSIP_MENU();
             ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter(true);
+        }
+        else if (action == GOSSIP_ACTION_INFO_DEF + 3)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->uiArgentChampion = NPC_EADRIC;
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartArgentChampionEncounter();
+        }
+        else if (action == GOSSIP_ACTION_INFO_DEF + 4)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->uiArgentChampion = NPC_PALETRESS;
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartArgentChampionEncounter();
+        }
+        else if (action == GOSSIP_ACTION_INFO_DEF + 5)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoSummonBlackKnight();
         }
 
         return true;
