@@ -14968,8 +14968,12 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 37730;
                 return 21244;
             case FORM_MOONKIN:
+                if (getRace() == RACE_TAUREN)
+                    return 15375;
                 if (getRace() == RACE_TROLL)
                     return 37174;
+                if (getRace() == RACE_NIGHTELF)
+                    return 15374;
                 if (getRace() == RACE_WORGEN)
                     return 37173;
                 break;
