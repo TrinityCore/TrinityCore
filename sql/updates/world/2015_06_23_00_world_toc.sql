@@ -21,6 +21,27 @@ INSERT INTO `spell_script_names` VALUES (67868,'spell_toc5_trample_aura');
 DELETE FROM `spell_script_names` WHERE `spell_id`=66083 AND `ScriptName`='spell_toc5_lightning_arrows';
 INSERT INTO `spell_script_names` VALUES (66083,'spell_toc5_lightning_arrows');
 
+-- Scriptname for Argent Priestess' Fountain of Light
+UPDATE `creature_template` SET `ScriptName`='npc_fountain_of_light' WHERE `entry`=35311;
+
+-- Spellscript for Paletress' Reflective Shield
+DELETE FROM `spell_script_names` WHERE `spell_id`=66515 AND `ScriptName`='spell_paletress_reflective_shield';
+INSERT INTO `spell_script_names` VALUES (66515,'spell_paletress_reflective_shield');
+
+-- Spellscript for Eadric' Hammer of the Righteous
+DELETE FROM `spell_script_names` WHERE `spell_id`=66867 AND `ScriptName`='spell_eadric_hammer_of_righteous';
+INSERT INTO `spell_script_names` VALUeS (66867,'spell_eadric_hammer_of_righteous');
+
+-- Spellscript for Eadric' Hammer of the Righteous - casted by player
+DELETE FROM `spell_script_names` WHERE `spell_id`=66905 AND `ScriptName`='spell_eadric_hammer_of_righteous_faceroller';
+INSERT INTO `spell_script_names` VALUeS (66905,'spell_eadric_hammer_of_righteous_faceroller');
+
+-- Eadric and Paletress should not drop item 47197 in heroic mode
+-- it drops only from Eadric in normal mode
+-- Also item 47947 was missing from Eadric and Paletress in heroic mode
+DELETE FROM `reference_loot_template` WHERE Entry=12025 AND Item IN (47197,47497);
+INSERT INTO `reference_loot_template` VALUES (12025,47497,0,0,0,1,1,1,1,'');
+
 --
 -- Vehicles
 --
@@ -89,6 +110,9 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`probability`,
 (34992,0,0,'Of course they will.',12,100,35323,2,'Lady Jaina Proudmoore - SAY_JAINA_INTRO_1'),
 (34992,1,0,'They''re worthy fighters, you''ll see.',12,100,35329,2,'Lady Jaina Proudmoore - SAY_JAINA_INTRO_2');
 
+-- One of the texts in instance was 'say' instead of 'yell'
+UPDATE `creature_text` SET `type`=14 WHERE `entry`=@HERALD_H AND `groupid`=0;
+
 -- Most of the texts in instance should be zonewide
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34990,34995) AND `groupid`=50 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34990,34995) AND `groupid`=52 AND `id`=0;
@@ -98,6 +122,7 @@ UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34996 AND `groupid` BETWE
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (@HERALD_A,@HERALD_H) AND `groupid` BETWEEN 0 AND 8 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34657,34701,34702,34703,34705,34883,34887,35569,35570,35571,35572,35617) AND `groupid`=0 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34928,35119);
+UPDATE `creature_text` SET `TextRange`=2 WHERE `BroadcastTextId`=35491;
 
 --
 -- Lesser Champions
@@ -149,8 +174,8 @@ SET @LANA_H := 36087;
 -- None of the grand champions had correct unit flags set in database
 UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry` IN (@MOKRA,@ERESSEA,@RUNOK,@ZULTORE,@VISCERI,@JACOB,@AMBROSE,@COLOSOS,@JAELYNE,@LANA,@MOKRA_H,@ERESSEA_H,@RUNOK_H,@ZULTORE_H,@VISCERI_H,@JACOB_H,@AMBROSE_H,@COLOSOS_H,@JAELYNE_H,@LANA_H);
 
--- Achievement criteria scripts
--- for achievement IDs 3778, 4296, 4297, 4298
+-- Achievement criteria data
+-- for achievement IDs 3778, 4018, 4019, 4048, 4049, 4050, 4051, 4052, 4053, 4054, 4055, 4296, 4297, 4298, 
 
 -- Variables
 SET @CRITERIA_JACOB := 11420;
@@ -173,26 +198,168 @@ SET @CRITERIA_VISCERI_H := 12319;
 SET @CRITERIA_RUNOK_H := 12320;
 SET @CRITERIA_ERESSEA_H := 12321;
 SET @CRITERIA_ZULTORE_H := 12322;
+-- Statistics achievements
+SET @CRITERIA_WARRIOR := 12538;
+SET @CRITERIA_HUNTER := 12540;
+SET @CRITERIA_MAGE := 12542;
+SET @CRITERIA_ROGUE := 12544;
+SET @CRITERIA_SHAMAN := 12546;
+SET @CRITERIA_WARRIOR_H := 12539;
+SET @CRITERIA_HUNTER_H := 12541;
+SET @CRITERIA_MAGE_H := 12543;
+SET @CRITERIA_ROGUE_H := 12545;
+SET @CRITERIA_SHAMAN_H := 12547;
 
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_JACOB,@CRITERIA_LANA,@CRITERIA_COLOSOS,@CRITERIA_AMBROSE,@CRITERIA_JAELYNE,@CRITERIA_MOKRA,@CRITERIA_VISCERI,@CRITERIA_RUNOK,@CRITERIA_ERESSEA,@CRITERIA_ZULTORE,@CRITERIA_JACOB_H,@CRITERIA_LANA_H,@CRITERIA_COLOSOS_H,@CRITERIA_AMBROSE_H,@CRITERIA_JAELYNE_H,@CRITERIA_MOKRA_H,@CRITERIA_VISCERI_H,@CRITERIA_RUNOK_H,@CRITERIA_ERESSEA_H,@CRITERIA_ZULTORE_H);
+-- These criterias are missing creature checks
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_JACOB,@CRITERIA_LANA,@CRITERIA_COLOSOS,@CRITERIA_AMBROSE,@CRITERIA_JAELYNE,@CRITERIA_MOKRA,@CRITERIA_VISCERI,@CRITERIA_RUNOK,@CRITERIA_ERESSEA,@CRITERIA_ZULTORE,@CRITERIA_JACOB_H,@CRITERIA_LANA_H,@CRITERIA_COLOSOS_H,@CRITERIA_AMBROSE_H,@CRITERIA_JAELYNE_H,@CRITERIA_MOKRA_H,@CRITERIA_VISCERI_H,@CRITERIA_RUNOK_H,@CRITERIA_ERESSEA_H,@CRITERIA_ZULTORE_H) AND type=1;
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`) VALUES
+(@CRITERIA_JACOB,1,@JACOB),
+(@CRITERIA_LANA,1,@LANA),
+(@CRITERIA_COLOSOS,1,@COLOSOS),
+(@CRITERIA_AMBROSE,1,@AMBROSE),
+(@CRITERIA_JAELYNE,1,@JAELYNE),
+(@CRITERIA_MOKRA,1,@MOKRA),
+(@CRITERIA_VISCERI,1,@VISCERI),
+(@CRITERIA_RUNOK,1,@RUNOK),
+(@CRITERIA_ERESSEA,1,@ERESSEA),
+(@CRITERIA_ZULTORE,1,@ZULTORE),
+(@CRITERIA_JACOB_H,1,@JACOB),
+(@CRITERIA_LANA_H,1,@LANA),
+(@CRITERIA_COLOSOS_H,1,@COLOSOS),
+(@CRITERIA_AMBROSE_H,1,@AMBROSE),
+(@CRITERIA_JAELYNE_H,1,@JAELYNE),
+(@CRITERIA_MOKRA_H,1,@MOKRA),
+(@CRITERIA_VISCERI_H,1,@VISCERI),
+(@CRITERIA_RUNOK_H,1,@RUNOK),
+(@CRITERIA_ERESSEA_H,1,@ERESSEA),
+(@CRITERIA_ZULTORE_H,1,@ZULTORE);
+
+-- Statistics achievements are also missing creature checks
+-- but as criterias are same on both horde and alliance,
+-- and we can only check for one creature entry,
+-- we must use core script to check for two entries
+-- Also we remove heroic checks from database, they are handled in the script
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_WARRIOR,@CRITERIA_HUNTER,@CRITERIA_MAGE,@CRITERIA_ROGUE,@CRITERIA_SHAMAN,@CRITERIA_WARRIOR_H,@CRITERIA_HUNTER_H,@CRITERIA_MAGE_H,@CRITERIA_ROGUE_H,@CRITERIA_SHAMAN_H);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
-(@CRITERIA_JACOB, 11, 'achievement_toc_credit_jacob'),
-(@CRITERIA_LANA, 11, 'achievement_toc_credit_lana'),
-(@CRITERIA_COLOSOS, 11, 'achievement_toc_credit_colosos'),
-(@CRITERIA_AMBROSE, 11, 'achievement_toc_credit_ambrose'),
-(@CRITERIA_JAELYNE, 11, 'achievement_toc_credit_jaelyne'),
-(@CRITERIA_MOKRA, 11, 'achievement_toc_credit_mokra'),
-(@CRITERIA_VISCERI, 11, 'achievement_toc_credit_visceri'),
-(@CRITERIA_RUNOK, 11, 'achievement_toc_credit_runok'),
-(@CRITERIA_ERESSEA, 11, 'achievement_toc_credit_eressea'),
-(@CRITERIA_ZULTORE, 11, 'achievement_toc_credit_zultore'),
-(@CRITERIA_JACOB_H, 11, 'achievement_toc_credit_jacob_h'),
-(@CRITERIA_LANA_H, 11, 'achievement_toc_credit_lana_h'),
-(@CRITERIA_COLOSOS_H, 11, 'achievement_toc_credit_colosos_h'),
-(@CRITERIA_AMBROSE_H, 11, 'achievement_toc_credit_ambrose_h'),
-(@CRITERIA_JAELYNE_H, 11, 'achievement_toc_credit_jaelyne_h'),
-(@CRITERIA_MOKRA_H, 11, 'achievement_toc_credit_mokra_h'),
-(@CRITERIA_VISCERI_H, 11, 'achievement_toc_credit_visceri_h'),
-(@CRITERIA_RUNOK_H, 11, 'achievement_toc_credit_runok_h'),
-(@CRITERIA_ERESSEA_H, 11, 'achievement_toc_credit_eressea_h'),
-(@CRITERIA_ZULTORE_H, 11, 'achievement_toc_credit_zultore_h');
+(@CRITERIA_WARRIOR,11,'achievement_victories_over_war_champion'),
+(@CRITERIA_HUNTER,11,'achievement_victories_over_hun_champion'),
+(@CRITERIA_MAGE,11,'achievement_victories_over_mag_champion'),
+(@CRITERIA_ROGUE,11,'achievement_victories_over_rog_champion'),
+(@CRITERIA_SHAMAN,11,'achievement_victories_over_sha_champion'),
+(@CRITERIA_WARRIOR_H,11,'achievement_victories_over_war_champion_h'),
+(@CRITERIA_HUNTER_H,11,'achievement_victories_over_hun_champion_h'),
+(@CRITERIA_MAGE_H,11,'achievement_victories_over_mag_champion_h'),
+(@CRITERIA_ROGUE_H,11,'achievement_victories_over_rog_champion_h'),
+(@CRITERIA_SHAMAN_H,11,'achievement_victories_over_sha_champion_h');
+
+--
+-- Argent Champion
+--
+
+-- Thrash mobs are missing reputation data and money drop
+
+-- Variables
+SET @ARGENT_MONK := 35305;
+SET @ARGENT_MONK_H := 35306;
+SET @ARGENT_PRIESTESS := 35307;
+SET @ARGENT_PRIESTESS_H := 35308;
+SET @ARGENT_LIGHTWIELDER := 35309;
+SET @ARGENT_LIGHTWIELDER_H := 35310;
+
+UPDATE `creature_template` SET `mingold`=3821,`maxgold`=9521 WHERE `entry` IN (@ARGENT_MONK,@ARGENT_PRIESTESS,@ARGENT_LIGHTWIELDER);
+UPDATE `creature_template` SET `mingold`=11529,`maxgold`=17291 WHERE `entry` IN (@ARGENT_MONK_H,@ARGENT_PRIESTESS_H,@ARGENT_LIGHTWIELDER_H);
+
+DELETE FROM `creature_onkill_reputation` WHERE `creature_id` IN (@ARGENT_MONK,@ARGENT_PRIESTESS,@ARGENT_LIGHTWIELDER,@ARGENT_MONK_H,@ARGENT_PRIESTESS_H,@ARGENT_LIGHTWIELDER_H);
+INSERT INTO `creature_onkill_reputation` VALUES
+(@ARGENT_MONK,1037,1052,7,0,5,7,0,5,1),
+(@ARGENT_PRIESTESS,1037,1052,7,0,5,7,0,5,1),
+(@ARGENT_LIGHTWIELDER,1037,1052,7,0,5,7,0,5,1),
+(@ARGENT_MONK_H,1037,1052,7,0,10,7,0,10,1),
+(@ARGENT_PRIESTESS_H,1037,1052,7,0,10,7,0,10,1),
+(@ARGENT_LIGHTWIELDER_H,1037,1052,7,0,10,7,0,10,1);
+
+
+
+-- Achievement criteria data
+-- for achievement id 3802
+
+-- Variables
+SET @CRITERIA_HOGGER := 11863;
+SET @CRITERIA_VANCLEEF := 11904;
+SET @CRITERIA_MUTANUS := 11905;
+SET @CRITERIA_HEROD := 11906;
+SET @CRITERIA_LUCIFRON := 11907;
+SET @CRITERIA_THUNDERAAN := 11908;
+SET @CRITERIA_CHROMAGGUS := 11909;
+SET @CRITERIA_HAKKAR := 11910;
+SET @CRITERIA_VEKNILASH := 11911;
+SET @CRITERIA_KALITHRESH := 11912;
+SET @CRITERIA_MALCHEZAAR := 11913;
+SET @CRITERIA_GRUUL := 11914;
+SET @CRITERIA_VASHJ := 11915;
+SET @CRITERIA_ARCHIMONDE := 11916;
+SET @CRITERIA_ILLIDAN := 11917;
+SET @CRITERIA_DELRISSA := 11918;
+SET @CRITERIA_MURU := 11919;
+SET @CRITERIA_INGVAR := 11920;
+SET @CRITERIA_CYANIGOSA := 11921;
+SET @CRITERIA_ECK := 11922;
+SET @CRITERIA_ONYXIA := 11923;
+SET @CRITERIA_HEIGAN := 11924;
+SET @CRITERIA_IGNIS := 11925;
+SET @CRITERIA_VEZAX := 11926;
+SET @CRITERIA_ALGALON := 11927;
+
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_HOGGER,@CRITERIA_VANCLEEF,@CRITERIA_MUTANUS,@CRITERIA_HEROD,@CRITERIA_LUCIFRON,@CRITERIA_THUNDERAAN,@CRITERIA_CHROMAGGUS,@CRITERIA_HAKKAR,@CRITERIA_VEKNILASH,@CRITERIA_KALITHRESH,@CRITERIA_MALCHEZAAR,@CRITERIA_GRUUL,@CRITERIA_VASHJ,@CRITERIA_ARCHIMONDE,@CRITERIA_ILLIDAN,@CRITERIA_DELRISSA,@CRITERIA_MURU,@CRITERIA_INGVAR,@CRITERIA_CYANIGOSA,@CRITERIA_ECK,@CRITERIA_ONYXIA,@CRITERIA_HEIGAN,@CRITERIA_IGNIS,@CRITERIA_VEZAX,@CRITERIA_ALGALON);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`) VALUES
+(@CRITERIA_HOGGER,1,34942),
+(@CRITERIA_VANCLEEF,1,35028),
+(@CRITERIA_MUTANUS,1,35029),
+(@CRITERIA_HEROD,1,35030),
+(@CRITERIA_LUCIFRON,1,35031),
+(@CRITERIA_THUNDERAAN,1,35032),
+(@CRITERIA_CHROMAGGUS,1,35033),
+(@CRITERIA_HAKKAR,1,35034),
+(@CRITERIA_VEKNILASH,1,35036),
+(@CRITERIA_KALITHRESH,1,35037),
+(@CRITERIA_MALCHEZAAR,1,35038),
+(@CRITERIA_GRUUL,1,35039),
+(@CRITERIA_VASHJ,1,35040),
+(@CRITERIA_ARCHIMONDE,1,35041),
+(@CRITERIA_ILLIDAN,1,35042),
+(@CRITERIA_DELRISSA,1,35043),
+(@CRITERIA_MURU,1,35044),
+(@CRITERIA_INGVAR,1,35045),
+(@CRITERIA_CYANIGOSA,1,35046),
+(@CRITERIA_ECK,1,35047),
+(@CRITERIA_ONYXIA,1,35048),
+(@CRITERIA_HEIGAN,1,35049),
+(@CRITERIA_IGNIS,1,35050),
+(@CRITERIA_VEZAX,1,35051),
+(@CRITERIA_ALGALON,1,35052);
+
+-- Correcting Paletress' speed values on heroic mode
+UPDATE `creature_template` SET `speed_walk`=2,`speed_run`=1.42857 WHERE `entry`=35517;
+
+-- Correcting Paletress' mechanic immunities
+-- she is interruptable
+UPDATE `creature_template` SET `mechanic_immune_mask`=617299839 WHERE `entry` IN (34928,35517);
+
+-- Paletress' Memory adds are missing mechanic immunities
+UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry`=34942 OR `entry` BETWEEN 35028 AND 35052 OR `entry` BETWEEN 35519 AND 35525 OR `entry` BETWEEN 35527 AND 35544;
+
+-- Correcting Eadric' mechanic immunities
+UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN (35119,35518);
+
+-- Eadric' Vengeance spell should have internal cooldown and procChance
+-- Proc spell should properly be removed on successful melee crit
+DELETE FROM `spell_proc_event` WHERE entry IN (66865,66889);
+INSERT INTO `spell_proc_event` (`entry`,`procFlags`,`procEx`,`CustomChance`,`Cooldown`) VALUES 
+(66865,4,0,20,10),
+(66889,4,2,0,0);
+-- Also the proc spell of Vengeance should not remove original aura
+DELETE FROM `spell_linked_spell` WHERE spell_trigger=66889 AND spell_effect=-66865;
+
+-- Player casted Hammer of the Righteous to Eadric should remove the dummy aura from player on cast
+DELETE FROM `spell_linked_spell` WHERE spell_trigger=66905 AND spell_effect=-66904;
+INSERT INTO `spell_linked_spell` VALUES (66905,-66904,0,'Eadric - Remove dummy aura from player on cast');

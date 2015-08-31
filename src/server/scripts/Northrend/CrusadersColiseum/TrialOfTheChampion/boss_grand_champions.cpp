@@ -65,6 +65,7 @@ enum Events
     EVENT_LIGHTNING_ARROWS,
     EVENT_DISENGAGE,
     // Rogue - Grand Champion
+    EVENT_DEADLY_POISON,
     EVENT_EVISCERATE,
     EVENT_FAN_OF_KNIVES,
     EVENT_POISON_BOTTLE
@@ -562,7 +563,7 @@ struct toc_bossAI : ScriptedAI
             for (int i = 0; i < 3; i++)
             {
                 Creature* pGrandChampion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1 + i));
-                if (pGrandChampion && me != pGrandChampion && !pGrandChampion->HasAura(SPELL_KNEEL) && !pGrandChampion->IsInCombat())
+                if (pGrandChampion && !pGrandChampion->HasAura(SPELL_KNEEL) && !pGrandChampion->IsInCombat())
                     pGrandChampion->AI()->AttackStart(who);
             }
             DoZoneInCombat();
@@ -1266,7 +1267,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POLYMORPH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                         {
                             DoCast(target, SPELL_POLYMORPH);
                             if (me->HasAura(SPELL_HASTE))
@@ -1455,7 +1456,7 @@ public:
                     case EVENT_CHAIN_LIGHTNING:
                         if (!isDefensive)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
                         }
@@ -1649,6 +1650,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
+            _events.ScheduleEvent(EVENT_DEADLY_POISON, 500);
             _events.ScheduleEvent(EVENT_EVISCERATE, 8000);
             _events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
             _events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
@@ -1667,13 +1669,14 @@ public:
                 return;
             }
 
-            if (!me->HasAura(SPELL_DEADLY_POISON))
-                DoCast(me, SPELL_DEADLY_POISON);
-
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
+                    case EVENT_DEADLY_POISON:
+                        if (!me->HasAura(SPELL_DEADLY_POISON))
+                            DoCast(me, SPELL_DEADLY_POISON);
+                        _events.ScheduleEvent(EVENT_DEADLY_POISON, 30000);
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
                         _events.ScheduleEvent(EVENT_EVISCERATE, 8000);
@@ -1687,7 +1690,7 @@ public:
                         _events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
                         break;
                     case EVENT_POISON_BOTTLE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                             DoCast(target, SPELL_POISON_BOTTLE);
                         _events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
                         break;
@@ -1799,67 +1802,47 @@ class spell_toc5_lightning_arrows : public SpellScriptLoader
 
 enum CriteriaIds
 {
-    // Normal mode
-    CRITERIA_JACOB      = 11420,
-    CRITERIA_LANA       = 12298,
-    CRITERIA_COLOSOS    = 12299,
-    CRITERIA_AMBROSE    = 12300,
-    CRITERIA_JAELYNE    = 12301,
-    CRITERIA_MOKRA      = 12302,
-    CRITERIA_VISCERI    = 12303,
-    CRITERIA_RUNOK      = 12304,
-    CRITERIA_ERESSEA    = 12305,
-    CRITERIA_ZULTORE    = 12306,
-    // Heroic mode
-    CRITERIA_JACOB_H    = 12310,
-    CRITERIA_LANA_H     = 12311,
-    CRITERIA_COLOSOS_H  = 12312,
-    CRITERIA_AMBROSE_H  = 12313,
-    CRITERIA_JAELYNE_H  = 12314,
-    CRITERIA_MOKRA_H    = 12318,
-    CRITERIA_VISCERI_H  = 12319,
-    CRITERIA_RUNOK_H    = 12320,
-    CRITERIA_ERESSEA_H  = 12321,
-    CRITERIA_ZULTORE_H  = 12322
+    CRITERIA_WARRIOR    = 12538,
+    CRITERIA_HUNTER     = 12540,
+    CRITERIA_MAGE       = 12542,
+    CRITERIA_ROGUE      = 12544,
+    CRITERIA_SHAMAN     = 12546,
+    CRITERIA_WARRIOR_H  = 12539,
+    CRITERIA_HUNTER_H   = 12541,
+    CRITERIA_MAGE_H     = 12543,
+    CRITERIA_ROGUE_H    = 12545,
+    CRITERIA_SHAMAN_H   = 12547
 };
 
-// Achievement IDs 3778, 4296, 4297, 4298
-// to complete correct criterias
-class achievement_trial_of_the_champion_credit : public AchievementCriteriaScript
+// Statistics achievements "Victories over X champion" both normal and heroic
+class achievement_victories_over_champion : public AchievementCriteriaScript
 {
     public:
-        achievement_trial_of_the_champion_credit(char const* name, uint32 criteriaId) : AchievementCriteriaScript(name),
+        achievement_victories_over_champion(char const* name, uint32 criteriaId) : AchievementCriteriaScript(name),
             _criteriaId(criteriaId)
         {
         }
 
         bool OnCheck(Player* plr, Unit* target) override
         {
-            if (plr->GetMap()->GetId() != 650)
-                return false;
-
             if (target && target->ToCreature())
             {
                 bool isHeroic = plr->GetMap()->IsHeroic();
-                if (target->ToCreature()->GetEntry() == NPC_JACOB && ((!isHeroic && _criteriaId == CRITERIA_JACOB) || (isHeroic && _criteriaId == CRITERIA_JACOB_H)))
+
+                if ((_criteriaId == CRITERIA_WARRIOR || (isHeroic && _criteriaId == CRITERIA_WARRIOR_H))
+                    && (target->ToCreature()->GetEntry() == NPC_JACOB || target->ToCreature()->GetEntry() == NPC_MOKRA))
                     return true;
-                else if (target->ToCreature()->GetEntry() == NPC_LANA && ((!isHeroic && _criteriaId == CRITERIA_LANA) || (isHeroic && _criteriaId == CRITERIA_LANA_H)))
+                else if ((_criteriaId == CRITERIA_HUNTER || (isHeroic && _criteriaId == CRITERIA_HUNTER_H))
+                    && (target->ToCreature()->GetEntry() == NPC_JAELYNE || target->ToCreature()->GetEntry() == NPC_ZULTORE))
                     return true;
-                else if (target->ToCreature()->GetEntry() == NPC_COLOSOS && ((!isHeroic && _criteriaId == CRITERIA_COLOSOS) || (isHeroic && _criteriaId == CRITERIA_COLOSOS_H)))
+                else if ((_criteriaId == CRITERIA_MAGE || (isHeroic && _criteriaId == CRITERIA_MAGE_H))
+                    && (target->ToCreature()->GetEntry() == NPC_AMBROSE || target->ToCreature()->GetEntry() == NPC_ERESSEA))
                     return true;
-                else if (target->ToCreature()->GetEntry() == NPC_AMBROSE && ((!isHeroic && _criteriaId == CRITERIA_AMBROSE) || (isHeroic && _criteriaId == CRITERIA_AMBROSE_H)))
+                else if ((_criteriaId == CRITERIA_ROGUE || (isHeroic && _criteriaId == CRITERIA_ROGUE_H))
+                    && (target->ToCreature()->GetEntry() == NPC_LANA || target->ToCreature()->GetEntry() == NPC_VISCERI))
                     return true;
-                else if (target->ToCreature()->GetEntry() == NPC_JAELYNE && ((!isHeroic && _criteriaId == CRITERIA_JAELYNE) || (isHeroic && _criteriaId == CRITERIA_JAELYNE_H)))
-                    return true;
-                else if (target->ToCreature()->GetEntry() == NPC_MOKRA && ((!isHeroic && _criteriaId == CRITERIA_MOKRA) || (isHeroic && _criteriaId == CRITERIA_MOKRA_H)))
-                    return true;
-                else if (target->ToCreature()->GetEntry() == NPC_VISCERI && ((!isHeroic && _criteriaId == CRITERIA_VISCERI) || (isHeroic && _criteriaId == CRITERIA_VISCERI_H)))
-                    return true;
-                else if (target->ToCreature()->GetEntry() == NPC_RUNOK && ((!isHeroic && _criteriaId == CRITERIA_RUNOK) || (isHeroic && _criteriaId == CRITERIA_RUNOK_H)))
-                    return true;
-                else if (target->ToCreature()->GetEntry() == NPC_ERESSEA && ((!isHeroic && _criteriaId == CRITERIA_ERESSEA) || (isHeroic && _criteriaId == CRITERIA_ERESSEA_H)))
-                    return true;
-                else if (target->ToCreature()->GetEntry() == NPC_ZULTORE && ((!isHeroic && _criteriaId == CRITERIA_ZULTORE) || (isHeroic && _criteriaId == CRITERIA_ZULTORE_H)))
+                else if ((_criteriaId == CRITERIA_SHAMAN || (isHeroic && _criteriaId == CRITERIA_SHAMAN_H))
+                    && (target->ToCreature()->GetEntry() == NPC_COLOSOS || target->ToCreature()->GetEntry() == NPC_RUNOK))
                     return true;
             }
             return false;
@@ -1879,24 +1862,14 @@ void AddSC_boss_grand_champions()
     new boss_rouge_toc5();
     new spell_toc5_trample_aura();
     new spell_toc5_lightning_arrows();
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_jacob", CRITERIA_JACOB);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_lana", CRITERIA_LANA);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_colosos", CRITERIA_COLOSOS);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_ambrose", CRITERIA_AMBROSE);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_jaelyne", CRITERIA_JAELYNE);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_mokra", CRITERIA_MOKRA);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_visceri", CRITERIA_VISCERI);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_runok", CRITERIA_RUNOK);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_eressea", CRITERIA_ERESSEA);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_zultore", CRITERIA_ZULTORE);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_jacob_h", CRITERIA_JACOB_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_lana_h", CRITERIA_LANA_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_colosos_h", CRITERIA_COLOSOS_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_ambrose_h", CRITERIA_AMBROSE_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_jaelyne_h", CRITERIA_JAELYNE_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_mokra_h", CRITERIA_MOKRA_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_visceri_h", CRITERIA_VISCERI_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_runok_h", CRITERIA_RUNOK_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_eressea_h", CRITERIA_ERESSEA_H);
-    new achievement_trial_of_the_champion_credit("achievement_toc_credit_zultore_h", CRITERIA_ZULTORE_H);
+    new achievement_victories_over_champion("achievement_victories_over_war_champion", CRITERIA_WARRIOR);
+    new achievement_victories_over_champion("achievement_victories_over_hun_champion", CRITERIA_HUNTER);
+    new achievement_victories_over_champion("achievement_victories_over_mag_champion", CRITERIA_MAGE);
+    new achievement_victories_over_champion("achievement_victories_over_rog_champion", CRITERIA_ROGUE);
+    new achievement_victories_over_champion("achievement_victories_over_sha_champion", CRITERIA_SHAMAN);
+    new achievement_victories_over_champion("achievement_victories_over_war_champion_h", CRITERIA_WARRIOR_H);
+    new achievement_victories_over_champion("achievement_victories_over_hun_champion_h", CRITERIA_HUNTER_H);
+    new achievement_victories_over_champion("achievement_victories_over_mag_champion_h", CRITERIA_MAGE_H);
+    new achievement_victories_over_champion("achievement_victories_over_rog_champion_h", CRITERIA_ROGUE_H);
+    new achievement_victories_over_champion("achievement_victories_over_sha_champion_h", CRITERIA_SHAMAN_H);
 }

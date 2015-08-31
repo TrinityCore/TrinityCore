@@ -262,6 +262,7 @@ public:
                                 }
                             }
                             pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
+                            pAnnouncer->AI()->SetData(DATA_GRAND_CHAMPIONS_DONE, 0);
                             DoRespawnGameObject(uiGrandChampionLootGUID, 1 * DAY);
                             if (GameObject* cache = instance->GetGameObject(uiGrandChampionLootGUID))
                                 cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -273,11 +274,11 @@ public:
                     uiArgentSoldierDeaths = uiData;
                     if (uiArgentSoldierDeaths == 9)
                     {
-                        if (Creature* pBoss =  instance->GetCreature(uiArgentChampionGUID))
+                        if (Creature* pBoss = instance->GetCreature(uiArgentChampionGUID))
                         {
-                            pBoss->GetMotionMaster()->MovePoint(0, 746.88f, 618.74f, 411.06f);
-                            pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pBoss->SetReactState(REACT_AGGRESSIVE);
+                            pBoss->setFaction(16);
+                            pBoss->SetHomePosition(747.02f, 637.65f, 411.57f, centerOrientation);
+                            pBoss->GetMotionMaster()->MovePoint(1, pBoss->GetHomePosition());
                         }
                     }
                     break;
@@ -285,6 +286,21 @@ public:
                     m_auiEncounter[1] = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
+                        // On heroic mode we must bind players to the instance
+                        if (instance->IsHeroic())
+                        {
+                            Map::PlayerList const &players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                Player *plr = itr->GetSource();
+                                if (plr && !plr->IsGameMaster())
+                                {
+                                    if (instance->ToInstanceMap())
+                                        instance->ToInstanceMap()->PermBindAllPlayers(plr);
+                                    break;
+                                }
+                            }
+                        }
                         pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
                         DoRespawnGameObject(uiEadricLootGUID, 1 * DAY);
                         if (GameObject* cache = instance->GetGameObject(uiEadricLootGUID))
@@ -295,6 +311,21 @@ public:
                     m_auiEncounter[2] = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
+                        // On heroic mode we must bind players to the instance
+                        if (instance->IsHeroic())
+                        {
+                            Map::PlayerList const &players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                Player *plr = itr->GetSource();
+                                if (plr && !plr->IsGameMaster())
+                                {
+                                    if (instance->ToInstanceMap())
+                                        instance->ToInstanceMap()->PermBindAllPlayers(plr);
+                                    break;
+                                }
+                            }
+                        }
                         pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
                         DoRespawnGameObject(uiPaletressLootGUID, 1 * DAY);
                         if (GameObject* cache = instance->GetGameObject(uiPaletressLootGUID))
@@ -338,11 +369,17 @@ public:
                 case DATA_GRAND_CHAMPION_VEHICLE_2: return uiGrandChampionVehicle2GUID;
                 case DATA_GRAND_CHAMPION_VEHICLE_3: return uiGrandChampionVehicle3GUID;
 
+                case DATA_ARGENT_CHAMPION: return uiArgentChampionGUID;
+
                 case DATA_TIRION: return uiTirionGUID;
                 case DATA_VARIAN: return uiVarianGUID;
                 case DATA_JAINA: return uiJainaGUID;
                 case DATA_GARROSH: return uiGarroshGUID;
                 case DATA_THRALL: return uiThrallGUID;
+
+                case GO_CHAMPIONS_LOOT: return uiGrandChampionLootGUID;
+                case GO_EADRIC_LOOT: return uiEadricLootGUID;
+                case GO_PALETRESS_LOOT: return uiPaletressLootGUID;
             }
 
             return ObjectGuid::Empty;

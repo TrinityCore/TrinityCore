@@ -49,8 +49,8 @@ Position const GrandChampFinalLoc[6] =
 {
     // Horde Grand Champions
     { 706.49f, 618.48f, 411.88f },
-    { 709.49f, 634.63f, 411.92f },
-    { 713.13f, 651.33f, 412.39f },
+    { 709.00f, 633.73f, 411.92f },
+    { 709.17f, 646.25f, 412.39f },
     // Alliance Grand Champions
     { 780.96f, 603.13f, 411.84f },
     { 783.76f, 615.98f, 411.84f },
@@ -76,6 +76,8 @@ enum Data
     DATA_START,
     DATA_PLAYERS_TEAM,
     DATA_REMOVE_VEHICLES,
+    DATA_GRAND_CHAMPIONS_DONE,
+    DATA_ARGENT_CHAMPION_PREPARE,
     DATA_ARGENT_SOLDIER_DEFEATED
 };
 
@@ -91,6 +93,8 @@ enum Data64
     DATA_GRAND_CHAMPION_1,
     DATA_GRAND_CHAMPION_2,
     DATA_GRAND_CHAMPION_3,
+
+    DATA_ARGENT_CHAMPION,
 
     DATA_TIRION,
     DATA_VARIAN,
@@ -115,6 +119,7 @@ enum Creatures
     NPC_JAELYNE                                     = 34657,
     NPC_LANA                                        = 34703,
 
+    // Argent Champions
     NPC_EADRIC                                      = 35119,
     NPC_PALETRESS                                   = 34928,
 
@@ -122,11 +127,13 @@ enum Creatures
     NPC_ARGENT_MONK                                 = 35305,
     NPC_PRIESTESS                                   = 35307,
 
+    // The Black Knight
     NPC_BLACK_KNIGHT                                = 35451,
 
     NPC_RISEN_JAEREN                                = 35545,
     NPC_RISEN_ARELAS                                = 35564,
 
+    // Announcers
     NPC_JAEREN                                      = 35004,
     NPC_ARELAS                                      = 35005,
 
@@ -137,6 +144,8 @@ enum Creatures
     NPC_GARROSH                                     = 34995,
 
     // Spectators
+    NPC_SPECTATOR_HORDE                             = 34883,
+    NPC_SPECTATOR_ALLIANCE                          = 34887,
     NPC_SPECTATOR_HUMAN                             = 34900,
     NPC_SPECTATOR_ORC                               = 34901,
     NPC_SPECTATOR_TROLL                             = 34902,

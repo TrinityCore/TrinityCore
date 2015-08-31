@@ -65,6 +65,8 @@ enum Texts
     SAY_TIRION_INTRO_1          = 50,
     SAY_TIRION_INTRO_2          = 51,
     SAY_TIRION_INTRO_3          = 52,
+    SAY_TIRION_OUTRO_1          = 53,
+    SAY_TIRION_INTRO_4          = 54,
 
     // Used by Varian
     SAY_VARIAN_INTRO_1          = 50,
@@ -81,6 +83,13 @@ enum Texts
     // Used by Thrall
     SAY_THRALL_INTRO_1          = 0,
     SAY_THRALL_INTRO_2          = 2,
+
+    // Used by Argent Confessor Paletress
+    SAY_PALETRESS_INTRO_1       = 0,
+    SAY_PALETRESS_INTRO_2       = 1,
+
+    // Used by Eadric the Pure
+    SAY_EADRIC_INTRO_1          = 0,
 
     // Used by spectators (same id for every spectator)
     EMOTE_SPECTATOR_CHEER       = 0
@@ -104,6 +113,57 @@ enum GossipTexts
     GOSSIP_TEXT_THIRD_BOSS      = 14738
 };
 
+<<<<<<< HEAD
+=======
+enum Events
+{
+    EVENT_CHEER_RND             = 1,
+    // Grand Champion - roleplaying intro
+    EVENT_INTRODUCE,
+    EVENT_CHAT_1,
+    EVENT_CHAT_2,
+    EVENT_CHAT_3,
+    EVENT_CHAT_4,
+    EVENT_CHAT_5,
+    EVENT_CHAT_6,
+    EVENT_SUMMON_1,
+    EVENT_OPEN_DOOR_1,
+    EVENT_INTRODUCE_BOSS_1,
+    EVENT_CLOSE_DOOR_1,
+    EVENT_SUMMON_2,
+    EVENT_OPEN_DOOR_2,
+    EVENT_INTRODUCE_BOSS_2,
+    EVENT_CLOSE_DOOR_2,
+    EVENT_SUMMON_3,
+    EVENT_OPEN_DOOR_3,
+    EVENT_INTRODUCE_BOSS_3,
+    EVENT_CLOSE_DOOR_3,
+    EVENT_WAIT_1,
+    EVENT_FACING,
+    EVENT_CHAT_7,
+    EVENT_AGGRO_1,
+    EVENT_CHAT_8,
+    // Grand Champion - roleplaying skipped
+    EVENT_CHAT_9                = 30,
+    EVENT_SUMMON_1_SKIP,
+    EVENT_SUMMON_2_SKIP,
+    EVENT_SUMMON_3_SKIP,
+    // Argent Champion
+    EVENT_MOVE_MIDDLE           = 40,
+    EVENT_SPAWN_ALL,
+    EVENT_OPEN_DOOR_4,
+    EVENT_INTRODUCE_BOSS_4,
+    EVENT_ARGENT_BOSS_WALK,
+    EVENT_GO_TO_ARGENT_BOSS,
+    EVENT_CHAT_10,
+    EVENT_CHAT_11,
+    EVENT_WAIT_2,
+    EVENT_CHAT_12
+
+
+};
+
+>>>>>>> Argent Champion encounter is now fully scripted
 /*######
 ## npc_announcer_toc5
 ######*/
@@ -222,8 +282,13 @@ public:
                 case DATA_START:
                     if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                         tirion->AI()->Talk(SAY_TIRION_INTRO_1);
+<<<<<<< HEAD
                     me->GetMotionMaster()->MovePoint(2, 732.5243f, 663.007f, 412.3932f);
                     NextStep(2000, false, 30);
+=======
+                    me->GetMotionMaster()->MovePoint(2, announcerEncounterPos);
+                    NextStep(6000, 0, false, EVENT_CHAT_9);
+>>>>>>> Argent Champion encounter is now fully scripted
                     break;
                 case DATA_LESSER_CHAMPIONS_PREPARE:
                 {
@@ -290,6 +355,17 @@ public:
 
                     break;
                 }
+<<<<<<< HEAD
+=======
+                case DATA_GRAND_CHAMPIONS_DONE:
+                    NextStep(3000, 0, false, EVENT_CHAT_8);
+                    break;
+                case DATA_ARGENT_CHAMPION_PREPARE:
+                    NextStep(500, 0, false, EVENT_GO_TO_ARGENT_BOSS);
+                    break;
+                default:
+                    break;
+>>>>>>> Argent Champion encounter is now fully scripted
             }
         }
 
@@ -314,7 +390,30 @@ public:
             if (uiPointId == 1)
                 me->SetFacingTo(centerOrientation);
             else if (uiPointId == 2)
+<<<<<<< HEAD
                 NextStep(500, false, 20);
+=======
+                NextStep(500, 0, false, EVENT_WAIT_1);
+            else if (uiPointId == 3)
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            else if (uiPointId == 4)
+            {
+                me->SetFacingTo(me->GetHomePosition().GetOrientation());
+                NextStep(500, 0, false, EVENT_SPAWN_ALL);
+            }
+            else if (uiPointId == 5)
+                NextStep(500, 0, false, EVENT_WAIT_2);
+            else if (uiPointId == 6)
+            {
+                me->SetFacingTo(centerOrientation);
+                NextStep(1000, 0, false, EVENT_CHAT_12);
+            }
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            events.Reset();
+>>>>>>> Argent Champion encounter is now fully scripted
         }
 
         void DoSummonNextGrandChampion(bool skipEvent = false)
@@ -402,26 +501,33 @@ public:
         void DoStartArgentChampionEncounter()
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
 =======
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
             me->GetMotionMaster()->MovePoint(1, announcerEncounterPos);
 >>>>>>> Add missing files part 2 and fixed a warning
+=======
+            // Removing vehicles (if not already been removed)
+            instance->SetData(DATA_REMOVE_VEHICLES, 0);
+            // Cleaning chest from arena
+            if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_CHAMPIONS_LOOT)))
+                cache->Delete();
+>>>>>>> Argent Champion encounter is now fully scripted
 
-            if (me->SummonCreature(uiArgentChampion, SpawnPosition))
-            {
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition))
-                        pTrash->AI()->SetData(i, 0);
-                    if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_MONK, SpawnPosition))
-                        pTrash->AI()->SetData(i, 0);
-                    if (Creature* pTrash = me->SummonCreature(NPC_PRIESTESS, SpawnPosition))
-                        pTrash->AI()->SetData(i, 0);
-                }
-            }
+            NextStep(1000, 0, false, EVENT_MOVE_MIDDLE);
         }
 
+<<<<<<< HEAD
+=======
+        void DoSummonBlackKnight()
+        {
+            // Removing vehicles (if not already been removed)
+            instance->SetData(DATA_REMOVE_VEHICLES, 0);
+            me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
+        }
+
+>>>>>>> Argent Champion encounter is now fully scripted
         void SetGrandChampionsForEncounter()
         {
             uiFirstBoss = urand(BOSS_WARRIOR, BOSS_ROGUE);
@@ -549,12 +655,47 @@ public:
                     {
                         if (Player* plr = itr->GetSource())
                         {
+<<<<<<< HEAD
                             if (!plr->IsAlive())
                                 continue;
 
                             if (Creature* spectator = me->FindNearestCreature(SpectatorData[plr->getRace() - 1], 100.0f))
                                 spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
                             break;
+=======
+                            // Every 2 minutes a random player is being cheered by his/her race's spectators
+                            // cheer should only occur during fights
+                            Map::PlayerList const &pList = me->GetMap()->GetPlayers();
+                            // Player list is always in the same order so we must "randomize" it
+                            if (!pList.isEmpty())
+                            {
+                                uint32 rand = urand(0, pList.getSize() - 1);
+                                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                                {
+                                    if (rand == 0)
+                                    {
+                                        Player* plr = itr->GetSource();
+                                        if (plr && !plr->IsGameMaster() && plr->IsAlive())
+                                        {
+                                            // 50% chance for race cheering at you or faction cheering at you
+                                            uint32 spectatorEntry = NULL;
+                                            if (rand32() % 2)
+                                                spectatorEntry = SpectatorData[plr->getRace() - 1];
+                                            else
+                                                spectatorEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? NPC_SPECTATOR_ALLIANCE : NPC_SPECTATOR_HORDE;
+
+                                            if (Creature* spectator = me->FindNearestCreature(spectatorEntry, 200.0f))
+                                                spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
+                                            break;
+                                        }
+                                        else
+                                            continue;
+                                    }
+                                    else
+                                        --rand;
+                                }
+                            }
+>>>>>>> Argent Champion encounter is now fully scripted
                         }
                     }
                 }
@@ -756,14 +897,37 @@ public:
                         // First wave of lesser champions aggroes
                         if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_3);
+<<<<<<< HEAD
 
+=======
+                        NextStep(2000, eventId);
+                        break;
+                    case EVENT_AGGRO_1:
+                        // First wave of lesser champions aggroes
+>>>>>>> Argent Champion encounter is now fully scripted
                         for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
                             if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                                 EnterAggressiveMode(summon);
                         NextStep(0, false);
                         break;
+<<<<<<< HEAD
                     // Phases below happen only if event is skipped
                     case 30:
+=======
+                    case EVENT_CHAT_8:
+                        // Tirion congratulates players
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_OUTRO_1);
+                        NextStep(0, 0, false);
+                        break;
+                    // Phases below happen only if roleplaying event is skipped
+                    case EVENT_CHAT_9:
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_INTRO_2);
+                        NextStep(3000, eventId);
+                        break;
+                    case EVENT_SUMMON_1_SKIP:
+>>>>>>> Argent Champion encounter is now fully scripted
                         // Summoning first champion
                         DoSummonNextGrandChampion(true);
                         NextStep(4000);
@@ -778,7 +942,119 @@ public:
                         if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_2);
                         DoSummonNextGrandChampion(true);
+<<<<<<< HEAD
                         NextStep(0, false); // MovementInform continues from this
+=======
+                        NextStep(0, 0, false); // MovementInform continues from this
+                        break;
+                    // Phases below happen in Argent Champion encounter
+                    case EVENT_MOVE_MIDDLE:
+                        // Moves into middle of arena
+                        me->GetMotionMaster()->MovePoint(4, me->GetHomePosition());
+                        NextStep(0, 0, false); // MovementInform continues from this
+                        break;
+                    case EVENT_SPAWN_ALL:
+                        // Spawns 9 adds and boss
+                        // Generating final positions for monks and other 2 adds follow the monk
+                        // when monk is in final position, then final positions are generated for other adds
+                        if (me->SummonCreature(uiArgentChampion, SpawnPosition))
+                        {
+                            for (uint8 i = 0; i < 3; ++i)
+                            {
+                                if (Creature* pMonk = me->SummonCreature(NPC_ARGENT_MONK, SpawnPosition))
+                                {
+                                    pMonk->AI()->SetData(i, 0);
+                                    if (Creature* pLightwielder = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition))
+                                    {
+                                        pLightwielder->AI()->SetData(i, 0);
+                                        pLightwielder->GetMotionMaster()->MoveFollow(pMonk, 2.0f, float(M_PI));
+                                    }
+                                    if (Creature* pPriestess = me->SummonCreature(NPC_PRIESTESS, SpawnPosition))
+                                    {
+                                        pPriestess->AI()->SetData(i, 0);
+                                        pPriestess->GetMotionMaster()->MoveFollow(pMonk, 2.0f, float(M_PI) / 2);
+                                    }
+                                }
+                            }
+                        }
+                        NextStep(2000, eventId);
+                        break;
+                    case EVENT_OPEN_DOOR_4:
+                        // Opening doors
+                        if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
+                            instance->HandleGameObject(gate->GetGUID(), true);
+                        NextStep(2000, eventId);
+                        break;
+                    case EVENT_INTRODUCE_BOSS_4:
+                        // Introducing Argent Champion to spectators
+                        // Horde and alliance spectators cheer for Argent Champion
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
+                        {
+                            if (pBoss->GetEntry() == NPC_EADRIC)
+                                Talk(SAY_INTRO_2_E, pBoss);
+                            else
+                                Talk(SAY_INTRO_2_P, pBoss);
+                            if (Creature* aSpectator = me->FindNearestCreature(NPC_SPECTATOR_ALLIANCE, 200.0f))
+                                aSpectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, pBoss);
+                            if (Creature* hSpectator = me->FindNearestCreature(NPC_SPECTATOR_HORDE, 200.0f))
+                                hSpectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, pBoss);
+                        }
+                        NextStep(10000, eventId);
+                        break;
+                    case EVENT_ARGENT_BOSS_WALK:
+                        // Argent Champion starts walking to arena
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
+                        {
+                            pBoss->SetWalk(true);
+                            pBoss->GetMotionMaster()->MovePoint(0, 746.71f, 661.4f, 411.7f);
+                        }
+                        NextStep(0, 0, false);
+                        break;
+                    case EVENT_GO_TO_ARGENT_BOSS:
+                        // Announcer starts walking to Argent Champion
+                        if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
+                            instance->HandleGameObject(gate->GetGUID(), false);
+                        me->GetMotionMaster()->MovePoint(5, 746.73f, 653.93f, 411.6f);
+                        NextStep(2000, eventId);
+                        break;
+                    case EVENT_CHAT_10:
+                        // Argent Champion talks
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
+                        {
+                            if (pBoss->GetEntry() == NPC_EADRIC)
+                            {
+                                pBoss->AI()->Talk(SAY_EADRIC_INTRO_1, me);
+                                NextStep(0, 0, false);
+                            }
+                            else
+                            {
+                                pBoss->AI()->Talk(SAY_PALETRESS_INTRO_1, me);
+                                NextStep(6000, eventId);
+                            }
+                        }
+                        break;
+                    case EVENT_CHAT_11:
+                        // Paletress talks twice
+                        if (Creature* pBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ARGENT_CHAMPION)))
+                        {
+                            if (pBoss->GetEntry() == NPC_PALETRESS)
+                                pBoss->AI()->Talk(SAY_PALETRESS_INTRO_2, me);
+                            NextStep(0, 0, false);
+                        }
+                        break;
+                    case EVENT_WAIT_2:
+                        // After announcer reached position in front of Champion,
+                        // he goes to encounter position
+                        me->GetMotionMaster()->MovePoint(6, announcerEncounterPos);
+                        NextStep(0, 0, false);
+                        break;
+                    case EVENT_CHAT_12:
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_INTRO_4);
+                        NextStep(0, 0, false);
+                        break;
+                    default:
+>>>>>>> Argent Champion encounter is now fully scripted
                         break;
                 }
             } else uiTimer -= uiDiff;
@@ -825,7 +1101,32 @@ public:
         // - Appled
         if (instance)
         {
+<<<<<<< HEAD
             if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && (player->GetVehicleBase() || player->IsGameMaster())) // Game Master mode enabled you can skip the roleplaying event
+=======
+            if (player->IsGameMaster())
+            {
+                // Gamemaster mode on you can choose which encounter you start
+                // you can't though do Grand Champions encounter more than once per instance ID
+                // other encounters you can do as many times as you like
+                if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
+                    instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
+                    instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, unskipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, skipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                }
+                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) != DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Eadric the Pure encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                if (instance->GetData(BOSS_ARGENT_CHALLENGE_P) != DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Argent Confessor Paletress encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                if (instance->GetData(BOSS_BLACK_KNIGHT) != DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start The Black Knight encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
+            }
+            else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && player->GetVehicleBase())
+>>>>>>> Argent Champion encounter is now fully scripted
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 // Patch 3.2.2: "There is now an option in the herald's dialogue to skip the introductory scripted scene if everyone in the party has already seen it."
