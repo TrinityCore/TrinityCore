@@ -623,7 +623,7 @@ public:
             Initialize();
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
         {
             if (damage >= me->GetHealth())
             {
