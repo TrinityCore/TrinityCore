@@ -1206,6 +1206,8 @@ class Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time) override;
 
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const override; // override Unit::IsImmunedToSpellEffect
+
         void SetInWater(bool apply);
 
         bool IsInWater() const override { return m_isInWater; }
