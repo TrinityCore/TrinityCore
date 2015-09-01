@@ -306,8 +306,8 @@ public:
     uint32 AttributesEx6;
     uint32 AttributesEx7;
     uint32 AttributesCu;
-    uint32 Stances;
-    uint32 StancesNot;
+    uint64 Stances;
+    uint64 StancesNot;
     uint32 Targets;
     uint32 TargetCreatureType;
     uint32 RequiresSpellFocus;
