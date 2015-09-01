@@ -1816,6 +1816,17 @@ void Player::RemoveFromWorld()
     }
 }
 
+bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
+{
+    // players are immune to taunt (the aura and the spell effect).
+    if (spellInfo->GetEffect(index)->IsAura(SPELL_AURA_MOD_TAUNT))
+        return true;
+    if (spellInfo->GetEffect(index)->IsEffect(SPELL_EFFECT_ATTACK_ME))
+        return true;
+    
+    return Unit::IsImmunedToSpellEffect(spellInfo, index);
+}
+
 void Player::RegenerateAll()
 {
     //if (m_regenTimer <= 500)
