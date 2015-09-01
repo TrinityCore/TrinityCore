@@ -539,8 +539,9 @@ enum Lurgglbr
     FACTION_ESCORTEE_A                  = 774,
     FACTION_ESCORTEE_H                  = 775,
 
-    SAY_START_1                         = 0,
-    SAY_START_2                         = 1,
+    // Note: Intentionally out of order
+    SAY_START_1                         = 1,
+    SAY_START_2                         = 0,
     SAY_END_1                           = 2,
     SAY_END_2                           = 3
 };
@@ -596,12 +597,13 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            Talk(SAY_START_1);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_START_1,player);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            Talk(SAY_END_1);
+                            Talk(SAY_START_2);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -611,12 +613,13 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            Talk(SAY_START_2);
+                            Talk(SAY_END_1);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            Talk(SAY_END_2);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_END_2,player);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
