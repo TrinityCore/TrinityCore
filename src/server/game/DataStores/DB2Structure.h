@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "Path.h"
+#include "Util.h"
 
 #pragma pack(push, 1)
 
