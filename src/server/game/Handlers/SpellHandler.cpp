@@ -278,7 +278,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     // check known spell or raid marker spell (which not requires player to know it)
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER))
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER))
         return;
 
     // Check possible spell cast overrides
