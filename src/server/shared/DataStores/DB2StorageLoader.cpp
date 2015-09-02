@@ -337,19 +337,21 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
         return nullptr;
 
     // we store flat holders pool as single memory block
-    size_t stringFields = GetFormatStringFieldCount(format);
+    std::size_t stringFields = GetFormatStringFieldCount(format);
     if (!stringFields)
         return nullptr;
 
+    std::size_t localizedStringFields = GetFormatLocalizedStringFieldCount(format);
+
     // each string field at load have array of string for each locale
-    size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-    size_t stringHoldersRecordPoolSize = stringFields * stringHolderSize;
-    size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * recordCount;
+    std::size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
+    std::size_t stringHoldersRecordPoolSize = localizedStringFields * stringHolderSize + (stringFields - localizedStringFields) * sizeof(char*);
+    std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * recordCount;
 
     char* stringHoldersPool = new char[stringHoldersPoolSize];
 
     // DB2 strings expected to have at least empty string
-    for (size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
+    for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
         ((char const**)stringHoldersPool)[i] = nullStr;
 
     uint32 offset = 0;
@@ -357,7 +359,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     // assign string holders to string field slots
     for (uint32 y = 0; y < recordCount; y++)
     {
-        uint32 stringFieldNum = 0;
+        uint32 stringFieldOffset = 0;
 
         for (uint32 x = 0; x < fieldCount; x++)
         {
@@ -376,8 +378,12 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                 {
                     // init db2 string field slots by pointers to string holders
                     char const*** slot = (char const***)(&dataTable[offset]);
-                    *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringHolderSize*stringFieldNum]);
-                    ++stringFieldNum;
+                    *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
+                    if (format[x] == FT_STRING)
+                        stringFieldOffset += stringHolderSize;
+                    else
+                        ++stringFieldOffset;
+
                     offset += sizeof(char*);
                     break;
                 }
