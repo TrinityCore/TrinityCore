@@ -2995,6 +2995,11 @@ void Player::SetGameMaster(bool on)
     UpdateObjectVisibility();
 }
 
+bool Player::CanBeGameMaster() const
+{
+    return m_session && m_session->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
+}
+
 void Player::SetGMVisible(bool on)
 {
     if (on)
