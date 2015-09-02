@@ -2561,6 +2561,11 @@ void Player::SetGameMaster(bool on)
     UpdateObjectVisibility();
 }
 
+bool Player::CanBeGameMaster() const
+{
+    return m_session && m_session->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
+}
+
 void Player::SetGMVisible(bool on)
 {
     if (on)
@@ -18674,17 +18679,28 @@ bool Player::CheckInstanceLoginValid(Map* map)
     {
         // cannot be in raid instance without a group
         if (!GetGroup())
-            return false;
+            return IsInstanceLoginGameMasterException();
     }
     else
     {
         // cannot be in normal instance without a group and more players than 1 in instance
         if (!GetGroup() && map->GetPlayersCountExceptGMs() > 1)
-            return false;
+            return IsInstanceLoginGameMasterException();
     }
 
     // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
-    return sMapMgr->CanPlayerEnter(map->GetId(), this, true);
+    return sMapMgr->CanPlayerEnter(map->GetId(), this, true) || IsInstanceLoginGameMasterException();
+}
+
+bool Player::IsInstanceLoginGameMasterException() const
+{
+    if (CanBeGameMaster())
+    {
+        ChatHandler(GetSession()).PSendSysMessage("You didn't get kicked out of the instance even if Player::CheckInstanceLoginValid() returned false and without .gm on flag");
+        return true;
+    }
+    else
+        return false;
 }
 
 bool Player::CheckInstanceCount(uint32 instanceId) const
