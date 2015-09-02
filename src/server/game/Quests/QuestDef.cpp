@@ -51,25 +51,23 @@ Quest::Quest(Field* questRecord)
     RewardArenaPoints = questRecord[26].GetUInt16();
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        RewardItemId[i] = questRecord[27+i].GetUInt32();
-
-    for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        RewardItemIdCount[i] = questRecord[31+i].GetUInt16();
-
-    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        RewardChoiceItemId[i] = questRecord[35+i].GetUInt32();
+    {
+        RewardItemId[i] = questRecord[27+i*2].GetUInt32();
+        RewardItemIdCount[i] = questRecord[28+i*2].GetUInt16();
+    }
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        RewardChoiceItemCount[i] = questRecord[41+i].GetUInt16();
+    {
+        RewardChoiceItemId[i] = questRecord[35+i*2].GetUInt32();
+        RewardChoiceItemCount[i] = questRecord[36+i*2].GetUInt16();
+    }
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionId[i] = questRecord[47+i].GetUInt16();
-
-    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionValueId[i] = questRecord[52+i].GetInt32();
-
-    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionValueIdOverride[i] = questRecord[57+i].GetInt32();
+    {
+        RewardFactionId[i] = questRecord[47+i*3].GetUInt16();
+        RewardFactionValueId[i] = questRecord[48+i*3].GetInt32();
+        RewardFactionValueIdOverride[i] = questRecord[49+i*3].GetInt32();
+    }
 
     PointMapId = questRecord[62].GetUInt16();
     PointX = questRecord[63].GetFloat();

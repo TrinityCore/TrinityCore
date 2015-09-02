@@ -3974,14 +3974,12 @@ void ObjectMgr::LoadQuests()
         "NextQuestIdChain, RewardXPId, RewardOrRequiredMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
         //      21       22        23              24                25               26
         "SourceItemId, Flags, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
-        //    27           28           29          30            31              32            33             34
-        "RewardItem1, RewardItem2, RewardItem3, RewardItem4, RewardAmount1, RewardAmount2, RewardAmount3, RewardAmount4, "
-        //        35                  36                    37                  38                    39                  40                       41                          42                         43                       44                          45                       46
-        "RewardChoiceItemID1, RewardChoiceItemID2, RewardChoiceItemID3, RewardChoiceItemID4, RewardChoiceItemID5, RewardChoiceItemID6, RewardChoiceItemQuantity1, RewardChoiceItemQuantity2, RewardChoiceItemQuantity3, RewardChoiceItemQuantity4, RewardChoiceItemQuantity5, RewardChoiceItemQuantity6, "
-        //      47                 48               49                50                 51                  52                  53                   54                   55                  56
-        "RewardFactionID1, RewardFactionID2, RewardFactionID3, RewardFactionID4, RewardFactionID5, RewardFactionValue1, RewardFactionValue2, RewardFactionValue3, RewardFactionValue4, RewardFactionValue5, "
-        //      57                          58                     59                      60                      61
-        "RewardFactionOverride1, RewardFactionOverride2, RewardFactionOverride3, RewardFactionOverride4, RewardFactionOverride5, "
+        //    27            28            29           30             31            32            33            34
+        "RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
+        //        35                      36                      37                      38                      39                      40                      41                      42                      43                      44                     45                      46
+        "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemID6, RewardChoiceItemQuantity6, "
+        //       47                 48                     49                  50                  51                     52                 53                  54                     55                  56                  57                    58                   59                 60                      61
+        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5,  RewardFactionOverride5,"
         //   62        63      64        65
         "PointMapId, PointX, PointY, PointOption, "
         //   66          67               68           69             70
