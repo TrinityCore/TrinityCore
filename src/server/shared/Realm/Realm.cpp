@@ -42,8 +42,8 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
         {
             realmIp = LocalAddress;
         }
-        else 
-            realmIp = ExternalAddress; 
+        else
+            realmIp = ExternalAddress;
     }
 
     ip::tcp::endpoint endpoint(realmIp, Port);
