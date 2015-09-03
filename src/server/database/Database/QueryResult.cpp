@@ -73,17 +73,25 @@ m_length(NULL)
 
     //- This is where we prepare the buffer based on metadata
     MYSQL_FIELD* field = mysql_fetch_fields(m_metadataResult);
+    std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
         size_t size = Field::SizeForType(&field[i]);
+        rowSize += size;
 
         m_rBind[i].buffer_type = field[i].type;
-        m_rBind[i].buffer = new char[size * m_rowCount];
         m_rBind[i].buffer_length = size;
         m_rBind[i].length = &m_length[i];
         m_rBind[i].is_null = &m_isNull[i];
         m_rBind[i].error = NULL;
         m_rBind[i].is_unsigned = field[i].flags & UNSIGNED_FLAG;
+    }
+
+    char* dataBuffer = new char[rowSize * m_rowCount];
+    for (uint32 i = 0, offset = 0; i < m_fieldCount; ++i)
+    {
+        m_rBind[i].buffer = dataBuffer + offset;
+        offset += m_rBind[i].buffer_length;
     }
 
     //- This is where we bind the bind the buffer to the statement
@@ -133,7 +141,7 @@ m_length(NULL)
                     fetched_length);
 
                 // move buffer pointer to next part
-                m_stmt->bind[fIndex].buffer = (char*)buffer + buffer_length;
+                m_stmt->bind[fIndex].buffer = (char*)buffer + rowSize;
             }
             else
             {
@@ -236,12 +244,7 @@ void PreparedResultSet::CleanUp()
 
     if (m_rBind)
     {
-        for (uint32 i = 0; i < m_fieldCount; ++i)
-        {
-            delete[]((char*)m_rBind[i].buffer);
-            m_rBind[i].buffer = nullptr;
-        }
-
+        delete[](char*)m_rBind->buffer;
         delete[] m_rBind;
         m_rBind = nullptr;
     }
