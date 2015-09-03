@@ -3966,8 +3966,8 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0     1         2         3           4           5             6               7             8
-        "ID, Method, QuestLevel, MinLevel, QuestSortID, QuestType, SuggestedGroupNum, LimitTime, RequiredRaces,"
+        //0      1           2         3           4            5                6             7            8
+        "ID, QuestType, QuestLevel, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, LimitTime, RequiredRaces,"
         //      9                     10                   11                    12
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
         //      13             14               15                    16               17             18             19               20
