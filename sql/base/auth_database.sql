@@ -583,6 +583,7 @@ CREATE TABLE `realmlist` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL DEFAULT '',
   `address` varchar(255) NOT NULL DEFAULT '127.0.0.1',
+  `address6` varchar(255) NOT NULL DEFAULT '',
   `localAddress` varchar(255) NOT NULL DEFAULT '127.0.0.1',
   `localSubnetMask` varchar(255) NOT NULL DEFAULT '255.255.255.0',
   `port` smallint(5) unsigned NOT NULL DEFAULT '8085',
@@ -605,7 +606,7 @@ CREATE TABLE `realmlist` (
 
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
-INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,20444,2,1);
+INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,20444,2,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
