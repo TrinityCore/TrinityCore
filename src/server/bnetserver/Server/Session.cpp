@@ -522,6 +522,8 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountInfo->Id);
 
     joinResponse->IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
+    if(realm->HasIpv6Address())
+      joinResponse->IPv6.push_back(realm->GetIpv6AddressForClient(GetRemoteIpAddress()));
 
     AsyncWrite(joinResponse);
 }
@@ -1141,6 +1143,7 @@ Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const
         version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
 
         listUpdate->Version = version.str();
+	// FIXME: What happens with ipv6 here? 
         listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
     }
 

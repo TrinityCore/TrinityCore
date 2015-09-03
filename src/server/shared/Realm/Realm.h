@@ -68,6 +68,7 @@ struct Realm
 {
     Battlenet::RealmId Id;
     ip::address ExternalAddress;
+    ip::address ExternalAddress6;
     ip::address LocalAddress;
     ip::address LocalSubnetMask;
     uint16 Port;
@@ -81,6 +82,8 @@ struct Realm
     bool Keep;
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
+    ip::tcp::endpoint GetIpv6AddressForClient(ip::address const& clientAddr) const;
+    bool HasIpv6Address() const;
 };
 
 #endif // Realm_h__

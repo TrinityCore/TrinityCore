@@ -464,7 +464,7 @@ bool LoadRealmInfo()
     boost::asio::ip::tcp::resolver resolver(_ioService);
     boost::asio::ip::tcp::resolver::iterator end;
 
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = %u", realmHandle.Index);
+    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, address6, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = %u", realmHandle.Index);
     if (!result)
         return false;
 
@@ -482,36 +482,50 @@ bool LoadRealmInfo()
 
     realm.ExternalAddress = (*endPoint).endpoint().address();
 
-    boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
-    endPoint = resolver.resolve(localAddressQuery, ec);
-    if (endPoint == end || ec)
+    if(!fields[3].GetString().empty())
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
-        return false;
+        boost::asio::ip::tcp::resolver::query externalAddressQuery6(ip::tcp::v6(), fields[3].GetString(), "");
+
+        boost::asio::ip::tcp::resolver::iterator endPoint6 = resolver.resolve(externalAddressQuery6, ec);
+        if (endPoint6 == end || ec)
+        {
+            TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
+            return false;
+        }
+
+        realm.ExternalAddress6 = (*endPoint6).endpoint().address();
     }
 
-    realm.LocalAddress = (*endPoint).endpoint().address();
-
-    boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
-    endPoint = resolver.resolve(localSubmaskQuery, ec);
+    boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[4].GetString(), "");
+    endPoint = resolver.resolve(localAddressQuery, ec);
     if (endPoint == end || ec)
     {
         TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
         return false;
     }
 
+    realm.LocalAddress = (*endPoint).endpoint().address();
+
+    boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[5].GetString(), "");
+    endPoint = resolver.resolve(localSubmaskQuery, ec);
+    if (endPoint == end || ec)
+    {
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[5].GetString().c_str());
+        return false;
+    }
+
     realm.LocalSubnetMask = (*endPoint).endpoint().address();
 
-    realm.Port = fields[5].GetUInt16();
-    realm.Type = fields[6].GetUInt8();
-    realm.Flags = RealmFlags(fields[7].GetUInt8());
-    realm.Timezone = fields[8].GetUInt8();
-    realm.AllowedSecurityLevel = AccountTypes(fields[9].GetUInt8());
-    realm.PopulationLevel = fields[10].GetFloat();
+    realm.Port = fields[6].GetUInt16();
+    realm.Type = fields[7].GetUInt8();
+    realm.Flags = RealmFlags(fields[8].GetUInt8());
+    realm.Timezone = fields[9].GetUInt8();
+    realm.AllowedSecurityLevel = AccountTypes(fields[10].GetUInt8());
+    realm.PopulationLevel = fields[11].GetFloat();
     realm.Id.Index = fields[0].GetUInt32();
-    realm.Id.Build = fields[11].GetUInt32();
-    realm.Id.Region = fields[12].GetUInt8();
-    realm.Id.Battlegroup = fields[13].GetUInt8();
+    realm.Id.Build = fields[12].GetUInt32();
+    realm.Id.Region = fields[13].GetUInt8();
+    realm.Id.Battlegroup = fields[14].GetUInt8();
     return true;
 }
 

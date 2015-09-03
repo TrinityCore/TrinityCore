@@ -24,7 +24,7 @@
 class WorldListener : public ZMQTask
 {
 public:
-    explicit WorldListener(uint16 worldListenPort);
+    explicit WorldListener(const std::string & bindIp, uint16 worldListenPort);
     ~WorldListener();
     void Run() override;
 
@@ -57,6 +57,7 @@ private:
 
     zmqpp::socket* _worldSocket;
     uint16 _worldListenPort;
+    std::string _bindIp;
     static HandlerTable const _handlers;
 };
 
