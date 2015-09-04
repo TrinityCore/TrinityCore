@@ -39,9 +39,6 @@ WorldPacket const* WorldPackets::Ticket::GMTicketSystemStatus::Write()
 
 WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
 {
-    _worldPacket.AppendPackedTime(OldestTicketTime);
-    _worldPacket.AppendPackedTime(UpdateTime);
-
     _worldPacket << int32(Cases.size());
 
     for (auto const& c : Cases)

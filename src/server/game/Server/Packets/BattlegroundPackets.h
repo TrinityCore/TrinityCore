@@ -112,6 +112,7 @@ namespace WorldPackets
                 std::vector<int32> Stats;
                 int32 PrimaryTalentTree = 0;
                 uint32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
+                uint32 Race;
             };
 
             Optional<uint8> Winner;

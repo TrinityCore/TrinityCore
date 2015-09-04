@@ -78,8 +78,6 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            time_t OldestTicketTime = 0;
-            time_t UpdateTime = 0;
             std::vector<GMTicketCase> Cases;
         };
 

@@ -93,6 +93,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
+    _worldPacket.WriteBit(IsExpansionPreorderInStore);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);

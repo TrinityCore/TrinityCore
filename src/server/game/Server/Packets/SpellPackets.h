@@ -512,6 +512,8 @@ namespace WorldPackets
             int32 RecoveryTime = 0;
             int32 CategoryRecoveryTime = 0;
             bool OnHold = false;
+            Optional<uint32> unused622_1;   ///< This field is not used for anything in the client in 6.2.2.20444
+            Optional<uint32> unused622_2;   ///< This field is not used for anything in the client in 6.2.2.20444
         };
 
         class SendSpellHistory final : public ServerPacket
