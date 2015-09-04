@@ -30,7 +30,6 @@ void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTic
 {
     // TODO: Implement GmCase and handle this packet properly
     WorldPackets::Ticket::GMTicketCaseStatus status;
-    status.OldestTicketTime = time(nullptr);
     SendPacket(status.Write());
 }
 

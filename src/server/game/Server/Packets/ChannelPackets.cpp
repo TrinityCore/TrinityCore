@@ -21,7 +21,7 @@ WorldPacket const* WorldPackets::Channel::ChannelListResponse::Write()
 {
     _worldPacket.WriteBit(_Display);
     _worldPacket.WriteBits(_Channel.length(), 7);
-    _worldPacket << uint8(_ChannelFlags);
+    _worldPacket << uint32(_ChannelFlags);
     _worldPacket << uint32(_Members.size());
     _worldPacket.WriteString(_Channel);
 
@@ -64,7 +64,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotifyJoined::Write()
 {
     _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 10);
-    _worldPacket << uint8(_ChannelFlags);
+    _worldPacket << uint32(_ChannelFlags);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);
     _worldPacket.WriteString(_Channel);
@@ -86,11 +86,9 @@ WorldPacket const* WorldPackets::Channel::ChannelNotifyLeft::Write()
 WorldPacket const* WorldPackets::Channel::UserlistAdd::Write()
 {
     _worldPacket << AddedUserGUID;
-    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint8(UserFlags);
-
+    _worldPacket << uint32(_ChannelFlags);
     _worldPacket << uint32(ChannelID);
-
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(ChannelName);
@@ -100,11 +98,8 @@ WorldPacket const* WorldPackets::Channel::UserlistAdd::Write()
 WorldPacket const* WorldPackets::Channel::UserlistRemove::Write()
 {
     _worldPacket << RemovedUserGUID;
-
-    _worldPacket << uint8(_ChannelFlags);
-
+    _worldPacket << uint32(_ChannelFlags);
     _worldPacket << uint32(ChannelID);
-
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(ChannelName);
@@ -114,12 +109,9 @@ WorldPacket const* WorldPackets::Channel::UserlistRemove::Write()
 WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
 {
     _worldPacket << UpdatedUserGUID;
-
-    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint8(UserFlags);
-
+    _worldPacket << uint32(_ChannelFlags);
     _worldPacket << uint32(ChannelID);
-
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(ChannelName);
