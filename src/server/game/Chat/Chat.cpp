@@ -186,13 +186,33 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
     return true;
 }
 
-void ChatHandler::SendSysMessage(const char *str)
+void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
 {
     WorldPacket data;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(str);
-    char* pos = buf;
+    char* buf;
+    char* pos;
+
+    if (escapeCharacters && strchr(str, '|'))
+    {
+        size_t startPos = 0;
+        std::ostringstream o;
+        while (const char* charPos = strchr(str + startPos, '|'))
+        {
+            o.write(str + startPos, charPos - str - startPos);
+            o << "||";
+            startPos = charPos - str + 1;
+        }
+        o.write(str + startPos, strlen(str) - startPos);
+        buf = strdup(o.str().c_str());
+    }
+    else
+    {
+        buf = strdup(str);
+    }
+
+    pos = buf;
 
     while (char* line = LineFromMessage(pos))
     {
@@ -1223,7 +1243,7 @@ bool CliHandler::isAvailable(ChatCommand const& cmd) const
     return cmd.AllowConsole;
 }
 
-void CliHandler::SendSysMessage(const char *str)
+void CliHandler::SendSysMessage(const char *str, bool /*escapeCharacters*/)
 {
     m_print(m_callbackArg, str);
     m_print(m_callbackArg, "\r\n");
