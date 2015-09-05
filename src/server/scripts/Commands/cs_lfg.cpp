@@ -150,7 +150,7 @@ public:
 
     static bool HandleLfgQueueInfoCommand(ChatHandler* handler, char const* args)
     {
-        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(*args != '\0').c_str());
+        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(*args != '\0').c_str(), true);
         return true;
     }
 

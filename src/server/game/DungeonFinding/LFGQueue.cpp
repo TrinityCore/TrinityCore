@@ -72,7 +72,7 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
         case LFG_INCOMPATIBLES_NO_ROLES:
             return "Incompatible roles";
         case LFG_INCOMPATIBLES_TOO_MUCH_PLAYERS:
-            return "Too much players";
+            return "Too many players";
         case LFG_INCOMPATIBLES_WRONG_GROUP_SIZE:
             return "Wrong group size";
         default:
@@ -93,12 +93,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check)
     GuidSet::const_iterator it = guids.begin();
     o << it->GetRawValue();
     LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(*it);
-    if (itQueue == QueueDataStore.end())
-    {
-        TC_LOG_ERROR("lfg.queue.data.details", "Queue data not found for [%s]", it->ToString().c_str());
-        o << ' ' << GetRolesString(PLAYER_ROLE_NONE);
-    }
-    else
+    if (itQueue != QueueDataStore.end())
     {
         // skip leader flag, log only dps/tank/healer
         o << ' ' << GetRolesString(itQueue->second.roles[*it] & uint8(~PLAYER_ROLE_LEADER));
@@ -108,12 +103,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check)
     {
         o << '|' << it->GetRawValue();
         itQueue = QueueDataStore.find(*it);
-        if (itQueue == QueueDataStore.end())
-        {
-            TC_LOG_ERROR("lfg.queue.data.details", "Queue data not found for [%s]", it->ToString().c_str());
-            o << ' ' << GetRolesString(PLAYER_ROLE_NONE);
-        }
-        else
+        if (itQueue != QueueDataStore.end())
         {
             // skip leader flag, log only dps/tank/healer
             o << ' ' << GetRolesString(itQueue->second.roles[*it] & uint8(~PLAYER_ROLE_LEADER));
@@ -438,7 +428,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
     if (numPlayers > MAXGROUPSIZE)
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Too much players (%u)", GetDetailedMatchRoles(check).c_str(), numPlayers);
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Too many players (%u)", GetDetailedMatchRoles(check).c_str(), numPlayers);
         SetCompatibles(strGuids, LFG_INCOMPATIBLES_TOO_MUCH_PLAYERS);
         return LFG_INCOMPATIBLES_TOO_MUCH_PLAYERS;
     }
@@ -666,7 +656,23 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
     o << "Compatible Map size: " << CompatibleMapStore.size() << "\n";
     if (full)
         for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)
-            o << "(" << itr->first << "): " << GetCompatibleString(itr->second.compatibility) << "\n";
+        {
+            o << "(" << itr->first << "): " << GetCompatibleString(itr->second.compatibility);
+            if (!itr->second.roles.empty())
+            {
+                o << " (";
+                bool first = true;
+                for (const auto& role : itr->second.roles)
+                {
+                    if (!first)
+                        o << "|";
+                    o << role.first.GetRawValue() << " " << GetRolesString(role.second & uint8(~PLAYER_ROLE_LEADER));
+                    first = false;
+                }
+                o << ")";
+            }
+            o << "\n";
+        }
 
     return o.str();
 }
