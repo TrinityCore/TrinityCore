@@ -32,7 +32,7 @@ public:
         _acceptor(ioService),
         _socket(ioService), _closed(false)
     {
-	InitAcceptor(_acceptor, tcp::endpoint(boost::asio::ip::address::from_string (bindIp), port));
+        InitAcceptor(_acceptor, tcp::endpoint(boost::asio::ip::address::from_string (bindIp), port));
     }
 
     template <class T>

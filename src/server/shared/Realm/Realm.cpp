@@ -59,12 +59,12 @@ ip::tcp::endpoint Realm::GetIpv6AddressForClient(ip::address const& clientAddr) 
     // Attempt to send best address for client
     if (clientAddr.is_loopback() && clientAddr.is_v6())
     {
-	// Client is on the same machine as the server
+        // Client is on the same machine as the server
         realmIp = clientAddr;
     }
     else
     {
-	realmIp = ExternalAddress6;
+        realmIp = ExternalAddress6;
     }
 
     ip::tcp::endpoint endpoint(realmIp, Port);

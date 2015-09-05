@@ -121,10 +121,10 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
                 ip::address externalAddress = (*endPoint).endpoint().address();
               
-                ip::address externalAddress6; 
+                ip::address externalAddress6;
                 if(!fields[3].GetString().empty())
                 {
-		    boost::asio::ip::tcp::resolver::query externalAddressQuery6(ip::tcp::v6(), fields[3].GetString(), "");
+                    boost::asio::ip::tcp::resolver::query externalAddressQuery6(ip::tcp::v6(), fields[3].GetString(), "");
 
                     boost::asio::ip::tcp::resolver::iterator endPoint6 = _resolver->resolve(externalAddressQuery6, ec);
                     if (endPoint6 == end || ec)

@@ -1143,8 +1143,11 @@ Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const
         version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
 
         listUpdate->Version = version.str();
-	// FIXME: What happens with ipv6 here? 
-        listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+        // Prioritise ipv4, for compatibility
+        if(realm->HasIpv4Address())
+            listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+        else
+            listUpdate->Address = realm->GetIpv6AddressForClient(GetRemoteIpAddress());
     }
 
     listUpdate->Flags = flag;
