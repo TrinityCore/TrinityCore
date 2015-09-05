@@ -142,10 +142,8 @@ int main(int argc, char** argv)
 
     _ioService = new boost::asio::io_service();
 
-    std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-
     // Get the list of realms for the server
-    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), bindIp, worldListenPort);
+    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), worldListenPort);
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
@@ -156,6 +154,8 @@ int main(int argc, char** argv)
         delete _ioService;
         return 1;
     }
+
+    std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     sSessionMgr.StartNetwork(*_ioService, bindIp, bnport);
 

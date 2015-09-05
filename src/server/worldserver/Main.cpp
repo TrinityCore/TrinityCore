@@ -470,17 +470,21 @@ bool LoadRealmInfo()
 
     Field* fields = result->Fetch();
     realm.Name = fields[1].GetString();
-    boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
-
     boost::system::error_code ec;
-    boost::asio::ip::tcp::resolver::iterator endPoint = resolver.resolve(externalAddressQuery, ec);
-    if (endPoint == end || ec)
-    {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
-        return false;
-    }
 
-    realm.ExternalAddress = (*endPoint).endpoint().address();
+    if(!fields[2].GetString().empty())
+    {
+        boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
+
+        boost::asio::ip::tcp::resolver::iterator endPoint = resolver.resolve(externalAddressQuery, ec);
+        if (endPoint == end || ec)
+        {
+            TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
+            return false;
+        }
+
+        realm.ExternalAddress = (*endPoint).endpoint().address();
+    }
 
     if(!fields[3].GetString().empty())
     {

@@ -73,6 +73,11 @@ ip::tcp::endpoint Realm::GetIpv6AddressForClient(ip::address const& clientAddr) 
     return endpoint;
 }
 
+bool Realm::HasIpv4Address() const
+{
+     return !ExternalAddress4.is_unspecified();
+}
+
 bool Realm::HasIpv6Address() const
 {
      return !ExternalAddress6.is_unspecified();

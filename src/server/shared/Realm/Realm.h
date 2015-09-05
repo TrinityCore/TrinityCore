@@ -83,6 +83,7 @@ struct Realm
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
     ip::tcp::endpoint GetIpv6AddressForClient(ip::address const& clientAddr) const;
+    bool HasIpv4Address() const;
     bool HasIpv6Address() const;
 };
 

@@ -32,9 +32,8 @@ WorldListener::HandlerTable::HandlerTable()
 #undef DEFINE_HANDLER
 }
 
-WorldListener::WorldListener(const std::string & bindIp, uint16 worldListenPort) : _worldListenPort(worldListenPort)
+WorldListener::WorldListener(uint16 worldListenPort) : _worldListenPort(worldListenPort)
 {
-    _bindIp = bindIp;
     _worldSocket = sIpcContext->CreateNewSocket(zmqpp::socket_type::pull);
     _worldSocket->set(zmqpp::socket_option::ipv4_only, 0);
 
@@ -68,7 +67,7 @@ void WorldListener::HandleOpen()
 {
     try
     {
-        _worldSocket->bind(std::string("tcp://"+_bindIp+":") + std::to_string(_worldListenPort));
+        _worldSocket->bind(std::string("tcp://*:") + std::to_string(_worldListenPort));
     }
     catch (zmqpp::zmq_internal_exception& ex)
     {

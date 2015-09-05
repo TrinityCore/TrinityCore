@@ -36,7 +36,7 @@ RealmList::~RealmList()
 }
 
 // Load the realm list from the database
-void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval, const std::string & bindIp, uint16 worldListenPort)
+void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval, uint16 worldListenPort)
 {
     _updateInterval = updateInterval;
     _updateTimer = new boost::asio::deadline_timer(ioService);
@@ -45,7 +45,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
     // Get the content of the realmlist table in the database
     UpdateRealms(boost::system::error_code());
 
-    _worldListener = new WorldListener(bindIp, worldListenPort);
+    _worldListener = new WorldListener(worldListenPort);
     _worldListener->Start();
 }
 
@@ -109,18 +109,23 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
                 Field* fields = result->Fetch();
                 std::string name = fields[1].GetString();
-                boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
-
                 boost::system::error_code ec;
-                boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
-                if (endPoint == end || ec)
+
+                ip::address externalAddress;
+                if(!fields[2].GetString().empty())
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", fields[2].GetString().c_str());
-                    continue;
+                    boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
+
+                    boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
+                    if (endPoint == end || ec)
+                    {
+                        TC_LOG_ERROR("realmlist", "Could not resolve address %s", fields[2].GetString().c_str());
+                        continue;
+                    }
+
+                    externalAddress = (*endPoint).endpoint().address();
                 }
 
-                ip::address externalAddress = (*endPoint).endpoint().address();
-              
                 ip::address externalAddress6;
                 if(!fields[3].GetString().empty())
                 {
