@@ -637,9 +637,9 @@ enum AccountDataType
 
 enum TutorialAction : uint8
 {
-    TUTORIAL_ACTION_RESET   = 1,
-    TUTORIAL_ACTION_CLEAR   = 2,
-    TUTORIAL_ACTION_UPDATE  = 3
+    TUTORIAL_ACTION_UPDATE  = 0,
+    TUTORIAL_ACTION_CLEAR   = 1,
+    TUTORIAL_ACTION_RESET   = 2
 };
 
 /*
