@@ -110,13 +110,14 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 Field* fields = result->Fetch();
                 std::string name = fields[1].GetString();
                 boost::system::error_code ec;
+                boost::asio::ip::tcp::resolver::iterator endPoint;
 
                 ip::address externalAddress;
                 if(!fields[2].GetString().empty())
                 {
                     boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
 
-                    boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
+                    endPoint = _resolver->resolve(externalAddressQuery, ec);
                     if (endPoint == end || ec)
                     {
                         TC_LOG_ERROR("realmlist", "Could not resolve address %s", fields[2].GetString().c_str());

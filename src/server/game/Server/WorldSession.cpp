@@ -706,7 +706,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     boost::asio::ip::tcp::endpoint instanceAddress;
 
     // Prioritise ipv4, for compatibility
-    if(realm.HasIpv4Address)
+    if(realm.HasIpv4Address())
        instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
     else
        instanceAddress = realm.GetIpv6AddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
