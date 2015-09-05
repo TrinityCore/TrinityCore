@@ -88,7 +88,7 @@ class LFGQueue
     public:
 
         // Add/Remove from queue
-        std::string GetDetailedMatchRoles(GuidList const& check);
+        std::string GetDetailedMatchRoles(GuidList const& check) const;
         void AddToQueue(ObjectGuid guid);
         void RemoveFromQueue(ObjectGuid guid);
         void AddQueueData(ObjectGuid guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap);

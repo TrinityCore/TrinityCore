@@ -80,7 +80,7 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
     }
 }
 
-std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check)
+std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 {
     if (check.empty())
         return "";
@@ -92,11 +92,13 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check)
 
     GuidSet::const_iterator it = guids.begin();
     o << it->GetRawValue();
-    LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(*it);
+    LfgQueueDataContainer::const_iterator itQueue = QueueDataStore.find(*it);
     if (itQueue != QueueDataStore.end())
     {
         // skip leader flag, log only dps/tank/healer
-        o << ' ' << GetRolesString(itQueue->second.roles[*it] & uint8(~PLAYER_ROLE_LEADER));
+        auto role = itQueue->second.roles.find(*it);
+        if (role != itQueue->second.roles.end())
+            o << ' ' << GetRolesString(itQueue->second.roles.at(*it) & uint8(~PLAYER_ROLE_LEADER));
     }
 
     for (++it; it != guids.end(); ++it)
@@ -106,7 +108,9 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check)
         if (itQueue != QueueDataStore.end())
         {
             // skip leader flag, log only dps/tank/healer
-            o << ' ' << GetRolesString(itQueue->second.roles[*it] & uint8(~PLAYER_ROLE_LEADER));
+            auto role = itQueue->second.roles.find(*it);
+            if (role != itQueue->second.roles.end())
+                o << ' ' << GetRolesString(itQueue->second.roles.at(*it) & uint8(~PLAYER_ROLE_LEADER));
         }
     }
 
