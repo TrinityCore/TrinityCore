@@ -8162,9 +8162,6 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         }
     }
 
-    // use triggered flag only for items with many spell casts and for not first cast
-    uint8 count = 0;
-
     // item spells cast at use
     for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
@@ -8181,14 +8178,13 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             continue;
         }
 
-        Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+        Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
         spell->m_CastItem = item;
         spell->m_cast_count = castCount;                   // set count of casts
         spell->m_misc.Raw.Data[0] = misc[0];
         spell->m_misc.Raw.Data[1] = misc[1];
         spell->prepare(&targets);
-
-        ++count;
+        return;
     }
 
     // Item enchantments spells cast at use
@@ -8210,14 +8206,13 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
                 continue;
             }
 
-            Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+            Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
             spell->m_CastItem = item;
             spell->m_cast_count = castCount;                // set count of casts
             spell->m_misc.Raw.Data[0] = misc[0];
             spell->m_misc.Raw.Data[1] = misc[1];
             spell->prepare(&targets);
-
-            ++count;
+            return;
         }
     }
 }
