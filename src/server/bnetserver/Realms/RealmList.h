@@ -43,7 +43,7 @@ public:
 
     ~RealmList();
 
-    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval, uint16 worldListenPort);
+    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval, const std::string & bindIp, uint16 worldListenPort);
     void Close();
 
     RealmMap const& GetRealms() const { return _realms; }
