@@ -37,7 +37,7 @@ DELETE FROM `pool_template` WHERE `entry`=@MOTHER;
 INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
 (@MOTHER,@ACTIVE, 'Felwood Purple Lotus Mother pool');
 
--- Pool Sungrass Spawnpoints
+-- Pool Purple lotus Spawnpoints
 DELETE FROM `pool_gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+@LASTGUID;
 INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUES
 (@OGUID+0,@MOTHER,0, 'Felwood Purple Lotus Spawnpoint'),
