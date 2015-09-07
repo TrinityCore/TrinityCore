@@ -1,7 +1,6 @@
 -- Felwood (Zone 361) Purple Lotus spawns
 SET @LASTGUID := 22;
 SET @OGUID    := 234878; 
-SET @POOL     := 361175; -- 23 pooled
 SET @MOTHER   := 36102;
 SET @ACTIVE   := 8;      -- Max number of active spawns
 SET @TIMER    := 30;     -- Respawn timer in seconds
