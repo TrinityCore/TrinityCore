@@ -6,7 +6,7 @@ SET @OGUID2   := @OGUID1 + (@LASTGUID + 1);
 SET @OGUID3   := @OGUID2 + (@LASTGUID + 1);
 SET @POOL     := 361001; -- 174 pooled
 SET @MOTHER   := 36101;
-SET @ACTIVE   := 40;     -- Max number of active spawns
+SET @ACTIVE   := 66;     -- Max number of active spawns
 SET @TIMER    := 30;     -- Respawn timer in seconds
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID1 AND @OGUID1+@LASTGUID;
