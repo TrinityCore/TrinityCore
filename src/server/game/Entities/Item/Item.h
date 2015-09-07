@@ -141,7 +141,8 @@ enum InventoryResult
     EQUIP_ERR_CANT_BUY_QUANTITY                            = 93, // You can't buy the specified quantity of that item.
     EQUIP_ERR_ITEM_IS_BATTLE_PAY_LOCKED                    = 94, // Your purchased item is still waiting to be unlocked
     EQUIP_ERR_REAGENT_BANK_FULL                            = 95, // Your reagent bank is full
-    EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96
+    EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96,
+    EQUIP_ERR_WRONG_BAG_TYPE_3                             = 97
 };
 
 enum BuyResult

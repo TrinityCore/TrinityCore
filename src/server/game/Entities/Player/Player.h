@@ -542,6 +542,12 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK31                  = 0x80000000
 };
 
+enum PlayerFlagsEx
+{
+    PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED   = 0x0001,
+    PLAYER_FLAGS_EX_MERCENARY_MODE          = 0x0002
+};
+
 enum PlayerLocalFlags
 {
     PLAYER_LOCAL_FLAG_TRACK_STEALTHED               = 0x00000002,
