@@ -56,9 +56,10 @@ class DBCFileLoader
                 uint64 getUInt64(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    return *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
+                    uint64 val = *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
+                    EndianConvert(val);
+                    return val;
                 }
-
                 const char *getString(size_t field) const
                 {
                     assert(field < file.fieldCount);
