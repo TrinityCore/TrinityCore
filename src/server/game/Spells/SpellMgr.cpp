@@ -28,6 +28,8 @@
 #include "BattlefieldMgr.h"
 #include "Player.h"
 
+PetFamilySpellsStore sPetFamilySpellsStore;
+
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);

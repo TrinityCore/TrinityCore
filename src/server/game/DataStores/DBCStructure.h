@@ -31,25 +31,6 @@
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
 
-struct AchievementEntry
-{
-    uint32      ID;                                         // 0
-    int32       Faction;                                    // 1 -1=all, 0=horde, 1=alliance
-    int32       MapID;                                      // 2 -1=none
-    //uint32    Supercedes;                                 // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
-    char*       Title_lang;                                 // 4
-    //char*     Description_lang;                           // 5
-    uint32      Category;                                   // 6
-    uint32      Points;                                     // 7 reward points
-    //uint32    UIOrder;                                    // 8
-    uint32      Flags;                                      // 9
-    //uint32    IconID;                                     // 10 icon (from SpellIcon.dbc)
-    //char*     Reward_lang;                                // 11
-    uint32      MinimumCriteria;                            // 12 - need this count of completed criterias (own or referenced achievement criterias)
-    uint32      SharesCriteria;                             // 13 - referenced achievement (counting of all completed criterias)
-    uint32      CriteriaTree;                               // 14
-};
-
 struct AnimKitEntry
 {
     uint32      ID;                                         // 0
@@ -352,152 +333,6 @@ struct CreatureModelDataEntry
     //float     HoverHeight;                                // 33
 };
 
-struct CriteriaEntry
-{
-    uint32 ID;                                              // 0
-    uint32 Type;                                            // 1
-    union
-    {
-        uint32 ID;
-        // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
-        // ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE     = 20
-        uint32 CreatureID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                 = 1
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND  = 15
-        // ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP           = 16
-        // ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA              = 32
-        // ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA             = 33
-        uint32 MapID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL      = 7
-        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL      = 40
-        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS = 75
-        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE       = 112
-        uint32 SkillID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT   = 8
-        uint32 AchievementID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE = 11
-        uint32 ZoneID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY = 12
-        uint32 CurrencyID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON       = 18
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID          = 19
-        uint32 GroupSize;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM            = 26
-        uint32 DamageType;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST         = 27
-        uint32 QuestID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET        = 28
-        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2       = 69
-        // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL             = 29
-        // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2            = 110
-        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL            = 34
-        uint32 SpellID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE
-        uint32 ObjectiveId;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
-        // ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA             = 163
-        // ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA             = 164
-        uint32 AreaID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM               = 36
-        // ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM               = 41
-        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM              = 42
-        // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM             = 57
-        // ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY                = 185
-        uint32 ItemID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
-        // ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING      = 39
-        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING = 39
-        uint32 TeamType;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA           = 43
-        uint32 WorldMapOverlayID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION        = 46
-        uint32 FactionID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM        = 49
-        uint32 ItemSlot;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT      = 50
-        // ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT      = 51
-        uint32 RollValue;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS               = 52
-        uint32 ClassID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HK_RACE                = 53
-        uint32 RaceID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE               = 54
-        uint32 EmoteID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT         = 68
-        // ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT     = 72
-        uint32 GameObjectID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER          = 96
-        uint32 PowerType;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT           = 97
-        uint32 StatType;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER     = 98
-        uint32 SpellSchool;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE              = 109
-        uint32 LootType;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER = 165
-        uint32 DungeonEncounterID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
-        uint32 GarrBuildingID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON       = 170
-        uint32 GarrisonLevel;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION = 174
-        uint32 GarrMissionID;
-
-        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
-        uint32 CharShipmentContainerID;
-    } Asset;                                                // 2
-    uint32 StartEvent;                                      // 3
-    uint32 StartAsset;                                      // 4
-    uint32 StartTimer;                                      // 5
-    uint32 FailEvent;                                       // 6
-    uint32 FailAsset;                                       // 7
-    uint32 ModifierTreeId;                                  // 8
-    //uint32 Flags;                                         // 9
-    uint32 EligibilityWorldStateID;                         // 10
-    uint32 EligibilityWorldStateValue;                      // 11
-};
-
-struct CriteriaTreeEntry
-{
-    uint32 ID;                                              // 0
-    uint32 CriteriaID;                                      // 1
-    uint64 Amount;                                          // 2
-    uint32 Operator;                                        // 3
-    uint32 Parent;                                          // 4
-    //uint32 Flags;                                         // 5
-    //char*  DescriptionLang;                               // 6
-    //uint32 OrderIndex;                                    // 7
-};
-
 /* not used
 struct CurrencyCategoryEntry
 {
@@ -768,7 +603,7 @@ struct GtOCTRegenMPEntry
     float    ratio;
 };
 
-struct gtOCTHpPerStaminaEntry
+struct GtOCTHpPerStaminaEntry
 {
     float    ratio;
 };
@@ -902,9 +737,6 @@ struct ItemSetSpellEntry
     uint32      Threshold;                                  // 3
     uint32      ChrSpecID;                                  // 4
 };
-
-typedef std::vector<ItemSetSpellEntry const*> ItemSetSpells;
-typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
 
 struct LFGDungeonEntry
 {
@@ -1069,16 +901,6 @@ struct MinorTalentEntry
     uint32      SpecID;                                     // 1
     uint32      SpellID;                                    // 2
     uint32      OrderIndex;                                 // 3
-};
-
-struct ModifierTreeEntry
-{
-    uint32      ID;                                         // 0
-    uint32      Type;                                       // 1
-    uint32      Asset[2];                                   // 2-3
-    uint32      Operator;                                   // 4
-    uint32      Amount;                                     // 5
-    uint32      Parent;                                     // 6
 };
 
 struct MovieEntry
@@ -1273,9 +1095,6 @@ struct SpellCategoriesEntry
 
 typedef std::set<uint32> SpellCategorySet;
 typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
-typedef std::set<uint32> PetFamilySpellsSet;
-typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
-typedef std::unordered_map<uint32, uint32> SpellEffectScallingByEffectId;
 
 struct SpellCategoryEntry
 {

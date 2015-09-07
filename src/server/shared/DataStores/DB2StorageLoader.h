@@ -38,23 +38,29 @@ class DB2FileLoader
         float getFloat(size_t field) const
         {
             assert(field < file.fieldCount);
-            float val = *reinterpret_cast<float*>(offset+file.GetOffset(field));
+            float val = *reinterpret_cast<float*>(offset + file.GetOffset(field));
             EndianConvert(val);
             return val;
         }
         uint32 getUInt(size_t field) const
         {
             assert(field < file.fieldCount);
-            uint32 val = *reinterpret_cast<uint32*>(offset+file.GetOffset(field));
+            uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
             EndianConvert(val);
             return val;
         }
         uint8 getUInt8(size_t field) const
         {
             assert(field < file.fieldCount);
-            return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
+            return *reinterpret_cast<uint8*>(offset + file.GetOffset(field));
         }
-
+        uint64 getUInt64(size_t field) const
+        {
+            assert(field < file.fieldCount);
+            uint64 val = *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
+            EndianConvert(val);
+            return val;
+        }
         const char *getString(size_t field) const
         {
             assert(field < file.fieldCount);

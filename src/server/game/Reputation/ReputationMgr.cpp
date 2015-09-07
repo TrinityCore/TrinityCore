@@ -294,7 +294,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     {
         float spillOverRepOut = float(standing);
         // check for sub-factions that receive spillover
-        SimpleFactionsList const* flist = GetFactionTeamList(factionEntry->ID);
+        std::vector<uint32> const* flist = GetFactionTeamList(factionEntry->ID);
         // if has no sub-factions, check for factions with same parent
         if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionModOut != 0.0f)
         {
@@ -316,7 +316,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         if (flist)
         {
             // Spillover to affiliated factions
-            for (SimpleFactionsList::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
+            for (std::vector<uint32>::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
             {
                 if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
                 {
