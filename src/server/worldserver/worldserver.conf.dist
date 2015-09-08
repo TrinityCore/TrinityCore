@@ -32,6 +32,7 @@
 #    AUCTION HOUSE BOT SETTINGS
 #    AUCTION HOUSE BOT ITEM FINE TUNING
 #    AUCTION HOUSE BOT BUYER CONFIG
+#    BLACK MARKET SETTINGS
 #    LOGGING SYSTEM SETTINGS
 #    CURRENCIES SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
@@ -3201,6 +3202,37 @@ AuctionHouseBot.Buyer.ChanceMultiplier.Yellow = 100
 
 AuctionHouseBot.Buyer.Recheck.Interval = 20
 
+#
+###################################################################################################
+
+###################################################################################################
+# BLACK MARKET SETTINGS
+#
+#    BlackMarket.Enabled
+#       Description: General Enable or Disable of the Black Market.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+#
+
+BlackMarket.Enabled = 1
+
+#
+#    BlackMarket.MaxAuctions
+#       Description: Maximum amount of aucions present at the same time.
+#       Default:     12
+#
+
+BlackMarket.MaxAuctions = 12
+
+#
+#    BlackMarket.UpdatePeriod
+#       Description: How often are the auctions on the black market restored
+#       Default:     24 (hours)
+#
+
+BlackMarket.UpdatePeriod = 24
+
+#
 #
 ###################################################################################################
 
