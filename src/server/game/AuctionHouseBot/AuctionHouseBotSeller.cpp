@@ -910,9 +910,9 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
     switch (config.GetHouseType())
     {
         case AUCTION_HOUSE_ALLIANCE:
-            houseid = 1; auctioneer = 79707; break;
+            houseid = 1; auctioneer = 314060; break;
         case AUCTION_HOUSE_HORDE:
-            houseid = 6; auctioneer = 4656; break;
+            houseid = 6; auctioneer = 286481; break;
         default:
             houseid = 7; auctioneer = 23442; break;
     }
