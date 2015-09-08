@@ -8851,8 +8851,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
         packet.Owner = loot->GetGUID();
         packet.LootMethod = _lootMethod;
         packet.AcquireReason = loot_type;
-        if (GetGroup() && (_lootMethod == GROUP_LOOT || _lootMethod == PERSONAL_LOOT)) /// @TODO: Need more research
-            packet.PersonalLooting = true;
         packet.Acquired = true; // false == No Loot (this too^^)
         loot->BuildLootResponse(packet, this, permission);
         SendDirectMessage(packet.Write());
