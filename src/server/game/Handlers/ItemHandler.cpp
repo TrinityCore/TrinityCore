@@ -27,6 +27,7 @@
 #include "DB2Stores.h"
 #include "NPCPackets.h"
 #include "ItemPackets.h"
+#include "BattlePetMgr.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -1263,4 +1264,22 @@ bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
     }
 
     return true;
+}
+
+void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useCritterItem)
+{
+    Item* item = _player->GetItemByGuid(useCritterItem.ItemGuid);
+    if (!item)
+        return;
+
+    ItemToBattlePetSpeciesEntry const* itemToBattlePetSpecies = sItemToBattlePetSpeciesStore.LookupEntry(item->GetEntry());
+    if (!itemToBattlePetSpecies)
+        return;
+
+    BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(itemToBattlePetSpecies->BattlePetSpeciesID);
+    if (!battlePetSpecies)
+        return;
+
+    GetBattlePetMgr()->AddPet(battlePetSpecies->ID, battlePetSpecies->CreatureID, BattlePetMgr::RollPetBreed(battlePetSpecies->ID), BattlePetMgr::GetDefaultPetQuality(battlePetSpecies->ID));
+    _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
