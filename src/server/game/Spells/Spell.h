@@ -434,6 +434,9 @@ class Spell
         void EffectCreateGarrison(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
+        void EffectHealBattlePetPct(SpellEffIndex effIndex);
+        void EffectEnableBattlePets(SpellEffIndex effIndex);
+        void EffectUncageBattlePet(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 

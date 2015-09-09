@@ -47,6 +47,20 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BARBER_SHOP_STYLE, "SELECT ID, DisplayName_lang, Description_lang FROM barber_shop_style_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // BattlePetBreedQuality.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_BREED_QUALITY, "SELECT ID, Quality, Modifier FROM battle_pet_breed_quality ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetBreedState.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_BREED_STATE, "SELECT ID, BreedID, State, Value FROM battle_pet_breed_state ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // BattlePetSpecies.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES, "SELECT ID, CreatureID, IconFileID, SummonSpellID, PetType, Source, Flags, "
+        "SourceText, Description FROM battle_pet_species ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_BATTLE_PET_SPECIES, "SELECT ID, SourceText, Description FROM battle_pet_species_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // BattlePetSpeciesState.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES_STATE, "SELECT ID, SpeciesID, State, Value FROM battle_pet_species_state ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // BroadcastText.db2
     PrepareStatement(HOTFIX_SEL_BROADCAST_TEXT, "SELECT ID, Language, MaleText, FemaleText, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, "
         "EmoteDelay3, SoundID, UnkEmoteID, Type FROM broadcast_text ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -276,6 +290,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ItemSpecOverride.db2
     PrepareStatement(HOTFIX_SEL_ITEM_SPEC_OVERRIDE, "SELECT ID, ItemID, SpecID FROM item_spec_override ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ItemToBattlePetSpecies.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_TO_BATTLE_PET_SPECIES, "SELECT ID, BattlePetSpeciesID FROM item_to_battle_pet_species ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemXBonusTree.db2
     PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);

@@ -461,3 +461,8 @@ void WorldPackets::Item::TransmogrifyItems::Read()
     for (TransmogrifyItem& item : Items)
         _worldPacket >> item;
 }
+
+void WorldPackets::Item::UseCritterItem::Read()
+{
+    _worldPacket >> ItemGuid;
+}

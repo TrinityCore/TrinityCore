@@ -144,4 +144,13 @@ void LoginDatabaseConnection::DoPrepareStatements()
     // Account wide toys
     PrepareStatement(LOGIN_SEL_ACCOUNT_TOYS, "SELECT itemId, isFavourite FROM battlenet_account_toys WHERE accountId = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_REP_ACCOUNT_TOYS, "REPLACE INTO battlenet_account_toys (accountId, itemId, isFavourite) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+
+    // Battle Pets
+    PrepareStatement(LOGIN_SEL_BATTLE_PETS, "SELECT guid, species, breed, level, exp, health, quality, flags, name FROM battle_pets WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_BATTLE_PETS, "INSERT INTO battle_pets (guid, battlenetAccountId, species, breed, level, exp, health, quality, flags, name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_BATTLE_PETS, "DELETE FROM battle_pets WHERE battlenetAccountId = ? AND guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_BATTLE_PETS, "UPDATE battle_pets SET level = ?, exp = ?, health = ?, quality = ?, flags = ?, name = ? WHERE battlenetAccountId = ? AND guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BATTLE_PET_SLOTS, "SELECT id, battlePetGuid, locked FROM battle_pet_slots WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_BATTLE_PET_SLOTS, "INSERT INTO battle_pet_slots (id, battlenetAccountId, battlePetGuid, locked) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_BATTLE_PET_SLOTS, "DELETE FROM battle_pet_slots WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
 }

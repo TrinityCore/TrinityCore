@@ -22,6 +22,7 @@
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "BattlenetServerManager.h"
+#include "BattlePetPackets.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
@@ -984,6 +985,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
     hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
     SendPacket(hotfixInfo.Write());
+
+    // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
+    WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
+    SendPacket(lock.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
