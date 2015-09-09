@@ -77,6 +77,42 @@ struct BarberShopStyleEntry
     uint32 Data;                                                    // 7 (real ID to hair/facial hair)
 };
 
+struct BattlePetBreedQualityEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Quality;                                                 // 1
+    float Modifier;                                                 // 2
+};
+
+struct BattlePetBreedStateEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 BreedID;                                                 // 1
+    uint32 State;                                                   // 2
+    int32 Value;                                                    // 3
+};
+
+struct BattlePetSpeciesEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CreatureID;                                              // 1
+    uint32 IconFileID;                                              // 2
+    uint32 SummonSpellID;                                           // 3
+    uint32 PetType;                                                 // 4
+    int32  Source;                                                  // 5
+    uint32 Flags;                                                   // 6
+    LocalizedString* SourceText;                                    // 7
+    LocalizedString* Description;                                   // 8
+};
+
+struct BattlePetSpeciesStateEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 SpeciesID;                                               // 1
+    uint32 State;                                                   // 2
+    int32 Value;                                                    // 3
+};
+
 #define MAX_BROADCAST_TEXT_EMOTES 3
 
 struct BroadcastTextEntry
@@ -828,6 +864,12 @@ struct ItemSpecOverrideEntry
     uint32 ID;                                                      // 0
     uint32 ItemID;                                                  // 1
     uint32 SpecID;                                                  // 2
+};
+
+struct ItemToBattlePetSpeciesEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      BattlePetSpeciesID;                                 // 1
 };
 
 struct ItemXBonusTreeEntry

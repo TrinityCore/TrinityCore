@@ -2523,6 +2523,10 @@ CREATE TABLE `item_instance` (
   `transmogrification` int(10) unsigned NOT NULL DEFAULT '0',
   `upgradeId` int(10) unsigned NOT NULL DEFAULT '0',
   `enchantIllusion` int(10) unsigned NOT NULL DEFAULT '0',
+  `battlePetSpeciesId` int(10) unsigned NOT NULL DEFAULT '0',
+  `battlePetBreedData` int(10) unsigned NOT NULL DEFAULT '0',
+  `battlePetLevel` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `battlePetDisplayId` int(10) unsigned NOT NULL DEFAULT '0',
   `bonusListIDs` text,
   PRIMARY KEY (`guid`),
   KEY `idx_owner_guid` (`owner_guid`)

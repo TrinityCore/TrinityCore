@@ -1057,6 +1057,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
             case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
                 SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1164,6 +1165,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
             case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET:
                 SetCriteriaProgress(achievementCriteria, 1, referencePlayer);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
@@ -1280,8 +1282,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_COUNT_OF_LFR_QUEUE_BOOSTS_BY_TANK:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO_COUNT:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIO:
-            case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET:
-            case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
             case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_PET_BATTLE:
             case ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET:
@@ -1444,12 +1444,14 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteria const* achieveme
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
         case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
             return progress->counter >= requiredAmount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
         case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET:
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return progress->counter >= (requiredAmount * 75);
@@ -2531,6 +2533,10 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(ModifierTreeNode const* 
             break;
         case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW: // 46
             if (!unit || unit->GetHealthPct() >= reqValue)
+                return false;
+            break;
+        case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
+            if (miscValue1 != reqValue)
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY: // 145
