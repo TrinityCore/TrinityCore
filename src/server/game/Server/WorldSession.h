@@ -33,6 +33,7 @@
 #include "AccountMgr.h"
 #include <unordered_set>
 
+class BattlePetMgr;
 class Channel;
 class Creature;
 class GameObject;
@@ -115,6 +116,17 @@ namespace WorldPackets
         class GetPVPOptionsEnabled;
         class RequestBattlefieldStatus;
         class ReportPvPPlayerAFK;
+    }
+
+    namespace BattlePet
+    {
+        class BattlePetRequestJournal;
+        class BattlePetSetBattleSlot;
+        class BattlePetModifyName;
+        class BattlePetDeletePet;
+        class BattlePetSetFlags;
+        class BattlePetSummon;
+        class CageBattlePet;
     }
 
     namespace BlackMarket
@@ -320,6 +332,7 @@ namespace WorldPackets
         class WrapItem;
         class CancelTempEnchantment;
         class TransmogrifyItems;
+        class UseCritterItem;
     }
 
     namespace Loot
@@ -987,6 +1000,9 @@ class WorldSession
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
 
+        // Battle Pets
+        BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
+
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPackets::Null& null);          // not used
@@ -1306,6 +1322,7 @@ class WorldSession
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
         void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
         void HandleWrapItem(WorldPackets::Item::WrapItem& packet);
+        void HandleUseCritterItem(WorldPackets::Item::UseCritterItem& packet);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
@@ -1581,6 +1598,15 @@ class WorldSession
         void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& garrisonRequestBlueprintAndSpecializationData);
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& garrisonGetBuildingLandmarks);
 
+        // Battle Pets
+        void HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& battlePetRequestJournal);
+        void HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot);
+        void HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName);
+        void HandleBattlePetDeletePet(WorldPackets::BattlePet::BattlePetDeletePet& battlePetDeletePet);
+        void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
+        void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
+        void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1693,6 +1719,8 @@ class WorldSession
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
         ToyBoxContainer _toys;
+
+        std::unique_ptr<BattlePetMgr> _battlePetMgr;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

@@ -428,6 +428,16 @@ namespace WorldPackets
             Array<TransmogrifyItem, MAX_TRANSMOGRIFY_ITEMS> Items;
         };
 
+        class UseCritterItem final : public ClientPacket
+        {
+        public:
+            UseCritterItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_CRITTER_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }

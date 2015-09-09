@@ -27,6 +27,7 @@
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundScore.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
@@ -13699,10 +13700,10 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     packet.Quantity = quantity;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
     //packet.DungeonEncounterID;
-    //packet.BattlePetBreedID;
-    //packet.BattlePetBreedQuality;
-    //packet.BattlePetSpeciesID;
-    //packet.BattlePetLevel;
+    packet.BattlePetBreedID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) & 0xFFFFFF;
+    packet.BattlePetBreedQuality = (item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) >> 24) & 0xFF;
+    packet.BattlePetSpeciesID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
+    packet.BattlePetLevel = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
 
     packet.ItemGUID = item->GetGUID();
 
@@ -17650,8 +17651,10 @@ void Player::LoadCorpse()
 
 void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
-    //              0             1               2                   3         4            5           6         7                8                    9             10             11       12                     13            14                  15               16   17    18
-    // SELECT ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomPropertyId, ii.durability, ii.playedTime, ii.text, ii.transmogrification, ii.upgradeId, ii.enchantIllusion, ii.bonusListIDs, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
+    //              0             1               2                   3         4            5           6         7                8                    9             10             11       12                     13            14
+    // SELECT ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomPropertyId, ii.durability, ii.playedTime, ii.text, ii.transmogrification, ii.upgradeId
+    //                        15                  16                  17              18                  19               20   21    22
+    //        ii.enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, ii.bonusListIDs, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17673,8 +17676,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[17].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[17].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[18].GetUInt8();
+                ObjectGuid bagGuid = fields[21].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[21].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[22].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -17995,7 +17998,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[17].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[17].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[21].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[21].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: " UI64FMTD ", deleted from mail", mail->messageID, itemGuid);
@@ -19188,9 +19191,11 @@ void Player::SaveToDB(bool create /*=false*/)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    SQLTransaction transLogin = LoginDatabase.BeginTransaction();
-    GetSession()->SaveAccountToys(transLogin);
-    LoginDatabase.CommitTransaction(transLogin);
+    // TODO: Move this out
+    trans = LoginDatabase.BeginTransaction();
+    GetSession()->SaveAccountToys(trans);
+    GetSession()->GetBattlePetMgr()->SaveToDB(trans);
+    LoginDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())

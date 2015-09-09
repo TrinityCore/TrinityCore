@@ -56,6 +56,7 @@
 #include "Guild.h"
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
+#include "BattlePetMgr.h"
 #include "Garrison.h"
 #include "CombatLogPackets.h"
 #include "DuelPackets.h"
@@ -256,7 +257,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //189 SPELL_EFFECT_LOOT
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
     &Spell::EffectNULL,                                     //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
-    &Spell::EffectNULL,                                     //192 SPELL_EFFECT_UNCAGE_BATTLEPET
+    &Spell::EffectUncageBattlePet,                          //192 SPELL_EFFECT_UNCAGE_BATTLEPET
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_START_PET_BATTLE
     &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
     &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
@@ -264,8 +265,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
-    &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
-    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
+    &Spell::EffectHealBattlePetPct,                         //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
+    &Spell::EffectEnableBattlePets,                         //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
     &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
@@ -2258,6 +2259,22 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : effectInfo->TriggerSpell;
     player->LearnSpell(spellToLearn, false);
+
+    if (m_spellInfo->Id == 55884)
+    {
+        if (BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr())
+        {
+            for (auto entry : sBattlePetSpeciesStore)
+            {
+                if (entry->SummonSpellID == spellToLearn)
+                {
+                    battlePetMgr->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+                    break;
+                }
+            }
+        }
+    }
 
     TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
 }
@@ -5860,4 +5877,86 @@ void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
         garrison->ActivateBuilding(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (BattlePetMgr* battlePetMgr = unitTarget->ToPlayer()->GetSession()->GetBattlePetMgr())
+        battlePetMgr->HealBattlePetsPct(GetEffect(effIndex)->BasePoints);
+}
+
+void Spell::EffectEnableBattlePets(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* plr = unitTarget->ToPlayer();
+    plr->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    plr->GetSession()->GetBattlePetMgr()->UnlockSlot(0);
+}
+
+void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (!m_CastItem || !m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* plr = m_caster->ToPlayer();
+
+    // are we allowed to learn battle pets without it?
+    /*if (plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
+        return; // send some error*/
+
+    uint32 speciesId = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
+    uint16 breed = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) & 0xFFFFFF;
+    uint8 quality = (m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) >> 24) & 0xFF;
+    uint16 level = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
+    uint32 creatureId = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID);
+
+    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(speciesId);
+    if (!speciesEntry)
+        return;
+
+    BattlePetMgr* battlePetMgr = plr->GetSession()->GetBattlePetMgr();
+    if (!battlePetMgr)
+        return;
+
+    uint16 maxLearnedLevel = 0;
+
+    for (auto pet : battlePetMgr->GetLearnedPets())
+        maxLearnedLevel = std::max(pet.PacketInfo.Level, maxLearnedLevel);
+
+    // TODO: This means if you put your highest lvl pet into cage, you won't be able to uncage it again which is probably wrong.
+    // We will need to store maxLearnedLevel somewhere to avoid this behaviour.
+    if (maxLearnedLevel < level)
+    {
+        battlePetMgr->SendError(BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE, creatureId); // or speciesEntry.CreatureID
+        SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
+        return;
+    }
+
+    if (battlePetMgr->GetPetCount(speciesId) >= MAX_BATTLE_PETS_PER_SPECIES)
+    {
+        battlePetMgr->SendError(BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE, creatureId); // or speciesEntry.CreatureID
+        SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
+        return;
+    }
+
+    if (!plr->HasSpell(speciesEntry->SummonSpellID))
+        plr->LearnSpell(speciesEntry->SummonSpellID, false);
+
+    battlePetMgr->AddPet(speciesId, creatureId, breed, quality, level);
+    plr->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    m_CastItem = nullptr;
 }

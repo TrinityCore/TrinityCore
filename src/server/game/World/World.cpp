@@ -27,6 +27,7 @@
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
+#include "BattlePetMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
@@ -2025,6 +2026,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading realm names...");
     sObjectMgr->LoadRealmNames();
+
+    TC_LOG_INFO("server.loading", "Loading battle pets info...");
+    BattlePetMgr::Initialize();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

@@ -27,6 +27,10 @@
 extern DB2Storage<AchievementEntry>                     sAchievementStore;
 extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
 extern DB2Storage<BarberShopStyleEntry>                 sBarberShopStyleStore;
+extern DB2Storage<BattlePetBreedQualityEntry>           sBattlePetBreedQualityStore;
+extern DB2Storage<BattlePetBreedStateEntry>             sBattlePetBreedStateStore;
+extern DB2Storage<BattlePetSpeciesEntry>                sBattlePetSpeciesStore;
+extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSpeciesStateStore;
 extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
 extern DB2Storage<CharStartOutfitEntry>                 sCharStartOutfitStore;
 extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
@@ -70,6 +74,7 @@ extern DB2Storage<ItemRandomSuffixEntry>                sItemRandomSuffixStore;
 extern DB2Storage<ItemSparseEntry>                      sItemSparseStore;
 extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
 extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
+extern DB2Storage<ItemToBattlePetSpeciesEntry>          sItemToBattlePetSpeciesStore;
 extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
 extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
