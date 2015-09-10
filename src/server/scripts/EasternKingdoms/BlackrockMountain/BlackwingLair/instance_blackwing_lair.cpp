@@ -15,23 +15,36 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "blackwing_lair.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "blackwing_lair.h"
 
-/*
-Blackwing Lair Encounter:
-1 - boss_razorgore.cpp
-2 - boss_vaelastrasz.cpp
-3 - boss_broodlord_lashlayer.cpp
-4 - boss_firemaw.cpp
-5 - boss_ebonroc.cpp
-6 - boss_flamegor.cpp
-7 - boss_chromaggus.cpp
-8 - boss_nefarian.cpp
-*/
+DoorData const doorData[] =
+{
+    { GO_BOSSGATE01,             DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_DRAKE_RIDER_PORTCULLIS, DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_ALTERAC_VALLEY_GATE,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_GATE,                   DATA_FIREMAW,                DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_GATE,                   DATA_EBONROC,                DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_GATE,                   DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_VACCUUM_EXIT_GATE,      DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { 0,                         0,                           DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+};
+
+ObjectData const creatureData[] =
+{
+    { NPC_RAZORGORE,       DATA_RAZORGORE_THE_UNTAMED  },
+    { NPC_VAELASTRAZ,      DATA_VAELASTRAZ_THE_CORRUPT },
+    { NPC_BROODLORD,       DATA_BROODLORD_LASHLAYER    },
+    { NPC_FIREMAW,         DATA_FIREMAW                },
+    { NPC_EBONROC,         DATA_EBONROC                },
+    { NPC_FLAMEGOR,        DATA_FLAMEGOR               },
+    { NPC_CHROMAGGUS,      DATA_CHROMAGGUS             },
+    { NPC_NEFARIAN,        DATA_NEFARIAN               },
+    { NPC_VICTOR_NEFARIUS, DATA_LORD_VICTOR_NEFARIUS   },
+    { 0,                   0                           } // END
+};
 
 Position const SummonPosition[8] =
 {
@@ -57,90 +70,82 @@ public:
         instance_blackwing_lair_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadDoorData(doorData);
+            LoadObjectData(creatureData, nullptr);
+
             // Razorgore
             EggCount = 0;
             EggEvent = 0;
-            SetBossNumber(EncounterCount);
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
+            InstanceScript::OnCreatureCreate(creature);
+
             switch (creature->GetEntry())
             {
-                case NPC_RAZORGORE:
-                    RazorgoreTheUntamedGUID = creature->GetGUID();
-                    break;
                 case NPC_BLACKWING_DRAGON:
                 case NPC_BLACKWING_TASKMASTER:
                 case NPC_BLACKWING_LEGIONAIRE:
                 case NPC_BLACKWING_WARLOCK:
-                    if (Creature* razor = instance->GetCreature(RazorgoreTheUntamedGUID))
+                    if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                         razor->AI()->JustSummoned(creature);
                     break;
-                case NPC_VAELASTRAZ:
-                    VaelastraszTheCorruptGUID = creature->GetGUID();
-                    break;
-                case NPC_BROODLORD:
-                    BroodlordLashlayerGUID = creature->GetGUID();
-                    break;
-                case NPC_FIRENAW:
-                    FiremawGUID = creature->GetGUID();
-                    break;
-                case NPC_EBONROC:
-                    EbonrocGUID = creature->GetGUID();
-                    break;
-                case NPC_FLAMEGOR:
-                    FlamegorGUID = creature->GetGUID();
-                    break;
-                case NPC_CHROMAGGUS:
-                    ChromaggusGUID = creature->GetGUID();
-                    break;
-                case NPC_VICTOR_NEFARIUS:
-                    LordVictorNefariusGUID = creature->GetGUID();
-                    break;
-                case NPC_NEFARIAN:
-                    NefarianGUID = creature->GetGUID();
+                default:
                     break;
             }
         }
 
         void OnGameObjectCreate(GameObject* go) override
         {
-            switch (go->GetEntry())
+            InstanceScript::OnGameObjectCreate(go);
+
+            if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
             {
-                case 177807: // Egg
-                    if (GetBossState(BOSS_FIREMAW) == DONE)
-                        go->SetPhaseMask(2, true);
-                    else
-                        EggList.push_back(go->GetGUID());
-                    break;
-                case 175946: // Door
-                    RazorgoreDoorGUID = go->GetGUID();
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_RAZORGORE) == DONE, go);
-                    break;
-                case 175185: // Door
-                    VaelastraszDoorGUID = go->GetGUID();
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_VAELASTRAZ) == DONE, go);
-                    break;
-                case 180424: // Door
-                    BroodlordDoorGUID = go->GetGUID();
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_BROODLORD) == DONE, go);
-                    break;
-                case 185483: // Door
-                    ChrommagusDoorGUID = go->GetGUID();
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_FIREMAW) == DONE && GetBossState(BOSS_EBONROC) == DONE && GetBossState(BOSS_FLAMEGOR) == DONE, go);
-                    break;
-                case 181125: // Door
-                    NefarianDoorGUID = go->GetGUID();
-                    HandleGameObject(ObjectGuid::Empty, GetBossState(BOSS_CHROMAGGUS) == DONE, go);
-                    break;
+                if (GetBossState(DATA_FIREMAW) == DONE)
+                    go->SetPhaseMask(2, true);
+                else
+                    EggList.push_back(go->GetGUID());
             }
         }
 
         void OnGameObjectRemove(GameObject* go) override
         {
-            if (go->GetEntry() == 177807) // Egg
+            InstanceScript::OnGameObjectRemove(go);
+
+            if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
                 EggList.remove(go->GetGUID());
+        }
+
+        bool CheckRequiredBosses(uint32 bossId, Player const* player /*= nullptr*/) const override
+        {
+            if (_SkipCheckRequiredBosses(player))
+                return true;
+
+            switch (bossId)
+            {
+                case DATA_BROODLORD_LASHLAYER:
+                    if (GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) != DONE)
+                        return false;
+                    break;
+                case DATA_FIREMAW:
+                case DATA_EBONROC:
+                case DATA_FLAMEGOR:
+                    if (GetBossState(DATA_BROODLORD_LASHLAYER) != DONE)
+                        return false;
+                    break;
+                case DATA_CHROMAGGUS:
+                    if (GetBossState(DATA_FIREMAW) != DONE
+                        || GetBossState(DATA_EBONROC) != DONE
+                        || GetBossState(DATA_FLAMEGOR) != DONE)
+                        return false;
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
         }
 
         bool SetBossState(uint32 type, EncounterState state) override
@@ -150,40 +155,25 @@ public:
 
             switch (type)
             {
-                case BOSS_RAZORGORE:
-                    HandleGameObject(RazorgoreDoorGUID, state == DONE);
+                case DATA_RAZORGORE_THE_UNTAMED:
                     if (state == DONE)
                     {
                         for (GuidList::const_iterator itr = EggList.begin(); itr != EggList.end(); ++itr)
-                            if (GameObject* egg = instance->GetGameObject((*itr)))
+                            if (GameObject* egg = instance->GetGameObject(*itr))
                                 egg->SetPhaseMask(2, true);
                     }
                     SetData(DATA_EGG_EVENT, NOT_STARTED);
                     break;
-                case BOSS_VAELASTRAZ:
-                    HandleGameObject(VaelastraszDoorGUID, state == DONE);
-                    break;
-                case BOSS_BROODLORD:
-                    HandleGameObject(BroodlordDoorGUID, state == DONE);
-                    break;
-                case BOSS_FIREMAW:
-                case BOSS_EBONROC:
-                case BOSS_FLAMEGOR:
-                    HandleGameObject(ChrommagusDoorGUID, GetBossState(BOSS_FIREMAW) == DONE && GetBossState(BOSS_EBONROC) == DONE && GetBossState(BOSS_FLAMEGOR) == DONE);
-                    break;
-                case BOSS_CHROMAGGUS:
-                    HandleGameObject(NefarianDoorGUID, state == DONE);
-                    break;
-                case BOSS_NEFARIAN:
+                case DATA_NEFARIAN:
                     switch (state)
                     {
                         case NOT_STARTED:
-                            if (Creature* nefarian = instance->GetCreature(NefarianGUID))
+                            if (Creature* nefarian = GetCreature(DATA_NEFARIAN))
                                 nefarian->DespawnOrUnsummon();
                             break;
                         case FAIL:
-                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIUS, 15*IN_MILLISECONDS*MINUTE);
-                            SetBossState(BOSS_NEFARIAN, NOT_STARTED);
+                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIUS, 15 * IN_MILLISECONDS * MINUTE);
+                            SetBossState(DATA_NEFARIAN, NOT_STARTED);
                             break;
                         default:
                             break;
@@ -193,24 +183,6 @@ public:
             return true;
         }
 
-        ObjectGuid GetGuidData(uint32 id) const override
-        {
-            switch (id)
-            {
-                case DATA_RAZORGORE_THE_UNTAMED:  return RazorgoreTheUntamedGUID;
-                case DATA_VAELASTRAZ_THE_CORRUPT: return VaelastraszTheCorruptGUID;
-                case DATA_BROODLORD_LASHLAYER:    return BroodlordLashlayerGUID;
-                case DATA_FIRENAW:                return FiremawGUID;
-                case DATA_EBONROC:                return EbonrocGUID;
-                case DATA_FLAMEGOR:               return FlamegorGUID;
-                case DATA_CHROMAGGUS:             return ChromaggusGUID;
-                case DATA_LORD_VICTOR_NEFARIUS:   return LordVictorNefariusGUID;
-                case DATA_NEFARIAN:               return NefarianGUID;
-            }
-
-            return ObjectGuid::Empty;
-        }
-
         void SetData(uint32 type, uint32 data) override
         {
             if (type == DATA_EGG_EVENT)
@@ -218,7 +190,7 @@ public:
                 switch (data)
                 {
                     case IN_PROGRESS:
-                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 45*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 45 * IN_MILLISECONDS);
                         EggEvent = data;
                         EggCount = 0;
                         break;
@@ -230,13 +202,13 @@ public:
                     case SPECIAL:
                         if (++EggCount == 15)
                         {
-                            if (Creature* razor = instance->GetCreature(RazorgoreTheUntamedGUID))
+                            if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                             {
                                 SetData(DATA_EGG_EVENT, DONE);
                                 razor->RemoveAurasDueToSpell(42013); // MindControl
                                 DoRemoveAurasDueToSpellOnPlayers(42013);
                             }
-                            _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1 * IN_MILLISECONDS);
                             _events.CancelEvent(EVENT_RAZOR_SPAWN);
                         }
                         if (EggEvent == NOT_STARTED)
@@ -249,8 +221,8 @@ public:
         void OnUnitDeath(Unit* unit) override
         {
             //! HACK, needed because of buggy CreatureAI after charm
-            if (unit->GetEntry() == NPC_RAZORGORE && GetBossState(BOSS_RAZORGORE) != DONE)
-                SetBossState(BOSS_RAZORGORE, DONE);
+            if (unit->GetEntry() == NPC_RAZORGORE && GetBossState(DATA_RAZORGORE_THE_UNTAMED) != DONE)
+                SetBossState(DATA_RAZORGORE_THE_UNTAMED, DONE);
         }
 
         void Update(uint32 diff) override
@@ -268,15 +240,15 @@ public:
                         for (uint8 i = urand(2, 5); i > 0 ; --i)
                             if (Creature* summon =  instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
                                 summon->SetInCombatWithZone();
-                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, urand(12, 17)*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, urand(12, 17) * IN_MILLISECONDS);
                         break;
                     case EVENT_RAZOR_PHASE_TWO:
                         _events.CancelEvent(EVENT_RAZOR_SPAWN);
-                        if (Creature* razor = instance->GetCreature(RazorgoreTheUntamedGUID))
+                        if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                             razor->AI()->DoAction(ACTION_PHASE_TWO);
                         break;
                     case EVENT_RESPAWN_NEFARIUS:
-                        if (Creature* nefarius = instance->GetCreature(LordVictorNefariusGUID))
+                        if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS))
                         {
                             nefarius->SetPhaseMask(1, true);
                             nefarius->setActive(true);
@@ -291,34 +263,11 @@ public:
     protected:
         // Misc
         EventMap _events;
+
         // Razorgore
         uint8 EggCount;
         uint32 EggEvent;
-        ObjectGuid RazorgoreTheUntamedGUID;
-        ObjectGuid RazorgoreDoorGUID;
         GuidList EggList;
-
-        // Vaelastrasz the Corrupt
-        ObjectGuid VaelastraszTheCorruptGUID;
-        ObjectGuid VaelastraszDoorGUID;
-
-        // Broodlord Lashlayer
-        ObjectGuid BroodlordLashlayerGUID;
-        ObjectGuid BroodlordDoorGUID;
-
-        // 3 Dragons
-        ObjectGuid FiremawGUID;
-        ObjectGuid EbonrocGUID;
-        ObjectGuid FlamegorGUID;
-        ObjectGuid ChrommagusDoorGUID;
-
-        // Chormaggus
-        ObjectGuid ChromaggusGUID;
-        ObjectGuid NefarianDoorGUID;
-
-        // Nefarian
-        ObjectGuid LordVictorNefariusGUID;
-        ObjectGuid NefarianGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

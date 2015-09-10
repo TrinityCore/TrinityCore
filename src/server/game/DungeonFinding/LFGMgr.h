@@ -399,7 +399,7 @@ class LFGMgr
         /// Join Lfg with selected roles, dungeons and comment
         void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, std::string const& comment);
         /// Leaves lfg
-        void LeaveLfg(ObjectGuid guid);
+        void LeaveLfg(ObjectGuid guid, bool disconnected = false);
 
         // LfgQueue
         /// Get last lfg state (NONE, DUNGEON or FINISHED_DUNGEON)
