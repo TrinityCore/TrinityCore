@@ -195,6 +195,9 @@ class Quest
     friend class ObjectMgr;
     public:
         Quest(Field* questRecord);
+        void LoadQuestDetails(Field* fields);
+        void LoadQuestRequestItems(Field* fields);
+        void LoadQuestOfferReward(Field* fields);
         void LoadQuestTemplateAddon(Field* fields);
 
         uint32 XPValue(Player* player) const;

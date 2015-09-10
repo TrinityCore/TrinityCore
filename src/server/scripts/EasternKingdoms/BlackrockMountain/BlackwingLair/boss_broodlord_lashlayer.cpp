@@ -50,16 +50,10 @@ public:
 
     struct boss_broodlordAI : public BossAI
     {
-        boss_broodlordAI(Creature* creature) : BossAI(creature, BOSS_BROODLORD) { }
+        boss_broodlordAI(Creature* creature) : BossAI(creature, DATA_BROODLORD_LASHLAYER) { }
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (instance->GetBossState(BOSS_VAELASTRAZ) != DONE)
-            {
-                EnterEvadeMode();
-                return;
-            }
-
             _EnterCombat();
             Talk(SAY_AGGRO);
 
