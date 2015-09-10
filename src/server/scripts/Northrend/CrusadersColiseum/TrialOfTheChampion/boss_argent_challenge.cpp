@@ -17,8 +17,8 @@
 
 /* ScriptData
 SDName: Argent Challenge Encounter.
-SD%Complete: 50 %
-SDComment: AI for Argent Soldiers are not implemented. AI from bosses need more improvements.
+SD%Complete: 100%
+SDComment:
 SDCategory: Trial of the Champion
 EndScriptData */
 
@@ -35,14 +35,14 @@ enum Yells
     EMOTE_RADIANCE              = 2,
     EMOTE_HAMMER_RIGHTEOUS      = 3,
     SAY_HAMMER_RIGHTEOUS        = 4,
-    SAY_KILL_PLAYER_E           = 5,
+    SAY_KILL_UNIT_E             = 5,
     SAY_DEFEATED_E              = 6,
 
     // Argent Confessor Paletress
     SAY_AGGRO_P                 = 2,
     SAY_MEMORY_SUMMON           = 3,
     SAY_MEMORY_DEATH            = 4,
-    SAY_KILL_PLAYER_P           = 5,
+    SAY_KILL_UNIT_P             = 5,
     SAY_DEFEATED_P              = 6,
 
     // Memory of X
@@ -52,7 +52,7 @@ enum Yells
 enum Events
 {
     // Argent Lightwielder
-    EVENT_BLAZING_LIGHT = 1,
+    EVENT_BLAZING_LIGHT         = 1,
     EVENT_CLEAVE,
     EVENT_UNBALANCING_STRIKE,
     // Argent Monk
@@ -306,8 +306,7 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            if (who->ToPlayer())
-                Talk(SAY_KILL_PLAYER_E, who);
+            Talk(SAY_KILL_UNIT_E, who);
         }
 
         void AttackStart(Unit* who) override
@@ -493,8 +492,7 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            if (who->ToPlayer())
-                Talk(SAY_KILL_PLAYER_P, who);
+            Talk(SAY_KILL_UNIT_P, who);
         }
 
         void AttackStart(Unit* who) override
@@ -1234,6 +1232,8 @@ class spell_eadric_hammer_of_righteous_faceroller : public SpellScriptLoader
                 if (!GetHitUnit() || !GetHitUnit()->ToCreature() || GetHitUnit()->ToCreature()->GetEntry() != NPC_EADRIC)
                     return;
 
+                // If the spell's damage is higher than Eadric' health,
+                // player gets the achievement
                 if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
                     ENSURE_AI(boss_eadric::boss_eadricAI, GetHitUnit()->ToCreature()->AI())->SetFacerollerPlayer(GetCaster()->GetGUID());
             }

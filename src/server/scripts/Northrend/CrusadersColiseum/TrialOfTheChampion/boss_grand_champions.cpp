@@ -459,7 +459,7 @@ struct toc_bossAI : ScriptedAI
                 
                 uint32 newMountEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
                 Creature* newMount = NULL;
-                uint32 dist = 0;
+                float dist = 0.0f;
                 std::list<Creature*> tempList;
                 float x, y;
                 me->GetPosition(x, y);

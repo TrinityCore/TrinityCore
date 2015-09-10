@@ -3068,13 +3068,41 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
-            case 67546: // Trial of the Champion - Warrior Grand Champion - Rolling Throw
+            // TRIAL OF THE CHAMPION SPELLS
+            //
+            case 67546: // Warrior Grand Champion - Rolling Throw
                 // Should hit both caster and target
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 break;
-            case 66905: // Trial of the Champion - Eadric the Pure - Hammer of the Righteous (casted by player)
+            case 66905: // Eadric the Pure - Hammer of the Righteous (casted by player)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 break;
+            case 66798: // The Black Knight - Death's Respite (casted on announcer)
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+                break;
+            case 66797: // The Black Knight - Death's Push (casted on announcer)
+                // The duration is correct otherwise but announcer dies currently in mid-air
+                // this happens because blizzard has 100-200ms delay before applying an aura
+                // so in retail announcer makes it on the ground before dying
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2 seconds instead of 1.7 seconds
+                break;
+            case 67779: // The Black Knight - Desecration
+                // According to several videos the desecration players lose the desecration debuff in 12 seconds of cast
+                // There is an invisible stalker triggering every 2 seconds a desecration debuff
+                // so setting 10 second duration is correct
+                // besides the visual desecration on the ground disappears in 10 seconds of cast
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); // 10 seconds instead of 15 seconds
+                break;
+            case 67802: // The Black Knight - Desecration Arm
+                // Wrong DBC data, should pick random destination from 5 yards, not from 0 yards
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5 yards
+                break;
+            case 67751: // The Black Knight - Ghoul Explode
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
+                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
+                spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
+                break;
+            // ENDOF TRIAL OF THE CHAMPION SPELLS
             case 47476: // Deathknight - Strangulate
             case 15487: // Priest - Silence
             case 5211:  // Druid - Bash  - R1

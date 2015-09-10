@@ -67,14 +67,21 @@ enum Texts
     SAY_TIRION_INTRO_3          = 52,
     SAY_TIRION_OUTRO_1          = 53,
     SAY_TIRION_INTRO_4          = 54,
+    SAY_TIRION_INTRO_5          = 55,
+    SAY_TIRION_INTRO_6          = 56,
+    SAY_TIRION_OUTRO_2          = 57,
+    SAY_TIRION_OUTRO_3          = 58,
 
     // Used by Varian
     SAY_VARIAN_INTRO_1          = 50,
     SAY_VARIAN_INTRO_2          = 52,
+    SAY_VARIAN_INTRO_3          = 51,
+    SAY_VARIAN_OUTRO_1          = 53,
 
     // Used by Garrosh
     SAY_GARROSH_INTRO_1         = 50,
     SAY_GARROSH_INTRO_2         = 52,
+    SAY_GARROSH_INTRO_3         = 51,
 
     // Used by Jaina
     SAY_JAINA_INTRO_1           = 0,
@@ -83,6 +90,7 @@ enum Texts
     // Used by Thrall
     SAY_THRALL_INTRO_1          = 0,
     SAY_THRALL_INTRO_2          = 2,
+    SAY_THRALL_OUTRO_1          = 1,
 
     // Used by Argent Confessor Paletress
     SAY_PALETRESS_INTRO_1       = 0,
@@ -90,6 +98,11 @@ enum Texts
 
     // Used by Eadric the Pure
     SAY_EADRIC_INTRO_1          = 0,
+
+    // Used by The Black Knight
+    SAY_KNIGHT_INTRO_1          = 0,
+    SAY_KNIGHT_INTRO_2          = 1,
+    SAY_KNIGHT_INTRO_3          = 2,
 
     // Used by spectators (same id for every spectator)
     EMOTE_SPECTATOR_CHEER       = 0
@@ -158,9 +171,31 @@ enum Events
     EVENT_CHAT_10,
     EVENT_CHAT_11,
     EVENT_WAIT_2,
-    EVENT_CHAT_12
+    EVENT_CHAT_12,
+    // The Black Knight
+    EVENT_STEP_FORWARD          = 50,
+    EVENT_CHAT_13,
+    EVENT_FACING_1,
+    EVENT_CHAT_14,
+    EVENT_START_PATH,
+    EVENT_CHAT_15,
+    EVENT_FACING_2,
+    EVENT_STUN_ANNOUNCER,
+    EVENT_CHAT_16,
+    EVENT_KNOCK_ANNOUNCER,
+    EVENT_CHAT_17,
+    EVENT_CHAT_18,
+    EVENT_AGGRO_2,
+    EVENT_CHAT_19,
+    EVENT_CHAT_20,
+    EVENT_CHAT_21,
+    EVENT_CHAT_22
+};
 
-
+enum Spells
+{
+    SPELL_DEATHS_RESPITE        = 66798,
+    SPELL_DEATHS_PUSH           = 66797
 };
 
 /*######
@@ -239,6 +274,7 @@ public:
             uiThirdBoss = 0;
             uiArgentChampion = 0;
 
+            SetCombatMovement(false);
             events.Reset();
 
             me->SetReactState(REACT_PASSIVE);
@@ -365,6 +401,15 @@ public:
                 case DATA_ARGENT_CHAMPION_PREPARE:
                     NextStep(500, 0, false, EVENT_GO_TO_ARGENT_BOSS);
                     break;
+                case DATA_BLACK_KNIGHT_PREPARE:
+                    NextStep(2000, 0, false, EVENT_CHAT_15);
+                    break;
+                case DATA_BLACK_KNIGHT_PRECAST:
+                    NextStep(500, 0, false, EVENT_FACING_2);
+                    break;
+                case DATA_BLACK_KNIGHT_DONE:
+                    NextStep(7000, 0, false, EVENT_CHAT_20);
+                    break;
                 default:
                     break;
             }
@@ -405,6 +450,11 @@ public:
             {
                 me->SetFacingTo(centerOrientation);
                 NextStep(1000, 0, false, EVENT_CHAT_12);
+            }
+            else if (uiPointId == 7)
+            {
+                me->SetFacingTo(centerOrientation);
+                NextStep(1000, 0, false, EVENT_CHAT_13);
             }
         }
 
@@ -510,11 +560,24 @@ public:
             NextStep(1000, 0, false, EVENT_MOVE_MIDDLE);
         }
 
-        void DoSummonBlackKnight()
+        void DoStartBlackKnight()
         {
             // Removing vehicles (if not already been removed)
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
-            me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
+
+            // Cleaning chest from arena
+            if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE)
+            {
+                if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EADRIC_LOOT)))
+                    cache->Delete();
+            }
+            else if (instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
+            {
+                if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_PALETRESS_LOOT)))
+                    cache->Delete();
+            }
+
+            NextStep(1000, 0, false, EVENT_STEP_FORWARD);
         }
 
         void SetGrandChampionsForEncounter()
@@ -570,7 +633,7 @@ public:
                 if ((instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
                     instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
                     instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                    DoSummonBlackKnight();
+                    DoStartBlackKnight();
             }
         }
 
@@ -641,6 +704,16 @@ public:
             }
         }
 
+        void AttackStart(Unit* who) override
+        {
+            ScriptedAI::AttackStart(who);
+            if (me->HasUnitState(UNIT_STATE_MELEE_ATTACKING))
+            {
+                me->ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
+                me->SendMeleeAttackStop(who);
+            }
+        }
+
        void UpdateAI(uint32 uiDiff) override
         {
             ScriptedAI::UpdateAI(uiDiff);
@@ -651,7 +724,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CHEER_RND:
-                        if (events.GetNextEventTime() == 0 && !me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP) && !me->isMoving())
+                        if (events.GetNextEventTime() == 0 && !me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP) && !me->isMoving() && !me->HasAura(66804))
                         {
                             // Every 2 minutes a random player is being cheered by his/her race's spectators
                             // cheer should only occur during fights
@@ -688,6 +761,7 @@ public:
                         }
                         events.ScheduleEvent(EVENT_CHEER_RND, 120000);
                         break;
+                    // Phases below happen in Grand Champions encounter
                     case EVENT_INTRODUCE:
                     {
                         // Introducing players to spectators
@@ -1013,6 +1087,145 @@ public:
                             tirion->AI()->Talk(SAY_TIRION_INTRO_4);
                         NextStep(0, 0, false);
                         break;
+                    // Phases below happen in The Black Knight encounter
+                    case EVENT_STEP_FORWARD:
+                        // Stepping forward
+                        me->GetMotionMaster()->MovePoint(7, 743.65f, 627.6f, 411.17f);
+                        NextStep(0, 0, false);
+                        break;
+                    case EVENT_CHAT_13:
+                        // Tirion congratulates champions and meanwhile Black Knight appears
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_INTRO_5);
+                        me->SummonCreature(VEHICLE_BLACK_KNIGHT, 780.69f, 669.61f, 463.66f, 3.77f);
+                        NextStep(6000, eventId);
+                        break;
+                    case EVENT_FACING_1:
+                        // Announcer turns towards Black Knight
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                            me->SetFacingToObject(knight);
+                        NextStep(2000, eventId);
+                        break;
+                    case EVENT_CHAT_14:
+                        // Announcer notifies everyone that something is near the rafters
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                            Talk(SAY_INTRO_3, knight);
+                        NextStep(1000, eventId);
+                        break;
+                    case EVENT_START_PATH:
+                        // Black Knight starts to fly down
+                        if (Creature* knightVehicle = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT_VEHICLE)))
+                        {
+                            knightVehicle->AI()->SetData(1, 0);
+                            // We start attacking Black Knight without combat movement
+                            // so we keep facing him all the time
+                            if (knightVehicle->GetVehicleKit() && knightVehicle->GetVehicleKit()->GetPassenger(SEAT_ID_0))
+                                me->AI()->AttackStart(knightVehicle->GetVehicleKit()->GetPassenger(SEAT_ID_0));
+                        }
+                        NextStep(0, 0, false);
+                        break;
+                    case EVENT_CHAT_15:
+                        // Black Knight exits his vehicle and talks
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                        {
+                            knight->AI()->Talk(SAY_KNIGHT_INTRO_1, me);
+                            knight->ExitVehicle();
+                            knight->SetWalk(true);
+                            knight->GetMotionMaster()->MovePoint(0, 747.79f, 632.49f, 411.41f);
+                        }
+                        NextStep(0, 0, false);
+                        break;
+                    case EVENT_FACING_2:
+                        // Black Knight corrects facing and we're stopping attacking
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                            knight->SetFacingToObject(me);
+                        me->AttackStop();
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        NextStep(1500, eventId);
+                        break;
+                    case EVENT_STUN_ANNOUNCER:
+                        // Announcer gets strangulated
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                            knight->CastSpell(me, SPELL_DEATHS_RESPITE);
+                        NextStep(3000, eventId);
+                        break;
+                    case EVENT_CHAT_16:
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_INTRO_6, me);
+                        NextStep(1000, eventId);
+                        break;
+                    case EVENT_KNOCK_ANNOUNCER:
+                        // Announcer gets pushed to death and Black Knight's vehicle flies away
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                            knight->CastSpell(me, SPELL_DEATHS_PUSH);
+                        if (Creature* knightVehicle = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT_VEHICLE)))
+                            knightVehicle->AI()->SetData(2, 0);
+                        NextStep(3000, eventId);
+                        break;
+                    case EVENT_CHAT_17:
+                        // Black Knight moves to center
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                        {
+                            knight->AI()->Talk(SAY_KNIGHT_INTRO_2, me);
+                            knight->GetMotionMaster()->MovePoint(1, 747.21f, 622.75f, 411.42f);
+                        }
+                        NextStep(14000, eventId);
+                        break;
+                    case EVENT_CHAT_18:
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                            knight->AI()->Talk(SAY_KNIGHT_INTRO_3, me);
+                        NextStep(3000, eventId);
+                        break;
+                    case EVENT_AGGRO_2:
+                        // Entering aggressive
+                        if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                        {
+                            knight->SetWalk(false);
+                            knight->SetHomePosition(knight->GetPosition());
+                            knight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                            knight->SetReactState(REACT_AGGRESSIVE);
+                        }
+                        NextStep(1000, eventId);
+                        break;
+                    case EVENT_CHAT_19:
+                        // Varian or Garrosh tells players to kill him
+                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        {
+                            if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
+                                varian->AI()->Talk(SAY_VARIAN_INTRO_3, me);
+                        }
+                        else
+                        {
+                            if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
+                                garrosh->AI()->Talk(SAY_GARROSH_INTRO_3, me);
+                        }
+                        NextStep(0, 0, false);
+                        break;
+                    case EVENT_CHAT_20:
+                        // After Black Knight is dead, a small outro event happens
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_OUTRO_2, me);
+                        NextStep(6000, eventId);
+                        break;
+                    case EVENT_CHAT_21:
+                        if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                            tirion->AI()->Talk(SAY_TIRION_OUTRO_3, me);
+                        NextStep(7000, eventId);
+                        break;
+                    case EVENT_CHAT_22:
+                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        {
+                            if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
+                                varian->AI()->Talk(SAY_VARIAN_OUTRO_1, me);
+                        }
+                        else
+                        {
+                            if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
+                                thrall->AI()->Talk(SAY_THRALL_OUTRO_1, me);
+                        }
+                        NextStep(0, 0, false);
+                        break;
                     default:
                         break;
                 }
@@ -1072,11 +1285,13 @@ public:
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, unskipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, skipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
-                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) != DONE)
+                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Eadric the Pure encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                if (instance->GetData(BOSS_ARGENT_CHALLENGE_P) != DONE)
+                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Argent Confessor Paletress encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                if (instance->GetData(BOSS_BLACK_KNIGHT) != DONE)
+                if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start The Black Knight encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 player->SEND_GOSSIP_MENU(1, creature->GetGUID());
             }
@@ -1144,7 +1359,7 @@ public:
         {
             player->CLOSE_GOSSIP_MENU();
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoSummonBlackKnight();
+            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartBlackKnight();
         }
 
         return true;

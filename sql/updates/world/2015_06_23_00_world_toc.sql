@@ -21,26 +21,49 @@ INSERT INTO `spell_script_names` VALUES (67868,'spell_toc5_trample_aura');
 DELETE FROM `spell_script_names` WHERE `spell_id`=66083 AND `ScriptName`='spell_toc5_lightning_arrows';
 INSERT INTO `spell_script_names` VALUES (66083,'spell_toc5_lightning_arrows');
 
--- Scriptname for Argent Priestess' Fountain of Light
-UPDATE `creature_template` SET `ScriptName`='npc_fountain_of_light' WHERE `entry`=35311;
-
 -- Spellscript for Paletress' Reflective Shield
 DELETE FROM `spell_script_names` WHERE `spell_id`=66515 AND `ScriptName`='spell_paletress_reflective_shield';
 INSERT INTO `spell_script_names` VALUES (66515,'spell_paletress_reflective_shield');
 
 -- Spellscript for Eadric' Hammer of the Righteous
 DELETE FROM `spell_script_names` WHERE `spell_id`=66867 AND `ScriptName`='spell_eadric_hammer_of_righteous';
-INSERT INTO `spell_script_names` VALUeS (66867,'spell_eadric_hammer_of_righteous');
+INSERT INTO `spell_script_names` VALUES (66867,'spell_eadric_hammer_of_righteous');
 
 -- Spellscript for Eadric' Hammer of the Righteous - casted by player
 DELETE FROM `spell_script_names` WHERE `spell_id`=66905 AND `ScriptName`='spell_eadric_hammer_of_righteous_faceroller';
-INSERT INTO `spell_script_names` VALUeS (66905,'spell_eadric_hammer_of_righteous_faceroller');
+INSERT INTO `spell_script_names` VALUES (66905,'spell_eadric_hammer_of_righteous_faceroller');
+
+-- Spellscript for The Black Knight's Death's Push - casted on announcer
+DELETE FROM `spell_script_names` WHERE `spell_id`=66797 AND `ScriptName`='spell_black_knight_deaths_push';
+INSERT INTO `spell_script_names` VALUES (66797,'spell_black_knight_deaths_push');
+
+-- Spellscript for The Black Knight's Obliterate
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (67725,67883) AND `ScriptName`='spell_black_knight_obliterate';
+INSERT INTO `spell_script_names` VALUES
+(67725,'spell_black_knight_obliterate'),
+(67883,'spell_black_knight_obliterate');
+
+-- Spellscript for The Black Knight's Army of the Dead
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (67761,67874) AND `ScriptName`='spell_black_knight_army_of_the_dead';
+INSERT INTO `spell_script_names` VALUES
+(67761,'spell_black_knight_army_of_the_dead'),
+(67874,'spell_black_knight_army_of_the_dead');
+
+-- Spellscript for The Black Knight's Ghoul Explode
+DELETE FROM `spell_script_names` WHERE `spell_id`=67751 AND `ScriptName`='spell_black_knight_ghoul_explode';
+INSERT INTO `spell_script_names` VALUES (67751,'spell_black_knight_ghoul_explode');
 
 -- Eadric and Paletress should not drop item 47197 in heroic mode
 -- it drops only from Eadric in normal mode
 -- Also item 47947 was missing from Eadric and Paletress in heroic mode
-DELETE FROM `reference_loot_template` WHERE Entry=12025 AND Item IN (47197,47497);
+DELETE FROM `reference_loot_template` WHERE `Entry`=12025 AND `Item` IN (47197,47497);
 INSERT INTO `reference_loot_template` VALUES (12025,47497,0,0,0,1,1,1,1,'');
+
+-- The Black Knight should not drop item 47560 in normal mode
+-- it drops only in heroic mode
+-- Also item 47229 was missing from The Black Knight in normal mode
+DELETE FROM `reference_loot_template` WHERE `Entry`=34170 AND `Item` IN (47229,47560);
+INSERT INTO `reference_loot_template` VALUES (34170,47229,0,0,0,1,1,1,1,'');
 
 --
 -- Vehicles
@@ -110,18 +133,19 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`probability`,
 (34992,0,0,'Of course they will.',12,100,35323,2,'Lady Jaina Proudmoore - SAY_JAINA_INTRO_1'),
 (34992,1,0,'They''re worthy fighters, you''ll see.',12,100,35329,2,'Lady Jaina Proudmoore - SAY_JAINA_INTRO_2');
 
--- One of the texts in instance was 'say' instead of 'yell'
+-- Two of the texts in instance were 'say' instead of 'yell'
+UPDATE `creature_text` SET `type`=14 WHERE `entry`=@HERALD_A AND `groupid`=0;
 UPDATE `creature_text` SET `type`=14 WHERE `entry`=@HERALD_H AND `groupid`=0;
 
 -- Most of the texts in instance should be zonewide
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34990,34995) AND `groupid`=50 AND `id`=0;
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34990,34995) AND `groupid`=52 AND `id`=0;
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34994 AND `groupid` IN (0,2) AND `id`=0;
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34990 AND `groupid` BETWEEN 50 AND 53;
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34995 AND `groupid` BETWEEN 50 AND 52;
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34994;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` BETWEEN 34900 AND 34910 AND `groupid`=0 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry`=34996 AND `groupid` BETWEEN 50 AND 58 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (@HERALD_A,@HERALD_H) AND `groupid` BETWEEN 0 AND 8 AND `id`=0;
 UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34657,34701,34702,34703,34705,34883,34887,35569,35570,35571,35572,35617) AND `groupid`=0 AND `id`=0;
-UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34928,35119);
+UPDATE `creature_text` SET `TextRange`=2 WHERE `entry` IN (34928,35119,35451);
 UPDATE `creature_text` SET `TextRange`=2 WHERE `BroadcastTextId`=35491;
 
 --
@@ -173,6 +197,13 @@ SET @LANA_H := 36087;
 
 -- None of the grand champions had correct unit flags set in database
 UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry` IN (@MOKRA,@ERESSEA,@RUNOK,@ZULTORE,@VISCERI,@JACOB,@AMBROSE,@COLOSOS,@JAELYNE,@LANA,@MOKRA_H,@ERESSEA_H,@RUNOK_H,@ZULTORE_H,@VISCERI_H,@JACOB_H,@AMBROSE_H,@COLOSOS_H,@JAELYNE_H,@LANA_H);
+
+-- Rogue Champion's Deadly Poison should have 5 second internal cooldown
+DELETE FROM `spell_proc_event` WHERE `entry`=67711;
+INSERT INTO `spell_proc_event` (`entry`,`Cooldown`) VALUES (67711,5);
+-- Rogue Champion's Fan of Knives should also trigger Deadly Poison on each target
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=67706;
+INSERT INTO `spell_linked_spell` VALUES (67706,67710,1,'Rogue Champion - Trigger Deadly Poison on Fan of Knives');
 
 -- Achievement criteria data
 -- for achievement IDs 3778, 4018, 4019, 4048, 4049, 4050, 4051, 4052, 4053, 4054, 4055, 4296, 4297, 4298, 
@@ -278,7 +309,8 @@ INSERT INTO `creature_onkill_reputation` VALUES
 (@ARGENT_PRIESTESS_H,1037,1052,7,0,10,7,0,10,1),
 (@ARGENT_LIGHTWIELDER_H,1037,1052,7,0,10,7,0,10,1);
 
-
+-- Scriptname for Argent Priestess' Fountain of Light
+UPDATE `creature_template` SET `ScriptName`='npc_fountain_of_light' WHERE `entry`=35311;
 
 -- Achievement criteria data
 -- for achievement id 3802
@@ -353,13 +385,34 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN
 
 -- Eadric' Vengeance spell should have internal cooldown and procChance
 -- Proc spell should properly be removed on successful melee crit
-DELETE FROM `spell_proc_event` WHERE entry IN (66865,66889);
+DELETE FROM `spell_proc_event` WHERE `entry` IN (66865,66889);
 INSERT INTO `spell_proc_event` (`entry`,`procFlags`,`procEx`,`CustomChance`,`Cooldown`) VALUES 
 (66865,4,0,20,10),
 (66889,4,2,0,0);
 -- Also the proc spell of Vengeance should not remove original aura
-DELETE FROM `spell_linked_spell` WHERE spell_trigger=66889 AND spell_effect=-66865;
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=66889 AND `spell_effect`=-66865;
 
 -- Player casted Hammer of the Righteous to Eadric should remove the dummy aura from player on cast
-DELETE FROM `spell_linked_spell` WHERE spell_trigger=66905 AND spell_effect=-66904;
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=66905 AND `spell_effect`=-66904;
 INSERT INTO `spell_linked_spell` VALUES (66905,-66904,0,'Eadric - Remove dummy aura from player on cast');
+
+--
+-- The Black Knight
+--
+
+-- The Black Knight's vehicle must have flight inhabit type
+UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=35491;
+
+-- Risen Champion is missing scriptname
+UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry`=35590;
+
+-- Correcting The Black Knight's mechanic immunities
+UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN (35451,35490);
+
+-- The Black Knight should have money drop
+UPDATE `creature_template` SET `mingold`=4921,`maxgold`=10294 WHERE `entry`=35451;
+UPDATE `creature_template` SET `mingold`=14691,`maxgold`=21952 WHERE `entry`=35490;
+
+-- Achievement criteria script for achievement id 3804
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=11789;
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES (11789,11,'achievement_ive_had_worse');

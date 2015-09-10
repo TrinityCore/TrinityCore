@@ -17,7 +17,7 @@
 
 /* ScriptData
 SDName: Instance Trial of the Champion
-SDComment:
+SDComment: missing fireworks when boss encounter is set to done
 SDCategory: Trial Of the Champion
 EndScriptData */
 
@@ -68,6 +68,8 @@ public:
         ObjectGuid uiArgentChampionGUID;
         ObjectGuid uiEadricLootGUID;
         ObjectGuid uiPaletressLootGUID;
+        ObjectGuid uiBlackKnightVehicleGUID;
+        ObjectGuid uiBlackKnightGUID;
         ObjectGuid uiTirionGUID;
         ObjectGuid uiVarianGUID;
         ObjectGuid uiJainaGUID;
@@ -135,6 +137,12 @@ public:
                 case NPC_EADRIC:
                 case NPC_PALETRESS:
                     uiArgentChampionGUID = creature->GetGUID();
+                    break;
+                case VEHICLE_BLACK_KNIGHT:
+                    uiBlackKnightVehicleGUID = creature->GetGUID();
+                    break;
+                case NPC_BLACK_KNIGHT:
+                    uiBlackKnightGUID = creature->GetGUID();
                     break;
                 case NPC_TIRION:
                     uiTirionGUID = creature->GetGUID();
@@ -332,6 +340,10 @@ public:
                             cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
+                case BOSS_BLACK_KNIGHT:
+                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        pAnnouncer->AI()->SetData(DATA_BLACK_KNIGHT_DONE, 0);
+                    break;
             }
 
             if (uiData == DONE)
@@ -370,6 +382,9 @@ public:
                 case DATA_GRAND_CHAMPION_VEHICLE_3: return uiGrandChampionVehicle3GUID;
 
                 case DATA_ARGENT_CHAMPION: return uiArgentChampionGUID;
+
+                case DATA_BLACK_KNIGHT_VEHICLE: return uiBlackKnightVehicleGUID;
+                case DATA_BLACK_KNIGHT: return uiBlackKnightGUID;
 
                 case DATA_TIRION: return uiTirionGUID;
                 case DATA_VARIAN: return uiVarianGUID;

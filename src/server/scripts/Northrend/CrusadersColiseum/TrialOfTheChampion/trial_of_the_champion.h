@@ -78,7 +78,10 @@ enum Data
     DATA_REMOVE_VEHICLES,
     DATA_GRAND_CHAMPIONS_DONE,
     DATA_ARGENT_CHAMPION_PREPARE,
-    DATA_ARGENT_SOLDIER_DEFEATED
+    DATA_ARGENT_SOLDIER_DEFEATED,
+    DATA_BLACK_KNIGHT_PREPARE,
+    DATA_BLACK_KNIGHT_PRECAST,
+    DATA_BLACK_KNIGHT_DONE
 };
 
 enum Data64
@@ -95,6 +98,9 @@ enum Data64
     DATA_GRAND_CHAMPION_3,
 
     DATA_ARGENT_CHAMPION,
+
+    DATA_BLACK_KNIGHT_VEHICLE,
+    DATA_BLACK_KNIGHT,
 
     DATA_TIRION,
     DATA_VARIAN,
@@ -132,6 +138,7 @@ enum Creatures
 
     NPC_RISEN_JAEREN                                = 35545,
     NPC_RISEN_ARELAS                                = 35564,
+    NPC_DESECRATION_STALKER                         = 35614,
 
     // Announcers
     NPC_JAEREN                                      = 35004,
