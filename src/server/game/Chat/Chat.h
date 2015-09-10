@@ -66,7 +66,7 @@ class ChatHandler
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str);
+        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
 
@@ -166,7 +166,7 @@ class CliHandler : public ChatHandler
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str) override;
+        void SendSysMessage(const char *str, bool escapeCharacters) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
