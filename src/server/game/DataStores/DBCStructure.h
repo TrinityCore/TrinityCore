@@ -1093,9 +1093,6 @@ struct SpellCategoriesEntry
     uint32      ChargeCategory;                             // 9
 };
 
-typedef std::set<uint32> SpellCategorySet;
-typedef std::map<uint32, SpellCategorySet > SpellCategoryStore;
-
 struct SpellCategoryEntry
 {
     uint32      ID;                                         // 0
