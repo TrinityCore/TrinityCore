@@ -130,7 +130,6 @@ DBCStorage<SkillRaceClassInfoEntry>         sSkillRaceClassInfoStore(SkillRaceCl
 SkillRaceClassInfoMap                       SkillRaceClassInfoBySkill;
 DBCStorage<SpellAuraOptionsEntry>           sSpellAuraOptionsStore(SpellAuraOptionsfmt);
 DBCStorage<SpellCategoriesEntry>            sSpellCategoriesStore(SpellCategoriesfmt);
-SpellCategoryStore                          sSpellsByCategoryStore;
 DBCStorage<SpellCategoryEntry>              sSpellCategoryStore(SpellCategoryfmt);
 DBCStorage<SpellCooldownsEntry>             sSpellCooldownsStore(SpellCooldownsfmt);
 DBCStorage<SpellEffectEntry>                sSpellEffectStore(SpellEffectfmt);
@@ -446,16 +445,6 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
         if (SkillRaceClassInfoEntry const* entry = sSkillRaceClassInfoStore.LookupEntry(i))
             if (sSkillLineStore.LookupEntry(entry->SkillID))
                 SkillRaceClassInfoBySkill.emplace(entry->SkillID, entry);
-
-    for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
-    {
-        SpellEntry const* spell = sSpellStore.LookupEntry(i);
-        if (!spell)
-            continue;
-
-        if (SpellCategoriesEntry const* category = sSpellCategoriesStore.LookupEntry(spell->CategoriesID))
-            sSpellsByCategoryStore[category->Category].insert(i);
-    }
 
     for (uint32 j = 0; j < sSpellEffectScalingStore.GetNumRows(); j++)
     {

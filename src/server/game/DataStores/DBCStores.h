@@ -185,7 +185,6 @@ extern DBCStorage<SkillLineEntry>                   sSkillLineStore;
 extern DBCStorage<SkillRaceClassInfoEntry>          sSkillRaceClassInfoStore;
 extern DBCStorage<SpellAuraOptionsEntry>            sSpellAuraOptionsStore;
 extern DBCStorage<SpellCategoriesEntry>             sSpellCategoriesStore;
-extern SpellCategoryStore                           sSpellsByCategoryStore;
 extern DBCStorage<SpellCategoryEntry>               sSpellCategoryStore;
 extern DBCStorage<SpellCooldownsEntry>              sSpellCooldownsStore;
 extern DBCStorage<SpellEffectEntry>                 sSpellEffectStore;
