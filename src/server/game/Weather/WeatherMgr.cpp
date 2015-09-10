@@ -25,8 +25,6 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
 #include "WorldSession.h"
 #include "MiscPackets.h"
 

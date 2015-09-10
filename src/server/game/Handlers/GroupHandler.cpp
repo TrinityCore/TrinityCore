@@ -22,17 +22,12 @@
 #include "GroupMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "Pet.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "SpellAuras.h"
 #include "Util.h"
-#include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "SpellAuraEffects.h"
 #include "MiscPackets.h"
 #include "LootPackets.h"
 #include "PartyPackets.h"
@@ -353,7 +348,7 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    if (packet.LootMethod > NEED_BEFORE_GREED)
+    if (packet.LootMethod > PERSONAL_LOOT)
         return;
 
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
@@ -364,9 +359,9 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     /********************/
 
     // everything's fine, do it
-    group->SetLootMethod((LootMethod)packet.LootMethod);
+    group->SetLootMethod(static_cast<LootMethod>(packet.LootMethod));
     group->SetMasterLooterGuid(packet.LootMasterGUID);
-    group->SetLootThreshold((ItemQualities)packet.LootThreshold);
+    group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
 }
 
@@ -433,7 +428,7 @@ void WorldSession::HandleUpdateRaidTargetOpcode(WorldPackets::Party::UpdateRaidT
     if (!group)
         return;
 
-    if (packet.Symbol == 0xFF)                  // target icon request
+    if (packet.Symbol == -1)                  // target icon request
         group->SendTargetIconList(this, packet.PartyIndex);
     else                                        // target icon update
     {

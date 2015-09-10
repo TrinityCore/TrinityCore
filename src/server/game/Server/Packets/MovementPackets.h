@@ -249,6 +249,7 @@ namespace WorldPackets
         {
             ObjectGuid ID;
             G3D::Vector3 Direction;
+            G3D::Vector3 TransportPosition;
             uint32 TransportID  = 0;
             float Magnitude     = 0;
             uint8 Type          = 0;
@@ -399,6 +400,28 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             uint32 TimeSkipped = 0;
+        };
+
+        class SummonResponse final : public ClientPacket
+        {
+        public:
+            SummonResponse(WorldPacket&& packet) : ClientPacket(CMSG_SUMMON_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Accept = false;
+            ObjectGuid SummonerGUID;
+        };
+
+        class ControlUpdate final : public ServerPacket
+        {
+        public:
+            ControlUpdate() : ServerPacket(SMSG_CONTROL_UPDATE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            bool On = false;
         };
     }
 

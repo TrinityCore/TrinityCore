@@ -380,6 +380,7 @@ enum InventorySlot
 };
 
 struct FactionTemplateEntry;
+struct MountCapabilityEntry;
 struct SpellValue;
 
 class AuraApplication;
@@ -408,6 +409,13 @@ class SpellCastTargets;
 namespace Movement
 {
     class MoveSpline;
+}
+namespace WorldPackets
+{
+    namespace CombatLog
+    {
+        class CombatLogServerPacket;
+    }
 }
 
 typedef std::list<Unit*> UnitList;
@@ -614,7 +622,7 @@ enum WeaponAttackType : uint16
 
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,
+    CR_UNUSED_1                         = 0,
     CR_DEFENSE_SKILL                    = 1, // Removed in 4.0.1
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -625,24 +633,29 @@ enum CombatRating
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
-    CR_HIT_TAKEN_MELEE                  = 11, // Deprecated since Cataclysm
-    CR_HIT_TAKEN_RANGED                 = 12, // Deprecated since Cataclysm
-    CR_HIT_TAKEN_SPELL                  = 13, // Deprecated since Cataclysm
+    CR_MULTISTRIKE                      = 11,
+    CR_READINESS                        = 12,
+    CR_SPEED                            = 13,
     CR_RESILIENCE_CRIT_TAKEN            = 14,
     CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,
-    CR_CRIT_TAKEN_SPELL                 = 16, // Deprecated since Cataclysm
+    CR_LIFESTEAL                        = 16,
     CR_HASTE_MELEE                      = 17,
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
-    CR_WEAPON_SKILL_MAINHAND            = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,
+    CR_AVOIDANCE                        = 20,
+    CR_UNUSED_2                         = 21,
     CR_WEAPON_SKILL_RANGED              = 22,
     CR_EXPERTISE                        = 23,
     CR_ARMOR_PENETRATION                = 24,
     CR_MASTERY                          = 25,
+    CR_UNUSED_3                         = 26,
+    CR_UNUSED_4                         = 27,
+    CR_VERSATILITY_DAMAGE_DONE          = 28,
+    // placeholder                      = 29,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 30
 };
 
-#define MAX_COMBAT_RATING         26
+#define MAX_COMBAT_RATING         31
 
 enum DamageEffectType
 {
@@ -1020,25 +1033,21 @@ struct CalcDamageInfo
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct SpellNonMeleeDamage
 {
-    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
-        : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
-        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0)
-    { }
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask);
 
     Unit   *target;
     Unit   *attacker;
     uint32 SpellID;
     uint32 damage;
-    uint32 overkill;
     uint32 schoolMask;
     uint32 absorb;
     uint32 resist;
-    bool   physicalLog;
-    bool   unused;
+    bool   periodicLog;
     uint32 blocked;
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
+    uint32 preHitHealth;
 };
 
 struct SpellPeriodicAuraLogInfo
@@ -1111,7 +1120,8 @@ enum ReactStates
 {
     REACT_PASSIVE    = 0,
     REACT_DEFENSIVE  = 1,
-    REACT_AGGRESSIVE = 2
+    REACT_AGGRESSIVE = 2,
+    REACT_ASSIST     = 3
 };
 
 enum CommandStates
@@ -1276,6 +1286,8 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR   = 83
 };
 
+#define MAX_EQUIPMENT_ITEMS 3
+
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
@@ -1316,6 +1328,8 @@ class Unit : public WorldObject
 
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
+
+        void SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const;
 
         DiminishingLevels GetDiminishing(DiminishingGroup  group);
         void IncrDiminishing(DiminishingGroup group);
@@ -1464,7 +1478,7 @@ class Unit : public WorldObject
         UnitStandStateType GetStandState() const { return UnitStandStateType(GetByteValue(UNIT_FIELD_BYTES_1, 0)); }
         bool IsSitState() const;
         bool IsStandState() const;
-        void SetStandState(UnitStandStateType state);
+        void SetStandState(UnitStandStateType state, uint32 animKitID = 0);
 
         void  SetStandFlags(uint8 flags) { SetByteFlag(UNIT_FIELD_BYTES_1, 2, flags); }
         void  RemoveStandFlags(uint8 flags) { RemoveByteFlag(UNIT_FIELD_BYTES_1, 2, flags); }
@@ -1503,7 +1517,7 @@ class Unit : public WorldObject
         void HandleProcExtraAttackFor(Unit* victim);
 
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false);
-        void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
+        void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
         uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 1.0f, 100.0f, damage); }
@@ -1554,6 +1568,7 @@ class Unit : public WorldObject
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
 
         bool IsInCombat()  const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
+        bool IsInCombatWith(Unit const* who) const;
         void CombatStart(Unit* target, bool initialAggro = true);
         void SetInCombatState(bool PvP, Unit* enemy = NULL);
         void SetInCombatWith(Unit* enemy);
@@ -1611,12 +1626,11 @@ class Unit : public WorldObject
 
         void SendAttackStateUpdate(CalcDamageInfo* damageInfo);
         void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
-        void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log);
-        void SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
+        void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
-        void SendSpellDamageImmune(Unit* target, uint32 spellId);
+        void SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
         void SendTeleportPacket(Position& pos);
@@ -2040,6 +2054,8 @@ class Unit : public WorldObject
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo) const; // redefined in Creature
+        uint32 GetSchoolImmunityMask() const;
+        uint32 GetMechanicImmunityMask() const;
 
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask) const;
         bool IsImmunedToDamage(SpellInfo const* spellInfo) const;
@@ -2201,6 +2217,9 @@ class Unit : public WorldObject
         void Yell(uint32 textId, WorldObject const* target = nullptr);
         void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
         void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
+
+        uint32 GetVirtualItemId(uint32 slot) const;
+        void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0);
 
     protected:
         explicit Unit (bool isWorldObject);

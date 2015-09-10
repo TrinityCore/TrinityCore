@@ -34,9 +34,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "Group.h"
-#include "UpdateData.h"
-#include "MapManager.h"
-#include "ObjectAccessor.h"
 #include "SharedDefines.h"
 #include "Pet.h"
 #include "GameObject.h"
@@ -50,23 +47,16 @@
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
-#include "VMapFactory.h"
 #include "TemporarySummon.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "SkillDiscovery.h"
-#include "Formulas.h"
-#include "Vehicle.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
 #include "PathGenerator.h"
 #include "Guild.h"
-#include "GuildMgr.h"
 #include "ReputationMgr.h"
 #include "AreaTrigger.h"
+#include "BattlePetMgr.h"
 #include "Garrison.h"
 #include "CombatLogPackets.h"
 #include "DuelPackets.h"
@@ -267,7 +257,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //189 SPELL_EFFECT_LOOT
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
     &Spell::EffectNULL,                                     //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
-    &Spell::EffectNULL,                                     //192 SPELL_EFFECT_UNCAGE_BATTLEPET
+    &Spell::EffectUncageBattlePet,                          //192 SPELL_EFFECT_UNCAGE_BATTLEPET
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_START_PET_BATTLE
     &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
     &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
@@ -275,8 +265,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
     &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
-    &Spell::EffectNULL,                                     //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
-    &Spell::EffectNULL,                                     //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
+    &Spell::EffectHealBattlePetPct,                         //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
+    &Spell::EffectEnableBattlePets,                         //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202
     &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
@@ -299,7 +289,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
     &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
-    &Spell::EffectNULL,                                     //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
+    &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
@@ -326,6 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
+    &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -401,10 +392,14 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
     uint32 resist = 0;
 
     m_caster->CalcAbsorbResist(unitTarget, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
-
-    m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), absorb, resist, false, 0, false);
+    SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_spellInfo->GetSchoolMask());
+    log.damage = damage - absorb - resist;
+    log.absorb = absorb;
+    log.resist = resist;
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
         unitTarget->ToPlayer()->EnvironmentalDamage(DAMAGE_FIRE, damage);
+
+    m_caster->SendSpellNonMeleeDamageLog(&log);
 }
 
 void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
@@ -499,7 +494,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             case SPELLFAMILY_DRUID:
             {
                 // Ferocious Bite
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[0] & 0x000800000) && m_spellInfo->SpellVisual[0] == 6587)
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->SpellFamilyFlags[3] & 0x1000)
                 {
                     // converts each extra point of energy ( up to 25 energy ) into additional damage
                     int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
@@ -1514,7 +1509,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         // send info to the client
         player->SendNewItem(pItem, num_to_add, true, bgType == 0);
 
-        if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
+        if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
             if (Guild* guild = player->GetGuild())
                 guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
 
@@ -2265,6 +2260,22 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : effectInfo->TriggerSpell;
     player->LearnSpell(spellToLearn, false);
 
+    if (m_spellInfo->Id == 55884)
+    {
+        if (BattlePetMgr* battlePetMgr = player->GetSession()->GetBattlePetMgr())
+        {
+            for (auto entry : sBattlePetSpeciesStore)
+            {
+                if (entry->SummonSpellID == spellToLearn)
+                {
+                    battlePetMgr->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+                    break;
+                }
+            }
+        }
+    }
+
     TC_LOG_DEBUG("spells", "Spell: %s has learned spell %u from %s", player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
 }
 
@@ -2485,7 +2496,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
     if (!rcEntry)
         return;
 
-    SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcEntry->SkillTierID);
+    SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID);
     if (!tier)
         return;
 
@@ -2686,16 +2697,13 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
         duration = 3600;                                    // 1 hour
     // shaman family enchantments
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN)
-        duration = 1800;                                    // 30 mins
+        duration = 3600;                                    // 30 mins
     // other cases with this SpellVisual already selected
-    else if (m_spellInfo->SpellVisual[0] == 215)
+    else if (m_spellInfo->GetSpellVisual(DIFFICULTY_NONE) == 215)
         duration = 1800;                                    // 30 mins
     // some fishing pole bonuses except Glow Worm which lasts full hour
-    else if (m_spellInfo->SpellVisual[0] == 563 && m_spellInfo->Id != 64401)
+    else if (m_spellInfo->GetSpellVisual(DIFFICULTY_NONE) == 563 && m_spellInfo->Id != 64401)
         duration = 600;                                     // 10 mins
-    // shaman rockbiter enchantments
-    else if (m_spellInfo->SpellVisual[0] == 0)
-        duration = 1800;                                    // 30 mins
     else if (m_spellInfo->Id == 29702)
         duration = 300;                                     // 5 mins
     else if (m_spellInfo->Id == 37360)
@@ -2907,19 +2915,18 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    // Also use this effect to set the taunter's threat to the taunted creature's highest value
-    if (unitTarget->getThreatManager().getCurrentVictim())
-    {
-        float myThreat = unitTarget->getThreatManager().getThreat(m_caster);
-        float itsThreat = unitTarget->getThreatManager().getCurrentVictim()->getThreat();
-        if (itsThreat > myThreat)
-            unitTarget->getThreatManager().addThreat(m_caster, itsThreat - myThreat);
-    }
-
-    //Set aggro victim to caster
     if (!unitTarget->getThreatManager().getOnlineContainer().empty())
+    {
+        // Also use this effect to set the taunter's threat to the taunted creature's highest value
+        float myThreat = unitTarget->getThreatManager().getThreat(m_caster);
+        float topThreat = unitTarget->getThreatManager().getOnlineContainer().getMostHated()->getThreat();
+        if (topThreat > myThreat)
+            unitTarget->getThreatManager().doAddThreat(m_caster, topThreat - myThreat);
+
+        //Set aggro victim to caster
         if (HostileReference* forcedVictim = unitTarget->getThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
             unitTarget->getThreatManager().setCurrentVictim(forcedVictim);
+    }
 
     if (unitTarget->ToCreature()->IsAIEnabled && !unitTarget->ToCreature()->HasReactState(REACT_PASSIVE))
         unitTarget->ToCreature()->AI()->AttackStart(m_caster);
@@ -3122,9 +3129,9 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     uint32 eff_damage(std::max(weaponDamage, 0));
 
     // Add melee damage bonuses (also check for negative)
-    uint32 damage = m_caster->MeleeDamageBonusDone(unitTarget, eff_damage, m_attackType, m_spellInfo);
+    uint32 damageBonusDone = m_caster->MeleeDamageBonusDone(unitTarget, eff_damage, m_attackType, m_spellInfo);
 
-    m_damage += unitTarget->MeleeDamageBonusTaken(m_caster, damage, m_attackType, m_spellInfo);
+    m_damage += unitTarget->MeleeDamageBonusTaken(m_caster, damageBonusDone, m_attackType, m_spellInfo);
 }
 
 void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
@@ -3382,9 +3389,9 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 54426:
                     if (unitTarget)
                     {
-                        int32 damage = int32(unitTarget->GetHealth()) - int32(unitTarget->CountPctFromMaxHealth(5));
-                        if (damage > 0)
-                            m_caster->CastCustomSpell(28375, SPELLVALUE_BASE_POINT0, damage, unitTarget);
+                        int32 decimateDamage = int32(unitTarget->GetHealth()) - int32(unitTarget->CountPctFromMaxHealth(5));
+                        if (decimateDamage > 0)
+                            m_caster->CastCustomSpell(28375, SPELLVALUE_BASE_POINT0, decimateDamage, unitTarget);
                     }
                     return;
                 // Mirren's Drinking Hat
@@ -5484,10 +5491,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (EQUIPMENT_SLOT_MAINHAND * 3)))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (EQUIPMENT_SLOT_MAINHAND * 2)))
             {
                 summon->SetDisplayId(11686); // modelid2
-                summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+                summon->SetVirtualItem(0, weapon);
             }
             else
                 summon->SetDisplayId(1126); // modelid1
@@ -5858,4 +5865,98 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
         garrison->AddFollower(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
+        garrison->ActivateBuilding(GetEffect(effIndex)->MiscValue);
+}
+
+void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (BattlePetMgr* battlePetMgr = unitTarget->ToPlayer()->GetSession()->GetBattlePetMgr())
+        battlePetMgr->HealBattlePetsPct(GetEffect(effIndex)->BasePoints);
+}
+
+void Spell::EffectEnableBattlePets(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* plr = unitTarget->ToPlayer();
+    plr->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    plr->GetSession()->GetBattlePetMgr()->UnlockSlot(0);
+}
+
+void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (!m_CastItem || !m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* plr = m_caster->ToPlayer();
+
+    // are we allowed to learn battle pets without it?
+    /*if (plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
+        return; // send some error*/
+
+    uint32 speciesId = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
+    uint16 breed = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) & 0xFFFFFF;
+    uint8 quality = (m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) >> 24) & 0xFF;
+    uint16 level = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
+    uint32 creatureId = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID);
+
+    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(speciesId);
+    if (!speciesEntry)
+        return;
+
+    BattlePetMgr* battlePetMgr = plr->GetSession()->GetBattlePetMgr();
+    if (!battlePetMgr)
+        return;
+
+    uint16 maxLearnedLevel = 0;
+
+    for (auto pet : battlePetMgr->GetLearnedPets())
+        maxLearnedLevel = std::max(pet.PacketInfo.Level, maxLearnedLevel);
+
+    // TODO: This means if you put your highest lvl pet into cage, you won't be able to uncage it again which is probably wrong.
+    // We will need to store maxLearnedLevel somewhere to avoid this behaviour.
+    if (maxLearnedLevel < level)
+    {
+        battlePetMgr->SendError(BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE, creatureId); // or speciesEntry.CreatureID
+        SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
+        return;
+    }
+
+    if (battlePetMgr->GetPetCount(speciesId) >= MAX_BATTLE_PETS_PER_SPECIES)
+    {
+        battlePetMgr->SendError(BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE, creatureId); // or speciesEntry.CreatureID
+        SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
+        return;
+    }
+
+    if (!plr->HasSpell(speciesEntry->SummonSpellID))
+        plr->LearnSpell(speciesEntry->SummonSpellID, false);
+
+    battlePetMgr->AddPet(speciesId, creatureId, breed, quality, level);
+    plr->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    m_CastItem = nullptr;
 }

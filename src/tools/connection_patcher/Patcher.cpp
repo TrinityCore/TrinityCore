@@ -17,36 +17,32 @@
  */
 
 #include "Patcher.hpp"
-#include "Helper.hpp"
 
-#include <boost/filesystem.hpp>
-
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <set>
-#include <stdexcept>
-
-namespace
+namespace Connection_Patcher
 {
-    std::vector<unsigned char> read_file(boost::filesystem::path const& path)
+    Patcher::Patcher(boost::filesystem::path file)
+        : filePath(file)
     {
-        std::ifstream ifs(path.string(), std::ifstream::binary);
-        if (!ifs)
-            throw std::runtime_error("could not open " + path.string());
+        ReadFile();
+        binaryType = Helper::GetBinaryType(binary);
+    }
 
-        std::vector<unsigned char> binary;
+    void Patcher::ReadFile()
+    {
+        std::ifstream ifs(filePath.string(), std::ifstream::binary);
+        if (!ifs)
+            throw std::runtime_error("could not open " + filePath.string());
+
+        binary.clear();
         ifs >> std::noskipws;
         ifs.seekg(0, std::ios_base::end);
         binary.reserve(ifs.tellg());
         ifs.seekg(0, std::ios_base::beg);
 
         std::copy(std::istream_iterator<unsigned char>(ifs), std::istream_iterator<unsigned char>(), std::back_inserter(binary));
-
-        return binary;
     }
 
-    void write_file(boost::filesystem::path const& path, std::vector<unsigned char> const& data)
+    void Patcher::WriteFile(boost::filesystem::path const& path)
     {
         std::ofstream ofs(path.string(), std::ofstream::binary);
         if (!ofs)
@@ -54,47 +50,8 @@ namespace
 
         ofs << std::noskipws;
 
-        std::copy(data.begin(), data.end(), std::ostream_iterator<unsigned char>(ofs));
+        std::copy(binary.begin(), binary.end(), std::ostream_iterator<unsigned char>(ofs));
     }
-
-    std::set<size_t> SearchOffset(std::vector<unsigned char> const& binary, std::vector<unsigned char> const& pattern)
-    {
-        std::set<size_t> offsets;
-        for (size_t i = 0; (i + pattern.size()) < binary.size(); i++)
-        {
-            size_t matches = 0;
-
-            for (size_t j = 0; j < pattern.size(); j++)
-            {
-                if (pattern[j] == 0)
-                {
-                    matches++;
-                    continue;
-                }
-
-                if (binary[i + j] != pattern[j])
-                    break;
-
-                matches++;
-            }
-
-            if (matches == pattern.size())
-            {
-                offsets.insert(i);
-                i += matches;
-            }
-        }
-
-        return offsets.empty() ? throw std::runtime_error("unable to find pattern") : offsets;
-    }
-}
-
-namespace Connection_Patcher
-{
-    Patcher::Patcher(boost::filesystem::path file)
-        : binary(read_file(file))
-        , Type(Helper::GetBinaryType(binary))
-    {}
 
     void Patcher::Patch(std::vector<unsigned char> const& bytes, std::vector<unsigned char> const& pattern)
     {
@@ -104,7 +61,7 @@ namespace Connection_Patcher
         if (pattern.empty())
             return;
 
-        for (size_t const offset : SearchOffset(binary, pattern))
+        for (size_t const offset : Helper::SearchOffset(binary, pattern))
         {
             std::cout << "Found offset " << offset << std::endl;
 
@@ -119,6 +76,6 @@ namespace Connection_Patcher
         if (boost::filesystem::exists(out))
             boost::filesystem::remove(out);
 
-        write_file(out, binary);
+        WriteFile(out);
     }
 }

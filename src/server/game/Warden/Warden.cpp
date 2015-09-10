@@ -22,13 +22,12 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <openssl/md5.h>
-#include <openssl/sha.h>
 #include "World.h"
-#include "Player.h"
 #include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
+
+#include <openssl/sha.h>
 
 Warden::Warden() : _session(NULL), _inputCrypto(16), _outputCrypto(16), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
                    _dataSent(false), _previousTimestamp(0), _module(NULL), _initialized(false)
@@ -192,14 +191,14 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
 
     switch (action)
     {
-    case WARDEN_ACTION_LOG:
-        return "None";
-        break;
-    case WARDEN_ACTION_KICK:
-        _session->KickPlayer();
-        return "Kick";
-        break;
-    case WARDEN_ACTION_BAN:
+        case WARDEN_ACTION_LOG:
+            return "None";
+            break;
+        case WARDEN_ACTION_KICK:
+            _session->KickPlayer();
+            return "Kick";
+            break;
+        case WARDEN_ACTION_BAN:
         {
             std::stringstream duration;
             duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
@@ -215,8 +214,8 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
 
             return "Ban";
         }
-    default:
-        break;
+        default:
+            break;
     }
     return "Undefined";
 }

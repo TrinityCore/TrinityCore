@@ -28,6 +28,13 @@
 class SpellInfo;
 class Bag;
 class Unit;
+namespace WorldPackets
+{
+    namespace Item
+    {
+        struct ItemInstance;
+    }
+}
 
 struct ItemSetEffect
 {
@@ -134,7 +141,8 @@ enum InventoryResult
     EQUIP_ERR_CANT_BUY_QUANTITY                            = 93, // You can't buy the specified quantity of that item.
     EQUIP_ERR_ITEM_IS_BATTLE_PAY_LOCKED                    = 94, // Your purchased item is still waiting to be unlocked
     EQUIP_ERR_REAGENT_BANK_FULL                            = 95, // Your reagent bank is full
-    EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96
+    EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96,
+    EQUIP_ERR_WRONG_BAG_TYPE_3                             = 97
 };
 
 enum BuyResult
@@ -242,6 +250,7 @@ struct BonusData
     uint32 AppearanceModID;
 
     void Initialize(ItemTemplate const* proto);
+    void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };
 
@@ -256,6 +265,7 @@ class Item : public Object
         virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
+        BonusData const* GetBonus() const { return &_bonusData; }
 
         ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
@@ -369,7 +379,6 @@ class Item : public Object
 
         bool hasQuest(uint32 quest_id) const override { return GetTemplate()->GetStartQuest() == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const override { return false; }
-        bool HasStats() const;
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
@@ -411,9 +420,11 @@ class Item : public Object
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
-        bool CanBeTransmogrified() const;
+        static bool CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
         bool CanTransmogrify() const;
-        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
+        bool HasStats() const;
+        static bool HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus);
+        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 

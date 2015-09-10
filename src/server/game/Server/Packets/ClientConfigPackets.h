@@ -99,6 +99,16 @@ namespace WorldPackets
             uint8 DataType = 0; ///< @see enum AccountDataType
             ByteBuffer CompressedData;
         };
+
+        class SetAdvancedCombatLogging final : public ClientPacket
+        {
+        public:
+            SetAdvancedCombatLogging(WorldPacket&& packet) : ClientPacket(CMSG_SET_ADVANCED_COMBAT_LOGGING, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Enable = false;
+        };
     }
 }
 

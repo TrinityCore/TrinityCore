@@ -52,34 +52,38 @@ namespace WorldPackets
 
 enum QuestFailedReason
 {
-    INVALIDREASON_DONT_HAVE_REQ                 = 0,
-    INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        // You are not high enough level for that quest.
-    INVALIDREASON_QUEST_FAILED_WRONG_RACE       = 6,        // That quest is not available to your race.
-    INVALIDREASON_QUEST_ALREADY_DONE            = 7,        // You have completed that quest.
-    INVALIDREASON_QUEST_ONLY_ONE_TIMED          = 12,       // You can only be on one timed quest at a time.
-    INVALIDREASON_QUEST_ALREADY_ON              = 13,       // You are already on that quest.
-    INVALIDREASON_QUEST_FAILED_EXPANSION        = 16,       // This quest requires an expansion enabled account.
-    INVALIDREASON_QUEST_ALREADY_ON2             = 18,       // You are already on that quest.
-    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS    = 21,       // You don't have the required items with you. Check storage.
-    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23,       // You don't have enough money for that quest.
-    INVALIDREASON_DAILY_QUESTS_REMAINING        = 26,       // You have already completed 25 daily quests today.
-    INVALIDREASON_QUEST_FAILED_CAIS             = 27,       // You cannot complete quests once you have reached tired time.
-    INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY   = 29        // You have completed that daily quest today.
+    QUEST_ERR_NONE                              = 0,
+    QUEST_ERR_FAILED_LOW_LEVEL                  = 1,        // "You are not high enough level for that quest.""
+    QUEST_ERR_FAILED_WRONG_RACE                 = 6,        // "That quest is not available to your race."
+    QUEST_ERR_ALREADY_DONE                      = 7,        // "You have completed that daily quest today."
+    QUEST_ERR_ONLY_ONE_TIMED                    = 12,       // "You can only be on one timed quest at a time"
+    QUEST_ERR_ALREADY_ON1                       = 13,       // "You are already on that quest"
+    QUEST_ERR_FAILED_EXPANSION                  = 16,       // "This quest requires an expansion enabled account."
+    QUEST_ERR_ALREADY_ON2                       = 18,       // "You are already on that quest"
+    QUEST_ERR_FAILED_MISSING_ITEMS              = 21,       // "You don't have the required items with you.  Check storage."
+    QUEST_ERR_FAILED_NOT_ENOUGH_MONEY           = 23,       // "You don't have enough money for that quest"
+    QUEST_ERR_FAILED_CAIS                       = 24,       // "You cannot complete quests once you have reached tired time"
+    QUEST_ERR_ALREADY_DONE_DAILY                = 26,       // "You have completed that daily quest today."
+    QUEST_ERR_FAILED_SPELL                      = 28,       // "You haven't learned the required spell."
+    QUEST_ERR_HAS_IN_PROGRESS                   = 30        // "Progress Bar objective not completed"
 };
 
-enum QuestShareMessages
+enum QuestPushReason
 {
-    QUEST_PARTY_MSG_SHARING_QUEST           = 0,
-    QUEST_PARTY_MSG_CANT_TAKE_QUEST         = 1,
-    QUEST_PARTY_MSG_ACCEPT_QUEST            = 2,
-    QUEST_PARTY_MSG_DECLINE_QUEST           = 3,
-    QUEST_PARTY_MSG_BUSY                    = 4,
-    QUEST_PARTY_MSG_LOG_FULL                = 5,
-    QUEST_PARTY_MSG_HAVE_QUEST              = 6,
-    QUEST_PARTY_MSG_FINISH_QUEST            = 7,
-    QUEST_PARTY_MSG_CANT_BE_SHARED_TODAY    = 8,
-    QUEST_PARTY_MSG_SHARING_TIMER_EXPIRED   = 9,
-    QUEST_PARTY_MSG_NOT_IN_PARTY            = 10
+    QUEST_PUSH_SUCCESS                  = 0,    // "Sharing quest with %s..."
+    QUEST_PUSH_INVALID                  = 1,    // "%s is not eligible for that quest"
+    QUEST_PUSH_ACCEPTED                 = 2,    // "%s has accepted your quest"
+    QUEST_PUSH_DECLINED                 = 3,    // "%s has declined your quest"
+    QUEST_PUSH_BUSY                     = 4,    // "%s is busy"
+    QUEST_PUSH_DEAD                     = 5,    // "%s is dead."
+    QUEST_PUSH_LOG_FULL                 = 6,    // "%s's quest log is full"
+    QUEST_PUSH_ONQUEST                  = 7,    // "%s is already on that quest"
+    QUEST_PUSH_ALREADY_DONE             = 8,    // "%s has completed that quest"
+    QUEST_PUSH_NOT_DAILY                = 9,    // "That quest cannot be shared today"
+    QUEST_PUSH_TIMER_EXPIRED            = 10,   // "Quest sharing timer has expired"
+    QUEST_PUSH_NOT_IN_PARTY             = 11,   // "You are not in a party"
+    QUEST_PUSH_DIFFERENT_SERVER_DAILY   = 12,   // "%s is not eligible for that quest today"
+    QUEST_PUSH_NOT_ALLOWED              = 13    // "That quest cannot be shared"
 };
 
 enum QuestTradeSkill
@@ -286,6 +290,7 @@ class Quest
         void LoadQuestObjectiveVisualEffect(Field* fields);
 
         uint32 XPValue(uint32 playerLevel) const;
+        uint32 MoneyValue(uint8 playerLevel) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
@@ -320,6 +325,7 @@ class Quest
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
         float  GetXPMultiplier() const { return RewardXPMultiplier; }
+        float  GetMoneyMultiplier() const { return RewardMoneyMultiplier; }
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellID; }
@@ -335,7 +341,6 @@ class Quest
         std::string const& GetPortraitTurnInText() const { return PortraitTurnInText; }
         std::string const& GetPortraitTurnInName() const { return PortraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; }
-        uint32 GetRewMoney() const;
         uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
         uint32 GetRewKillHonor() const { return RewardKillHonor; }
@@ -406,7 +411,7 @@ class Quest
         float  RewardXPMultiplier;
         int32  RewardMoney;
         uint32 RewardMoneyDifficulty;
-        float  Float13;
+        float  RewardMoneyMultiplier;
         uint32 RewardBonusMoney;
         uint32 RewardDisplaySpell;
         uint32 RewardSpell;

@@ -31,9 +31,10 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "Util.h"
 #include "ZmqContext.h"
 #include "DatabaseLoader.h"
@@ -84,8 +85,8 @@ int main(int argc, char** argv)
     std::string configFile = _TRINITY_BNET_CONFIG;
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
-    // exit if help is enabled
-    if (vm.count("help"))
+    // exit if help or version is enabled
+    if (vm.count("help") || vm.count("version"))
         return 0;
 
 #if PLATFORM == PLATFORM_WINDOWS
@@ -104,7 +105,10 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
+    sLog->RegisterAppender<AppenderDB>();
+    sLog->Initialize(nullptr);
+
+    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -275,6 +279,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
+        ("version,v", "print version build info")
         ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_BNET_CONFIG), "use <arg> as configuration file")
         ;
 #if PLATFORM == PLATFORM_WINDOWS
@@ -299,6 +304,10 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     if (variablesMap.count("help"))
     {
         std::cout << all << "\n";
+    }
+    else if (variablesMap.count("version"))
+    {
+        std::cout << GitRevision::GetFullVersion() << "\n";
     }
 
     return variablesMap;

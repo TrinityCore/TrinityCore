@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "Player.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -351,11 +352,11 @@ namespace WorldPackets
                 uint8 NewPosition = 0;
             };
 
-            ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)) { }
+            ReorderCharacters(WorldPacket&& packet);
 
             void Read() override;
 
-            std::list<ReorderInfo> Entries;
+            Array<ReorderInfo> Entries;
         };
 
         class UndeleteCharacter final : public ClientPacket

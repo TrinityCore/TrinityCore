@@ -60,6 +60,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data << uint32(playerData.Stats.size());
     data << int32(playerData.PrimaryTalentTree);
     data << uint32(playerData.PrimaryTalentTreeNameIndex);
+    data << uint32(playerData.Race);
     if (!playerData.Stats.empty())
         data.append(playerData.Stats.data(), playerData.Stats.size());
 
@@ -261,6 +262,12 @@ WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerJoined::Write()
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerLeft::Write()
+{
+    _worldPacket << Guid;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::DestroyArenaUnit::Write()
 {
     _worldPacket << Guid;
     return &_worldPacket;

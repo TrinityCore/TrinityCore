@@ -48,7 +48,7 @@ class DB2Storage : public DB2StorageBase
 public:
     typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* fileName, char const* format, uint32 preparedStmtIndex)
+    DB2Storage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
         : _fileName(fileName), _indexTableSize(0), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
         _indexTable.AsT = NULL;
@@ -105,6 +105,19 @@ public:
                     entry += sizeof(LocalizedString*);
                     break;
                 }
+                case FT_STRING_NOT_LOCALIZED:
+                {
+                    char const* str = *(char const**)entry;
+                    std::size_t len = strlen(str);
+                    buffer << uint16(len ? len + 1 : 0);
+                    if (len)
+                    {
+                        buffer.append(str, len);
+                        buffer << uint8(0);
+                    }
+                    entry += sizeof(char const*);
+                    break;
+                }
             }
         }
     }
@@ -157,7 +170,7 @@ public:
             return false;
 
         // load strings from another locale db2 data
-        if (DB2FileLoader::GetFormatStringFieldCount(_format))
+        if (DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
             if (char* stringBlock = db2.AutoProduceStrings(_format, (char*)_dataTable, locale))
                 _stringPoolList.push_back(stringBlock);
         return true;
@@ -175,10 +188,18 @@ public:
 
     void LoadStringsFromDB(uint32 locale)
     {
-        if (!DB2FileLoader::GetFormatStringFieldCount(_format))
+        if (!DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
             return;
 
-        DB2DatabaseLoader(_fileName).LoadStrings(_format, _hotfixStatement + 1, locale, _indexTable.AsChar, _stringPoolList);
+        DB2DatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTable.AsChar, _stringPoolList);
+    }
+
+    typedef bool(*SortFunc)(T const* left, T const* right);
+
+    void Sort(SortFunc pred)
+    {
+        ASSERT(strpbrk(_format, "nd") == nullptr, "Only non-indexed storages can be sorted");
+        std::sort(_indexTable.AsT, _indexTable.AsT + _indexTableSize, pred);
     }
 
     iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
@@ -197,7 +218,7 @@ private:
     T* _dataTable;
     T* _dataTableEx;
     StringPoolList _stringPoolList;
-    uint32 _hotfixStatement;
+    HotfixDatabaseStatements _hotfixStatement;
 };
 
 #endif

@@ -28,36 +28,25 @@
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "WorldSession.h"
-#include "BigNumber.h"
-#include "SHA1.h"
-#include "UpdateData.h"
-#include "LootMgr.h"
 #include "Chat.h"
 #include "zlib.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "Battleground.h"
 #include "OutdoorPvP.h"
-#include "Pet.h"
-#include "CellImpl.h"
 #include "AccountMgr.h"
-#include "Vehicle.h"
-#include "CreatureAI.h"
 #include "DBCEnums.h"
 #include "ScriptMgr.h"
 #include "MapManager.h"
-#include "InstanceScript.h"
 #include "Group.h"
-#include "AccountMgr.h"
 #include "Spell.h"
 #include "SpellPackets.h"
-#include "BattlegroundMgr.h"
-#include "DB2Stores.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "AchievementPackets.h"
 #include "WhoPackets.h"
+#include "InstancePackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -331,21 +320,12 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCance
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
 {
-    // this opcode can be used in two ways: Either set explicit new status or toggle old status
-    if (recvData.size() == 1)
-    {
-        bool newPvPStatus;
-        recvData >> newPvPStatus;
-        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
-        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
-    }
-    else
-    {
-        GetPlayer()->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
-    }
+    bool inPvP = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, !inPvP);
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, inPvP);
 
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
@@ -355,11 +335,25 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     else
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(NULL);     // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
     }
+}
 
-    //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
-    //    pvp->HandlePlayerActivityChanged(_player);
+void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
+{
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, packet.EnablePVP);
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !packet.EnablePVP);
+
+    if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+    {
+        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
+            GetPlayer()->UpdatePvP(true, true);
+    }
+    else
+    {
+        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start set-off
+    }
 }
 
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
@@ -706,22 +700,8 @@ void WorldSession::HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& 
     SendPacket(playedTime.Write());
 }
 
-void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
+void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport)
 {
-    uint32 time;
-    uint32 mapid;
-    float PositionX;
-    float PositionY;
-    float PositionZ;
-    float Orientation;
-
-    recvData >> time;                                      // time in m.sec.
-    recvData >> mapid;
-    recvData >> PositionX;
-    recvData >> PositionY;
-    recvData >> PositionZ;
-    recvData >> Orientation;                               // o (3.141593 = 180 degrees)
-
     if (GetPlayer()->IsInFlight())
     {
         TC_LOG_DEBUG("network", "Player '%s' (%s) in flight, ignore worldport command.",
@@ -729,11 +709,11 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
         return;
     }
 
-    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f",
-        GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
+    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, map = %u, x = %f, y = %f, z = %f, o = %f",
+        GetPlayer()->GetName().c_str(), worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
 
     if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
+        GetPlayer()->TeleportTo(worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }
@@ -1122,11 +1102,8 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     SendPacket(phaseShift.Write());
 }
 
-void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
+void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet)
 {
-    uint8 accept;
-    recvPacket >> accept;
-
     if (!_player->HasPendingBind())
     {
         TC_LOG_INFO("network", "InstanceLockResponse: Player %s (%s) tried to bind himself/teleport to graveyard without a pending bind!",
@@ -1134,7 +1111,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
         return;
     }
 
-    if (accept)
+    if (packet.AcceptLock)
         _player->BindToInstance();
     else
         _player->RepopAtGraveyard();
@@ -1238,4 +1215,9 @@ void WorldSession::SendLoadCUFProfiles()
         if (CUFProfile* cufProfile = player->GetCUFProfile(i))
             loadCUFProfiles.CUFProfiles.push_back(cufProfile);
     SendPacket(loadCUFProfiles.Write());
+}
+
+void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging)
+{
+    _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 }

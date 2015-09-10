@@ -22,18 +22,15 @@
 #include "BattlegroundScore.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
-#include "Chat.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GuildMgr.h"
 #include "Guild.h"
-#include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
-#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -1337,6 +1334,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+            playerData.Race = player->getRace();
         }
 
         //if (isRated())

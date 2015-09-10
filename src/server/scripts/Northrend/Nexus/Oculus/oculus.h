@@ -29,7 +29,9 @@ enum DataTypes
     DATA_DRAKOS                 = 0,
     DATA_VAROS                  = 1,
     DATA_UROM                   = 2,
-    DATA_EREGOS                 = 3
+    DATA_EREGOS                 = 3,
+    // GPS System
+    DATA_CONSTRUCTS             = 4
 };
 
 enum CreatureIds
@@ -89,6 +91,13 @@ enum InstanceEvents
 {
     EVENT_VAROS_INTRO = 1,
     EVENT_EREGOS_INTRO
+};
+
+enum ConstructKillState
+{
+    KILL_NO_CONSTRUCT           = 0,
+    KILL_ONE_CONSTRUCT          = 1,
+    KILL_MORE_CONSTRUCT         = 2
 };
 
 enum Misc

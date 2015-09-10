@@ -37,7 +37,7 @@ namespace WorldPackets
         class UpdateListedAuctionableTokensResponse final : public ServerPacket
         {
         public:
-            UpdateListedAuctionableTokensResponse() : ServerPacket(SMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST_RESPONSE, 12) { }
+            UpdateListedAuctionableTokensResponse() : ServerPacket(SMSG_WOW_TOKEN_UPDATE_AUCTIONABLE_LIST_RESPONSE, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -65,10 +65,10 @@ namespace WorldPackets
             uint32 UnkInt = 0;
         };
 
-        class RequestWowTokenMarketPriceResponse final : public ServerPacket
+        class WowTokenMarketPriceResponse final : public ServerPacket
         {
         public:
-            RequestWowTokenMarketPriceResponse() : ServerPacket(SMSG_REQUEST_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20) { }
+            WowTokenMarketPriceResponse() : ServerPacket(SMSG_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20) { }
 
             WorldPacket const* Write() override;
 

@@ -18,7 +18,6 @@
 #include "TransportMgr.h"
 #include "Transport.h"
 #include "InstanceScript.h"
-#include "MoveSpline.h"
 #include "MapManager.h"
 
 TransportTemplate::~TransportTemplate()

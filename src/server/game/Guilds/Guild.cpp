@@ -31,6 +31,7 @@
 #include "SocialMgr.h"
 #include "Opcodes.h"
 #include "ChatPackets.h"
+#include "CalendarPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -367,7 +368,7 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[19].GetUInt8();
+    uint8 slotId = fields[23].GetUInt8();
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
@@ -683,7 +684,7 @@ bool EmblemInfo::ValidateEmblemColors()
     return sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
            sGuildColorBorderStore.LookupEntry(m_borderColor) &&
            sGuildColorEmblemStore.LookupEntry(m_color);
-        
+
 }
 
 bool EmblemInfo::LoadFromDB(Field* fields)
@@ -693,7 +694,7 @@ bool EmblemInfo::LoadFromDB(Field* fields)
     m_borderStyle       = fields[5].GetUInt8();
     m_borderColor       = fields[6].GetUInt8();
     m_backgroundColor   = fields[7].GetUInt8();
-        
+
     return ValidateEmblemColors();
 }
 
@@ -2157,10 +2158,9 @@ void Guild::SendLoginInfo(WorldSession* session)
         player->GetSession()->SendPacket(renameFlag.Write());
     }
 
-    for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-            if (entry->GuildLevel <= GetLevel())
-                player->LearnSpell(entry->SpellID, true);
+    for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+        if (entry->GuildLevel <= GetLevel())
+            player->LearnSpell(entry->SpellID, true);
 
     m_achievementMgr.SendAllAchievementData(player);
 
@@ -2257,7 +2257,7 @@ bool Guild::LoadFromDB(Field* fields)
 
     if (!m_emblemInfo.LoadFromDB(fields))
     {
-        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors (Background: %u, Border: %u, Emblem: %u), skipped.", 
+        TC_LOG_ERROR("guild", "Guild " UI64FMTD " has invalid emblem colors (Background: %u, Border: %u, Emblem: %u), skipped.",
             m_id, m_emblemInfo.GetBackgroundColor(), m_emblemInfo.GetBorderColor(), m_emblemInfo.GetColor());
         return false;
     }
@@ -2395,7 +2395,7 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[18].GetUInt8();
+    uint8 tabId = fields[22].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
@@ -2534,15 +2534,12 @@ void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
 {
-    uint32 count = 0;
-
-    WorldPacket data(SMSG_CALENDAR_EVENT_INITIAL_INVITES);
-    data << uint32(count); // count placeholder
+    WorldPackets::Calendar::CalendarEventInitialInvites packet;
 
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         // not sure if needed, maybe client checks it as well
-        if (count >= CALENDAR_MAX_INVITES)
+        if (packet.Invites.size() >= CALENDAR_MAX_INVITES)
         {
             if (Player* player = session->GetPlayer())
                 sCalendarMgr->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INVITES_EXCEEDED);
@@ -2553,16 +2550,10 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         uint32 level = Player::GetLevelFromDB(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
-        {
-            data << member->GetGUID().WriteAsPacked();
-            data << uint8(level);
-            ++count;
-        }
+            packet.Invites.emplace_back(member->GetGUID(), level);
     }
 
-    data.put<uint32>(0, count);
-
-    session->SendPacket(&data);
+    session->SendPacket(packet.Write());
 }
 
 // Members handling
@@ -2704,10 +2695,9 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
         player->SetRank(0);
         player->SetGuildLevel(0);
 
-        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                if (entry->GuildLevel <= GetLevel())
-                    player->RemoveSpell(entry->SpellID, false, false);
+        for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+            if (entry->GuildLevel <= GetLevel())
+                player->RemoveSpell(entry->SpellID, false, false);
     }
 
     _DeleteMemberFromDB(guid.GetCounter());

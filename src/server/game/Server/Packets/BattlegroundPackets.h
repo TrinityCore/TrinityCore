@@ -112,6 +112,7 @@ namespace WorldPackets
                 std::vector<int32> Stats;
                 int32 PrimaryTalentTree = 0;
                 uint32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
+                uint32 Race;
             };
 
             Optional<uint8> Winner;
@@ -352,6 +353,16 @@ namespace WorldPackets
         {
         public:
             BattlegroundPlayerLeft() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class DestroyArenaUnit final : public ServerPacket
+        {
+        public:
+            DestroyArenaUnit() : ServerPacket(SMSG_DESTROY_ARENA_UNIT, 16) { }
 
             WorldPacket const* Write() override;
 

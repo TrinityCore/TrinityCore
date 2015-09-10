@@ -21,14 +21,9 @@
 #include "GridDefines.h"
 #include "GridNotifiers.h"
 #include "SpellMgr.h"
-#include "GridNotifiersImpl.h"
 #include "Cell.h"
-#include "CellImpl.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "GameEventMgr.h"
 #include "CreatureTextMgr.h"
-#include "SpellMgr.h"
 #include "SpellInfo.h"
 
 #include "SmartScriptMgr.h"
@@ -1178,6 +1173,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_STORE_TARGET_LIST:
         case SMART_ACTION_EVADE:
         case SMART_ACTION_FLEE_FOR_ASSIST:
+        case SMART_ACTION_COMBAT_STOP:
         case SMART_ACTION_DIE:
         case SMART_ACTION_SET_IN_COMBAT_WITH_ZONE:
         case SMART_ACTION_SET_ACTIVE:
@@ -1239,6 +1235,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ADD_GO_FLAG:
         case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
+        case SMART_ACTION_RISE_UP:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
@@ -1270,11 +1267,11 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id)
             default:
                 if (e.entryOrGuid < 0)
                 {
-                    uint64 entry = uint64(-e.entryOrGuid);
-                    CreatureData const* data = sObjectMgr->GetCreatureData(entry);
+                    ObjectGuid::LowType guid = ObjectGuid::LowType(-e.entryOrGuid);
+                    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
                     if (!data)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u using non-existent Creature guid " UI64FMTD ", skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u using non-existent Creature guid " UI64FMTD ", skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
                         return false;
                     }
                     else

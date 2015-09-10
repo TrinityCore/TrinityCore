@@ -65,17 +65,14 @@ WorldPacket const* WorldPackets::VoidStorage::VoidStorageContents::Write()
 void WorldPackets::VoidStorage::VoidStorageTransfer::Read()
 {
     _worldPacket >> Npc;
-    _worldPacket >> DepositsCount;
-    _worldPacket >> WithdrawalsCount;
+    Deposits.resize(_worldPacket.read<uint32>());
+    Withdrawals.resize(_worldPacket.read<uint32>());
 
-    if (WithdrawalsCount > VOID_STORAGE_MAX_WITHDRAW || DepositsCount > VOID_STORAGE_MAX_DEPOSIT)
-        return;
+    for (ObjectGuid& deposit : Deposits)
+        _worldPacket >> deposit;
 
-    for (uint32 i = 0; i < DepositsCount; ++i)
-        _worldPacket >> Deposits[i];
-
-    for (uint32 i = 0; i < WithdrawalsCount; ++i)
-        _worldPacket >> Withdrawals[i];
+    for (ObjectGuid& withdrawal : Withdrawals)
+        _worldPacket >> withdrawal;
 }
 
 WorldPacket const* WorldPackets::VoidStorage::VoidStorageTransferChanges::Write()

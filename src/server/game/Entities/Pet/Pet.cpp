@@ -24,11 +24,9 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Pet.h"
-#include "Formulas.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
@@ -344,10 +342,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     if (getPetType() == HUNTER_PET)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
         stmt->setUInt64(0, owner->GetGUID().GetCounter());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        result = CharacterDatabase.Query(stmt);
 
         if (result)
         {
@@ -1455,10 +1453,8 @@ void Pet::InitLevelupSpellsForLevel()
         }
     }
 
-    int32 petSpellsId = GetCreatureTemplate()->PetSpellDataId ? -(int32)GetCreatureTemplate()->PetSpellDataId : GetEntry();
-
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
-    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
+    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(int32(GetEntry())))
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
@@ -1720,7 +1716,7 @@ void Pet::InitTalentForLevel()
     */
 }
 
-uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)
+uint8 Pet::GetMaxTalentPointsForLevel(uint8 level) const
 {
     uint8 points = (level >= 20) ? ((level - 16) / 4) : 0;
     // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS
@@ -1911,14 +1907,8 @@ void Pet::SynchronizeLevelWithOwner()
     {
         // always same level
         case SUMMON_PET:
-            GivePetLevel(owner->getLevel());
-            break;
-        // can't be greater owner level
         case HUNTER_PET:
-            if (getLevel() > owner->getLevel())
-                GivePetLevel(owner->getLevel());
-            else if (getLevel() + 5 < owner->getLevel())
-                GivePetLevel(owner->getLevel() - 5);
+            GivePetLevel(owner->getLevel());
             break;
         default:
             break;

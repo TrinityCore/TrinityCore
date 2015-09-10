@@ -44,7 +44,7 @@ void WorldPackets::Token::RequestWowTokenMarketPrice::Read()
     _worldPacket >> UnkInt;
 }
 
-WorldPacket const* WorldPackets::Token::RequestWowTokenMarketPriceResponse::Write()
+WorldPacket const* WorldPackets::Token::WowTokenMarketPriceResponse::Write()
 {
     _worldPacket << CurrentMarketPrice;
     _worldPacket << UnkInt;

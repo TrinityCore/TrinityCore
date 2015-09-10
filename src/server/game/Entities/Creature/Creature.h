@@ -119,7 +119,6 @@ struct CreatureTemplate
     uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[CREATURE_MAX_SPELLS];
-    uint32  PetSpellDataId;
     uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
@@ -255,8 +254,9 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 struct CreatureLocale
 {
     StringVector Name;
-    StringVector FemaleName;
-    StringVector SubName;
+    StringVector NameAlt;
+    StringVector Title;
+    StringVector TitleAlt;
 };
 
 struct GossipMenuItemsLocale
@@ -269,8 +269,6 @@ struct PointOfInterestLocale
 {
     StringVector Name;
 };
-
-#define MAX_EQUIPMENT_ITEMS 3
 
 struct EquipmentInfo
 {
@@ -457,6 +455,10 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
 
+//used for handling non-repeatable random texts
+typedef std::vector<uint8> CreatureTextRepeatIds;
+typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
+
 class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
@@ -496,7 +498,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
-        ReactStates GetReactState() { return m_reactState; }
+        ReactStates GetReactState() const { return m_reactState; }
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
         void InitializeReactState();
 
@@ -540,7 +542,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void SetCanDualWield(bool value) override;
         int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
-        uint8 GetCurrentEquipmentId() { return m_equipmentId; }
+        uint8 GetCurrentEquipmentId() const { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
 
         float GetSpellDamageMod(int32 Rank) const;
@@ -585,7 +587,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void SetLootRecipient (Unit* unit);
         void AllLootRemovedFromCorpse();
 
-        uint16 GetLootMode() { return m_LootMode; }
+        uint16 GetLootMode() const { return m_LootMode; }
         bool HasLootMode(uint16 lootMode) { return (m_LootMode & lootMode) != 0; }
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
@@ -613,7 +615,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void CallAssistance();
         void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
         void SetNoSearchAssistance(bool val) { m_AlreadySearchedAssistance = val; }
-        bool HasSearchedAssistance() { return m_AlreadySearchedAssistance; }
+        bool HasSearchedAssistance() const { return m_AlreadySearchedAssistance; }
         bool CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction = true) const;
         bool _IsTargetAcceptable(const Unit* target) const;
 
@@ -677,7 +679,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         Unit* SelectVictim();
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
-        bool IsReputationGainDisabled() { return DisableReputationGain; }
+        bool IsReputationGainDisabled() const { return DisableReputationGain; }
         bool IsDamageEnoughForLootingAndReward() const { return m_PlayerDamageReq == 0; }
         void LowerPlayerDamageReq(uint32 unDamage);
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
@@ -696,6 +698,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void SetTarget(ObjectGuid const& guid) override;
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
+
+        CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
+        void SetTextRepeatId(uint8 textGroup, uint8 id);
+        void ClearTextRepeatGroup(uint8 textGroup);
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -763,6 +769,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
 
         int32 outfitId;
+
+        CreatureTextRepeatGroup m_textRepeat;
 };
 
 class AssistDelayEvent : public BasicEvent

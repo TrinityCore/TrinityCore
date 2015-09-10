@@ -176,8 +176,6 @@ class boss_gothik : public CreatureScript
             }
 
             uint32 waveCount;
-            typedef std::vector<Creature*> TriggerVct;
-            TriggerVct liveTrigger, deadTrigger;
             bool mergedSides;
             bool phaseTwo;
             bool thirtyPercentReached;

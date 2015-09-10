@@ -209,23 +209,31 @@ void SpellHistory::Update()
 
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell /*= nullptr*/)
 {
+    HandleCooldowns(spellInfo, item ? item->GetEntry() : 0, spell);
+}
+
+void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 ItemID, Spell* spell /*= nullptr*/)
+{
     if (ConsumeCharge(spellInfo->ChargeCategoryEntry))
         return;
 
     if (Player* player = _owner->ToPlayer())
     {
         // potions start cooldown until exiting combat
-        if (item && (item->IsPotion() || spellInfo->IsCooldownStartedOnEvent()))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(ItemID))
         {
-            player->SetLastPotionId(item->GetEntry());
-            return;
+            if (itemTemplate->IsPotion() || spellInfo->IsCooldownStartedOnEvent())
+            {
+                player->SetLastPotionId(ItemID);
+                return;
+            }
         }
     }
 
     if (spellInfo->IsCooldownStartedOnEvent() || spellInfo->IsPassive() || (spell && spell->IsIgnoringCooldowns()))
         return;
 
-    StartCooldown(spellInfo, item ? item->GetEntry() : 0, spell);
+    StartCooldown(spellInfo, ItemID, spell);
 }
 
 bool SpellHistory::IsReady(SpellInfo const* spellInfo) const
@@ -720,21 +728,13 @@ void SpellHistory::RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry)
 
         if (Player* player = GetPlayerOwner())
         {
-            int32 maxCharges = GetMaxCharges(chargeCategoryEntry);
-            int32 usedCharges = itr->second.size();
-            float count = float(maxCharges - usedCharges);
-            if (usedCharges)
-            {
-                ChargeEntry& charge = itr->second.front();
-                std::chrono::milliseconds remaining = std::chrono::duration_cast<std::chrono::milliseconds>(charge.RechargeEnd - Clock::now());
-                std::chrono::milliseconds recharge = std::chrono::duration_cast<std::chrono::milliseconds>(charge.RechargeEnd - charge.RechargeStart);
-                count += 1.0f - float(remaining.count()) / float(recharge.count());
-            }
-
             WorldPackets::Spells::SetSpellCharges setSpellCharges;
-            setSpellCharges.IsPet = player == _owner;
-            setSpellCharges.Count = count;
             setSpellCharges.Category = chargeCategoryEntry->ID;
+            if (!itr->second.empty())
+                setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.front().RechargeEnd - Clock::now()).count());
+            setSpellCharges.ConsumedCharges = itr->second.size();
+            setSpellCharges.IsPet = player == _owner;
+
             player->SendDirectMessage(setSpellCharges.Write());
         }
     }

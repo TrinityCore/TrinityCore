@@ -19,6 +19,7 @@
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
+#include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PassiveAI.h"
@@ -2083,7 +2084,7 @@ class spell_igb_overheat : public SpellScriptLoader
                 return GetUnitOwner()->IsVehicle();
             }
 
-            void SendClientControl(uint8 value)
+            void SendClientControl(bool value)
             {
                 if (Vehicle* vehicle = GetUnitOwner()->GetVehicleKit())
                 {
@@ -2091,10 +2092,10 @@ class spell_igb_overheat : public SpellScriptLoader
                     {
                         if (Player* player = passenger->ToPlayer())
                         {
-                            WorldPacket data(SMSG_CONTROL_UPDATE, GetUnitOwner()->GetPackGUID().size() + 1);
-                            data << GetUnitOwner()->GetPackGUID();
-                            data << uint8(value);
-                            player->GetSession()->SendPacket(&data);
+                            WorldPackets::Movement::ControlUpdate data;
+                            data.Guid = GetUnitOwner()->GetGUID();
+                            data.On = value;
+                            player->GetSession()->SendPacket(data.Write());
                         }
                     }
                 }
@@ -2102,12 +2103,12 @@ class spell_igb_overheat : public SpellScriptLoader
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                SendClientControl(0);
+                SendClientControl(false);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                SendClientControl(1);
+                SendClientControl(true);
             }
 
             void Register() override

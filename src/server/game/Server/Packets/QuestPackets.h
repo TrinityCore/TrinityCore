@@ -118,7 +118,8 @@ namespace WorldPackets
             int32 RewardXPDifficulty        = 0; // used for calculating rewarded experience
             float RewardXPMultiplier        = 1.0f;
             int32 RewardMoney               = 0; // reward money (below max lvl)
-            int32 RewardMoneyDifficulty     = 0; // used in XP calculation at client
+            int32 RewardMoneyDifficulty     = 0;
+            float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
             int32 RewardDisplaySpell        = 0; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
@@ -131,6 +132,7 @@ namespace WorldPackets
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
             int32 POIPriority               = 0;
+            int32 AllowableRaces            = -1;
             std::string LogTitle;
             std::string LogDescription;
             std::string QuestDescription;
@@ -163,9 +165,6 @@ namespace WorldPackets
             int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
-
-            float Float13 = 1.0f;
-            int32 AllowableRaces = -1;
         };
 
         class QueryQuestInfoResponse final : public ServerPacket
@@ -252,11 +251,11 @@ namespace WorldPackets
 
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
-            std::string PortraitGiverText;
             std::string QuestTitle;
-            std::string PortraitTurnInText;
-            std::string PortraitGiverName;
             std::string RewardText;
+            std::string PortraitGiverText;
+            std::string PortraitGiverName;
+            std::string PortraitTurnInText;
             std::string PortraitTurnInName;
             QuestGiverOfferReward QuestData;
             int32 QuestPackageID = 0;
@@ -333,10 +332,10 @@ namespace WorldPackets
             std::vector<int32> LearnSpells;
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
-            std::string PortraitTurnInText;
-            std::string PortraitTurnInName;
             std::string PortraitGiverText;
             std::string PortraitGiverName;
+            std::string PortraitTurnInText;
+            std::string PortraitTurnInName;
             std::string QuestTitle;
             std::string LogDescription;
             std::string DescriptionText;
@@ -484,6 +483,70 @@ namespace WorldPackets
             void Read() override;
 
             int32 QuestID = 0;
+        };
+
+        class QuestPushResultResponse final : public ServerPacket
+        {
+        public:
+            QuestPushResultResponse() : ServerPacket(SMSG_QUEST_PUSH_RESULT, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint8 Result = 0;
+        };
+
+        class QuestLogFull final : public ServerPacket
+        {
+        public:
+            QuestLogFull() : ServerPacket(SMSG_QUEST_LOG_FULL, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class QuestPushResult final : public ClientPacket
+        {
+        public:
+            QuestPushResult(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_PUSH_RESULT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SenderGUID;
+            uint32 QuestID = 0;
+            uint8 Result = 0;
+        };
+
+        class QuestGiverInvalidQuest final : public ServerPacket
+        {
+        public:
+            QuestGiverInvalidQuest() : ServerPacket(SMSG_QUEST_GIVER_INVALID_QUEST, 6) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            bool SendErrorMessage = false;
+            std::string ReasonText;
+        };
+
+        class QuestUpdateFailedTimer final : public ServerPacket
+        {
+        public:
+            QuestUpdateFailedTimer() : ServerPacket(SMSG_QUEST_UPDATE_FAILED_TIMER, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+        };
+
+        class QuestGiverQuestFailed final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestFailed() : ServerPacket(SMSG_QUEST_GIVER_QUEST_FAILED, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            uint32 Reason  = 0;
         };
     }
 }

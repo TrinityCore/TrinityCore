@@ -84,9 +84,9 @@ public:
     // Ensures there's "some" free space, make sure to call Normalize() before this
     void EnsureFreeSpace()
     {
-        // Double the size of the buffer if it's already full
+        // resize buffer if it's already full
         if (GetRemainingSpace() == 0)
-            _storage.resize(_storage.size() * 2);
+            _storage.resize(_storage.size() * 3 / 2);
     }
 
     void Write(void const* data, std::size_t size)

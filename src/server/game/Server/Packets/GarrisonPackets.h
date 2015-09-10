@@ -39,6 +39,17 @@ namespace WorldPackets
             uint32 Result = 0;
         };
 
+        class GarrisonDeleteResult final : public ServerPacket
+        {
+        public:
+            GarrisonDeleteResult() : ServerPacket(SMSG_GARRISON_DELETE_RESULT, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+            uint32 GarrSiteID = 0;
+        };
+
         class GetGarrisonInfo final : public ClientPacket
         {
         public:
@@ -77,6 +88,7 @@ namespace WorldPackets
             uint32 CurrentMissionID = 0;
             std::list<GarrAbilityEntry const*> AbilityID;
             uint32 FollowerStatus;
+            std::string CustomName;
         };
 
         struct GarrisonMission
@@ -89,6 +101,12 @@ namespace WorldPackets
             uint32 TravelDuration = 0;
             uint32 MissionDuration = 0;
             uint32 MissionState = 0;
+        };
+
+        struct GarrisonMissionAreaBonus
+        {
+            uint32 GarrMssnBonusAbilityID;
+            time_t StartTime;
         };
 
         class GetGarrisonInfoResult final : public ServerPacket
@@ -106,6 +124,8 @@ namespace WorldPackets
             std::vector<GarrisonBuildingInfo const*> Buildings;
             std::vector<GarrisonFollower const*> Followers;
             std::vector<GarrisonMission const*> Missions;
+            std::vector<GarrisonMissionAreaBonus const*> MissionAreaBonuses;
+            std::vector<bool> CanStartMission;
             std::vector<int32> ArchivedMissions;
         };
 
@@ -278,6 +298,28 @@ namespace WorldPackets
 
             GarrisonFollower Follower;
             uint32 Result = 0;
+        };
+
+        class GarrisonRemoveFollowerResult final : public ServerPacket
+        {
+        public:
+            GarrisonRemoveFollowerResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_RESULT, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 FollowerDBID = 0;
+            uint32 Result = 0;
+            uint32 Destroyed = 0;
+        };
+
+        class GarrisonBuildingActivated final : public ServerPacket
+        {
+        public:
+            GarrisonBuildingActivated() : ServerPacket(SMSG_GARRISON_BUILDING_ACTIVATED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GarrPlotInstanceID = 0;
         };
     }
 }

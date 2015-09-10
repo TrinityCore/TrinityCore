@@ -35,7 +35,6 @@
 #include "SmartScript.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
-#include "MoveSplineInit.h"
 #include "GameEventMgr.h"
 
 SmartScript::SmartScript()
@@ -124,13 +123,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectList* targets = GetTargets(e, unit);
             Creature* talker = me;
             Player* targetPlayer = NULL;
+            Unit* talkTarget = NULL;
+
             if (targets)
             {
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
                     if (IsCreature(*itr) && !(*itr)->ToCreature()->IsPet()) // Prevented sending text to pets.
                     {
-                        talker = (*itr)->ToCreature();
+                        if (e.action.talk.useTalkTarget)
+                            talkTarget = (*itr)->ToCreature();
+                        else
+                            talker = (*itr)->ToCreature();
                         break;
                     }
                     else if (IsPlayer(*itr))
@@ -149,7 +153,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             mTalkerEntry = talker->GetEntry();
             mLastTextID = e.action.talk.textGroupID;
             mTextTimer = e.action.talk.duration;
-            Unit* talkTarget = NULL;
+
             if (IsPlayer(GetLastInvoker())) // used for $vars in texts and whisper target
                 talkTarget = GetLastInvoker();
             else if (targetPlayer)
@@ -796,6 +800,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
+        case SMART_ACTION_COMBAT_STOP:
+        {
+            if (!me)
+                break;
+
+            me->CombatStop(true);
+            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_COMBAT_STOP: %s CombatStop", me->GetGUID().ToString().c_str());
+            break;
+        }
         case SMART_ACTION_REMOVEAURASFROMSPELL:
         {
             ObjectList* targets = GetTargets(e, unit);
@@ -926,8 +939,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     }
                     else if (IsUnit(*itr)) // Special handling for vehicles
                         if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
-                            for (SeatMap::iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end(); ++itr)
-                                if (Player* player = ObjectAccessor::FindPlayer(itr->second.Passenger.Guid))
+                            for (SeatMap::iterator seatItr = vehicle->Seats.begin(); seatItr != vehicle->Seats.end(); ++seatItr)
+                                if (Player* player = ObjectAccessor::FindPlayer(seatItr->second.Passenger.Guid))
                                     player->KilledMonsterCredit(e.action.killedMonster.creature);
                 }
 
@@ -1162,6 +1175,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, (float)e.action.moveRandom.distance);
             me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
+            break;
+        }
+        case SMART_ACTION_RISE_UP:
+        {
+            if (!me)
+                break;
+
+            me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + (float)e.action.moveRandom.distance);
             break;
         }
         case SMART_ACTION_SET_VISIBILITY:
@@ -1571,11 +1592,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         slot[2] = e.action.equip.slot3;
                     }
                     if (!e.action.equip.mask || (e.action.equip.mask & 1))
-                        npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, slot[0]);
+                        npc->SetVirtualItem(0, slot[0]);
                     if (!e.action.equip.mask || (e.action.equip.mask & 2))
-                        npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, slot[1]);
+                        npc->SetVirtualItem(1, slot[1]);
                     if (!e.action.equip.mask || (e.action.equip.mask & 4))
-                        npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, slot[2]);
+                        npc->SetVirtualItem(2, slot[2]);
                 }
             }
 
@@ -1762,7 +1783,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (!IsUnit(*itr))
                     continue;
 
-                Unit* unit = (*itr)->ToUnit();
+                Unit* targetUnit = (*itr)->ToUnit();
 
                 bool interruptedSpell = false;
 
@@ -1775,11 +1796,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (!interruptedSpell && e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
                         {
-                            unit->InterruptNonMeleeSpells(false);
+                            targetUnit->InterruptNonMeleeSpells(false);
                             interruptedSpell = true;
                         }
 
-                        unit->CastSpell((*it)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) != 0);
+                        targetUnit->CastSpell((*it)->ToUnit(), e.action.cast.spell, (e.action.cast.flags & SMARTCAST_TRIGGERED) != 0);
                     }
                     else
                         TC_LOG_DEBUG("scripts.ai", "Spell %u not cast because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (%s) already has the aura", e.action.cast.spell, (*it)->GetGUID().ToString().c_str());
@@ -3297,10 +3318,6 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
         case SMART_EVENT_UPDATE_IC:
         case SMART_EVENT_UPDATE_OOC:
             RecalcTimer(e, e.event.minMaxRepeat.min, e.event.minMaxRepeat.max);
-            break;
-        case SMART_EVENT_IC_LOS:
-        case SMART_EVENT_OOC_LOS:
-            RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
             break;
         case SMART_EVENT_DISTANCE_CREATURE:
         case SMART_EVENT_DISTANCE_GAMEOBJECT:

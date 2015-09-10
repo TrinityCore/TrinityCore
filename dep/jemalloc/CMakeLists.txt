@@ -53,6 +53,7 @@ set(jemalloc_STAT_SRC
 include_directories(
   ${BUILDDIR}/
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_definitions(-D_GNU_SOURCE -D_REENTRANT)

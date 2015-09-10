@@ -39,7 +39,7 @@ class MovementGenerator
 
         virtual bool Update(Unit*, uint32 time_diff) = 0;
 
-        virtual MovementGeneratorType GetMovementGeneratorType() = 0;
+        virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void unitSpeedChanged() { }
 

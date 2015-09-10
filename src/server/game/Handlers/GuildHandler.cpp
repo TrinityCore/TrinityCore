@@ -25,8 +25,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
-#include "GossipDef.h"
-#include "SocialMgr.h"
 #include "GuildPackets.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query)

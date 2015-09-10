@@ -30,12 +30,8 @@
 #include "UpdateData.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
-#include "Log.h"
 #include "Transport.h"
-#include "TargetedMovementGenerator.h"
-#include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -46,12 +42,8 @@
 #include "Totem.h"
 #include "MovementPackets.h"
 #include "OutdoorPvPMgr.h"
-#include "DynamicTree.h"
 #include "Unit.h"
-#include "Group.h"
 #include "BattlefieldMgr.h"
-#include "Battleground.h"
-#include "Chat.h"
 #include "GameObjectPackets.h"
 #include "MiscPackets.h"
 
@@ -411,7 +403,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //    *data << ObjectGuid(RemoveForcesIDs);
 
         data->WriteBits(unit->GetUnitMovementFlags(), 30);
-        data->WriteBits(unit->GetExtraUnitMovementFlags(), 15);
+        data->WriteBits(unit->GetExtraUnitMovementFlags(), 16);
         data->WriteBit(!unit->m_movementInfo.transport.guid.IsEmpty()); // HasTransport
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
@@ -451,6 +443,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //{
         //    *data << ObjectGuid(ID);
         //    *data << Vector3(Direction);
+        //    *data << Vector3(force.TransportPosition);
         //    *data << int32(TransportID);
         //    *data << float(Magnitude);
         //    *data << uint8(Type);
@@ -953,6 +946,9 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
+        case TYPEID_GAMEOBJECT:
+            flags = GameObjectDynamicUpdateFieldFlags;
+            break;
         case TYPEID_CONVERSATION:
             flags = ConversationDynamicUpdateFieldFlags;
             break;
@@ -1940,7 +1936,7 @@ float WorldObject::GetSightRange(const WorldObject* target) const
     return 0.0f;
 }
 
-bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck, bool checkAlert) const
 {
     if (this == obj)
         return true;
@@ -2012,7 +2008,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (obj->IsInvisibleDueToDespawn())
         return false;
 
-    if (!CanDetect(obj, ignoreStealth))
+    if (!CanDetect(obj, ignoreStealth, checkAlert))
         return false;
 
     return true;
@@ -2023,7 +2019,7 @@ bool WorldObject::CanNeverSee(WorldObject const* obj) const
     return GetMap() != obj->GetMap() || !IsInPhase(obj);
 }
 
-bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
+bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert) const
 {
     const WorldObject* seer = this;
 
@@ -2038,7 +2034,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
         return false;
 
-    if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
+    if (!ignoreStealth && !seer->CanDetectStealthOf(obj, checkAlert))
         return false;
 
     return true;
@@ -2068,7 +2064,7 @@ bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
     return true;
 }
 
-bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
+bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) const
 {
     // Combat reach is the minimal distance (both in front and behind),
     //   and it is also used in the range calculation.
@@ -2118,8 +2114,18 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
         // Calculate max distance
         float visibilityRange = float(detectionValue) * 0.3f + combatReach;
 
-        if (visibilityRange > MAX_PLAYER_STEALTH_DETECT_RANGE)
+        // If this unit is an NPC then player detect range doesn't apply
+        if (unit && unit->GetTypeId() == TYPEID_PLAYER && visibilityRange > MAX_PLAYER_STEALTH_DETECT_RANGE)
             visibilityRange = MAX_PLAYER_STEALTH_DETECT_RANGE;
+
+        // When checking for alert state, look 8% further, and then 1.5 yards more than that.
+        if (checkAlert)
+            visibilityRange += (visibilityRange * 0.08f) + 1.5f;
+
+        // If checking for alert, and creature's visibility range is greater than aggro distance, No alert
+        Unit const* tunit = obj->ToUnit();
+        if (checkAlert && unit && unit->ToCreature() && visibilityRange >= unit->ToCreature()->GetAttackDistance(tunit) + unit->ToCreature()->m_CombatDistance)
+            return false;
 
         if (distance > visibilityRange)
             return false;
@@ -2853,8 +2859,8 @@ void WorldObject::UpdateAreaPhase()
         {
             bool up = false;
             uint32 phaseGroup = uint32((*itr)->GetMiscValueB());
-            std::set<uint32> const& phases = sDB2Manager.GetPhasesForGroup(phaseGroup);
-            for (uint32 phase : phases)
+            std::set<uint32> const& phaseIDs = sDB2Manager.GetPhasesForGroup(phaseGroup);
+            for (uint32 phase : phaseIDs)
                 up = SetInPhase(phase, false, true);
             if (!updateNeeded && up)
                 updateNeeded = true;
@@ -3112,10 +3118,10 @@ void WorldObject::SetAIAnimKitId(uint16 animKitId)
 
     m_aiAnimKitId = animKitId;
 
-    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetAIAnimKit data;
+    data.Unit = GetGUID();
+    data.AnimKitID = animKitId;
+    SendMessageToSet(data.Write(), true);
 }
 
 void WorldObject::SetMovementAnimKitId(uint16 animKitId)

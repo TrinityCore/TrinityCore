@@ -22,12 +22,9 @@
 #include "ObjectMgr.h"
 #include "Path.h"
 #include "ScriptMgr.h"
-#include "WorldPacket.h"
 #include "DBCStores.h"
-#include "World.h"
 #include "GameObjectAI.h"
 #include "Vehicle.h"
-#include "MapReference.h"
 #include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -98,7 +95,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetName(goinfo->name);
     UpdateRotationFields(0.0f, 1.0f);
 
-    m_model = GameObjectModel::Create(*this);
+    m_model = CreateModel();
     return true;
 }
 
@@ -363,6 +360,7 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
+    go->RelocateStationaryPosition(x, y, z, o);
 
     if (!go->IsPositionValid())
     {

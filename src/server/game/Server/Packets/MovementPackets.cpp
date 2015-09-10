@@ -47,7 +47,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
     }*/
 
     data.WriteBits(movementInfo.flags, 30);
-    data.WriteBits(movementInfo.flags2, 15);
+    data.WriteBits(movementInfo.flags2, 16);
 
     data.WriteBit(hasTransportData);
     data.WriteBit(hasFallData);
@@ -102,7 +102,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     }
 
     movementInfo.flags = data.ReadBits(30);
-    movementInfo.flags2 = data.ReadBits(15);
+    movementInfo.flags2 = data.ReadBits(16);
 
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
@@ -283,7 +283,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 
         ::Movement::MoveSplineFlag const& splineFlags = moveSpline.splineflags;
 
-        data.WriteBits(moveSpline.splineflags.raw(), 25);                       // SplineFlags
+        data.WriteBits(moveSpline.splineflags.raw(), 28);                       // SplineFlags
 
         uint8 face = ::Movement::MONSTER_MOVE_NORMAL;
         if (splineFlags.final_angle)
@@ -546,6 +546,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     {
         _worldPacket << force.ID;
         _worldPacket << force.Direction;
+        _worldPacket << force.TransportPosition;
         _worldPacket << force.TransportID;
         _worldPacket << force.Magnitude;
         _worldPacket.WriteBits(force.Type, 2);
@@ -672,4 +673,19 @@ void WorldPackets::Movement::MoveTimeSkipped::Read()
 {
     _worldPacket >> MoverGUID;
     _worldPacket >> TimeSkipped;
+}
+
+void WorldPackets::Movement::SummonResponse::Read()
+{
+    _worldPacket >> SummonerGUID;
+    Accept = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(On);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }

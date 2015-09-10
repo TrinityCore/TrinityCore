@@ -23,7 +23,6 @@
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 #include "GridNotifiers.h"
-#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
@@ -97,7 +96,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetEntry(spell->Id);
     SetObjectScale(1.0f);
     SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
-    SetUInt32Value(DYNAMICOBJECT_BYTES, spell->SpellVisual[0] | (type << 28));
+    SetUInt32Value(DYNAMICOBJECT_BYTES, spell->GetSpellVisual(GetMap()->GetDifficultyID()) | (type << 28));
     SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());

@@ -16,27 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DBCStores.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "SpellMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Spell.h"
-#include "Totem.h"
-#include "TemporarySummon.h"
-#include "SpellAuras.h"
-#include "CreatureAI.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
+#include "Common.h"
 #include "Config.h"
-#include "SpellPackets.h"
+#include "DBCStores.h"
+#include "GameObjectAI.h"
 #include "GameObjectPackets.h"
+#include "GuildMgr.h"
+#include "Log.h"
+#include "Player.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellPackets.h"
+#include "Totem.h"
+#include "TotemPackets.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 {
@@ -282,7 +278,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     // check known spell or raid marker spell (which not requires player to know it)
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER))
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER))
         return;
 
     // Check possible spell cast overrides
@@ -313,7 +309,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
     spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
-    spell->m_misc.Data = cast.Cast.Misc;                            // 6.x Misc is just a guess
+    spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
+    spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
     spell->prepare(&targets);
 }
 
@@ -445,18 +442,15 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
-void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)
 {
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
 
-    uint8 slotId;
-    ObjectGuid guid;
-    recvPacket >> slotId;
-    recvPacket >> guid;
+    uint8 slotId = totemDestroyed.Slot;
+    slotId += SUMMON_SLOT_TOTEM;
 
-    ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)
         return;
 
@@ -464,7 +458,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         return;
 
     Creature* totem = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]);
-    if (totem && totem->IsTotem() && totem->GetGUID() == guid)
+    if (totem && totem->IsTotem() && totem->GetGUID() == totemDestroyed.TotemGUID)
         totem->ToTotem()->UnSummon();
 }
 
@@ -483,13 +477,10 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& /*packet*/
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPacket& recvData)
+void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
     // this will get something not in world. crash
-    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, spellClick.SpellClickUnitGuid);
 
     if (!unit)
         return;
@@ -501,9 +492,9 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     unit->HandleSpellClick(_player);
 }
 
-void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& packet)
+void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& getMirrorImageData)
 {
-    ObjectGuid guid = packet.UnitGUID;
+    ObjectGuid guid = getMirrorImageData.UnitGUID;
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
@@ -558,23 +549,23 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
 
     if (Player* player = creator->ToPlayer())
     {
-        WorldPackets::Spells::MirrorImageComponentedData packet;
-        packet.UnitGUID = guid;
-        packet.DisplayID = creator->GetDisplayId();
-        packet.RaceID = creator->getRace();
-        packet.Gender = creator->getGender();
-        packet.ClassID = creator->getClass();
+        WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
+        mirrorImageComponentedData.UnitGUID = guid;
+        mirrorImageComponentedData.DisplayID = creator->GetDisplayId();
+        mirrorImageComponentedData.RaceID = creator->getRace();
+        mirrorImageComponentedData.Gender = creator->getGender();
+        mirrorImageComponentedData.ClassID = creator->getClass();
 
         Guild* guild = player->GetGuild();
 
-        packet.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
-        packet.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
-        packet.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
-        packet.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
-        packet.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
-        packet.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
+        mirrorImageComponentedData.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+        mirrorImageComponentedData.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
+        mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
+        mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+        mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
-        packet.ItemDisplayID.reserve(11);
+        mirrorImageComponentedData.ItemDisplayID.reserve(11);
 
         static EquipmentSlots const itemSlots[] =
         {
@@ -587,8 +578,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             EQUIPMENT_SLOT_FEET,
             EQUIPMENT_SLOT_WRISTS,
             EQUIPMENT_SLOT_HANDS,
-            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_TABARD,
+            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_END
         };
 
@@ -604,16 +595,16 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             else
                 itemDisplayId = 0;
 
-            packet.ItemDisplayID.push_back(itemDisplayId);
+            mirrorImageComponentedData.ItemDisplayID.push_back(itemDisplayId);
         }
-        SendPacket(packet.Write());
+        SendPacket(mirrorImageComponentedData.Write());
     }
     else
     {
-        WorldPackets::Spells::MirrorImageCreatureData packet;
-        packet.UnitGUID = guid;
-        packet.DisplayID = creator->GetDisplayId();
-        SendPacket(packet.Write());
+        WorldPackets::Spells::MirrorImageCreatureData mirrorImageCreatureData;
+        mirrorImageCreatureData.UnitGUID = guid;
+        mirrorImageCreatureData.DisplayID = creator->GetDisplayId();
+        SendPacket(mirrorImageCreatureData.Write());
     }
 }
 

@@ -43,7 +43,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CharUndeleteEnabled);
     _worldPacket.WriteBit(RestrictedAccount);
     _worldPacket.WriteBit(TutorialsEnabled);
-    _worldPacket.WriteBit(UnkBit90);
+    _worldPacket.WriteBit(NPETutorialsEnabled);
     _worldPacket.WriteBit(TwitterEnabled);
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk67);
@@ -93,6 +93,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
+    _worldPacket.WriteBit(IsExpansionPreorderInStore);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);

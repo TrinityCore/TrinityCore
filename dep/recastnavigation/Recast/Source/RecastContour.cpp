@@ -464,7 +464,7 @@ static int calcAreaOfPolygon2D(const int* verts, const int nverts)
 }
 
 // TODO: these are the same as in RecastMesh.cpp, consider using the same.
-
+// Last time I checked the if version got compiled using cmov, which was a lot faster than module (with idiv).
 inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
 inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
 

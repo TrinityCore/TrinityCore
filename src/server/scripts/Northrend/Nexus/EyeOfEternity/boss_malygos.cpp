@@ -1530,15 +1530,14 @@ public:
     {
         npc_wyrmrest_skytalonAI(Creature* creature) : VehicleAI(creature)
         {
-            _summoner = NULL;
         }
 
         void IsSummonedBy(Unit* summoner) override
         {
-            _summoner = NULL;
+            _summoner.Clear();
             if (Player* player = summoner->ToPlayer())
             {
-                _summoner = player;
+                _summoner = player->GetGUID();
                 _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2*IN_MILLISECONDS);
             }
         }
@@ -1553,7 +1552,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CAST_RIDE_SPELL:
-                        me->CastSpell(_summoner, SPELL_RIDE_RED_DRAGON_TRIGGERED, true);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _summoner))
+                            me->CastSpell(player, SPELL_RIDE_RED_DRAGON_TRIGGERED, true);
                         break;
                 }
             }
@@ -1575,7 +1575,7 @@ public:
         }
 
     private:
-        Player* _summoner;
+        ObjectGuid _summoner;
         EventMap _events;
     };
 

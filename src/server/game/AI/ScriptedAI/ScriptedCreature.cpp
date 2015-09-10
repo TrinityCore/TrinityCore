@@ -17,14 +17,12 @@
  */
 
 #include "ScriptedCreature.h"
-#include "Item.h"
 #include "Spell.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "ObjectMgr.h"
-#include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
@@ -373,13 +371,13 @@ void ScriptedAI::SetEquipmentSlots(bool loadDefault, int32 mainHand /*= EQUIP_NO
     }
 
     if (mainHand >= 0)
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(mainHand));
+        me->SetVirtualItem(0, uint32(mainHand));
 
     if (offHand >= 0)
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(offHand));
+        me->SetVirtualItem(1, uint32(offHand));
 
     if (ranged >= 0)
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, uint32(ranged));
+        me->SetVirtualItem(2, uint32(ranged));
 }
 
 void ScriptedAI::SetCombatMovement(bool allowMovement)
