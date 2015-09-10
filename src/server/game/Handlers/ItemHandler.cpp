@@ -1141,6 +1141,11 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
             TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
             return;
         }
+        if (player->CanUseItem(itemTransmogrified->GetTemplate()) != EQUIP_ERR_OK)
+        {
+            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify an unequippable item in a valid slot (slot: %u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
+            return;
+        }
 
         WorldPackets::Item::ItemInstance itemInstance;
         BonusData const* bonus = nullptr;
@@ -1151,6 +1156,11 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
             if (!itemTransmogrifier)
             {
                 TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcItemGUID->ToString().c_str());
+                return;
+            }
+            if (player->CanUseItem(itemTransmogrifier->GetTemplate()) != EQUIP_ERR_OK)
+            {
+                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an unequippable item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcItemGUID->ToString().c_str());
                 return;
             }
 
@@ -1166,6 +1176,12 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
             if (!itemTransmogrifier)
             {
                 TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid void storage item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcVoidItemGUID->ToString().c_str());
+                return;
+            }
+            ItemTemplate const * transmogrifierTemplate = sObjectMgr->GetItemTemplate(itemTransmogrifier->ItemEntry);
+            if (player->CanUseItem(transmogrifierTemplate) != EQUIP_ERR_OK)
+            {
+                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an unequippable void storage item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcVoidItemGUID->ToString().c_str());
                 return;
             }
 
