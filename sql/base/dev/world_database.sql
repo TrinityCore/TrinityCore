@@ -3083,6 +3083,35 @@ CREATE TABLE `quest_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_template_addon`
+--
+
+DROP TABLE IF EXISTS `quest_template_addon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_template_addon` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MaxLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `AllowableClasses` int(10) unsigned NOT NULL DEFAULT '0',
+  `SourceSpellID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `PrevQuestID` mediumint(8) NOT NULL DEFAULT '0',
+  `NextQuestID` mediumint(8) NOT NULL DEFAULT '0',
+  `ExclusiveGroup` mediumint(8) NOT NULL DEFAULT '0',
+  `RewardMailTemplateID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `RewardMailDelay` int(10) unsigned NOT NULL DEFAULT '0',
+  `RequiredSkillID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RequiredSkillPoints` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RequiredMinRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RequiredMaxRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RequiredMinRepValue` mediumint(8) NOT NULL DEFAULT '0',
+  `RequiredMaxRepValue` mediumint(8) NOT NULL DEFAULT '0',
+  `ProvidedItemCount` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `SpecialFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `reference_loot_template`
 --
 
