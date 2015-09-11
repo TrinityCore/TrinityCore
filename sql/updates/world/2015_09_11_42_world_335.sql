@@ -32,8 +32,9 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,9,0,0,0,0,100,0,1000,1000,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kindal Moonweaver - On Script - Say Line 2"),
 (@ENTRY,9,1,0,0,0,100,0,0,0,0,0,15,2969,0,0,0,0,0,18,20,0,0,0,0,0,0,"Kindal Moonweaver - On Script - Quest Credit 'Freedom for All Creatures'"),
 (@ENTRY,9,2,0,0,0,100,0,5000,5000,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kindal Moonweaver - On Script - Despawn In 3000 ms");
-
+*/
 /* Script for the Door, it will start the event for the creatures */
+/*
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE `entry`=143979;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=143979;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -54,17 +55,18 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,41,3000,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captured Sprite Darter - On Waypoint 13 Reached - Despawn In 3s"),
 (@ENTRY,0,3,0,11,0,100,0,0,0,0,0,2,534,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captured Sprite Darter - On Respawn - Set Faction 534"),
 (@ENTRY,0,4,0,6,0,100,0,0,0,0,0,63,1,1,0,0,0,0,19,7956,50,0,0,0,0,0,"Captured Sprite Darter - On Death  - set counter");
-
+*/
 /* Call script for waypoint-start */
-
+/*
 -- Actionlist SAI
 SET @ENTRY := 799700;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,9,0,0,0,0,100,0,2000,2000,0,0,53,0,7997,0,0,0,1,1,0,0,0,0,0,0,0,"On Script - Start Waypoint"),
 (@ENTRY,9,1,0,0,0,100,0,100,100,0,0,2,774,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captured Sprite Darter - On Script - Set Faction 774");
-
+*/
 /* Texts for Kindal Moonweaver */
+/*
 DELETE FROM `creature_text` WHERE `entry` in (7956);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextId`) VALUES 
 (7956, 0, 0, 'I''m ready when you are, $n. Lead the way!', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4079),
@@ -74,8 +76,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (7956, 1, 3, 'Quickly! $n attacks!', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4122),
 (7956, 2, 0, 'We\'ve done it! Meet me back by Jer\'kai above the Grim Totem camp.', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4080),
 (7956, 3, 0, 'No! The faerie dragons aren''t making it, $n! I must return to Jer''kai to make sure she hasn''t been found. Elune be with you.', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4081);
-
+*/
 /* Waypoints for Captured Sprite Darter */
+/*
 DELETE FROM `waypoints` WHERE `entry`=7997;
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
 (7997, 1, -4532.19, 807.833, 59.9749, 'Captured Sprite Darter'),
