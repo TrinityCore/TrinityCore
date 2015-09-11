@@ -24,19 +24,26 @@ void TaxiPathGraph::Initialize()
     m_edgeDuplicateControl.clear();
     std::vector<std::pair<edge, cost>> edges;
     
+    std::set<uint32> returnableNodeIDs; // Used to omit special nodes which you can't return from
+    
+    for (TaxiPathEntry const* nodeInfo : sTaxiPathStore)
+        if (nodeInfo->From != nodeInfo->To)
+            returnableNodeIDs.insert(nodeInfo->From);
     
     // Initialize here
     for (TaxiPathEntry const* nodeInfo : sTaxiPathStore)
     {
         TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(nodeInfo->From);
         TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(nodeInfo->To);
-        if (from && to)
+        if (from && to && 
+            returnableNodeIDs.find(nodeInfo->From) != returnableNodeIDs.end() && returnableNodeIDs.find(nodeInfo->To) != returnableNodeIDs.end())
         {
             _addVerticeAndEdgeFromNodeInfo(TaxiNodeInfo(from->ID, from->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], from->Pos.X, from->Pos.Y, from->Pos.Z),
                                         TaxiNodeInfo(to->ID, to->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], to->Pos.X, to->Pos.Y, to->Pos.Z), nodeInfo->Cost, edges);
         }
     }
-    
+
+    returnableNodeIDs.clear();
     // create graph
     m_graph = Graph(_getVertexCount());
     WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
