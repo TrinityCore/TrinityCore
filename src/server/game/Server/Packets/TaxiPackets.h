@@ -111,6 +111,14 @@ namespace WorldPackets
             
             uint32 Reply;
         };
+        
+        class TaxiRequestEarlyLanding final : public ClientPacket
+        {
+        public:
+            TaxiRequestEarlyLanding(WorldPacket&& packet) : ClientPacket(CMSG_TAXI_REQUEST_EARLY_LANDING, std::move(packet)) { }
+            
+            void Read() override;
+        };
     }
 }
 

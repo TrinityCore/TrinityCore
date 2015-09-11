@@ -564,6 +564,7 @@ namespace WorldPackets
         class EnableTaxiNode;
         class TaxiQueryAvailableNodes;
         class ActivateTaxi;
+        class TaxiRequestEarlyLanding;
     }
 
     namespace Ticket
@@ -1249,6 +1250,7 @@ class WorldSession
         void HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& packet);
         void HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& packet);
         void SendActivateTaxiReply(ActivateTaxiReply reply);
+        void HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& packet);
 
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);

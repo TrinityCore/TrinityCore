@@ -191,3 +191,8 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
     SendPacket(data.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ACTIVATETAXIREPLY");
 }
+
+void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /* packet */)
+{
+    GetPlayer()->m_taxi.RequestEarlyLanding();
+}

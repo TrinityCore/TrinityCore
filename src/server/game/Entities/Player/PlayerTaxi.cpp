@@ -144,3 +144,15 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
     return ss;
 }
 
+void PlayerTaxi::RequestEarlyLanding()
+{
+    if (m_TaxiDestinations.empty())
+        return;
+    
+    for (std::deque<uint32>::iterator it = m_TaxiDestinations.begin(); it != m_TaxiDestinations.end(); it++)
+        if (IsTaximaskNodeKnown(*it))
+        {
+            m_TaxiDestinations.erase(++it, m_TaxiDestinations.end());
+            return;
+        }
+}

@@ -71,3 +71,8 @@ WorldPacket const* WorldPackets::Taxi::ActivateTaxiReply::Write()
     _worldPacket << Reply;
     return &_worldPacket;
 }
+
+void WorldPackets::Taxi::TaxiRequestEarlyLanding::Read()
+{
+    //Noop as it's empty packet
+}

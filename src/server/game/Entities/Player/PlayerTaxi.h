@@ -52,6 +52,7 @@ class PlayerTaxi
             m_TaxiDestinations.pop_front();
             return GetTaxiDestination();
         }
+        void RequestEarlyLanding();
         bool empty() const { return m_TaxiDestinations.empty(); }
 
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
