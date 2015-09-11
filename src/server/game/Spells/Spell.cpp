@@ -1312,34 +1312,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 }
                 else
                 {
-                    /*//recalculate, we wanna fly above abyss and don't wanna stop to edge =) (if nessesary enable "stop to edge" - comment this lines
-                    //destx = x + dist * cos(orientation);                                            //1
-                    //desty = y + dist * sin(orientation);                                            //2
-                    //ground = m_caster->GetTerrain()->GetHeightStatic(destx, desty, MAX_HEIGHT, true);   //3
-                    //floor = m_caster->GetTerrain()->GetHeightStatic(destx, desty, z, true);             //4
-                    //colz = fabs(ground - z) <= fabs(floor - z) ? ground : floor;                    //5
-                    //destz = z;
-                    if (z - colz > 20.0f && !m_caster->GetTerrain()->IsInWater(destx, desty, destz))
-                    {
-                    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid, x, y, z + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
-                    // collision occured
-                    if (col)
-                    {
-                    // move back a bit
-                    destx -= 0.6 * cos(orientation);
-                    desty -= 0.6 * sin(orientation);
-                    }
-                    //float range = sqrt((desty - y)*(desty - y) + (destx - x)*(destx - x));
-                    //TC_LOG_DEBUG("Blink number 4, from height to abyss, distance of blink = %f", range);
-                    m_caster->NearTeleportTo(destx, desty, destz, m_caster->GetOrientation(), m_caster == m_caster);
-                    }
-                    else
-                    {*/
-                    uint32 mapid = m_caster->GetMapId();
-
                     // author: kvipka
                     // recalculate, we need it if want can blink in different situations
-
+                    uint32 mapid = m_caster->GetMapId();
                     float tstX, tstY, tstZ, prevX, prevY, prevZ, beforewaterz, travelDistZ, newdistance, totalpath;
                     float tstZ1, tstZ2, tstZ3, destz1, destz2, destz3, srange, srange1, srange2, srange3;
                     float maxtravelDistZ = 2.65f;
@@ -1467,13 +1442,12 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                         }
                         // we have correct destz now
                     }
-                    //}
+
                     dest = SpellDestination(destx, desty, destz, orientation);
                 }
             }
             else
             {
-                //TC_LOG_DEBUG("spells", "Blink number 2, in falling but on hight, distance of blink = %f", range);
                 Position pos;
                 pos.Relocate(destx, desty, z, orientation);
                 m_caster->GetFirstCollisionPosition(m_caster->GetDistance(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()), 0.0f);
