@@ -1644,6 +1644,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
     LoadSkillExtraItemTable();
 
+    TC_LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
+    LoadSkillPerfectItemTable();
+
     TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
 
