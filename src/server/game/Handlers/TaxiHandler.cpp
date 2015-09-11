@@ -52,16 +52,16 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
 
     uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
 
-    // not found nearest
-    if (!curloc)
-        return;
-        
-
-    TC_LOG_DEBUG("network", "WORLD: current location %u ", curloc);
-
     WorldPackets::Taxi::TaxiNodeStatus data;
     data.Unit = guid;
-    data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
+
+    if (!curloc)
+        data.Status = TAXISTATUS_NONE;
+    else if (unit->IsFriendlyTo(GetPlayer()))
+        data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
+    else
+        data.Status = TAXISTATUS_NOT_ELIGIBLE;
+    
     SendPacket(data.Write());
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXI_NODE_STATUS");
