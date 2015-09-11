@@ -28,10 +28,10 @@ public:
         Location pos;
     };
     static TaxiPathGraph* instance()
-        {
-            static TaxiPathGraph instance;
-            return &instance;
-        }
+    {
+        static TaxiPathGraph instance;
+        return &instance;
+    }
     ~TaxiPathGraph();
     
     static void Initialize();

@@ -5,7 +5,6 @@
 #include "Define.h"
 #include "WorldSession.h"
 #include <map>
-#include <boost/graph/adjacency_list.hpp>
 
 class PlayerTaxi
 {
