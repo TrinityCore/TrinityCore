@@ -37,7 +37,7 @@ template<class T, class P>
 class PathMovementBase
 {
     public:
-        PathMovementBase() : i_path(NULL), i_currentNode(0) { }
+        PathMovementBase() : i_path(), i_currentNode(0) { }
         virtual ~PathMovementBase() { };
 
         uint32 GetCurrentNode() const { return i_currentNode; }
