@@ -39,6 +39,7 @@
 #include <sstream>
 #include <algorithm>
 #include <memory>
+#include <vector>
 
 #include "Debugging/Errors.h"
 
