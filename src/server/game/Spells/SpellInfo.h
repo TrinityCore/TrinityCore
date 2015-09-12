@@ -197,6 +197,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
+    SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET         = 0x00040000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -317,6 +318,9 @@ typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
 typedef std::vector<SpellEffectEntry const*> SpellEffectEntryVector;
 typedef std::unordered_map<uint32, SpellEffectEntryVector> SpellEffectEntryMap;
 
+typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;
+typedef std::unordered_map<uint32, SpellVisualVector> SpellVisualMap;
+
 typedef std::vector<AuraEffect*> AuraEffectVector;
 
 class SpellInfo
@@ -341,8 +345,8 @@ public:
     uint32 AttributesEx12;
     uint32 AttributesEx13;
     uint32 AttributesCu;
-    uint32 Stances;
-    uint32 StancesNot;
+    uint64 Stances;
+    uint64 StancesNot;
     uint32 Targets;
     uint32 TargetCreatureType;
     uint32 RequiresSpellFocus;
@@ -445,7 +449,7 @@ public:
     SpellTotemsEntry const* GetSpellTotems() const;
     SpellMiscEntry const* GetSpellMisc() const;
 
-    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap);
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals);
     ~SpellInfo();
 
     uint32 GetCategory() const;
@@ -565,6 +569,9 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
+    uint32 GetSpellXSpellVisualId(Difficulty difficulty) const;
+    uint32 GetSpellVisual(Difficulty difficulty, Player* forPlayer = nullptr) const;
+
     // loading helpers
     void _InitializeExplicitTargetMask();
     bool _IsPositiveEffect(uint32 effIndex, bool deep) const;
@@ -581,6 +588,7 @@ public:
     SpellEffectInfo const* GetEffect(WorldObject const* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficultyID(), index); }
 
     SpellEffectInfoMap _effects;
+    SpellVisualMap _visuals;
     bool _hasPowerDifficultyData;
 };
 

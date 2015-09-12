@@ -18,9 +18,11 @@ if(PLATFORM EQUAL 64)
   add_definitions("-D_WIN64")
   message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
 
-  #Enable extended object support for debug compiles on X64 (not required on X86)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-  message(STATUS "MSVC: Enabled extended object-support for debug-compiles")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0)
+    #Enable extended object support for debug compiles on X64 (not required on X86)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
+    message(STATUS "MSVC: Enabled increased number of sections in object files")
+  endif()
 else()
   # mark 32 bit executables large address aware so they can use > 2GB address space
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -39,6 +41,17 @@ add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
 # multithreaded compiling on VS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
+# /Zc:throwingNew.
+# When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
+# that the program will eventually be linked with a conforming operator new implementation,
+# and can omit all of these extra null checks from your program.
+# http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
+if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
+  # also enable /bigobj for ALL builds under visual studio 2015, increased number of templates in standard library 
+  # makes this flag a requirement to build TC at all
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:throwingNew /bigobj")
+endif()
+
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
 message(STATUS "MSVC: Overloaded standard names")
@@ -51,8 +64,10 @@ message(STATUS "MSVC: Disabled NON-SECURE warnings")
 add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "MSVC: Disabled POSIX warnings")
 
-# Ignore C4351: new behavior: elements of array 'x' will be default initialized
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4351")
+# Ignore specific warnings
+# C4351: new behavior: elements of array 'x' will be default initialized
+# C4091: 'typedef ': ignored on left of '' when no variable is declared
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4351 /wd4091")
 
 if(NOT WITH_WARNINGS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619 /wd4512")

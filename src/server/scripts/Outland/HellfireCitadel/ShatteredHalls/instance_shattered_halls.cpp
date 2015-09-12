@@ -32,20 +32,11 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum Spells
-{
-    SPELL_CLEAVE    = 15284,
-
-    SPELL_EXECUTE_1 = 39288,
-    SPELL_EXECUTE_2,
-    SPELL_EXECUTE_3
-};
-
 DoorData const doorData[] =
 {
-    {GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
-    {GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE, BOUNDARY_N   },
-    {0,                               0,               DOOR_TYPE_ROOM,    BOUNDARY_NONE}
+    { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { 0,                               0,               DOOR_TYPE_ROOM,    BOUNDARY_NONE }
 };
 
 class instance_shattered_halls : public InstanceMapScript
@@ -77,9 +68,7 @@ class instance_shattered_halls : public InstanceMapScript
                 if (!_team)
                     _team = player->GetTeam();
 
-                player->RemoveAurasDueToSpell(SPELL_EXECUTE_1);
-                player->RemoveAurasDueToSpell(SPELL_EXECUTE_2);
-                player->RemoveAurasDueToSpell(SPELL_EXECUTE_3);
+                player->CastSpell(player, SPELL_REMOVE_KARGATH_EXECUTIONER, true);
 
                 if (!executionTimer || executionerGUID.IsEmpty())
                     return;
@@ -87,13 +76,13 @@ class instance_shattered_halls : public InstanceMapScript
                 switch (executed)
                 {
                     case 0:
-                        ex = player->AddAura(SPELL_EXECUTE_1, player);
+                        ex = player->AddAura(SPELL_KARGATH_EXECUTIONER_1, player);
                         break;
                     case 1:
-                        ex = player->AddAura(SPELL_EXECUTE_2, player);
+                        ex = player->AddAura(SPELL_KARGATH_EXECUTIONER_2, player);
                         break;
                     case 2:
-                        ex = player->AddAura(SPELL_EXECUTE_3, player);
+                        ex = player->AddAura(SPELL_KARGATH_EXECUTIONER_3, player);
                         break;
                     default:
                         break;
@@ -151,9 +140,21 @@ class instance_shattered_halls : public InstanceMapScript
                         break;
                     case NPC_SHATTERED_EXECUTIONER:
                         executionTimer = 55 * MINUTE * IN_MILLISECONDS;
-                        DoCastSpellOnPlayers(SPELL_EXECUTE_1);
+                        DoCastSpellOnPlayers(SPELL_KARGATH_EXECUTIONER_1);
                         executionerGUID = creature->GetGUID();
                         SaveToDB();
+                        break;
+                    case NPC_CAPTAIN_ALINA:
+                    case NPC_CAPTAIN_BONESHATTER:
+                        victimsGUID[0] = creature->GetGUID();
+                        break;
+                    case NPC_ALLIANCE_VICTIM_1:
+                    case NPC_HORDE_VICTIM_1:
+                        victimsGUID[1] = creature->GetGUID();
+                        break;
+                    case NPC_ALLIANCE_VICTIM_2:
+                    case NPC_HORDE_VICTIM_2:
+                        victimsGUID[2] = creature->GetGUID();
                         break;
                 }
             }
@@ -168,16 +169,14 @@ class instance_shattered_halls : public InstanceMapScript
                     case DATA_SHATTERED_EXECUTIONER:
                         if (state == DONE)
                         {
-                            DoRemoveAurasDueToSpellOnPlayers(SPELL_EXECUTE_1);
-                            DoRemoveAurasDueToSpellOnPlayers(SPELL_EXECUTE_2);
-                            DoRemoveAurasDueToSpellOnPlayers(SPELL_EXECUTE_3);
+                            DoCastSpellOnPlayers(SPELL_REMOVE_KARGATH_EXECUTIONER);
                             executionTimer = 0;
                             SaveToDB();
                         }
                         break;
                     case DATA_KARGATH:
                         if (Creature* executioner = instance->GetCreature(executionerGUID))
-                            executioner->AI()->Reset();
+                            executioner->AI()->Reset(); // trigger removal of IMMUNE_TO_PC flag
                         break;
                     case DATA_OMROGG:
                         break;
@@ -191,16 +190,16 @@ class instance_shattered_halls : public InstanceMapScript
                 {
                     case NPC_GRAND_WARLOCK_NETHEKURSE:
                         return nethekurseGUID;
-                        break;
                     case NPC_KARGATH_BLADEFIST:
                         return kargathGUID;
-                        break;
                     case NPC_SHATTERED_EXECUTIONER:
                         return executionerGUID;
-                        break;
+                    case DATA_FIRST_PRISONER:
+                    case DATA_SECOND_PRISONER:
+                    case DATA_THIRD_PRISONER:
+                        return victimsGUID[data - DATA_FIRST_PRISONER];
                     default:
                         return ObjectGuid::Empty;
-                        break;
                 }
             }
 
@@ -253,13 +252,10 @@ class instance_shattered_halls : public InstanceMapScript
                 {
                     case DATA_PRISONERS_EXECUTED:
                         return executed;
-                        break;
                     case DATA_TEAM_IN_INSTANCE:
                         return _team;
-                        break;
                     default:
                         return 0;
-                        break;
                 }
             }
 
@@ -269,27 +265,25 @@ class instance_shattered_halls : public InstanceMapScript
                     return;
 
                 if (executionTimer <= diff)
-                {                        
+                {
+                    DoCastSpellOnPlayers(SPELL_REMOVE_KARGATH_EXECUTIONER);
                     switch (++executed)
                     {
                         case 1:
-                            DoRemoveAurasDueToSpellOnPlayers(SPELL_EXECUTE_1);
-                            DoCastSpellOnPlayers(SPELL_EXECUTE_2);
+                            DoCastSpellOnPlayers(SPELL_KARGATH_EXECUTIONER_2);
                             executionTimer = 10 * MINUTE * IN_MILLISECONDS;
                             break;
                         case 2:
-                            DoRemoveAurasDueToSpellOnPlayers(SPELL_EXECUTE_2);
-                            DoCastSpellOnPlayers(SPELL_EXECUTE_3);
+                            DoCastSpellOnPlayers(SPELL_KARGATH_EXECUTIONER_3);
                             executionTimer = 15 * MINUTE * IN_MILLISECONDS;
                             break;
                         default:
-                            DoRemoveAurasDueToSpellOnPlayers(SPELL_EXECUTE_3);
                             executionTimer = 0;
                             break;
                     }
 
                     if (Creature* executioner = instance->GetCreature(executionerGUID))
-                        executioner->AI()->SetData(1, executed);
+                        executioner->AI()->SetData(DATA_PRISONERS_EXECUTED, executed);
 
                     SaveToDB();
                 }
@@ -297,10 +291,11 @@ class instance_shattered_halls : public InstanceMapScript
                     executionTimer -= diff;
             }
 
-        protected:
+        private:
             ObjectGuid nethekurseGUID;
             ObjectGuid kargathGUID;
             ObjectGuid executionerGUID;
+            ObjectGuid victimsGUID[3];
 
             uint8 executed;
             uint32 executionTimer;
@@ -308,191 +303,8 @@ class instance_shattered_halls : public InstanceMapScript
         };
 };
 
-class at_nethekurse_exit : public AreaTriggerScript
-{
-    public:
-        at_nethekurse_exit() : AreaTriggerScript("at_nethekurse_exit") { };
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const*, bool /* entered */) override
-        {
-            if (InstanceScript* is = player->GetInstanceScript())
-            {
-                if (is->instance->IsHeroic())
-                {
-                    Creature* executioner = nullptr;
-
-                    is->instance->LoadGrid(Executioner.GetPositionX(), Executioner.GetPositionY());
-                    if (Creature* kargath = ObjectAccessor::GetCreature(*player, is->GetGuidData(NPC_KARGATH_BLADEFIST)))
-                    {
-                        if (is->GetGuidData(NPC_SHATTERED_EXECUTIONER).IsEmpty())
-                        {
-                            executioner = kargath->SummonCreature(NPC_SHATTERED_EXECUTIONER, Executioner);
-                            kargath->AI()->SetData(1, is->GetData(DATA_TEAM_IN_INSTANCE));
-                        }
-                    }
-
-                    if (executioner)
-                        for (uint8 i = 0; i < VictimCount; ++i)
-                            executioner->SummonCreature(executionerVictims[i](is->GetData(DATA_TEAM_IN_INSTANCE)), executionerVictims[i].GetPos());
-                }
-            }
-
-            return false;
-        }
-};
-
-class boss_shattered_executioner : public CreatureScript
-{
-    public:
-        boss_shattered_executioner() : CreatureScript("boss_shattered_executioner") { }
-
-        struct boss_shattered_executionerAI : public BossAI
-        {
-            boss_shattered_executionerAI(Creature* creature) : BossAI(creature, DATA_SHATTERED_EXECUTIONER)
-            {
-                Initialize();
-            };
-
-            void Initialize()
-            {
-                cleaveTimer = 500;
-                me->ResetLootMode();
-                switch (instance->GetData(DATA_PRISONERS_EXECUTED))
-                {
-                    case 0:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                    case 1:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                    case 2:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                    default:
-                        break;
-                }
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                if (instance->GetBossState(DATA_KARGATH) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                else
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-
-                Initialize();
-            }
-
-            void JustSummoned(Creature*) override { }
-
-            void JustDied(Unit*) override
-            {
-                _JustDied();
-                Map::PlayerList const &players = instance->instance->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                {
-                    Player* pl = itr->GetSource();
-                    uint32 qId = pl->GetTeam() == ALLIANCE ? QUEST_IMPRISONED_A : QUEST_IMPRISONED_H;
-                    if (pl->GetQuestStatus(qId) != QUEST_STATUS_NONE && pl->GetQuestStatus(qId) != QUEST_STATUS_FAILED)
-                        pl->CompleteQuest(qId);
-                }
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                if (type == 1)
-                {
-                    uint32 entry = executionerVictims[data - 1](instance->GetData(DATA_TEAM_IN_INSTANCE));
-                    if (Creature* victim = me->FindNearestCreature(entry, 30.0f, true))
-                        me->Kill(victim);
-
-                    if (data == 1)
-                    {
-                        Map::PlayerList const &players = instance->instance->GetPlayers();
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        {
-                            Player* pl = itr->GetSource();
-                            uint32 qId = pl->GetTeam() == ALLIANCE ? QUEST_IMPRISONED_A : QUEST_IMPRISONED_H;
-                            if (pl->GetQuestStatus(qId) == QUEST_STATUS_INCOMPLETE)
-                                pl->FailQuest(qId);
-                        }
-                    }
-
-                    switch (data)
-                    {
-                        case 3:
-                            me->RemoveLootMode(LOOT_MODE_HARD_MODE_1);
-                        case 2:
-                            me->RemoveLootMode(LOOT_MODE_HARD_MODE_2);
-                        case 1:
-                            me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (cleaveTimer <= diff)
-                {
-                    DoCast(SPELL_CLEAVE);
-                    cleaveTimer = urand(5000, 7000);
-                }
-                else
-                    cleaveTimer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-        private:
-            uint32 cleaveTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<boss_shattered_executionerAI>(creature);
-        }
-};
-
-class spell_kargath_executioner : public SpellScriptLoader
-{
-    public:
-        spell_kargath_executioner() : SpellScriptLoader("spell_kargath_executioner") { }
-
-        class spell_kargath_executioner_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_kargath_executioner_AuraScript);
-
-            bool AreaCheck(Unit* target)
-            {
-                if (target->GetMap()->GetId() != 540)
-                    return false;
-
-                return true;
-            }
-
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void Register() override
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_kargath_executioner_AuraScript::AreaCheck);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_kargath_executioner_AuraScript();
-        }
-};
 
 void AddSC_instance_shattered_halls()
 {
     new instance_shattered_halls();
-    new at_nethekurse_exit();
-    new boss_shattered_executioner();
-    new spell_kargath_executioner();
 }

@@ -28,6 +28,7 @@
 #include "GameObject.h"
 #include "Packets/WorldStatePackets.h"
 #include "Packets/BattlegroundPackets.h"
+#include "EventMap.h"
 
 class Creature;
 class GameObject;
@@ -258,7 +259,7 @@ class Battleground
         /* Battleground */
         // Get methods:
         std::string const& GetName() const  { return m_Name; }
-        uint64 GetQueueId() { return m_queueId; }
+        uint64 GetQueueId() const { return m_queueId; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }

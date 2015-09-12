@@ -26,9 +26,7 @@
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "LootPackets.h"
 #include "WorldSession.h"
@@ -178,7 +176,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                 if (!member)
                     continue;
 
-                if (player->IsWithinDistInMap(member, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+                if (player->IsAtGroupRewardDistance(member))
                     playersNear.push_back(member);
             }
 
@@ -483,4 +481,18 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     loot->NotifyItemRemoved(slotid);
     --loot->unlootedCount;
+}
+
+void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet)
+{
+    if (packet.SpecID)
+    {
+        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(packet.SpecID))
+        {
+            if (chrSpec->ClassID == GetPlayer()->getClass())
+                GetPlayer()->SetLootSpecId(packet.SpecID);
+        }
+    }
+    else
+        GetPlayer()->SetLootSpecId(packet.SpecID);
 }

@@ -19,13 +19,10 @@
 #include "QuestDef.h"
 #include "GossipDef.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Formulas.h"
 #include "QuestPackets.h"
 #include "NPCPackets.h"
-#include "WorldPacket.h"
 
 GossipMenu::GossipMenu()
 {
@@ -506,12 +503,12 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
     packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
     packet.Info.RewardXPMultiplier = quest->GetXPMultiplier();
-    packet.Info.Float13 = quest->Float13; // Unk
 
-    if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-        packet.Info.RewardMoney = quest->RewardMoney;
+    if (!quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+        packet.Info.RewardMoney = quest->RewardMoney < 0 ? quest->RewardMoney : _session->GetPlayer()->GetQuestMoneyReward(quest);
 
     packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyDifficulty();
+    packet.Info.RewardMoneyMultiplier = quest->GetMoneyMultiplier();
     packet.Info.RewardBonusMoney = quest->GetRewMoneyMaxLevel();
     packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();
     packet.Info.RewardSpell = quest->GetRewSpell();

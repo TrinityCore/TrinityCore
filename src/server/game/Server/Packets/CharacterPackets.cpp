@@ -316,10 +316,15 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
     return &_worldPacket;
 }
 
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)),
+    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+{
+
+}
+
 void WorldPackets::Character::ReorderCharacters::Read()
 {
-    uint32 count = std::min<uint32>(_worldPacket.ReadBits(9), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
-    Entries.resize(count);
+    Entries.resize(_worldPacket.ReadBits(9));
     for (ReorderInfo& reorderInfo : Entries)
     {
         _worldPacket >> reorderInfo.PlayerGUID;
@@ -496,5 +501,42 @@ void WorldPackets::Character::SetWatchedFaction::Read()
 WorldPacket const* WorldPackets::Character::SetFactionVisible::Write()
 {
     _worldPacket << FactionIndex;
+    return &_worldPacket;
+}
+
+WorldPackets::Character::CharCustomizeResponse::CharCustomizeResponse(WorldPackets::Character::CharCustomizeInfo const* info)
+    : ServerPacket(SMSG_CHAR_CUSTOMIZE, 16 + 1 + 1 + 1 + 1 + 1 + 1 + 1)
+{
+    CharGUID = info->CharGUID;
+    SexID = info->SexID;
+    SkinID = info->SkinID;
+    HairColorID = info->HairColorID;
+    HairStyleID = info->HairStyleID;
+    FacialHairStyleID = info->FacialHairStyleID;
+    FaceID = info->FaceID;
+    CharName = info->CharName;
+}
+
+WorldPacket const* WorldPackets::Character::CharCustomizeResponse::Write()
+{
+    _worldPacket << CharGUID;
+    _worldPacket << uint8(SexID);
+    _worldPacket << uint8(SkinID);
+    _worldPacket << uint8(HairColorID);
+    _worldPacket << uint8(HairStyleID);
+    _worldPacket << uint8(FacialHairStyleID);
+    _worldPacket << uint8(FaceID);
+    _worldPacket.WriteBits(CharName.length(), 6);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(CharName);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::CharCustomizeFailed::Write()
+{
+    _worldPacket << uint8(Result);
+    _worldPacket << CharGUID;
+
     return &_worldPacket;
 }

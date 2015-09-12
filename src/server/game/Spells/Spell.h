@@ -83,6 +83,31 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_32         = 0x80000000
 };
 
+enum SpellCastFlagsEx
+{
+    CAST_FLAG_EX_NONE            = 0x00000,
+    CAST_FLAG_EX_UNKNOWN_1       = 0x00001,
+    CAST_FLAG_EX_UNKNOWN_2       = 0x00002,
+    CAST_FLAG_EX_UNKNOWN_3       = 0x00004,
+    CAST_FLAG_EX_UNKNOWN_4       = 0x00008,
+    CAST_FLAG_EX_UNKNOWN_5       = 0x00010,
+    CAST_FLAG_EX_UNKNOWN_6       = 0x00020,
+    CAST_FLAG_EX_UNKNOWN_7       = 0x00040,
+    CAST_FLAG_EX_UNKNOWN_8       = 0x00080,
+    CAST_FLAG_EX_UNKNOWN_9       = 0x00100,
+    CAST_FLAG_EX_UNKNOWN_10      = 0x00200,
+    CAST_FLAG_EX_UNKNOWN_11      = 0x00400,
+    CAST_FLAG_EX_UNKNOWN_12      = 0x00800,
+    CAST_FLAG_EX_UNKNOWN_13      = 0x01000,
+    CAST_FLAG_EX_UNKNOWN_14      = 0x02000,
+    CAST_FLAG_EX_UNKNOWN_15      = 0x04000,
+    CAST_FLAG_EX_USE_TOY_SPELL   = 0x08000, // Starts cooldown on toy
+    CAST_FLAG_EX_UNKNOWN_17      = 0x10000,
+    CAST_FLAG_EX_UNKNOWN_18      = 0x20000,
+    CAST_FLAG_EX_UNKNOWN_19      = 0x40000,
+    CAST_FLAG_EX_UNKNOWN_20      = 0x80000
+};
+
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT             = 0,
@@ -149,7 +174,6 @@ class SpellCastTargets
         SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
         ~SpellCastTargets();
 
-        void Read(ByteBuffer& data, Unit* caster);
         void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
@@ -409,6 +433,10 @@ class Spell
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
+        void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
+        void EffectHealBattlePetPct(SpellEffIndex effIndex);
+        void EffectEnableBattlePets(SpellEffIndex effIndex);
+        void EffectUncageBattlePet(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -488,7 +516,7 @@ class Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, OpcodeServer opcode = SMSG_CAST_FAILED, uint32 misc = 0);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, OpcodeServer opcode = SMSG_CAST_FAILED, uint32* misc = nullptr);
         void SendCastResult(SpellCastResult result);
         void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
@@ -519,14 +547,36 @@ class Spell
         ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
         uint8 m_cast_count;
+        uint32 m_castFlagsEx;
         union
         {
             // Alternate names for this value
             uint32 TalentId;
             uint32 GlyphSlot;
 
-            uint32 Data;
+            // SPELL_EFFECT_SET_FOLLOWER_QUALITY
+            // SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+            // SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+            // SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+            // SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+            struct
+            {
+                uint32 Id;
+                uint32 AbilityId;   // only SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+            } GarrFollower;
+
+            // SPELL_EFFECT_FINISH_GARRISON_MISSION
+            uint32 GarrMissionId;
+
+            // SPELL_EFFECT_UPGRADE_HEIRLOOM
+            uint32 ItemId;
+
+            struct
+            {
+                uint32 Data[2];
+            } Raw;
         } m_misc;
+        uint32 m_SpellVisual;
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
@@ -669,6 +719,8 @@ class Spell
         // Targets store structures and data
         struct TargetInfo
         {
+            // a bug in gcc-4.7 needs a destructor to call move operator instead of copy operator in std::vector remove
+            ~TargetInfo() { }
             ObjectGuid targetGUID;
             uint64 timeDelay;
             SpellMissInfo missCondition:8;

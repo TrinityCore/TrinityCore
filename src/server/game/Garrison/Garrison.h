@@ -37,6 +37,12 @@ enum GarrisonFollowerFlags
     GARRISON_FOLLOWER_FLAG_UNIQUE   = 0x1
 };
 
+enum GarrisonFollowerType
+{
+    FOLLOWER_TYPE_GARRISON = 1,
+    FOLLOWER_TYPE_SHIPYARD = 2
+};
+
 enum GarrisonAbilityFlags
 {
     GARRISON_ABILITY_FLAG_TRAIT         = 0x01,
@@ -82,6 +88,7 @@ public:
         bool CanActivate() const;
 
         ObjectGuid Guid;
+        std::unordered_set<ObjectGuid> Spawns;
         Optional<WorldPackets::Garrison::GarrisonBuildingInfo> PacketInfo;
     };
 
@@ -109,9 +116,11 @@ public:
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
         PreparedQueryResult followers, PreparedQueryResult abilities);
-    void SaveToDB(SQLTransaction& trans);
+    void SaveToDB(SQLTransaction trans);
+    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
     bool Create(uint32 garrSiteId);
+    void Delete();
     void Upgrade();
 
     void Enter() const;
@@ -129,6 +138,7 @@ public:
     void UnlearnBlueprint(uint32 garrBuildingId);
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
+    void ActivateBuilding(uint32 garrPlotInstanceId);
 
     // Followers
     void AddFollower(uint32 garrFollowerId);

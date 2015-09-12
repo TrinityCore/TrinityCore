@@ -22,7 +22,6 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Item.h"
 #include "Spell.h"
@@ -652,7 +651,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
-    if (pOther->GetTeam() != _player->GetTeam() &&
+    if ((pOther->GetTeam() != _player->GetTeam() ||
+        pOther->HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_MERCENARY_MODE) ||
+        _player->HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_MERCENARY_MODE)) &&
         (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_TRADE) &&
         !HasPermission(rbac::RBAC_PERM_ALLOW_TWO_SIDE_TRADE)))
     {

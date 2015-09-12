@@ -68,6 +68,74 @@ namespace WorldPackets
 
             std::vector<InstanceLockInfos> LockList;
         };
+
+        class ResetInstances final : public ClientPacket
+        {
+        public:
+            ResetInstances(WorldPacket&& packet) : ClientPacket(CMSG_RESET_INSTANCES, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class InstanceReset final : public ServerPacket
+        {
+        public:
+            InstanceReset() : ServerPacket(SMSG_INSTANCE_RESET, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+        };
+
+        class InstanceResetFailed final : public ServerPacket
+        {
+        public:
+            InstanceResetFailed() : ServerPacket(SMSG_INSTANCE_RESET_FAILED, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+            uint8 ResetFailedReason = 0;
+        };
+
+        class ResetFailedNotify final : public ServerPacket
+        {
+        public:
+            ResetFailedNotify() : ServerPacket(SMSG_RESET_FAILED_NOTIFY, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class InstanceSaveCreated final : public ServerPacket
+        {
+        public:
+            InstanceSaveCreated() : ServerPacket(SMSG_INSTANCE_SAVE_CREATED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Gm = false;
+        };
+
+        class InstanceLockResponse final : public ClientPacket
+        {
+        public:
+            InstanceLockResponse(WorldPacket&& packet) : ClientPacket(CMSG_INSTANCE_LOCK_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool AcceptLock = false;
+        };
+
+        class RaidGroupOnly final : public ServerPacket
+        {
+        public:
+            RaidGroupOnly() : ServerPacket(SMSG_RAID_GROUP_ONLY, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Delay = 0;
+            uint32 Reason = 0;
+        };
     }
 }
 

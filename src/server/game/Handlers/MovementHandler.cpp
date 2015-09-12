@@ -24,7 +24,6 @@
 #include "Corpse.h"
 #include "Player.h"
 #include "Garrison.h"
-#include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
 #include "Battleground.h"
@@ -179,7 +178,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {
                     uint32 timeleft = uint32(timeReset - time(NULL));
-                    GetPlayer()->SendInstanceResetWarning(mEntry->ID, diff, timeleft);
+                    GetPlayer()->SendInstanceResetWarning(mEntry->ID, diff, timeleft, true);
                 }
             }
         }
@@ -511,17 +510,12 @@ void WorldSession::HandleMovementAckMessage(WorldPackets::Movement::MovementAckM
     GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
 }
 
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleSummonResponseOpcode(WorldPackets::Movement::SummonResponse& packet)
 {
     if (!_player->IsAlive() || _player->IsInCombat())
         return;
 
-    ObjectGuid summoner_guid;
-    bool agree;
-    recvData >> summoner_guid;
-    recvData >> agree;
-
-    _player->SummonIfPossible(agree);
+    _player->SummonIfPossible(packet.Accept);
 }
 
 void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck)

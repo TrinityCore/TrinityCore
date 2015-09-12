@@ -22,13 +22,14 @@
 
 DB2FileLoader::DB2FileLoader()
 {
+    fileName = nullptr;
     recordSize = 0;
     recordCount = 0;
     fieldCount = 0;
     stringSize = 0;
-    fieldsOffset = NULL;
-    data = NULL;
-    stringTable = NULL;
+    fieldsOffset = nullptr;
+    data = nullptr;
+    stringTable = nullptr;
 
     tableHash = 0;
     build = 0;
@@ -36,7 +37,7 @@ DB2FileLoader::DB2FileLoader()
     unk1 = 0;
     minIndex = 0;
     maxIndex = 0;
-    locale = 0;
+    localeMask = 0;
     unk5 = 0;
 }
 
@@ -44,14 +45,15 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
 {
     if (data)
     {
-        delete [] data;
-        data = NULL;
+        delete[] data;
+        data = nullptr;
     }
 
     FILE* f = fopen(filename, "rb");
     if (!f)
         return false;
 
+    fileName = filename;
     uint32 header;
     if (fread(&header, 4, 1, f) != 1)                        // Signature
     {
@@ -124,36 +126,37 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
 
     EndianConvert(unk1);
 
-    if (build > 12880)
+    if (fread(&minIndex, 4, 1, f) != 1)                           // MinIndex WDB2
     {
-        if (fread(&minIndex, 4, 1, f) != 1)                           // MinIndex WDB2
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(minIndex);
-
-        if (fread(&maxIndex, 4, 1, f) != 1)                           // MaxIndex WDB2
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(maxIndex);
-
-        if (fread(&locale, 4, 1, f) != 1)                             // Locales
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(locale);
-
-        if (fread(&unk5, 4, 1, f) != 1)                               // Unknown WDB2
-        {
-            fclose(f);
-            return false;
-        }
-        EndianConvert(unk5);
+        fclose(f);
+        return false;
     }
+
+    EndianConvert(minIndex);
+
+    if (fread(&maxIndex, 4, 1, f) != 1)                           // MaxIndex WDB2
+    {
+        fclose(f);
+        return false;
+    }
+
+    EndianConvert(maxIndex);
+
+    if (fread(&localeMask, 4, 1, f) != 1)                             // Locales
+    {
+        fclose(f);
+        return false;
+    }
+
+    EndianConvert(localeMask);
+
+    if (fread(&unk5, 4, 1, f) != 1)                               // Unknown WDB2
+    {
+        fclose(f);
+        return false;
+    }
+
+    EndianConvert(unk5);
 
     if (maxIndex != 0)
     {
@@ -212,6 +215,7 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
                 recordsize += 4;
                 break;
             case FT_STRING:
+            case FT_STRING_NOT_LOCALIZED:
                 recordsize += sizeof(char*);
                 break;
             case FT_SORT:
@@ -224,6 +228,9 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
             case FT_BYTE:
                 recordsize += 1;
                 break;
+            case FT_LONG:
+                recordsize += 8;
+                break;
         }
     }
 
@@ -233,7 +240,17 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
     return recordsize;
 }
 
-uint32 DB2FileLoader::GetFormatStringFieldCount(char const* format)
+uint32 DB2FileLoader::GetFormatStringFieldCount(const char* format)
+{
+    uint32 stringfields = 0;
+    for (uint32 x = 0; format[x]; ++x)
+        if (format[x] == FT_STRING || format[x] == FT_STRING_NOT_LOCALIZED)
+            ++stringfields;
+
+    return stringfields;
+}
+
+uint32 DB2FileLoader::GetFormatLocalizedStringFieldCount(char const* format)
 {
     uint32 stringfields = 0;
     for (uint32 x = 0; format[x]; ++x)
@@ -303,8 +320,13 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     *((uint8*)(&dataTable[offset])) = getRecord(y).getUInt8(x);
                     offset += 1;
                     break;
+                case FT_LONG:
+                    *((uint64*)(&dataTable[offset])) = getRecord(y).getUInt64(x);
+                    offset += 8;
+                    break;
                 case FT_STRING:
-                    *((char**)(&dataTable[offset])) = NULL;   // will be replaces non-empty or "" strings in AutoProduceStrings
+                case FT_STRING_NOT_LOCALIZED:
+                    *((char**)(&dataTable[offset])) = nullptr;   // will be replaces non-empty or "" strings in AutoProduceStrings
                     offset += sizeof(char*);
                     break;
             }
@@ -322,19 +344,21 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
         return nullptr;
 
     // we store flat holders pool as single memory block
-    size_t stringFields = GetFormatStringFieldCount(format);
+    std::size_t stringFields = GetFormatStringFieldCount(format);
     if (!stringFields)
         return nullptr;
 
+    std::size_t localizedStringFields = GetFormatLocalizedStringFieldCount(format);
+
     // each string field at load have array of string for each locale
-    size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-    size_t stringHoldersRecordPoolSize = stringFields * stringHolderSize;
-    size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * recordCount;
+    std::size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
+    std::size_t stringHoldersRecordPoolSize = localizedStringFields * stringHolderSize + (stringFields - localizedStringFields) * sizeof(char*);
+    std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * recordCount;
 
     char* stringHoldersPool = new char[stringHoldersPoolSize];
 
     // DB2 strings expected to have at least empty string
-    for (size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
+    for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
         ((char const**)stringHoldersPool)[i] = nullStr;
 
     uint32 offset = 0;
@@ -342,7 +366,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     // assign string holders to string field slots
     for (uint32 y = 0; y < recordCount; y++)
     {
-        uint32 stringFieldNum = 0;
+        uint32 stringFieldOffset = 0;
 
         for (uint32 x = 0; x < fieldCount; x++)
         {
@@ -356,12 +380,20 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                 case FT_BYTE:
                     offset += 1;
                     break;
+                case FT_LONG:
+                    offset += 8;
+                    break;
                 case FT_STRING:
+                case FT_STRING_NOT_LOCALIZED:
                 {
                     // init db2 string field slots by pointers to string holders
                     char const*** slot = (char const***)(&dataTable[offset]);
-                    *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringHolderSize*stringFieldNum]);
-                    ++stringFieldNum;
+                    *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
+                    if (format[x] == FT_STRING)
+                        stringFieldOffset += stringHolderSize;
+                    else
+                        ++stringFieldOffset;
+
                     offset += sizeof(char*);
                     break;
                 }
@@ -378,7 +410,24 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
 char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uint32 locale)
 {
     if (strlen(format) != fieldCount)
-        return NULL;
+        return nullptr;
+
+    if (!(localeMask & (1 << locale)))
+    {
+        char const* sep = "";
+        std::ostringstream str;
+        for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            if (localeMask & (1 << i))
+            {
+                str << sep << localeNames[i];
+                sep = ", ";
+            }
+        }
+
+        TC_LOG_ERROR("", "Attempted to load %s which has locales %s as %s. Check if you placed your localized db2 files in correct directory.", fileName, str.str().c_str(), localeNames[locale]);
+        return nullptr;
+    }
 
     char* stringPool = new char[stringSize];
     memcpy(stringPool, stringTable, stringSize);
@@ -399,16 +448,27 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
                 case FT_BYTE:
                     offset += 1;
                     break;
+                case FT_LONG:
+                    offset += 8;
+                    break;
                 case FT_STRING:
                 {
                     // fill only not filled entries
                     LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
                     if (db2str->Str[locale] == nullStr)
                     {
-                        const char * st = getRecord(y).getString(x);
-                        db2str->Str[locale] = stringPool + (st - (const char*)stringTable);
+                        char const* st = getRecord(y).getString(x);
+                        db2str->Str[locale] = stringPool + (st - (char const*)stringTable);
                     }
 
+                    offset += sizeof(char*);
+                    break;
+                }
+                case FT_STRING_NOT_LOCALIZED:
+                {
+                    char** db2str = (char**)(&dataTable[offset]);
+                    char const* st = getRecord(y).getString(x);
+                    *db2str = stringPool + (st - (char const*)stringTable);
                     offset += sizeof(char*);
                     break;
                 }
@@ -419,7 +479,7 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
     return stringPool;
 }
 
-char* DB2DatabaseLoader::Load(const char* format, uint32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool)
+char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(preparedStatement));
@@ -516,6 +576,10 @@ char* DB2DatabaseLoader::Load(const char* format, uint32 preparedStatement, uint
                     *((int8*)(&dataValue[offset])) = fields[f].GetInt8();
                     offset += 1;
                     break;
+                case FT_LONG:
+                    *((int64*)(&dataValue[offset])) = fields[f].GetInt64();
+                    offset += 8;
+                    break;
                 case FT_STRING:
                 {
                     LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
@@ -523,7 +587,21 @@ char* DB2DatabaseLoader::Load(const char* format, uint32 preparedStatement, uint
                     ASSERT(*slot);
 
                     // Value in database in main table field must be for enUS locale
-                    if (char* str = AddLocaleString(*slot, LOCALE_enUS, fields[f].GetString()))
+                    if (char* str = AddString(&(*slot)->Str[LOCALE_enUS], fields[f].GetString()))
+                        stringPool.push_back(str);
+
+                    ++stringFieldNumInRecord;
+                    offset += sizeof(char*);
+                    break;
+                }
+                case FT_STRING_NOT_LOCALIZED:
+                {
+                    char const** slot = (char const**)(&dataValue[offset]);
+                    *slot = (char*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringHolderSize * stringFieldNumInRecord]);
+                    ASSERT(*slot);
+
+                    // Value in database in main table field must be for enUS locale
+                    if (char* str = AddString(slot, fields[f].GetString()))
                         stringPool.push_back(str);
 
                     ++stringFieldNumInRecord;
@@ -560,7 +638,7 @@ char* DB2DatabaseLoader::Load(const char* format, uint32 preparedStatement, uint
     return dataTable;
 }
 
-void DB2DatabaseLoader::LoadStrings(const char* format, uint32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
+void DB2DatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool)
 {
     PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
     stmt->setString(0, localeNames[locale]);
@@ -568,7 +646,7 @@ void DB2DatabaseLoader::LoadStrings(const char* format, uint32 preparedStatement
     if (!result)
         return;
 
-    size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
+    size_t stringFields = DB2FileLoader::GetFormatLocalizedStringFieldCount(format);
     if (result->GetFieldCount() != stringFields + 1 /*ID*/)
         return;
 
@@ -599,12 +677,15 @@ void DB2DatabaseLoader::LoadStrings(const char* format, uint32 preparedStatement
                     case FT_BYTE:
                         offset += 1;
                         break;
+                    case FT_LONG:
+                        offset += 8;
+                        break;
                     case FT_STRING:
                     {
                         // fill only not filled entries
                         LocalizedString* db2str = *(LocalizedString**)(&dataValue[offset]);
                         if (db2str->Str[locale] == nullStr)
-                            if (char* str = AddLocaleString(db2str, locale, fields[1 + stringFieldNumInRecord].GetString()))
+                            if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetString()))
                                 stringPool.push_back(str);
 
                         ++stringFieldNumInRecord;
@@ -624,15 +705,15 @@ void DB2DatabaseLoader::LoadStrings(const char* format, uint32 preparedStatement
     return;
 }
 
-char* DB2DatabaseLoader::AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value)
+char* DB2DatabaseLoader::AddString(char const** holder, std::string const& value)
 {
     if (!value.empty())
     {
-        std::size_t existingLength = strlen(holder->Str[locale]);
+        std::size_t existingLength = strlen(*holder);
         if (existingLength >= value.length())
         {
             // Reuse existing storage if there is enough space
-            char* str = const_cast<char*>(holder->Str[locale]);
+            char* str = const_cast<char*>(*holder);
             memcpy(str, value.c_str(), value.length());
             str[value.length()] = '\0';
             return nullptr;
@@ -641,7 +722,7 @@ char* DB2DatabaseLoader::AddLocaleString(LocalizedString* holder, uint32 locale,
         char* str = new char[value.length() + 1];
         memcpy(str, value.c_str(), value.length());
         str[value.length()] = '\0';
-        holder->Str[locale] = str;
+        *holder = str;
         return str;
     }
 

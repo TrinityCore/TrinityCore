@@ -32,6 +32,9 @@ namespace WorldPackets
         {
             uint8 Context = 0;
             std::vector<int32> BonusListIDs;
+
+            bool operator==(ItemBonusInstanceData const& r) const;
+            bool operator!=(ItemBonusInstanceData const& r) const { return !(*this == r); }
         };
 
         struct ItemInstance
@@ -45,6 +48,9 @@ namespace WorldPackets
             uint32 RandomPropertiesID = 0;
             Optional<ItemBonusInstanceData> ItemBonus;
             Optional<CompactArray<int32>> Modifications;
+
+            bool operator==(ItemInstance const& r) const;
+            bool operator!=(ItemInstance const& r) const { return !(*this == r); }
         };
 
         class BuyBackItem final : public ClientPacket
@@ -288,6 +294,13 @@ namespace WorldPackets
         class ItemPushResult final : public ServerPacket
         {
         public:
+            enum DisplayType
+            {
+                DISPLAY_TYPE_ENCOUNTER_LOOT = 1,
+                DISPLAY_TYPE_NORMAL = 2,
+                DISPLAY_TYPE_HIDDEN = 3
+            };
+
             ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
@@ -296,18 +309,21 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            uint32 WodUnk                   = 0;
+            uint32 QuestLogItemID           = 0; // Item ID used for updating quest progress
+                                                 // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
+            uint32 DungeonEncounterID       = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;
-            bool DisplayText                = false;
+            DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
             bool IsBonusRoll                = false;
+            bool IsEncounterLoot            = false;
         };
 
         class ReadItem final : public ClientPacket
@@ -366,12 +382,13 @@ namespace WorldPackets
         class ItemCooldown final : public ServerPacket
         {
         public:
-            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 20) { }
+            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 24) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid ItemGuid;
             uint32 SpellID = 0;
+            uint32 Cooldown = 0;
         };
 
         class ItemEnchantTimeUpdate final : public ServerPacket
@@ -385,6 +402,40 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
             uint32 DurationLeft = 0;
             uint32 Slot = 0;
+        };
+
+        struct TransmogrifyItem
+        {
+            Optional<ObjectGuid> SrcItemGUID;
+            Optional<ObjectGuid> SrcVoidItemGUID;
+            ItemInstance Item;
+            uint32 Slot = 0;
+        };
+
+        class TransmogrifyItems final : public ClientPacket
+        {
+        public:
+            enum
+            {
+                MAX_TRANSMOGRIFY_ITEMS = 11
+            };
+
+            TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Npc;
+            Array<TransmogrifyItem, MAX_TRANSMOGRIFY_ITEMS> Items;
+        };
+
+        class UseCritterItem final : public ClientPacket
+        {
+        public:
+            UseCritterItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_CRITTER_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);

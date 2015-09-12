@@ -70,8 +70,6 @@ public:
         if (!*args)
             return false;
 
-        std::string email;
-
         ///- %Parse the command line arguments
         char* accountName = strtok((char*)args, " ");
         char* password = strtok(NULL, " ");

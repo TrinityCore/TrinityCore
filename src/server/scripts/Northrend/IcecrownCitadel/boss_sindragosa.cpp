@@ -1093,8 +1093,8 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
                 SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
-                GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
                 GetCaster()->DealSpellDamage(&damageInfo, false);
+                GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
             }
 
             void Register() override

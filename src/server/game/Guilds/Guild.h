@@ -251,7 +251,7 @@ struct GuildReward
     std::vector<uint32> AchievementsRequired;
 };
 
-uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
+uint32 const MinNewsItemLevel = 353;
 
 // Guild Challenge
 #define GUILD_CHALLENGES_TYPES 6
@@ -266,9 +266,10 @@ class EmblemInfo
 public:
     EmblemInfo() : m_style(0), m_color(0), m_borderStyle(0), m_borderColor(0), m_backgroundColor(0) { }
 
-    void LoadFromDB(Field* fields);
+    bool LoadFromDB(Field* fields);
     void SaveToDB(ObjectGuid::LowType guildId) const;
     void ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet);
+    bool ValidateEmblemColors();
 
     uint32 GetStyle() const { return m_style; }
     uint32 GetColor() const { return m_color; }
@@ -384,7 +385,7 @@ private:
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
         bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
-        bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
+        bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
         void ChangeRank(uint8 newRank);
 
@@ -856,7 +857,7 @@ public:
     void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
     bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
     bool IsMember(ObjectGuid guid) const;
-    uint32 GetMembersCount() { return uint32(m_members.size()); }
+    uint32 GetMembersCount() const { return uint32(m_members.size()); }
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

@@ -18,11 +18,9 @@
 
 #include "Common.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 
-#include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
@@ -37,17 +35,14 @@
 #include "BattlegroundIC.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
-#include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
 #include "Player.h"
 #include "GameEventMgr.h"
 #include "SharedDefines.h"
-#include "Formulas.h"
 #include "DisableMgr.h"
 #include "Opcodes.h"
-#include "MiscPackets.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/

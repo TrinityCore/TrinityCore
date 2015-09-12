@@ -17,20 +17,16 @@
  */
 
 #include "Common.h"
-#include "Language.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
 #include "Log.h"
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "UpdateMask.h"
 #include "NPCHandler.h"
-#include "Pet.h"
 #include "MapManager.h"
-#include "CharacterPackets.h"
 #include "QueryPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
@@ -81,35 +77,50 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 
         WorldPackets::Query::CreatureStats& stats = response.Stats;
 
-        stats.Title = creatureInfo->SubName;
-        stats.CursorName = creatureInfo->IconName;
+        stats.Leader = creatureInfo->RacialLeader;
+
+        stats.Name[0] = creatureInfo->Name;
+        stats.NameAlt[0] = creatureInfo->FemaleName;
+
+        stats.Flags[0] = creatureInfo->type_flags;
+        stats.Flags[1] = creatureInfo->type_flags2;
+
         stats.CreatureType = creatureInfo->type;
         stats.CreatureFamily = creatureInfo->family;
         stats.Classification = creatureInfo->rank;
-        stats.HpMulti = creatureInfo->ModHealth;
-        stats.EnergyMulti = creatureInfo->ModMana;
-        stats.Leader = creatureInfo->RacialLeader;
 
-        CreatureQuestItemList* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
-        if (items)
-            for (uint32 item : *items)
-                stats.QuestItems.push_back(item);
-
-        stats.CreatureMovementInfoID = creatureInfo->movementId;
-        stats.RequiredExpansion = creatureInfo->expansionUnknown;
-        stats.Flags[0] = creatureInfo->type_flags;
-        stats.Flags[1] = creatureInfo->type_flags2;
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
+
         stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
         stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
         stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
         stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
-        stats.Name[0] = creatureInfo->Name;
-        stats.NameAlt[0] = creatureInfo->FemaleName;
+
+        stats.HpMulti = creatureInfo->ModHealth;
+        stats.EnergyMulti = creatureInfo->ModMana;
+
+        stats.CreatureMovementInfoID = creatureInfo->movementId;
+        stats.RequiredExpansion = creatureInfo->expansionUnknown;
+
+        stats.Title = creatureInfo->SubName;
+        //stats.TitleAlt = ;
+        stats.CursorName = creatureInfo->IconName;
+
+        if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
+            for (uint32 item : *items)
+                stats.QuestItems.push_back(item);
+
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
+            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
+            {
+                ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
+                ObjectMgr::GetLocaleString(creatureLocale->NameAlt, localeConstant, stats.NameAlt[0]);
+                ObjectMgr::GetLocaleString(creatureLocale->Title, localeConstant, stats.Title);
+                ObjectMgr::GetLocaleString(creatureLocale->TitleAlt, localeConstant, stats.TitleAlt);
+            }
     }
-    else
-        response.Allow = false;
 
     SendPacket(response.Write());
 }
@@ -126,26 +137,32 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         response.Allow = true;
         WorldPackets::Query::GameObjectStats& stats = response.Stats;
 
-        stats.CastBarCaption = gameObjectInfo->castBarCaption;
+        stats.Type = gameObjectInfo->type;
         stats.DisplayID = gameObjectInfo->displayId;
-        stats.IconName = gameObjectInfo->IconName;
-        stats.Name[0] = gameObjectInfo->name;
 
-        GameObjectQuestItemList* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID);
-        if (items)
+        stats.Name[0] = gameObjectInfo->name;
+        stats.IconName = gameObjectInfo->IconName;
+        stats.CastBarCaption = gameObjectInfo->castBarCaption;
+        stats.UnkString = gameObjectInfo->unk1;
+
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
+            if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
+            {
+                ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
+                ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, stats.CastBarCaption);
+                ObjectMgr::GetLocaleString(gameObjectLocale->Unk1, localeConstant, stats.UnkString);
+            }
+
+        stats.Size = gameObjectInfo->size;
+
+        if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
 
         for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
             stats.Data[i] = gameObjectInfo->raw.data[i];
-
-        stats.Size = gameObjectInfo->size;
-        stats.Type = gameObjectInfo->type;
-        stats.UnkString = gameObjectInfo->unk1;
-        stats.Expansion = 0;
     }
-    else
-        response.Allow = false;
 
     SendPacket(response.Write());
 }
@@ -312,15 +329,15 @@ void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQues
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet)
+void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& questPoiQuery)
 {
-    if (packet.MissingQuestCount > MAX_QUEST_LOG_SIZE)
+    if (questPoiQuery.MissingQuestCount > MAX_QUEST_LOG_SIZE)
         return;
 
     // Read quest ids and add the in a unordered_set so we don't send POIs for the same quest multiple times
     std::unordered_set<int32> questIds;
-    for (int32 i = 0; i < packet.MissingQuestCount; ++i)
-        questIds.insert(packet.MissingQuestPOIs[i]); // QuestID
+    for (int32 i = 0; i < questPoiQuery.MissingQuestCount; ++i)
+        questIds.insert(questPoiQuery.MissingQuestPOIs[i]); // QuestID
 
     WorldPackets::Query::QuestPOIQueryResponse response;
 
@@ -397,17 +414,17 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
+        response.RecordID = rec.RecordID;
 
         if (store->HasRecord(rec.RecordID))
         {
-            response.RecordID = rec.RecordID;
+            response.Allow = true;
             response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
             store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
         }
         else
         {
             TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
-            response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }
 

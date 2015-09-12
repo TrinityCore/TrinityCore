@@ -22,6 +22,7 @@
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
 #include "BattlenetServerManager.h"
+#include "BattlePetPackets.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
@@ -34,7 +35,6 @@
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "Language.h"
-#include "LFGMgr.h"
 #include "Log.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
@@ -45,10 +45,10 @@
 #include "Player.h"
 #include "QueryPackets.h"
 #include "ReputationMgr.h"
+#include "GitRevision.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
-#include "SystemConfig.h"
 #include "SystemPackets.h"
 #include "UpdateMask.h"
 #include "Util.h"
@@ -459,7 +459,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     }
 
     // check name limitations
-    ResponseCodes res = ObjectMgr::CheckPlayerName(charCreate.CreateInfo->Name, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(charCreate.CreateInfo->Name, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharCreate(res);
@@ -733,7 +733,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
                     {
                         if (charTemplate->Level != 1)
                         {
-                            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+                            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
                             stmt->setUInt8(0, uint8(charTemplate->Level));
                             stmt->setUInt64(1, newChar.GetGUID().GetCounter());
                             CharacterDatabase.Execute(stmt);
@@ -957,7 +957,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // send server info
     {
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
-            chH.PSendSysMessage(_FULLVERSION);
+            chH.PSendSysMessage(GitRevision::GetFullVersion());
 
         TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }
@@ -985,6 +985,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
     hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
     SendPacket(hotfixInfo.Write());
+
+    // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
+    WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
+    SendPacket(lock.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
@@ -1162,7 +1166,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
     features.ComplaintStatus = 0;
     features.TutorialsEnabled = true;
-    features.UnkBit90 = true;
+    features.NPETutorialsEnabled = true;
     /// END OF DUMMY VALUES
 
     features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
@@ -1272,7 +1276,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRena
         return;
     }
 
-    ResponseCodes res = ObjectMgr::CheckPlayerName(request.RenameInfo->NewName, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(request.RenameInfo->NewName, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharRename(res, request.RenameInfo.get());
@@ -1568,7 +1572,7 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         return;
     }
 
-    ResponseCodes res = ObjectMgr::CheckPlayerName(customizeInfo->CharName, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(customizeInfo->CharName, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharCustomize(res, customizeInfo);
@@ -1604,7 +1608,7 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         playerBytes2 &= ~0xFF;
         playerBytes2 |= customizeInfo->FacialHairStyleID;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
 
         stmt->setUInt8(0, customizeInfo->SexID);
         stmt->setUInt32(1, customizeInfo->SkinID | (uint32(customizeInfo->FaceID) << 8) | (uint32(customizeInfo->HairStyleID) << 16) | (uint32(customizeInfo->HairColorID) << 24));
@@ -1639,16 +1643,16 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), customizeInfo->CharGUID.ToString().c_str(), customizeInfo->CharName.c_str());
 }
 
-void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& packet)
+void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& saveEquipmentSet)
 {
-    if (packet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
+    if (saveEquipmentSet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
         return;
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        if (!(packet.Set.IgnoreMask & (1 << i)))
+        if (!(saveEquipmentSet.Set.IgnoreMask & (1 << i)))
         {
-            ObjectGuid const& itemGuid = packet.Set.Pieces[i];
+            ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
 
             Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
@@ -1661,37 +1665,37 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
                 return;
         }
         else
-            packet.Set.Pieces[i].Clear();
+            saveEquipmentSet.Set.Pieces[i].Clear();
     }
 
-    packet.Set.IgnoreMask &= 0x7FFFF; /// clear invalid bits (i > EQUIPMENT_SLOT_END)
+    saveEquipmentSet.Set.IgnoreMask &= 0x7FFFF; /// clear invalid bits (i > EQUIPMENT_SLOT_END)
 
-    _player->SetEquipmentSet(std::move(packet.Set));
+    _player->SetEquipmentSet(std::move(saveEquipmentSet.Set));
 }
 
-void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet)
+void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& deleteEquipmentSet)
 {
-    _player->DeleteEquipmentSet(packet.ID);
+    _player->DeleteEquipmentSet(deleteEquipmentSet.ID);
 }
 
-void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& packet)
+void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmentSet& useEquipmentSet)
 {
     ObjectGuid ignoredItemGuid;
     ignoredItemGuid.SetRawValue(0, 1);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        TC_LOG_DEBUG("entities.player.items", "%s: ContainerSlot: %u, Slot: %u", packet.Items[i].Item.ToString().c_str(), packet.Items[i].ContainerSlot, packet.Items[i].Slot);
+        TC_LOG_DEBUG("entities.player.items", "%s: ContainerSlot: %u, Slot: %u", useEquipmentSet.Items[i].Item.ToString().c_str(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (packet.Items[i].Item == ignoredItemGuid)
+        if (useEquipmentSet.Items[i].Item == ignoredItemGuid)
             continue;
 
         // Only equip weapons in combat
         if (_player->IsInCombat() && i != EQUIPMENT_SLOT_MAINHAND && i != EQUIPMENT_SLOT_OFFHAND && i != EQUIPMENT_SLOT_RANGED)
             continue;
 
-        Item* item = _player->GetItemByGuid(packet.Items[i].Item);
+        Item* item = _player->GetItemByGuid(useEquipmentSet.Items[i].Item);
 
         uint16 dstPos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
@@ -1812,7 +1816,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         return;
     }
 
-    ResponseCodes res = ObjectMgr::CheckPlayerName(factionChangeInfo->Name, true);
+    ResponseCodes res = ObjectMgr::CheckPlayerName(factionChangeInfo->Name, GetSessionDbcLocale(), true);
     if (res != CHAR_NAME_SUCCESS)
     {
         SendCharFactionChange(res, factionChangeInfo);
@@ -2057,8 +2061,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
                 stmt->setUInt64(0, lowGuid);
 
-                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-                    if (Guild* guild = sGuildMgr->GetGuildById(result->Fetch()[0].GetUInt64()))
+                if (PreparedQueryResult memberResult = CharacterDatabase.Query(stmt))
+                    if (Guild* guild = sGuildMgr->GetGuildById(memberResult->Fetch()[0].GetUInt64()))
                         guild->DeleteMember(factionChangeInfo->Guid, false, false, true);
 
                 Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
@@ -2213,9 +2217,9 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                 stmt->setUInt32(0, oldReputation);
                 stmt->setUInt64(1, lowGuid);
 
-                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+                if (PreparedQueryResult reputationResult = CharacterDatabase.Query(stmt))
                 {
-                    Field* fields = result->Fetch();
+                    fields = reputationResult->Fetch();
                     int32 oldDBRep = fields[0].GetInt32();
                     FactionEntry const* factionEntry = sFactionStore.LookupEntry(oldReputation);
 
@@ -2335,7 +2339,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = GetRandomCharacterName(packet.Race, packet.Sex);
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale());
 
     SendPacket(result.Write());
 }
@@ -2356,7 +2360,7 @@ void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderChara
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void WorldSession::HandleOpeningCinematic(WorldPacket& /*recvData*/)
+void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)
 {
     // Only players that has not yet gained any experience can use this
     if (_player->GetUInt32Value(PLAYER_XP))
@@ -2574,25 +2578,18 @@ void WorldSession::SendCharRename(ResponseCodes result, WorldPackets::Character:
 
 void WorldSession::SendCharCustomize(ResponseCodes result, WorldPackets::Character::CharCustomizeInfo const* customizeInfo)
 {
-    /// @todo: fix 6.x implementation
-    (void)result;
-    (void)customizeInfo;
-    /*
-    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1 + 8 + customizeInfo.NewName.size() + 1 + 6);
-    data << uint8(result);
     if (result == RESPONSE_SUCCESS)
     {
-        data << customizeInfo.Guid;
-        data << customizeInfo.NewName;
-        data << uint8(customizeInfo.Gender);
-        data << uint8(customizeInfo.Skin);
-        data << uint8(customizeInfo.Face);
-        data << uint8(customizeInfo.HairStyle);
-        data << uint8(customizeInfo.HairColor);
-        data << uint8(customizeInfo.FacialHair);
+        WorldPackets::Character::CharCustomizeResponse response(customizeInfo);
+        SendPacket(response.Write());
     }
-    SendPacket(&data);
-    */
+    else
+    {
+        WorldPackets::Character::CharCustomizeFailed failed;
+        failed.Result = uint8(result);
+        failed.CharGUID = customizeInfo->CharGUID;
+        SendPacket(failed.Write());
+    }
 }
 
 void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Character::CharRaceOrFactionChangeInfo const* factionChangeInfo)

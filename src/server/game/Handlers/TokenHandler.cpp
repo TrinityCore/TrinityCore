@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "TokenPackets.h"
 #include "WorldSession.h"
 
@@ -32,7 +31,7 @@ void WorldSession::HandleUpdateListedAuctionableTokens(WorldPackets::Token::Upda
 
 void WorldSession::HandleRequestWowTokenMarketPrice(WorldPackets::Token::RequestWowTokenMarketPrice& requestWowTokenMarketPrice)
 {
-    WorldPackets::Token::RequestWowTokenMarketPriceResponse response;
+    WorldPackets::Token::WowTokenMarketPriceResponse response;
 
     /// @todo: 6.x fix implementation
     response.CurrentMarketPrice = 300000000;

@@ -87,11 +87,11 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 resetcheck_timer = 5000;
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void DoAction(int32 action) override
             {
-                if (type == 1)
+                if (action == ACTION_EXECUTIONER_TAUNT)
                 {
-                    switch (data)
+                    switch (instance->GetData(DATA_TEAM_IN_INSTANCE))
                     {
                         case ALLIANCE:
                             Talk(SAY_CALL_EXECUTIONER_A);
@@ -127,18 +127,18 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustSummoned(Creature* summoned) override
+            void JustSummoned(Creature* summon) override
             {
-                switch (summoned->GetEntry())
+                switch (summon->GetEntry())
                 {
                     case NPC_HEARTHEN_GUARD:
                     case NPC_SHARPSHOOTER_GUARD:
                     case NPC_REAVER_GUARD:
-                        summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
-                        adds.push_back(summoned->GetGUID());
+                        summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                        adds.push_back(summon->GetGUID());
                         break;
                     case NPC_SHATTERED_ASSASSIN:
-                        assassins.push_back(summoned->GetGUID());
+                        assassins.push_back(summon->GetGUID());
                         break;
                 }
             }

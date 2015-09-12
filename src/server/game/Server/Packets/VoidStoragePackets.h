@@ -90,10 +90,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::array<ObjectGuid, VOID_STORAGE_MAX_WITHDRAW> Withdrawals;
-            uint32 WithdrawalsCount = 0;
-            std::array<ObjectGuid, VOID_STORAGE_MAX_DEPOSIT> Deposits;
-            uint32 DepositsCount = 0;
+            Array<ObjectGuid, VOID_STORAGE_MAX_WITHDRAW> Withdrawals;
+            Array<ObjectGuid, VOID_STORAGE_MAX_DEPOSIT> Deposits;
             ObjectGuid Npc;
         };
 

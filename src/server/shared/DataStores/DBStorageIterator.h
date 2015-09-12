@@ -30,9 +30,8 @@ public:
     {
         if (_pos < _end)
         {
-            do
+            while (_pos < _end && !_index[_pos])
                 ++_pos;
-            while (_pos < _end && !_index[_pos]);
         }
     }
 

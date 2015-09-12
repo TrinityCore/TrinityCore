@@ -26,7 +26,7 @@ void WorldSession::HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEve
 
 void WorldSession::HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete)
 {
-    
+
     TC_LOG_DEBUG("scenes", "HandleScenePlaybackComplete: SceneInstanceID: %u", scenePlaybackComplete.SceneInstanceID);
 }
 

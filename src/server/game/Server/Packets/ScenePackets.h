@@ -31,7 +31,7 @@ namespace WorldPackets
             PlayScene() : ServerPacket(SMSG_PLAY_SCENE, 34) { }
 
             WorldPacket const* Write() override;
-            
+
             int32 SceneID = 0;
             int32 PlaybackFlags = 0;
             int32 SceneInstanceID = 0;
@@ -39,7 +39,7 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             Position Location;
         };
-        
+
         class SceneTriggerEvent final : public ClientPacket
         {
         public:
@@ -50,7 +50,7 @@ namespace WorldPackets
             uint32 SceneInstanceID = 0;
             std::string _Event;
         };
-        
+
         class ScenePlaybackComplete final : public ClientPacket
         {
         public:
@@ -60,7 +60,7 @@ namespace WorldPackets
 
             uint32 SceneInstanceID = 0;
         };
-        
+
         class ScenePlaybackCanceled final : public ClientPacket
         {
         public:

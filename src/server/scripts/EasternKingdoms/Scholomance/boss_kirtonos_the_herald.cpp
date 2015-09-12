@@ -176,7 +176,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 break;
                             case INTRO_5:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                                me->SetVirtualItem(0, uint32(WEAPON_KIRTONOS_STAFF));
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 events.ScheduleEvent(INTRO_6, 5000);
@@ -231,13 +231,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                             if (me->HasAura(SPELL_KIRTONOS_TRANSFORM))
                             {
                                 me->RemoveAura(SPELL_KIRTONOS_TRANSFORM);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
+                                me->SetVirtualItem(0, uint32(0));
                                 me->SetCanFly(false);
                             }
                             else
                             {
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                                me->SetVirtualItem(0, uint32(WEAPON_KIRTONOS_STAFF));
                                 me->SetCanFly(true);
                             }
                             events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(16000, 18000));
