@@ -1312,7 +1312,6 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 }
                 else
                 {
-                    // author: kvipka
                     // recalculate, we need it if want can blink in different situations
                     uint32 mapid = m_caster->GetMapId();
                     float tstX, tstY, tstZ, prevX, prevY, prevZ, beforewaterz, travelDistZ, newdistance, totalpath;
