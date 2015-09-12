@@ -282,8 +282,6 @@ void FlightPathMovementGenerator::LoadPath(Player* player)
             bool passedPreviousSegmentProximityCheck = false;
             for (uint32 i = 0; i < nodes.size(); ++i)
             {
-                sMapMgr->CreateMap(nodes[i]->MapID, player)->SummonCreature(1, { nodes[i]->LocX, nodes[i]->LocY, nodes[i]->LocZ, 0.0f })->SetLevel(i ? i : 1);
-
                 if (passedPreviousSegmentProximityCheck || !src || i_path.empty() || IsNodeIncludedInShortenedPath(i_path[i_path.size() - 1], nodes[i]))
                 {
                     if ((!src || (IsNodeIncludedInShortenedPath(start, nodes[i]) && i >= 2)) &&
