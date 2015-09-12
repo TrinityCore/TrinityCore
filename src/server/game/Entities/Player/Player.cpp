@@ -88,7 +88,6 @@
 #include "SpellPackets.h"
 #include "TalentPackets.h"
 #include "TaxiPackets.h"
-#include "TaxiPathGraph.h"
 #include "ToyPackets.h"
 #include "TradePackets.h"
 #include "Transport.h"
@@ -20897,19 +20896,15 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // fill destinations path tail
     uint32 sourcepath = 0;
     uint32 totalcost = 0;
-
-    std::vector<uint32> fullpath;
-    if (!TaxiPathGraph::GetCompleteNodeRoute(nodes[0], nodes[1], fullpath))
-        return false;
     
     uint32 prevnode = sourcenode;
     uint32 lastnode = 0;
 
-    for (uint32 i = 1; i < fullpath.size(); ++i)
+    for (uint32 i = 1; i < nodes.size(); ++i)
     {
         uint32 path, cost;
 
-        lastnode = fullpath[i];
+        lastnode = nodes[i];
         sObjectMgr->GetTaxiPath(prevnode, lastnode, path, cost);
 
         if (!path)

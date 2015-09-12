@@ -132,7 +132,6 @@ size_t TaxiPathGraph::GetCompleteNodeRoute(uint32_t sourceNodeID, uint32_t desti
 
         vertex start = _getVertexIDFromNodeID(sourceNodeID);
         vertex goal = _getVertexIDFromNodeID(destinationNodeID);
-        //WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
 
         try
         {

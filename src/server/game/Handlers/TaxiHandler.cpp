@@ -26,7 +26,7 @@
 #include "Player.h"
 #include "Path.h"
 #include "TaxiPackets.h"
-#include "WaypointMovementGenerator.h"
+#include "TaxiPathGraph.h"
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& packet)
 {
@@ -180,7 +180,8 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& pa
         }
     }
     
-    std::vector<uint32> nodes = { curloc, packet.Node };
+    std::vector<uint32> nodes;
+    TaxiPathGraph::GetCompleteNodeRoute(curloc, packet.Node, nodes);
     GetPlayer()->ActivateTaxiPathTo(nodes, unit);
 }
 

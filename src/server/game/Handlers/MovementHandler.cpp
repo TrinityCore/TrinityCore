@@ -544,6 +544,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSpline
     TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
     // far teleport case
+    /* THIS CODE IS WRONG, BECAUSE WHEN YOU FLY FOR EX, FROM IRONFORGE TO Shattered Sun Staging Area, IN RETAIL YOU ARE *NOT* TELEPORTED, YOU TRAVEL THE WHOLE DISTANCE IN TAXI */
     if (curDestNode && curDestNode->MapID != GetPlayer()->GetMapId())
     {
         if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
