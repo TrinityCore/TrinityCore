@@ -57,7 +57,7 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
 
     if (!curloc)
         data.Status = TAXISTATUS_NONE;
-    else if (unit->IsFriendlyTo(GetPlayer()))
+    else if (unit->GetReactionTo(GetPlayer()) >= REP_NEUTRAL)
         data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
     else
         data.Status = TAXISTATUS_NOT_ELIGIBLE;
