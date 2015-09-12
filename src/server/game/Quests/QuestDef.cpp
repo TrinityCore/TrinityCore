@@ -102,6 +102,9 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i] = questRecord[100+i].GetString();
 
+    EmoteOnIncomplete = 0;
+    EmoteOnComplete = 0;
+
     //int32 VerifiedBuild = questRecord[104].GetInt32();
 
     _reqItemsCount = 0;
