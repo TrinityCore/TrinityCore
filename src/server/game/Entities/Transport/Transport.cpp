@@ -20,7 +20,6 @@
 #include "Transport.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "Path.h"
 #include "ScriptMgr.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
