@@ -1795,21 +1795,13 @@ public:
         PreparedQueryResult result6 = CharacterDatabase.Query(stmt4);
         if (result6)
         {
-            // Define the variables, so the compiler knows they exist
-            uint32 rmailint = 0;
-
-            // Fetch the fields - readmail is a SUM(x) and given out as char! Thus...
-            // ... while totalmail is a COUNT(x), which is given out as INt64, which we just convert on fetch...
             Field* fields         = result6->Fetch();
-            std::string readmail  = fields[0].GetString();
+            uint32 readmail       = uint32(fields[0].GetDouble());
             uint32 totalmail      = uint32(fields[1].GetUInt64());
-
-            // ... we have to convert it from Char to int. We can use totalmail as it is
-            rmailint = atoul(readmail.c_str());
 
             // Output XXI. LANG_INFO_CHR_MAILS if at least one mail is given
             if (totalmail >= 1)
-               handler->PSendSysMessage(LANG_PINFO_CHR_MAILS, rmailint, totalmail);
+               handler->PSendSysMessage(LANG_PINFO_CHR_MAILS, readmail, totalmail);
         }
 
         return true;
