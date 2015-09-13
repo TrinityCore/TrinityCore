@@ -33,6 +33,9 @@
 #include <string>
 #include <vector>
 
+// [AZTH] includes
+#include "AzthPlayer.h"
+
 struct CreatureTemplate;
 struct Mail;
 struct TrainerSpell;
@@ -1094,6 +1097,9 @@ class Player : public Unit, public GridObject<Player>
     public:
         explicit Player(WorldSession* session);
         ~Player();
+        
+        // [AZTH] Custom variables
+        AzthPlayer *azthPlayer; 
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 

@@ -22,9 +22,17 @@ set(sources_windows_Debugging
   ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
   ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
 )
+
+# [AZTH]
+include(${CMAKE_SOURCE_DIR}/azth/src/CMakeLists.txt)
+
 add_subdirectory(database)
 add_subdirectory(shared)
 add_subdirectory(game)
 add_subdirectory(authserver)
 add_subdirectory(scripts)
 add_subdirectory(worldserver)
+
+# [AZTH]
+LOAD_AZTH_MODS()
+

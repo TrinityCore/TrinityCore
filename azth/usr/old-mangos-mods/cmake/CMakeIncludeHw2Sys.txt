@@ -1,0 +1,8 @@
+include(${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt)
+
+HEADER_DIRECTORIES(HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR}/../)
+
+#message("HW2 DIRECTORIES:")
+#message(" - ${HEADER_DIRS}")
+
+include_directories(${HEADER_DIRS})

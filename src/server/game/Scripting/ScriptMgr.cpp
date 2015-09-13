@@ -34,6 +34,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+//[AZTH]
+#include "ModsMgr.h"
+
 // namespace
 // {
     UnusedScriptContainer UnusedScripts;
@@ -198,6 +201,8 @@ void ScriptMgr::Initialize()
 
     FillSpellSummary();
     AddScripts();
+
+    sModsMgr->Initialization();
 
 #ifdef SCRIPTS
     for (std::string const& scriptName : UnusedScriptNames)
