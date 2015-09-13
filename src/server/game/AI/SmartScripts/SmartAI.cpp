@@ -453,45 +453,15 @@ void SmartAI::MoveInLineOfSight(Unit* who)
 
     GetScript()->OnMoveInLineOfSight(who);
 
-    if (me->HasReactState(REACT_PASSIVE) || AssistPlayerInCombat(who))
+    if (AssistPlayerInCombat(who))
         return;
 
-    if (!CanAIAttack(who))
-        return;
-
-    if (!me->CanStartAttack(who, false))
-        return;
-
-    if (me->IsHostileTo(who))
-    {
-        float fAttackRadius = me->GetAttackDistance(who);
-        if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
-        {
-            if (!me->GetVictim())
-            {
-                // Clear distracted state on combat
-                if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-                {
-                   me->ClearUnitState(UNIT_STATE_DISTRACTED);
-                   me->GetMotionMaster()->Clear();
-                }
-
-                AttackStart(who);
-            }
-            else/* if (me->GetMap()->IsDungeon())*/
-            {
-                who->SetInCombatWith(me);
-                me->AddThreat(who, 0.0f);
-            }
-        }
-    }
+    CreatureAI::MoveInLineOfSight(who);
 }
 
 bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 {
-    if (me->GetReactState() == REACT_PASSIVE)
-        return false;
-    return true;
+    return !(me->HasReactState(REACT_PASSIVE));
 }
 
 bool SmartAI::AssistPlayerInCombat(Unit* who)
