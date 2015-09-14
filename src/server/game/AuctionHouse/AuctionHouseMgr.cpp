@@ -63,6 +63,9 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
 {
+	if (sWorld->getRate(RATE_AUCTION_DEPOSIT) == 0)
+		return 0;
+
     uint32 MSV = pItem->GetTemplate()->SellPrice;
 
     if (MSV <= 0)
