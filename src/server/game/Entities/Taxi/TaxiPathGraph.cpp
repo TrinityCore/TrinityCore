@@ -136,7 +136,7 @@ size_t TaxiPathGraph::GetCompleteNodeRoute(uint32_t sourceNodeID, uint32_t desti
         try
         {
             auto wow_custom_weight_map = boost::make_transform_value_property_map(
-                [](float w) { return w>MaxFlightDistanceThreshold ? std::numeric_limits<cost>::infinity() : w; },
+                [](float w) { return w>MaxFlightDistanceThreshold ? w*1000 : w; },
                 boost::get(boost::edge_weight, m_graph)
             );
             boost::astar_search(m_graph, start,
