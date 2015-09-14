@@ -29,7 +29,7 @@ enum BattlePetMisc
     DEFAULT_SUMMON_BATTLE_PET_SPELL = 118301
 };
 
-// TODO: fix values in this enum
+// TODO: fix undefined values in this enum
 enum BattlePetError
 {
     BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE = 9,
@@ -67,7 +67,9 @@ enum BattlePetState
     STATE_COSMETIC_TREASURE_GOBLIN  = 176,
     // these are not in BattlePetState.db2 but are used in BattlePetSpeciesState.db2
     STATE_START_WITH_BUFF           = 183,
-    STATE_START_WITH_BUFF_2         = 184
+    STATE_START_WITH_BUFF_2         = 184,
+    //
+    STATE_COSMETIC_SPECTRAL_BLUE    = 196
 };
 
 enum BattlePetSaveInfo
