@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "SpellPackets.h"
+#include "CollectionMgr.h"
 
 namespace WorldPackets
 {

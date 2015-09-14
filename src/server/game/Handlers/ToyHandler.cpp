@@ -41,7 +41,7 @@ void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)
         return;
     }
 
-    if (_player->AddToy(item->GetEntry(), false))
+    if (_collectionMgr->AddToy(item->GetEntry(), false))
         _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
@@ -74,9 +74,5 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
 
 void WorldSession::HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet)
 {
-    ToyBoxContainer::iterator itr = _toys.find(packet.ItemID);
-    if (itr == _toys.end())
-        return;
-
-    itr->second = packet.Favorite;
+    _collectionMgr->ToySetFavorite(packet.ItemID, packet.Favorite);
 }

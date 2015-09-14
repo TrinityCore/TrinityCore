@@ -17233,7 +17233,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
-    _LoadToys(GetSession()->GetAccountToys());
+    GetSession()->GetCollectionMgr()->LoadToys();
 
     LearnSpecializationSpells();
 
@@ -18374,23 +18374,6 @@ void Player::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Player::_LoadToys(ToyBoxContainer const& toys)
-{
-    for (auto const& t : toys)
-        AddDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, t.first);
-}
-
-bool Player::AddToy(uint32 itemId, bool isFavourite /*= false*/)
-{
-    if (GetSession()->UpdateAccountToys(itemId, isFavourite))
-    {
-        AddDynamicValue(PLAYER_DYNAMIC_FIELD_TOYS, itemId);
-        return true;
-    }
-
-    return false;
-}
-
 void Player::_LoadGroup(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
@@ -19193,7 +19176,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
     // TODO: Move this out
     trans = LoginDatabase.BeginTransaction();
-    GetSession()->SaveAccountToys(trans);
+    GetSession()->GetCollectionMgr()->SaveAccountToys(trans);
     GetSession()->GetBattlePetMgr()->SaveToDB(trans);
     LoginDatabase.CommitTransaction(trans);
 
@@ -22645,7 +22628,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_ACCOUNT_TOYS_UPDATE
     WorldPackets::Toy::AccountToysUpdate toysUpdate;
     toysUpdate.IsFullUpdate = true;
-    toysUpdate.Toys = &GetSession()->GetAccountToys();
+    toysUpdate.Toys = &GetSession()->GetCollectionMgr()->GetAccountToys();
     SendDirectMessage(toysUpdate.Write());
 
     WorldPackets::Character::InitialSetup initialSetup;
