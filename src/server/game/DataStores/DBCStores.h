@@ -206,6 +206,7 @@ extern TalentsByPosition                            sTalentByPos;
 extern DBCStorage<VehicleEntry>                     sVehicleStore;
 extern DBCStorage<VehicleSeatEntry>                 sVehicleSeatStore;
 extern DBCStorage<WMOAreaTableEntry>                sWMOAreaTableStore;
+extern DBCStorage<WorldMapTransformsEntry>          sWorldMapTransformsStore;
 extern DBCStorage<WorldSafeLocsEntry>               sWorldSafeLocsStore;
 
 extern GameTable<GtBarberShopCostBaseEntry>         sGtBarberShopCostBaseStore;

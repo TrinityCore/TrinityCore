@@ -1,6 +1,7 @@
 #include "TaxiPathGraph.h"
 #include <utility>
 #include "Util.h"
+#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "Config.h"
 #include <boost/property_map/transform_value_property_map.hpp>
@@ -16,41 +17,79 @@ TaxiPathGraph::TaxiPathGraph() { }
 
 TaxiPathGraph::~TaxiPathGraph() { }
 
+void DeterminaAlternateMapPosition(TaxiPathGraph::TaxiNodeInfo& info)
+{
+    WorldMapTransformsEntry const* transformation = nullptr;
+    for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
+    {
+        if (transform->MapID != info.mapId)
+            continue;
+
+        if (transform->RegionMin.X > info.pos.x || transform->RegionMax.X < info.pos.x)
+            continue;
+        if (transform->RegionMin.Y > info.pos.y || transform->RegionMax.Y < info.pos.y)
+            continue;
+        if (transform->RegionMin.Z > info.pos.z || transform->RegionMax.Z < info.pos.z)
+            continue;
+
+        transformation = transform;
+    }
+
+    if (!transformation)
+        return;
+
+    if (transformation->RegionScale > 0.0f && transformation->RegionScale < 1.0f)
+    {
+        info.pos.x = (info.pos.x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
+        info.pos.y = (info.pos.y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
+    }
+
+    info.pos.x += transformation->RegionOffset.X;
+    info.pos.y += transformation->RegionOffset.Y;
+}
+
 void TaxiPathGraph::Initialize()
 {
     if (_getVertexCount() > 0)
         return;
-    
+
     m_edgeDuplicateControl.clear();
     std::vector<std::pair<edge, cost>> edges;
-    
+
     std::set<uint32> returnableNodeIDs; // Used to omit special nodes which you can't return from
-    
+
     for (TaxiPathEntry const* nodeInfo : sTaxiPathStore)
         if (nodeInfo->From != nodeInfo->To)
             returnableNodeIDs.insert(nodeInfo->From);
-    
+
     // Initialize here
     for (TaxiPathEntry const* nodeInfo : sTaxiPathStore)
     {
         TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(nodeInfo->From);
         TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(nodeInfo->To);
-        if (from && to && 
+        if (from && to &&
             returnableNodeIDs.find(nodeInfo->From) != returnableNodeIDs.end() && returnableNodeIDs.find(nodeInfo->To) != returnableNodeIDs.end())
         {
-            _addVerticeAndEdgeFromNodeInfo(TaxiNodeInfo(from->ID, from->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], from->Pos.X, from->Pos.Y, from->Pos.Z),
-                                        TaxiNodeInfo(to->ID, to->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], to->Pos.X, to->Pos.Y, to->Pos.Z), nodeInfo->Cost, edges);
+            TaxiNodeInfo fromInfo(from->ID, from->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], from->MapID, from->Pos.X, from->Pos.Y, from->Pos.Z);
+            TaxiNodeInfo toInfo(to->ID, to->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], to->MapID, to->Pos.X, to->Pos.Y, to->Pos.Z);
+
+            DeterminaAlternateMapPosition(fromInfo);
+            DeterminaAlternateMapPosition(toInfo);
+
+            _addVerticeAndEdgeFromNodeInfo(fromInfo, toInfo, nodeInfo->Cost, edges);
         }
     }
 
     returnableNodeIDs.clear();
     // create graph
     m_graph = Graph(_getVertexCount());
-    WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
+    WeightMap& weightmap = boost::get(boost::edge_weight, m_graph);
     /*IndexMap indexmap = boost::get(boost::vertex_index, m_graph);*/
-    
-    for(std::size_t j = 0; j < edges.size(); ++j) {
-        edge_descriptor e; bool inserted;
+
+    for(std::size_t j = 0; j < edges.size(); ++j)
+    {
+        edge_descriptor e;
+        bool inserted;
         boost::tie(e, inserted) = boost::add_edge(edges[j].first.first,
                                                   edges[j].first.second,
                                                   m_graph);
@@ -63,7 +102,7 @@ uint32 TaxiPathGraph::_getNodeIDFromVertexID(vertex vertexID)
 {
     if (vertexID < m_vertices.size())
         return m_vertices[vertexID].nodeID;
-    
+
     return std::numeric_limits<uint32>::max();
 }
 
@@ -71,7 +110,7 @@ TaxiPathGraph::vertex TaxiPathGraph::_getVertexIDFromNodeID(uint32_t nodeID)
 {
     if (m_nodeIDToVertexID.find(nodeID) != m_nodeIDToVertexID.end())
         return m_nodeIDToVertexID[nodeID];
-    
+
     return std::numeric_limits<vertex>::max();
 }
 
@@ -79,7 +118,7 @@ TaxiPathGraph::vertex TaxiPathGraph::_getVertexIDFromNodeID(TaxiNodeInfo const& 
 {
     if (m_nodeIDToVertexID.find(nodeInfo.nodeID) != m_nodeIDToVertexID.end())
         return m_nodeIDToVertexID[nodeInfo.nodeID];
-    
+
     return std::numeric_limits<vertex>::max();
 }
 
@@ -95,7 +134,7 @@ void TaxiPathGraph::_addVerticeAndEdgeFromNodeInfo(const TaxiNodeInfo& from, con
     {
         vertex fromVertexID = _createVertexFromFromNodeInfoIfNeeded(from);
         vertex toVertexID = _createVertexFromFromNodeInfoIfNeeded(to);
-        
+
         edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), from.pos.Distance(to.pos)));
         m_edgeDuplicateControl.insert(edge(from.nodeID, to.nodeID));
     }
@@ -116,13 +155,13 @@ size_t TaxiPathGraph::GetCompleteNodeRoute(uint32_t sourceNodeID, uint32_t desti
     */
     bool hasDirectPath = false;
     shortestPath.clear();
-    
+
     // Find if we have a direct path from sourceNodeID to destinationNodeID in graph
-    typename boost::graph_traits<Graph>::out_edge_iterator ei, ei_end;
+    boost::graph_traits<Graph>::out_edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = boost::out_edges(_getVertexIDFromNodeID(sourceNodeID), m_graph); ei != ei_end && !hasDirectPath; ++ei)
         if (boost::target(*ei, m_graph) == _getVertexIDFromNodeID(destinationNodeID))
             hasDirectPath = true;
-    
+
     if (hasDirectPath)
         shortestPath = { sourceNodeID, destinationNodeID };
     else

@@ -156,6 +156,7 @@ DBCStorage<VehicleSeatEntry>                sVehicleSeatStore(VehicleSeatfmt);
 DBCStorage<WMOAreaTableEntry>               sWMOAreaTableStore(WMOAreaTablefmt);
 static WMOAreaInfoByTripple                 sWMOAreaInfoByTripple;
 DBCStorage<WorldMapAreaEntry>               sWorldMapAreaStore(WorldMapAreafmt);
+DBCStorage<WorldMapTransformsEntry>         sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage<WorldSafeLocsEntry>              sWorldSafeLocsStore(WorldSafeLocsfmt);
 
 GameTable<GtBarberShopCostBaseEntry>        sGtBarberShopCostBaseStore(GtBarberShopCostBasefmt);
@@ -376,6 +377,7 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     LOAD_DBC(sVehicleStore, "Vehicle.dbc");//20444
     LOAD_DBC(sWMOAreaTableStore, "WMOAreaTable.dbc");//20444
     LOAD_DBC(sWorldMapAreaStore, "WorldMapArea.dbc");//20444
+    LOAD_DBC(sWorldMapTransformsStore, "WorldMapTransforms.dbc");//20444
     LOAD_DBC(sWorldSafeLocsStore, "WorldSafeLocs.dbc"); // 20444
 
 #undef LOAD_DBC
