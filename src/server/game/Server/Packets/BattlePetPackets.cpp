@@ -21,8 +21,8 @@
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& slot)
 {
     data << (slot.Pet.Guid.IsEmpty() ? ObjectGuid::Create<HighGuid::BattlePet>(0) : slot.Pet.Guid);
-    data << slot.CollarID;
-    data << slot.Index;
+    data << uint32(slot.CollarID);
+    data << uint8(slot.Index);
     data.WriteBit(slot.Locked);
     data.FlushBits();
 
@@ -32,18 +32,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& pet)
 {
     data << pet.Guid;
-    data << pet.Species;
-    data << pet.CreatureID;
-    data << pet.CollarID;
-    data << pet.Breed;
-    data << pet.Level;
-    data << pet.Exp;
-    data << pet.Flags;
-    data << pet.Power;
-    data << pet.Health;
-    data << pet.MaxHealth;
-    data << pet.Speed;
-    data << pet.Quality;
+    data << uint32(pet.Species);
+    data << uint32(pet.CreatureID);
+    data << uint32(pet.CollarID);
+    data << uint16(pet.Breed);
+    data << uint16(pet.Level);
+    data << uint16(pet.Exp);
+    data << uint16(pet.Flags);
+    data << uint32(pet.Power);
+    data << uint32(pet.Health);
+    data << uint32(pet.MaxHealth);
+    data << uint32(pet.Speed);
+    data << uint8(pet.Quality);
     data.WriteBits(pet.Name.size(), 7);
     data.WriteBit(!pet.Owner.IsEmpty()); // HasOwnerInfo
     data.WriteBit(pet.Name.empty()); // NoRename
@@ -52,8 +52,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     if (!pet.Owner.IsEmpty())
     {
         data << pet.Owner;
-        data << GetVirtualRealmAddress(); // Virtual
-        data << GetVirtualRealmAddress(); // Native
+        data << uint32(GetVirtualRealmAddress()); // Virtual
+        data << uint32(GetVirtualRealmAddress()); // Native
     }
 
     data.WriteString(pet.Name);
@@ -63,9 +63,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
 
 WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
 {
-    _worldPacket << Trap;
-    _worldPacket << Slots.size();
-    _worldPacket << Pets.size();
+    _worldPacket << uint16(Trap);
+    _worldPacket << uint32(Slots.size());
+    _worldPacket << uint32(Pets.size());
 
     for (auto const& slot : Slots)
         _worldPacket << slot;
@@ -73,7 +73,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     for (auto const& pet : Pets)
         _worldPacket << pet;
 
-    _worldPacket.WriteBit(1); // HasJournalLock
+    _worldPacket.WriteBit(HasJournalLock);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -160,7 +160,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetError::Write()
 {
     _worldPacket.WriteBits(Result, 4);
     _worldPacket.FlushBits();
-    _worldPacket << CreatureID;
+    _worldPacket << uint32(CreatureID);
 
     return &_worldPacket;
 }
