@@ -43,6 +43,7 @@ enum Spells
     SPELL_BERSERK           = 26662,
     SPELL_DIES              = 29357,
     SPELL_CHILL             = 28547,
+    SPELL_CHECK_RESISTS     = 60539,
 };
 
 enum Phases
@@ -67,7 +68,8 @@ enum Events
     EVENT_EXPLOSION,
     EVENT_LAND,
     EVENT_GROUND,
-    EVENT_BIRTH
+    EVENT_BIRTH,
+    EVENT_CHECK_RESISTS
 };
 
 enum Misc
@@ -90,10 +92,9 @@ class boss_sapphiron : public CreatureScript
         struct boss_sapphironAI : public BossAI
         {
             boss_sapphironAI(Creature* creature) :
-                BossAI(creature, BOSS_SAPPHIRON), _map(me->GetMap())
+                BossAI(creature, BOSS_SAPPHIRON), _iceboltCount(0), _map(me->GetMap())
             {
                 Initialize();
-                _iceboltCount = 0;
             }
 
             void Initialize()
@@ -101,7 +102,6 @@ class boss_sapphiron : public CreatureScript
                 _phase = PHASE_NULL;
 
                 _canTheHundredClub = true;
-                _checkFrostResistTimer = 5 * IN_MILLISECONDS;
             }
 
             void InitializeAI() override
@@ -123,7 +123,16 @@ class boss_sapphiron : public CreatureScript
                 _Reset();
 
                 if (_phase == PHASE_FLIGHT)
+                {
                     ClearIceBlock();
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    if (me->IsHovering())
+                    {
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
+                        me->SetHover(false);
+                    }
+                    me->SetDisableGravity(false);
+                }
 
                 Initialize();
             }
@@ -134,22 +143,30 @@ class boss_sapphiron : public CreatureScript
 
                 me->CastSpell(me, SPELL_FROST_AURA, true);
 
+                DoCast(me, SPELL_CHECK_RESISTS);
+                events.ScheduleEvent(EVENT_CHECK_RESISTS, 30 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BERSERK, 15 * MINUTE * IN_MILLISECONDS);
                 EnterPhaseGround();
-
-                CheckPlayersFrostResist();
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_ICEBOLT)
+                switch(spell->Id)
                 {
-                    IceBlockMap::iterator itr = _iceblocks.find(target->GetGUID());
-                    if (itr != _iceblocks.end() && !itr->second)
+                    case SPELL_ICEBOLT:
                     {
-                        if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25))
-                            itr->second = iceblock->GetGUID();
+                        IceBlockMap::iterator itr = _iceblocks.find(target->GetGUID());
+                        if (itr != _iceblocks.end() && !itr->second)
+                        {
+                            if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25))
+                                itr->second = iceblock->GetGUID();
+                        }
+                        break;
                     }
+                    case SPELL_CHECK_RESISTS:
+                        if (target && target->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
+                            _canTheHundredClub = false;
+                        break;
                 }
             }
 
@@ -157,8 +174,6 @@ class boss_sapphiron : public CreatureScript
             {
                 _JustDied();
                 me->CastSpell(me, SPELL_DIES, true);
-
-                CheckPlayersFrostResist();
             }
 
             void MovementInform(uint32 /*type*/, uint32 id) override
@@ -173,22 +188,6 @@ class boss_sapphiron : public CreatureScript
                 {
                     _phase = PHASE_BIRTH;
                     events.ScheduleEvent(EVENT_BIRTH, 23 * IN_MILLISECONDS);
-                }
-            }
-
-            void CheckPlayersFrostResist()
-            {
-                if (_canTheHundredClub && _map && _map->IsRaid())
-                {
-                    Map::PlayerList const &players = _map->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    {
-                        if (itr->GetSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
-                        {
-                            _canTheHundredClub = false;
-                            break;
-                        }
-                    }
                 }
             }
 
@@ -235,23 +234,16 @@ class boss_sapphiron : public CreatureScript
                 if ((_phase != PHASE_BIRTH && !UpdateVictim()) || !CheckInRoom())
                     return;
 
-                if (_canTheHundredClub)
-                {
-                    if (_checkFrostResistTimer <= diff)
-                    {
-                        CheckPlayersFrostResist();
-                        _checkFrostResistTimer = 5 * IN_MILLISECONDS;
-                    }
-                    else
-                        _checkFrostResistTimer -= diff;
-                 }
-
                 if (_phase == PHASE_GROUND)
                 {
                     while (uint32 eventId = events.ExecuteEvent())
                     {
                         switch (eventId)
                         {
+                            case EVENT_CHECK_RESISTS:
+                                DoCast(me, SPELL_CHECK_RESISTS);
+                                events.ScheduleEvent(EVENT_CHECK_RESISTS, 30 * IN_MILLISECONDS);
+                                return;
                             case EVENT_BERSERK:
                                 Talk(EMOTE_ENRAGE);
                                 DoCast(me, SPELL_BERSERK);
@@ -270,7 +262,6 @@ class boss_sapphiron : public CreatureScript
                                 return;
                             case EVENT_BLIZZARD:
                             {
-                                //DoCastAOE(SPELL_SUMMON_BLIZZARD);
                                 if (Creature* summon = DoSummon(NPC_BLIZZARD, me, 0.0f, urand(25, 30) * IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
                                     summon->GetMotionMaster()->MoveRandom(40);
                                 events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20, 7) * IN_MILLISECONDS, 0, PHASE_GROUND);
@@ -300,9 +291,14 @@ class boss_sapphiron : public CreatureScript
                     {
                         switch (eventId)
                         {
+                            case EVENT_CHECK_RESISTS:
+                                DoCast(me, SPELL_CHECK_RESISTS);
+                                events.ScheduleEvent(EVENT_CHECK_RESISTS, 30 * IN_MILLISECONDS);
+                                return;
                             case EVENT_LIFTOFF:
                                 Talk(EMOTE_AIR_PHASE);
                                 me->SetDisableGravity(true);
+                                me->SetHover(true);
                                 events.ScheduleEvent(EVENT_ICEBOLT, 1500);
                                 _iceboltCount = RAID_MODE(2, 3);
                                 return;
@@ -346,6 +342,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_LAND:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                                 Talk(EMOTE_GROUND_PHASE);
+                                me->SetHover(false);
                                 me->SetDisableGravity(false);
                                 events.ScheduleEvent(EVENT_GROUND, 1500);
                                 return;
@@ -406,7 +403,6 @@ class boss_sapphiron : public CreatureScript
             uint32 _iceboltCount;
             IceBlockMap _iceblocks;
             bool _canTheHundredClub;
-            uint32 _checkFrostResistTimer;
             Map* _map;
         };
 
