@@ -35,6 +35,7 @@
 
 class BattlePetMgr;
 class Channel;
+class CollectionMgr;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -683,8 +684,6 @@ enum Tutorials
 
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
-typedef std::map<uint32, bool> ToyBoxContainer;
-
 struct AccountData
 {
     time_t Time = 0;
@@ -908,12 +907,6 @@ class WorldSession
         void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
-        // Account Toys
-        void LoadAccountToys(PreparedQueryResult result);
-        void SaveAccountToys(SQLTransaction& trans);
-        bool UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/);
-        ToyBoxContainer const& GetAccountToys() const { return _toys; }
-
         void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
@@ -1002,6 +995,8 @@ class WorldSession
 
         // Battle Pets
         BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
+
+        CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
 
     public:                                                 // opcodes handlers
 
@@ -1718,7 +1713,8 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
-        ToyBoxContainer _toys;
+
+        std::unique_ptr<CollectionMgr> _collectionMgr;
 
         std::unique_ptr<BattlePetMgr> _battlePetMgr;
 
