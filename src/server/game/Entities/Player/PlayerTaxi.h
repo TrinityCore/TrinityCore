@@ -52,6 +52,7 @@ class PlayerTaxi
             return GetTaxiDestination();
         }
         void RequestEarlyLanding();
+        std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
         bool empty() const { return m_TaxiDestinations.empty(); }
 
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
