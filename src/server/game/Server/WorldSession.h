@@ -1714,9 +1714,9 @@ class WorldSession
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
 
-        std::unique_ptr<CollectionMgr> _collectionMgr;
-
         std::unique_ptr<BattlePetMgr> _battlePetMgr;
+
+        std::unique_ptr<CollectionMgr> _collectionMgr;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
