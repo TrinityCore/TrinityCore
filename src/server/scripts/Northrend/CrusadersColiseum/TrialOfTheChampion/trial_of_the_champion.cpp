@@ -35,20 +35,82 @@ EndContentData */
 
 enum Yells
 {
-    SAY_INTRO_1         = 0,
-    SAY_INTRO_2         = 1,
-    SAY_INTRO_3         = 2,
-    SAY_AGGRO           = 3,
-    SAY_PHASE_2         = 4,
-    SAY_PHASE_3         = 5,
-    SAY_KILL_PLAYER     = 6,
-    SAY_DEATH           = 7
+    ANNOUNCER_INTRO = 0,
+    ANNOUNCER_MAGE,
+    ANNOUNCER_SHAMAN,
+    ANNOUNCER_HUNTER,
+    ANNOUNCER_WARRIOR,
+    ANNOUNCER_ROUGUE,
+    ANNOUNCER_EADRIC,
+    ANNOUNCER_PELETRESS,
+    ANNOUNCER_BLACK_KNIGHT,
+
+    TIRION_CHAMPIONS_INTRO = 50,
+    TIRION_CHAMPIONS_INTRO_1,
+    TIRION_CHAMPIONS_INTRO_2,
+    TIRION_ARGENT_INTRO,
+    TIRION_ARGENT_INTRO_1,
+    TIRION_KNIGHT_INTRO,
+    TIRION_KNIGHT_INTRO_1,
+
+    VARIAN_INTRO_A = 50,
+    VARIAN_INTRO_H,
+    VARIAN_KNIGHT_INTRO,
+    VARIAN_KNIGHT_OUTRO,
+
+    GARROSH_INTRO_A = 50,
+    GARROSH_INTRO_H,
+    GARROSH_KNIGHT_INTRO,
+    GARROSH_KNIGHT_OUTRO,
+
+    JAINA_INTRO_A = 0,
+    JAINA_INTRO_H,
+
+    THRALL_INTRO_A = 0,
+    THRALL_INTRO_H,
+
+    BLACK_KNIGHT_INTRO = 0,
+    BLACK_KNIGHT_INTRO_1,
+    BLACK_KNIGHT_INTRO_2
 };
 
-#define GOSSIP_START_EVENT1     "I'm ready to start challenge."
-#define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
-
 #define ORIENTATION             4.714f
+
+struct GrandChampionInfo
+{
+    uint32 GrandChampionEntry[2];
+    uint32 FactionChampionEntry[2];
+    uint8 AnnounceText;
+};
+
+GrandChampionInfo const GrandChampionData[5] =
+{
+    {
+        { VEHICLE_MOKRA_SKILLCRUSHER_MOUNT,   VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT },
+        { NPC_ORGRIMMAR_CHAMPION,             NPC_STORMWIND_CHAMPION              },
+        ANNOUNCER_WARRIOR
+    },
+    {
+        { VEHICLE_ERESSEA_DAWNSINGER_MOUNT,   VEHICLE_AMBROSE_BOLTSPARK_MOUNT     },
+        { NPC_SILVERMOON_CHAMPION,            NPC_GNOMEREGAN_CHAMPION             },
+        ANNOUNCER_MAGE
+    },
+    {
+        { VEHICLE_RUNOK_WILDMANE_MOUNT,       VEHICLE_COLOSOS_MOUNT               },
+        { NPC_THUNDERBLUFF_CHAMPION,          NPC_EXODAR_CHAMPION                 },
+        ANNOUNCER_SHAMAN
+    },
+    {
+        { VEHICLE_ZUL_TORE_MOUNT,             VEHICLE_EVENSONG_MOUNT              },
+        { NPC_SENJIN_CHAMPION,                NPC_DARNASSUS_CHAMPION              },
+        ANNOUNCER_HUNTER
+    },
+    {
+        { VEHICLE_DEATHSTALKER_VESCERI_MOUNT, VEHICLE_LANA_STOUTHAMMER_MOUNT      },
+        { NPC_UNDERCITY_CHAMPION,             NPC_IRONFORGE_CHAMPION              },
+        ANNOUNCER_ROUGUE
+    }
+};
 
 /*######
 ## npc_announcer_toc5
@@ -80,8 +142,6 @@ public:
             uiPhase = 0;
             uiTimer = 0;
 
-            me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
             SetGrandChampionsForEncounter();
@@ -103,10 +163,6 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        ObjectGuid uiVehicle1GUID;
-        ObjectGuid uiVehicle2GUID;
-        ObjectGuid uiVehicle3GUID;
-
         GuidList Champion1List;
         GuidList Champion2List;
         GuidList Champion3List;
@@ -125,14 +181,13 @@ public:
             switch (uiType)
             {
                 case DATA_START:
-                    DoSummonGrandChampion(uiFirstBoss);
-                    NextStep(10000, false, 1);
+                    NextStep(3000, false, 1);
                     break;
                 case DATA_IN_POSITION: //movement done.
                     me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
                     if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                         instance->HandleGameObject(go->GetGUID(), false);
-                    NextStep(10000, false, 3);
+                    NextStep(10000, false, 11);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
@@ -163,9 +218,9 @@ public:
 
         void StartGrandChampionsAttack()
         {
-            Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, uiVehicle1GUID);
-            Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, uiVehicle2GUID);
-            Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, uiVehicle3GUID);
+            Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1));
+            Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2));
+            Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3));
 
             if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
             {
@@ -184,84 +239,28 @@ public:
                 me->SetFacingTo(ORIENTATION);
         }
 
-        void DoSummonGrandChampion(uint32 uiBoss)
+        void DoSummonGrandChampion(uint32 bossId)
         {
-            ++uiSummonTimes;
-            uint32 VEHICLE_TO_SUMMON1 = 0;
-            uint32 VEHICLE_TO_SUMMON2 = 0;
-            switch (uiBoss)
-            {
-                case 0:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
-                    break;
-                case 1:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
-                    break;
-                case 2:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
-                    break;
-                case 3:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
-                    break;
-                case 4:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
-                    break;
-                default:
-                    return;
-            }
+            if (bossId >= 5)
+                return;
 
-            if (Creature* pBoss = me->SummonCreature(VEHICLE_TO_SUMMON1, SpawnPosition))
+            uint32 teamIndex = instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? 1 : 0;
+            GrandChampionInfo const* info = &GrandChampionData[bossId];
+
+            ++uiSummonTimes;
+            if (uiSummonTimes > 3)
+                return;
+
+            Talk(info->AnnounceText);
+
+            if (Creature* boss = me->SummonCreature(info->GrandChampionEntry[teamIndex], SpawnPosition))
             {
-                switch (uiSummonTimes)
-                {
-                    case 1:
-                    {
-                        uiVehicle1GUID = pBoss->GetGUID();
-                        ObjectGuid uiGrandChampionBoss1;
-                        if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                            if (Unit* unit = pVehicle->GetPassenger(0))
-                                uiGrandChampionBoss1 = unit->GetGUID();
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_1, uiGrandChampionBoss1);
-                        pBoss->AI()->SetData(1, 0);
-                        break;
-                    }
-                    case 2:
-                    {
-                        uiVehicle2GUID = pBoss->GetGUID();
-                        ObjectGuid uiGrandChampionBoss2;
-                        if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                            if (Unit* unit = pVehicle->GetPassenger(0))
-                                uiGrandChampionBoss2 = unit->GetGUID();
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_2, uiGrandChampionBoss2);
-                        pBoss->AI()->SetData(2, 0);
-                        break;
-                    }
-                    case 3:
-                    {
-                        uiVehicle3GUID = pBoss->GetGUID();
-                        ObjectGuid uiGrandChampionBoss3;
-                        if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                            if (Unit* unit = pVehicle->GetPassenger(0))
-                                uiGrandChampionBoss3 = unit->GetGUID();
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
-                        instance->SetGuidData(DATA_GRAND_CHAMPION_3, uiGrandChampionBoss3);
-                        pBoss->AI()->SetData(3, 0);
-                        break;
-                    }
-                    default:
-                        return;
-                }
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1 + uiSummonTimes - 1, boss->GetGUID());
+                boss->AI()->SetData(uiSummonTimes, 0);
 
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    if (Creature* pAdd = me->SummonCreature(VEHICLE_TO_SUMMON2, SpawnPosition, TEMPSUMMON_CORPSE_DESPAWN))
+                    if (Creature* pAdd = me->SummonCreature(info->FactionChampionEntry[teamIndex], SpawnPosition))
                     {
                         switch (uiSummonTimes)
                         {
@@ -279,13 +278,13 @@ public:
                         switch (i)
                         {
                             case 0:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI));
+                                pAdd->GetMotionMaster()->MoveFollow(boss, 2.0f, float(M_PI));
                                 break;
                             case 1:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2);
+                                pAdd->GetMotionMaster()->MoveFollow(boss, 2.0f, float(M_PI) / 2);
                                 break;
                             case 2:
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2 + float(M_PI));
+                                pAdd->GetMotionMaster()->MoveFollow(boss, 2.0f, float(M_PI) / 2 + float(M_PI));
                                 break;
                         }
                     }
@@ -298,8 +297,13 @@ public:
         {
             me->GetMotionMaster()->MovePoint(1, 735.81f, 661.92f, 412.39f);
 
-            if (me->SummonCreature(uiArgentChampion, SpawnPosition))
+            if (Creature* champion = me->SummonCreature(uiArgentChampion, SpawnPosition))
             {
+                if (champion->GetEntry() == NPC_EADRIC)
+                    Talk(ANNOUNCER_EADRIC);
+                else
+                    Talk(ANNOUNCER_PELETRESS);
+
                 for (uint8 i = 0; i < 3; ++i)
                 {
                     if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER, SpawnPosition))
@@ -342,21 +346,21 @@ public:
         {
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+            if (instance->GetBossState(BOSS_BLACK_KNIGHT) != DONE)
             {
-                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
+                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != DONE && instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != DONE)
                 {
-                    if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
+                    if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) != DONE)
                         SetData(DATA_START, 0);
 
-                    if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE)
-                        DoStartArgentChampionEncounter();
+                    if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE)
+                        NextStep(2000, false, 12);
                 }
 
-               if ((instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-                   instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
-                   instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                    me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
+                if ((instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE &&
+                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
+                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == DONE)
+                    NextStep(2000, false, 15);
             }
         }
 
@@ -387,61 +391,169 @@ public:
             }
         }
 
-       void UpdateAI(uint32 uiDiff) override
+       void UpdateAI(uint32 diff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
+            ScriptedAI::UpdateAI(diff);
 
-            if (uiTimer <= uiDiff)
+            if (uiTimer <= diff)
             {
                 switch (uiPhase)
                 {
-                    case 1:
-                        DoSummonGrandChampion(uiSecondBoss);
-                        NextStep(10000, true);
-                        break;
-                    case 2:
-                        DoSummonGrandChampion(uiThirdBoss);
+                case 1:
+                    Talk(ANNOUNCER_INTRO);
+                    NextStep(5000, true);
+                    break;
+                case 2: // missing solo text?  Words can scarce describe the deeds that this $class has performed on the battefield. We are proud to present $name.   Emote clap from gnomes(alliance).
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                        tirion->AI()->Talk(TIRION_CHAMPIONS_INTRO);
+                    NextStep(4000, true);
+                    break;
+                case 3:
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                    {
+                        if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
+                            thrall->AI()->Talk(THRALL_INTRO_H);
+                    }
+                    else
+                        if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
+                            varian->AI()->Talk(VARIAN_INTRO_A);
+                    NextStep(3000, true);
+                    break;
+                case 4:
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                    {
+                        if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
+                            garrosh->AI()->Talk(GARROSH_INTRO_H);
+                    }
+                    else
+                        if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINA)))
+                            jaina->AI()->Talk(JAINA_INTRO_A);
+                    NextStep(3000, true);
+                    break;
+                case 5:
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                    {
+                        if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
+                            varian->AI()->Talk(VARIAN_INTRO_H);
+                    }
+                    else
+                        if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
+                            garrosh->AI()->Talk(GARROSH_INTRO_A);
+                    NextStep(3000, true);
+                    break;
+                case 6:
+                    if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                    {
+                        if (Creature* jaina = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINA)))
+                            jaina->AI()->Talk(JAINA_INTRO_H);
+                    }
+                    else
+                        if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
+                            thrall->AI()->Talk(THRALL_INTRO_A);
+                    NextStep(3000, true);
+                    break;
+                case 7:
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                        tirion->AI()->Talk(TIRION_CHAMPIONS_INTRO_1);
+                    NextStep(6000, true);
+                    break;
+                case 8:
+                    DoSummonGrandChampion(uiFirstBoss);
+                    NextStep(10000, true);
+                    break;
+                case 9:
+                    DoSummonGrandChampion(uiSecondBoss);
+                    NextStep(10000, true);
+                    break;
+                case 10:
+                    DoSummonGrandChampion(uiThirdBoss);
+                    NextStep(0, false);
+                    break;
+                case 11:
+                    if (!Champion1List.empty())
+                    {
+                        for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
+                            if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
+                                AggroAllPlayers(summon);
                         NextStep(0, false);
-                        break;
-                    case 3:
-                        if (!Champion1List.empty())
-                        {
-                            for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
-                                if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
-                                    AggroAllPlayers(summon);
-                            NextStep(0, false);
-                        }
-                        break;
+                    }
+                    break;
+                case 12: // Argent
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                        tirion->AI()->Talk(TIRION_ARGENT_INTRO);
+                    NextStep(3000, true);
+                    break;
+                case 13:
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                        tirion->AI()->Talk(TIRION_ARGENT_INTRO_1);
+                    NextStep(3000, true);
+                    break;
+                case 14:
+                    DoStartArgentChampionEncounter();
+                    NextStep(0, false);
+                    break;
+                case 15: // Black knight
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                        tirion->AI()->Talk(TIRION_KNIGHT_INTRO);
+                    NextStep(4000, true);
+                    break;
+                case 16:
+                    Talk(ANNOUNCER_BLACK_KNIGHT);
+                    me->SummonCreature(VEHICLE_BLACK_KNIGHT, 769.834f, 651.915f, 447.035f, 0);
+                    NextStep(2500, true);
+                    break;
+                case 17:
+                    if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                        knight->AI()->Talk(BLACK_KNIGHT_INTRO);
+                    NextStep(3000, true);
+                    break;
+                case 18:
+                    if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
+                        tirion->AI()->Talk(TIRION_KNIGHT_INTRO_1);
+                    NextStep(3000, true);
+                    break;
+                case 19:
+                    if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                        knight->AI()->Talk(BLACK_KNIGHT_INTRO_1);
+                    NextStep(3000, true);
+                    break;
+                case 20:
+                    if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                        knight->AI()->Talk(BLACK_KNIGHT_INTRO_2);
+                    NextStep(3000, true);
+                    break;
+                case 21:
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
+                        garrosh->AI()->Talk(GARROSH_KNIGHT_INTRO);
+                    if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
+                        varian->AI()->Talk(VARIAN_KNIGHT_INTRO);
+                    NextStep(0, false);
+                    break;
                 }
-            } else uiTimer -= uiDiff;
 
-            if (!UpdateVictim())
-                return;
+            } else uiTimer -= diff;
         }
 
         void JustSummoned(Creature* summon) override
         {
-            if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
-            {
-                summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) != DONE)
                 summon->SetReactState(REACT_PASSIVE);
-            }
         }
 
         void SummonedCreatureDespawn(Creature* summon) override
         {
             switch (summon->GetEntry())
             {
-                case VEHICLE_DARNASSIA_NIGHTSABER:
-                case VEHICLE_EXODAR_ELEKK:
-                case VEHICLE_STORMWIND_STEED:
-                case VEHICLE_GNOMEREGAN_MECHANOSTRIDER:
-                case VEHICLE_IRONFORGE_RAM:
-                case VEHICLE_FORSAKE_WARHORSE:
-                case VEHICLE_THUNDER_BLUFF_KODO:
-                case VEHICLE_ORGRIMMAR_WOLF:
-                case VEHICLE_SILVERMOON_HAWKSTRIDER:
-                case VEHICLE_DARKSPEAR_RAPTOR:
+                case NPC_DARNASSUS_CHAMPION:
+                case NPC_EXODAR_CHAMPION:
+                case NPC_STORMWIND_CHAMPION:
+                case NPC_GNOMEREGAN_CHAMPION:
+                case NPC_IRONFORGE_CHAMPION:
+                case NPC_UNDERCITY_CHAMPION:
+                case NPC_THUNDERBLUFF_CHAMPION:
+                case NPC_ORGRIMMAR_CHAMPION:
+                case NPC_SILVERMOON_CHAMPION:
+                case NPC_SENJIN_CHAMPION:
                     SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
                     break;
             }
@@ -453,39 +565,11 @@ public:
         return GetInstanceAI<npc_announcer_toc5AI>(creature);
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance &&
-            ((instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-            instance->GetData(BOSS_BLACK_KNIGHT) == DONE &&
-            instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
-            instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
-            return false;
-
-        if (instance &&
-            instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
-            instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
-            instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
-            instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        else if (instance)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
-        }
+        player->CLOSE_GOSSIP_MENU();
+        ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
 
         return true;
     }
