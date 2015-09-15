@@ -35,6 +35,7 @@
 
 class BattlePetMgr;
 class Channel;
+class CollectionMgr;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -399,7 +400,6 @@ namespace WorldPackets
         class MoveSetCollisionHeightAck;
         class MoveTimeSkipped;
         class SummonResponse;
-        class MoveSplineDone;
     }
 
     namespace NPC
@@ -556,15 +556,6 @@ namespace WorldPackets
         class SetSpecialization;
         class LearnTalents;
     }
-    
-    namespace Taxi
-    {
-        class ShowTaxiNodes;
-        class TaxiNodeStatusQuery;
-        class EnableTaxiNode;
-        class TaxiQueryAvailableNodes;
-        class ActivateTaxi;
-    }
 
     namespace Ticket
     {
@@ -692,8 +683,6 @@ enum Tutorials
 */
 
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
-
-typedef std::map<uint32, bool> ToyBoxContainer;
 
 struct AccountData
 {
@@ -918,12 +907,6 @@ class WorldSession
         void SetAccountData(AccountDataType type, uint32 time, std::string const& data);
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
-        // Account Toys
-        void LoadAccountToys(PreparedQueryResult result);
-        void SaveAccountToys(SQLTransaction& trans);
-        bool UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/);
-        ToyBoxContainer const& GetAccountToys() const { return _toys; }
-
         void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
@@ -1012,6 +995,8 @@ class WorldSession
 
         // Battle Pets
         BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
+
+        CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
 
     public:                                                 // opcodes handlers
 
@@ -1243,11 +1228,11 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
-        void HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& packet);
-        void HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& packet);
-        void HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& packet);
-        void HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& packet);
-        void HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& packet);
+        void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
+        void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
+        void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
+        void HandleActivateTaxiExpressOpcode(WorldPacket& recvPacket);
+        void HandleMoveSplineDoneOpcode(WorldPacket& recvPacket);
         void SendActivateTaxiReply(ActivateTaxiReply reply);
 
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet);
@@ -1728,9 +1713,10 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
-        ToyBoxContainer _toys;
 
         std::unique_ptr<BattlePetMgr> _battlePetMgr;
+
+        std::unique_ptr<CollectionMgr> _collectionMgr;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

@@ -114,7 +114,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
     for (size_t i = 0; i < path.size(); ++i)
-        allPoints.push_back(G3D::Vector3(path[i].Loc.X, path[i].Loc.Y, path[i].Loc.Z));
+        allPoints.push_back(G3D::Vector3(path[i]->Loc.X, path[i]->Loc.Y, path[i]->Loc.Z));
 
     // Add extra points to allow derivative calculations for all path nodes
     allPoints.insert(allPoints.begin(), allPoints.front().lerp(allPoints[1], -0.2f));
@@ -130,8 +130,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     {
         if (!mapChange)
         {
-            TaxiPathNodeEntry const& node_i = path[i];
-            if (i != path.size() - 1 && (node_i.Flags & 1 || node_i.MapID != path[i + 1].MapID))
+            TaxiPathNodeEntry const* node_i = path[i];
+            if (i != path.size() - 1 && (node_i->Flags & 1 || node_i->MapID != path[i + 1]->MapID))
             {
                 keyFrames.back().Teleport = true;
                 mapChange = true;
@@ -144,7 +144,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
                 k.InitialOrientation = Position::NormalizeOrientation(std::atan2(h.y, h.x) + float(M_PI));
 
                 keyFrames.push_back(k);
-                splinePath.push_back(G3D::Vector3(node_i.Loc.X, node_i.Loc.Y, node_i.Loc.Z));
+                splinePath.push_back(G3D::Vector3(node_i->Loc.X, node_i->Loc.Y, node_i->Loc.Z));
                 transport->mapsUsed.insert(k.Node->MapID);
             }
         }
