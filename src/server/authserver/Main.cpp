@@ -30,9 +30,10 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "Log.h"
+#include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "Util.h"
 #include <iostream>
 #include <boost/program_options.hpp>
@@ -99,7 +100,10 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TC_LOG_INFO("server.authserver", "%s (authserver)", _FULLVERSION);
+    sLog->RegisterAppender<AppenderDB>();
+    sLog->Initialize(nullptr);
+
+    TC_LOG_INFO("server.authserver", "%s (authserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile.c_str());
     TC_LOG_INFO("server.authserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -289,7 +293,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     if (variablesMap.count("help"))
         std::cout << all << "\n";
     else if (variablesMap.count("version"))
-        std::cout << _FULLVERSION << "\n";
+        std::cout << GitRevision::GetFullVersion() << "\n";
 
     return variablesMap;
 }

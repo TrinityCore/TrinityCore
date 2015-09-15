@@ -396,10 +396,10 @@ class boss_hodir : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
                     me->CombatStop(true);
 
+                    DoCastAOE(SPELL_KILL_CREDIT, true); /// need to be cast before changing boss faction
+                                                        /// spell will target enemies only
                     me->setFaction(35);
                     me->DespawnOrUnsummon(10000);
-
-                    DoCastAOE(SPELL_KILL_CREDIT);
 
                     _JustDied();
                 }

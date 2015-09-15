@@ -882,7 +882,10 @@ bool BattlegroundWS::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     switch (criteriaId)
     {
         case BG_CRITERIA_CHECK_SAVE_THE_DAY:
-            return GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE;
+            if (target)
+                if (Player const* playerTarget = target->ToPlayer())
+                    return GetFlagState(playerTarget->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE;
+            return false;
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscValue);

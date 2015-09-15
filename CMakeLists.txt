@@ -61,7 +61,6 @@ find_package(Threads REQUIRED)
 find_package(ZMQ REQUIRED)
 
 include(ConfigureBoost)
-find_package(MySQL REQUIRED)
 
 if( UNIX )
   find_package(Readline)

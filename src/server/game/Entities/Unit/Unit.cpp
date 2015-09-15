@@ -5604,7 +5604,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 40438:
                 {
                     // Shadow Word: Pain
-                    if (procSpell->SpellFamilyFlags[0] & 0x8000)
+                    if (!procSpell)
+                        return false;
+                    else if (procSpell->SpellFamilyFlags[0] & 0x8000)
                         triggered_spell_id = 40441;
                     // Renew
                     else if (procSpell->SpellFamilyFlags[0] & 0x40)
@@ -5645,7 +5647,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Priest T10 Healer 2P Bonus
                 case 70770:
                     // Flash Heal
-                    if (procSpell->SpellFamilyFlags[0] & 0x800)
+                    if (procSpell && procSpell->SpellFamilyFlags[0] & 0x800)
                     {
                         triggered_spell_id = 70772;
                         SpellInfo const* blessHealing = sSpellMgr->GetSpellInfo(triggered_spell_id);
@@ -5712,10 +5714,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Healing Touch (Dreamwalker Raiment set)
                 case 28719:
                 {
-                    // mana back
-                    basepoints0 = int32(CalculatePct(procSpell->ManaCost, 30));
-                    target = this;
-                    triggered_spell_id = 28742;
+                    if (procSpell)
+                    {
+                        // mana back
+                        basepoints0 = int32(CalculatePct(procSpell->ManaCost, 30));
+                        target = this;
+                        triggered_spell_id = 28742;
+                    }
                     break;
                 }
                 // Healing Touch Refund (Idol of Longevity trinket)
@@ -5738,8 +5743,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     float  chance;
 
+                    if (!procSpell)
+                        return false;
                     // Starfire
-                    if (procSpell->SpellFamilyFlags[0] & 0x4)
+                    else if (procSpell->SpellFamilyFlags[0] & 0x4)
                     {
                         triggered_spell_id = 40445;
                         chance = 25.0f;
@@ -5769,7 +5776,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 70723:
                 {
                     // Wrath & Starfire
-                    if ((procSpell->SpellFamilyFlags[0] & 0x5) && (procEx & PROC_EX_CRITICAL_HIT))
+                    if (procSpell && (procSpell->SpellFamilyFlags[0] & 0x5) && (procEx & PROC_EX_CRITICAL_HIT))
                     {
                         triggered_spell_id = 71023;
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
@@ -5785,7 +5792,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 70664:
                 {
                     // Proc only from normal Rejuvenation
-                    if (procSpell->SpellVisual[0] != 32)
+                    if (!procSpell || procSpell->SpellVisual[0] != 32)
                         return false;
 
                     Player* caster = ToPlayer();
@@ -6153,7 +6160,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 67228:
                 {
                     // Lava Burst
-                    if (procSpell->SpellFamilyFlags[1] & 0x1000)
+                    if (procSpell && procSpell->SpellFamilyFlags[1] & 0x1000)
                     {
                         triggered_spell_id = 71824;
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
@@ -6167,7 +6174,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 70808:
                 {
                     // Chain Heal
-                    if ((procSpell->SpellFamilyFlags[0] & 0x100) && (procEx & PROC_EX_CRITICAL_HIT))
+                    if (procSpell && (procSpell->SpellFamilyFlags[0] & 0x100) && (procEx & PROC_EX_CRITICAL_HIT))
                     {
                         triggered_spell_id = 70809;
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
@@ -6364,10 +6371,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             if (dummySpell->Id == 61257)
             {
                 // only for spells and hit/crit (trigger start always) and not start from self cast spells
-                if (procSpell == 0 || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
+                if (!procSpell || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
                     return false;
                 // Need snare or root mechanic
-                if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_ROOT)|(1<<MECHANIC_SNARE))))
+                if (procSpell && !(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_ROOT)|(1<<MECHANIC_SNARE))))
                     return false;
                 triggered_spell_id = 61258;
                 target = this;
@@ -6382,7 +6389,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Guard Dog
                 case 201:
                 {
-                    if (!victim)
+                    if (!victim || !procSpell)
                         return false;
 
                     triggered_spell_id = 54445;

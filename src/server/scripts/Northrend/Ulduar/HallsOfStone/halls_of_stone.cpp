@@ -437,7 +437,7 @@ public:
             return 0;
         }
 
-        void UpdateEscortAI(const uint32 uiDiff) override
+        void UpdateEscortAI(uint32 uiDiff) override
         {
             if (uiPhaseTimer <= uiDiff)
             {

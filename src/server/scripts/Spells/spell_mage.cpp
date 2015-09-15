@@ -58,6 +58,7 @@ enum MageSpells
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_GLYPH_OF_ETERNAL_WATER            = 70937,
+    SPELL_MAGE_SHATTERED_BARRIER                 = 55080,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
@@ -150,6 +151,11 @@ class spell_mage_arcane_potency : public SpellScriptLoader
         {
             return new spell_mage_arcane_potency_AuraScript();
         }
+};
+
+enum MageSpellIcons
+{
+    SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945
 };
 
 // Incanter's Absorbtion
@@ -788,6 +794,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
            void Register()
            {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_ice_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_ice_barrier_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_mage_ice_barrier_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
            }
        };

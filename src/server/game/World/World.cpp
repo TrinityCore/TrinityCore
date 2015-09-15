@@ -51,11 +51,11 @@
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
+#include "GitRevision.h"
 #include "ScriptMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
-#include "SystemConfig.h"
 #include "TicketMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
@@ -1421,16 +1421,19 @@ void World::SetInitialWorldSettings()
     LoadDBCStores(m_dataPath);
     LoadDB2Stores(m_dataPath);
 
-    std::vector<uint32> mapIds;
-    for (uint32 mapId = 0; mapId < sMapStore.GetNumRows(); mapId++)
-        if (sMapStore.LookupEntry(mapId))
-            mapIds.push_back(mapId);
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    for (MapEntry const* mapEntry : sMapStore)
+    {
+        mapData.insert(std::unordered_map<uint32, std::vector<uint32>>::value_type(mapEntry->MapID, std::vector<uint32>()));
+        if (mapEntry->rootPhaseMap != -1)
+            mapData[mapEntry->rootPhaseMap].push_back(mapEntry->MapID);
+    }
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapIds);
+        vmmgr2->InitializeThreadUnsafe(mapData);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
-    mmmgr->InitializeThreadUnsafe(mapIds);
+    mmmgr->InitializeThreadUnsafe(mapData);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
@@ -1860,7 +1863,7 @@ void World::SetInitialWorldSettings()
     m_startTime = m_gameTime;
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
-                            realmHandle.Index, uint32(m_startTime), _FULLVERSION);       // One-time query
+                            realmHandle.Index, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);

@@ -33,7 +33,7 @@
 #include "Log.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "Util.h"
 #include "ZmqContext.h"
 #include "DatabaseLoader.h"
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
+    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
