@@ -36,7 +36,7 @@
 #include "Transport.h"
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(NULL), m_goValue(), m_AI(NULL)
+    m_model(NULL), m_goValue(), m_AI(NULL), _animKitId(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -2424,6 +2424,26 @@ void GameObject::UpdateModelPosition()
         m_model->UpdatePosition();
         GetMap()->InsertGameObjectModel(*m_model);
     }
+}
+
+void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
+{
+    if (_animKitId == animKitId)
+        return;
+
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
+    if (!oneshot)
+        _animKitId = animKitId;
+    else
+        _animKitId = 0;
+
+    WorldPackets::GameObject::GameObjectActivateAnimKit activateAnimKit;
+    activateAnimKit.ObjectGUID = GetGUID();
+    activateAnimKit.AnimKitID = animKitId;
+    activateAnimKit.Maintain = !oneshot;
+    SendMessageToSet(activateAnimKit.Write(), true);
 }
 
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase

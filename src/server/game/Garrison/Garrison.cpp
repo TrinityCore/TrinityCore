@@ -734,7 +734,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
                 finalizer->SetRespawnTime(0);
 
                 if (uint16 animKit = finalizeInfo->FactionInfo[faction].AnimKitId)
-                    finalizer->SetAIAnimKitId(animKit);
+                    finalizer->SetAnimKitId(animKit, false);
 
                 map->AddToMap(finalizer);
             }

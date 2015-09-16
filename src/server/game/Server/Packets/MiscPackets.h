@@ -676,6 +676,28 @@ namespace WorldPackets
             uint16 AnimKitID = 0;
         };
 
+        class SetMovementAnimKit final : public ServerPacket
+        {
+        public:
+            SetMovementAnimKit() : ServerPacket(SMSG_SET_MOVEMENT_ANIM_KIT, 16 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
+        class SetMeleeAnimKit final : public ServerPacket
+        {
+        public:
+            SetMeleeAnimKit() : ServerPacket(SMSG_SET_MELEE_ANIM_KIT, 16 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
         class SetPlayHoverAnim final : public ServerPacket
         {
         public:
