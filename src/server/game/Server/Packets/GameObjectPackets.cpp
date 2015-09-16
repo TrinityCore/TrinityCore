@@ -38,3 +38,13 @@ WorldPacket const* WorldPackets::GameObject::PageText::Write()
     _worldPacket << GameObjectGUID;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::GameObjectActivateAnimKit::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << uint32(AnimKitID);
+    _worldPacket.WriteBit(Maintain);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

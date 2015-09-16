@@ -1490,6 +1490,12 @@ class Unit : public WorldObject
         MountCapabilityEntry const* GetMountCapability(uint32 mountType) const;
 
         void SendDurabilityLoss(Player* receiver, uint32 percent);
+        void SetAIAnimKitId(uint16 animKitId);
+        uint16 GetAIAnimKitId() const override { return _aiAnimKitId; }
+        void SetMovementAnimKitId(uint16 animKitId);
+        uint16 GetMovementAnimKitId() const override { return _movementAnimKitId; }
+        void SetMeleeAnimKitId(uint16 animKitId);
+        uint16 GetMeleeAnimKitId() const override { return _meleeAnimKitId; }
         void PlayOneShotAnimKit(uint16 animKitId);
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
@@ -1907,6 +1913,10 @@ class Unit : public WorldObject
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
+
+        uint16 _aiAnimKitId;
+        uint16 _movementAnimKitId;
+        uint16 _meleeAnimKitId;
 
         SpellHistory* GetSpellHistory() { return _spellHistory; }
         SpellHistory const* GetSpellHistory() const { return _spellHistory; }

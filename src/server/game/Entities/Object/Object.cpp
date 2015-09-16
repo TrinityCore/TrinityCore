@@ -1442,9 +1442,7 @@ void MovementInfo::OutDebug()
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0),
-m_aiAnimKitId(0), m_movementAnimKitId(0), m_meleeAnimKitId(0)
-
+m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -3106,54 +3104,6 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
-}
-
-void WorldObject::SetAIAnimKitId(uint16 animKitId)
-{
-    if (m_aiAnimKitId == animKitId)
-        return;
-
-    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
-        return;
-
-    m_aiAnimKitId = animKitId;
-
-    WorldPackets::Misc::SetAIAnimKit data;
-    data.Unit = GetGUID();
-    data.AnimKitID = animKitId;
-    SendMessageToSet(data.Write(), true);
-}
-
-void WorldObject::SetMovementAnimKitId(uint16 animKitId)
-{
-    if (m_movementAnimKitId == animKitId)
-        return;
-
-    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
-        return;
-
-    m_movementAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
-}
-
-void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
-{
-    if (m_meleeAnimKitId == animKitId)
-        return;
-
-    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
-        return;
-
-    m_meleeAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
 }
 
 void WorldObject::RebuildTerrainSwaps()
