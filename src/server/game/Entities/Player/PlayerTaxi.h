@@ -9,7 +9,7 @@
 class PlayerTaxi
 {
     public:
-        PlayerTaxi();
+        PlayerTaxi() { }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
@@ -57,7 +57,7 @@ class PlayerTaxi
 
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
-        TaxiMask m_taximask;
+        TaxiMask m_taximask = { };
         std::deque<uint32> m_TaxiDestinations;
 };
 

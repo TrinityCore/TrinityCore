@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "DB2Structure.h"
 
 namespace WorldPackets
 {
@@ -60,64 +61,64 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<ShowTaxiNodesWindowInfo> WindowInfo;
-            std::vector<uint8> Nodes;
+            TaxiMask const* Nodes = nullptr;
         };
-        
+
         class EnableTaxiNode final : public ClientPacket
         {
         public:
             EnableTaxiNode(WorldPacket&& packet) : ClientPacket(CMSG_ENABLE_TAXI_NODE, std::move(packet)) { }
-            
+
             void Read() override;
-            
+
             ObjectGuid Unit;
         };
-        
+
         class TaxiQueryAvailableNodes final : public ClientPacket
         {
         public:
             TaxiQueryAvailableNodes(WorldPacket&& packet) : ClientPacket(CMSG_TAXI_QUERY_AVAILABLE_NODES, std::move(packet)) { }
-            
+
             void Read() override;
-            
+
             ObjectGuid Unit;
         };
-        
+
         class ActivateTaxi final : public ClientPacket
         {
         public:
             ActivateTaxi(WorldPacket&& packet) : ClientPacket(CMSG_ACTIVATE_TAXI, std::move(packet)) { }
-            
+
             void Read() override;
-            
+
             ObjectGuid Vendor;
             uint32 Node;
         };
-        
+
         class NewTaxiPath final : public ServerPacket
         {
         public:
             NewTaxiPath() : ServerPacket(SMSG_NEW_TAXI_PATH, 0) { }
-            
+
             WorldPacket const* Write() override { return &_worldPacket; }
         };
-        
+
         class ActivateTaxiReply final : public ServerPacket
         {
         public:
             ActivateTaxiReply() : ServerPacket(SMSG_ACTIVATE_TAXI_REPLY, 4) { }
-            
+
             WorldPacket const* Write() override;
-            
-            uint32 Reply;
+
+            uint8 Reply;
         };
-        
+
         class TaxiRequestEarlyLanding final : public ClientPacket
         {
         public:
             TaxiRequestEarlyLanding(WorldPacket&& packet) : ClientPacket(CMSG_TAXI_REQUEST_EARLY_LANDING, std::move(packet)) { }
-            
-            void Read() override;
+
+            void Read() override { }
         };
     }
 }
