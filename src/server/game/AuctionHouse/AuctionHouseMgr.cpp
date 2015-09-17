@@ -66,7 +66,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     uint32 MSV = pItem->GetTemplate()->SellPrice;
 
     if (MSV <= 0)
-        return AH_MINIMUM_DEPOSIT;
+        return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
 
     float multiplier = CalculatePct(float(entry->depositPercent), 3);
     uint32 timeHr = (((time / 60) / 60) / 12);
@@ -77,8 +77,8 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     TC_LOG_DEBUG("auctionHouse", "Multiplier: %f", multiplier);
     TC_LOG_DEBUG("auctionHouse", "Deposit:    %u", deposit);
 
-    if (deposit < AH_MINIMUM_DEPOSIT)
-        return AH_MINIMUM_DEPOSIT;
+    if (deposit < AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT))
+        return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
     else
         return deposit;
 }
