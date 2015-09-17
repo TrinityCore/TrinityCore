@@ -3971,7 +3971,7 @@ void ObjectMgr::LoadQuests()
         //      9                     10                   11                    12
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
         //     13                 14               15             16                17               18            19            20
-        "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardBonusMoney, RewardDisplaySpell, RewardDisplaySpell, RewardHonor, RewardKillHonor, "
+        "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
         //   21       22        23              24                25               26
         "StartItem, Flags, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
         //    27            28            29           30             31            32            33            34
