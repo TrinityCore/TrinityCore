@@ -460,11 +460,11 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
                 spellPaths.insert(sInfo->EffectMiscValue);
 
-        memset(sTaxiNodesMask, 0, sizeof(sTaxiNodesMask));
-        memset(sOldContinentsNodesMask, 0, sizeof(sOldContinentsNodesMask));
-        memset(sHordeTaxiNodesMask, 0, sizeof(sHordeTaxiNodesMask));
-        memset(sAllianceTaxiNodesMask, 0, sizeof(sAllianceTaxiNodesMask));
-        memset(sDeathKnightTaxiNodesMask, 0, sizeof(sDeathKnightTaxiNodesMask));
+        sTaxiNodesMask.fill(0);
+        sOldContinentsNodesMask.fill(0);
+        sHordeTaxiNodesMask.fill(0);
+        sAllianceTaxiNodesMask.fill(0);
+        sDeathKnightTaxiNodesMask.fill(0);
         for (TaxiNodesEntry const* node : sTaxiNodesStore)
         {
             TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(node->ID);

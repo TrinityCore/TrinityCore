@@ -4,12 +4,6 @@
 #include <limits>
 #include <math.h>
 
-
-PlayerTaxi::PlayerTaxi()
-{
-    memset(m_taximask, 0, sizeof(m_taximask));
-}
-
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
 {
     // class specific initial known nodes
@@ -47,7 +41,6 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
             SetTaximaskNode(620);   // Gol'Bolar Quarry, Dun Morogh
             SetTaximaskNode(624);   // Azure Watch, Azuremyst Isle
             break;
-            
         case RACE_ORC:
         case RACE_UNDEAD_PLAYER:
         case RACE_TAUREN:
@@ -76,6 +69,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         case ALLIANCE: SetTaximaskNode(100); break;
         case HORDE:    SetTaximaskNode(99);  break;
     }
+
     // level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
@@ -96,24 +90,18 @@ void PlayerTaxi::LoadTaxiMask(std::string const &data)
 void PlayerTaxi::AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool all)
 {
     if (all)
-    {
-        for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data.Nodes.push_back(sTaxiNodesMask[i]);              // all existed nodes
-    }
+        data.Nodes = &sTaxiNodesMask;              // all existed nodes
     else
-    {
-        for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data.Nodes.push_back(m_taximask[i]);                  // known nodes
-    }
+        data.Nodes = &m_taximask;                  // known nodes
 }
 
 bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint32 team)
 {
     ClearTaxiDestinations();
 
-    Tokenizer Tokenizer(values, ' ');
+    Tokenizer tokens(values, ' ');
 
-    for (Tokenizer::const_iterator iter = Tokenizer.begin(); iter != Tokenizer.end(); ++iter)
+    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
     {
         uint32 node = atoul(*iter);
         AddTaxiDestination(node);
@@ -130,7 +118,7 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
     {
         uint32 cost;
         uint32 path;
-        sObjectMgr->GetTaxiPath(m_TaxiDestinations[i-1], m_TaxiDestinations[i], path, cost);
+        sObjectMgr->GetTaxiPath(m_TaxiDestinations[i - 1], m_TaxiDestinations[i], path, cost);
         if (!path)
             return false;
     }
@@ -149,7 +137,7 @@ std::string PlayerTaxi::SaveTaxiDestinationsToString()
 
     std::ostringstream ss;
 
-    for (size_t i=0; i < m_TaxiDestinations.size(); ++i)
+    for (size_t i = 0; i < m_TaxiDestinations.size(); ++i)
         ss << m_TaxiDestinations[i] << ' ';
 
     return ss.str();
@@ -179,7 +167,7 @@ void PlayerTaxi::RequestEarlyLanding()
 {
     if (m_TaxiDestinations.empty())
         return;
-    
+
     for (std::deque<uint32>::iterator it = m_TaxiDestinations.begin(); it != m_TaxiDestinations.end(); it++)
         if (IsTaximaskNodeKnown(*it))
         {

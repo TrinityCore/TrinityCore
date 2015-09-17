@@ -36,7 +36,7 @@ WorldPacket const* WorldPackets::Taxi::ShowTaxiNodes::Write()
     _worldPacket.WriteBit(WindowInfo.is_initialized());
     _worldPacket.FlushBits();
 
-    _worldPacket << uint32(Nodes.size());
+    _worldPacket << uint32(Nodes->size());
 
     if (WindowInfo.is_initialized())
     {
@@ -44,8 +44,7 @@ WorldPacket const* WorldPackets::Taxi::ShowTaxiNodes::Write()
         _worldPacket << uint32(WindowInfo->CurrentNode);
     }
 
-    for (uint8 node : Nodes)
-        _worldPacket << node;
+    _worldPacket.append(Nodes->data(), Nodes->size());
 
     return &_worldPacket;
 }
@@ -68,11 +67,8 @@ void WorldPackets::Taxi::ActivateTaxi::Read()
 
 WorldPacket const* WorldPackets::Taxi::ActivateTaxiReply::Write()
 {
-    _worldPacket << Reply;
-    return &_worldPacket;
-}
+    _worldPacket.WriteBits(Reply, 4);
+    _worldPacket.FlushBits();
 
-void WorldPackets::Taxi::TaxiRequestEarlyLanding::Read()
-{
-    //Noop as it's empty packet
+    return &_worldPacket;
 }
