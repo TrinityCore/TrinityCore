@@ -225,7 +225,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
                 }
 
                 // [AZTH]
-                if (bg->isBattleground() && q_min_level != 80)
+                if (bg->isBattleground())
                 {
                     if (m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].size() == MinPlayers && !hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_ALLIANCE])
                     {
