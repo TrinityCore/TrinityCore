@@ -7,12 +7,13 @@
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
 {
     // class specific initial known nodes
+    TaxiMask const& factionMask = Player::TeamForRace(race) == HORDE ? sHordeTaxiNodesMask : sAllianceTaxiNodesMask;
     switch (chrClass)
     {
         case CLASS_DEATH_KNIGHT:
         {
             for (uint8 i = 0; i < TaxiMaskSize; ++i)
-                m_taximask[i] |= sOldContinentsNodesMask[i];
+                m_taximask[i] |= sOldContinentsNodesMask[i] & factionMask[i];
             break;
         }
     }

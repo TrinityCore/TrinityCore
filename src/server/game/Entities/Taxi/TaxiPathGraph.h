@@ -1,7 +1,7 @@
 #ifndef TAXIPATHGRAPH_HPP
 #define TAXIPATHGRAPH_HPP
 
-#include <boost/graph/astar_search.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <vector>
 #include "Define.h"
@@ -42,36 +42,16 @@ public:
 private:
     typedef float cost;
 
-    struct found_goal {}; // exception for termination
-
-    // visitor that terminates when we find the goal
-    template <class Vertex>
-    class astar_goal_visitor : public boost::default_astar_visitor
-    {
-    public:
-        astar_goal_visitor(Vertex goal) : m_goal(goal) {}
-        template <class Graph>
-        void examine_vertex(Vertex u, Graph& /* g */) {
-            if(u == m_goal)
-                throw found_goal();
-        }
-    private:
-        Vertex m_goal;
-    };
-
     // specify some types
-    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, boost::property<boost::vertex_index_t, uint32>, boost::property<boost::edge_weight_t, cost> > Graph;
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, boost::property<boost::vertex_index_t, uint32>, boost::property<boost::edge_weight_t, cost>> Graph;
     typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
-    typedef boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
-    typedef Graph::vertex_descriptor vertex;
-    typedef Graph::edge_descriptor edge_descriptor;
     typedef Graph::vertex_descriptor vertex_descriptor;
-    typedef Graph::vertex_iterator vertex_iterator;
+    typedef Graph::edge_descriptor edge_descriptor;
     typedef std::pair<uint32, uint32> edge;
 
     static Graph m_graph;
     static std::vector<TaxiNodeInfo> m_vertices;
-    static std::map<uint32, vertex> m_nodeIDToVertexID;
+    static std::map<uint32, vertex_descriptor> m_nodeIDToVertexID;
     static std::set<edge> m_edgeDuplicateControl;
     static const int MaxFlightDistanceThreshold;
 
@@ -80,10 +60,10 @@ private:
     TaxiPathGraph(TaxiPathGraph const&) = delete;
     TaxiPathGraph& operator=(TaxiPathGraph const&) = delete;
 
-    static vertex _getVertexIDFromNodeID(uint32 nodeID);
-    static vertex _getVertexIDFromNodeID(TaxiNodeInfo const& nodeInfo);
-    static uint32 _getNodeIDFromVertexID(vertex vertexID);
-    static vertex _createVertexFromFromNodeInfoIfNeeded(TaxiNodeInfo const&);
+    static vertex_descriptor _getVertexIDFromNodeID(uint32 nodeID);
+    static vertex_descriptor _getVertexIDFromNodeID(TaxiNodeInfo const& nodeInfo);
+    static uint32 _getNodeIDFromVertexID(vertex_descriptor vertexID);
+    static vertex_descriptor _createVertexFromFromNodeInfoIfNeeded(TaxiNodeInfo const&);
     static size_t _getVertexCount();
 };
 
