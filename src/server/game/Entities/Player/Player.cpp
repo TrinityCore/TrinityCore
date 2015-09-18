@@ -20792,7 +20792,10 @@ void Player::SetRestBonus(float rest_bonus_new)
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/)
 {
     if (nodes.size() < 2)
+    {
+        GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
         return false;
+    }
 
     // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
     if (GetSession()->isLogingOut() || IsInCombat() || HasUnitState(UNIT_STATE_STUNNED) || HasUnitState(UNIT_STATE_ROOT))
