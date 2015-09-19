@@ -21,7 +21,6 @@
 
 #include "Define.h"
 
-#include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,14 +31,17 @@
 #include <assert.h>
 
 #include <set>
+#include <unordered_set>
 #include <list>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <queue>
 #include <sstream>
 #include <algorithm>
 #include <memory>
 #include <vector>
+#include <array>
 
 #include <boost/optional.hpp>
 #include <boost/utility/in_place_factory.hpp>
