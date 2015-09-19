@@ -2,10 +2,11 @@
 
 AzthPlayer::AzthPlayer() {
     maxQuestRate = sConfigMgr->GetFloatDefault("Az.Rate.XP.Quest", 1.0f);
+    customQuestRate = 1;
 }
 
 void AzthPlayer::setCustomQuestRate(float rate) {
-    if (rate > maxQuestRate) {
+    if (rate > maxQuestRate || rate < 1) {
         //TODO: print an error
         return;
     }
@@ -14,5 +15,5 @@ void AzthPlayer::setCustomQuestRate(float rate) {
 }
 
 float AzthPlayer::getCustomQuestRate() {
-    return customQuestRate;
+    return customQuestRate >= 1 ? customQuestRate : 1;
 }
