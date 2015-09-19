@@ -57,7 +57,7 @@ class PlayerTaxi
 
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
-        TaxiMask m_taximask = { };
+        TaxiMask m_taximask = { { } };
         std::deque<uint32> m_TaxiDestinations;
 };
 
