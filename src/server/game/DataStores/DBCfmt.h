@@ -120,7 +120,7 @@ char const Vehiclefmt[] = "niiffffiiiiiiiifffffffffffffffxxxxfifiiii";
 char const VehicleSeatfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiiffffffffffffiiiiiiiii";
 char const WMOAreaTablefmt[] = "niiixxxxxiixxxx";
 char const WorldMapAreafmt[] = "xinxffffixxxxx";
-char const WorldMapTransformsfmt[] = "diffffffxffxxxf";
+char const WorldMapTransformsfmt[] = "diffffffiffxxxf";
 char const WorldSafeLocsfmt[] = "niffffx";
 
 #endif

@@ -1413,16 +1413,16 @@ struct WorldMapAreaEntry
 
 struct WorldMapTransformsEntry
 {
-    //uint32 ID;                                            //
-    uint32 MapID;                                           //
-    DBCPosition3D RegionMin;                                //
-    DBCPosition3D RegionMax;                                //
-    //uint32 NewMapID;                                      //
-    DBCPosition2D RegionOffset;                             //
-    //uint32 NewDungeonMapID;                               //
-    //uint32 Flags;                                         //
-    //uint32 NewAreaID;                                     //
-    float RegionScale;                                      //
+    //uint32 ID;                                            // 0
+    uint32 MapID;                                           // 1
+    DBCPosition3D RegionMin;                                // 2
+    DBCPosition3D RegionMax;                                // 3
+    uint32 NewMapID;                                        // 4
+    DBCPosition2D RegionOffset;                             // 5
+    //uint32 NewDungeonMapID;                               // 6
+    //uint32 Flags;                                         // 7
+    //uint32 NewAreaID;                                     // 8
+    float RegionScale;                                      // 9
 };
 
 struct WorldSafeLocsEntry

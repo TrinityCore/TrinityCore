@@ -1,137 +1,128 @@
+/*
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "TaxiPathGraph.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "DBCStores.h"
 #include "DB2Stores.h"
 #include "Config.h"
 #include "Util.h"
-
-TaxiPathGraph::Graph TaxiPathGraph::m_graph = TaxiPathGraph::Graph();
-std::vector<TaxiPathGraph::TaxiNodeInfo> TaxiPathGraph::m_vertices = std::vector<TaxiPathGraph::TaxiNodeInfo>();
-std::map<uint32, TaxiPathGraph::vertex_descriptor> TaxiPathGraph::m_nodeIDToVertexID = std::map<uint32, TaxiPathGraph::vertex_descriptor>();
-std::set<TaxiPathGraph::edge> TaxiPathGraph::m_edgeDuplicateControl = std::set<TaxiPathGraph::edge>();
-const int TaxiPathGraph::MaxFlightDistanceThreshold = 4000; //Because the client seems not to chose long flight paths even if that means the chosen path is not the minimum one
-
-TaxiPathGraph::TaxiPathGraph() { }
-
-TaxiPathGraph::~TaxiPathGraph() { }
-
-void DeterminaAlternateMapPosition(TaxiPathGraph::TaxiNodeInfo& info)
-{
-    WorldMapTransformsEntry const* transformation = nullptr;
-    for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
-    {
-        if (transform->MapID != info.mapId)
-            continue;
-
-        if (transform->RegionMin.X > info.pos.x || transform->RegionMax.X < info.pos.x)
-            continue;
-        if (transform->RegionMin.Y > info.pos.y || transform->RegionMax.Y < info.pos.y)
-            continue;
-        if (transform->RegionMin.Z > info.pos.z || transform->RegionMax.Z < info.pos.z)
-            continue;
-
-        transformation = transform;
-        break;
-    }
-
-    if (!transformation)
-        return;
-
-    if (transformation->RegionScale > 0.0f && transformation->RegionScale < 1.0f)
-    {
-        info.pos.x = (info.pos.x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
-        info.pos.y = (info.pos.y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
-    }
-
-    info.pos.x += transformation->RegionOffset.X;
-    info.pos.y += transformation->RegionOffset.Y;
-}
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/property_map/transform_value_property_map.hpp>
 
 void TaxiPathGraph::Initialize()
 {
-    if (_getVertexCount() > 0)
+    if (GetVertexCount() > 0)
         return;
 
-    m_edgeDuplicateControl.clear();
-    std::vector<std::pair<edge, cost>> edges;
+    std::vector<std::pair<edge, EdgeCost>> edges;
 
     // Initialize here
-    for (TaxiPathEntry const* nodeInfo : sTaxiPathStore)
+    for (TaxiPathEntry const* path : sTaxiPathStore)
     {
-        TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(nodeInfo->From);
-        TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(nodeInfo->To);
+        TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(path->From);
+        TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(path->To);
         if (from && to && from->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE) && to->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE))
-        {
-            TaxiNodeInfo fromInfo(from->ID, from->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], from->MapID, from->Pos.X, from->Pos.Y, from->Pos.Z);
-            TaxiNodeInfo toInfo(to->ID, to->Name->Str[sConfigMgr->GetIntDefault("DBC.Locale", LOCALE_enUS)], to->MapID, to->Pos.X, to->Pos.Y, to->Pos.Z);
-
-            DeterminaAlternateMapPosition(fromInfo);
-            DeterminaAlternateMapPosition(toInfo);
-
-            _addVerticeAndEdgeFromNodeInfo(fromInfo, toInfo, nodeInfo->Cost, edges);
-        }
+            AddVerticeAndEdgeFromNodeInfo(from, to, path->ID, edges);
     }
 
     // create graph
-    m_graph = Graph(_getVertexCount());
+    m_graph = Graph(GetVertexCount());
     WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
 
     for (std::size_t j = 0; j < edges.size(); ++j)
     {
-        edge_descriptor e;
-        bool inserted;
-        boost::tie(e, inserted) = boost::add_edge(edges[j].first.first,
-            edges[j].first.second,
-            m_graph);
+        edge_descriptor e = boost::add_edge(edges[j].first.first, edges[j].first.second, m_graph).first;
         weightmap[e] = edges[j].second;
     }
-    m_edgeDuplicateControl.clear();
 }
 
-uint32 TaxiPathGraph::_getNodeIDFromVertexID(vertex_descriptor vertexID)
+uint32 TaxiPathGraph::GetNodeIDFromVertexID(vertex_descriptor vertexID)
 {
     if (vertexID < m_vertices.size())
-        return m_vertices[vertexID].nodeID;
+        return m_vertices[vertexID]->ID;
 
     return std::numeric_limits<uint32>::max();
 }
 
-TaxiPathGraph::vertex_descriptor TaxiPathGraph::_getVertexIDFromNodeID(uint32 nodeID)
+TaxiPathGraph::vertex_descriptor TaxiPathGraph::GetVertexIDFromNodeID(TaxiNodesEntry const* node)
 {
-    if (m_nodeIDToVertexID.find(nodeID) != m_nodeIDToVertexID.end())
-        return m_nodeIDToVertexID[nodeID];
-
-    return std::numeric_limits<vertex_descriptor>::max();
+    return node->LearnableIndex;
 }
 
-TaxiPathGraph::vertex_descriptor TaxiPathGraph::_getVertexIDFromNodeID(TaxiNodeInfo const& nodeInfo)
-{
-    if (m_nodeIDToVertexID.find(nodeInfo.nodeID) != m_nodeIDToVertexID.end())
-        return m_nodeIDToVertexID[nodeInfo.nodeID];
-
-    return std::numeric_limits<vertex_descriptor>::max();
-}
-
-size_t TaxiPathGraph::_getVertexCount()
+std::size_t TaxiPathGraph::GetVertexCount()
 {
     //So we can use this function for readability, we define either max defined vertices or already loaded in graph count
     return std::max(boost::num_vertices(m_graph), m_vertices.size());
 }
 
-void TaxiPathGraph::_addVerticeAndEdgeFromNodeInfo(const TaxiNodeInfo& from, const TaxiNodeInfo& to, uint32 /* money */, std::vector<std::pair<edge, cost>>& edges)
+void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, TaxiNodesEntry const* to, uint32 pathId, std::vector<std::pair<edge, EdgeCost>>& edges)
 {
-    if (from.nodeID != to.nodeID && m_edgeDuplicateControl.find(edge(from.nodeID, to.nodeID)) == m_edgeDuplicateControl.end())
+    if (from != to)
     {
-        vertex_descriptor fromVertexID = _createVertexFromFromNodeInfoIfNeeded(from);
-        vertex_descriptor toVertexID = _createVertexFromFromNodeInfoIfNeeded(to);
+        vertex_descriptor fromVertexID = CreateVertexFromFromNodeInfoIfNeeded(from);
+        vertex_descriptor toVertexID = CreateVertexFromFromNodeInfoIfNeeded(to);
 
-        // TODO: Calculate distance using TaxiPathNode
-        edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), from.pos.Distance(to.pos)));
-        m_edgeDuplicateControl.insert(edge(from.nodeID, to.nodeID));
+        float totalDist = 0.0f;
+        TaxiPathNodeList const& nodes = sTaxiPathNodesByPath[pathId];
+        if (nodes.size() < 2)
+        {
+            edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), EdgeCost{ to, 0xFFFF }));
+            return;
+        }
+
+        std::size_t last = nodes.size();
+        std::size_t first = 0;
+        if (nodes.size() > 2)
+        {
+            --last;
+            ++first;
+        }
+
+        for (std::size_t i = first + 1; i < last; ++i)
+        {
+            if (nodes[i - 1]->Flags & TAXI_PATH_NODE_FLAG_TELEPORT)
+                continue;
+
+            uint32 map1, map2;
+            DBCPosition2D pos1, pos2;
+
+            DeterminaAlternateMapPosition(nodes[i - 1]->MapID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
+            DeterminaAlternateMapPosition(nodes[i]->MapID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
+
+            if (map1 != map2)
+                continue;
+
+            totalDist += std::sqrt(
+                std::pow(pos2.X - pos1.X, 2) +
+                std::pow(pos2.Y - pos1.Y, 2) +
+                std::pow(nodes[i]->Loc.Z - nodes[i - 1]->Loc.Z, 2));
+        }
+
+        uint32 dist = uint32(totalDist);
+        if (dist > 0xFFFF)
+            return;
+
+        edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), EdgeCost{ to, dist }));
     }
 }
 
-size_t TaxiPathGraph::GetCompleteNodeRoute(uint32 sourceNodeID, uint32 destinationNodeID, std::vector<uint32>& shortestPath)
+std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, TaxiNodesEntry const* to, Player const* player, std::vector<uint32>& shortestPath)
 {
     /*
         Information about node algorithm from client
@@ -144,21 +135,24 @@ size_t TaxiPathGraph::GetCompleteNodeRoute(uint32 sourceNodeID, uint32 destinati
 
     // Find if we have a direct path
     uint32 pathId, goldCost;
-    sObjectMgr->GetTaxiPath(sourceNodeID, destinationNodeID, pathId, goldCost);
+    sObjectMgr->GetTaxiPath(from->ID, to->ID, pathId, goldCost);
     if (pathId)
-        shortestPath = { sourceNodeID, destinationNodeID };
+        shortestPath = { from->ID, to->ID };
     else
     {
         shortestPath.clear();
         std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
 
-        boost::dijkstra_shortest_paths(m_graph, _getVertexIDFromNodeID(sourceNodeID),
-            boost::predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, m_graph))));
+        boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
+            boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
+            .weight_map(boost::make_transform_value_property_map(
+                [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
+                boost::get(boost::edge_weight, m_graph))));
 
         // found a path to the goal
-        for (vertex_descriptor v = _getVertexIDFromNodeID(destinationNodeID); ; v = p[v])
+        for (vertex_descriptor v = GetVertexIDFromNodeID(to); ; v = p[v])
         {
-            shortestPath.push_back(_getNodeIDFromVertexID(v));
+            shortestPath.push_back(GetNodeIDFromVertexID(v));
             if (v == p[v])
                 break;
         }
@@ -169,25 +163,24 @@ size_t TaxiPathGraph::GetCompleteNodeRoute(uint32 sourceNodeID, uint32 destinati
     return shortestPath.size();
 }
 
-TaxiPathGraph::TaxiNodeInfo const* TaxiPathGraph::GetTaxiNodeInfoByID(uint32 nodeID)
-{
-    vertex_descriptor vertexID = _getVertexIDFromNodeID(nodeID);
-    if (m_vertices.size() < vertexID)
-        return nullptr;
-
-    return &m_vertices[vertexID];
-}
-
-TaxiPathGraph::vertex_descriptor TaxiPathGraph::_createVertexFromFromNodeInfoIfNeeded(TaxiNodeInfo const& nodeInfo)
+TaxiPathGraph::vertex_descriptor TaxiPathGraph::CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node)
 {
     //Check if we need a new one or if it may be already created
-    if (m_nodeIDToVertexID.find(nodeInfo.nodeID) == m_nodeIDToVertexID.end())
-    {
-        vertex_descriptor verID = m_vertices.size();
-        m_vertices.push_back(nodeInfo);
-        m_nodeIDToVertexID[nodeInfo.nodeID] = verID;
-        return verID;
-    }
+    if (m_vertices.size() <= node->LearnableIndex)
+        m_vertices.resize(node->LearnableIndex + 1);
 
-    return m_nodeIDToVertexID[nodeInfo.nodeID];
+    m_vertices[node->LearnableIndex] = node;
+    return node->LearnableIndex;
+}
+
+uint32 TaxiPathGraph::EdgeCost::EvaluateDistance(Player const* player) const
+{
+    uint32 requireFlag = (player->GetTeam() == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
+    if (!(To->Flags & requireFlag))
+        return std::numeric_limits<uint16>::max();
+
+    //if (To->ConditionID && !player->MeetsCondition(To->ConditionID))
+    //    return std::numeric_limits<uint16>::max();
+
+    return Distance;
 }
