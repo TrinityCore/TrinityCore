@@ -202,8 +202,10 @@ void ScriptMgr::Initialize()
     FillSpellSummary();
     AddScripts();
 
+    // [AZTH]
     sModsMgr->Initialization();
-
+    // [/AZTH]
+    
 #ifdef SCRIPTS
     for (std::string const& scriptName : UnusedScriptNames)
     {
