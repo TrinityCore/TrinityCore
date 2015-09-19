@@ -990,6 +990,7 @@ enum OpcodeServer : uint32
     SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL                = 0x1E09,
     SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL_KIT            = 0x11FF,
     SMSG_GAME_OBJECT_RESET_STATE                      = 0x03E1,
+    SMSG_GAME_OBJECT_UI_ACTION                        = 0x0449,
     SMSG_GAME_SPEED_SET                               = 0x02E4,
     SMSG_GAME_TIME_SET                                = 0x0963,
     SMSG_GAME_TIME_UPDATE                             = 0x0AF3,
