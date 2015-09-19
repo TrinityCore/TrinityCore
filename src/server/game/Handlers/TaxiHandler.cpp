@@ -27,16 +27,16 @@
 #include "TaxiPackets.h"
 #include "TaxiPathGraph.h"
 
-void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& packet)
+void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode)
 {
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(packet.Unit);
+    Creature* unit = GetPlayer()->GetMap()->GetCreature(enableTaxiNode.Unit);
     SendLearnNewTaxiNode(unit);
 }
 
 
-void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& packet)
+void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& taxiNodeStatusQuery)
 {
-    SendTaxiStatus(packet.UnitGUID);
+    SendTaxiStatus(taxiNodeStatusQuery.UnitGUID);
 }
 
 void WorldSession::SendTaxiStatus(ObjectGuid guid)
@@ -66,13 +66,13 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
-void WorldSession::HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& packet)
+void WorldSession::HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& taxiQueryAvailableNodes)
 {
     // cheating checks
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_FLIGHTMASTER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(taxiQueryAvailableNodes.Unit, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTaxiQueryAvailableNodes - %s not found or you can't interact with him.", packet.Unit.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleTaxiQueryAvailableNodes - %s not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString().c_str());
         return;
     }
     // remove fake death
@@ -156,12 +156,12 @@ void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
         SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
 }
 
-void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& packet)
+void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& activateTaxi)
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Vendor, UNIT_NPC_FLAG_FLIGHTMASTER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(activateTaxi.Vendor, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - %s not found or you can't interact with it.", packet.Vendor.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - %s not found or you can't interact with it.", activateTaxi.Vendor.ToString().c_str());
         return;
     }
 
@@ -170,13 +170,13 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& pa
         return;
 
     TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(curloc);
-    TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(packet.Node);
+    TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(activateTaxi.Node);
     if (!to)
         return;
 
     if (!GetPlayer()->isTaxiCheater())
     {
-        if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) || !GetPlayer()->m_taxi.IsTaximaskNodeKnown(packet.Node))
+        if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) || !GetPlayer()->m_taxi.IsTaximaskNodeKnown(activateTaxi.Node))
         {
             SendActivateTaxiReply(ERR_TAXINOTVISITED);
             return;
@@ -196,7 +196,7 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ACTIVATETAXIREPLY");
 }
 
-void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /* packet */)
+void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /*taxiRequestEarlyLanding*/)
 {
     GetPlayer()->m_taxi.RequestEarlyLanding();
 }

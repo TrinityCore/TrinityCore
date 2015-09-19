@@ -556,7 +556,7 @@ namespace WorldPackets
         class SetSpecialization;
         class LearnTalents;
     }
-    
+
     namespace Taxi
     {
         class ShowTaxiNodes;
@@ -1244,13 +1244,13 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
-        void HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& packet);
-        void HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& packet);
-        void HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& packet);
-        void HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& packet);
-        void HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& packet);
+        void HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode);
+        void HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& taxiNodeStatusQuery);
+        void HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& taxiQueryAvailableNodes);
+        void HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& activateTaxi);
+        void HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone);
         void SendActivateTaxiReply(ActivateTaxiReply reply);
-        void HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& packet);
+        void HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& taxiRequestEarlyLanding);
 
         void HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
