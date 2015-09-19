@@ -11,7 +11,7 @@
 -- 53561 | Stonebull Crayfish   | 99471,99473 | 29349 --
 -- ------+----------------------+-------------+------ --
  
-DELETE FROM `conditions` WHERE `SourceGroup` IN (42458, 53517, 53526, 53561);
+DELETE FROM `conditions` WHERE `SourceGroup` IN (42548, 53517, 53526, 53561);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Muddy Crawfish
         (18, 42548, 79276, 0, 0, 8, 0, 26226, 0, 0, 1, 0, 0, '', 'Quest can''t be rewarded for spellclick'),
