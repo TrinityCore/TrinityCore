@@ -687,3 +687,9 @@ WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Movement::MoveSplineDone::Read()
+{
+    _worldPacket >> movementInfo;
+    _worldPacket >> SplineID;
+}

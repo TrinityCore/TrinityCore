@@ -423,6 +423,17 @@ namespace WorldPackets
             ObjectGuid Guid;
             bool On = false;
         };
+
+        class MoveSplineDone final : public ClientPacket
+        {
+        public:
+            MoveSplineDone(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_SPLINE_DONE, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo movementInfo;
+            int32 SplineID;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);

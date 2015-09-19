@@ -684,6 +684,18 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK21           = 0x00100000           // Totems
 };
 
+enum TaxiNodeFlags
+{
+    TAXI_NODE_FLAG_ALLIANCE = 0x1,
+    TAXI_NODE_FLAG_HORDE    = 0x2
+};
+
+enum TaxiPathNodeFlags
+{
+    TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
+    TAXI_PATH_NODE_FLAG_STOP        = 0x2
+};
+
 enum VehicleSeatFlags
 {
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                         = 0x00000001,

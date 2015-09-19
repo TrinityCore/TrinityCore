@@ -156,6 +156,7 @@ DBCStorage<VehicleSeatEntry>                sVehicleSeatStore(VehicleSeatfmt);
 DBCStorage<WMOAreaTableEntry>               sWMOAreaTableStore(WMOAreaTablefmt);
 static WMOAreaInfoByTripple                 sWMOAreaInfoByTripple;
 DBCStorage<WorldMapAreaEntry>               sWorldMapAreaStore(WorldMapAreafmt);
+DBCStorage<WorldMapTransformsEntry>         sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage<WorldSafeLocsEntry>              sWorldSafeLocsStore(WorldSafeLocsfmt);
 
 GameTable<GtBarberShopCostBaseEntry>        sGtBarberShopCostBaseStore(GtBarberShopCostBasefmt);
@@ -376,6 +377,7 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     LOAD_DBC(sVehicleStore, "Vehicle.dbc");//20444
     LOAD_DBC(sWMOAreaTableStore, "WMOAreaTable.dbc");//20444
     LOAD_DBC(sWorldMapAreaStore, "WorldMapArea.dbc");//20444
+    LOAD_DBC(sWorldMapTransformsStore, "WorldMapTransforms.dbc");//20444
     LOAD_DBC(sWorldSafeLocsStore, "WorldSafeLocs.dbc"); // 20444
 
 #undef LOAD_DBC
@@ -892,4 +894,52 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     }
 
     return NULL;
+}
+
+void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
+{
+    WorldMapTransformsEntry const* transformation = nullptr;
+    for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
+    {
+        if (transform->MapID != mapId)
+            continue;
+
+        if (transform->RegionMin.X > x || transform->RegionMax.X < x)
+            continue;
+        if (transform->RegionMin.Y > y || transform->RegionMax.Y < y)
+            continue;
+        if (transform->RegionMin.Z > z || transform->RegionMax.Z < z)
+            continue;
+
+        transformation = transform;
+        break;
+    }
+
+    if (!transformation)
+    {
+        if (newMapId)
+            *newMapId = mapId;
+
+        if (newPos)
+        {
+            newPos->X = x;
+            newPos->Y = y;
+        }
+        return;
+    }
+
+    if (newMapId)
+        *newMapId = transformation->NewMapID;
+
+    if (!newPos)
+        return;
+
+    if (transformation->RegionScale > 0.0f && transformation->RegionScale < 1.0f)
+    {
+        newPos->X = (x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
+        newPos->Y = (y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
+    }
+
+    newPos->X += transformation->RegionOffset.X;
+    newPos->Y += transformation->RegionOffset.Y;
 }

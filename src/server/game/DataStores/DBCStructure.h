@@ -1411,6 +1411,20 @@ struct WorldMapAreaEntry
     //uint32    LevelRangeMax;                              // 13 Maximum recommended level displayed on world map
 };
 
+struct WorldMapTransformsEntry
+{
+    //uint32 ID;                                            // 0
+    uint32 MapID;                                           // 1
+    DBCPosition3D RegionMin;                                // 2
+    DBCPosition3D RegionMax;                                // 3
+    uint32 NewMapID;                                        // 4
+    DBCPosition2D RegionOffset;                             // 5
+    //uint32 NewDungeonMapID;                               // 6
+    //uint32 Flags;                                         // 7
+    //uint32 NewAreaID;                                     // 8
+    float RegionScale;                                      // 9
+};
+
 struct WorldSafeLocsEntry
 {
     uint32          ID;                                     // 0

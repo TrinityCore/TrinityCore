@@ -215,6 +215,39 @@ public:
     }
 };
 
+#define MAPID_INVALID 0xFFFFFFFF
+
+class WorldLocation : public Position
+{
+public:
+    explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+        : Position(x, y, z, o), m_mapId(mapId) { }
+
+    WorldLocation(WorldLocation const& loc)
+        : Position(loc), m_mapId(loc.GetMapId()) { }
+
+    void WorldRelocate(WorldLocation const& loc)
+    {
+        m_mapId = loc.GetMapId();
+        Relocate(loc);
+    }
+
+    void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+    {
+        m_mapId = mapId;
+        Relocate(x, y, z, o);
+    }
+
+    WorldLocation GetWorldLocation() const
+    {
+        return *this;
+    }
+
+    uint32 GetMapId() const { return m_mapId; }
+
+    uint32 m_mapId;
+};
+
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
