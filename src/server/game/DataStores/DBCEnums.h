@@ -687,7 +687,13 @@ enum SummonPropFlags
 enum TaxiNodeFlags
 {
     TAXI_NODE_FLAG_ALLIANCE = 0x1,
-    TAXI_NODE_FLAG_HORDE    = 0x2,
+    TAXI_NODE_FLAG_HORDE    = 0x2
+};
+
+enum TaxiPathNodeFlags
+{
+    TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
+    TAXI_PATH_NODE_FLAG_STOP        = 0x2
 };
 
 enum VehicleSeatFlags

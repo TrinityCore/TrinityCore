@@ -1472,8 +1472,8 @@ void World::SetInitialWorldSettings()
     LoadGameTables(m_dataPath, m_defaultDbcLocale);
 
     //Load weighted graph on taxi nodes path
-    TaxiPathGraph::Initialize();
-    
+    sTaxiPathGraph.Initialize();
+
     sSpellMgr->LoadPetFamilySpellsStore();
 
     std::unordered_map<uint32, std::vector<uint32>> mapData;

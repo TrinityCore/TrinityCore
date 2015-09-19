@@ -134,7 +134,6 @@ TaxiMask                                        sTaxiNodesMask;
 TaxiMask                                        sOldContinentsNodesMask;
 TaxiMask                                        sHordeTaxiNodesMask;
 TaxiMask                                        sAllianceTaxiNodesMask;
-TaxiMask                                        sDeathKnightTaxiNodesMask;
 TaxiPathSetBySource                             sTaxiPathSetBySource;
 TaxiPathNodesByPath                             sTaxiPathNodesByPath;
 
@@ -459,7 +458,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         sOldContinentsNodesMask.fill(0);
         sHordeTaxiNodesMask.fill(0);
         sAllianceTaxiNodesMask.fill(0);
-        sDeathKnightTaxiNodesMask.fill(0);
         for (TaxiNodesEntry const* node : sTaxiNodesStore)
         {
             if (!(node->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE)))
@@ -474,11 +472,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 sHordeTaxiNodesMask[field] |= submask;
             if (node->Flags & TAXI_NODE_FLAG_ALLIANCE)
                 sAllianceTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
-                sDeathKnightTaxiNodesMask[field] |= submask;
 
-            // todo: use WorldMapTransforms.dbc for this
-            if (node->MapID < 2 || node->ID == 82 || node->ID == 83 || node->ID == 93 || node->ID == 94)
+            uint32 nodeMap;
+            DeterminaAlternateMapPosition(node->MapID, node->Pos.X, node->Pos.Y, node->Pos.Z, &nodeMap);
+            if (nodeMap < 2)
                 sOldContinentsNodesMask[field] |= submask;
         }
     }

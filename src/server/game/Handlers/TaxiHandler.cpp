@@ -60,7 +60,7 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
         data.Status = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? TAXISTATUS_LEARNED : TAXISTATUS_UNLEARNED;
     else
         data.Status = TAXISTATUS_NOT_ELIGIBLE;
-    
+
     SendPacket(data.Write());
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXI_NODE_STATUS");
@@ -104,9 +104,9 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     data.WindowInfo = boost::in_place();
     data.WindowInfo->UnitGUID = unit->GetGUID();
     data.WindowInfo->CurrentNode = curloc;
-    
+
     GetPlayer()->m_taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
- 
+
     SendPacket(data.Write());
 
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
@@ -166,10 +166,14 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& pa
     }
 
     uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
-    
     if (!curloc)
         return;
-    
+
+    TaxiNodesEntry const* from = sTaxiNodesStore.LookupEntry(curloc);
+    TaxiNodesEntry const* to = sTaxiNodesStore.LookupEntry(packet.Node);
+    if (!to)
+        return;
+
     if (!GetPlayer()->isTaxiCheater())
     {
         if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) || !GetPlayer()->m_taxi.IsTaximaskNodeKnown(packet.Node))
@@ -178,9 +182,9 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& pa
             return;
         }
     }
-    
+
     std::vector<uint32> nodes;
-    TaxiPathGraph::GetCompleteNodeRoute(curloc, packet.Node, nodes);
+    sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
     GetPlayer()->ActivateTaxiPathTo(nodes, unit);
 }
 
