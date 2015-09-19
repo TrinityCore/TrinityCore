@@ -539,8 +539,9 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
+    SMART_ACTION_SET_POWER_TYPE                     = 114,    // PowerType, power value
 
-    SMART_ACTION_END                                = 114
+    SMART_ACTION_END                                = 115
 };
 
 struct SmartAction
@@ -1015,6 +1016,12 @@ struct SmartAction
             uint32 wp5;
             uint32 wp6;
         } closestWaypointFromList;
+
+        struct
+        {
+            uint32 powerType;
+            uint32 value;
+        } powerType;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
