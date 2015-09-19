@@ -1914,10 +1914,6 @@ class Unit : public WorldObject
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
 
-        uint16 _aiAnimKitId;
-        uint16 _movementAnimKitId;
-        uint16 _meleeAnimKitId;
-
         SpellHistory* GetSpellHistory() { return _spellHistory; }
         SpellHistory const* GetSpellHistory() const { return _spellHistory; }
 
@@ -2353,6 +2349,10 @@ class Unit : public WorldObject
 
         uint32 _oldFactionId;           ///< faction before charm
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
+
+        uint16 _aiAnimKitId;
+        uint16 _movementAnimKitId;
+        uint16 _meleeAnimKitId;
 
         time_t _lastDamagedTime; // Part of Evade mechanics
 
