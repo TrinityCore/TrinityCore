@@ -170,9 +170,11 @@ void PlayerTaxi::RequestEarlyLanding()
         return;
 
     for (std::deque<uint32>::iterator it = m_TaxiDestinations.begin(); it != m_TaxiDestinations.end(); it++)
+    {
         if (IsTaximaskNodeKnown(*it))
         {
             m_TaxiDestinations.erase(++it, m_TaxiDestinations.end());
             return;
         }
+    }
 }

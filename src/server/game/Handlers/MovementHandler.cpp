@@ -527,9 +527,9 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeS
 {
 }
 
-void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& packet)
+void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
 {
-    MovementInfo movementInfo = packet.movementInfo;
+    MovementInfo movementInfo = moveSplineDone.movementInfo;
     _player->ValidateMovementInfo(&movementInfo);
 
     // in taxi flight packet received in 2 case:
