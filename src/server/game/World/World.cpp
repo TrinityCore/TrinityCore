@@ -60,6 +60,7 @@
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SupportMgr.h"
+#include "TaxiPathGraph.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "VMapFactory.h"
@@ -1469,6 +1470,9 @@ void World::SetInitialWorldSettings()
     HotfixDatabase.Close();
     ///- Load GameTables
     LoadGameTables(m_dataPath, m_defaultDbcLocale);
+
+    //Load weighted graph on taxi nodes path
+    sTaxiPathGraph.Initialize();
 
     sSpellMgr->LoadPetFamilySpellsStore();
 

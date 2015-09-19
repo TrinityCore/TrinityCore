@@ -1361,6 +1361,6 @@ typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 217
-typedef uint8 TaxiMask[TaxiMaskSize];
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 #endif

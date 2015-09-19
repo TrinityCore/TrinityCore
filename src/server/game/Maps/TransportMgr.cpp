@@ -131,7 +131,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (!mapChange)
         {
             TaxiPathNodeEntry const* node_i = path[i];
-            if (i != path.size() - 1 && (node_i->Flags & 1 || node_i->MapID != path[i + 1]->MapID))
+            if (i != path.size() - 1 && (node_i->Flags & TAXI_PATH_NODE_FLAG_TELEPORT || node_i->MapID != path[i + 1]->MapID))
             {
                 keyFrames.back().Teleport = true;
                 mapChange = true;

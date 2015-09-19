@@ -93,6 +93,8 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 void Zone2MapCoordinates(float &x, float &y, uint32 worldMapAreaId);
 void Map2ZoneCoordinates(float &x, float &y, uint32 worldMapAreaId);
 
+// WorldMapTransforms
+void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
 
 uint32 GetMaxLevelForExpansion(uint32 expansion);
 uint32 GetExpansionForLevel(uint32 level);
