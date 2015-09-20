@@ -532,6 +532,22 @@ WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetMovementAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMeleeAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
 {
     _worldPacket << UnitGUID;

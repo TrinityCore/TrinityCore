@@ -201,7 +201,9 @@ Unit::Unit(bool isWorldObject) :
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
     m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_ThreatManager(this),
     m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
-    m_HostileRefManager(this), _lastDamagedTime(0), _spellHistory(new SpellHistory(this))
+    m_HostileRefManager(this), _lastDamagedTime(0),
+    _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
+    _spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -13422,6 +13424,54 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(packet.Write());
 }
 
+void Unit::SetAIAnimKitId(uint16 animKitId)
+{
+    if (_aiAnimKitId == animKitId)
+        return;
+
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
+    _aiAnimKitId = animKitId;
+
+    WorldPackets::Misc::SetAIAnimKit data;
+    data.Unit = GetGUID();
+    data.AnimKitID = animKitId;
+    SendMessageToSet(data.Write(), true);
+}
+
+void Unit::SetMovementAnimKitId(uint16 animKitId)
+{
+    if (_movementAnimKitId == animKitId)
+        return;
+
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
+    _movementAnimKitId = animKitId;
+
+    WorldPackets::Misc::SetMovementAnimKit data;
+    data.Unit = GetGUID();
+    data.AnimKitID = animKitId;
+    SendMessageToSet(data.Write(), true);
+}
+
+void Unit::SetMeleeAnimKitId(uint16 animKitId)
+{
+    if (_meleeAnimKitId == animKitId)
+        return;
+
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
+    _meleeAnimKitId = animKitId;
+
+    WorldPackets::Misc::SetMeleeAnimKit data;
+    data.Unit = GetGUID();
+    data.AnimKitID = animKitId;
+    SendMessageToSet(data.Write(), true);
+}
+
 void Unit::PlayOneShotAnimKit(uint16 animKitId)
 {
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7+2);
@@ -15512,7 +15562,7 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
         {
             WorldPackets::Combat::ThreatInfo info;
             info.UnitGUID = (*itr)->getUnitGuid();
-            info.Threat = int32((*itr)->getThreat());
+            info.Threat = int32((*itr)->getThreat() * 100);
             packet.ThreatList.push_back(info);
         }
         SendMessageToSet(packet.Write(), false);

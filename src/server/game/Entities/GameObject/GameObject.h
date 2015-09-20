@@ -1083,6 +1083,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void UpdateModelPosition();
 
+        uint16 GetAIAnimKitId() const override { return _animKitId; }
+        void SetAnimKitId(uint16 animKitId, bool oneshot);
+
     protected:
         bool AIM_Initialize();
         GameObjectModel* CreateModel();
@@ -1127,5 +1130,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         }
 
         GameObjectAI* m_AI;
+        uint16 _animKitId;
 };
 #endif

@@ -66,6 +66,18 @@ namespace WorldPackets
 
             ObjectGuid GameObjectGUID;
         };
+
+        class GameObjectActivateAnimKit final : public ServerPacket
+        {
+        public:
+            GameObjectActivateAnimKit() : ServerPacket(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            int32 AnimKitID = 0;
+            bool Maintain = false;
+        };
     }
 }
 #endif // GOPackets_h__

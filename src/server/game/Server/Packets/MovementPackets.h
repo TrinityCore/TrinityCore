@@ -78,8 +78,8 @@ namespace WorldPackets
             uint32 MoveTime             = 0;
             float JumpGravity           = 0.0f;
             uint32 SpecialTime          = 0;
-            std::vector<G3D::Vector3> Points;        // Spline path
-            uint8 Mode                  = 0;
+            std::vector<G3D::Vector3> Points;   // Spline path
+            uint8 Mode                  = 0;    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
             uint8 VehicleExitVoluntary  = 0;
             ObjectGuid TransportGUID;
             uint8 VehicleSeat           = 255;
