@@ -164,17 +164,23 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
     return ss;
 }
 
-void PlayerTaxi::RequestEarlyLanding()
+bool PlayerTaxi::RequestEarlyLanding()
 {
-    if (m_TaxiDestinations.empty())
-        return;
+    if (m_TaxiDestinations.size() <= 2)
+        return false;
 
-    for (std::deque<uint32>::iterator it = m_TaxiDestinations.begin(); it != m_TaxiDestinations.end(); it++)
+    // start from first destination - m_TaxiDestinations[0] is the current starting node
+    for (std::deque<uint32>::iterator it = ++m_TaxiDestinations.begin(); it != m_TaxiDestinations.end(); ++it)
     {
         if (IsTaximaskNodeKnown(*it))
         {
-            m_TaxiDestinations.erase(++it, m_TaxiDestinations.end());
-            return;
+            if (++it == m_TaxiDestinations.end())
+                return false;   // if we are left with only 1 known node on the path don't change the spline, its our final destination anyway
+
+            m_TaxiDestinations.erase(it, m_TaxiDestinations.end());
+            return true;
         }
     }
+
+    return false;
 }

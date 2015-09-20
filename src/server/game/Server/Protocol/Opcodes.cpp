@@ -780,7 +780,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TALK_TO_GOSSIP,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleGossipHelloOpcode);
     DEFINE_HANDLER(CMSG_TAXI_NODE_STATUS_QUERY,                             STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Taxi::TaxiNodeStatusQuery, &WorldSession::HandleTaxiNodeStatusQueryOpcode);
     DEFINE_HANDLER(CMSG_TAXI_QUERY_AVAILABLE_NODES,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Taxi::TaxiQueryAvailableNodes, &WorldSession::HandleTaxiQueryAvailableNodesOpcode);
-    DEFINE_HANDLER(CMSG_TAXI_REQUEST_EARLY_LANDING,                         STATUS_UNHANDLED, PROCESS_THREADSAFE,   WorldPackets::Taxi::TaxiRequestEarlyLanding, &WorldSession::HandleTaxiRequestEarlyLanding);
+    DEFINE_HANDLER(CMSG_TAXI_REQUEST_EARLY_LANDING,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Taxi::TaxiRequestEarlyLanding, &WorldSession::HandleTaxiRequestEarlyLanding);
     DEFINE_HANDLER(CMSG_TELEPORT_TO_UNIT,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_TIME_ADJUSTMENT_RESPONSE,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_TIME_SYNC_RESPONSE,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Misc::TimeSyncResponse, &WorldSession::HandleTimeSyncResponse);

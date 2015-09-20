@@ -116,7 +116,7 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
 
         uint32 dist = uint32(totalDist);
         if (dist > 0xFFFF)
-            return;
+            dist = 0xFFFF;
 
         edges.push_back(std::make_pair(edge(fromVertexID, toVertexID), EdgeCost{ to, dist }));
     }
