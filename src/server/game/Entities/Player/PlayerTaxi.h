@@ -9,7 +9,7 @@
 class PlayerTaxi
 {
     public:
-        PlayerTaxi() { }
+        PlayerTaxi() { m_taximask.fill(0); }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
@@ -51,13 +51,13 @@ class PlayerTaxi
             m_TaxiDestinations.pop_front();
             return GetTaxiDestination();
         }
-        void RequestEarlyLanding();
+        bool RequestEarlyLanding();
         std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
         bool empty() const { return m_TaxiDestinations.empty(); }
 
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
-        TaxiMask m_taximask = { { } };
+        TaxiMask m_taximask;
         std::deque<uint32> m_TaxiDestinations;
 };
 

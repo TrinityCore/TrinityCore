@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "TaxiPackets.h"
 #include "TaxiPathGraph.h"
+#include "WaypointMovementGenerator.h"
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode)
 {
@@ -198,5 +199,13 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 
 void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /*taxiRequestEarlyLanding*/)
 {
-    GetPlayer()->m_taxi.RequestEarlyLanding();
+    if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+    {
+        if (GetPlayer()->m_taxi.RequestEarlyLanding())
+        {
+            FlightPathMovementGenerator* flight = static_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->top());
+            flight->LoadPath(GetPlayer(), flight->GetPath()[flight->GetCurrentNode()]->NodeIndex);
+            flight->Reset(GetPlayer());
+        }
+    }
 }
