@@ -75,7 +75,7 @@ void Warning(char const* file, int line, char const* function, char const* messa
 void Abort(char const* file, int line, char const* function)
 {
     fprintf(stderr, "\n%s:%i in %s ABORTED.\n",
-                   file, line, function, message);
+                   file, line, function);
 }
 
 } // namespace Trinity
