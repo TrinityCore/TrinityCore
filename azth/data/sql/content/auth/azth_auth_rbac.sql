@@ -35,12 +35,16 @@ REPLACE INTO rbac_linked_permissions VALUES
 # ADD CUSTOM PERMISSIONS
 #
 
+# delete custom commands
+DELETE FROM `rbac_linked_permissions` WHERE linkedId > 1000 AND linkedId < 3000; 
+
+# delete custom roles
 DELETE FROM rbac_linked_permissions WHERE id >= 100000;
 DELETE FROM rbac_linked_permissions WHERE linkedId >= 100000;
 
 SET FOREIGN_KEY_CHECKS=0; -- disable temporary FKEY check
 
-DELETE FROM rbac_permissions WHERE id >= 100000;
+DELETE FROM `rbac_permissions` WHERE id >= 100000;
 
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100000','Role: Azeroth [Reserved]');
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100001','Role: Azeroth GM Tier 1 ( Supporter )');
@@ -48,9 +52,15 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100002','Role: Azeroth GM 
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100003','Role: Azeroth GM Tier 3 ( da definire )');
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100010','Role: Story Teller');
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100011','Role: Test Player');
+INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100012','Role: Azeroth Player');
 
 SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 
+#add default permissions 
+DELETE FROM `rbac_default_permissions` WHERE permissionId >= 100000;
+
+INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('0', '100011', 2); 
+INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`) VALUES ('0', '100012'); 
 
 # Query to check current used permissions
 # SELECT * FROM rbac_permissions WHERE id IN (SELECT linkedId FROM rbac_linked_permissions WHERE id >= 100000);
@@ -59,6 +69,7 @@ SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 # TIER 1: Supporter - Player
 INSERT INTO rbac_linked_permissions VALUES
 (100001,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
+(100001,100012), # inheriting from Azeroth Player
 (100001,373), # gm fly
 (100001,513), # maxskill
 (100001,522), # respawn
@@ -66,26 +77,12 @@ INSERT INTO rbac_linked_permissions VALUES
 (100001,517), # pinfo
 (100001,526), # Command: set skill
 (100001,558), #Command: modify rep
-(100001,442), #Command: lookup
-(100001,443), #Command: lookup area
-(100001,444), #Command: lookup creature
-(100001,445), #Command: lookup event
-(100001,446), #Command: lookup faction
-(100001,447), #Command: lookup item
-(100001,448), #Command: lookup itemset
-(100001,449), #Command: lookup object
-(100001,450), #Command: lookup quest
 (100001,451), #Command: lookup player
 (100001,452), #Command: lookup player ip
 (100001,453), #Command: lookup player account
 (100001,454), #Command: lookup player email
-(100001,455), #Command: lookup skill
-(100001,456), #Command: lookup spell
-(100001,457), #Command: lookup spell id
-(100001,458), #Command: lookup taxinode
+(100001,455), #Command: lookup skill ( can inspect other players skills )
 (100001,459), #Command: lookup tele
-(100001,460), #Command: lookup title
-(100001,461), #Command: lookup map
 (100001,417), #Command: learn
 (100001,418), #Command: learn all
 (100001,419), #Command: learn all my
@@ -99,6 +96,23 @@ INSERT INTO rbac_linked_permissions VALUES
 (100001,427), #Command: learn all lang
 (100001,428), #Command: learn all recipes
 (100001,429), #COmmand: unlearn
+(100001,251), # Command: banlist ip
+(100001,250), # Command: banlist character
+(100001,249), # Command: banlist account
+(100001,248), # Command: banlist
+(100001,247), # Command: baninfo ip
+(100001,246), # Command: baninfo character
+(100001,245), # Command: baninfo account
+(100001,244), # Command: baninfo
+(100001,521), # repairitems
+(100001,711), # reset achievements
+(100001,717), # reset all
+(100001,712), # reset honor
+(100001,713), # reset level
+(100001,714), # reset spells
+(100001,715), # reset stats
+(100001,716), # reset talents
+(100001,710), # reset
 (100001,488), # additem
 (100001,489), # additemset
 (100001,275), # Command: character changefaction
@@ -122,6 +136,16 @@ INSERT INTO rbac_linked_permissions VALUES
 (100002,100001), # inherit from parent TIER
 (100002,554),    # Command: modify money ( dangerous )
 (100002,515),    # Command: mute
+(100002,256),    # Command: unban playeraccount
+(100002,255),    # Command: unban ip
+(100002,254),    # Command: unban character
+(100002,253),    # Command: unban account
+(100002,252),    # Command: unban
+(100002,243),    # Command: ban playeraccount
+(100002,242),    # Command: ban ip
+(100002,241),    # Command: ban character
+(100002,240),    # Command: ban account
+(100002,239),    # Command: ban
 (100002,542);    # morph
 
 
@@ -149,12 +173,26 @@ INSERT INTO rbac_linked_permissions VALUES
 (100011,489), # additemset
 (100011,737); # tele
 
-
-
-
-
-
-
+# Special: Azeroth player
+INSERT INTO rbac_linked_permissions VALUES 
+(100012,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
+(100012,442), #Command: lookup
+(100012,443), #Command: lookup area
+(100012,444), #Command: lookup creature
+(100012,445), #Command: lookup event
+(100012,446), #Command: lookup faction
+(100012,447), #Command: lookup item
+(100012,448), #Command: lookup itemset
+(100012,449), #Command: lookup object
+(100012,450), #Command: lookup quest
+(100012,456), #Command: lookup spell
+(100012,457), #Command: lookup spell id
+(100012,458), #Command: lookup taxinode
+(100012,460), #Command: lookup title
+(100012,461), #Command: lookup map
+(100012,718), # Command: server
+(100012, 1000), # command QC
+(100012,736); # Command: server motd
 
 
 
