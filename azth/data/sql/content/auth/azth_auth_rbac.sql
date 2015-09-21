@@ -68,7 +68,7 @@ INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`) VALUES ('0', '1
 
 # TIER 1: Supporter - Player
 INSERT INTO rbac_linked_permissions VALUES
-(100001,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
+(100001,194), # inheriting from GM 1 ( it shouldn't be necessary but needed for research )
 (100001,100012), # inheriting from Azeroth Player
 (100001,373), # gm fly
 (100001,513), # maxskill
@@ -132,7 +132,6 @@ INSERT INTO rbac_linked_permissions VALUES
 
 # TIER 2: Protector - Moderator
 INSERT INTO rbac_linked_permissions VALUES
-(100002,194),    # inheriting from GM LVL 1 ( it shouldn't be necessary )
 (100002,100001), # inherit from parent TIER
 (100002,554),    # Command: modify money ( dangerous )
 (100002,515),    # Command: mute
@@ -193,8 +192,6 @@ INSERT INTO rbac_linked_permissions VALUES
 (100012,718), # Command: server
 (100012, 1000), # command QC
 (100012,736); # Command: server motd
-
-
 
 
 
