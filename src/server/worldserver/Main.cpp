@@ -441,7 +441,7 @@ void FreezeDetectorHandler(const boost::system::error_code& error)
         else if (getMSTimeDiff(_lastChangeMsTime, curtime) > _maxCoreStuckTimeInMs)
         {
             TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-            ASSERT(false);
+            ABORT();
         }
 
         _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(1));

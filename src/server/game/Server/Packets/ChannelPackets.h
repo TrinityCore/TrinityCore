@@ -144,7 +144,7 @@ namespace WorldPackets
                 switch (GetOpcode())
                 {
                     default:
-                        ASSERT(false);
+                        ABORT();
                     case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
                     case CMSG_CHAT_CHANNEL_BAN:
                     case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
