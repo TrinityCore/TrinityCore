@@ -898,6 +898,7 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 
 void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
 {
+    ASSERT(newMapId || newPos);
     WorldMapTransformsEntry const* transformation = nullptr;
     for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
     {
@@ -936,10 +937,10 @@ void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint
 
     if (transformation->RegionScale > 0.0f && transformation->RegionScale < 1.0f)
     {
-        newPos->X = (x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
-        newPos->Y = (y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
+        x = (x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
+        y = (y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
     }
 
-    newPos->X += transformation->RegionOffset.X;
-    newPos->Y += transformation->RegionOffset.Y;
+    newPos->X = x + transformation->RegionOffset.X;
+    newPos->Y = y + transformation->RegionOffset.Y;
 }

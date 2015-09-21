@@ -92,7 +92,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Vendor;
-            uint32 Node;
+            uint32 Node = 0;
         };
 
         class NewTaxiPath final : public ServerPacket
@@ -110,7 +110,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Reply;
+            uint8 Reply = 0;
         };
 
         class TaxiRequestEarlyLanding final : public ClientPacket

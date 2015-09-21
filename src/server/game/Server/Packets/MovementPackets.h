@@ -432,7 +432,7 @@ namespace WorldPackets
             void Read() override;
 
             MovementInfo movementInfo;
-            int32 SplineID;
+            int32 SplineID = 0;
         };
     }
 
