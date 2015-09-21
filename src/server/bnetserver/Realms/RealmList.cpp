@@ -161,7 +161,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
             catch (std::exception& ex)
             {
                 TC_LOG_ERROR("realmlist", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
-                ASSERT(false);
+                ABORT();
             }
         }
         while (result->NextRow());
