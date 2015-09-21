@@ -20440,7 +20440,7 @@ void Player::StopCastingCharm()
         if (charm->GetCharmerGUID())
         {
             TC_LOG_FATAL("entities.player", "Charmed unit has charmer %s", charm->GetCharmerGUID().ToString().c_str());
-            ASSERT(false);
+            ABORT();
         }
         else
             SetCharm(charm, false);

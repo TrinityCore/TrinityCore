@@ -29,8 +29,7 @@ void Assert(char const* file, int line, char const* function, char const* messag
 {
     fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n",
             file, line, function, message);
-    *((volatile int*)NULL) = 0;
-    exit(1);
+    abort();
 }
 
 void Assert(char const* file, int line, char const* function, char const* message, char const* format, ...)
@@ -44,8 +43,7 @@ void Assert(char const* file, int line, char const* function, char const* messag
     fflush(stderr);
 
     va_end(args);
-    *((volatile int*)NULL) = 0;
-    exit(1);
+    abort();
 }
 
 void Fatal(char const* file, int line, char const* function, char const* message)
@@ -54,22 +52,27 @@ void Fatal(char const* file, int line, char const* function, char const* message
                    file, line, function, message);
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
-    *((volatile int*)NULL) = 0;
-    exit(1);
+    abort();
 }
 
 void Error(char const* file, int line, char const* function, char const* message)
 {
     fprintf(stderr, "\n%s:%i in %s ERROR:\n  %s\n",
                    file, line, function, message);
-    *((volatile int*)NULL) = 0;
-    exit(1);
+    abort();
 }
 
 void Warning(char const* file, int line, char const* function, char const* message)
 {
     fprintf(stderr, "\n%s:%i in %s WARNING:\n  %s\n",
                    file, line, function, message);
+}
+
+void Abort(char const* file, int line, char const* function)
+{
+    fprintf(stderr, "\n%s:%i in %s ABORTED\n",
+                   file, line, function);
+    abort();
 }
 
 } // namespace Trinity
