@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.26, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth335
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.6.26-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -72,7 +72,8 @@ CREATE TABLE `account_access` (
   `id` int(10) unsigned NOT NULL,
   `gmlevel` tinyint(3) unsigned NOT NULL,
   `RealmID` int(11) NOT NULL DEFAULT '-1',
-  PRIMARY KEY (`id`,`RealmID`)
+  PRIMARY KEY (`id`,`RealmID`),
+  CONSTRAINT `account_access_ibfk_1` FOREIGN KEY (`id`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -99,7 +100,8 @@ CREATE TABLE `account_banned` (
   `bannedby` varchar(50) NOT NULL,
   `banreason` varchar(255) NOT NULL,
   `active` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`,`bandate`)
+  PRIMARY KEY (`id`,`bandate`),
+  CONSTRAINT `account_banned_ibfk_1` FOREIGN KEY (`id`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Ban List';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -125,7 +127,8 @@ CREATE TABLE `account_muted` (
   `mutetime` int(10) unsigned NOT NULL DEFAULT '0',
   `mutedby` varchar(50) NOT NULL,
   `mutereason` varchar(255) NOT NULL,
-  PRIMARY KEY (`guid`,`mutedate`)
+  PRIMARY KEY (`guid`,`mutedate`),
+  CONSTRAINT `account_muted_ibfk_1` FOREIGN KEY (`guid`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='mute List';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -253,7 +256,9 @@ CREATE TABLE `logs` (
   `realm` int(10) unsigned NOT NULL,
   `type` varchar(250) NOT NULL,
   `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `string` text CHARACTER SET latin1
+  `string` text CHARACTER SET latin1,
+  KEY `realm` (`realm`),
+  CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`realm`) REFERENCES `realmlist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -283,7 +288,9 @@ CREATE TABLE `logs_ip_actions` (
   `unixtime` int(10) unsigned NOT NULL COMMENT 'Unixtime',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp',
   `comment` text COMMENT 'Allows users to add a comment',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `account_id` (`account_id`),
+  CONSTRAINT `logs_ip_actions_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Used to log ips of individual actions';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -310,8 +317,8 @@ CREATE TABLE `rbac_account_permissions` (
   `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
   PRIMARY KEY (`accountId`,`permissionId`,`realmId`),
   KEY `fk__rbac_account_roles__rbac_permissions` (`permissionId`),
-  CONSTRAINT `fk__rbac_account_permissions__account` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk__rbac_account_roles__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE
+  CONSTRAINT `rbac_account_permissions_ibfk_1` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `rbac_account_permissions_ibfk_2` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account-Permission relation';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -337,7 +344,7 @@ CREATE TABLE `rbac_default_permissions` (
   `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
   PRIMARY KEY (`secId`,`permissionId`,`realmId`),
   KEY `fk__rbac_default_permissions__rbac_permissions` (`permissionId`),
-  CONSTRAINT `fk__rbac_default_permissions__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`)
+  CONSTRAINT `rbac_default_permissions_ibfk_1` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Default permission to assign to different account security levels';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -364,8 +371,8 @@ CREATE TABLE `rbac_linked_permissions` (
   PRIMARY KEY (`id`,`linkedId`),
   KEY `fk__rbac_linked_permissions__rbac_permissions1` (`id`),
   KEY `fk__rbac_linked_permissions__rbac_permissions2` (`linkedId`),
-  CONSTRAINT `fk__rbac_linked_permissions__rbac_permissions1` FOREIGN KEY (`id`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk__rbac_linked_permissions__rbac_permissions2` FOREIGN KEY (`linkedId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE
+  CONSTRAINT `rbac_linked_permissions_ibfk_1` FOREIGN KEY (`id`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `rbac_linked_permissions_ibfk_2` FOREIGN KEY (`linkedId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Permission - Linked Permission relation';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -415,7 +422,9 @@ CREATE TABLE `realmcharacters` (
   `acctid` int(10) unsigned NOT NULL,
   `numchars` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`realmid`,`acctid`),
-  KEY `acctid` (`acctid`)
+  KEY `acctid` (`acctid`),
+  CONSTRAINT `realmcharacters_ibfk_1` FOREIGN KEY (`realmid`) REFERENCES `realmlist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `realmcharacters_ibfk_2` FOREIGN KEY (`acctid`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Realm Character Tracker';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -462,6 +471,28 @@ LOCK TABLES `realmlist` WRITE;
 INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,12340);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER delete_realm_actions AFTER DELETE ON `realmlist`
+FOR EACH ROW
+BEGIN
+DELETE FROM `account_access` WHERE `RealmID` = OLD.`id`;
+DELETE FROM `autobroadcast` WHERE `realmid` = OLD.`id`;
+DELETE FROM `rbac_account_permissions` WHERE `realmId` = OLD.`id`;
+DELETE FROM `rbac_default_permissions` WHERE `realmId` = OLD.`id`;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `updates`
@@ -527,7 +558,8 @@ CREATE TABLE `uptime` (
   `uptime` int(10) unsigned NOT NULL DEFAULT '0',
   `maxplayers` smallint(5) unsigned NOT NULL DEFAULT '0',
   `revision` varchar(255) NOT NULL DEFAULT 'Trinitycore',
-  PRIMARY KEY (`realmid`,`starttime`)
+  PRIMARY KEY (`realmid`,`starttime`),
+  CONSTRAINT `uptime_ibfk_1` FOREIGN KEY (`realmid`) REFERENCES `realmlist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Uptime system';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -549,4 +581,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-07-14  1:06:49
+-- Dump completed on 2015-08-13  4:19:01
