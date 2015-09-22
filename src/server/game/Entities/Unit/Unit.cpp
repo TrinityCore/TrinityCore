@@ -15434,42 +15434,32 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
 void Unit::SendTeleportPacket(Position& pos)
 {
     // SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
-    // MSG_MOVE_TELEPORT is sent to self in order to trigger MSG_MOVE_TELEPORT_ACK and update the position server side
+    // SMSG_MOVE_TELEPORT is sent to self in order to trigger CMSG_MOVE_TELEPORT_ACK and update the position server side
 
-    // This oldPos actually contains the destination position if the Unit is a Player.
-    Position oldPos = {GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), GetOrientation()};
-
-    if (GetTypeId() == TYPEID_UNIT)
-        Relocate(&pos); // Relocate the unit to its new position in order to build the packets correctly.
-
-    WorldPackets::Movement::MoveUpdateTeleport packet;
-    packet.movementInfo = &m_movementInfo;
+    WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
+    moveUpdateTeleport.movementInfo = &m_movementInfo;
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPackets::Movement::MoveTeleport selfPacket;
-
-        selfPacket.MoverGUID = GetGUID();
-
-        ObjectGuid transGuid = GetTransGUID();
-        if (!transGuid.IsEmpty())
-            selfPacket.TransportGUID = transGuid;
-
-        selfPacket.Pos.Relocate(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
-        selfPacket.Facing = GetOrientation();
-        selfPacket.SequenceIndex = m_movementCounter++;
-
-        ToPlayer()->SendDirectMessage(selfPacket.Write());
+        WorldPackets::Movement::MoveTeleport moveTeleport;
+        moveTeleport.MoverGUID = GetGUID();
+        moveTeleport.TransportGUID = GetTransGUID();
+        moveTeleport.Pos.Relocate(pos);
+        moveTeleport.Facing = GetOrientation();
+        moveTeleport.SequenceIndex = m_movementCounter++;
+        ToPlayer()->SendDirectMessage(moveTeleport.Write());
+    }
+    else
+    {
+        // This is the only packet sent for creatures which contains MovementInfo structure
+        // we do not update m_movementInfo for creatures so it needs to be done manually here
+        moveUpdateTeleport.movementInfo->guid = GetGUID();
+        moveUpdateTeleport.movementInfo->pos.Relocate(pos);
+        moveUpdateTeleport.movementInfo->time = getMSTime();
     }
 
-    // Relocate the player/creature to its old position, so we can broadcast to nearby players correctly
-    if (GetTypeId() == TYPEID_PLAYER)
-        Relocate(&pos);
-    else
-        Relocate(&oldPos);
-
     // Broadcast the packet to everyone except self.
-    SendMessageToSet(packet.Write(), false);
+    SendMessageToSet(moveUpdateTeleport.Write(), false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
