@@ -689,6 +689,26 @@ void Map::Update(const uint32 t_diff)
         player->Update(t_diff);
 
         VisitNearbyCellsOf(player, grid_object_update, world_object_update);
+
+        // Handle updates for creatures in combat with player and are more than 60 yards away
+        if (player->IsInCombat())
+        {
+            std::vector<Creature*> updateList;
+            HostileReference* ref = player->getHostileRefManager().getFirst();
+
+            while (ref)
+            {
+                if (Unit* unit = ref->GetSource()->GetOwner())
+                    if (unit->ToCreature() && unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                        updateList.push_back(unit->ToCreature());
+
+                ref = ref->next();
+            }
+
+            // Process deferred update list for player
+            for (Creature* c : updateList)
+                VisitNearbyCellsOf(c, grid_object_update, world_object_update);
+        }
     }
 
     // non-player active objects, increasing iterator in the loop in case of object removal
