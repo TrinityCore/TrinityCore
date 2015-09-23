@@ -116,7 +116,7 @@ void Corpse::SaveToDB()
     stmt->setUInt8 (index++, GetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS));             // dynFlags
     stmt->setUInt32(index++, uint32(m_time));                                         // time
     stmt->setUInt8 (index++, GetType());                                              // corpseType
-    stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
+    stmt->setUInt32(index++, GetInstanceId(), true);                                  // instanceId
     stmt->setUInt32(index++, GetPhaseMask());                                         // phaseMask
     trans->Append(stmt);
 

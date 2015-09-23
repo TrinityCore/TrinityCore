@@ -84,7 +84,7 @@ public:
     GmTicket(Player* player);
     ~GmTicket();
 
-    bool IsClosed() const { return !_closedBy.IsEmpty(); }
+    bool IsClosed() const { return _closed; }
     bool IsCompleted() const { return _completed; }
     bool IsFromPlayer(ObjectGuid guid) const { return guid == _playerGuid; }
     bool IsAssigned() const { return !_assignedTo.IsEmpty(); }
@@ -118,7 +118,7 @@ public:
         else if (_escalatedStatus == TICKET_UNASSIGNED)
             _escalatedStatus = TICKET_ASSIGNED;
     }
-    void SetClosedBy(ObjectGuid value) { _closedBy = value; }
+    void SetClosedBy(ObjectGuid value) { _closedBy = value; _closed=true; }
     void SetCompleted() { _completed = true; }
     void SetMessage(std::string const& message)
     {
@@ -166,6 +166,7 @@ private:
     bool _viewed;
     bool _needResponse; /// @todo find out the use of this, and then store it in DB
     bool _needMoreHelp;
+    bool _closed;
     std::string _response;
     std::string _chatLog; // No need to store in db, will be refreshed every session client side
 };

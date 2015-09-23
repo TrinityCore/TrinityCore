@@ -80,18 +80,18 @@ class PreparedStatement
         explicit PreparedStatement(uint32 index);
         ~PreparedStatement();
 
-        void setBool(const uint8 index, const bool value);
-        void setUInt8(const uint8 index, const uint8 value);
-        void setUInt16(const uint8 index, const uint16 value);
-        void setUInt32(const uint8 index, const uint32 value);
-        void setUInt64(const uint8 index, const uint64 value);
-        void setInt8(const uint8 index, const int8 value);
-        void setInt16(const uint8 index, const int16 value);
-        void setInt32(const uint8 index, const int32 value);
-        void setInt64(const uint8 index, const int64 value);
-        void setFloat(const uint8 index, const float value);
-        void setDouble(const uint8 index, const double value);
-        void setString(const uint8 index, const std::string& value);
+        void setBool(const uint8 index, const bool value, bool setNullIfZero = false);
+        void setUInt8(const uint8 index, const uint8 value, bool setNullIfZero = false);
+        void setUInt16(const uint8 index, const uint16 value, bool setNullIfZero = false);
+        void setUInt32(const uint8 index, const uint32 value, bool setNullIfZero = false);
+        void setUInt64(const uint8 index, const uint64 value, bool setNullIfZero = false);
+        void setInt8(const uint8 index, const int8 value, bool setNullIfZero = false);
+        void setInt16(const uint8 index, const int16 value, bool setNullIfZero = false);
+        void setInt32(const uint8 index, const int32 value, bool setNullIfZero = false);
+        void setInt64(const uint8 index, const int64 value, bool setNullIfZero = false);
+        void setFloat(const uint8 index, const float value, bool setNullIfZero = false);
+        void setDouble(const uint8 index, const double value, bool setNullIfZero = false);
+        void setString(const uint8 index, const std::string& value, bool setNullIfZero = false);
         void setNull(const uint8 index);
 
     protected:

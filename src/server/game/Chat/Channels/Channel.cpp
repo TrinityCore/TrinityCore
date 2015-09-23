@@ -117,7 +117,7 @@ void Channel::UpdateChannelInDB() const
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
         stmt->setBool(0, _announce);
         stmt->setBool(1, _ownership);
-        stmt->setString(2, _password);
+        stmt->setString(2, _password, true);
         stmt->setString(3, banListStr);
         stmt->setString(4, _name);
         stmt->setUInt32(5, _Team);

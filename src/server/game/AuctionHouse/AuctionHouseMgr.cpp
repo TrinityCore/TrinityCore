@@ -689,10 +689,10 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(0, Id);
     stmt->setUInt32(1, auctioneer);
     stmt->setUInt32(2, itemGUIDLow);
-    stmt->setUInt32(3, owner);
+    stmt->setUInt32(3, owner, true);
     stmt->setUInt32(4, buyout);
     stmt->setUInt32(5, uint32(expire_time));
-    stmt->setUInt32(6, bidder);
+    stmt->setUInt32(6, bidder, true);
     stmt->setUInt32(7, bid);
     stmt->setUInt32(8, startbid);
     stmt->setUInt32(9, deposit);
