@@ -248,7 +248,7 @@ class spell_ioc_launch : public SpellScriptLoader
                 x = GetExplTargetDest()->GetPositionX();
                 y = GetExplTargetDest()->GetPositionY();
                 z = GetExplTargetDest()->GetPositionZ();
-                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUIDLow()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
             }
 
             void Register() override

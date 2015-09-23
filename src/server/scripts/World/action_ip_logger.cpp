@@ -201,7 +201,7 @@ class CharacterActionIpLogger : public PlayerScript
 
             // We declare all the required variables
             uint32 playerGuid = player->GetSession()->GetAccountId();
-            uint32 characterGuid = player->GetGUIDLow();
+            uint32 characterGuid = player->GetGUID().GetCounter();
             const std::string currentIp = player->GetSession()->GetRemoteAddress();
             std::string systemNote = "ERROR"; // "ERROR" is a placeholder here. We change it...
 

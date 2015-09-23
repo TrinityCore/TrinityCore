@@ -227,7 +227,7 @@ void BattlegroundWS::StartingEventOpenDoors()
 void BattlegroundWS::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundWGScore(player->GetGUID());
+    PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundWGScore(player->GetGUID());
 }
 
 void BattlegroundWS::RespawnFlag(uint32 Team, bool captured)
