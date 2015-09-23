@@ -436,7 +436,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     if (itr == m_applications.end())
     {
         TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
-        target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
+        target->GetGUID().GetCounter(), caster ? caster->GetGUID().GetCounter() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 
@@ -1022,9 +1022,6 @@ void Aura::UnregisterSingleTarget()
 {
     ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
-    /// @todo find a better way to do this.
-    if (!caster)
-        caster = ObjectAccessor::GetObjectInOrOutOfWorld(GetCasterGUID(), (Unit*)NULL);
     ASSERT(caster);
     caster->GetSingleCastAuras().remove(this);
     SetIsSingleTarget(false);

@@ -46,7 +46,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     if (!pet)
     {
         TC_LOG_DEBUG("network", "Vanitypet (%s) does not exist - player '%s' (guid: %u / account: %u) attempted to dismiss it (possibly lagged out)",
-            guid.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow(), GetAccountId());
+            guid.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter(), GetAccountId());
         return;
     }
 
@@ -146,7 +146,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     if (!charmInfo)
     {
         TC_LOG_DEBUG("network", "WorldSession::HandlePetAction(petGuid: %s, tagGuid: %s, spellId: %u, flag: %u): object (GUID: %u Entry: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!",
-            guid1.ToString().c_str(), guid2.ToString().c_str(), spellid, flag, pet->GetGUIDLow(), pet->GetEntry(), pet->GetTypeId());
+            guid1.ToString().c_str(), guid2.ToString().c_str(), spellid, flag, pet->GetGUID().GetCounter(), pet->GetEntry(), pet->GetTypeId());
         return;
     }
 
@@ -482,7 +482,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetSetAction: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSetAction: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
         return;
     }
 
@@ -593,7 +593,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     recvData >> name;
     recvData >> isdeclined;
 
-    Pet* pet = ObjectAccessor::FindPet(petguid);
+    Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
     if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ||
@@ -646,7 +646,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PET_DECLINEDNAME);
-        stmt->setUInt32(0, _player->GetGUIDLow());
+        stmt->setUInt32(0, _player->GetGUID().GetCounter());
 
         for (uint8 i = 0; i < 5; i++)
             stmt->setString(i + 1, declinedname.name[i]);
@@ -656,7 +656,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_NAME);
     stmt->setString(0, name);
-    stmt->setUInt32(1, _player->GetGUIDLow());
+    stmt->setUInt32(1, _player->GetGUID().GetCounter());
     stmt->setUInt32(2, pet->GetCharmInfo()->GetPetNumber());
     trans->Append(stmt);
 
@@ -729,7 +729,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcod: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().GetCounter(), pet->GetTypeId());
         return;
     }
 

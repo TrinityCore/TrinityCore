@@ -287,7 +287,7 @@ class WorldSession
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
 
-        uint32 GetGuidLow() const;
+        uint32 GetGUIDLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);

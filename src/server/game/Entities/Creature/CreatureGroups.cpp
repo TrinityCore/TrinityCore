@@ -41,7 +41,7 @@ void FormationMgr::AddCreatureToGroup(uint32 groupId, Creature* member)
     //Add member to an existing group
     if (itr != map->CreatureGroupHolder.end())
     {
-        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUIDLow(), member->GetInstanceId());
+        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUID().GetCounter(), member->GetInstanceId());
         itr->second->AddMember(member);
     }
     //Create new group
@@ -56,7 +56,7 @@ void FormationMgr::AddCreatureToGroup(uint32 groupId, Creature* member)
 
 void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: %u from group %u", group->GetId(), member->GetDBTableGUIDLow());
+    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: %u from group %u", group->GetId(), member->GetSpawnId());
     group->RemoveMember(member);
 
     if (group->isEmpty())
@@ -142,16 +142,16 @@ void FormationMgr::LoadCreatureFormations()
 
 void CreatureGroup::AddMember(Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUIDLow());
+    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUID().GetCounter());
 
     //Check if it is a leader
-    if (member->GetDBTableGUIDLow() == m_groupID)
+    if (member->GetSpawnId() == m_groupID)
     {
-        TC_LOG_DEBUG("entities.unit", "Unit GUID: %u is formation leader. Adding group.", member->GetGUIDLow());
+        TC_LOG_DEBUG("entities.unit", "Unit GUID: %u is formation leader. Adding group.", member->GetGUID().GetCounter());
         m_leader = member;
     }
 
-    m_members[member] = sFormationMgr->CreatureGroupMap.find(member->GetDBTableGUIDLow())->second;
+    m_members[member] = sFormationMgr->CreatureGroupMap.find(member->GetSpawnId())->second;
     member->SetFormation(this);
 }
 
@@ -166,7 +166,7 @@ void CreatureGroup::RemoveMember(Creature* member)
 
 void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
 {
-    uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetDBTableGUIDLow()]->groupAI;
+    uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
     if (!groupAI)
         return;
 
@@ -205,7 +205,7 @@ void CreatureGroup::FormationReset(bool dismiss)
                 itr->first->GetMotionMaster()->Initialize();
             else
                 itr->first->GetMotionMaster()->MoveIdle();
-            TC_LOG_DEBUG("entities.unit", "Set %s movement for member GUID: %u", dismiss ? "default" : "idle", itr->first->GetGUIDLow());
+            TC_LOG_DEBUG("entities.unit", "Set %s movement for member GUID: %u", dismiss ? "default" : "idle", itr->first->GetGUID().GetCounter());
         }
     }
     m_Formed = !dismiss;
