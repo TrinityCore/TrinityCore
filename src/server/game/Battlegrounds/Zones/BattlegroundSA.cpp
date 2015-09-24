@@ -476,7 +476,7 @@ void BattlegroundSA::FillInitialWorldStates(WorldPacket& data)
 void BattlegroundSA::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundSAScore(player->GetGUID());
+    PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundSAScore(player->GetGUID());
 
     SendTransportInit(player);
 
@@ -744,7 +744,7 @@ bool BattlegroundSA::CanInteractWithObject(uint32 objectId)
                 return false;
             break;
         default:
-            ASSERT(false);
+            ABORT();
             break;
     }
 
@@ -877,7 +877,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
 
             break;
         default:
-            ASSERT(false);
+            ABORT();
             break;
     };
 }
