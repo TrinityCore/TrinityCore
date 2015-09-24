@@ -527,10 +527,10 @@ class ByteBuffer
             if (_rpos + length > size())
                 throw ByteBufferPositionException(false, _rpos, length, size());
 
+            ResetBitPos();
             if (!length)
                 return std::string();
 
-            ResetBitPos();
             std::string str((char const*)&_storage[_rpos], length);
             _rpos += length;
             return str;
