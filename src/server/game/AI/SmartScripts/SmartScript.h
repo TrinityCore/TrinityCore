@@ -118,7 +118,7 @@ class SmartScript
                 smart = false;
 
             if (!smart)
-                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: %u Entry: %u) is not using SmartAI, action called by Creature (GUID: %u Entry: %u) skipped to prevent crash.", c ? c->GetDBTableGUIDLow() : 0, c ? c->GetEntry() : 0, me ? me->GetDBTableGUIDLow() : 0, me ? me->GetEntry() : 0);
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: %u Entry: %u) is not using SmartAI, action called by Creature (GUID: %u Entry: %u) skipped to prevent crash.", c ? c->GetSpawnId() : 0, c ? c->GetEntry() : 0, me ? me->GetSpawnId() : 0, me ? me->GetEntry() : 0);
 
             return smart;
         }
@@ -132,7 +132,7 @@ class SmartScript
             if (!go || go->GetAIName() != "SmartGameObjectAI")
                 smart = false;
             if (!smart)
-                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: %u Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: %u Entry: %u) skipped to prevent crash.", g ? g->GetDBTableGUIDLow() : 0, g ? g->GetEntry() : 0, go ? go->GetDBTableGUIDLow() : 0, go ? go->GetEntry() : 0);
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: %u Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: %u Entry: %u) skipped to prevent crash.", g ? g->GetSpawnId() : 0, g ? g->GetEntry() : 0, go ? go->GetSpawnId() : 0, go ? go->GetEntry() : 0);
 
             return smart;
         }
@@ -177,33 +177,25 @@ class SmartScript
 
         GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
         {
-            GameObject* gameObject = NULL;
+            auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
+            if (bounds.first == bounds.second)
+                return nullptr;
 
-            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-            Cell cell(p);
-
-            Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
-            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
-
-            TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
-            cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
-
-            return gameObject;
+            return bounds.first->second;
         }
 
         Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
         {
-            Creature* creature = NULL;
-            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-            Cell cell(p);
+            auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
+            if (bounds.first == bounds.second)
+                return nullptr;
 
-            Trinity::CreatureWithDbGUIDCheck target_check(searchObject, guid);
-            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
+            auto creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair)
+            {
+                return pair.second->IsAlive();
+            });
 
-            TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-            cell.Visit(p, unit_checker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
-
-            return creature;
+            return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
         }
 
         ObjectListMap* mTargetStorage;
@@ -211,20 +203,27 @@ class SmartScript
         void OnReset();
         void ResetBaseObject()
         {
-            if (meOrigGUID)
+            WorldObject* lookupRoot = me;
+            if (!lookupRoot)
+                lookupRoot = go;
+
+            if (lookupRoot)
             {
-                if (Creature* m = HashMapHolder<Creature>::Find(meOrigGUID))
+                if (!meOrigGUID)
                 {
-                    me = m;
-                    go = NULL;
+                    if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
+                    {
+                        me = m;
+                        go = NULL;
+                    }
                 }
-            }
-            if (goOrigGUID)
-            {
-                if (GameObject* o = HashMapHolder<GameObject>::Find(goOrigGUID))
+                if (!goOrigGUID)
                 {
-                    me = NULL;
-                    go = o;
+                    if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
+                    {
+                        me = NULL;
+                        go = o;
+                    }
                 }
             }
             goOrigGUID.Clear();

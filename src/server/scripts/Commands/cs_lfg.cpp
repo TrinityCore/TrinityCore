@@ -80,7 +80,7 @@ public:
         ObjectGuid guidTarget;
         std::string nameTarget;
 
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atoul(args)));
+        ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
         {

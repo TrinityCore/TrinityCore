@@ -222,7 +222,7 @@ void BattlegroundAB::StartingEventOpenDoors()
 void BattlegroundAB::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundABScore(player->GetGUID());
+    PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundABScore(player->GetGUID());
 }
 
 void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
@@ -309,7 +309,7 @@ int32 BattlegroundAB::_GetNodeNameId(uint8 node)
         case BG_AB_NODE_LUMBER_MILL:return LANG_BG_AB_NODE_LUMBER_MILL;
         case BG_AB_NODE_GOLD_MINE:  return LANG_BG_AB_NODE_GOLD_MINE;
         default:
-            ASSERT(false);
+            ABORT();
     }
     return 0;
 }
