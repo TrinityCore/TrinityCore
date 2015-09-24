@@ -749,8 +749,8 @@ class boss_elder_brightleaf : public CreatureScript
                         case EVENT_SOLAR_FLARE:
                         {
                             uint8 stackAmount = 0;
-                            if (me->GetAura(SPELL_FLUX_AURA))
-                                stackAmount = me->GetAura(SPELL_FLUX_AURA)->GetStackAmount();
+                            if (Aura* aura = me->GetAura(SPELL_FLUX_AURA))
+                                stackAmount = aura->GetStackAmount();
                             me->CastCustomSpell(SPELL_SOLAR_FLARE, SPELLVALUE_MAX_TARGETS, stackAmount, me, false);
                             events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 10000));
                             break;

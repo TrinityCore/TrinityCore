@@ -269,7 +269,7 @@ public:
         const char* onlineState = "";
 
         // Parse the guid to uint32...
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atoul(args)));
+        ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
         // ... and try to extract a player out of it.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))

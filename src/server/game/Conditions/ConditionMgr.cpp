@@ -299,10 +299,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                     switch (object->GetTypeId())
                     {
                         case TYPEID_UNIT:
-                            condMeets &= object->ToCreature()->GetDBTableGUIDLow() == ConditionValue3;
+                            condMeets &= object->ToCreature()->GetSpawnId() == ConditionValue3;
                             break;
                         case TYPEID_GAMEOBJECT:
-                            condMeets &= object->ToGameObject()->GetDBTableGUIDLow() == ConditionValue3;
+                            condMeets &= object->ToGameObject()->GetSpawnId() == ConditionValue3;
                             break;
                         default:
                             break;
