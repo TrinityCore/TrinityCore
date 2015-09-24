@@ -482,7 +482,7 @@ class DatabaseWorkerPool
                 else if (type == IDX_SYNCH)
                     t = new T(*_connectionInfo);
                 else
-                    ASSERT(false);
+                    ABORT();
 
                 _connections[type][i] = t;
                 ++_connectionCount[type];
