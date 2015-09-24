@@ -191,7 +191,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     if (!charter)
         return;
 
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUIDLow());
+    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUID().GetCounter());
     // ITEM_FIELD_ENCHANTMENT_1_1 is guild/arenateam id
     // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
     charter->SetState(ITEM_CHANGED, _player);
@@ -201,7 +201,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     // we checked above, if this player is in an arenateam, so this must be
     // datacorruption
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_BY_OWNER);
-    stmt->setUInt32(0, _player->GetGUIDLow());
+    stmt->setUInt32(0, _player->GetGUID().GetCounter());
     stmt->setUInt8(1, type);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -217,7 +217,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     }
 
     // delete petitions with the same guid as this one
-    ssInvalidPetitionGUIDs << '\'' << charter->GetGUIDLow() << '\'';
+    ssInvalidPetitionGUIDs << '\'' << charter->GetGUID().GetCounter() << '\'';
 
     TC_LOG_DEBUG("network", "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(name);
@@ -226,8 +226,8 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     trans->PAppend("DELETE FROM petition_sign WHERE petitionguid IN (%s)", ssInvalidPetitionGUIDs.str().c_str());
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
-    stmt->setUInt32(0, _player->GetGUIDLow());
-    stmt->setUInt32(1, charter->GetGUIDLow());
+    stmt->setUInt32(0, _player->GetGUID().GetCounter());
+    stmt->setUInt32(1, charter->GetGUID().GetCounter());
     stmt->setString(2, name);
     stmt->setUInt8(3, uint8(type));
     trans->Append(stmt);
@@ -253,7 +253,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     if (!result)
     {
-        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for player %u %s", petitionguid.ToString().c_str(), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for player %u %s", petitionguid.ToString().c_str(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
         return;
     }
     Field* fields = result->Fetch();
@@ -286,7 +286,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
         Field* fields2 = result->Fetch();
         uint32 lowGuid = fields2[0].GetUInt32();
 
-        data << ObjectGuid(HIGHGUID_PLAYER, 0, lowGuid);    // Player GUID
+        data << ObjectGuid(HighGuid::Player, 0, lowGuid);    // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
@@ -322,7 +322,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
+        ownerguid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
         name      = fields[1].GetString();
         type      = fields[2].GetUInt8();
     }
@@ -461,16 +461,16 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     if (!result)
     {
-        TC_LOG_ERROR("network", "Petition %s is not found for player %u %s", petitionGuid.ToString().c_str(), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName().c_str());
+        TC_LOG_ERROR("network", "Petition %s is not found for player %u %s", petitionGuid.ToString().c_str(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName().c_str());
         return;
     }
 
     fields = result->Fetch();
-    ObjectGuid ownerGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
+    ObjectGuid ownerGuid(HighGuid::Player, fields[0].GetUInt32());
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
-    uint32 playerGuid = _player->GetGUIDLow();
+    uint32 playerGuid = _player->GetGUID().GetCounter();
     if (ownerGuid == _player->GetGUID())
         return;
 
@@ -585,7 +585,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
 
     ObjectGuid petitionguid;
     recvData >> petitionguid;                              // petition guid
-    TC_LOG_DEBUG("network", "Petition %s declined by %u", petitionguid.ToString().c_str(), _player->GetGUIDLow());
+    TC_LOG_DEBUG("network", "Petition %s declined by %u", petitionguid.ToString().c_str(), _player->GetGUID().GetCounter());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
 
@@ -597,7 +597,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
         return;
 
     Field* fields = result->Fetch();
-    ObjectGuid ownerguid(HIGHGUID_PLAYER, 0, fields[0].GetUInt32());
+    ObjectGuid ownerguid(HighGuid::Player, 0, fields[0].GetUInt32());
 
     Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
     if (owner)                                               // petition owner online
@@ -708,7 +708,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        data << uint64(ObjectGuid(HIGHGUID_PLAYER, fields2[0].GetUInt32())); // Player GUID
+        data << uint64(ObjectGuid(HighGuid::Player, fields2[0].GetUInt32())); // Player GUID
         data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
@@ -732,7 +732,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     if (!item)
         return;
 
-    TC_LOG_DEBUG("network", "Petition %s turned in by %u", petitionGuid.ToString().c_str(), _player->GetGUIDLow());
+    TC_LOG_DEBUG("network", "Petition %s turned in by %u", petitionGuid.ToString().c_str(), _player->GetGUID().GetCounter());
 
     // Get petition data from db
     uint32 ownerguidlo;
@@ -752,12 +752,12 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     }
     else
     {
-        TC_LOG_ERROR("network", "Player %s (guid: %u) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUIDLow(), petitionGuid.ToString().c_str());
+        TC_LOG_ERROR("network", "Player %s (guid: %u) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().GetCounter(), petitionGuid.ToString().c_str());
         return;
     }
 
     // Only the petition owner can turn in the petition
-    if (_player->GetGUIDLow() != ownerguidlo)
+    if (_player->GetGUID().GetCounter() != ownerguidlo)
         return;
 
     // Petition type (guild/arena) specific checks
@@ -853,7 +853,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         for (uint8 i = 0; i < signatures; ++i)
         {
             Field* fields = result->Fetch();
-            guild->AddMember(ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32()));
+            guild->AddMember(ObjectGuid(HighGuid::Player, fields[0].GetUInt32()));
             result->NextRow();
         }
     }
@@ -880,7 +880,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         for (uint8 i = 0; i < signatures; ++i)
         {
             Field* fields = result->Fetch();
-            ObjectGuid memberGUID(HIGHGUID_PLAYER, fields[0].GetUInt32());
+            ObjectGuid memberGUID(HighGuid::Player, fields[0].GetUInt32());
             TC_LOG_DEBUG("network", "PetitionsHandler: Adding arena team (guid: %u) member %s", arenaTeam->GetId(), memberGUID.ToString().c_str());
             arenaTeam->AddMember(memberGUID);
             result->NextRow();
