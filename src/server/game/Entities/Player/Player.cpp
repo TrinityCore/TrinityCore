@@ -7666,9 +7666,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     {
         if (Item* invItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         {
-            if (reforgeMap.find(invItem->GetGUIDLow()) != reforgeMap.end())
+            if (reforgeMap.find(invItem->GetGUID().GetCounter()) != reforgeMap.end())
             {
-                reforgeData = &reforgeMap[invItem->GetGUIDLow()];
+                reforgeData = &reforgeMap[invItem->GetGUID().GetCounter()];
                 ++statcount;
             }
         }
@@ -12503,7 +12503,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
-        RemoveReforge(this, it->GetGUIDLow(), true);
+        RemoveReforge(this, it->GetGUID().GetCounter(), true);
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
         it->SetNotRefundable(this, false);

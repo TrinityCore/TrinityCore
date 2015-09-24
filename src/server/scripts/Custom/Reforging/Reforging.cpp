@@ -133,7 +133,7 @@ static Item* GetEquippedItem(Player* player, uint32 guidlow)
 {
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
         if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (pItem->GetGUIDLow() == guidlow)
+            if (pItem->GetGUID().GetCounter() == guidlow)
                 return pItem;
     return NULL;
 }
@@ -317,7 +317,7 @@ static void SendReforgePackets(Player* player)
 
     std::vector<Item*> items = GetItemList(player);
     for (std::vector<Item*>::const_iterator it = items.begin(); it != items.end(); ++it)
-        SendReforgePacket(player, (*it)->GetEntry(), (*it)->GetGUIDLow());
+        SendReforgePacket(player, (*it)->GetEntry(), (*it)->GetGUID().GetCounter());
 }
 
 void RemoveReforge(Player* player, uint32 itemguid, bool update)
@@ -326,7 +326,7 @@ void RemoveReforge(Player* player, uint32 itemguid, bool update)
         player->reforgeMap.find(itemguid) == player->reforgeMap.end())
         return;
 
-    Item* invItem = update ? player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, itemguid)) : NULL;
+    Item* invItem = update ? player->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, itemguid)) : NULL;
     if (!invItem)
     {
         player->reforgeMap.erase(itemguid);
@@ -352,7 +352,7 @@ static bool IsReforgable(Item* invItem, Player* player)
     //    return false;
     if (!pProto->StatsCount || pProto->StatsCount >= MAX_ITEM_PROTO_STATS) // Mandatory! Do NOT remove or edit
         return false;
-    if (!player->reforgeMap.empty() && player->reforgeMap.find(invItem->GetGUIDLow()) != player->reforgeMap.end()) // Mandatory! Do NOT remove or edit
+    if (!player->reforgeMap.empty() && player->reforgeMap.find(invItem->GetGUID().GetCounter()) != player->reforgeMap.end()) // Mandatory! Do NOT remove or edit
         return false;
     for (uint32 i = 0; i < pProto->StatsCount; ++i)
     {
@@ -381,7 +381,7 @@ static void UpdatePlayerReforgeStats(Item* invItem, Player* player, uint32 decre
 
     // Update player stats
     player->_ApplyItemMods(invItem, invItem->GetSlot(), false);
-    uint32 guidlow = invItem->GetGUIDLow();
+    uint32 guidlow = invItem->GetGUID().GetCounter();
     ReforgeData& data = player->reforgeMap[guidlow];
     data.increase = increase;
     data.decrease = decrease;
@@ -419,14 +419,14 @@ public:
 
     void OnLogin(Player* player, bool /*firstLogin*/) override
     {
-        uint32 playerGUID = player->GetGUIDLow();
+        uint32 playerGUID = player->GetGUID().GetCounter();
         QueryResult result = CharacterDatabase.PQuery("SELECT `GUID`, `increase`, `decrease`, `stat_value` FROM `custom_reforging` WHERE `Owner` = %u", playerGUID);
         if (result)
         {
             do
             {
                 uint32 lowGUID = (*result)[0].GetUInt32();
-                Item* invItem = player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, lowGUID));
+                Item* invItem = player->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, lowGUID));
                 if (invItem)
                     player->_ApplyItemMods(invItem, invItem->GetSlot(), false);
                 ReforgeData& data = player->reforgeMap[lowGUID];
@@ -456,7 +456,7 @@ public:
 
     void OnSave(Player* player) override
     {
-        uint32 lowguid = player->GetGUIDLow();
+        uint32 lowguid = player->GetGUID().GetCounter();
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("DELETE FROM `custom_reforging` WHERE `Owner` = %u", lowguid);
         if (!player->reforgeMap.empty())
@@ -465,7 +465,7 @@ public:
             std::vector<Item*> items = GetItemList(player);
             for (std::vector<Item*>::const_iterator it = items.begin(); it != items.end(); ++it)
             {
-                ReforgeMapType::const_iterator it2 = player->reforgeMap.find((*it)->GetGUIDLow());
+                ReforgeMapType::const_iterator it2 = player->reforgeMap.find((*it)->GetGUID().GetCounter());
                 if (it2 == player->reforgeMap.end())
                     continue;
 
@@ -516,7 +516,7 @@ public:
             {
                 if (IsReforgable(invItem, player))
                 {
-                    uint32 guidlow = invItem->GetGUIDLow();
+                    uint32 guidlow = invItem->GetGUID().GetCounter();
                     const ItemTemplate* pProto = invItem->GetTemplate();
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Stat to decrease:", sender, melt);
                     for (uint32 i = 0; i < pProto->StatsCount; ++i)
@@ -594,9 +594,9 @@ public:
                     for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
                     {
                         if (Item* invItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                            if (player->reforgeMap.find(invItem->GetGUIDLow()) != player->reforgeMap.end())
+                            if (player->reforgeMap.find(invItem->GetGUID().GetCounter()) != player->reforgeMap.end())
                                 if (const char* slotname = GetSlotName(slot, player->GetSession()))
-                                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, slotname, invItem->GetGUIDLow(), Melt(RESTORE, 0), "Remove reforge from\n\n" + invItem->GetTemplate()->Name1, 0, false);
+                                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, slotname, invItem->GetGUID().GetCounter(), Melt(RESTORE, 0), "Remove reforge from\n\n" + invItem->GetTemplate()->Name1, 0, false);
                     }
                 }
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Update menu", sender, melt);
@@ -607,7 +607,7 @@ public:
         case RESTORE:
             // sender = item guidlow
             {
-                if (player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, sender)))
+                if (player->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, sender)))
                 {
                     if (!player->reforgeMap.empty() && player->reforgeMap.find(sender) != player->reforgeMap.end())
                         RemoveReforge(player, sender, true);
