@@ -350,6 +350,9 @@ class Item : public Object
 
         void BuildUpdate(UpdateDataMapType&) override;
 
+        void AddToObjectUpdate() override;
+        void RemoveFromObjectUpdate() override;
+
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
     private:
         std::string m_text;

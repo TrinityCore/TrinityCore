@@ -133,7 +133,7 @@ public:
 
                 DeletedInfo info;
 
-                info.guid       = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
+                info.guid       = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
                 info.name       = fields[1].GetString();
                 info.accountId  = fields[2].GetUInt32();
 
@@ -483,7 +483,7 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
-            stmt->setUInt32(1, target->GetGUIDLow());
+            stmt->setUInt32(1, target->GetGUID().GetCounter());
         }
         else
         {
@@ -511,7 +511,7 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
-            stmt->setUInt32(1, target->GetGUIDLow());
+            stmt->setUInt32(1, target->GetGUID().GetCounter());
         }
         else
         {
@@ -539,7 +539,7 @@ public:
             /// @todo add text into database
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
-            stmt->setUInt32(1, target->GetGUIDLow());
+            stmt->setUInt32(1, target->GetGUID().GetCounter());
         }
         else
         {
@@ -921,7 +921,7 @@ public:
                 return false;
             }
 
-            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(HIGHGUID_PLAYER, guid)))
+            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(HighGuid::Player, guid)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
                 handler->SetSentErrorMessage(true);
@@ -969,7 +969,7 @@ public:
         ObjectGuid guid;
         // character name can't start from number
         if (isNumeric(playerStr))
-            guid = ObjectGuid(HIGHGUID_PLAYER, uint32(atoi(playerStr)));
+            guid = ObjectGuid(HighGuid::Player, uint32(atoi(playerStr)));
         else
         {
             std::string name = handler->extractPlayerNameFromLink(playerStr);

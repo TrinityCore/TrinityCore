@@ -217,7 +217,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
     recvData >> comment;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
-    stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+    stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt32(1, nextSurveyID);
     stmt->setUInt32(2, mainSurvey);
     stmt->setString(3, comment);
@@ -240,7 +240,7 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
     recvData >> z;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
-    stmt->setUInt32(0, GetPlayer()->GetGUIDLow());
+    stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt8 (1, lagType);
     stmt->setUInt16(2, mapId);
     stmt->setFloat (3, x);

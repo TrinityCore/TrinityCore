@@ -139,7 +139,7 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapTyp
         if (itr->second != map->GetInstanceId())
             continue;
 
-        ObjectGuid player_guid(HIGHGUID_PLAYER, itr->first);
+        ObjectGuid player_guid(HighGuid::Player, itr->first);
 
         Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
         if (!obj)

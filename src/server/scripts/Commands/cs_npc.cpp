@@ -260,7 +260,7 @@ public:
 
         if (Transport* trans = chr->GetTransport())
         {
-            uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
+            uint32 guid = map->GenerateLowGuid<HighGuid::Unit>();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
             data.phaseMask = chr->GetPhaseMaskForSpawn();
@@ -278,7 +278,7 @@ public:
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, x, y, z, o))
+        if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, chr->GetPhaseMaskForSpawn(), id, x, y, z, o))
         {
             delete creature;
             return false;
@@ -286,7 +286,7 @@ public:
 
         creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
-        uint32 db_guid = creature->GetDBTableGUIDLow();
+        uint32 db_guid = creature->GetSpawnId();
 
         // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells()
         // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
@@ -494,7 +494,7 @@ public:
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, cr_data->id, lowguid));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Unit, cr_data->id, lowguid));
         }
         else
             unit = handler->getSelectedCreature();
@@ -705,7 +705,7 @@ public:
         std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);
         std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
 
-        handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetDBTableGUIDLow(), target->GetGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage(LANG_NPCINFO_CHAR, target->GetSpawnId(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
@@ -823,7 +823,7 @@ public:
         }
         else
         {
-            lowguid = creature->GetDBTableGUIDLow();
+            lowguid = creature->GetSpawnId();
         }
 
         float x = handler->GetSession()->GetPlayer()->GetPositionX();
@@ -833,7 +833,7 @@ public:
 
         if (creature)
         {
-            if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetDBTableGUIDLow()))
+            if (CreatureData const* data = sObjectMgr->GetCreatureData(creature->GetSpawnId()))
             {
                 const_cast<CreatureData*>(data)->posX = x;
                 const_cast<CreatureData*>(data)->posY = y;
@@ -977,7 +977,7 @@ public:
             creature = handler->getSelectedCreature();
             if (!creature || creature->IsPet())
                 return false;
-            lowguid = creature->GetDBTableGUIDLow();
+            lowguid = creature->GetSpawnId();
         }
         else                                                    // case .setmovetype #creature_guid $move_type (with selected creature)
         {
@@ -985,7 +985,7 @@ public:
 
             /* impossible without entry
             if (lowguid)
-                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
+                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HighGuid::Unit));
             */
 
             // attempt check creature existence by DB data
@@ -1001,7 +1001,7 @@ public:
             }
             else
             {
-                lowguid = creature->GetDBTableGUIDLow();
+                lowguid = creature->GetSpawnId();
             }
         }
 
@@ -1104,7 +1104,7 @@ public:
         uint32 guidLow = 0;
 
         if (creature)
-            guidLow = creature->GetDBTableGUIDLow();
+            guidLow = creature->GetSpawnId();
         else
             return false;
 
@@ -1153,7 +1153,7 @@ public:
         uint32 guidLow = 0;
 
         if (creature)
-            guidLow = creature->GetDBTableGUIDLow();
+            guidLow = creature->GetSpawnId();
         else
             return false;
 
@@ -1282,7 +1282,7 @@ public:
             return false;
         }
 
-        ObjectGuid receiver_guid(HIGHGUID_PLAYER, uint32(atoul(receiver_str)));
+        ObjectGuid receiver_guid(HighGuid::Player, uint32(atoul(receiver_str)));
 
         // check online security
         Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
@@ -1417,14 +1417,14 @@ public:
         uint32 leaderGUID = (uint32) atoi((char*)args);
         Creature* creature = handler->getSelectedCreature();
 
-        if (!creature || !creature->GetDBTableGUIDLow())
+        if (!creature || !creature->GetSpawnId())
         {
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint32 lowguid = creature->GetDBTableGUIDLow();
+        uint32 lowguid = creature->GetSpawnId();
         if (creature->GetFormation())
         {
             handler->PSendSysMessage("Selected creature is already member of group %u", creature->GetFormation()->GetId());
@@ -1477,21 +1477,21 @@ public:
             return false;
         }
 
-        if (!creature->GetDBTableGUIDLow())
+        if (!creature->GetSpawnId())
         {
-            handler->PSendSysMessage("Selected creature %u isn't in creature table", creature->GetGUIDLow());
+            handler->PSendSysMessage("Selected creature %u isn't in creature table", creature->GetGUID().GetCounter());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!sObjectMgr->SetCreatureLinkedRespawn(creature->GetDBTableGUIDLow(), linkguid))
+        if (!sObjectMgr->SetCreatureLinkedRespawn(creature->GetSpawnId(), linkguid))
         {
             handler->PSendSysMessage("Selected creature can't link with guid '%u'", linkguid);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        handler->PSendSysMessage("LinkGUID '%u' added to creature with DBTableGUID: '%u'", linkguid, creature->GetDBTableGUIDLow());
+        handler->PSendSysMessage("LinkGUID '%u' added to creature with DBTableGUID: '%u'", linkguid, creature->GetSpawnId());
         return true;
     }
 

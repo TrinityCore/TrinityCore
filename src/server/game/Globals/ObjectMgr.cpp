@@ -223,15 +223,8 @@ ObjectMgr::ObjectMgr():
     _itemTextId(1),
     _mailId(1),
     _hiPetNumber(1),
-    _hiCharGuid(1),
-    _hiCreatureGuid(1),
-    _hiPetGuid(1),
-    _hiVehicleGuid(1),
-    _hiItemGuid(1),
-    _hiGoGuid(1),
-    _hiDoGuid(1),
-    _hiCorpseGuid(1),
-    _hiMoTransGuid(1),
+    _creatureSpawnId(1),
+    _gameObjectSpawnId(1),
     DBCLocaleIndex(LOCALE_enUS)
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
@@ -1386,8 +1379,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::Unit, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
                 break;
             }
             case CREATURE_TO_GO:
@@ -1423,8 +1416,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::Unit, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_GO:
@@ -1460,8 +1453,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_CREATURE:
@@ -1497,8 +1490,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
                 break;
             }
         }
@@ -1518,7 +1511,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
 
     CreatureData const* master = GetCreatureData(guidLow);
     ASSERT(master);
-    ObjectGuid guid(HIGHGUID_UNIT, master->id, guidLow);
+    ObjectGuid guid(HighGuid::Unit, master->id, guidLow);
 
     if (!linkedGuidLow) // we're removing the linking
     {
@@ -1549,7 +1542,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
     }
 
-    ObjectGuid linkedGuid(HIGHGUID_UNIT, slave->id, linkedGuidLow);
+    ObjectGuid linkedGuid(HighGuid::Unit, slave->id, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
     PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
@@ -1848,7 +1841,8 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!map)
         return 0;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    uint32 guid = GenerateGameObjectSpawnId();
+
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
     data.mapid          = mapId;
@@ -1888,38 +1882,6 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     return guid;
 }
 
-bool ObjectMgr::MoveCreatureData(uint32 guid, uint32 mapId, const Position& pos)
-{
-    CreatureData& data = NewOrExistCreatureData(guid);
-    if (!data.id)
-        return false;
-
-    RemoveCreatureFromGrid(guid, &data);
-    if (data.posX == pos.GetPositionX() && data.posY == pos.GetPositionY() && data.posZ == pos.GetPositionZ())
-        return true;
-    data.posX = pos.GetPositionX();
-    data.posY = pos.GetPositionY();
-    data.posZ = pos.GetPositionZ();
-    data.orientation = pos.GetOrientation();
-    AddCreatureToGrid(guid, &data);
-
-    // Spawn if necessary (loaded grids only)
-    if (Map* map = sMapMgr->CreateBaseMap(mapId))
-    {
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
-        {
-            Creature* creature = new Creature();
-            if (!creature->LoadCreatureFromDB(guid, map))
-            {
-                TC_LOG_ERROR("misc", "MoveCreatureData: Cannot add creature guid %u to map", guid);
-                delete creature;
-                return false;
-            }
-        }
-    }
-    return true;
-}
 
 uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
 {
@@ -1929,8 +1891,11 @@ uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, 
 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
+    Map* map = sMapMgr->CreateBaseMap(mapId);
+    if (!map)
+        return 0;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_UNIT);
+    uint32 guid = GenerateCreatureSpawnId();
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
     data.mapid = mapId;
@@ -1955,19 +1920,15 @@ uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, 
 
     AddCreatureToGrid(guid, &data);
 
-    // Spawn if necessary (loaded grids only)
-    if (Map* map = sMapMgr->CreateBaseMap(mapId))
+    // We use spawn coords to spawn
+    if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
     {
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
+        Creature* creature = new Creature();
+        if (!creature->LoadCreatureFromDB(guid, map))
         {
-            Creature* creature = new Creature();
-            if (!creature->LoadCreatureFromDB(guid, map))
-            {
-                TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
-                delete creature;
-                return 0;
-            }
+            TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
+            delete creature;
+            return 0;
         }
     }
 
@@ -2163,7 +2124,7 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
 
 Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
 {
-    ObjectGuid guid(HIGHGUID_PLAYER, lowguid);
+    ObjectGuid guid(HighGuid::Player, lowguid);
     return ObjectAccessor::FindPlayer(guid);
 }
 
@@ -2177,7 +2138,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
-        return ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt32());
+        return ObjectGuid(HighGuid::Player, (*result)[0].GetUInt32());
 
     return ObjectGuid::Empty;
 }
@@ -4215,13 +4176,13 @@ void ObjectMgr::LoadQuests()
                     qinfo->RequiredClasses = 0;
             }
         }
-        // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->RequiredRaces)
+        // AllowableRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
+        if (qinfo->AllowableRaces)
             {
-            if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
+            if (!(qinfo->AllowableRaces & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u does not contain any playable races in `RequiredRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->RequiredRaces);
-                    qinfo->RequiredRaces = 0;
+                    TC_LOG_ERROR("sql.sql", "Quest %u does not contain any playable races in `AllowableRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces);
+                    qinfo->AllowableRaces = 0;
                 }
             }
         // RequiredSkillId, can be 0
@@ -4323,26 +4284,26 @@ void ObjectMgr::LoadQuests()
             // quest can't reward this title
         }
 
-        if (qinfo->SourceItemId)
+        if (qinfo->StartItem)
         {
-            if (!sObjectMgr->GetItemTemplate(qinfo->SourceItemId))
+            if (!sObjectMgr->GetItemTemplate(qinfo->StartItem))
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `SourceItemId` = %u but item with entry %u does not exist, quest can't be done.",
-                    qinfo->GetQuestId(), qinfo->SourceItemId, qinfo->SourceItemId);
-                qinfo->SourceItemId = 0;                       // quest can't be done for this requirement
+                TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = %u but item with entry %u does not exist, quest can't be done.",
+                    qinfo->GetQuestId(), qinfo->StartItem, qinfo->StartItem);
+                qinfo->StartItem = 0;                       // quest can't be done for this requirement
             }
-            else if (qinfo->SourceItemIdCount == 0)
+            else if (qinfo->StartItemCount == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `SourceItemId` = %u but `SourceItemIdCount` = 0, set to 1 but need fix in DB.",
-                    qinfo->GetQuestId(), qinfo->SourceItemId);
-                qinfo->SourceItemIdCount = 1;                    // update to 1 for allow quest work for backward compatibility with DB
+                TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = %u but `StartItemCount` = 0, set to 1 but need fix in DB.",
+                    qinfo->GetQuestId(), qinfo->StartItem);
+                qinfo->StartItemCount = 1;                    // update to 1 for allow quest work for backward compatibility with DB
             }
         }
-        else if (qinfo->SourceItemIdCount>0)
+        else if (qinfo->StartItemCount>0)
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `SourceItemId` = 0 but `SourceItemIdCount` = %u, useless value.",
-                qinfo->GetQuestId(), qinfo->SourceItemIdCount);
-            qinfo->SourceItemIdCount=0;                          // no quest work changes in fact
+            TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = 0 but `StartItemCount` = %u, useless value.",
+                qinfo->GetQuestId(), qinfo->StartItemCount);
+            qinfo->StartItemCount=0;                          // no quest work changes in fact
         }
 
         if (qinfo->SourceSpellid)
@@ -4393,22 +4354,22 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
         {
-            uint32 id = qinfo->RequiredSourceItemId[j];
+            uint32 id = qinfo->ItemDrop[j];
             if (id)
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `ItemDrop%d` = %u but item with entry %u does not exist, quest can't be done.",
                         qinfo->GetQuestId(), j+1, id, id);
                     // no changes, quest can't be done for this requirement
                 }
             }
             else
             {
-                if (qinfo->RequiredSourceItemCount[j]>0)
+                if (qinfo->ItemDropQuantity[j]>0)
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
-                        qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `ItemDrop%d` = 0 but `ItemDropQuantity%d` = %u.",
+                        qinfo->GetQuestId(), j+1, j+1, qinfo->ItemDropQuantity[j]);
                     // no changes, quest ignore this data
                 }
             }
@@ -4529,55 +4490,55 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->RewardSpell)
+        if (qinfo->RewardDisplaySpell)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardDisplaySpell);
+
+            if (!spellInfo)
+            {
+                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell` = %u but spell %u does not exist, spell removed as display reward.",
+                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
+                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
+            }
+
+            else if (!SpellMgr::IsSpellValid(spellInfo))
+            {
+                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell` = %u but spell %u is broken, quest will not have a spell reward.",
+                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
+                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
+            }
+
+            else if (GetTalentSpellCost(qinfo->RewardDisplaySpell))
+            {
+                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
+                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
+                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
+            }
+        }
+
+        if (qinfo->RewardSpell > 0)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardSpell);
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u does not exist, spell removed as display reward.",
+                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u does not exist, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
+                qinfo->RewardSpell = 0;                    // no spell will be cast on player
             }
 
             else if (!SpellMgr::IsSpellValid(spellInfo))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u is broken, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
+                qinfo->RewardSpell = 0;                    // no spell will be cast on player
             }
 
             else if (GetTalentSpellCost(qinfo->RewardSpell))
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
+                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
-            }
-        }
-
-        if (qinfo->RewardSpellCast > 0)
-        {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardSpellCast);
-
-            if (!spellInfo)
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpellCast` = %u but spell %u does not exist, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
-                qinfo->RewardSpellCast = 0;                    // no spell will be cast on player
-            }
-
-            else if (!SpellMgr::IsSpellValid(spellInfo))
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpellCast` = %u but spell %u is broken, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
-                qinfo->RewardSpellCast = 0;                    // no spell will be cast on player
-            }
-
-            else if (GetTalentSpellCost(qinfo->RewardSpellCast))
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
-                qinfo->RewardSpellCast = 0;                    // no spell will be cast on player
+                qinfo->RewardSpell = 0;                    // no spell will be cast on player
             }
         }
 
@@ -4602,14 +4563,14 @@ void ObjectMgr::LoadQuests()
                 usedMailTemplates[qinfo->RewardMailTemplateId] = qinfo->GetQuestId();
         }
 
-        if (qinfo->NextQuestIdChain)
+        if (qinfo->RewardNextQuest)
         {
-            QuestMap::iterator qNextItr = _questTemplates.find(qinfo->NextQuestIdChain);
+            QuestMap::iterator qNextItr = _questTemplates.find(qinfo->RewardNextQuest);
             if (qNextItr == _questTemplates.end())
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `NextQuestIdChain` = %u but quest %u does not exist, quest chain will not work.",
-                    qinfo->GetQuestId(), qinfo->NextQuestIdChain, qinfo->NextQuestIdChain);
-                qinfo->NextQuestIdChain = 0;
+                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardNextQuest` = %u but quest %u does not exist, quest chain will not work.",
+                    qinfo->GetQuestId(), qinfo->RewardNextQuest, qinfo->RewardNextQuest);
+                qinfo->RewardNextQuest = 0;
             }
             else
                 qNextItr->second->prevChainQuests.push_back(qinfo->GetQuestId());
@@ -4644,7 +4605,7 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->ExclusiveGroup)
             mExclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->ExclusiveGroup, qinfo->GetQuestId()));
-        if (qinfo->LimitTime)
+        if (qinfo->TimeAllowed)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED);
         if (qinfo->RequiredPlayerKills)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
@@ -4720,7 +4681,7 @@ void ObjectMgr::LoadQuestLocales()
             AddLocaleString(fields[1 + 11 * (i - 1) + 2].GetString(), locale, data.Objectives);
             AddLocaleString(fields[1 + 11 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
             AddLocaleString(fields[1 + 11 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            AddLocaleString(fields[1 + 11 * (i - 1) + 5].GetString(), locale, data.EndText);
+            AddLocaleString(fields[1 + 11 * (i - 1) + 5].GetString(), locale, data.AreaDescription);
             AddLocaleString(fields[1 + 11 * (i - 1) + 6].GetString(), locale, data.CompletedText);
 
             for (uint8 k = 0; k < 4; ++k)
@@ -5658,7 +5619,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player* player = NULL;
         if (serverUp)
-            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HIGHGUID_PLAYER, m->receiver));
+            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, m->receiver));
 
         if (player && player->m_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
@@ -6454,29 +6415,21 @@ void ObjectMgr::SetHighestGuids()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
-        _hiCharGuid = (*result)[0].GetUInt32()+1;
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
-    if (result)
-        _hiCreatureGuid = (*result)[0].GetUInt32()+1;
+        GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        _hiItemGuid = (*result)[0].GetUInt32()+1;
+        GetGuidSequenceGenerator<HighGuid::Item>().Set((*result)[0].GetUInt32()+1);
 
     // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid);      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid);          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid);         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid);     // One-time query
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
-    if (result)
-        _hiGoGuid = (*result)[0].GetUInt32()+1;
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());     // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        _hiMoTransGuid = (*result)[0].GetUInt32()+1;
+        GetGuidSequenceGenerator<HighGuid::Mo_Transport>().Set((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -6485,10 +6438,6 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
         _mailId = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
-    if (result)
-        _hiCorpseGuid = (*result)[0].GetUInt32()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
@@ -6505,6 +6454,14 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
+
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+    if (result)
+        _creatureSpawnId = (*result)[0].GetUInt32() + 1;
+
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
+    if (result)
+        _gameObjectSpawnId = (*result)[0].GetUInt32() + 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6537,59 +6494,29 @@ uint32 ObjectMgr::GenerateMailID()
     return _mailId++;
 }
 
-uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
+uint32 ObjectMgr::GeneratePetNumber()
 {
-    switch (guidhigh)
+    return ++_hiPetNumber;
+}
+
+uint32 ObjectMgr::GenerateCreatureSpawnId()
+{
+    if (_creatureSpawnId >= uint32(0xFFFFFF))
     {
-        case HIGHGUID_ITEM:
-        {
-            ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
-            return _hiItemGuid++;
-        }
-        case HIGHGUID_UNIT:
-        {
-            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
-            return _hiCreatureGuid++;
-        }
-        case HIGHGUID_PET:
-        {
-            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
-            return _hiPetGuid++;
-        }
-        case HIGHGUID_VEHICLE:
-        {
-            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
-            return _hiVehicleGuid++;
-        }
-        case HIGHGUID_PLAYER:
-        {
-            ASSERT(_hiCharGuid < 0xFFFFFFFE && "Player guid overflow!");
-            return _hiCharGuid++;
-        }
-        case HIGHGUID_GAMEOBJECT:
-        {
-            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
-            return _hiGoGuid++;
-        }
-        case HIGHGUID_CORPSE:
-        {
-            ASSERT(_hiCorpseGuid < 0xFFFFFFFE && "Corpse guid overflow!");
-            return _hiCorpseGuid++;
-        }
-        case HIGHGUID_DYNAMICOBJECT:
-        {
-            ASSERT(_hiDoGuid < 0xFFFFFFFE && "DynamicObject guid overflow!");
-            return _hiDoGuid++;
-        }
-        case HIGHGUID_MO_TRANSPORT:
-        {
-            ASSERT(_hiMoTransGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
-            return _hiMoTransGuid++;
-        }
-        default:
-            ASSERT(false && "ObjectMgr::GenerateLowGuid - Unknown HIGHGUID type");
-            return 0;
+        TC_LOG_ERROR("misc", "Creature spawn id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
     }
+    return _creatureSpawnId++;
+}
+
+uint32 ObjectMgr::GenerateGameObjectSpawnId()
+{
+    if (_gameObjectSpawnId >= uint32(0xFFFFFF))
+    {
+        TC_LOG_ERROR("misc", "Creature spawn id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _gameObjectSpawnId++;
 }
 
 void ObjectMgr::LoadGameObjectLocales()
@@ -6971,49 +6898,6 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     }
 
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
-}
-
-uint32 ObjectMgr::GeneratePetNumber()
-{
-    return ++_hiPetNumber;
-}
-
-void ObjectMgr::LoadCorpses()
-{
-    uint32 oldMSTime = getMSTime();
-
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 corpses. DB table `corpse` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 guid = fields[16].GetUInt32();
-        CorpseType type = CorpseType(fields[13].GetUInt8());
-        if (type >= MAX_CORPSE_TYPE)
-        {
-            TC_LOG_ERROR("misc", "Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
-            continue;
-        }
-
-        Corpse* corpse = new Corpse(type);
-        if (!corpse->LoadCorpseFromDB(guid, fields))
-        {
-            delete corpse;
-            continue;
-        }
-
-        sObjectAccessor->AddCorpse(corpse);
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u corpses in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadReputationRewardRate()
@@ -9187,7 +9071,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     if (Creature* cre = veh->GetBase()->ToCreature())
     {
         // Give preference to GUID-based accessories
-        VehicleAccessoryContainer::const_iterator itr = _vehicleAccessoryStore.find(cre->GetDBTableGUIDLow());
+        VehicleAccessoryContainer::const_iterator itr = _vehicleAccessoryStore.find(cre->GetSpawnId());
         if (itr != _vehicleAccessoryStore.end())
             return &itr->second;
     }
