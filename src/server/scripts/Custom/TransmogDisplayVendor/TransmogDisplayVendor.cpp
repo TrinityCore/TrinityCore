@@ -440,7 +440,7 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
     TC_LOG_DEBUG("custom.transmog", "TransmogDisplayVendorMgr::HandleTransmogrify");
 
     SelectionStore::Selection selection;
-    if (!selectionStore.GetSelection(player->GetGUIDLow(), selection))
+    if (!selectionStore.GetSelection(player->GetGUID().GetCounter(), selection))
         return; // cheat, no slot selected
 
     const char* slotname = TransmogDisplayVendorMgr::getSlotName(selection.slot, player->GetSession());
@@ -632,7 +632,7 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         player->PlayerTalkClass->ClearMenus();
-        selectionStore.RemoveSelection(player->GetGUIDLow());
+        selectionStore.RemoveSelection(player->GetGUID().GetCounter());
         WorldSession* session = player->GetSession();
         for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; slot++)
         {
@@ -718,7 +718,7 @@ public:
                 }
 
                 SelectionStore::Selection temp = { item->GetEntry(), action, 0, 0 }; // entry, slot, offset, quality
-                selectionStore.SetSelection(player->GetGUIDLow(), temp);
+                selectionStore.SetSelection(player->GetGUID().GetCounter(), temp);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             } break;
@@ -794,7 +794,7 @@ public:
                     return false; // cheat
 
                 SelectionStore::Selection selection;
-                if (!selectionStore.GetSelection(player->GetGUIDLow(), selection))
+                if (!selectionStore.GetSelection(player->GetGUID().GetCounter(), selection))
                     return false; // cheat
                 if (selection.offset != 0 || selection.quality != 0)
                     return false; // cheat (something is off)
@@ -802,7 +802,7 @@ public:
                 selection.offset = action;
                 selection.quality = sender;
                 uint32 slot = selection.slot; // slot
-                selectionStore.SetSelection(player->GetGUIDLow(), selection);
+                selectionStore.SetSelection(player->GetGUID().GetCounter(), selection);
 
                 if (const ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(selection.item))
                 {
@@ -886,7 +886,7 @@ public:
                     Creature* vendor = player->GetNPCIfCanInteractWith(creature->GetGUID(), UNIT_NPC_FLAG_VENDOR);
                     if (!vendor)
                     {
-                        TC_LOG_DEBUG("network", "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", creature->GetGUIDLow());
+                        TC_LOG_DEBUG("network", "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", creature->GetGUID().GetCounter());
                         player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid::Empty, 0);
                         return true;
                     }
@@ -992,7 +992,7 @@ public:
 
     void OnSave(Player* player) override
     {
-        uint32 lowguid = player->GetGUIDLow();
+        uint32 lowguid = player->GetGUID().GetCounter();
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
 
@@ -1016,14 +1016,14 @@ public:
 
     void OnLogin(Player* player, bool /*firstLogin*/) override
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = %u", player->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = %u", player->GetGUID().GetCounter());
 
         if (result)
         {
             do
             {
                 Field* field = result->Fetch();
-                ObjectGuid itemGUID(HIGHGUID_ITEM, 0, field[0].GetUInt32());
+                ObjectGuid itemGUID(HighGuid::Item, 0, field[0].GetUInt32());
                 uint32 fakeEntry = field[1].GetUInt32();
                 // Only load items that are in inventory / bank / etc
                 if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
@@ -1034,7 +1034,7 @@ public:
                 {
                     // Ignore, will be erased on next save.
                     // Additionally this can happen if an item was deleted from DB but still exists for the player
-                    // TC_LOG_ERROR("custom.transmog", "Item entry (Entry: %u, itemGUID: %u, playerGUID: %u) does not exist, ignoring.", fakeEntry, GUID_LOPART(itemGUID), player->GetGUIDLow());
+                    // TC_LOG_ERROR("custom.transmog", "Item entry (Entry: %u, itemGUID: %u, playerGUID: %u) does not exist, ignoring.", fakeEntry, GUID_LOPART(itemGUID), player->GetGUID().GetCounter());
                     // CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE FakeEntry = %u", fakeEntry);
                 }
             } while (result->NextRow());
@@ -1056,7 +1056,7 @@ public:
 
     void OnLogout(Player* player) override
     {
-        selectionStore.RemoveSelection(player->GetGUIDLow());
+        selectionStore.RemoveSelection(player->GetGUID().GetCounter());
     }
 };
 #endif
