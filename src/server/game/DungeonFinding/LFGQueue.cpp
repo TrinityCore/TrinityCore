@@ -674,7 +674,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
                 {
                     if (!first)
                         o << "|";
-                    o << role.first.GetRawValue() << " " << GetRolesString(role.second & uint8(~PLAYER_ROLE_LEADER));
+                    o << role.first.ToString() << " " << GetRolesString(role.second & uint8(~PLAYER_ROLE_LEADER));
                     first = false;
                 }
                 o << ")";
