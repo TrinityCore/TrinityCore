@@ -251,14 +251,9 @@ WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
 
 void WorldPackets::Chat::ChatRegisterAddonPrefixes::Read()
 {
-    int32 count;
-    _worldPacket >> count;
-
-    for (int32 i = 0; i < count; ++i)
-    {
-        uint32 lenghts = _worldPacket.ReadBits(5);
-        Prefixes.push_back(_worldPacket.ReadString(lenghts));
-    }
+    Prefixes.resize(_worldPacket.read<uint32>());
+    for (std::string& prefix : Prefixes)
+        prefix.assign(_worldPacket.ReadString(_worldPacket.ReadBits(5)));
 }
 
 WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()

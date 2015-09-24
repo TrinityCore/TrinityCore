@@ -658,8 +658,6 @@ enum AccountDataType
 #define GLOBAL_CACHE_MASK           0x15
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
-#define REGISTERED_ADDON_PREFIX_SOFTCAP 64
-
 enum TutorialAction : uint8
 {
     TUTORIAL_ACTION_UPDATE  = 0,
