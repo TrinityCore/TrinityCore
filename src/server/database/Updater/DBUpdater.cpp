@@ -425,8 +425,8 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     uint32 ret;
     try
     {
-        pipe outPipe = create_pipe();
-        pipe errPipe = create_pipe();
+        boost::process::pipe outPipe = create_pipe();
+        boost::process::pipe errPipe = create_pipe();
 
         child c = execute(run_exe(DBUpdater<T>::GetMySqlCli().empty() ? "mysql" :
                 boost::filesystem::absolute(DBUpdater<T>::GetMySqlCli()).generic_string()),
