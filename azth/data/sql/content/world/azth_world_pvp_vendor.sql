@@ -1,0 +1,58 @@
+SET @ID_LIST = '90000, 90001';
+
+DELETE FROM `creature_template` WHERE `entry` IN (@ID_LIST);
+DELETE FROM `npc_vendor` WHERE `entry` IN (@ID_LIST);
+
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `HealthModifier`, `ManaModifier`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES
+(90000, 0, 0, 0, 0, 0, 19654, 0, 0, 0, 'Linus', 'AzerothShard Weapons Vendor', NULL, '', 80, 80, 1, 76, 128, 1, 1.14286, 1, 0, 0, 2000, 2000, 1, 1, 1, 0, 2048, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 1, 3, 1, 5, 3, 1, 1, 1, 0, 0, 1, 0, 2, '', 12340);
+
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `VerifiedBuild`) VALUES
+(90000, 0, 42210, 0, 0, 2968, 0),
+(90000, 0, 42229, 0, 0, 2968, 0),
+(90000, 0, 42234, 0, 0, 2968, 0),
+(90000, 0, 42244, 0, 0, 2968, 0),
+(90000, 0, 42250, 0, 0, 2968, 0),
+(90000, 0, 42257, 0, 0, 2968, 0),
+(90000, 0, 42262, 0, 0, 2958, 0),
+(90000, 0, 42267, 0, 0, 2968, 0),
+(90000, 0, 42272, 0, 0, 2968, 0),
+(90000, 0, 42277, 0, 0, 2968, 0),
+(90000, 0, 42282, 0, 0, 2968, 0),
+(90000, 0, 42287, 0, 0, 2968, 0),
+(90000, 0, 42292, 0, 0, 2968, 0),
+(90000, 0, 42319, 0, 0, 2959, 0),
+(90000, 0, 42324, 0, 0, 2959, 0),
+(90000, 0, 42329, 0, 0, 2959, 0),
+(90000, 0, 42334, 0, 0, 2959, 0),
+(90000, 0, 42348, 0, 0, 2958, 0),
+(90000, 0, 42354, 0, 0, 2958, 0),
+(90000, 0, 42366, 0, 0, 2959, 0),
+(90000, 0, 42386, 0, 0, 2959, 0),
+(90000, 0, 42392, 0, 0, 2959, 0),
+(90000, 0, 42483, 0, 0, 2967, 0),
+(90000, 0, 42487, 0, 0, 2959, 0),
+(90000, 0, 42492, 0, 0, 2959, 0),
+(90000, 0, 42498, 0, 0, 2959, 0),
+(90000, 0, 42504, 0, 0, 2967, 0),
+(90000, 0, 42515, 0, 0, 2967, 0),
+(90000, 0, 42521, 0, 0, 2967, 0),
+(90000, 1, 42527, 0, 0, 2969, 0),
+(90000, 1, 42533, 0, 0, 2969, 0),
+(90000, 1, 42539, 0, 0, 2969, 0),
+(90000, 1, 42561, 0, 0, 2969, 0),
+(90000, 1, 42566, 0, 0, 2969, 0),
+(90000, 1, 42572, 0, 0, 2969, 0),
+(90000, 1, 42580, 0, 0, 2969, 0),
+(90000, 1, 42585, 0, 0, 2969, 0),
+(90000, 1, 42591, 0, 0, 2969, 0),
+(90000, 1, 42599, 0, 0, 2969, 0),
+(90000, 1, 42604, 0, 0, 2969, 0),
+(90000, 1, 42609, 0, 0, 2969, 0),
+(90000, 1, 42616, 0, 0, 2969, 0),
+(90000, 1, 42622, 0, 0, 2969, 0),
+(90000, 1, 42854, 0, 0, 2969, 0),
+(90000, 0, 44423, 0, 0, 2959, 0),
+(90000, 0, 44424, 0, 0, 2959, 0),
+(90000, 0, 49185, 0, 0, 2967, 0),
+(90000, 1, 49187, 0, 0, 2969, 0),
+(90000, 0, 49189, 0, 0, 2958, 0);
