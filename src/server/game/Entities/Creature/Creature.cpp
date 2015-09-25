@@ -553,10 +553,25 @@ void Creature::Update(uint32 diff)
 
                 if (m_combatPulseTime == 0)
                 {
-                    if (AI())
-                        AI()->DoZoneInCombat();
-                    else
-                        SetInCombatWithZone();
+                    Map::PlayerList const &players = GetMap()->GetPlayers();
+                    if (!players.isEmpty())
+                        for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+                        {
+                            if (Player* player = it->GetSource())
+                            {
+                                if (player->IsGameMaster())
+                                    continue;
+
+                                if (player->IsAlive() && this->IsHostileTo(player))
+                                {
+                                    if (CanHaveThreatList())
+                                        AddThreat(player, 0.0f);
+                                    this->SetInCombatWith(player);
+                                    player->SetInCombatWith(this);
+                                }
+                            }
+                        }
+
                     m_combatPulseTime = m_combatPulseDelay * IN_MILLISECONDS;
                 }
             }
