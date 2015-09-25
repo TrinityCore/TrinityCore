@@ -26,6 +26,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <boost/process.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/system/system_error.hpp>
 
@@ -391,9 +393,29 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     uint32 ret;
     try
     {
+        boost::process::pipe outPipe = create_pipe();
+        boost::process::pipe errPipe = create_pipe();
+
         child c = execute(run_exe(DBUpdater<T>::GetMySqlCli().empty() ? "mysql" :
                 boost::filesystem::absolute(DBUpdater<T>::GetMySqlCli()).generic_string()),
-                    set_args(args), bind_stdin(source), throw_on_error());
+                    set_args(args), bind_stdin(source), throw_on_error(),
+                    bind_stdout(file_descriptor_sink(outPipe.sink, close_handle)),
+                    bind_stderr(file_descriptor_sink(errPipe.sink, close_handle)));
+
+        file_descriptor_source mysqlOutfd(outPipe.source, close_handle);
+        file_descriptor_source mysqlErrfd(errPipe.source, close_handle);
+
+        stream<file_descriptor_source> mysqlOutStream(mysqlOutfd);
+        stream<file_descriptor_source> mysqlErrStream(mysqlErrfd);
+
+        std::stringstream out;
+        std::stringstream err;
+
+        copy(mysqlOutStream, out);
+        copy(mysqlErrStream, err);
+
+        TC_LOG_INFO("sql.updates", "%s", out.str().c_str());
+        TC_LOG_ERROR("sql.updates", "%s", err.str().c_str());
 
         ret = wait_for_exit(c);
     }
