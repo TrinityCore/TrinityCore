@@ -178,6 +178,12 @@ WorldSession::~WorldSession()
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 }
 
+bool WorldSession::PlayerDisconnected() const
+{
+    return !(m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() &&
+             m_Socket[CONNECTION_TYPE_INSTANCE] && m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen());
+}
+
 std::string const & WorldSession::GetPlayerName() const
 {
     return _player != NULL ? _player->GetName() : DefaultPlayerName;
