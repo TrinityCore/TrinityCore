@@ -250,7 +250,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_CALENDAR_REMOVE_INVITE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Calendar::CalendarRemoveInvite, &WorldSession::HandleCalendarEventRemoveInvite);
     DEFINE_HANDLER(CMSG_CALENDAR_UPDATE_EVENT,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Calendar::CalendarUpdateEvent, &WorldSession::HandleCalendarUpdateEvent);
     DEFINE_HANDLER(CMSG_CANCEL_AURA,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::CancelAura, &WorldSession::HandleCancelAuraOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_AUTO_REPEAT_SPELL,                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelAutoRepeatSpellOpcode);
+    DEFINE_HANDLER(CMSG_CANCEL_AUTO_REPEAT_SPELL,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::CancelAutoRepeatSpell, &WorldSession::HandleCancelAutoRepeatSpellOpcode);
     DEFINE_HANDLER(CMSG_CANCEL_CAST,                                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Spells::CancelCast, &WorldSession::HandleCancelCastOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CANCEL_CHANNELLING,                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelChanneling          );
     DEFINE_HANDLER(CMSG_CANCEL_GROWTH_AURA,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::CancelGrowthAura, &WorldSession::HandleCancelGrowthAuraOpcode);

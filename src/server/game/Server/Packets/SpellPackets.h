@@ -38,6 +38,14 @@ namespace WorldPackets
             int32 SpellID = 0;
         };
 
+        class CancelAutoRepeatSpell final : public ClientPacket
+        {
+        public:
+            CancelAutoRepeatSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AUTO_REPEAT_SPELL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class CancelGrowthAura final : public ClientPacket
         {
         public:
