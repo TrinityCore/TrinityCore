@@ -2297,6 +2297,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_SET_POWER_TYPE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (targets)
+            {
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (Unit* unit = (*itr)->ToUnit())
+                    {
+                        unit->setPowerType(Powers(e.action.powerType.powerType));
+                        unit->SetPower(Powers(e.action.powerType.powerType), e.action.powerType.value);
+                    }
+                }
+            }
+
+            delete targets;
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
