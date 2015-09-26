@@ -148,6 +148,7 @@ class ObjectAccessor
         //Thread safe
         Corpse* GetCorpseForPlayerGUID(ObjectGuid const& guid);
         void RemoveCorpse(Corpse* corpse);
+        void RemoveAllMapCorpses(uint32 mapId, uint32 instanceId);
         void AddCorpse(Corpse* corpse);
         void AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid, Map* map);
         Corpse* ConvertCorpseForPlayer(ObjectGuid const& player_guid, bool insignia = false);

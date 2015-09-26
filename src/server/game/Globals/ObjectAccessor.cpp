@@ -269,6 +269,19 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
     }
 }
 
+void ObjectAccessor::RemoveAllMapCorpses(uint32 mapId, uint32 instanceId)
+{
+    boost::unique_lock<boost::shared_mutex> lock(_corpseLock);
+
+    for (auto iter = i_player2corpse.begin(); iter != i_player2corpse.end();)
+    {
+        if (iter->second->GetMapId() == mapId && iter->second->GetInstanceId() == instanceId)
+            iter = i_player2corpse.erase(iter);
+        else
+            ++iter;
+    }
+}
+
 void ObjectAccessor::AddCorpse(Corpse* corpse)
 {
     ASSERT(corpse && corpse->GetType() != CORPSE_BONES);

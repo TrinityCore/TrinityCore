@@ -3520,6 +3520,9 @@ time_t Map::GetLinkedRespawnTime(ObjectGuid guid) const
 
 void Map::LoadCorpseData()
 {
+    // First remove any existing corpses for this map/instance
+    sObjectAccessor->RemoveAllMapCorpses(GetId(), GetInstanceId());
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
