@@ -358,7 +358,10 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     std::string const& password, std::string const& port_or_socket, std::string const& database, Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(7);
+    args.reserve(8);
+
+    // args[0] represents the program name
+    args.push_back("mysql");
 
     // CLI Client connection info
     args.push_back("-h" + host);
