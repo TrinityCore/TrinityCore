@@ -424,7 +424,7 @@ bool Transmogrification::CanTransmogrifyItemWithItem(Player* player, ItemTemplat
             ((target->InventoryType == INVTYPE_WEAPON || target->InventoryType == INVTYPE_2HWEAPON) &&
                 (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)) ||
             ((target->InventoryType == INVTYPE_WEAPONMAINHAND || target->InventoryType == INVTYPE_WEAPONOFFHAND) &&
-                source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON))))
+                (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)))))
             return false;
         if (source->Class == ITEM_CLASS_ARMOR &&
             !((source->InventoryType == INVTYPE_CHEST || source->InventoryType == INVTYPE_ROBE) &&
