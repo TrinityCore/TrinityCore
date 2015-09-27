@@ -243,7 +243,15 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (@BASIC_VENDOR, 0, 42620, 0, 0, 0, 0),
 (@BASIC_VENDOR, 0, 42852, 0, 0, 0, 0),
 (@BASIC_VENDOR, 0, 44419, 0, 0, 0, 0),
-(@BASIC_VENDOR, 0, 44420, 0, 0, 0, 0);
+(@BASIC_VENDOR, 0, 44420, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42122, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42123, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42128, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42129, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42130, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42131, 0, 0, 0, 0),
+(@BASIC_VENDOR, 1, 42132, 0, 0, 0, 0);
 
 -- Set price to Deadly Weapons
 UPDATE `item_template` SET `BuyPrice` = 1000000 WHERE `name` LIKE 'Deadly Gladiator%' AND `itemlevel` = 213;
+UPDATE `item_template` SET `BuyPrice` = 1000000 WHERE `entry` IN (42122, 42123, 42128, 42129, 42130, 42131, 42132);
