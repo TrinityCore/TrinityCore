@@ -1428,12 +1428,12 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets:
         ))
         return false;
 
-    if (source->GetInventoryType() != target->GetInventoryType() &&
-        (source->GetClass() != ITEM_CLASS_WEAPON || !((target->IsRangedWeapon() ||
-            ((target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND) &&
-                source->GetInventoryType() == INVTYPE_WEAPON)))) ||
-        (source->GetClass() != ITEM_CLASS_ARMOR ||
-            !((source->GetInventoryType() == INVTYPE_CHEST || source->GetInventoryType() == INVTYPE_ROBE) &&
+    if (!(source->GetInventoryType() == target->GetInventoryType() || target->IsRangedWeapon() ||
+        (source->GetClass() == ITEM_CLASS_WEAPON &&
+            (target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND) &&
+                source->GetInventoryType() == INVTYPE_WEAPON) ||
+        (source->GetClass() == ITEM_CLASS_ARMOR &&
+            (source->GetInventoryType() == INVTYPE_CHEST || source->GetInventoryType() == INVTYPE_ROBE) &&
                 (target->GetInventoryType() == INVTYPE_CHEST || target->GetInventoryType() == INVTYPE_ROBE))))
         return false;
 
