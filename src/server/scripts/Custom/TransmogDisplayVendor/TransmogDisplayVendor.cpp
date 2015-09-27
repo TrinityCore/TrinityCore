@@ -236,7 +236,10 @@ bool TransmogDisplayVendorMgr::CanTransmogrifyItemWithItem(Player* player, ItemT
     if (source->ItemId == target->ItemId)
         return false;
 
-    if (!SuitableForTransmogrification(player, target) || !SuitableForTransmogrification(player, source)) // if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+    if (source->DisplayInfoID == target->DisplayInfoID)
+        return false;
+
+    if (source->Class != target->Class)
         return false;
 
     if (source->InventoryType == INVTYPE_BAG ||
@@ -248,8 +251,19 @@ bool TransmogDisplayVendorMgr::CanTransmogrifyItemWithItem(Player* player, ItemT
         source->InventoryType == INVTYPE_QUIVER)
         return false;
 
-    // TC doesnt check this? Checked by Inventory type check.
-    if (source->Class != target->Class)
+    if (target->InventoryType == INVTYPE_BAG ||
+        target->InventoryType == INVTYPE_RELIC ||
+        // target->InventoryType == INVTYPE_BODY ||
+        target->InventoryType == INVTYPE_FINGER ||
+        target->InventoryType == INVTYPE_TRINKET ||
+        target->InventoryType == INVTYPE_AMMO ||
+        target->InventoryType == INVTYPE_QUIVER)
+        return false;
+
+    if (!SuitableForTransmogrification(player, target) || !SuitableForTransmogrification(player, source)) // if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+        return false;
+
+    if (IsRangedWeapon(source->Class, source->SubClass) != IsRangedWeapon(target->Class, target->SubClass))
         return false;
 
     if (source->SubClass != target->SubClass && !IsRangedWeapon(target->Class, target->SubClass))
@@ -262,14 +276,15 @@ bool TransmogDisplayVendorMgr::CanTransmogrifyItemWithItem(Player* player, ItemT
 
     if (source->InventoryType != target->InventoryType)
     {
-        if (source->Class == ITEM_CLASS_WEAPON &&
-            (IsRangedWeapon(target->Class, target->SubClass) != IsRangedWeapon(source->Class, source->SubClass) ||
-            source->InventoryType == INVTYPE_WEAPONMAINHAND ||
-            source->InventoryType == INVTYPE_WEAPONOFFHAND))
+        if (source->Class == ITEM_CLASS_WEAPON && !((IsRangedWeapon(target->Class, target->SubClass) ||
+            ((target->InventoryType == INVTYPE_WEAPON || target->InventoryType == INVTYPE_2HWEAPON) &&
+                (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)) ||
+            ((target->InventoryType == INVTYPE_WEAPONMAINHAND || target->InventoryType == INVTYPE_WEAPONOFFHAND) &&
+                (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)))))
             return false;
         if (source->Class == ITEM_CLASS_ARMOR &&
-            !((source->InventoryType == INVTYPE_CHEST && target->InventoryType == INVTYPE_ROBE) ||
-            (source->InventoryType == INVTYPE_ROBE && target->InventoryType == INVTYPE_CHEST)))
+            !((source->InventoryType == INVTYPE_CHEST || source->InventoryType == INVTYPE_ROBE) &&
+                (target->InventoryType == INVTYPE_CHEST || target->InventoryType == INVTYPE_ROBE)))
             return false;
     }
 
