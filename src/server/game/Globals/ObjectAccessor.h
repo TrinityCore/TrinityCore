@@ -85,86 +85,48 @@ class HashMapHolder
         static MapType _objectMap;
 };
 
-class ObjectAccessor
+namespace ObjectAccessor
 {
-    private:
-        ObjectAccessor();
-        ~ObjectAccessor();
-        ObjectAccessor(const ObjectAccessor&);
-        ObjectAccessor& operator=(const ObjectAccessor&);
+    // these functions return objects only if in map of specified object
+    WorldObject* GetWorldObject(WorldObject const&, ObjectGuid const&);
+    Object* GetObjectByTypeMask(WorldObject const&, ObjectGuid const&, uint32 typemask);
+    Corpse* GetCorpse(WorldObject const& u, ObjectGuid const& guid);
+    GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
+    Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
+    DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
+    AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
+    Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
+    Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
+    Pet* GetPet(WorldObject const&, ObjectGuid const& guid);
+    Player* GetPlayer(Map const*, ObjectGuid const& guid);
+    Player* GetPlayer(WorldObject const&, ObjectGuid const& guid);
+    Creature* GetCreatureOrPetOrVehicle(WorldObject const&, ObjectGuid const&);
 
-    public:
-        /// @todo: Override these template functions for each holder type and add assertions
+    // these functions return objects if found in whole world
+    // ACCESS LIKE THAT IS NOT THREAD SAFE
+    Player* FindPlayer(ObjectGuid const&);
+    Player* FindPlayerByName(std::string const& name);
 
-        static ObjectAccessor* instance()
-        {
-            static ObjectAccessor instance;
-            return &instance;
-        }
+    // this returns Player even if he is not in world, for example teleporting
+    Player* FindConnectedPlayer(ObjectGuid const&);
+    Player* FindConnectedPlayerByName(std::string const& name);
 
-        // these functions return objects only if in map of specified object
-        static WorldObject* GetWorldObject(WorldObject const&, ObjectGuid const&);
-        static Object* GetObjectByTypeMask(WorldObject const&, ObjectGuid const&, uint32 typemask);
-        static Corpse* GetCorpse(WorldObject const& u, ObjectGuid const& guid);
-        static GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
-        static Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
-        static DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
-        static AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
-        static Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
-        static Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
-        static Pet* GetPet(WorldObject const&, ObjectGuid const& guid);
-        static Player* GetPlayer(Map const*, ObjectGuid const& guid);
-        static Player* GetPlayer(WorldObject const&, ObjectGuid const& guid);
-        static Creature* GetCreatureOrPetOrVehicle(WorldObject const&, ObjectGuid const&);
+    // when using this, you must use the hashmapholder's lock
+    HashMapHolder<Player>::MapType const& GetPlayers();
 
-        // these functions return objects if found in whole world
-        // ACCESS LIKE THAT IS NOT THREAD SAFE
-        static Player* FindPlayer(ObjectGuid const&);
-        static Player* FindPlayerByName(std::string const& name);
+    template<class T>
+    void AddObject(T* object)
+    {
+        HashMapHolder<T>::Insert(object);
+    }
 
-        // this returns Player even if he is not in world, for example teleporting
-        static Player* FindConnectedPlayer(ObjectGuid const&);
-        static Player* FindConnectedPlayerByName(std::string const& name);
+    template<class T>
+    void RemoveObject(T* object)
+    {
+        HashMapHolder<T>::Remove(object);
+    }
 
-        // when using this, you must use the hashmapholder's lock
-        static HashMapHolder<Player>::MapType const& GetPlayers()
-        {
-            return HashMapHolder<Player>::GetContainer();
-        }
-
-        template<class T> static void AddObject(T* object)
-        {
-            HashMapHolder<T>::Insert(object);
-        }
-
-        template<class T> static void RemoveObject(T* object)
-        {
-            HashMapHolder<T>::Remove(object);
-        }
-
-        static void SaveAllPlayers();
-
-        //non-static functions
-
-        //Thread safe
-        Corpse* GetCorpseForPlayerGUID(ObjectGuid const& guid);
-        void RemoveCorpse(Corpse* corpse);
-        void AddCorpse(Corpse* corpse);
-        void AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid, Map* map);
-        Corpse* ConvertCorpseForPlayer(ObjectGuid const& player_guid, bool insignia = false);
-
-        //Thread unsafe
-        void RemoveOldCorpses();
-        void UnloadAll();
-
-    private:
-        typedef std::unordered_map<ObjectGuid, Corpse*> Player2CorpsesMapType;
-        typedef std::unordered_map<Player*, UpdateData>::value_type UpdateDataValueType;
-
-        Player2CorpsesMapType i_player2corpse;
-
-        boost::shared_mutex _corpseLock;
+    void SaveAllPlayers();
 };
 
-#define sObjectAccessor ObjectAccessor::instance()
 #endif

@@ -149,13 +149,18 @@ void Corpse::DeleteBonesFromWorld()
 
 void Corpse::DeleteFromDB(SQLTransaction& trans)
 {
+    DeleteFromDB(GetOwnerGUID(), trans);
+}
+
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
+{
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
-    stmt->setUInt64(0, GetOwnerGUID().GetCounter());
-    trans->Append(stmt);
+    stmt->setUInt64(0, ownerGuid.GetCounter());
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
-    stmt->setUInt64(0, GetOwnerGUID().GetCounter());
-    trans->Append(stmt);
+    stmt->setUInt64(0, ownerGuid.GetCounter());
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
@@ -202,6 +207,10 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
 bool Corpse::IsExpired(time_t t) const
 {
+    // Deleted character
+    if (!sWorld->GetCharacterInfo(GetOwnerGUID()))
+        return true;
+
     if (m_type == CORPSE_BONES)
         return m_time < t - 60 * MINUTE;
     else

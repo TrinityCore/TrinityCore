@@ -454,7 +454,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
             if (!normalizePlayerName(target))
                 break;
 
-            Player* receiver = sObjectAccessor->FindPlayerByName(target);
+            Player* receiver = ObjectAccessor::FindPlayerByName(target);
             if (!receiver)
                 break;
 

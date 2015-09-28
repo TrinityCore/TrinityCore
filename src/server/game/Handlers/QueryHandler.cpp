@@ -169,9 +169,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
 void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
-    Corpse* corpse = GetPlayer()->GetCorpse();
-
-    if (!corpse)
+    if (!_player->HasCorpse())
     {
         WorldPackets::Query::CorpseLocation packet;
         packet.Valid = false;                               // corpse not found
@@ -179,11 +177,12 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
         return;
     }
 
-    uint32 mapID = corpse->GetMapId();
-    float x = corpse->GetPositionX();
-    float y = corpse->GetPositionY();
-    float z = corpse->GetPositionZ();
-    uint32 corpseMapID = mapID;
+    WorldLocation corpseLocation = _player->GetCorpseLocation();
+    uint32 corpseMapID = corpseLocation.GetMapId();
+    uint32 mapID = corpseLocation.GetMapId();
+    float x = corpseLocation.GetPositionX();
+    float y = corpseLocation.GetPositionY();
+    float z = corpseLocation.GetPositionZ();
 
     // if corpse at different map
     if (mapID != _player->GetMapId())
@@ -210,7 +209,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
     packet.Position = G3D::Vector3(x, y, z);
-    packet.Transport = corpse->GetTransGUID();
+    packet.Transport = ObjectGuid::Empty;
     SendPacket(packet.Write());
 }
 
@@ -280,12 +279,12 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
     }
 }
 
-void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
+void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& queryCorpseTransport)
 {
     Corpse* corpse = _player->GetCorpse();
 
     WorldPackets::Query::CorpseTransportQuery response;
-    if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)
+    if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != queryCorpseTransport.Transport)
     {
         response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
         response.Facing = 0.0f;
