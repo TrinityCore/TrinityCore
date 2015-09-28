@@ -155,6 +155,7 @@ LoginDatabase.WorkerThreads = 1
 #                     1 - (Enabled)
 
 Wrong.Password.Login.Logging = 0
+
 #
 ###################################################################################################
 
