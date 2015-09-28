@@ -3551,7 +3551,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
+bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, uint32 fromSkill /*= 0*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -3809,10 +3809,10 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
-    // add dependent skills if this spell is not learned from adding skill already
-    if (!fromSkill)
+    if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
     {
-        if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
+        // add dependent skills if this spell is not learned from adding skill already
+        if (spellLearnSkill->skill != fromSkill)
         {
             uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
             uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
@@ -3827,26 +3827,29 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
         }
-        else
+    }
+    else
+    {
+        // not ranked skills
+        for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
         {
-            // not ranked skills
-            for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
-            {
-                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
-                if (!pSkill)
-                    continue;
+            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+            if (!pSkill)
+                continue;
 
-                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                // Also added for runeforging. It's already confirmed this happens upon learning for Death Knights, not from character creation.
-                if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
-                    LearnDefaultSkill(pSkill->id, 0);
+            if (pSkill->id == fromSkill)
+                continue;
 
-                if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                            spellInfo->Effects[i].CalcValue() == 310)
-                            SetHas310Flyer(true);
-            }
+            ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
+            // Also added for runeforging. It's already confirmed this happens upon learning for Death Knights, not from character creation.
+            if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
+                LearnDefaultSkill(pSkill->id, 0);
+
+            if (pSkill->id == SKILL_MOUNTS && !Has310Flyer(false))
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
+                        spellInfo->Effects[i].CalcValue() == 310)
+                        SetHas310Flyer(true);
         }
     }
 
@@ -3919,7 +3922,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
 }
 
-void Player::LearnSpell(uint32 spell_id, bool dependent, bool fromSkill /*= false*/)
+void Player::LearnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
@@ -22997,9 +23000,9 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             RemoveSpell(ability->spellId);
         // need learn
         else if (!IsInWorld())
-            AddSpell(ability->spellId, true, true, true, false, false, true);
+            AddSpell(ability->spellId, true, true, true, false, false, ability->skillId);
         else
-            LearnSpell(ability->spellId, true, true);
+            LearnSpell(ability->spellId, true, ability->skillId);
     }
 }
 
