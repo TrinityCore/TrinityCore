@@ -653,9 +653,9 @@ public:
                 }
 
                 // Starting Black Knight event
-                if ((instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE &&
-                    (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
-                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == DONE))
+                if (((instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE) &&
+                    ((instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
+                    (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == DONE))))
                     DoStartBlackKnight();
             }
         }

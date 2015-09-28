@@ -165,7 +165,7 @@ public:
                 Talk(urand(0, 2));
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
         {
             if (HealthBelowPct(31) && !doExplode)
             {
