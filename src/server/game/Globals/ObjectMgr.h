@@ -445,13 +445,11 @@ struct BroadcastText
 
 typedef std::unordered_map<uint32, BroadcastText> BroadcastTextContainer;
 
-typedef std::set<uint32> CellGuidSet;
-typedef std::map<uint32/*player guid*/, uint32/*instance*/> CellCorpseSet;
+typedef std::set<ObjectGuid::LowType> CellGuidSet;
 struct CellObjectGuids
 {
     CellGuidSet creatures;
     CellGuidSet gameobjects;
-    CellCorpseSet corpses;
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
@@ -1218,9 +1216,6 @@ class ObjectMgr
         char const* GetTrinityStringForDBCLocale(uint32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
-
-        void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
-        void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
 
         // grid objects
         void AddCreatureToGrid(uint32 guid, CreatureData const* data);
