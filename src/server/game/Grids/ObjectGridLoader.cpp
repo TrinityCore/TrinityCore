@@ -145,7 +145,7 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
-void ObjectWorldLoader::Visit(CorpseMapType &m)
+void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
     if (std::unordered_set<Corpse*> const* corpses = i_map->GetCorpsesInCell(cellCoord.GetId()))
