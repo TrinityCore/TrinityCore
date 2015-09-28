@@ -113,7 +113,7 @@ enum Spells
     SPELL_HAMMER_RIGHTEOUS_PLR  = 66905,
     SPELL_RADIANCE              = 66935,
     SPELL_VENGEANCE             = 66865,
-    SPELL_EADRIC_ACH            = 68575,
+    SPELL_EADRIC_ACH            = 68575, // dummy spell for achievement credit (IDs 4297, 4298, 3778, 4296)
 
     // Paletress
     SPELL_PALETRESS_CONFESSOR   = 68206, // achievement id 3802
@@ -125,7 +125,7 @@ enum Spells
     SPELL_SHIELD_REFLECT        = 33619,
     SPELL_CONFESS               = 66680,
     SPELL_SUMMON_MEMORY         = 66545,
-    SPELL_PALETRESS_ACH         = 68574,
+    SPELL_PALETRESS_ACH         = 68574, // dummy spell for achievement credit (IDs 4297, 4298, 3778, 4296)
 
     // Memory of X (Summon)
     SPELL_MEMORY_ALGALON        = 66715,
@@ -160,6 +160,13 @@ enum Spells
     SPELL_OLD_WOUNDS            = 66620,
     SPELL_SHADOWS_PAST          = 66619,
     SPELL_WAKING_NIGHTMARE      = 66552
+};
+
+enum PointMovement
+{
+    POINT_PREFIGHT              = 0,
+    POINT_PREPARE,
+    POINT_DESPAWN
 };
 
 class OrientationCheck : public std::unary_function<Unit*, bool>
@@ -205,40 +212,24 @@ class boss_eadric : public CreatureScript
 {
 public:
     boss_eadric() : CreatureScript("boss_eadric") { }
-    struct boss_eadricAI : public ScriptedAI
+    struct boss_eadricAI : public BossAI
     {
-        boss_eadricAI(Creature* creature) : ScriptedAI(creature)
+        boss_eadricAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_E)
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            faceRollerGUID.Clear();
-            bDone = false;
-
             me->SetReactState(REACT_DEFENSIVE);
         }
 
-        void Initialize()
-        {
-            events.Reset();
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
         ObjectGuid faceRollerGUID;
-
-        bool bDone;
 
         void Reset() override
         {
-            if (bDone)
-                return;
-            Initialize();
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+                _Reset();
         }
 
         void SetFacerollerPlayer(ObjectGuid playerGuid)
         {
-            if (!bDone)
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
                 faceRollerGUID = playerGuid;
         }
 
@@ -247,20 +238,11 @@ public:
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (!bDone)
+                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
                 {
-                    bDone = true;
                     events.Reset();
-                    me->InterruptNonMeleeSpells(true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetHealth(1);
-                    me->CombatStop(true);
-                    me->setRegeneratingHealth(false);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    instance->SetBossState(BOSS_ARGENT_CHALLENGE_E, SPECIAL);
                     Talk(SAY_DEFEATED_E);
-                    me->SetHomePosition(745.87f, 625.88f, 411.17f, me->GetHomePosition().GetOrientation());
-                    me->GetMotionMaster()->MoveTargetedHome();
                 }
                 return;
             }
@@ -268,7 +250,7 @@ public:
 
         void JustReachedHome()
         {
-            if (bDone)
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == SPECIAL)
                 events.ScheduleEvent(EVENT_EADRIC_DONE, 4000);
             else
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
@@ -279,29 +261,33 @@ public:
             if (type != POINT_MOTION_TYPE)
                 return;
 
-            if (id == 0)
+            switch (id)
             {
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
-                    announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
+                case POINT_PREFIGHT:
+                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                        announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
+                    break;
+                case POINT_PREPARE:
+                    me->SetWalk(false);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                    break;
+                case POINT_DESPAWN:
+                    me->DisappearAndDie();
+                    break;
+                default:
+                    break;
             }
-            else if (id == 1)
-            {
-                me->SetWalk(false);
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
-            }
-            else if (id == 2)
-                me->DisappearAndDie();
         }
 
         void EnterCombat(Unit* who) override
         {
-            if (bDone)
-                return;
-            ScriptedAI::EnterCombat(who);
-            events.ScheduleEvent(EVENT_VENGEANCE, 500);
-            events.ScheduleEvent(EVENT_RADIANCE, urand(7000, 15000));
-            Talk(SAY_AGGRO_E, who);
-            DoZoneInCombat();
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+            {
+                events.ScheduleEvent(EVENT_VENGEANCE, 500);
+                events.ScheduleEvent(EVENT_RADIANCE, urand(7000, 15000));
+                Talk(SAY_AGGRO_E, who);
+                _EnterCombat();
+            }
         }
 
         void KilledUnit(Unit* who)
@@ -311,15 +297,16 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (bDone)
-                return;
-            ScriptedAI::AttackStart(who);
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+                BossAI::AttackStart(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -353,9 +340,9 @@ public:
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_ACH, 0, me);
                         if (Player* plr = ObjectAccessor::GetPlayer(*me, faceRollerGUID))
                             plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_FACEROLLER, 0, me);
-                        instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+                        _JustDied();
                         me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(2, bossExitPos);
+                        me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
                         break;
                     default:
                         break;
@@ -380,40 +367,31 @@ class boss_paletress : public CreatureScript
 public:
     boss_paletress() : CreatureScript("boss_paletress") { }
 
-    struct boss_paletressAI : public ScriptedAI
+    struct boss_paletressAI : public BossAI
     {
-        boss_paletressAI(Creature* creature) : ScriptedAI(creature)
+        boss_paletressAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_P)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
-            bDone = false;
 
             me->SetReactState(REACT_DEFENSIVE);
         }
 
         void Initialize()
         {
-            events.Reset();
-
             bMemory = false;
         }
 
-        InstanceScript* instance;
         ObjectGuid MemoryGUID;
-
-        EventMap events;
-
         bool bMemory;
-        bool bDone;
 
         void Reset() override
         {
-            if (bDone)
-                return;
-            me->RemoveAura(SPELL_SHIELD);
-            Initialize();
-            if (Creature* pMemory = ObjectAccessor::GetCreature(*me, MemoryGUID))
-                pMemory->DisappearAndDie();
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+            {
+                me->RemoveAura(SPELL_SHIELD);
+                Initialize();
+                _Reset();
+            }
         }
 
         void SetData(uint32 uiId, uint32 /*uiValue*/) override
@@ -429,23 +407,27 @@ public:
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
+            if (!bMemory && !HealthAbovePct(25))
+            {
+                me->InterruptNonMeleeSpells(true);
+                DoCastAOE(SPELL_HOLY_NOVA, false);
+                Talk(SAY_MEMORY_SUMMON);
+                DoCast(me, SPELL_SHIELD);
+                DoCastAOE(SPELL_CONFESS, false);
+                me->AttackStop();
+                events.ScheduleEvent(EVENT_SUMMON_MEMORY, 2000);
+
+                bMemory = true;
+            }
+            
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (!bDone)
+                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
                 {
-                    bDone = true;
                     events.Reset();
-                    me->InterruptNonMeleeSpells(true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetHealth(1);
-                    me->CombatStop(true);
-                    me->setRegeneratingHealth(false);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    instance->SetBossState(BOSS_ARGENT_CHALLENGE_P, SPECIAL);
                     Talk(SAY_DEFEATED_P);
-                    me->SetHomePosition(745.87f, 625.88f, 411.17f, me->GetHomePosition().GetOrientation());
-                    me->GetMotionMaster()->MoveTargetedHome();
                 }
                 return;
             }
@@ -453,7 +435,7 @@ public:
 
         void JustReachedHome()
         {
-            if (bDone)
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == SPECIAL)
                 events.ScheduleEvent(EVENT_PALETRESS_DONE, 4000);
             else
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
@@ -464,47 +446,60 @@ public:
             if (type != POINT_MOTION_TYPE)
                 return;
 
-            if (id == 0)
+            switch (id)
             {
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
-                    announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
+                case POINT_PREFIGHT:
+                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                        announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
+                    break;
+                case POINT_PREPARE:
+                    me->SetWalk(false);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                    break;
+                case POINT_DESPAWN:
+                    me->DisappearAndDie();
+                    break;
+                default:
+                    break;
             }
-            else if (id == 1)
-            {
-                me->SetWalk(false);
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
-            }
-            else if (id == 2)
-                me->DisappearAndDie();
+        }
+
+        void JustSummoned(Creature* summon) override
+        {
+            MemoryGUID = summon->GetGUID();
+            me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
+        }
+
+        void SummonedCreatureDespawn(Creature* summon) override
+        {
+            summons.Despawn(summon);
         }
 
         void EnterCombat(Unit* who) override
         {
-            if (bDone)
-                return;
-            ScriptedAI::EnterCombat(who);
-            events.ScheduleEvent(EVENT_HOLY_SMITE_E, 2000);
-            events.ScheduleEvent(EVENT_HOLY_FIRE, urand(9000, 12000));
-            events.ScheduleEvent(EVENT_RENEW, urand(15000, 17000));
-            Talk(SAY_AGGRO_P, who);
-            DoZoneInCombat();
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+            {
+                events.ScheduleEvent(EVENT_HOLY_SMITE_E, 2000);
+                events.ScheduleEvent(EVENT_HOLY_FIRE, urand(9000, 12000));
+                events.ScheduleEvent(EVENT_RENEW, urand(15000, 17000));
+                Talk(SAY_AGGRO_P, who);
+                _EnterCombat();
+            }
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             Talk(SAY_KILL_UNIT_P, who);
         }
 
         void AttackStart(Unit* who) override
         {
-            if (me->HasAura(SPELL_SHIELD) || bDone)
-                return;
-            ScriptedAI::AttackStart(who);
+            if (!me->HasAura(SPELL_SHIELD) && instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+                BossAI::AttackStart(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -552,9 +547,9 @@ public:
                                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_PALETRESS_CONFESSOR, 0, memory);
                             memory->DisappearAndDie();
                         }
-                        instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+                        _JustDied();
                         me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(2, bossExitPos);
+                        me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
                         break;
                     default:
                         break; 
@@ -564,26 +559,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!bMemory && !HealthAbovePct(25))
-            {
-                me->InterruptNonMeleeSpells(true);
-                DoCastAOE(SPELL_HOLY_NOVA, false);
-                Talk(SAY_MEMORY_SUMMON);
-                DoCast(me, SPELL_SHIELD);
-                DoCastAOE(SPELL_CONFESS, false);
-                me->AttackStop();
-                events.ScheduleEvent(EVENT_SUMMON_MEMORY, 2000);
-
-                bMemory = true;
-            }
-
             DoMeleeAttackIfReady();
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            MemoryGUID = summon->GetGUID();
-            me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
         }
     };
 
@@ -608,7 +584,6 @@ public:
 
         void Initialize()
         {
-            events.Reset();
             DoCast(me, SPELL_SHADOWFORM);
             DoCast(me, SPELL_SPAWN_VISUAL);
             events.ScheduleEvent(EVENT_ENTER_AGGRESSIVE, 3000);
@@ -618,6 +593,7 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             Initialize();
         }
 
@@ -654,8 +630,10 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -678,7 +656,6 @@ public:
                         events.ScheduleEvent(EVENT_SHADOWS_PAST, urand(5000, 7000));
                         break;
                     case EVENT_WAKING_NIGHTMARE:
-                        me->InterruptNonMeleeSpells(true);
                         Talk(EMOTE_WAKING_NIGHTMARE);
                         DoCastAOE(SPELL_WAKING_NIGHTMARE);
                         events.ScheduleEvent(EVENT_WAKING_NIGHTMARE, urand(20000, 40000));
@@ -717,9 +694,9 @@ public:
 
         void Initialize()
         {
-            events.Reset();
             shielded = false;
         }
+
         EventMap events;
         InstanceScript* instance;
 
@@ -730,6 +707,7 @@ public:
 
         void Reset()
         {
+            events.Reset();
             Initialize();
             if (me->GetEntry() == NPC_PRIESTESS)
             {
@@ -832,9 +810,7 @@ public:
         void JustSummoned(Creature* summon) override
         {
             if (me->GetEntry() == NPC_PRIESTESS)
-            {
                 fountainGuid = summon->GetGUID();
-            }
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& dmg)
@@ -848,6 +824,16 @@ public:
                 DoCast(SPELL_DIVINE_SHIELD);
                 DoCast(SPELL_FINAL_MEDITATION);
                 return;
+            }
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+            if (me->GetEntry() == NPC_PRIESTESS)
+            {
+                if (Creature* fountain = ObjectAccessor::GetCreature(*me, fountainGuid))
+                    fountain->DisappearAndDie();
             }
         }
 
@@ -866,39 +852,42 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (me->GetEntry() == NPC_ARGENT_LIGHWIELDER)
+            switch (me->GetEntry())
             {
-                events.ScheduleEvent(EVENT_BLAZING_LIGHT, 10000);
-                events.ScheduleEvent(EVENT_CLEAVE, urand(4000, 6000));
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 8000);
-            }
-            else if (me->GetEntry() == NPC_ARGENT_MONK)
-            {
-                events.ScheduleEvent(EVENT_FLURRY_OF_BLOWS, 2000);
-                events.ScheduleEvent(EVENT_PUMMEL, 12000);
-            }
-            else if (me->GetEntry() == NPC_PRIESTESS)
-            {
-                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 500);
-                events.ScheduleEvent(EVENT_HOLY_SMITE, 2500);
-                events.ScheduleEvent(EVENT_FOUNTAIN, 10000);
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_MIND_CONTROL, 15000);
+                case NPC_ARGENT_LIGHWIELDER:
+                    events.ScheduleEvent(EVENT_BLAZING_LIGHT, 10000);
+                    events.ScheduleEvent(EVENT_CLEAVE, urand(4000, 6000));
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 8000);
+                    break;
+                case NPC_ARGENT_MONK:
+                    events.ScheduleEvent(EVENT_FLURRY_OF_BLOWS, 2000);
+                    events.ScheduleEvent(EVENT_PUMMEL, 12000);
+                    break;
+                case NPC_PRIESTESS:
+                    events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 500);
+                    events.ScheduleEvent(EVENT_HOLY_SMITE, 2500);
+                    events.ScheduleEvent(EVENT_FOUNTAIN, 10000);
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_MIND_CONTROL, 15000);
+                    break;
+                default:
+                    break;
             }
         }
 
         void AttackStart(Unit* who) override
         {
-            if (me->GetEntry() == NPC_ARGENT_MONK && me->HasAura(SPELL_DIVINE_SHIELD))
-                return;
-            ScriptedAI::AttackStart(who);
+            if (!(me->GetEntry() == NPC_ARGENT_MONK && me->HasAura(SPELL_DIVINE_SHIELD)))
+                ScriptedAI::AttackStart(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             if (!UpdateVictim())
                 return;
@@ -973,17 +962,6 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            events.Reset();
-            instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
-            if (me->GetEntry() == NPC_PRIESTESS)
-            {
-                if (Creature* fountain = ObjectAccessor::GetCreature(*me, fountainGuid))
-                    fountain->DisappearAndDie();
-            }
-        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1010,7 +988,6 @@ class npc_fountain_of_light : public CreatureScript
 
             void Initialize()
             {
-                events.Reset();
                 events.ScheduleEvent(EVENT_FOUNTAIN_DUMMY, 2000);
             }
 
@@ -1019,23 +996,19 @@ class npc_fountain_of_light : public CreatureScript
 
             void Reset() override
             {
+                events.Reset();
                 Initialize();
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                events.Reset();
                 me->DespawnOrUnsummon();
             }
 
-            void AttackStart(Unit* /*who*/) override
-            {
-                return;
-            }
+            void AttackStart(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 uiDiff) override
             {
-                ScriptedAI::UpdateAI(uiDiff);
                 events.Update(uiDiff);
 
                 while (uint32 eventId = events.ExecuteEvent())

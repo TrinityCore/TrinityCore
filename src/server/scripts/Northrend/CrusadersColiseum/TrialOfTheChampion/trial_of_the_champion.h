@@ -21,6 +21,8 @@
 
 #define DataHeader "TC"
 
+uint32 const EncounterCount = 4;
+
 Position const LesserChampLoc[18] =
 {
     // Horde Lesser Champions
@@ -63,6 +65,7 @@ Position const bossExitPos = { 746.776f, 665.221f, 411.743f, 4.82f };
 
 float const hordeOrientation = 6.175f; // Facing towards alliance spectators
 float const allianceOrientation = 3.114f; // Facing towards horde spectators
+float const gateOrientation = 1.582f; // Facing towards main gate
 float const centerOrientation = 4.714f; // Facing towards the center of arena
 
 enum Data
@@ -144,13 +147,12 @@ enum Creatures
     NPC_JAEREN                                      = 35004,
     NPC_ARELAS                                      = 35005,
 
+    // Spectators
     NPC_TIRION                                      = 34996,
     NPC_JAINA                                       = 34992,
     NPC_VARIAN                                      = 34990,
     NPC_THRALL                                      = 34994,
     NPC_GARROSH                                     = 34995,
-
-    // Spectators
     NPC_SPECTATOR_HORDE                             = 34883,
     NPC_SPECTATOR_ALLIANCE                          = 34887,
     NPC_SPECTATOR_HUMAN                             = 34900,
@@ -181,36 +183,36 @@ enum GameObjects
 
 enum Vehicles
 {
-    //Grand Champions Alliance Vehicles
+    // Grand Champions Alliance Vehicles
     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT             = 35637,
     VEHICLE_AMBROSE_BOLTSPARK_MOUNT                 = 35633,
     VEHICLE_COLOSOS_MOUNT                           = 35768,
     VEHICLE_EVENSONG_MOUNT                          = 34658,
     VEHICLE_LANA_STOUTHAMMER_MOUNT                  = 35636,
-    //Faction Champions (ALLIANCE)
+    // Faction Champions (Alliance)
     VEHICLE_DARNASSUS_CHAMPION                      = 35332,
     VEHICLE_EXODAR_CHAMPION                         = 35330,
     VEHICLE_STORMWIND_CHAMPION                      = 35328,
     VEHICLE_GNOMEREGAN_CHAMPION                     = 35331,
     VEHICLE_IRONFORGE_CHAMPION                      = 35329,
-    //Grand Champions Horde Vehicles
+    // Grand Champions Horde Vehicles
     VEHICLE_MOKRA_SKILLCRUSHER_MOUNT                = 35638,
     VEHICLE_ERESSEA_DAWNSINGER_MOUNT                = 35635,
     VEHICLE_RUNOK_WILDMANE_MOUNT                    = 35640,
     VEHICLE_ZUL_TORE_MOUNT                          = 35641,
     VEHICLE_DEATHSTALKER_VESCERI_MOUNT              = 35634,
-    //Faction Champions (HORDE)
+    // Faction Champions (Horde)
     VEHICLE_UNDERCITY_CHAMPION                      = 35327,
     VEHICLE_THUNDER_BLUFF_CHAMPION                  = 35325,
     VEHICLE_ORGRIMMAR_CHAMPION                      = 35314,
     VEHICLE_SILVERMOON_CHAMPION                     = 35326,
     VEHICLE_SENJIN_CHAMPION                         = 35323,
-
+    // Player vehicles
     VEHICLE_ARGENT_WARHORSE_COSMETIC                = 35644,
     VEHICLE_ARGENT_WARHORSE_A                       = 36557,
     VEHICLE_ARGENT_BATTLEWORG_H                     = 36558,
     VEHICLE_ARGENT_BATTLEWORG_COSMETIC              = 36559,
-
+    // The Black Knight's vehicle
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
 
@@ -247,7 +249,6 @@ enum FlagSpells
     SPELL_FLAG_STORMWIND                            = 62594,
     SPELL_FLAG_THUNDER_BLUFF                        = 63436,
     SPELL_FLAG_UNDERCITY                            = 63430
-
 };
 
 #endif

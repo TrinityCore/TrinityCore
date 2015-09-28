@@ -167,6 +167,20 @@ SET @NELF_CHAMP := 35332;
 -- Each lesser champion had passiveAI set and had no scriptname assigned in database
 UPDATE `creature_template` SET `AIName`='',`ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (@ORC_CHAMP,@TROLL_CHAMP,@TAUREN_CHAMP,@BELF_CHAMP,@UNDEAD_CHAMP,@HUMAN_CHAMP,@DWARF_CHAMP,@DRAENEI_CHAMP,@GNOME_CHAMP,@NELF_CHAMP);
 
+-- Lesser Champions should award reputation on kill
+DELETE FROM `creature_onkill_reputation` WHERE `creature_id` IN (@ORC_CHAMP,@TROLL_CHAMP,@TAUREN_CHAMP,@BELF_CHAMP,@UNDEAD_CHAMP,@HUMAN_CHAMP,@DWARF_CHAMP,@DRAENEI_CHAMP,@GNOME_CHAMP,@NELF_CHAMP);
+INSERT INTO `creature_onkill_reputation` VALUES
+(@ORC_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@TROLL_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@TAUREN_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@BELF_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@UNDEAD_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@HUMAN_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@DWARF_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@DRAENEI_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@GNOME_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@NELF_CHAMP,1037,1052,7,0,5,7,0,5,1);
+
 --
 -- Grand Champions
 --
@@ -400,18 +414,33 @@ INSERT INTO `spell_linked_spell` VALUES (66905,-66904,0,'Eadric - Remove dummy a
 -- The Black Knight
 --
 
+-- Variables
+SET @KNIGHT := 35451;
+SET @KNIGHT_H := 35490;
+SET @KNIGHT_VEHICLE := 35491;
+SET @RISEN_CHAMP := 35590;
+SET @RISEN_CHAMP_H := 35717;
+
 -- The Black Knight's vehicle must have flight inhabit type
-UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=35491;
+UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=@KNIGHT_VEHICLE;
 
 -- Risen Champion is missing scriptname
-UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry`=35590;
+UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry`=@RISEN_CHAMP;
+
+-- Risen Champions (not Risen Herald) and The Black Knight should award reputation on kill
+DELETE FROM `creature_onkill_reputation` WHERE `creature_id` IN (@RISEN_CHAMP,@RISEN_CHAMP_H,@KNIGHT,@KNIGHT_H);
+INSERT INTO `creature_onkill_reputation` VALUES
+(@RISEN_CHAMP,1037,1052,7,0,5,7,0,5,1),
+(@RISEN_CHAMP_H,1037,1052,7,0,10,7,0,10,1),
+(@KNIGHT,1037,1052,7,0,195,7,0,195,1),
+(@KNIGHT_H,1037,1052,7,0,390,7,0,390,1);
 
 -- Correcting The Black Knight's mechanic immunities
-UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN (35451,35490);
+UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN (@KNIGHT,@KNIGHT_H);
 
 -- The Black Knight should have money drop
-UPDATE `creature_template` SET `mingold`=4921,`maxgold`=10294 WHERE `entry`=35451;
-UPDATE `creature_template` SET `mingold`=14691,`maxgold`=21952 WHERE `entry`=35490;
+UPDATE `creature_template` SET `mingold`=4921,`maxgold`=10294 WHERE `entry`=@KNIGHT;
+UPDATE `creature_template` SET `mingold`=14691,`maxgold`=21952 WHERE `entry`=@KNIGHT_H;
 
 -- Achievement criteria script for achievement id 3804
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=11789;

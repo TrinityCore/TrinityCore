@@ -28,8 +28,6 @@ EndScriptData */
 #include "Player.h"
 #include "Vehicle.h"
 
-#define MAX_ENCOUNTER  4
-
 class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
@@ -45,50 +43,9 @@ public:
         instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
             m_playersTeam = 0;
             uiArgentSoldierDeaths = 0;
-
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        }
-
-        uint32 m_playersTeam;
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-        uint8 uiArgentSoldierDeaths;
-
-        ObjectGuid uiAnnouncerGUID;
-        ObjectGuid uiMainGateGUID;
-        ObjectGuid uiGrandChampionVehicle1GUID;
-        ObjectGuid uiGrandChampionVehicle2GUID;
-        ObjectGuid uiGrandChampionVehicle3GUID;
-        ObjectGuid uiGrandChampion1GUID;
-        ObjectGuid uiGrandChampion2GUID;
-        ObjectGuid uiGrandChampion3GUID;
-        ObjectGuid uiGrandChampionLootGUID;
-        ObjectGuid uiArgentChampionGUID;
-        ObjectGuid uiEadricLootGUID;
-        ObjectGuid uiPaletressLootGUID;
-        ObjectGuid uiBlackKnightVehicleGUID;
-        ObjectGuid uiBlackKnightGUID;
-        ObjectGuid uiTirionGUID;
-        ObjectGuid uiVarianGUID;
-        ObjectGuid uiJainaGUID;
-        ObjectGuid uiGarroshGUID;
-        ObjectGuid uiThrallGUID;
-
-        GuidList VehicleList;
-
-        std::string str_data;
-
-        bool IsEncounterInProgress() const override
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            {
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-            }
-
-            return false;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -101,7 +58,6 @@ public:
                     if (GetData(DATA_PLAYERS_TEAM) == 0)
                         SetData(DATA_PLAYERS_TEAM, player->GetTeam());
                 }
-                
             }
 
             switch (creature->GetEntry())
@@ -247,10 +203,32 @@ public:
                         }
                     }
                     break;
+                case DATA_ARGENT_SOLDIER_DEFEATED:
+                    uiArgentSoldierDeaths = uiData;
+                    if (uiArgentSoldierDeaths == 9)
+                    {
+                        if (Creature* pBoss = instance->GetCreature(uiArgentChampionGUID))
+                        {
+                            pBoss->setFaction(16);
+                            pBoss->SetHomePosition(747.02f, 637.65f, 411.57f, centerOrientation);
+                            pBoss->GetMotionMaster()->MovePoint(1, pBoss->GetHomePosition());
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        bool SetBossState(uint32 type, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
+            {
                 case BOSS_GRAND_CHAMPIONS:
-                    if (uiData == IN_PROGRESS)
-                        SetData(DATA_REMOVE_VEHICLES, 0);
-                    else if (uiData == DONE && GetData(BOSS_GRAND_CHAMPIONS) != DONE)
+                    if (state == DONE && GetBossState(BOSS_GRAND_CHAMPIONS) != DONE)
                     {
                         if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                         {
@@ -269,85 +247,77 @@ public:
                                     }
                                 }
                             }
-                            pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
+                            pAnnouncer->GetMotionMaster()->MovePoint(1, announcerWaitPos);
                             pAnnouncer->AI()->SetData(DATA_GRAND_CHAMPIONS_DONE, 0);
                             DoRespawnGameObject(uiGrandChampionLootGUID, 1 * DAY);
                             if (GameObject* cache = instance->GetGameObject(uiGrandChampionLootGUID))
                                 cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                     }
-                    m_auiEncounter[0] = uiData;
-                    break;
-                case DATA_ARGENT_SOLDIER_DEFEATED:
-                    uiArgentSoldierDeaths = uiData;
-                    if (uiArgentSoldierDeaths == 9)
-                    {
-                        if (Creature* pBoss = instance->GetCreature(uiArgentChampionGUID))
-                        {
-                            pBoss->setFaction(16);
-                            pBoss->SetHomePosition(747.02f, 637.65f, 411.57f, centerOrientation);
-                            pBoss->GetMotionMaster()->MovePoint(1, pBoss->GetHomePosition());
-                        }
-                    }
-                    break;
-                case BOSS_ARGENT_CHALLENGE_E:
-                    m_auiEncounter[1] = uiData;
-                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
-                    {
-                        // On heroic mode we must bind players to the instance
-                        if (instance->IsHeroic())
-                        {
-                            Map::PlayerList const &players = instance->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            {
-                                Player *plr = itr->GetSource();
-                                if (plr && !plr->IsGameMaster())
-                                {
-                                    if (instance->ToInstanceMap())
-                                        instance->ToInstanceMap()->PermBindAllPlayers(plr);
-                                    break;
-                                }
-                            }
-                        }
-                        pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
-                        DoRespawnGameObject(uiEadricLootGUID, 1 * DAY);
-                        if (GameObject* cache = instance->GetGameObject(uiEadricLootGUID))
-                            cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
-                    m_auiEncounter[2] = uiData;
-                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                case BOSS_ARGENT_CHALLENGE_E:
+                    if (state == SPECIAL)
                     {
-                        // On heroic mode we must bind players to the instance
-                        if (instance->IsHeroic())
+                        if (Creature* pChampion = instance->GetCreature(uiArgentChampionGUID))
                         {
-                            Map::PlayerList const &players = instance->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            pChampion->InterruptNonMeleeSpells(true);
+                            pChampion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            pChampion->SetReactState(REACT_PASSIVE);
+                            pChampion->SetHealth(1);
+                            pChampion->CombatStop(true);
+                            pChampion->setRegeneratingHealth(false);
+                            pChampion->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                            pChampion->SetHomePosition(745.87f, 625.88f, 411.17f, pChampion->GetHomePosition().GetOrientation());
+                            pChampion->GetMotionMaster()->MoveTargetedHome();
+                        }
+                    }
+                    else if (state == DONE)
+                    {
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        {
+                            // On heroic mode we must bind players to the instance
+                            if (instance->IsHeroic())
                             {
-                                Player *plr = itr->GetSource();
-                                if (plr && !plr->IsGameMaster())
+                                Map::PlayerList const &players = instance->GetPlayers();
+                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 {
-                                    if (instance->ToInstanceMap())
-                                        instance->ToInstanceMap()->PermBindAllPlayers(plr);
-                                    break;
+                                    Player *plr = itr->GetSource();
+                                    if (plr && !plr->IsGameMaster())
+                                    {
+                                        if (instance->ToInstanceMap())
+                                            instance->ToInstanceMap()->PermBindAllPlayers(plr);
+                                        break;
+                                    }
                                 }
                             }
+                            pAnnouncer->GetMotionMaster()->MovePoint(1, announcerWaitPos);
+                            if (type == BOSS_ARGENT_CHALLENGE_E)
+                            {
+                                DoRespawnGameObject(uiEadricLootGUID, 1 * DAY);
+                                if (GameObject* cache = instance->GetGameObject(uiEadricLootGUID))
+                                    cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            }
+                            else
+                            {
+                                DoRespawnGameObject(uiPaletressLootGUID, 1 * DAY);
+                                if (GameObject* cache = instance->GetGameObject(uiPaletressLootGUID))
+                                    cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            }
                         }
-                        pAnnouncer->GetMotionMaster()->MovePoint(3, announcerWaitPos);
-                        DoRespawnGameObject(uiPaletressLootGUID, 1 * DAY);
-                        if (GameObject* cache = instance->GetGameObject(uiPaletressLootGUID))
-                            cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BOSS_BLACK_KNIGHT:
-                    if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
-                        pAnnouncer->AI()->SetData(DATA_BLACK_KNIGHT_DONE, 0);
+                    if (state == DONE)
+                    {
+                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                            pAnnouncer->AI()->SetData(DATA_BLACK_KNIGHT_DONE, 0);
+                    }
+                    break;
+                default:
                     break;
             }
-
-            if (uiData == DONE)
-                SaveToDB();
+            return true;
         }
 
         uint32 GetData(uint32 uiData) const override
@@ -355,14 +325,9 @@ public:
             switch (uiData)
             {
                 case DATA_PLAYERS_TEAM: return m_playersTeam;
-                case BOSS_GRAND_CHAMPIONS:  return m_auiEncounter[0];
-                case BOSS_ARGENT_CHALLENGE_E: return m_auiEncounter[1];
-                case BOSS_ARGENT_CHALLENGE_P: return m_auiEncounter[2];
-                case BOSS_BLACK_KNIGHT: return m_auiEncounter[3];
-
                 case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
+                default: break;
             }
-
             return 0;
         }
 
@@ -415,54 +380,31 @@ public:
                     break;
             }
         }
+    private:
+        ObjectGuid uiAnnouncerGUID;
+        ObjectGuid uiMainGateGUID;
+        ObjectGuid uiGrandChampionVehicle1GUID;
+        ObjectGuid uiGrandChampionVehicle2GUID;
+        ObjectGuid uiGrandChampionVehicle3GUID;
+        ObjectGuid uiGrandChampion1GUID;
+        ObjectGuid uiGrandChampion2GUID;
+        ObjectGuid uiGrandChampion3GUID;
+        ObjectGuid uiGrandChampionLootGUID;
+        ObjectGuid uiArgentChampionGUID;
+        ObjectGuid uiEadricLootGUID;
+        ObjectGuid uiPaletressLootGUID;
+        ObjectGuid uiBlackKnightVehicleGUID;
+        ObjectGuid uiBlackKnightGUID;
+        ObjectGuid uiTirionGUID;
+        ObjectGuid uiVarianGUID;
+        ObjectGuid uiJainaGUID;
+        ObjectGuid uiGarroshGUID;
+        ObjectGuid uiThrallGUID;
 
-        std::string GetSaveData() override
-        {
-            OUT_SAVE_INST_DATA;
+        GuidList VehicleList;
 
-            std::ostringstream saveStream;
-
-            saveStream << "T C " << m_auiEncounter[0]
-                << ' ' << m_auiEncounter[1]
-                << ' ' << m_auiEncounter[2]
-                << ' ' << m_auiEncounter[3];
-
-            str_data = saveStream.str();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return str_data;
-        }
-
-        void Load(const char* in) override
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3, data4, data5;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5;
-
-            if (dataHead1 == 'T' && dataHead2 == 'C')
-            {
-                m_auiEncounter[0] = data0;
-                m_auiEncounter[1] = data1;
-                m_auiEncounter[2] = data2;
-                m_auiEncounter[3] = data3;
-
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        m_auiEncounter[i] = NOT_STARTED;
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
+        uint32 m_playersTeam;
+        uint8 uiArgentSoldierDeaths;
     };
 
 };

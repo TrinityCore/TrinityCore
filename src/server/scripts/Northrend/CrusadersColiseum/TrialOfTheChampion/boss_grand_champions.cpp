@@ -123,6 +123,12 @@ enum Texts
     EMOTE_TRAMPLE                       = 0
 };
 
+enum PointMovement
+{
+    POINT_REMOUNT                       = 0,
+    POINT_DESPAWN
+};
+
 void EnterAggressiveMode(Creature* temp)
 {
     temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
@@ -228,26 +234,19 @@ void SetGrandChampionToEvadeMode(Creature* me)
 * Script Complete: 100%                                     *
 */
 
-struct toc_bossAI : ScriptedAI
+struct toc_bossAI : BossAI
 {
-    toc_bossAI(Creature* creature) : ScriptedAI(creature)
+    toc_bossAI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
     {
-        instance = creature->GetInstanceScript();
         LookingForMount = false;
         MountedPhaseDone = false;
         IsChampionDown = false;
         bDone = false;
         bHome = false;
 
-        events.Reset();
-
         uiPhase = 0;
     }
-
-    InstanceScript* instance;
     uint8 uiPhase;
-
-    EventMap events;
 
     bool LookingForMount; // if is in looking for mount phase
     bool MountedPhaseDone; // if jousting phase is done
@@ -261,37 +260,33 @@ struct toc_bossAI : ScriptedAI
             DoCastPennant(me);
         if (IsChampionDown)
             IsChampionDown = false;
-        events.Reset();
+        _Reset();
     }
     
-    bool GrandChampionsOutVehicle()
+    bool GrandChampionsOutOfVehicles()
     {
-        Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1));
-        Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_2));
-        Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_3));
-        if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
+        for (int i = 0; i < 3; i++)
         {
-            if (!pGrandChampion1->GetVehicleBase() &&
-                !pGrandChampion2->GetVehicleBase() &&
-                !pGrandChampion3->GetVehicleBase())
-                return true;
+            if (Creature* pGrandChampion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1 + i)))
+            {
+                if (pGrandChampion->GetVehicleBase())
+                    return false;
+            }
         }
-        return false;
+        return true;
     }
 
     bool GrandChampionsDefeated()
     {
-        Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1));
-        Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_2));
-        Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_3));
-        if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
+        for (int i = 0; i < 3; i++)
         {
-            if (pGrandChampion1->HasAura(SPELL_KNEEL) &&
-                pGrandChampion2->HasAura(SPELL_KNEEL) &&
-                pGrandChampion3->HasAura(SPELL_KNEEL))
-                return true;
+            if (Creature* pGrandChampion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1 + i)))
+            {
+                if (pGrandChampion->HasAura(SPELL_KNEEL))
+                    return false;
+            }
         }
-        return false;
+        return true;
     }
     
     void AttackRandomPlayer()
@@ -347,14 +342,11 @@ struct toc_bossAI : ScriptedAI
                 }
             }
         }
-
-        ScriptedAI::EnterEvadeMode();
+        BossAI::EnterEvadeMode();
     }
 
     void JustReachedHome()
     {
-        ScriptedAI::JustReachedHome();
-
         if (bHome)
         {
             // Champions will be unattackable for 15 seconds when reached their homepositions for first time after jousting event
@@ -366,6 +358,7 @@ struct toc_bossAI : ScriptedAI
         }
         else if (MountedPhaseDone && !bHome)
             EnterAggressiveMode(me);
+        _JustReachedHome();
     }
 
     void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -385,7 +378,7 @@ struct toc_bossAI : ScriptedAI
         if (type != POINT_MOTION_TYPE)
             return;
 
-        if (id == 0 && LookingForMount)
+        if (id == POINT_REMOUNT && LookingForMount)
         {
             // Reached point, mounting again
             if (Creature* mount = FindMyMount(me))
@@ -427,7 +420,7 @@ struct toc_bossAI : ScriptedAI
                     SetGrandChampionToEvadeMode(me);
             }
         }
-        else if (id == 1)
+        else if (id == POINT_DESPAWN)
             me->DisappearAndDie();
     }
 
@@ -528,7 +521,7 @@ struct toc_bossAI : ScriptedAI
             damage = 0;
             return;
         }
-        else if (damage >= me->GetHealth() && instance->GetData(BOSS_GRAND_CHAMPIONS) == IN_PROGRESS)
+        else if (damage >= me->GetHealth() && MountedPhaseDone)
         {
             damage = 0;
             if (!IsChampionDown)
@@ -557,8 +550,8 @@ struct toc_bossAI : ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        if (MountedPhaseDone)
-        {
+        //if (MountedPhaseDone)
+        //{
             // All champions should attack together
             for (int i = 0; i < 3; i++)
             {
@@ -566,8 +559,8 @@ struct toc_bossAI : ScriptedAI
                 if (pGrandChampion && !pGrandChampion->HasAura(SPELL_KNEEL) && !pGrandChampion->IsInCombat())
                     pGrandChampion->AI()->AttackStart(who);
             }
-            DoZoneInCombat();
-        }
+            _EnterCombat();
+        //}
     }
 
     void AttackStart(Unit* who)
@@ -576,7 +569,7 @@ struct toc_bossAI : ScriptedAI
             return;
         if (Creature* mount = FindMyMount(me))
             mount->AI()->AttackStart(who);
-        ScriptedAI::AttackStart(who);
+        BossAI::AttackStart(who);
     }
 
     void UpdateAI(uint32 uiDiff)
@@ -592,11 +585,11 @@ struct toc_bossAI : ScriptedAI
                     if (!LookingForMount)
                         break;
                     me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
-                    // Sometimes boss can bug out after being thrown down and reset flags to DBC values
+                    // Sometimes boss can bug out after being thrown down from mount and reset flags to DB values
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     me->GetMotionMaster()->Clear();
                     if (Creature* mount = FindMyMount(me))
-                        me->GetMotionMaster()->MovePoint(0, mount->GetPosition());
+                        me->GetMotionMaster()->MovePoint(POINT_REMOUNT, mount->GetPosition());
                     break;
                 case EVENT_START_ATTACK_JOUST:
                 {
@@ -645,11 +638,11 @@ struct toc_bossAI : ScriptedAI
                     break;
                 case EVENT_DESPAWN:
                     // Despawning
-                    instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                    _JustDied();
                     me->RemoveAura(SPELL_KNEEL);
                     instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CREDIT, 0, me);
                     me->SetWalk(true);
-                    me->GetMotionMaster()->MovePoint(1, bossExitPos);
+                    me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
                     break;
                 default:
                     break;
@@ -657,7 +650,7 @@ struct toc_bossAI : ScriptedAI
             uiPhase = 0;
         }
 
-        if (!MountedPhaseDone && GrandChampionsOutVehicle())
+        if (!MountedPhaseDone && GrandChampionsOutOfVehicles())
         {
             // Champions have been defeated in jousting event
             MountedPhaseDone = true;
@@ -676,7 +669,7 @@ struct toc_bossAI : ScriptedAI
             me->GetMotionMaster()->MoveIdle();
             me->GetMotionMaster()->Clear();
             me->setRegeneratingHealth(true);
-            instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+            instance->SetData(DATA_REMOVE_VEHICLES, 0);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             uiPhase = 5;
             events.ScheduleEvent(EVENT_EVADE_MODE, 2000); // minor delay before entering to evade mode to correct movement
@@ -717,7 +710,6 @@ public:
         void Initialize()
         {
             castedPennant = false;
-            events.Reset();
             events.ScheduleEvent(EVENT_BUFF_FLAG, 2000);
             events.ScheduleEvent(EVENT_BUFF_SHIELD, 5000);
             events.ScheduleEvent(EVENT_MOUNT_CHARGE, 5000);
@@ -733,6 +725,7 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             Initialize();
         }
 
@@ -892,7 +885,6 @@ public:
                 if (Creature* herald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                     herald->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
             }
-            events.Reset();
         }
 
         void DoCastShield()
@@ -1097,40 +1089,25 @@ public:
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
     struct boss_warrior_toc5AI : public toc_bossAI
     {
-        boss_warrior_toc5AI(Creature* creature) : toc_bossAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            _events.Reset();
-        }
-
-        InstanceScript* instance;
-
-        EventMap _events;
+        boss_warrior_toc5AI(Creature* creature) : toc_bossAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
             toc_bossAI::Reset();
         }
 
         void EnterCombat(Unit* who)
         {
-            _events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
-            _events.ScheduleEvent(EVENT_INTERCEPT, 7000);
-            _events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
-            _events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
+            events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
+            events.ScheduleEvent(EVENT_INTERCEPT, 7000);
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
+            events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
             toc_bossAI::EnterCombat(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1139,7 +1116,10 @@ public:
                 return;
             }
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1172,17 +1152,17 @@ public:
                                 }
                             }
                         }
-                        _events.ScheduleEvent(EVENT_INTERCEPT, 7000);
+                        events.ScheduleEvent(EVENT_INTERCEPT, 7000);
                         break;
                     }
                     case EVENT_BLADESTORM:
                         DoCastVictim(SPELL_BLADESTORM);
-                        _events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
                         break;
                     case EVENT_MORTAL_STRIKE:
                         if (!me->HasAura(SPELL_BLADESTORM))
                             DoCastVictim(SPELL_MORTAL_STRIKE);
-                        _events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
                         break;
                     case EVENT_ROLLING_THROW:
                         // TODO: FIXME
@@ -1190,7 +1170,7 @@ public:
                         // without hackfix caster jumps forward, when caster should jump backwards and player jump forwards
                         if (!me->HasAura(SPELL_BLADESTORM))
                             DoCastVictim(SPELL_ROLLING_THROW);
-                        _events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
+                        events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
                         break;
                     default:
                         break;
@@ -1214,33 +1194,19 @@ public:
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
     struct boss_mage_toc5AI : public toc_bossAI
     {
-        boss_mage_toc5AI(Creature* creature) : toc_bossAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            _events.Reset();
-        }
-
-        InstanceScript* instance;
-
-        EventMap _events;
+        boss_mage_toc5AI(Creature* creature) : toc_bossAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
             toc_bossAI::Reset();
         }
 
         void EnterCombat(Unit* who)
         {
-            _events.ScheduleEvent(EVENT_FIREBALL, 2000);
-            _events.ScheduleEvent(EVENT_POLYMORPH, 8000);
-            _events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
-            _events.ScheduleEvent(EVENT_HASTE, 22000);
+            events.ScheduleEvent(EVENT_FIREBALL, 2000);
+            events.ScheduleEvent(EVENT_POLYMORPH, 8000);
+            events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
+            events.ScheduleEvent(EVENT_HASTE, 22000);
             toc_bossAI::EnterCombat(who);
         }
 
@@ -1253,7 +1219,6 @@ public:
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1262,7 +1227,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1271,11 +1236,11 @@ public:
                         {
                             DoCast(target, SPELL_POLYMORPH);
                             if (me->HasAura(SPELL_HASTE))
-                                _events.ScheduleEvent(EVENT_FIREBALL, 2000);
+                                events.ScheduleEvent(EVENT_FIREBALL, 2000);
                             else
-                                _events.ScheduleEvent(EVENT_FIREBALL, 3000);
+                                events.ScheduleEvent(EVENT_FIREBALL, 3000);
                         }
-                        _events.ScheduleEvent(EVENT_POLYMORPH, 8000);
+                        events.ScheduleEvent(EVENT_POLYMORPH, 8000);
                         break;
                     case EVENT_BLASTWAVE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
@@ -1284,28 +1249,30 @@ public:
                             {
                                 me->InterruptNonMeleeSpells(true);
                                 DoCastAOE(SPELL_BLAST_WAVE);
-                                _events.ScheduleEvent(EVENT_FIREBALL, 1500);
+                                events.ScheduleEvent(EVENT_FIREBALL, 1500);
                             }
                         }
-                        _events.ScheduleEvent(EVENT_BLASTWAVE, 13000);
+                        events.ScheduleEvent(EVENT_BLASTWAVE, 13000);
                         break;
                     case EVENT_HASTE:
                         me->InterruptNonMeleeSpells(true);
                         DoCast(me, SPELL_HASTE);
-                        _events.ScheduleEvent(EVENT_FIREBALL, 1500);
-                        _events.ScheduleEvent(EVENT_HASTE, 22000);
+                        events.ScheduleEvent(EVENT_FIREBALL, 1500);
+                        events.ScheduleEvent(EVENT_HASTE, 22000);
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FIREBALL);
                         if (me->HasAura(SPELL_HASTE))
-                            _events.ScheduleEvent(EVENT_FIREBALL, 3000);
+                            events.ScheduleEvent(EVENT_FIREBALL, 3000);
                         else
-                            _events.ScheduleEvent(EVENT_FIREBALL, 4000);
+                            events.ScheduleEvent(EVENT_FIREBALL, 4000);
                         break;
                     default:
                         break;
                 }
             }
+            if ((100.f * me->GetPower(POWER_MANA) / me->GetMaxPower(POWER_MANA)) <= 1)
+                DoMeleeAttackIfReady();
         }
     };
 
@@ -1326,23 +1293,14 @@ public:
         boss_shaman_toc5AI(Creature* creature) : toc_bossAI(creature)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
         {
-            _events.Reset();
             earthShieldTarget.Clear();
-
             isDefensive = false;
         }
-
-        InstanceScript* instance;
-
-        EventMap _events;
-
         ObjectGuid earthShieldTarget;
-
         // If shaman's friend or himself goes below 25% HP, he will go into defensive mode,
         // casting healing spells only
         bool isDefensive;
@@ -1355,11 +1313,11 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            _events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
-            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
-            _events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
-            _events.ScheduleEvent(EVENT_EARTH_SHIELD, 5000);
-            _events.ScheduleEvent(EVENT_HEX_MENDING, 7000);
+            events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
+            events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
+            events.ScheduleEvent(EVENT_EARTH_SHIELD, 5000);
+            events.ScheduleEvent(EVENT_HEX_MENDING, 7000);
             toc_bossAI::EnterCombat(who);
         }
 
@@ -1368,15 +1326,15 @@ public:
             if (interrupt)
                 me->InterruptNonMeleeSpells(true);
             isDefensive = false;
-            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 1000);
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 1000);
         }
 
         void EnterDefensiveMode()
         {
             me->InterruptNonMeleeSpells(true);
             isDefensive = true;
-            _events.ScheduleEvent(EVENT_EARTH_SHIELD, 1000);
-            _events.ScheduleEvent(EVENT_HEALING_WAVE, 1500);
+            events.ScheduleEvent(EVENT_EARTH_SHIELD, 1000);
+            events.ScheduleEvent(EVENT_HEALING_WAVE, 1500);
         }
 
         Unit* FindChampionWithLowestHp(float range)
@@ -1423,7 +1381,6 @@ public:
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1432,7 +1389,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1451,14 +1408,14 @@ public:
                             else
                                 EnterCombatMode(true);
                         }
-                        _events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
+                        events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
                         break;
                     case EVENT_CHAIN_LIGHTNING:
                         if (!isDefensive)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
                         }
                         break;
                     case EVENT_HEALING_WAVE:
@@ -1471,9 +1428,9 @@ public:
                                 DoCast(pFriend, SPELL_HEALING_WAVE);
                         }
                         if (isDefensive)
-                            _events.ScheduleEvent(EVENT_HEALING_WAVE, 4000);
+                            events.ScheduleEvent(EVENT_HEALING_WAVE, 4000);
                         else
-                            _events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
+                            events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
                         break;
                     case EVENT_EARTH_SHIELD:
                         if (Unit* pFriend = FindChampionWithLowestHp(40.0f))
@@ -1493,17 +1450,16 @@ public:
                                 earthShieldTarget = pFriend->GetGUID();
                             }
                         }
-                        _events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(30000, 35000));
+                        events.ScheduleEvent(EVENT_EARTH_SHIELD, urand(30000, 35000));
                         break;
                     case EVENT_HEX_MENDING:
                         DoCastVictim(SPELL_HEX_OF_MENDING);
-                        _events.ScheduleEvent(EVENT_HEX_MENDING, urand(20000, 25000));
+                        events.ScheduleEvent(EVENT_HEX_MENDING, urand(20000, 25000));
                         break;
                     default:
                         break;
                 }
             }
-
             if (!isDefensive)
                 DoMeleeAttackIfReady();
         }
@@ -1523,32 +1479,18 @@ public:
     // Jaelyne Evensong && Zul'tore || Hunter
     struct boss_hunter_toc5AI : public toc_bossAI
     {
-        boss_hunter_toc5AI(Creature* creature) : toc_bossAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            _events.Reset();
-        }
-
-        InstanceScript* instance;
-
-        EventMap _events;
+        boss_hunter_toc5AI(Creature* creature) : toc_bossAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
             toc_bossAI::Reset();
         }
 
         void EnterCombat(Unit* who)
         {
-            _events.ScheduleEvent(EVENT_MULTI_SHOT, 7500);
-            _events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 15000);
-            _events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
+            events.ScheduleEvent(EVENT_MULTI_SHOT, 7500);
+            events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 15000);
+            events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
             toc_bossAI::EnterCombat(who);
         }
 
@@ -1561,7 +1503,6 @@ public:
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1570,7 +1511,7 @@ public:
                 return;
             }
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -1583,7 +1524,7 @@ public:
                                 DoCast(me, SPELL_DISENGAGE);
                             }
                         }
-                        _events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
                         break;
                     case EVENT_LIGHTNING_ARROWS:
                         if (!me->HasAura(SPELL_LIGHTNING_ARROWS_AURA) && !me->IsWithinDist(me->GetVictim(), 2.0f))
@@ -1591,7 +1532,7 @@ public:
                             me->InterruptNonMeleeSpells(true);
                             DoCastAOE(SPELL_LIGHTNING_ARROWS);
                         }
-                        _events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, urand(20000, 30000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, urand(20000, 30000));
                         break;
                     case EVENT_MULTI_SHOT:
                         if (me->IsInRange(me->GetVictim(), 5.0f, 30.0f, false) && !me->HasAura(SPELL_LIGHTNING_ARROWS))
@@ -1599,7 +1540,7 @@ public:
                             me->InterruptNonMeleeSpells(true);
                             DoCastVictim(SPELL_MULTI_SHOT);
                         }
-                        _events.ScheduleEvent(EVENT_MULTI_SHOT, 8000);
+                        events.ScheduleEvent(EVENT_MULTI_SHOT, 8000);
                         break;
                     default:
                         break;
@@ -1619,48 +1560,33 @@ public:
     }
 };
 
-class boss_rouge_toc5 : public CreatureScript
+class boss_rogue_toc5 : public CreatureScript
 {
 public:
-    boss_rouge_toc5() : CreatureScript("boss_rouge_toc5") { }
+    boss_rogue_toc5() : CreatureScript("boss_rouge_toc5") { }
 
-    // Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
-    struct boss_rouge_toc5AI : public toc_bossAI
+    // Lana Stouthammer Evensong && Deathstalker Visceri || Rogue
+    struct boss_rogue_toc5AI : public toc_bossAI
     {
-        boss_rouge_toc5AI(Creature* creature) : toc_bossAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            _events.Reset();
-        }
-
-        InstanceScript* instance;
-
-        EventMap _events;
+        boss_rogue_toc5AI(Creature* creature) : toc_bossAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
             toc_bossAI::Reset();
         }
 
         void EnterCombat(Unit* who)
         {
-            _events.ScheduleEvent(EVENT_DEADLY_POISON, 500);
-            _events.ScheduleEvent(EVENT_EVISCERATE, 8000);
-            _events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
-            _events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
+            events.ScheduleEvent(EVENT_DEADLY_POISON, 500);
+            events.ScheduleEvent(EVENT_EVISCERATE, 8000);
+            events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
+            events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
             toc_bossAI::EnterCombat(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
             toc_bossAI::UpdateAI(uiDiff);
-            _events.Update(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1669,17 +1595,20 @@ public:
                 return;
             }
 
-            while (uint32 eventId = _events.ExecuteEvent())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_DEADLY_POISON:
                         if (!me->HasAura(SPELL_DEADLY_POISON))
                             DoCast(me, SPELL_DEADLY_POISON);
-                        _events.ScheduleEvent(EVENT_DEADLY_POISON, 30000);
+                        events.ScheduleEvent(EVENT_DEADLY_POISON, 30000);
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
-                        _events.ScheduleEvent(EVENT_EVISCERATE, 8000);
+                        events.ScheduleEvent(EVENT_EVISCERATE, 8000);
                         break;
                     case EVENT_FAN_OF_KNIVES:
                         if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
@@ -1687,12 +1616,12 @@ public:
                             if (me->IsWithinDist(target, 8.0f, false)) // 8 yards is minimum range
                                 DoCastAOE(SPELL_FAN_OF_KNIVES);
                         }
-                        _events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
+                        events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
                         break;
                     case EVENT_POISON_BOTTLE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                             DoCast(target, SPELL_POISON_BOTTLE);
-                        _events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
+                        events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
                         break;
                     default:
                         break;
@@ -1704,7 +1633,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_rouge_toc5AI>(creature);
+        return GetInstanceAI<boss_rogue_toc5AI>(creature);
     }
 };
 
@@ -1859,7 +1788,7 @@ void AddSC_boss_grand_champions()
     new boss_mage_toc5();
     new boss_shaman_toc5();
     new boss_hunter_toc5();
-    new boss_rouge_toc5();
+    new boss_rogue_toc5();
     new spell_toc5_trample_aura();
     new spell_toc5_lightning_arrows();
     new achievement_victories_over_champion("achievement_victories_over_war_champion", CRITERIA_WARRIOR);

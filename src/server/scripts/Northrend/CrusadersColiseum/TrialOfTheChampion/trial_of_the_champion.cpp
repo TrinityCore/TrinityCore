@@ -37,8 +37,6 @@ EndContentData */
 #define GOSSIP_START_EVENT2     "I am ready for the next challenge."
 #define GOSSIP_START_EVENT_SKIP "I am ready. However I'd like to skip the pageantry."
 
-#define ORIENTATION             1.582f // facing towards the gates
-
 enum Texts
 {
     // Used by announcers
@@ -194,8 +192,19 @@ enum Events
 
 enum Spells
 {
+    // Both casted by The Black Knight to announcer
     SPELL_DEATHS_RESPITE        = 66798,
     SPELL_DEATHS_PUSH           = 66797
+};
+
+enum PointMovement
+{
+    POINT_ENCOUNTER_1_WAIT      = 0,
+    POINT_RETURN_TO_CENTER,
+    POINT_START_ARGENT_CHAMP,
+    POINT_ENCOUNTER_2_WAIT_1,
+    POINT_ENCOUNTER_2_WAIT_2,
+    POINT_ENCOUNTER_3_WAIT
 };
 
 /*######
@@ -275,7 +284,6 @@ public:
             uiArgentChampion = 0;
 
             SetCombatMovement(false);
-            events.Reset();
 
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -327,7 +335,7 @@ public:
                 case DATA_START:
                     if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                         tirion->AI()->Talk(SAY_TIRION_INTRO_1);
-                    me->GetMotionMaster()->MovePoint(2, announcerEncounterPos);
+                    me->GetMotionMaster()->MovePoint(POINT_ENCOUNTER_1_WAIT, announcerEncounterPos);
                     NextStep(6000, 0, false, EVENT_CHAT_9);
                     break;
                 case DATA_LESSER_CHAMPIONS_PREPARE:
@@ -433,48 +441,52 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            if (uiPointId == 1)
-                me->SetFacingTo(centerOrientation);
-            else if (uiPointId == 2)
-                NextStep(500, 0, false, EVENT_WAIT_1);
-            else if (uiPointId == 3)
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            else if (uiPointId == 4)
+            switch (uiPointId)
             {
-                me->SetFacingTo(me->GetHomePosition().GetOrientation());
-                NextStep(500, 0, false, EVENT_SPAWN_ALL);
+                case POINT_ENCOUNTER_1_WAIT:
+                    NextStep(500, 0, false, EVENT_WAIT_1);
+                    break;
+                case POINT_RETURN_TO_CENTER:
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    break;
+                case POINT_START_ARGENT_CHAMP:
+                    me->SetFacingTo(me->GetHomePosition().GetOrientation());
+                    NextStep(500, 0, false, EVENT_SPAWN_ALL);
+                    break;
+                case POINT_ENCOUNTER_2_WAIT_1:
+                    NextStep(500, 0, false, EVENT_WAIT_2);
+                    break;
+                case POINT_ENCOUNTER_2_WAIT_2:
+                    me->SetFacingTo(centerOrientation);
+                    NextStep(1000, 0, false, EVENT_CHAT_12);
+                    break;
+                case POINT_ENCOUNTER_3_WAIT:
+                    me->SetFacingTo(centerOrientation);
+                    NextStep(1000, 0, false, EVENT_CHAT_13);
+                    break;
+                default:
+                    break;
             }
-            else if (uiPointId == 5)
-                NextStep(500, 0, false, EVENT_WAIT_2);
-            else if (uiPointId == 6)
-            {
-                me->SetFacingTo(centerOrientation);
-                NextStep(1000, 0, false, EVENT_CHAT_12);
-            }
-            else if (uiPointId == 7)
-            {
-                me->SetFacingTo(centerOrientation);
-                NextStep(1000, 0, false, EVENT_CHAT_13);
-            }
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            events.Reset();
         }
 
         void DoSummonNextGrandChampion(bool skipEvent = false)
         {
             ++uiSummonTimes;
             uint32 bossId;
-            if (uiSummonTimes == 1)
-                bossId = uiFirstBoss;
-            else if (uiSummonTimes == 2)
-                bossId = uiSecondBoss;
-            else if (uiSummonTimes == 3)
-                bossId = uiThirdBoss;
-            else
-                return;
+            switch (uiSummonTimes)
+            {
+                case 1:
+                    bossId = uiFirstBoss;
+                    break;
+                case 2:
+                    bossId = uiSecondBoss;
+                    break;
+                case 3:
+                    bossId = uiThirdBoss;
+                    break;
+                default:
+                    return;
+            }
 
             if (bossId >= 5)
                 return;
@@ -522,28 +534,42 @@ public:
 
                     if (Creature* pAdd = me->SummonCreature(info->FactionChampionEntry[teamIndex], spawnPos, TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        if (uiSummonTimes == 1)
-                            Champion1List.push_back(pAdd->GetGUID());
-                        else if (uiSummonTimes == 2)
-                            Champion2List.push_back(pAdd->GetGUID());
-                        else
-                            Champion3List.push_back(pAdd->GetGUID());
+                        switch (uiSummonTimes)
+                        {
+                            case 1:
+                                Champion1List.push_back(pAdd->GetGUID());
+                                break;
+                            case 2:
+                                Champion2List.push_back(pAdd->GetGUID());
+                                break;
+                            case 3:
+                                Champion3List.push_back(pAdd->GetGUID());
+                                break;
+                            default:
+                                break;
+                        }
 
                         if (!skipEvent)
                         {
                             // Following grand champion
-                            if (i == 0)
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI));
-                            else if (i == 1)
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2);
-                            else if (i == 2)
-                                pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2 + float(M_PI));
+                            switch (i)
+                            {
+                                case 0:
+                                    pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI));
+                                    break;
+                                case 1:
+                                    pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2);
+                                    break;
+                                case 2:
+                                    pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, float(M_PI) / 2 + float(M_PI));
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                         else
-                        {
                             // Lesser Champions walk to their final positions
                             pAdd->AI()->SetData(DATA_GENERATE_WAYPOINTS_FOR_ADDS, m);
-                        }
                     }
                 }
             }
@@ -556,7 +582,6 @@ public:
             // Cleaning chest from arena
             if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_CHAMPIONS_LOOT)))
                 cache->Delete();
-
             NextStep(1000, 0, false, EVENT_MOVE_MIDDLE);
         }
 
@@ -564,19 +589,17 @@ public:
         {
             // Removing vehicles (if not already been removed)
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
-
             // Cleaning chest from arena
-            if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE)
+            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == DONE)
             {
                 if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EADRIC_LOOT)))
                     cache->Delete();
             }
-            else if (instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
+            else if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == DONE)
             {
                 if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_PALETRESS_LOOT)))
                     cache->Delete();
             }
-
             NextStep(1000, 0, false, EVENT_STEP_FORWARD);
         }
 
@@ -593,7 +616,6 @@ public:
         void SetArgentChampion()
         {
            uint8 uiTempBoss = urand(BOSS_EADRIC, BOSS_PALETRESS);
-
            switch (uiTempBoss)
            {
                 case BOSS_EADRIC:
@@ -602,37 +624,38 @@ public:
                 case BOSS_PALETRESS:
                     uiArgentChampion = NPC_PALETRESS;
                     break;
+                default:
+                    break;
            }
         }
 
         void StartEncounter(bool startRp = false)
         {
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+            if (instance->GetBossState(BOSS_BLACK_KNIGHT) == NOT_STARTED)
             {
-                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
+                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
                 {
                     // Starting Grand Champion event (with roleplaying)
-                    if (startRp && instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
+                    if (startRp && instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
                     {
                         me->AI()->Talk(SAY_INTRO_1);
                         NextStep(7000, 0, false, EVENT_INTRODUCE);
                     }
 
                     // Starting Grand Champion event (skipped roleplaying)
-                    if (!startRp && instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
+                    if (!startRp && instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
                         SetData(DATA_START, 0);
 
                     // Starting Argent Champion event
-                    if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE)
+                    if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE)
                         DoStartArgentChampionEncounter();
                 }
 
                 // Starting Black Knight event
-                if ((instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-                    instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
-                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
+                if ((instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE &&
+                    (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
+                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == DONE))
                     DoStartBlackKnight();
             }
         }
@@ -640,14 +663,20 @@ public:
         void IntroduceChampion()
         {
             uint32 bossId;
-            if (uiSummonTimes == 1)
-                bossId = uiFirstBoss;
-            else if (uiSummonTimes == 2)
-                bossId = uiSecondBoss;
-            else if (uiSummonTimes == 3)
-                bossId = uiThirdBoss;
-            else
-                return;
+            switch (uiSummonTimes)
+            {
+                case 1:
+                    bossId = uiFirstBoss;
+                    break;
+                case 2:
+                    bossId = uiSecondBoss;
+                    break;
+                case 3:
+                    bossId = uiThirdBoss;
+                    break;
+                default:
+                    return;
+            }
 
             if (bossId >= 5)
                 return;
@@ -657,7 +686,6 @@ public:
 
             // Introduces champion
             me->AI()->Talk(info->AnnounceText[teamIndex]);
-
             // Spectators cheer for the champion
             if (Creature* spectator = me->FindNearestCreature(info->SpecatatorEntry[teamIndex], 200.0f))
             {
@@ -794,7 +822,6 @@ public:
                                 break;
                             }
                         }
-
                         // All players introduced, moving on
                         if (!foundPlr)
                             NextStep(16000, eventId);
@@ -866,7 +893,7 @@ public:
                     case EVENT_SUMMON_1:
                         // Summoning first champion
                         DoSummonNextGrandChampion();
-                        me->SetFacingTo(ORIENTATION);
+                        me->SetFacingTo(gateOrientation);
                         NextStep(2000, eventId);
                         break;
                     case EVENT_OPEN_DOOR_1:
@@ -928,7 +955,7 @@ public:
                         // Closing door and announcer walks to the gate
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), false);
-                        me->GetMotionMaster()->MovePoint(2, announcerEncounterPos);
+                        me->GetMotionMaster()->MovePoint(POINT_ENCOUNTER_1_WAIT, announcerEncounterPos);
                         NextStep(0, 0, false); // MovementInform continues from this
                         break;
                     case EVENT_WAIT_1:
@@ -984,7 +1011,7 @@ public:
                     // Phases below happen in Argent Champion encounter
                     case EVENT_MOVE_MIDDLE:
                         // Moves into middle of arena
-                        me->GetMotionMaster()->MovePoint(4, me->GetHomePosition());
+                        me->GetMotionMaster()->MovePoint(POINT_START_ARGENT_CHAMP, me->GetHomePosition());
                         NextStep(0, 0, false); // MovementInform continues from this
                         break;
                     case EVENT_SPAWN_ALL:
@@ -1048,7 +1075,7 @@ public:
                         // Announcer starts walking to Argent Champion
                         if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(gate->GetGUID(), false);
-                        me->GetMotionMaster()->MovePoint(5, 746.73f, 653.93f, 411.6f);
+                        me->GetMotionMaster()->MovePoint(POINT_ENCOUNTER_2_WAIT_1, 746.73f, 653.93f, 411.6f);
                         NextStep(2000, eventId);
                         break;
                     case EVENT_CHAT_10:
@@ -1079,7 +1106,7 @@ public:
                     case EVENT_WAIT_2:
                         // After announcer reached position in front of Champion,
                         // he goes to encounter position
-                        me->GetMotionMaster()->MovePoint(6, announcerEncounterPos);
+                        me->GetMotionMaster()->MovePoint(POINT_ENCOUNTER_2_WAIT_2, announcerEncounterPos);
                         NextStep(0, 0, false);
                         break;
                     case EVENT_CHAT_12:
@@ -1090,7 +1117,7 @@ public:
                     // Phases below happen in The Black Knight encounter
                     case EVENT_STEP_FORWARD:
                         // Stepping forward
-                        me->GetMotionMaster()->MovePoint(7, 743.65f, 627.6f, 411.17f);
+                        me->GetMotionMaster()->MovePoint(POINT_ENCOUNTER_3_WAIT, 743.65f, 627.6f, 411.17f);
                         NextStep(0, 0, false);
                         break;
                     case EVENT_CHAT_13:
@@ -1230,7 +1257,6 @@ public:
                         break;
                 }
             }
-
             if (!UpdateVictim())
                 return;
         }
@@ -1277,25 +1303,25 @@ public:
                 // Gamemaster mode on you can choose which encounter you start
                 // you can't though do Grand Champions encounter more than once per instance ID
                 // other encounters you can do as many times as you like
-                if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
-                    instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
-                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
-                    instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+                if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
+                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
+                    instance->GetBossState(BOSS_BLACK_KNIGHT) == NOT_STARTED)
                 {
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, unskipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, skipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
-                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
-                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
+                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+                    instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
+                {
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Eadric the Pure encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                if (instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
-                    instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Argent Confessor Paletress encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                if (instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+                }
+                if (instance->GetBossState(BOSS_BLACK_KNIGHT) == NOT_STARTED)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start The Black Knight encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 player->SEND_GOSSIP_MENU(1, creature->GetGUID());
             }
-            else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && player->GetVehicleBase())
+            else if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && player->GetVehicleBase())
             {
                 // If Grand Champions encounter hasn't been started and the player is mounted
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -1304,7 +1330,7 @@ public:
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT_SKIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXT_FIRST_BOSS, creature->GetGUID());
             }
-            else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && !player->GetVehicleBase())
+            else if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED && !player->GetVehicleBase())
             {
                 // If Grand Champions encounter hasn't been started and the player is not mounted
                 if (player->GetTeam() == HORDE)
@@ -1312,13 +1338,13 @@ public:
                 else
                     player->SEND_GOSSIP_MENU(GOSSIP_TEXT_UNMOUNTED_A, creature->GetGUID());
             }
-            else if (instance->GetData(BOSS_GRAND_CHAMPIONS) == DONE && instance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
+            else if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == DONE && instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
             {
                 // If Grand Champions encounter is done and Eadric the Pure nor Argent Confessor Paletress encounters have been started
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXT_SECOND_BOSS, creature->GetGUID());
             }
-            else if ((instance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE || instance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE) && instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+            else if ((instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == DONE || instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == DONE) && instance->GetBossState(BOSS_BLACK_KNIGHT) == NOT_STARTED)
             {
                 // If Grand Champions, Eadric the Pure and Argent Confessor Paletress encounters are all done but Black Knight encounter has not been started
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1331,37 +1357,32 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        player->CLOSE_GOSSIP_MENU();
+        switch (action)
         {
-            CloseGossipMenuFor(player);
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter(true);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->uiArgentChampion = NPC_EADRIC;
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartArgentChampionEncounter();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->uiArgentChampion = NPC_PALETRESS;
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartArgentChampionEncounter();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartBlackKnight();
+                break;
+            default:
+                break;
         }
-        else if (action == GOSSIP_ACTION_INFO_DEF + 2)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->StartEncounter(true);
-        }
-        else if (action == GOSSIP_ACTION_INFO_DEF + 3)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->uiArgentChampion = NPC_EADRIC;
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartArgentChampionEncounter();
-        }
-        else if (action == GOSSIP_ACTION_INFO_DEF + 4)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->uiArgentChampion = NPC_PALETRESS;
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartArgentChampionEncounter();
-        }
-        else if (action == GOSSIP_ACTION_INFO_DEF + 5)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            ENSURE_AI(npc_announcer_toc5::npc_announcer_toc5AI, creature->AI())->DoStartBlackKnight();
-        }
-
         return true;
     }
 };

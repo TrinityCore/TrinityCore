@@ -120,13 +120,11 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
-
-            doExplode = false;
         }
 
         void Initialize()
         {
-            events.Reset();
+            doExplode = false;
         }
 
         InstanceScript* instance;
@@ -137,6 +135,7 @@ public:
 
         void Reset() override
         {
+            events.Reset();
             Initialize();
         }
 
@@ -166,6 +165,17 @@ public:
                 Talk(urand(0, 2));
         }
 
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        {
+            if (HealthBelowPct(31) && !doExplode)
+            {
+                // Ghouls cast explode when they reach 30% health or if Black Knight dies
+                // or if Black Knight forces them to explode
+                doExplode = true;
+                DoExplode();
+            }
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_CLAW, 3000);
@@ -175,7 +185,6 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            events.Reset();
             me->DespawnOrUnsummon(1000);
         }
 
@@ -192,19 +201,13 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             if (!UpdateVictim())
                 return;
-
-            if (HealthBelowPct(31) && !doExplode)
-            {
-                // Ghouls cast explode when they reach 30% health or if Black Knight dies
-                // or if Black Knight forces them to explode
-                doExplode = true;
-                DoExplode();
-            }
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -247,45 +250,35 @@ class boss_black_knight : public CreatureScript
 public:
     boss_black_knight() : CreatureScript("boss_black_knight") { }
 
-    struct boss_black_knightAI : public ScriptedAI
+    struct boss_black_knightAI : public BossAI
     {
-        boss_black_knightAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+        boss_black_knightAI(Creature* creature) : BossAI(creature, BOSS_BLACK_KNIGHT)
         {
             Initialize();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
-
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
         {
-            events.Reset();
-
             uiPhase = PHASE_UNDEAD;
             achievementCredit = true;
         }
-
-        InstanceScript* instance;
-        EventMap events;
-        SummonList summons;
 
         uint8 uiPhase;
         bool achievementCredit;
 
         void Reset() override
         {
-            summons.DespawnAll();
             me->SetDisplayId(me->GetNativeDisplayId());
-
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-
+            _Reset();
             Initialize();
         }
 
         void EnterEvadeMode() override
         {
-            ScriptedAI::EnterEvadeMode();
+            _EnterEvadeMode();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 
@@ -390,23 +383,50 @@ public:
             summons.Despawn(summon);
         }
 
-        void EnterCombat(Unit* who) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage) override
         {
-            ScriptedAI::EnterCombat(who);
-            LoadEvents();
-            Talk(SAY_AGGRO, who);
-            DoZoneInCombat();
+            if (damage >= me->GetHealth() && uiPhase < PHASE_GHOST)
+            {
+                damage = 0;
+                events.Reset();
+                me->RemoveAllAuras();
+                me->SetHealth(0);
+                me->SetStandState(UNIT_STAND_STATE_DEAD);
+                DoCast(me, SPELL_BLACK_KNIGHT_DIE);
+                for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                {
+                    Creature* ghoul = ObjectAccessor::GetCreature(*me, *itr);
+                    if (ghoul && ghoul->IsAlive() && !ghoul->HasAura(SPELL_GHOUL_EXPLODE))
+                        ENSURE_AI(npc_risen_ghoul::npc_risen_ghoulAI, ghoul->AI())->DoExplode();
+                }
+            }
         }
 
-        void KilledUnit(Unit* who)
+        void JustDied(Unit* /*killer*/) override
+        {
+            Talk(SAY_DEATH);
+            instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_CREDIT, 0, me);
+            _JustDied();
+        }
+
+        void EnterCombat(Unit* who) override
+        {
+            LoadEvents();
+            Talk(SAY_AGGRO, who);
+            _EnterCombat();
+        }
+
+        void KilledUnit(Unit* who) override
         {
             Talk(SAY_KILL, who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            ScriptedAI::UpdateAI(uiDiff);
             events.Update(uiDiff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             if (!UpdateVictim())
                 return;
@@ -481,34 +501,6 @@ public:
                 }
             }
             DoMeleeAttackIfReady();
-        }
-
-        void DamageTaken(Unit* /*done_by*/, uint32& damage) override
-        {
-            if (damage >= me->GetHealth() && uiPhase < PHASE_GHOST)
-            {
-                damage = 0;
-                events.Reset();
-                me->RemoveAllAuras();
-                me->SetHealth(0);
-                me->SetStandState(UNIT_STAND_STATE_DEAD);
-                DoCast(me, SPELL_BLACK_KNIGHT_DIE);
-                for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
-                {
-                    Creature* ghoul = ObjectAccessor::GetCreature(*me, *itr);
-                    if (ghoul && ghoul->IsAlive() && !ghoul->HasAura(SPELL_GHOUL_EXPLODE))
-                        ENSURE_AI(npc_risen_ghoul::npc_risen_ghoulAI, ghoul->AI())->DoExplode();
-                }
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            events.Reset();
-            Talk(SAY_DEATH);
-            instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_CREDIT, 0, me);
-
-            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 
