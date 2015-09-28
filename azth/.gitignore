@@ -39,7 +39,7 @@ patches-*
 /.settings/
 /.externalToolBuilders/*
 # exclude in all levels
-nbproject/private/
+nbproject/
 .sync.ffs_db
 
 #
