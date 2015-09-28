@@ -63,6 +63,7 @@ class Corpse : public WorldObject, public GridObject<Corpse>
 
         void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
+        static void DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans);
 
         ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
 

@@ -52,6 +52,9 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     uint32 playerFlags  = fields[14].GetUInt32();
     uint32 atLoginFlags = fields[15].GetUInt16();
 
+    if (atLoginFlags & AT_LOGIN_RESURRECT)
+        playerFlags &= ~PLAYER_FLAGS_GHOST;
+
     if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
         Flags |= CHARACTER_FLAG_HIDE_HELM;
 

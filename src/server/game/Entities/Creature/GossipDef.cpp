@@ -635,7 +635,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     offer.QuestGiverGUID = npcGUID;
 
     // Is there a better way? what about game objects?
-    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+    if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
         offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
 
     offer.QuestID = quest->GetQuestId();
@@ -693,7 +693,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.QuestGiverGUID = npcGUID;
 
     // Is there a better way? what about game objects?
-    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+    if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
         packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
 
     packet.QuestID = quest->GetQuestId();

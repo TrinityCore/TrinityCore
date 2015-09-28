@@ -4129,10 +4129,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             charDeleteMethod = CHAR_DELETE_REMOVE;
     }
 
-    // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
-    // bones will be deleted by corpse/bones deleting thread shortly
-    sObjectAccessor->ConvertCorpseForPlayer(playerguid);
-
     if (ObjectGuid::LowType guildId = GetGuildIdFromDB(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(playerguid, false, false, true);
@@ -4452,13 +4448,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
+            Corpse::DeleteFromDB(playerguid, trans);
 
             Garrison::DeleteFromDB(guid, trans);
 
@@ -4544,18 +4534,17 @@ void Player::BuildPlayerRepop()
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_SET_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
-    // there we must send 888 opcode
 
-    // the player cannot have a corpse already, only bones which are not returned by GetCorpse
-    if (GetCorpse())
+    // the player cannot have a corpse already on current map, only bones which are not returned by GetCorpse
+    WorldLocation corpseLocation = GetCorpseLocation();
+    if (corpseLocation.GetMapId() == GetMapId())
     {
         TC_LOG_ERROR("entities.player", "BuildPlayerRepop: player %s (%s) already has a corpse", GetName().c_str(), GetGUID().ToString().c_str());
         return;
     }
 
     // create a corpse and place it at the player's location
-    CreateCorpse();
-    Corpse* corpse = GetCorpse();
+    Corpse* corpse = CreateCorpse();
     if (!corpse)
     {
         TC_LOG_ERROR("entities.player", "Error creating corpse for Player %s [%s]", GetName().c_str(), GetGUID().ToString().c_str());
@@ -4697,7 +4686,16 @@ void Player::KillPlayer()
     UpdateObjectVisibility();
 }
 
-void Player::CreateCorpse()
+void Player::OfflineResurrect(ObjectGuid const& guid, SQLTransaction& trans)
+{
+    Corpse::DeleteFromDB(guid, trans);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+    stmt->setUInt16(0, uint16(AT_LOGIN_RESURRECT));
+    stmt->setUInt64(1, guid.GetCounter());
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+}
+
+Corpse* Player::CreateCorpse()
 {
     // prevent existence 2 corpse for player
     SpawnCorpseBones();
@@ -4710,8 +4708,10 @@ void Player::CreateCorpse()
     if (!corpse->Create(GetMap()->GenerateLowGuid<HighGuid::Corpse>(), this))
     {
         delete corpse;
-        return;
+        return nullptr;
     }
+
+    _corpseLocation.WorldRelocate(*this);
 
     uint8 skin = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
     uint8 face = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
@@ -4756,19 +4756,21 @@ void Player::CreateCorpse()
         corpse->SaveToDB();
 
     // register for player, but not show
-    sObjectAccessor->AddCorpse(corpse);
+    GetMap()->AddCorpse(corpse);
+    return corpse;
 }
 
-void Player::SpawnCorpseBones()
+void Player::SpawnCorpseBones(bool triggerSave /*= true*/)
 {
-    if (sObjectAccessor->ConvertCorpseForPlayer(GetGUID()))
-        if (!GetSession()->PlayerLogoutWithSave())          // at logout we will already store the player
-            SaveToDB();                                     // prevent loading as ghost without corpse
+    _corpseLocation.WorldRelocate();
+    if (GetMap()->ConvertCorpseToBones(GetGUID()))
+        if (triggerSave && !GetSession()->PlayerLogoutWithSave())   // at logout we will already store the player
+            SaveToDB();                                             // prevent loading as ghost without corpse
 }
 
 Corpse* Player::GetCorpse() const
 {
-    return sObjectAccessor->GetCorpseForPlayerGUID(GetGUID());
+    return GetMap()->GetCorpseByPlayer(GetGUID());
 }
 
 void Player::DurabilityLossAll(double percent, bool inventory)
@@ -8315,9 +8317,11 @@ void Player::RemovedInsignia(Player* looterPlr)
         RepopAtGraveyard();
     }
 
+    _corpseLocation.WorldRelocate();
+
     // We have to convert player corpse to bones, not to be able to resurrect there
     // SpawnCorpseBones isn't handy, 'cos it saves player while he in BG
-    Corpse* bones = sObjectAccessor->ConvertCorpseForPlayer(GetGUID(), true);
+    Corpse* bones = GetMap()->ConvertCorpseToBones(GetGUID(), true);
     if (!bones)
         return;
 
@@ -17438,18 +17442,24 @@ void Player::_LoadGlyphAuras()
     }
 }
 
-void Player::LoadCorpse()
+void Player::LoadCorpse(PreparedQueryResult result)
 {
-    if (IsAlive())
-        sObjectAccessor->ConvertCorpseForPlayer(GetGUID());
-    else
+    if (IsAlive() || HasAtLoginFlag(AT_LOGIN_RESURRECT))
+        SpawnCorpseBones(false);
+
+    if (!IsAlive())
     {
-        if (Corpse* corpse = GetCorpse())
-            ApplyModFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER, corpse && !sMapStore.LookupEntry(corpse->GetMapId())->Instanceable());
+        if (result && !HasAtLoginFlag(AT_LOGIN_RESURRECT))
+        {
+            Field* fields = result->Fetch();
+            _corpseLocation.WorldRelocate(fields[0].GetUInt16(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
+            ApplyModFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER, !sMapStore.LookupEntry(_corpseLocation.GetMapId())->Instanceable());
+        }
         else
-            //Prevent Dead Player login without corpse
             ResurrectPlayer(0.5f);
     }
+
+    RemoveAtLoginFlag(AT_LOGIN_RESURRECT);
 }
 
 void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)

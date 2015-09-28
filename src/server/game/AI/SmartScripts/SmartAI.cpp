@@ -208,7 +208,7 @@ void SmartAI::EndPath(bool fail)
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
         {
             Player* player = (*targets->begin())->ToPlayer();
-            if (!fail && player->IsAtGroupRewardDistance(me) && !player->GetCorpse())
+            if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                 player->GroupEventHappens(mEscortQuestID, me);
 
             if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
@@ -220,7 +220,7 @@ void SmartAI::EndPath(bool fail)
                 {
                     Player* groupGuy = groupRef->GetSource();
 
-                    if (!fail && groupGuy->IsAtGroupRewardDistance(me) && !groupGuy->GetCorpse())
+                    if (!fail && groupGuy->IsAtGroupRewardDistance(me) && !groupGuy->HasCorpse())
                         groupGuy->AreaExploredOrEventHappens(mEscortQuestID);
                     if (fail && groupGuy->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
                         groupGuy->FailQuest(mEscortQuestID);
@@ -233,7 +233,7 @@ void SmartAI::EndPath(bool fail)
                 if (GetScript()->IsPlayer((*iter)))
                 {
                     Player* player = (*iter)->ToPlayer();
-                    if (!fail && player->IsAtGroupRewardDistance(me) && !player->GetCorpse())
+                    if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                         player->AreaExploredOrEventHappens(mEscortQuestID);
                     if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
                         player->FailQuest(mEscortQuestID);

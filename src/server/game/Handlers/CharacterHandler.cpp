@@ -236,6 +236,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CURRENCY, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_LOCATION);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON, stmt);
@@ -1016,7 +1020,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             pCurrChar->TeleportTo(pCurrChar->m_homebindMapId, pCurrChar->m_homebindX, pCurrChar->m_homebindY, pCurrChar->m_homebindZ, pCurrChar->GetOrientation());
     }
 
-    sObjectAccessor->AddObject(pCurrChar);
+    ObjectAccessor::AddObject(pCurrChar);
     //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
 
     if (pCurrChar->GetGuildId())
@@ -1055,7 +1059,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
 
     // Place character in world (and load zone) before some object loading
-    pCurrChar->LoadCorpse();
+    pCurrChar->LoadCorpse(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));
 
     // setting Ghost+speed if dead
     if (pCurrChar->m_deathState != ALIVE)
@@ -1844,23 +1848,22 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         return;
     }
 
-    /// All checks are fine, deal with race change now
-
+    // All checks are fine, deal with race change now
     ObjectGuid::LowType lowGuid = factionChangeInfo->Guid.GetCounter();
-
-    // resurrect the character in case he's dead
-    sObjectAccessor->ConvertCorpseForPlayer(factionChangeInfo->Guid);
 
     PreparedStatement* stmt = nullptr;
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    /// Name Change and update atLogin flags
+    // resurrect the character in case he's dead
+    Player::OfflineResurrect(factionChangeInfo->Guid, trans);
+
+    // Name Change and update atLogin flags
     {
         CharacterDatabase.EscapeString(factionChangeInfo->Name);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
         stmt->setString(0, factionChangeInfo->Name);
-        stmt->setUInt16(1, uint16(atLoginFlags & ~usedLoginFlag));
+        stmt->setUInt16(1, uint16((atLoginFlags | AT_LOGIN_RESURRECT) & ~usedLoginFlag));
         stmt->setUInt64(2, lowGuid);
 
         trans->Append(stmt);
@@ -1871,7 +1874,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         trans->Append(stmt);
     }
 
-    /// Customize
+    // Customize
     {
         if (factionChangeInfo->SkinID)
         {
@@ -1922,7 +1925,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
         trans->Append(stmt);
     }
 
-    /// Race Change
+    // Race Change
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_RACE);
         stmt->setUInt8(0, factionChangeInfo->RaceID);
@@ -1996,7 +1999,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
             trans->Append(stmt);
         }
 
-        /// Team Conversation
+        // Team Conversion
         if (factionChangeInfo->FactionChange)
         {
             // Delete all Flypaths
@@ -2024,7 +2027,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                 trans->Append(stmt);
             }
 
-            /// @todo: make this part asynch
+            /// @todo: make this part async
             if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
             {
                 // Reset guild

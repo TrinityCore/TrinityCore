@@ -445,7 +445,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_OK);
 
         // Not sure if we must send this now.
-        Player* owner = sObjectAccessor->FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(auction->owner));
+        Player* owner = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(auction->owner));
         Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
         if (owner && item)
             owner->GetSession()->SendAuctionOwnerBidNotification(auction, item);
