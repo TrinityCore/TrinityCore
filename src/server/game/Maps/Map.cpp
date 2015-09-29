@@ -405,6 +405,13 @@ void Map::DeleteFromWorld(Player* player)
     delete player;
 }
 
+template<>
+void Map::DeleteFromWorld(Transport* transport)
+{
+    ObjectAccessor::RemoveObject(transport);
+    delete transport;
+}
+
 void Map::EnsureGridCreated(const GridCoord &p)
 {
     std::lock_guard<std::mutex> lock(_gridLock);
