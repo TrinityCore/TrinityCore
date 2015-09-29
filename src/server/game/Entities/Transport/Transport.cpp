@@ -100,7 +100,6 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
 void Transport::CleanupsBeforeDelete(bool finalCleanup /*= true*/)
 {
-    HashMapHolder<Transport>::Remove(this);
     UnloadStaticPassengers();
     while (!_passengers.empty())
     {
