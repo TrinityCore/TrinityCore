@@ -61,10 +61,17 @@ enum MailAuctionAnswers
     AUCTION_SALE_PENDING        = 6
 };
 
+enum AuctionHouses
+{
+    AUCTIONHOUSE_ALLIANCE       = 2,
+    AUCTIONHOUSE_HORDE          = 6,
+    AUCTIONHOUSE_NEUTRAL        = 7
+};
+
 struct AuctionEntry
 {
     uint32 Id;
-    uint32 auctioneer;                                      // creature low guid
+    uint8 houseId;
     uint32 itemGUIDLow;
     uint32 itemEntry;
     uint32 itemCount;
@@ -76,11 +83,9 @@ struct AuctionEntry
     uint32 bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
-    uint32 factionTemplateId;
 
     // helpers
-    uint32 GetHouseId() const { return auctionHouseEntry->houseId; }
-    uint32 GetHouseFaction() const { return auctionHouseEntry->faction; }
+    uint8 GetHouseId() const { return houseId; }
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
     bool BuildAuctionInfo(WorldPacket & data) const;
@@ -148,6 +153,7 @@ class AuctionHouseMgr
         typedef std::unordered_map<uint32, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
+        AuctionHouseObject* GetAuctionsMapByHouseId(uint8 auctionHouseId);
         AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
 
         Item* GetAItem(uint32 id)
@@ -169,7 +175,7 @@ class AuctionHouseMgr
 
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
-
+        static AuctionHouseEntry const* GetAuctionHouseEntryFromHouse(uint8 houseId);
     public:
 
         //load first auction items, because of check if item exists, when loading
