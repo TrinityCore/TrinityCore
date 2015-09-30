@@ -100,7 +100,6 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
 void Transport::CleanupsBeforeDelete(bool finalCleanup /*= true*/)
 {
-    HashMapHolder<Transport>::Remove(this);
     UnloadStaticPassengers();
     while (!_passengers.empty())
     {
@@ -352,6 +351,7 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
     go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
+    go->RelocateStationaryPosition(x, y, z, o);
 
     if (!go->IsPositionValid())
     {
@@ -704,6 +704,7 @@ void Transport::UpdatePassengerPositions(PassengerSet& passengers)
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
+                passenger->ToGameObject()->RelocateStationaryPosition(x, y, z, o);
                 break;
             case TYPEID_DYNAMICOBJECT:
                 GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);

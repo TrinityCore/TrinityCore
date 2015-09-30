@@ -741,7 +741,6 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
         return;
 
     Corpse* corpse = _player->GetCorpse();
-
     if (!corpse)
         return;
 

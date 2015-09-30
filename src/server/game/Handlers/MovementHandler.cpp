@@ -142,8 +142,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     }
 
     // resurrect character at enter into instance where his corpse exist after add to map
-    Corpse* corpse = GetPlayer()->GetCorpse();
-    if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == GetPlayer()->GetMapId())
+    Corpse* corpse = GetPlayer()->GetMap()->GetCorpseByPlayer(GetPlayer()->GetGUID());
+    if (corpse && corpse->GetType() != CORPSE_BONES)
     {
         if (mEntry->IsDungeon())
         {
