@@ -1743,7 +1743,7 @@ void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 void WorldObject::SetMap(Map* map)
 {
     ASSERT(map);
-    ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
+    ASSERT(!IsInWorld());
     if (m_currMap == map) // command add npc: first create, than loadfromdb
         return;
     if (m_currMap)

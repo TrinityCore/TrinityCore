@@ -73,18 +73,18 @@ class PreparedResultSet
         Field* Fetch() const
         {
             ASSERT(m_rowPosition < m_rowCount);
-            return m_rows[uint32(m_rowPosition)];
+            return const_cast<Field*>(&m_rows[uint32(m_rowPosition) * m_fieldCount]);
         }
 
-        const Field & operator [] (uint32 index) const
+        Field const& operator[](uint32 index) const
         {
             ASSERT(m_rowPosition < m_rowCount);
             ASSERT(index < m_fieldCount);
-            return m_rows[uint32(m_rowPosition)][index];
+            return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
         }
 
     protected:
-        std::vector<Field*> m_rows;
+        std::vector<Field> m_rows;
         uint64 m_rowCount;
         uint64 m_rowPosition;
         uint32 m_fieldCount;
@@ -92,12 +92,11 @@ class PreparedResultSet
     private:
         MYSQL_BIND* m_rBind;
         MYSQL_STMT* m_stmt;
-        MYSQL_RES* m_res;
+        MYSQL_RES* m_metadataResult;    ///< Field metadata, returned by mysql_stmt_result_metadata
 
         my_bool* m_isNull;
         unsigned long* m_length;
 
-        void FreeBindBuffer();
         void CleanUp();
         bool _NextRow();
 
