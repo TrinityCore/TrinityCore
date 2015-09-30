@@ -218,11 +218,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_CORPSE_QUERY");
-
-    Corpse* corpse = GetPlayer()->GetCorpse();
-
-    if (!corpse)
+    if (!_player->HasCorpse())
     {
         WorldPacket data(MSG_CORPSE_QUERY, 1);
         data << uint8(0);                                   // corpse not found
@@ -230,24 +226,25 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recvData*/)
         return;
     }
 
-    uint32 mapid = corpse->GetMapId();
-    float x = corpse->GetPositionX();
-    float y = corpse->GetPositionY();
-    float z = corpse->GetPositionZ();
-    uint32 corpsemapid = mapid;
+    WorldLocation corpseLocation = _player->GetCorpseLocation();
+    uint32 corpseMapID = corpseLocation.GetMapId();
+    uint32 mapID = corpseLocation.GetMapId();
+    float x = corpseLocation.GetPositionX();
+    float y = corpseLocation.GetPositionY();
+    float z = corpseLocation.GetPositionZ();
 
     // if corpse at different map
-    if (mapid != _player->GetMapId())
+    if (mapID != _player->GetMapId())
     {
         // search entrance map for proper show entrance
-        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
+        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapID))
         {
             if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
             {
                 // if corpse map have entrance
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
                 {
-                    mapid = corpseMapEntry->entrance_map;
+                    mapID = corpseMapEntry->entrance_map;
                     x = corpseMapEntry->entrance_x;
                     y = corpseMapEntry->entrance_y;
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
@@ -258,11 +255,11 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recvData*/)
 
     WorldPacket data(MSG_CORPSE_QUERY, 1+(6*4));
     data << uint8(1);                                       // corpse found
-    data << int32(mapid);
+    data << int32(mapID);
     data << float(x);
     data << float(y);
     data << float(z);
-    data << int32(corpsemapid);
+    data << int32(corpseMapID);
     data << uint32(0);                                      // unknown
     SendPacket(&data);
 }

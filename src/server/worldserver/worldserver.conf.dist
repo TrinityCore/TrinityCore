@@ -118,9 +118,9 @@ CharacterDatabase.WorkerThreads = 1
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     2 - (CharacterDatabase.WorkerThreads)
+#        Default:     1 - (LoginDatabase.SynchThreads)
+#                     1 - (WorldDatabase.SynchThreads)
+#                     2 - (CharacterDatabase.SynchThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
