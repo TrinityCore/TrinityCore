@@ -709,7 +709,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string const& data)
 {
     uint32 id = 0;
-    uint32 index = 0;
+    CharacterDatabaseStatements index;
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
         id = GetAccountId();

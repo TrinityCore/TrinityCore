@@ -428,10 +428,12 @@ class DatabaseWorkerPool
             Other
         */
 
+        typedef typename T::Statements PreparedStatementIndex;
+
         //! Automanaged (internally) pointer to a prepared statement object for usage in upper level code.
         //! Pointer is deleted in this->DirectExecute(PreparedStatement*), this->Query(PreparedStatement*) or PreparedStatementTask::~PreparedStatementTask.
         //! This object is not tied to the prepared statement on the MySQL context yet until execution.
-        PreparedStatement* GetPreparedStatement(uint32 index)
+        PreparedStatement* GetPreparedStatement(PreparedStatementIndex index)
         {
             return new PreparedStatement(index);
         }

@@ -61,6 +61,19 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
         return &mNeutralAuctions;
 }
 
+AuctionHouseObject* AuctionHouseMgr::GetAuctionsMapByHouseId(uint8 auctionHouseId)
+{
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+        return &mNeutralAuctions;
+
+    switch(auctionHouseId)
+    {
+        case AUCTIONHOUSE_ALLIANCE : return &mAllianceAuctions;
+        case AUCTIONHOUSE_HORDE : return &mHordeAuctions;
+        default : return &mNeutralAuctions;
+    }
+}
+
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
 {
     uint32 MSV = pItem->GetTemplate()->SellPrice;
@@ -342,7 +355,7 @@ void AuctionHouseMgr::LoadAuctions()
             continue;
         }
 
-        GetAuctionsMap(aItem->factionTemplateId)->AddAuction(aItem);
+        GetAuctionsMapByHouseId(aItem->houseId)->AddAuction(aItem);
         ++count;
     } while (result->NextRow());
 
@@ -385,42 +398,30 @@ void AuctionHouseMgr::Update()
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
-    uint32 houseid = 7; // goblin auction house
+    uint32 houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
         // FIXME: found way for proper auctionhouse selection by another way
         // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
         // but no easy way convert creature faction to player race faction for specific city
-        switch (factionTemplateId)
-        {
-            case   12: houseid = 1; break; // human
-            case   29: houseid = 6; break; // orc, and generic for horde
-            case   55: houseid = 2; break; // dwarf, and generic for alliance
-            case   68: houseid = 4; break; // undead
-            case   80: houseid = 3; break; // n-elf
-            case  104: houseid = 5; break; // trolls
-            case  120: houseid = 7; break; // booty bay, neutral
-            case  474: houseid = 7; break; // gadgetzan, neutral
-            case  855: houseid = 7; break; // everlook, neutral
-            case 1604: houseid = 6; break; // b-elfs,
-            default:                       // for unknown case
-            {
-                FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
-                if (!u_entry)
-                    houseid = 7; // goblin auction house
-                else if (u_entry->ourMask & FACTION_MASK_ALLIANCE)
-                    houseid = 1; // human auction house
-                else if (u_entry->ourMask & FACTION_MASK_HORDE)
-                    houseid = 6; // orc auction house
-                else
-                    houseid = 7; // goblin auction house
-                break;
-            }
-        }
+        FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
+        if (!u_entry)
+            houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
+        else if (u_entry->ourMask & FACTION_MASK_ALLIANCE)
+            houseid = AUCTIONHOUSE_ALLIANCE; // human auction house
+        else if (u_entry->ourMask & FACTION_MASK_HORDE)
+            houseid = AUCTIONHOUSE_HORDE; // orc auction house
+        else
+            houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
     }
 
     return sAuctionHouseStore.LookupEntry(houseid);
+}
+
+AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntryFromHouse(uint8 houseId)
+{
+    return (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION)) ? sAuctionHouseStore.LookupEntry(AUCTIONHOUSE_NEUTRAL) : sAuctionHouseStore.LookupEntry(houseId);
 }
 
 void AuctionHouseObject::AddAuction(AuctionEntry* auction)
@@ -687,7 +688,7 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
     stmt->setUInt32(0, Id);
-    stmt->setUInt32(1, auctioneer);
+    stmt->setUInt8(1, houseId);
     stmt->setUInt32(2, itemGUIDLow);
     stmt->setUInt32(3, owner);
     stmt->setUInt32(4, buyout);
@@ -702,7 +703,7 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 bool AuctionEntry::LoadFromDB(Field* fields)
 {
     Id = fields[0].GetUInt32();
-    auctioneer = fields[1].GetUInt32();
+    houseId = fields[1].GetUInt8();
     itemGUIDLow = fields[2].GetUInt32();
     itemEntry = fields[3].GetUInt32();
     itemCount = fields[4].GetUInt32();
@@ -714,25 +715,10 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     startbid = fields[10].GetUInt32();
     deposit = fields[11].GetUInt32();
 
-    CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(auctioneer);
-    if (!auctioneerData)
-    {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : %u)", Id, auctioneer);
-        return false;
-    }
-
-    CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
-    if (!auctioneerInfo)
-    {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : %u Entry: %u)", Id, auctioneer, auctioneerData->id);
-        return false;
-    }
-
-    factionTemplateId = auctioneerInfo->faction;
-    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
+    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntryFromHouse(houseId);
     if (!auctionHouseEntry)
     {
-        TC_LOG_ERROR("misc", "Auction %u has auctioneer (GUID : %u Entry: %u) with wrong faction %u", Id, auctioneer, auctioneerData->id, factionTemplateId);
+        TC_LOG_ERROR("misc", "Auction %u has invalid house id %u", Id, houseId);
         return false;
     }
 

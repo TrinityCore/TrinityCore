@@ -695,7 +695,7 @@ void BfGraveyard::Resurrect()
         player->CastSpell(player, 6962, true);
         player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
 
-        sObjectAccessor->ConvertCorpseForPlayer(player->GetGUID());
+        player->SpawnCorpseBones(false);
     }
 
     m_ResurrectQueue.clear();
