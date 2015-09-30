@@ -125,6 +125,7 @@ class instance_naxxramas : public InstanceMapScript
                 minHorsemenDiedTime     = 0;
                 maxHorsemenDiedTime     = 0;
                 AbominationCount        = 0;
+                hadAnubRekhanGreet      = false;
                 hadFaerlinaGreet        = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
@@ -135,6 +136,9 @@ class instance_naxxramas : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
+                    case NPC_ANUBREKHAN:
+                        AnubRekhanGUID = creature->GetGUID();
+                        break;
                     case NPC_FAERLINA:
                         FaerlinaGUID = creature->GetGUID();
                         break;
@@ -319,8 +323,13 @@ class instance_naxxramas : public InstanceMapScript
                     case DATA_ABOMINATION_KILLED:
                         AbominationCount = value;
                         break;
+                    case DATA_HAD_ANUBREKHAN_GREET:
+                        hadAnubRekhanGreet = (value == 1u);
+                        break;
                     case DATA_HAD_FAERLINA_GREET:
                         hadFaerlinaGreet = (value == 1u);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -331,6 +340,8 @@ class instance_naxxramas : public InstanceMapScript
                 {
                     case DATA_ABOMINATION_KILLED:
                         return AbominationCount;
+                    case DATA_HAD_ANUBREKHAN_GREET:
+                        return (uint32)hadAnubRekhanGreet;
                     case DATA_HAD_FAERLINA_GREET:
                         return (uint32)hadFaerlinaGreet;
                     default:
@@ -344,6 +355,8 @@ class instance_naxxramas : public InstanceMapScript
             {
                 switch (id)
                 {
+                    case DATA_ANUBREKHAN:
+                        return AnubRekhanGUID;
                     case DATA_FAERLINA:
                         return FaerlinaGUID;
                     case DATA_THANE:
@@ -604,6 +617,8 @@ class instance_naxxramas : public InstanceMapScript
 
         protected:
             /* The Arachnid Quarter */
+            // Anub'rekhan
+            ObjectGuid AnubRekhanGUID;
             // Grand Widow Faerlina
             ObjectGuid FaerlinaGUID;
 
@@ -640,6 +655,7 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid KelthuzadDoorGUID;
             ObjectGuid LichKingGUID;
             uint8 AbominationCount;
+            bool hadAnubRekhanGreet;
             bool hadFaerlinaGreet;
             uint8 CurrentWingTaunt;
 
