@@ -200,6 +200,7 @@ m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(
     TriggerJustRespawned = false;
     m_isTempWorldObject = false;
     _focusSpell = NULL;
+    _focusDelay = 0;
 }
 
 Creature::~Creature()
@@ -1558,7 +1559,9 @@ void Creature::setDeathState(DeathState s)
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
             SaveRespawnTime();
 
-        SetTarget(ObjectGuid::Empty);                // remove target selection in any cases (can be set at aura remove in Unit::setDeathState)
+        ReleaseFocus();               // remove spellcast focus (this also clears unit target)
+        SetTarget(ObjectGuid::Empty); // drop target - dead mobs shouldn't ever target things
+
         SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
         SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0); // if creature is mounted on a virtual mount, remove it at death
@@ -2677,39 +2680,117 @@ void Creature::SetDisplayId(uint32 modelId)
 
 void Creature::SetTarget(ObjectGuid guid)
 {
-    if (!_focusSpell)
+    if (!IsFocusing())
         SetGuidValue(UNIT_FIELD_TARGET, guid);
 }
 
-void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
+bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
     if (_focusSpell)
-        return;
+        return false;
+
+    if ((!target || target == this) && !focusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates
+        return false;
 
     _focusSpell = focusSpell;
-    SetGuidValue(UNIT_FIELD_TARGET, target->GetGUID());
-    if (focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-        AddUnitState(UNIT_STATE_ROTATING);
 
-    // Set serverside orientation if needed (needs to be after attribute check)
-    SetInFront(target);
+    // "instant" creature casts that require re-targeting will be delayed by a short moment to prevent facing bugs
+    bool shouldDelay = false;
+
+    // set target, then force send update packet to players if it changed to provide appropriate facing
+    ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
+    if (GetGuidValue(UNIT_FIELD_TARGET) != newTarget)
+    {
+        SetGuidValue(UNIT_FIELD_TARGET, newTarget);
+        if (target)
+            SetFacingToObject(target);
+        
+        if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
+            ( // only require instant update for spells that actually have a visual
+                focusSpell->GetSpellInfo()->SpellVisual[0] ||
+                focusSpell->GetSpellInfo()->SpellVisual[1]
+            ) && ( 
+                !focusSpell->GetCastTime() || // if the spell is instant cast
+                focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet
+            )
+        )
+        {
+            const MapRefManager& mapPlayers = GetMap()->GetPlayers();
+            for (MapRefManager::const_iterator it = mapPlayers.begin(); it != mapPlayers.end(); ++it)
+                if (Player* player = (*it).GetSource())
+                {
+                    // only update players that can both see us, and are actually in combat with us (this is a performance tradeoff)
+                    if (player->CanSeeOrDetect(this, false, true) && IsInCombatWith(player))
+                    {
+                        SendUpdateToPlayer(player);
+                        shouldDelay = true;
+                    }
+                }
+            if (shouldDelay)
+                shouldDelay = (!focusSpell->IsTriggered() && !focusSpell->GetCastTime());
+
+        }
+    }
+
+    // tell the creature that it should reacquire its current target after the cast is done (this is handled in ::Attack)
+    MustReacquireTarget();
+
+    bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    // Face the target - we need to do this before the unit state is modified for no-turn spells
+    if (target)
+        SetInFront(target);
+    else if (!canTurnDuringCast)
+        if(Unit* victim = GetVictim())
+            SetInFront(victim); // ensure server-side orientation is correct at beginning of cast
+
+    if (!canTurnDuringCast)
+        AddUnitState(UNIT_STATE_CANNOT_TURN);
+
+    return shouldDelay;
 }
 
-void Creature::ReleaseFocus(Spell const* focusSpell)
+bool Creature::IsFocusing(Spell const* focusSpell, bool withDelay)
 {
-    // focused to something else
-    if (focusSpell != _focusSpell)
+    if (!IsAlive()) // dead creatures cannot focus
+    {
+        ReleaseFocus(nullptr, false);
+        return false;
+    }
+
+    if (focusSpell && (focusSpell != _focusSpell))
+        return false;
+
+    if (!_focusSpell)
+    {
+        if (!withDelay || !_focusDelay)
+            return false;
+        if (GetMSTimeDiffToNow(_focusDelay) > 1000) // @todo figure out if we can get rid of this magic number somehow
+        {
+            _focusDelay = 0; // save checks in the future
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
+{
+    if (!_focusSpell)
         return;
 
-    _focusSpell = NULL;
-    if (Unit* victim = GetVictim())
-        SetGuidValue(UNIT_FIELD_TARGET, victim->GetGUID());
-    else
-        SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
+    // focused to something else
+    if (focusSpell && focusSpell != _focusSpell)
+        return;
 
-    if (focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-        ClearUnitState(UNIT_STATE_ROTATING);
+    SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
+
+    if (_focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+        ClearUnitState(UNIT_STATE_CANNOT_TURN);
+
+    _focusSpell = nullptr;
+    _focusDelay = withDelay ? getMSTime() : 0; // don't allow re-target right away to prevent visual bugs
 }
 
 void Creature::StartPickPocketRefillTimer()

@@ -203,7 +203,8 @@ void CreatureAI::SetGazeOn(Unit* target)
 {
     if (me->IsValidAttackTarget(target))
     {
-        AttackStart(target);
+        if (!me->IsFocusing(nullptr, true))
+            AttackStart(target);
         me->SetReactState(REACT_PASSIVE);
     }
 }
@@ -222,7 +223,8 @@ bool CreatureAI::UpdateVictimWithGaze()
     }
 
     if (Unit* victim = me->SelectVictim())
-        AttackStart(victim);
+        if (!me->IsFocusing(nullptr, true))
+            AttackStart(victim);
 
     return me->GetVictim() != nullptr;
 }
@@ -235,7 +237,8 @@ bool CreatureAI::UpdateVictim()
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
-            AttackStart(victim);
+            if (!me->IsFocusing(nullptr, true))
+                AttackStart(victim);
 
         return me->GetVictim() != nullptr;
     }
