@@ -2127,7 +2127,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateLocalChannels(uint32 newZone);
         void LeaveLFGChannel();
 
-        void SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal);
+        void SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal);
         uint16 GetMaxSkillValue(uint32 skill) const;        // max + perm. bonus + temp bonus
         uint16 GetPureMaxSkillValue(uint32 skill) const;    // max
         uint16 GetSkillValue(uint32 skill) const;           // skill value + perm. bonus + temp bonus
