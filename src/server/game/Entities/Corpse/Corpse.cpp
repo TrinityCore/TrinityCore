@@ -22,6 +22,7 @@
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
+#include "World.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {
@@ -138,10 +139,14 @@ void Corpse::DeleteBonesFromWorld()
 
 void Corpse::DeleteFromDB(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = NULL;
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
-    stmt->setUInt32(0, GetOwnerGUID().GetCounter());
-    trans->Append(stmt);
+    DeleteFromDB(GetOwnerGUID(), trans);
+}
+
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
+    stmt->setUInt32(0, ownerGuid.GetCounter());
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
@@ -193,6 +198,10 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 
 bool Corpse::IsExpired(time_t t) const
 {
+    // Deleted character
+    if (!sWorld->GetCharacterNameData(GetOwnerGUID()))
+        return true;
+
     if (m_type == CORPSE_BONES)
         return m_time < t - 60 * MINUTE;
     else
