@@ -1883,6 +1883,7 @@ CREATE TABLE `locales_item` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
 -- Table structure for table `locales_item_set_names`
 --
 
@@ -2310,7 +2311,7 @@ CREATE TABLE `npc_text` (
   `text0_1` longtext,
   `BroadcastTextID0` mediumint(6) NOT NULL DEFAULT '0',
   `lang0` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob0` float NOT NULL DEFAULT '0',
+  `Probability0` float NOT NULL DEFAULT '0',
   `em0_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em0_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em0_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2321,7 +2322,7 @@ CREATE TABLE `npc_text` (
   `text1_1` longtext,
   `BroadcastTextID1` mediumint(6) NOT NULL DEFAULT '0',
   `lang1` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob1` float NOT NULL DEFAULT '0',
+  `Probability1` float NOT NULL DEFAULT '0',
   `em1_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em1_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em1_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2332,7 +2333,7 @@ CREATE TABLE `npc_text` (
   `text2_1` longtext,
   `BroadcastTextID2` mediumint(6) NOT NULL DEFAULT '0',
   `lang2` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob2` float NOT NULL DEFAULT '0',
+  `Probability2` float NOT NULL DEFAULT '0',
   `em2_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em2_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em2_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2343,7 +2344,7 @@ CREATE TABLE `npc_text` (
   `text3_1` longtext,
   `BroadcastTextID3` mediumint(6) NOT NULL DEFAULT '0',
   `lang3` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob3` float NOT NULL DEFAULT '0',
+  `Probability3` float NOT NULL DEFAULT '0',
   `em3_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em3_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em3_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2354,7 +2355,7 @@ CREATE TABLE `npc_text` (
   `text4_1` longtext,
   `BroadcastTextID4` mediumint(6) NOT NULL DEFAULT '0',
   `lang4` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob4` float NOT NULL DEFAULT '0',
+  `Probability4` float NOT NULL DEFAULT '0',
   `em4_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em4_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em4_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2365,7 +2366,7 @@ CREATE TABLE `npc_text` (
   `text5_1` longtext,
   `BroadcastTextID5` mediumint(6) NOT NULL DEFAULT '0',
   `lang5` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob5` float NOT NULL DEFAULT '0',
+  `Probability5` float NOT NULL DEFAULT '0',
   `em5_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em5_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em5_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2376,7 +2377,7 @@ CREATE TABLE `npc_text` (
   `text6_1` longtext,
   `BroadcastTextID6` mediumint(6) NOT NULL DEFAULT '0',
   `lang6` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob6` float NOT NULL DEFAULT '0',
+  `Probability6` float NOT NULL DEFAULT '0',
   `em6_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em6_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em6_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2387,7 +2388,7 @@ CREATE TABLE `npc_text` (
   `text7_1` longtext,
   `BroadcastTextID7` mediumint(6) NOT NULL DEFAULT '0',
   `lang7` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `prob7` float NOT NULL DEFAULT '0',
+  `Probability7` float NOT NULL DEFAULT '0',
   `em7_0` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em7_1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `em7_2` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2407,13 +2408,13 @@ DROP TABLE IF EXISTS `npc_trainer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `npc_trainer` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell` mediumint(8) NOT NULL DEFAULT '0',
-  `spellcost` int(10) unsigned NOT NULL DEFAULT '0',
-  `reqskill` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `reqskillvalue` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `reqlevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entry`,`spell`)
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `SpellID` mediumint(8) NOT NULL DEFAULT '0',
+  `MoneyCost` int(10) unsigned NOT NULL DEFAULT '0',
+  `ReqSkillLine` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ReqSkillRank` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ReqLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`SpellID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2680,9 +2681,9 @@ DROP TABLE IF EXISTS `player_xp_for_level`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `player_xp_for_level` (
-  `lvl` tinyint(3) unsigned NOT NULL,
-  `xp_for_next_level` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`lvl`)
+  `Level` tinyint(3) unsigned NOT NULL,
+  `Experience` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`Level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2797,15 +2798,15 @@ DROP TABLE IF EXISTS `points_of_interest`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `points_of_interest` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `x` float NOT NULL DEFAULT '0',
-  `y` float NOT NULL DEFAULT '0',
-  `icon` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `flags` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `data` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `icon_name` text NOT NULL,
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `PositionX` float NOT NULL DEFAULT '0',
+  `PositionY` float NOT NULL DEFAULT '0',
+  `Icon` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Flags` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Data` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Name` text NOT NULL,
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
+  PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2920,16 +2921,17 @@ DROP TABLE IF EXISTS `quest_poi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `quest_poi` (
-  `questId` int(10) unsigned NOT NULL DEFAULT '0',
+  `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
   `id` int(10) unsigned NOT NULL DEFAULT '0',
-  `objIndex` int(11) NOT NULL DEFAULT '0',
-  `mapid` int(10) unsigned NOT NULL DEFAULT '0',
+  `ObjectiveIndex` int(11) NOT NULL DEFAULT '0',
+  `MapID` int(10) unsigned NOT NULL DEFAULT '0',
   `WorldMapAreaId` int(10) unsigned NOT NULL DEFAULT '0',
-  `FloorId` int(10) unsigned NOT NULL DEFAULT '0',
-  `unk3` int(10) unsigned NOT NULL DEFAULT '0',
-  `unk4` int(10) unsigned NOT NULL DEFAULT '0',
+  `Floor` int(10) unsigned NOT NULL DEFAULT '0',
+  `Priority` int(10) unsigned NOT NULL DEFAULT '0',
+  `Flags` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`questId`,`id`)
+  PRIMARY KEY (`QuestID`,`id`),
+  KEY `idx` (`QuestID`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2941,14 +2943,14 @@ DROP TABLE IF EXISTS `quest_poi_points`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `quest_poi_points` (
-  `questId` int(10) unsigned NOT NULL DEFAULT '0',
-  `id` int(10) unsigned NOT NULL DEFAULT '0',
-  `idx` int(10) unsigned NOT NULL DEFAULT '0',
+  `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
+  `Idx1` int(10) unsigned NOT NULL DEFAULT '0',
+  `Idx2` int(10) unsigned NOT NULL DEFAULT '0',
   `x` int(11) NOT NULL DEFAULT '0',
   `y` int(11) NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`questId`,`id`,`idx`),
-  KEY `questId_id` (`questId`,`id`)
+  PRIMARY KEY (`QuestID`,`Idx1`,`Idx2`),
+  KEY `questId_id` (`QuestID`,`Idx1`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
