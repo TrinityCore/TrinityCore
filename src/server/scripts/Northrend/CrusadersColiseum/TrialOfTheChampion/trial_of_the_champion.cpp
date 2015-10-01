@@ -639,7 +639,7 @@ public:
                     // Starting Grand Champion event (with roleplaying)
                     if (startRp && instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
                     {
-                        me->AI()->Talk(SAY_INTRO_1);
+                        Talk(SAY_INTRO_1);
                         NextStep(7000, 0, false, EVENT_INTRODUCE);
                     }
 
@@ -685,7 +685,7 @@ public:
             uint32 teamIndex = instance->GetData(DATA_PLAYERS_TEAM) == HORDE ? 1 : 0;
 
             // Introduces champion
-            me->AI()->Talk(info->AnnounceText[teamIndex]);
+            Talk(info->AnnounceText[teamIndex]);
             // Spectators cheer for the champion
             if (Creature* spectator = me->FindNearestCreature(info->SpecatatorEntry[teamIndex], 200.0f))
             {
@@ -809,7 +809,7 @@ public:
                                 // player has not been yet introduced
                                 uint32 x = PlayerEventList.size();
                                 if (IntroducePlrTxt[x])
-                                    me->AI()->Talk(IntroducePlrTxt[x], plr);
+                                    Talk(IntroducePlrTxt[x], plr);
                                 else
                                     continue; // no text found, too many players?
 
@@ -1147,7 +1147,7 @@ public:
                             // We start attacking Black Knight without combat movement
                             // so we keep facing him all the time
                             if (knightVehicle->GetVehicleKit() && knightVehicle->GetVehicleKit()->GetPassenger(SEAT_ID_0))
-                                me->AI()->AttackStart(knightVehicle->GetVehicleKit()->GetPassenger(SEAT_ID_0));
+                                AttackStart(knightVehicle->GetVehicleKit()->GetPassenger(SEAT_ID_0));
                         }
                         NextStep(0, 0, false);
                         break;
@@ -1257,8 +1257,8 @@ public:
                         break;
                 }
             }
-            if (!UpdateVictim())
-                return;
+
+            UpdateVictim();
         }
     };
 

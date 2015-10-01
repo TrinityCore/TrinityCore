@@ -3074,12 +3074,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Should hit both caster and target
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 break;
-            case 66905: // Eadric the Pure - Hammer of the Righteous (casted by player)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
-                break;
-            case 66798: // The Black Knight - Death's Respite (casted on announcer)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
-                break;
             case 66797: // The Black Knight - Death's Push (casted on announcer)
                 // The duration is correct otherwise but announcer dies currently in mid-air
                 // this happens because blizzard has 100-200ms delay before applying an aura
@@ -3094,13 +3088,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); // 10 seconds instead of 15 seconds
                 break;
             case 67802: // The Black Knight - Desecration Arm
-                // Wrong DBC data, should pick random destination from 5 yards, not from 0 yards
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5 yards
-                break;
-            case 67751: // The Black Knight - Ghoul Explode
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
-                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
-                spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
+                // in 3.3.5 there is only one radius in dbc which is 0 yards in this case
+                // use max radius from 4.3.4
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
                 break;
             // ENDOF TRIAL OF THE CHAMPION SPELLS
             case 47476: // Deathknight - Strangulate

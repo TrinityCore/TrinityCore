@@ -25,6 +25,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "trial_of_the_champion.h"
 
 enum Yells
@@ -161,11 +163,12 @@ public:
             if (me->HasAura(SPELL_GHOUL_EXPLODE))
                 return;
             DoCast(me, SPELL_GHOUL_EXPLODE, true);
+            // wtf?
             if (me->GetEntry() == NPC_RISEN_ARELAS || me->GetEntry() == NPC_RISEN_JAEREN)
                 Talk(urand(0, 2));
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if (HealthBelowPct(31) && !doExplode)
             {
@@ -176,7 +179,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_CLAW, 3000);
             events.ScheduleEvent(EVENT_LEAP, 2000);
@@ -188,7 +191,7 @@ public:
             me->DespawnOrUnsummon(1000);
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             if (who == me)
                 return;
@@ -304,9 +307,9 @@ public:
                     if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                     {
                         if (announcer->GetEntry() == NPC_JAEREN)
-                            announcer->CastSpell(me->GetVictim(), SPELL_RAISE_JAEREN, false, NULL, NULL, me->GetGUID());
+                            announcer->CastSpell(me->GetVictim(), SPELL_RAISE_JAEREN, false, nullptr, nullptr, me->GetGUID());
                         else
-                            announcer->CastSpell(me->GetVictim(), SPELL_RAISE_ARELAS, false, NULL, NULL, me->GetGUID());
+                            announcer->CastSpell(me->GetVictim(), SPELL_RAISE_ARELAS, false, nullptr, nullptr, me->GetGUID());
                     }
                 }
                 else
@@ -329,7 +332,7 @@ public:
                 achievementCredit = false;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_BLACK_KNIGHT_RES)
             {
@@ -354,7 +357,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -368,7 +371,7 @@ public:
 
         void JustSummoned(Creature* summon) override
         {
-            if (summon->ToCreature() && summon->ToCreature()->GetEntry() == NPC_DESECRATION_STALKER)
+            if (summon->GetEntry() == NPC_DESECRATION_STALKER)
             {
                 summon->CastSpell(summon, SPELL_DESECRATION_DND, true);
                 summon->CastSpell(summon, SPELL_DESECRATION_ARM, true);
@@ -458,35 +461,9 @@ public:
                         events.ScheduleEvent(EVENT_DESECRATION, urand(15000, 16000));
                         break;
                     case EVENT_GHOUL_EXPLODE:
-                    {
-                        // We get the closest ghoul to us who is alive and is not already exploding
-                        float dist = 0.0f;
-                        Creature* ghoul = NULL;
-                        for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
-                        {
-                            if (Creature* tmpGhoul = ObjectAccessor::GetCreature(*me, *itr))
-                            {
-                                if (!tmpGhoul->IsAlive() || tmpGhoul->HasAura(SPELL_GHOUL_EXPLODE))
-                                    continue;
-
-                                if (dist == 0)
-                                {
-                                    dist = me->GetDistance(tmpGhoul);
-                                    ghoul = tmpGhoul;
-                                }
-
-                                if (me->GetDistance(tmpGhoul) < dist)
-                                {
-                                    dist = me->GetDistance(tmpGhoul);
-                                    ghoul = tmpGhoul;
-                                }
-                            }
-                        }
-                        if (ghoul)
-                            DoCast(ghoul, SPELL_GHOUL_EXPLODE);
+                        DoCastAOE(SPELL_GHOUL_EXPLODE);
                         events.ScheduleEvent(EVENT_GHOUL_EXPLODE, urand(15000, 16000));
                         break;
-                    }
                     case EVENT_DEATH_BITE:
                         DoCastAOE(SPELL_DEATH_BITE);
                         events.ScheduleEvent(EVENT_DEATH_BITE, 3000);
@@ -622,16 +599,9 @@ class spell_black_knight_deaths_push : public SpellScriptLoader
 
             void HandleScript(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget() || !GetTarget()->ToCreature())
-                    return;
-
-                if (GetTarget()->ToCreature()->GetEntry() != NPC_ARELAS && GetTarget()->ToCreature()->GetEntry() != NPC_JAEREN)
-                    return;
-
                 // The spell applies a dummy aura with short duration
                 // when the dummy aura is removed, announcer 'dies'
-                if (GetTarget()->HasAura(SPELL_DEATH_RESPITE_DND))
-                    GetTarget()->RemoveAura(SPELL_DEATH_RESPITE_DND);
+                GetTarget()->RemoveAura(SPELL_DEATH_RESPITE_DND);
                 GetTarget()->CastSpell(GetTarget(), SPELL_FEIGN_DEATH, true);
                 GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
@@ -657,7 +627,7 @@ class spell_black_knight_obliterate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_black_knight_obliterate_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_PLAGUE) ||
                     !sSpellMgr->GetSpellInfo(SPELL_FROST_FEVER) ||
@@ -712,11 +682,10 @@ class spell_black_knight_army_of_the_dead : public SpellScriptLoader
 
             void RemoveFlag(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                // that is wrong, movement disabled by spell (channel)
                 // On aura remove we must remove disable movement flag
-                if (!GetCaster())
-                    return;
-                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
-                    GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                if (Unit* caster = GetCaster())
+                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
             void Register() override
@@ -740,7 +709,7 @@ class spell_black_knight_ghoul_explode : public SpellScriptLoader
         {
             PrepareAuraScript(spell_black_knight_ghoul_explode_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_EXPLODE))
                     return false;
@@ -750,8 +719,6 @@ class spell_black_knight_ghoul_explode : public SpellScriptLoader
             void CastExplode(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // On Ghoul Explode aura apply, start casting Explode
-                if (!GetTarget())
-                    return;
                 GetTarget()->CastSpell(GetTarget(), SPELL_EXPLODE);
             }
 
@@ -773,9 +740,9 @@ class achievement_ive_had_worse : public AchievementCriteriaScript
     public:
         achievement_ive_had_worse() : AchievementCriteriaScript("achievement_ive_had_worse") { }
 
-        bool OnCheck(Player* plr, Unit* target) override
+        bool OnCheck(Player* player, Unit* target) override
         {
-            if (!plr->GetMap()->IsHeroic())
+            if (!player->GetMap()->IsHeroic())
                 return false;
             if (target->GetEntry() != NPC_BLACK_KNIGHT)
                 return false;

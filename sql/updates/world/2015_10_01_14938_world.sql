@@ -445,3 +445,12 @@ UPDATE `creature_template` SET `mingold`=14691,`maxgold`=21952 WHERE `entry`=@KN
 -- Achievement criteria script for achievement id 3804
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=11789;
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES (11789,11,'achievement_ive_had_worse');
+
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (66905, 66798, 67751);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 7, 66905, 0, 0, 31, 0, 3, 35119, 0, 0, 0, 0, '', 'Hammer of the Righteous (Eadric the Pure)'),
+(13, 1, 66798, 0, 0, 31, 0, 3, 35004, 0, 0, 0, 0, '', 'Death''s Respite (The Black Knight)'),
+(13, 1, 66798, 0, 1, 31, 0, 3, 35005, 0, 0, 0, 0, '', 'Death''s Respite (The Black Knight)'),
+(13, 7, 67751, 0, 0, 31, 0, 3, 35590, 0, 0, 0, 0, '', 'Ghoul Explode (The Black Knight)'),
+(13, 7, 67751, 0, 0,  1, 0, 67751, 0, 0, 1, 0, 0, '', 'Ghoul Explode (The Black Knight)');
