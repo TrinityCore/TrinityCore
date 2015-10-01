@@ -1310,7 +1310,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
                 bool assigned = false;
                 for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    SpellEffectInfo const* eff = spellInfo->GetEffect(DIFFICULTY_NONE, firstEffIndex);
+                    SpellEffectInfo const* eff = spellInfo->GetEffect(DIFFICULTY_NONE, i);
                     if (!eff)
                         continue;
 
