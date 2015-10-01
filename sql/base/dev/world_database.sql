@@ -144,7 +144,7 @@ DROP TABLE IF EXISTS `areatrigger_teleport`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `areatrigger_teleport` (
-  `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
   `target_map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `target_position_x` float NOT NULL DEFAULT '0',
@@ -165,7 +165,7 @@ DROP TABLE IF EXISTS `battleground_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `battleground_template` (
-  `id` mediumint(8) unsigned NOT NULL,
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `MinPlayersPerTeam` smallint(5) unsigned NOT NULL DEFAULT '0',
   `MaxPlayersPerTeam` smallint(5) unsigned NOT NULL DEFAULT '0',
   `MinLvl` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -357,13 +357,13 @@ DROP TABLE IF EXISTS `creature_equip_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_equip_template` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `id` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `itemEntry1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `itemEntry2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `itemEntry3` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `CreatureID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ID` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `ItemID1` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemID2` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemID3` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`,`id`)
+  PRIMARY KEY (`CreatureID`,`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -416,12 +416,12 @@ DROP TABLE IF EXISTS `creature_model_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_model_info` (
-  `modelid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `bounding_radius` float NOT NULL DEFAULT '0',
-  `combat_reach` float NOT NULL DEFAULT '0',
-  `gender` tinyint(3) unsigned NOT NULL DEFAULT '2',
-  `modelid_other_gender` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`modelid`)
+  `DisplayID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `BoundingRadius` float NOT NULL DEFAULT '0',
+  `CombatReach` float NOT NULL DEFAULT '0',
+  `Gender` tinyint(3) unsigned NOT NULL DEFAULT '2',
+  `DisplayID_Other_Gender` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`DisplayID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Creature System (Model related info)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -459,6 +459,21 @@ CREATE TABLE `creature_questender` (
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_questitem`
+--
+
+DROP TABLE IF EXISTS `creature_questitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_questitem` (
+  `CreatureEntry` int(10) unsigned NOT NULL DEFAULT '0',
+  `Idx` int(10) unsigned NOT NULL DEFAULT '0',
+  `ItemId` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`CreatureEntry`,`Idx`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1113,6 +1128,21 @@ CREATE TABLE `gameobject_questender` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gameobject_questitem`
+--
+
+DROP TABLE IF EXISTS `gameobject_questitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_questitem` (
+  `GameObjectEntry` int(10) unsigned NOT NULL DEFAULT '0',
+  `Idx` int(10) unsigned NOT NULL DEFAULT '0',
+  `ItemId` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`GameObjectEntry`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1848,6 +1878,27 @@ CREATE TABLE `locales_item` (
   `description_loc6` varchar(255) DEFAULT NULL,
   `description_loc7` varchar(255) DEFAULT NULL,
   `description_loc8` varchar(255) DEFAULT NULL,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+-- Table structure for table `locales_item_set_names`
+--
+
+DROP TABLE IF EXISTS `locales_item_set_names`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `locales_item_set_names` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `name_loc1` varchar(100) NOT NULL DEFAULT '',
+  `name_loc2` varchar(100) NOT NULL DEFAULT '',
+  `name_loc3` varchar(100) NOT NULL DEFAULT '',
+  `name_loc4` varchar(100) NOT NULL DEFAULT '',
+  `name_loc5` varchar(100) NOT NULL DEFAULT '',
+  `name_loc6` varchar(100) NOT NULL DEFAULT '',
+  `name_loc7` varchar(100) NOT NULL DEFAULT '',
+  `name_loc8` varchar(100) NOT NULL DEFAULT '',
   `VerifiedBuild` smallint(5) DEFAULT '0',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
