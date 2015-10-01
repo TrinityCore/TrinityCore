@@ -21,19 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class CharacterDatabaseConnection : public MySQLConnection
-{
-    public:
-        //- Constructors for sync and async connections
-        CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-        CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
-
-        //- Loads database type specific prepared statements
-        void DoPrepareStatements() override;
-};
-
-typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
-
 enum CharacterDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -281,8 +268,8 @@ enum CharacterDatabaseStatements
     CHAR_SEL_CORPSES,
     CHAR_INS_CORPSE,
     CHAR_DEL_CORPSE,
-    CHAR_DEL_PLAYER_CORPSES,
-    CHAR_DEL_OLD_CORPSES,
+    CHAR_DEL_CORPSES_FROM_MAP,
+    CHAR_SEL_CORPSE_LOCATION,
 
     CHAR_SEL_CREATURE_RESPAWNS,
     CHAR_REP_CREATURE_RESPAWN,
@@ -546,5 +533,20 @@ enum CharacterDatabaseStatements
 
     MAX_CHARACTERDATABASE_STATEMENTS
 };
+
+class CharacterDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef CharacterDatabaseStatements Statements;
+
+    //- Constructors for sync and async connections
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
+    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 
 #endif

@@ -174,11 +174,11 @@ class InstanceScript : public ZoneScript
 
         inline Creature* GetCreature(uint32 type)
         {
-            return ObjectAccessor::GetObjectInMap<Creature>(GetObjectGuid(type), instance, nullptr);
+            return instance->GetCreature(GetObjectGuid(type));
         }
         inline GameObject* GetGameObject(uint32 type)
         {
-            return ObjectAccessor::GetObjectInMap<GameObject>(GetObjectGuid(type), instance, nullptr);
+            return instance->GetGameObject(GetObjectGuid(type));
         }
 
         // Called when a player successfully enters the instance.

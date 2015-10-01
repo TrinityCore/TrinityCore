@@ -150,7 +150,7 @@ public:
         Map* map = player->GetMap();
 
         GameObject* object = new GameObject;
-        uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+        uint32 guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
 
         if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
         {
@@ -166,6 +166,8 @@ public:
 
         // fill the gameobject data and save to the db
         object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMaskForSpawn());
+        guidLow = object->GetSpawnId();
+
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.
         // this is required to avoid weird behavior and memory leaks
         delete object;
@@ -324,7 +326,7 @@ public:
             return false;
         }
 
-        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, id, guidLow));
+        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, id, guidLow));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
 
@@ -373,7 +375,7 @@ public:
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
             if (!owner || !ownerGuid.IsPlayer())
             {
-                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), object->GetGUIDLow());
+                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), object->GetGUID().GetCounter());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -385,7 +387,7 @@ public:
         object->Delete();
         object->DeleteFromDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetGUIDLow());
+        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetGUID().GetCounter());
 
         return true;
     }
@@ -426,16 +428,26 @@ public:
             o = player->GetOrientation();
         }
 
+        Map* map = object->GetMap();
+
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
         object->UpdateRotationFields();
-        object->DestroyForNearbyPlayers();
-        object->UpdateObjectVisibility();
-
         object->SaveToDB();
-        object->Refresh();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUIDLow(), object->GetGOInfo()->name.c_str(), object->GetGUIDLow(), o);
+        // Generate a completely new spawn with new guid
+        // 3.3.5a client caches recently deleted objects and brings them back to life
+        // when CreateObject block for this guid is received again
+        // however it entirely skips parsing that block and only uses already known location
+        object->Delete();
 
+        object = new GameObject();
+        if (!object->LoadGameObjectFromDB(guidLow, map))
+        {
+            delete object;
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId());
         return true;
     }
 
@@ -468,21 +480,20 @@ public:
         char* toY = strtok(NULL, " ");
         char* toZ = strtok(NULL, " ");
 
+        float x, y, z;
         if (!toX)
         {
             Player* player = handler->GetSession()->GetPlayer();
-            object->Relocate(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), object->GetOrientation());
-            object->DestroyForNearbyPlayers();
-            object->UpdateObjectVisibility();
+            player->GetPosition(x, y, z);
         }
         else
         {
             if (!toY || !toZ)
                 return false;
 
-            float x = (float)atof(toX);
-            float y = (float)atof(toY);
-            float z = (float)atof(toZ);
+            x = (float)atof(toX);
+            y = (float)atof(toY);
+            z = (float)atof(toZ);
 
             if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
             {
@@ -490,17 +501,27 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            object->Relocate(x, y, z, object->GetOrientation());
-            object->DestroyForNearbyPlayers();
-            object->UpdateObjectVisibility();
         }
 
+        Map* map = object->GetMap();
+
+        object->Relocate(x, y, z, object->GetOrientation());
         object->SaveToDB();
-        object->Refresh();
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetGUIDLow(), object->GetGOInfo()->name.c_str(), object->GetGUIDLow());
+        // Generate a completely new spawn with new guid
+        // 3.3.5a client caches recently deleted objects and brings them back to life
+        // when CreateObject block for this guid is received again
+        // however it entirely skips parsing that block and only uses already known location
+        object->Delete();
 
+        object = new GameObject();
+        if (!object->LoadGameObjectFromDB(guidLow, map))
+        {
+            delete object;
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId());
         return true;
     }
 
