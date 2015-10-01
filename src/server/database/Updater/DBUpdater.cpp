@@ -35,6 +35,56 @@ using namespace boost::process;
 using namespace boost::process::initializers;
 using namespace boost::iostreams;
 
+std::string DBUpdaterUtil::GetMySqlCli()
+{
+    if (!corrected_path().empty())
+        return corrected_path();
+    else
+    {
+        std::string const entry = sConfigMgr->GetStringDefault("Updates.MySqlCLIPath", "");
+        if (!entry.empty())
+            return entry;
+        else
+            return GitRevision::GetMySQLExecutable();
+    }
+}
+
+bool DBUpdaterUtil::CheckExecutable()
+{
+    boost::filesystem::path exe(GetMySqlCli());
+    if (!exists(exe))
+    {
+        exe.clear();
+
+        try
+        {
+            exe = search_path("mysql");
+        }
+        catch (std::runtime_error&)
+        {
+        }
+
+        if (!exe.empty() && exists(exe))
+        {
+            // Correct the path to the cli
+            corrected_path() = absolute(exe).generic_string();
+            return true;
+        }
+
+        TC_LOG_FATAL("sql.updates", "Didn't find executeable mysql binary at \'%s\' or in path, correct the path in the *.conf (\"Updates.MySqlCLIPath\").",
+            absolute(exe).generic_string().c_str());
+
+        return false;
+    }
+    return true;
+}
+
+std::string& DBUpdaterUtil::corrected_path()
+{
+    static std::string path;
+    return path;
+}
+
 template<class T>
 std::string DBUpdater<T>::GetSourceDirectory()
 {
@@ -43,16 +93,6 @@ std::string DBUpdater<T>::GetSourceDirectory()
         return entry;
     else
         return GitRevision::GetSourceDirectory();
-}
-
-template<class T>
-std::string DBUpdater<T>::GetMySqlCli()
-{
-    std::string const entry = sConfigMgr->GetStringDefault("Updates.MySqlCLIPath", "");
-    if (!entry.empty())
-        return entry;
-    else
-        return GitRevision::GetMySQLExecutable();
 }
 
 // Auth Database
@@ -147,36 +187,6 @@ BaseLocation DBUpdater<T>::GetBaseLocationType()
 }
 
 template<class T>
-bool DBUpdater<T>::CheckExecutable()
-{
-    DBUpdater<T>::Path const exe(DBUpdater<T>::GetMySqlCli());
-    if (!exists(exe))
-    {
-        // Check for mysql in path
-        std::vector<std::string> args = {"--version"};
-        uint32 ret;
-        try
-        {
-            child c = execute(run_exe("mysql"), set_args(args), throw_on_error(), close_stdout());
-            ret = wait_for_exit(c);
-        }
-        catch (boost::system::system_error&)
-        {
-            ret = EXIT_FAILURE;
-        }
-
-        if (ret == EXIT_FAILURE)
-        {
-            TC_LOG_FATAL("sql.updates", "Didn't find executeable mysql binary at \'%s\', correct the path in the *.conf (\"Updates.MySqlCLIPath\").",
-                absolute(exe).generic_string().c_str());
-
-            return false;
-        }
-    }
-    return true;
-}
-
-template<class T>
 bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
 {
     TC_LOG_INFO("sql.updates", "Database \"%s\" does not exist, do you want to create it? [yes (default) / no]: ",
@@ -224,7 +234,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
 template<class T>
 bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
 {
-    if (!DBUpdater<T>::CheckExecutable())
+    if (!DBUpdaterUtil::CheckExecutable())
         return false;
 
     TC_LOG_INFO("sql.updates", "Updating %s database...", DBUpdater<T>::GetTableName().c_str());
@@ -275,7 +285,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             return true;
     }
 
-    if (!DBUpdater<T>::CheckExecutable())
+    if (!DBUpdaterUtil::CheckExecutable())
         return false;
 
     TC_LOG_INFO("sql.updates", "Database %s is empty, auto populating it...", DBUpdater<T>::GetTableName().c_str());
@@ -396,8 +406,8 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         boost::process::pipe outPipe = create_pipe();
         boost::process::pipe errPipe = create_pipe();
 
-        child c = execute(run_exe(DBUpdater<T>::GetMySqlCli().empty() ? "mysql" :
-                boost::filesystem::absolute(DBUpdater<T>::GetMySqlCli()).generic_string()),
+        child c = execute(run_exe(
+                    boost::filesystem::absolute(DBUpdaterUtil::GetMySqlCli()).generic_string()),
                     set_args(args), bind_stdin(source), throw_on_error(),
                     bind_stdout(file_descriptor_sink(outPipe.sink, close_handle)),
                     bind_stderr(file_descriptor_sink(errPipe.sink, close_handle)));
