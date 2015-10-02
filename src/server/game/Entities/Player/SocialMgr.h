@@ -47,6 +47,7 @@ enum SocialFlag
 
 struct FriendInfo
 {
+    ObjectGuid WowAccountGuid;
     FriendStatus Status;
     uint8 Flags;
     uint32 Area;
