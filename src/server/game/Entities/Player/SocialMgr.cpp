@@ -258,9 +258,10 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid const
             Field* fields = result->Fetch();
 
             ObjectGuid friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+            ObjectGuid friendAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(uint64(fields[1].GetUInt32()));
 
-            uint8 flag = fields[1].GetUInt8();
-            social->_playerSocialMap[friendGuid] = FriendInfo(flag, fields[2].GetString());
+            uint8 flag = fields[2].GetUInt8();
+            social->_playerSocialMap[friendGuid] = FriendInfo(flag, fields[3].GetString());
         }
         while (result->NextRow());
     }
