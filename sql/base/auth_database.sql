@@ -168,10 +168,37 @@ LOCK TABLES `autobroadcast` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battle_pet_slots`
+--
+
+DROP TABLE IF EXISTS `battle_pet_slots`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `battle_pet_slots` (
+  `id` tinyint(3) NOT NULL,
+  `battlenetAccountId` int(10) NOT NULL,
+  `battlePetGuid` bigint(20) NOT NULL,
+  `locked` tinyint(3) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`,`battlenetAccountId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battle_pet_slots`
+--
+
+LOCK TABLES `battle_pet_slots` WRITE;
+/*!40000 ALTER TABLE `battle_pet_slots` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battle_pet_slots` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battle_pets`
 --
 
 DROP TABLE IF EXISTS `battle_pets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `battle_pets` (
   `guid` bigint(20) NOT NULL,
   `battlenetAccountId` int(10) NOT NULL,
@@ -185,6 +212,7 @@ CREATE TABLE `battle_pets` (
   `name` varchar(12) NOT NULL,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `battle_pets`
@@ -193,28 +221,6 @@ CREATE TABLE `battle_pets` (
 LOCK TABLES `battle_pets` WRITE;
 /*!40000 ALTER TABLE `battle_pets` DISABLE KEYS */;
 /*!40000 ALTER TABLE `battle_pets` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `battle_pet_slots`
---
-
-DROP TABLE IF EXISTS `battle_pet_slots`;
-CREATE TABLE `battle_pet_slots` (
-  `id` tinyint(3) NOT NULL,
-  `battlenetAccountId` int(10) NOT NULL,
-  `battlePetGuid` bigint(20) NOT NULL,
-  `locked` tinyint(3) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`,`battlenetAccountId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `battle_pet_slots`
---
-
-LOCK TABLES `battle_pet_slots` WRITE;
-/*!40000 ALTER TABLE `battle_pet_slots` DISABLE KEYS */;
-/*!40000 ALTER TABLE `battle_pet_slots` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
