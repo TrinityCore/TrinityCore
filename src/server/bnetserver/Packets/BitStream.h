@@ -123,7 +123,7 @@ namespace Battlenet
             uint32 fcc = Read<uint32>(32);
             EndianConvertReverse(fcc);
             size_t len = 4;
-            while (!(fcc & 0xFF))
+            while (!(fcc & 0xFF) && len)
             {
                 fcc >>= 8;
                 --len;

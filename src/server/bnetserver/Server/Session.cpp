@@ -978,7 +978,7 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
     {
         logonResponse->AccountId = _accountInfo->Id;
         logonResponse->GameAccountName = _gameAccountInfo->Name;
-        logonResponse->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS_LOCK;
+        logonResponse->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS;
         logonResponse->FailedLogins = _accountInfo->FailedLogins;
 
         SQLTransaction trans = LoginDatabase.BeginTransaction();
