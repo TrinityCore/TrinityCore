@@ -100,19 +100,19 @@ namespace Battlenet
         public:
             enum ClosingReason
             {
-                PACKET_TOO_LARGE,
-                PACKET_CORRUPT,
-                PACKET_INVALID,
-                PACKET_INCORRECT,
-                HEADER_CORRUPT,
-                HEADER_IGNORED,
-                HEADER_INCORRECT,
-                PACKET_REJECTED,
-                CHANNEL_UNHANDLED,
-                COMMAND_UNHANDLED,
-                COMMAND_BAD_PERMISSIONS,
-                DIRECT_CALL,
-                TIMEOUT,
+                PACKET_TOO_LARGE = 1,
+                PACKET_CORRUPT = 2,
+                PACKET_INVALID = 3,
+                PACKET_INCORRECT = 4,
+                HEADER_CORRUPT = 5,
+                HEADER_IGNORED = 6,
+                HEADER_INCORRECT = 7,
+                PACKET_REJECTED = 8,
+                CHANNEL_UNHANDLED = 9,
+                COMMAND_UNHANDLED = 10,
+                COMMAND_BAD_PERMISSIONS = 11,
+                DIRECT_CALL = 12,
+                TIMEOUT = 13,
             };
 
             struct PacketInfo

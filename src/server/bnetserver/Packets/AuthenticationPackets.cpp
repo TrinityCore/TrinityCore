@@ -35,7 +35,7 @@ void Battlenet::Authentication::ResumeRequest::Read()
     }
 
     Login = _stream.ReadString(9, 3);
-    Region = _stream.Read<uint8>(8);
+    GameAccountRegion = _stream.Read<uint8>(8);
     GameAccountName = _stream.ReadString(5, 1);
 }
 
@@ -47,7 +47,7 @@ std::string Battlenet::Authentication::ResumeRequest::ToString() const
         stream << std::endl << "Battlenet::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
 
     stream << std::endl << "Login: " << Login;
-    stream << std::endl << "Region: " << uint32(Region);
+    stream << std::endl << "GameAccountRegion: " << uint32(GameAccountRegion);
     stream << std::endl << "GameAccountName: " << GameAccountName;
 
     return stream.str();

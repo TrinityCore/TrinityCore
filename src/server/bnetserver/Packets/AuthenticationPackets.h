@@ -60,7 +60,7 @@ namespace Battlenet
             std::string Locale;
             std::vector<Component> Components;
             std::string Login;
-            uint8 Region = 0;
+            uint8 GameAccountRegion = 0;
             std::string GameAccountName;
         };
 
