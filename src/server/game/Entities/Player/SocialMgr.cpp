@@ -261,7 +261,7 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid const
             ObjectGuid friendAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(uint64(fields[1].GetUInt32()));
 
             uint8 flag = fields[2].GetUInt8();
-            social->_playerSocialMap[friendGuid] = FriendInfo(flag, fields[3].GetString());
+            social->_playerSocialMap[friendGuid] = FriendInfo(friendAccountGuid, flag, fields[3].GetString());
         }
         while (result->NextRow());
     }
