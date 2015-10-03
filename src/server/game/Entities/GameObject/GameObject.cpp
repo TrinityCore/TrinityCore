@@ -209,7 +209,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag = (m_updateFlag | UPDATEFLAG_TRANSPORT) & ~UPDATEFLAG_POSITION;
 
-    static std::atomic<uint32> GOMoveID = 0;
+    static std::atomic<uint32> GOMoveID(0);
     if (!guidlow)
         Object::_Create(0, ++GOMoveID, HighGuid::GOMoveObject);
     else
