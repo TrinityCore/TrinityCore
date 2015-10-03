@@ -21,7 +21,7 @@
 
 enum Spells
 {
-    SPELL_HATEFUL_STRIKE                        = 41926,
+    SPELL_HATEFUL_STRIKE                        = 28308,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
     SPELL_SLIME_BOLT                            = 32309
@@ -33,7 +33,7 @@ enum Yells
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
     EMOTE_BERSERK                               = 3,
-    EMOTE_ENRAGE                                = 4
+    EMOTE_FRENZY                                = 4
 };
 
 enum Events
@@ -47,6 +47,11 @@ enum Events
 enum Misc
 {
     ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286
+};
+
+enum HatefulThreatAmounts
+{
+    HATEFUL_THREAT_AMT  = 1000,
 };
 
 class boss_patchwerk : public CreatureScript
@@ -92,8 +97,8 @@ public:
             _EnterCombat();
             Enraged = false;
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, 1000);
-            events.ScheduleEvent(EVENT_BERSERK, 360000);
+            events.ScheduleEvent(EVENT_HATEFUL, 1 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE * IN_MILLISECONDS);
 
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
@@ -111,37 +116,68 @@ public:
                 {
                     case EVENT_HATEFUL:
                     {
-                        //Cast Hateful strike on the player with the highest
-                        //amount of HP within melee distance
-                        uint32 MostHP = 0;
-                        Unit* pMostHPTarget = NULL;
+                        // Hateful Strike targets the highest non-MT threat in melee range on 10man
+                        // and the higher HP target out of the two highest non-MT threats in melee range on 25man
+                        float MostThreat = 0.0f;
+                        Unit* secondThreatTarget = NULL;
+                        Unit* thirdThreatTarget = NULL;
+
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                        {
+                        { // find second highest
                             Unit* target = (*i)->getTarget();
-                            if (target->IsAlive() && target != me->GetVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
+                            if (target->IsAlive() && target != me->GetVictim() && (*i)->getThreat() >= MostThreat && me->IsWithinMeleeRange(target))
                             {
-                                MostHP = target->GetHealth();
-                                pMostHPTarget = target;
+                                MostThreat = (*i)->getThreat();
+                                secondThreatTarget = target;
                             }
                         }
 
-                        if (!pMostHPTarget)
-                            pMostHPTarget = me->GetVictim();
+                        if (secondThreatTarget && Is25ManRaid())
+                        { // find third highest
+                            MostThreat = 0.0f;
+                            i = me->getThreatManager().getThreatList().begin();
+                            for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                            {
+                                Unit* target = (*i)->getTarget();
+                                if (target->IsAlive() && target != me->GetVictim() && target != secondThreatTarget && (*i)->getThreat() >= MostThreat && me->IsWithinMeleeRange(target))
+                                {
+                                    MostThreat = (*i)->getThreat();
+                                    thirdThreatTarget = target;
+                                }
+                            }
+                        }
 
-                        DoCast(pMostHPTarget, SPELL_HATEFUL_STRIKE, true);
+                        Unit* pHatefulTarget = NULL;
+                        if (!thirdThreatTarget)
+                            pHatefulTarget = secondThreatTarget;
+                        else if (secondThreatTarget)
+                            pHatefulTarget = (secondThreatTarget->GetHealth() < thirdThreatTarget->GetHealth()) ? thirdThreatTarget : secondThreatTarget;
 
-                        events.ScheduleEvent(EVENT_HATEFUL, 1000);
+                        if (!pHatefulTarget)
+                            pHatefulTarget = me->GetVictim();
+
+                        DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
+
+                        // add threat to highest threat targets
+                        if (me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim()))
+                            me->getThreatManager().addThreat(me->GetVictim(), HATEFUL_THREAT_AMT);
+                        if (secondThreatTarget)
+                            me->getThreatManager().addThreat(secondThreatTarget, HATEFUL_THREAT_AMT);
+                        if (thirdThreatTarget)
+                            me->getThreatManager().addThreat(thirdThreatTarget, HATEFUL_THREAT_AMT); // this will only ever be used in 25m
+
+                        events.ScheduleEvent(EVENT_HATEFUL, 1 * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
                         Talk(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, 2000);
+                        events.ScheduleEvent(EVENT_SLIME, 2 * IN_MILLISECONDS);
                         break;
                     case EVENT_SLIME:
                         DoCastVictim(SPELL_SLIME_BOLT, true);
-                        events.ScheduleEvent(EVENT_SLIME, 2000);
+                        events.ScheduleEvent(EVENT_SLIME, 2 * IN_MILLISECONDS);
                         break;
                 }
             }
@@ -149,7 +185,7 @@ public:
             if (!Enraged && HealthBelowPct(5))
             {
                 DoCast(me, SPELL_FRENZY, true);
-                Talk(EMOTE_ENRAGE);
+                Talk(EMOTE_FRENZY);
                 Enraged = true;
             }
 

@@ -761,6 +761,8 @@ class World
 
         void ReloadRBAC();
 
+        void RemoveOldCorpses();
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

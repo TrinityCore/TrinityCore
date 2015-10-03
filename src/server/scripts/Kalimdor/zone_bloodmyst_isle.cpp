@@ -272,7 +272,7 @@ public:
 
                 if (killer->GetGUID() == legoso->GetGUID() ||
                     (group && group->IsMember(killer->GetGUID())) ||
-                    killer->GetGUIDLow() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
+                    killer->GetGUID().GetCounter() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
         }
@@ -370,7 +370,7 @@ public:
         {
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {
-                SetData(DATA_EVENT_STARTER_GUID, player->GetGUIDLow());
+                SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
                 Start(true, true, player->GetGUID(), quest);
             }
         }
@@ -541,7 +541,7 @@ public:
                         case PHASE_PLANT_FIRST_DETONATE: // first explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
+                                if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();
@@ -638,7 +638,7 @@ public:
                         case PHASE_PLANT_SECOND_DETONATE: // second explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
+                                if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();

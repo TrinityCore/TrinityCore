@@ -62,7 +62,7 @@ class ObjectWorldLoader
 {
     public:
         explicit ObjectWorldLoader(ObjectGridLoader& gloader)
-            : i_cell(gloader.i_cell), i_map(gloader.i_map), i_corpses (0)
+            : i_cell(gloader.i_cell), i_map(gloader.i_map), i_grid(gloader.i_grid), i_corpses(gloader.i_corpses)
             { }
 
         void Visit(CorpseMapType &m);
@@ -72,8 +72,9 @@ class ObjectWorldLoader
     private:
         Cell i_cell;
         Map* i_map;
+        NGridType& i_grid;
     public:
-        uint32 i_corpses;
+        uint32& i_corpses;
 };
 
 template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/) { }
@@ -129,38 +130,6 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     }
 }
 
-void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapType &m, uint32 &count, Map* map)
-{
-    if (cell_corpses.empty())
-        return;
-
-    for (CellCorpseSet::const_iterator itr = cell_corpses.begin(); itr != cell_corpses.end(); ++itr)
-    {
-        if (itr->second != map->GetInstanceId())
-            continue;
-
-        ObjectGuid player_guid(HIGHGUID_PLAYER, itr->first);
-
-        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
-        if (!obj)
-            continue;
-
-        /// @todo this is a hack
-        // corpse's map should be reset when the map is unloaded
-        // but it may still exist when the grid is unloaded but map is not
-        // in that case map == currMap
-        obj->SetMap(map);
-
-        if (obj->IsInGrid())
-        {
-            obj->AddToWorld();
-            continue;
-        }
-
-        AddObjectHelper(cell, m, count, map, obj);
-    }
-}
-
 void ObjectGridLoader::Visit(GameObjectMapType &m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
@@ -175,22 +144,28 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
-void ObjectWorldLoader::Visit(CorpseMapType &m)
+void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), 0, cellCoord.GetId());
-    LoadHelper(cell_guids.corpses, cellCoord, m, i_corpses, i_map);
+    if (std::unordered_set<Corpse*> const* corpses = i_map->GetCorpsesInCell(cellCoord.GetId()))
+    {
+        for (Corpse* corpse : *corpses)
+        {
+            corpse->AddToWorld();
+            i_grid.GetGridType(i_cell.CellX(), i_cell.CellY()).AddWorldObject(corpse);
+            ++i_corpses;
+        }
+    }
 }
 
 void ObjectGridLoader::LoadN(void)
 {
     i_gameObjects = 0; i_creatures = 0; i_corpses = 0;
     i_cell.data.Part.cell_y = 0;
-    for (unsigned int x=0; x < MAX_NUMBER_OF_CELLS; ++x)
+    for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
     {
         i_cell.data.Part.cell_x = x;
-        for (unsigned int y=0; y < MAX_NUMBER_OF_CELLS; ++y)
+        for (uint32 y = 0; y < MAX_NUMBER_OF_CELLS; ++y)
         {
             i_cell.data.Part.cell_y = y;
 
@@ -205,7 +180,6 @@ void ObjectGridLoader::LoadN(void)
                 ObjectWorldLoader worker(*this);
                 TypeContainerVisitor<ObjectWorldLoader, WorldTypeMapContainer> visitor(worker);
                 i_grid.VisitGrid(x, y, visitor);
-                i_corpses += worker.i_corpses;
             }
         }
     }

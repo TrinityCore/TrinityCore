@@ -61,6 +61,19 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
         return &mNeutralAuctions;
 }
 
+AuctionHouseObject* AuctionHouseMgr::GetAuctionsMapByHouseId(uint8 auctionHouseId)
+{
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+        return &mNeutralAuctions;
+
+    switch(auctionHouseId)
+    {
+        case AUCTIONHOUSE_ALLIANCE : return &mAllianceAuctions;
+        case AUCTIONHOUSE_HORDE : return &mHordeAuctions;
+        default : return &mNeutralAuctions;
+    }
+}
+
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
 {
     uint32 MSV = pItem->GetTemplate()->SellPrice;
@@ -91,7 +104,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         return;
 
     uint32 bidderAccId = 0;
-    ObjectGuid bidderGuid(HIGHGUID_PLAYER, auction->bidder);
+    ObjectGuid bidderGuid(HighGuid::Player, auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidderGuid);
     // data for gm.log
     std::string bidderName;
@@ -114,7 +127,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
     if (logGmTrade)
     {
-        ObjectGuid ownerGuid = ObjectGuid(HIGHGUID_PLAYER, auction->owner);
+        ObjectGuid ownerGuid = ObjectGuid(HighGuid::Player, auction->owner);
         std::string ownerName;
         if (!sObjectMgr->GetPlayerNameByGUID(ownerGuid, ownerName))
             ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
@@ -132,7 +145,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         // owner in `data` will set at mail receive and item extracting
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
         stmt->setUInt32(0, auction->bidder);
-        stmt->setUInt32(1, pItem->GetGUIDLow());
+        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
 
         if (bidder)
@@ -155,7 +168,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
 void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans)
 {
-    ObjectGuid owner_guid(HIGHGUID_PLAYER, auction->owner);
+    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist (online or offline)
@@ -167,7 +180,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTrans
 //call this method to send mail to auction owner, when auction is successful, it does not clear ram
 void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans)
 {
-    ObjectGuid owner_guid(HIGHGUID_PLAYER, auction->owner);
+    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist
@@ -198,7 +211,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
     if (!pItem)
         return;
 
-    ObjectGuid owner_guid(HIGHGUID_PLAYER, auction->owner);
+    ObjectGuid owner_guid(HighGuid::Player, auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist
@@ -221,7 +234,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
 //this function sends mail to old bidder
 void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
 {
-    ObjectGuid oldBidder_guid(HIGHGUID_PLAYER, auction->bidder);
+    ObjectGuid oldBidder_guid(HighGuid::Player, auction->bidder);
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
 
     uint32 oldBidder_accId = 0;
@@ -243,7 +256,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
 //this function sends mail, when auction is cancelled to old bidder
 void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans)
 {
-    ObjectGuid bidder_guid = ObjectGuid(HIGHGUID_PLAYER, auction->bidder);
+    ObjectGuid bidder_guid = ObjectGuid(HighGuid::Player, auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
 
     uint32 bidder_accId = 0;
@@ -342,7 +355,7 @@ void AuctionHouseMgr::LoadAuctions()
             continue;
         }
 
-        GetAuctionsMap(aItem->factionTemplateId)->AddAuction(aItem);
+        GetAuctionsMapByHouseId(aItem->houseId)->AddAuction(aItem);
         ++count;
     } while (result->NextRow());
 
@@ -355,8 +368,8 @@ void AuctionHouseMgr::LoadAuctions()
 void AuctionHouseMgr::AddAItem(Item* it)
 {
     ASSERT(it);
-    ASSERT(mAitems.find(it->GetGUIDLow()) == mAitems.end());
-    mAitems[it->GetGUIDLow()] = it;
+    ASSERT(mAitems.find(it->GetGUID().GetCounter()) == mAitems.end());
+    mAitems[it->GetGUID().GetCounter()] = it;
 }
 
 bool AuctionHouseMgr::RemoveAItem(uint32 id, bool deleteItem)
@@ -385,42 +398,30 @@ void AuctionHouseMgr::Update()
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
-    uint32 houseid = 7; // goblin auction house
+    uint32 houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
         // FIXME: found way for proper auctionhouse selection by another way
         // AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
         // but no easy way convert creature faction to player race faction for specific city
-        switch (factionTemplateId)
-        {
-            case   12: houseid = 1; break; // human
-            case   29: houseid = 6; break; // orc, and generic for horde
-            case   55: houseid = 2; break; // dwarf, and generic for alliance
-            case   68: houseid = 4; break; // undead
-            case   80: houseid = 3; break; // n-elf
-            case  104: houseid = 5; break; // trolls
-            case  120: houseid = 7; break; // booty bay, neutral
-            case  474: houseid = 7; break; // gadgetzan, neutral
-            case  855: houseid = 7; break; // everlook, neutral
-            case 1604: houseid = 6; break; // b-elfs,
-            default:                       // for unknown case
-            {
-                FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
-                if (!u_entry)
-                    houseid = 7; // goblin auction house
-                else if (u_entry->ourMask & FACTION_MASK_ALLIANCE)
-                    houseid = 1; // human auction house
-                else if (u_entry->ourMask & FACTION_MASK_HORDE)
-                    houseid = 6; // orc auction house
-                else
-                    houseid = 7; // goblin auction house
-                break;
-            }
-        }
+        FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(factionTemplateId);
+        if (!u_entry)
+            houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
+        else if (u_entry->ourMask & FACTION_MASK_ALLIANCE)
+            houseid = AUCTIONHOUSE_ALLIANCE; // human auction house
+        else if (u_entry->ourMask & FACTION_MASK_HORDE)
+            houseid = AUCTIONHOUSE_HORDE; // orc auction house
+        else
+            houseid = AUCTIONHOUSE_NEUTRAL; // goblin auction house
     }
 
     return sAuctionHouseStore.LookupEntry(houseid);
+}
+
+AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntryFromHouse(uint8 houseId)
+{
+    return (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION)) ? sAuctionHouseStore.LookupEntry(AUCTIONHOUSE_NEUTRAL) : sAuctionHouseStore.LookupEntry(houseId);
 }
 
 void AuctionHouseObject::AddAuction(AuctionEntry* auction)
@@ -498,7 +499,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->bidder == player->GetGUIDLow())
+        if (Aentry && Aentry->bidder == player->GetGUID().GetCounter())
         {
             if (itr->second->BuildAuctionInfo(data))
                 ++count;
@@ -513,7 +514,7 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->owner == player->GetGUIDLow())
+        if (Aentry && Aentry->owner == player->GetGUID().GetCounter())
         {
             if (Aentry->BuildAuctionInfo(data))
                 ++count;
@@ -687,7 +688,7 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
     stmt->setUInt32(0, Id);
-    stmt->setUInt32(1, auctioneer);
+    stmt->setUInt8(1, houseId);
     stmt->setUInt32(2, itemGUIDLow);
     stmt->setUInt32(3, owner);
     stmt->setUInt32(4, buyout);
@@ -702,7 +703,7 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 bool AuctionEntry::LoadFromDB(Field* fields)
 {
     Id = fields[0].GetUInt32();
-    auctioneer = fields[1].GetUInt32();
+    houseId = fields[1].GetUInt8();
     itemGUIDLow = fields[2].GetUInt32();
     itemEntry = fields[3].GetUInt32();
     itemCount = fields[4].GetUInt32();
@@ -714,25 +715,10 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     startbid = fields[10].GetUInt32();
     deposit = fields[11].GetUInt32();
 
-    CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(auctioneer);
-    if (!auctioneerData)
-    {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : %u)", Id, auctioneer);
-        return false;
-    }
-
-    CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
-    if (!auctioneerInfo)
-    {
-        TC_LOG_ERROR("misc", "Auction %u has not a existing auctioneer (GUID : %u Entry: %u)", Id, auctioneer, auctioneerData->id);
-        return false;
-    }
-
-    factionTemplateId = auctioneerInfo->faction;
-    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
+    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntryFromHouse(houseId);
     if (!auctionHouseEntry)
     {
-        TC_LOG_ERROR("misc", "Auction %u has auctioneer (GUID : %u Entry: %u) with wrong faction %u", Id, auctioneer, auctioneerData->id, factionTemplateId);
+        TC_LOG_ERROR("misc", "Auction %u has invalid house id %u", Id, houseId);
         return false;
     }
 
@@ -756,7 +742,7 @@ std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint3
 {
     std::ostringstream strm;
     strm.width(16);
-    strm << std::right << std::hex << ObjectGuid(HIGHGUID_PLAYER, lowGuid).GetRawValue();   // HIGHGUID_PLAYER always present, even for empty guids
+    strm << std::right << std::hex << ObjectGuid(HighGuid::Player, lowGuid).GetRawValue();   // HighGuid::Player always present, even for empty guids
     strm << std::dec << ':' << bid << ':' << buyout;
     strm << ':' << deposit << ':' << cut;
     return strm.str();

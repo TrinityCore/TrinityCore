@@ -190,7 +190,7 @@ DROP TABLE IF EXISTS `auctionhouse`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auctionhouse` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
-  `auctioneerguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `houseid` tinyint(3) unsigned NOT NULL DEFAULT '7',
   `itemguid` int(10) unsigned NOT NULL DEFAULT '0',
   `itemowner` int(10) unsigned NOT NULL DEFAULT '0',
   `buyoutprice` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1332,7 +1332,6 @@ DROP TABLE IF EXISTS `corpse`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `corpse` (
-  `corpseGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
@@ -1350,10 +1349,9 @@ CREATE TABLE `corpse` (
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `corpseType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
-  PRIMARY KEY (`corpseGuid`),
+  PRIMARY KEY (`guid`),
   KEY `idx_type` (`corpseType`),
   KEY `idx_instance` (`instanceId`),
-  KEY `idx_player` (`guid`),
   KEY `idx_time` (`time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Death System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2511,7 +2509,7 @@ CREATE TABLE `updates` (
 
 LOCK TABLES `updates` WRITE;
 /*!40000 ALTER TABLE `updates` DISABLE KEYS */;
-INSERT INTO `updates` VALUES ('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_01_characters.sql','894F08B70449A5481FFAF394EE5571D7FC4D8A3A','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_02_characters.sql','97D7BE0CAADC79F3F11B9FD296B8C6CD40FE593B','ARCHIVED','2015-03-21 21:44:51',0),('2015_06_26_00_characters_335.sql','C2CC6E50AFA1ACCBEBF77CC519AAEB09F3BBAEBC','ARCHIVED','2015-07-13 23:49:22',0);
+INSERT INTO `updates` VALUES ('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_01_characters.sql','894F08B70449A5481FFAF394EE5571D7FC4D8A3A','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_02_characters.sql','97D7BE0CAADC79F3F11B9FD296B8C6CD40FE593B','ARCHIVED','2015-03-21 21:44:51',0),('2015_06_26_00_characters_335.sql','C2CC6E50AFA1ACCBEBF77CC519AAEB09F3BBAEBC','ARCHIVED','2015-07-13 23:49:22',0),('2015_09_28_00_characters_335.sql','F8682A431D50E54BDC4AC0E7DBED21AE8AAB6AD4','ARCHIVED','2015-09-28 21:00:00',0),('2015_08_26_00_characters_335.sql','C7D6A3A00FECA3EBFF1E71744CA40D3076582374','ARCHIVED','2015-08-26 21:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

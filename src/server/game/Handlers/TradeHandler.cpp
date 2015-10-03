@@ -60,13 +60,13 @@ void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Ignore Trade %u", _player->GetGUIDLow());
+    TC_LOG_DEBUG("network", "WORLD: Ignore Trade %u", _player->GetGUID().GetCounter());
     // recvPacket.print_storage();
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Busy Trade %u", _player->GetGUIDLow());
+    TC_LOG_DEBUG("network", "WORLD: Busy Trade %u", _player->GetGUID().GetCounter());
     // recvPacket.print_storage();
 }
 
@@ -141,7 +141,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 // logging
-                TC_LOG_DEBUG("network", "partner storing: %u", myItems[i]->GetGUIDLow());
+                TC_LOG_DEBUG("network", "partner storing: %u", myItems[i]->GetGUID().GetCounter());
                 if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
                     sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -159,7 +159,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (hisItems[i])
             {
                 // logging
-                TC_LOG_DEBUG("network", "player storing: %u", hisItems[i]->GetGUIDLow());
+                TC_LOG_DEBUG("network", "player storing: %u", hisItems[i]->GetGUID().GetCounter());
                 if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -182,21 +182,21 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 if (!traderCanTrade)
-                    TC_LOG_ERROR("network", "trader can't store item: %u", myItems[i]->GetGUIDLow());
+                    TC_LOG_ERROR("network", "trader can't store item: %u", myItems[i]->GetGUID().GetCounter());
                 if (_player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, myItems[i], false) == EQUIP_ERR_OK)
                     _player->MoveItemToInventory(playerDst, myItems[i], true, true);
                 else
-                    TC_LOG_ERROR("network", "player can't take item back: %u", myItems[i]->GetGUIDLow());
+                    TC_LOG_ERROR("network", "player can't take item back: %u", myItems[i]->GetGUID().GetCounter());
             }
             // return the already removed items to the original owner
             if (hisItems[i])
             {
                 if (!playerCanTrade)
-                    TC_LOG_ERROR("network", "player can't store item: %u", hisItems[i]->GetGUIDLow());
+                    TC_LOG_ERROR("network", "player can't store item: %u", hisItems[i]->GetGUID().GetCounter());
                 if (trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false) == EQUIP_ERR_OK)
                     trader->MoveItemToInventory(traderDst, hisItems[i], true, true);
                 else
-                    TC_LOG_ERROR("network", "trader can't take item back: %u", hisItems[i]->GetGUIDLow());
+                    TC_LOG_ERROR("network", "trader can't take item back: %u", hisItems[i]->GetGUID().GetCounter());
             }
         }
     }
@@ -214,7 +214,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "player trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
+            TC_LOG_DEBUG("network", "player trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
             //Can return NULL
             myItems[i] = item;
             myItems[i]->SetInTrade();
@@ -222,7 +222,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "partner trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
+            TC_LOG_DEBUG("network", "partner trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }
@@ -668,7 +668,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
     {
         info.Status = TRADE_STATUS_IGNORE_YOU;
         SendTradeStatus(info);

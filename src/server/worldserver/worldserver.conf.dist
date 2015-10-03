@@ -118,9 +118,9 @@ CharacterDatabase.WorkerThreads = 1
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     2 - (CharacterDatabase.WorkerThreads)
+#        Default:     1 - (LoginDatabase.SynchThreads)
+#                     1 - (WorldDatabase.SynchThreads)
+#                     2 - (CharacterDatabase.SynchThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
@@ -956,7 +956,7 @@ Guild.BankEventLogRecordsCount = 25
 #
 #    MaxPrimaryTradeSkill
 #        Description: Maximum number of primary professions a character can learn.
-#        Range:       0-10
+#        Range:       0-11
 #        Default:     2
 
 MaxPrimaryTradeSkill = 2
@@ -1148,7 +1148,7 @@ Updates.EnableDatabases = 0
 Updates.SourcePath  = ""
 
 #
-#    Updates.SourcePath
+#    Updates.MySqlCLIPath
 #        Description: The path to your mysql cli binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
@@ -1667,6 +1667,7 @@ GM.WhisperingTo = 2
 #                    applied on players when using the .freeze command
 #       Default:     0 - (Original aura duration. Lasts until the .unfreeze command is used)
 #                    N - (Aura duration if unspecified in .freeze command, in seconds)
+
 GM.FreezeAuraDuration = 0
 
 #
@@ -2148,7 +2149,7 @@ AutoBroadcast.Center = 0
 #
 #    AutoBroadcast.Timer
 #        Description: Timer (in milliseconds) for auto broadcasts.
-#        Default:     60000 - (10 minutes)
+#        Default:     600000 - (10 minutes)
 
 AutoBroadcast.Timer = 600000
 
@@ -2556,14 +2557,14 @@ CharDelete.KeepDays = 30
 #
 #     AllowTrackBothResources
 #        Description: Allows players to track herbs and minerals at the same time (if they have the skills)
-#        Default: 0 (do not allow)
-#                 1 (allow)
+#        Default:     0 - (Do not allow)
+#                     1 - (Allow)
 #
-#        Note: The following are client limitations and cannot be coded for:
-#           * The minimap tracking icon will display whichever skill is activated second
-#           * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
-#              bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
-#           * The minimap dots are yellow for both resources
+#        Note:        The following are client limitations and cannot be coded for:
+#                     * The minimap tracking icon will display whichever skill is activated second.
+#                     * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
+#                       bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
+#                     * The minimap dots are yellow for both resources.
 
 AllowTrackBothResources = 0
 
@@ -2965,8 +2966,8 @@ AuctionHouseBot.Items.ItemLevel.Max = 0
 
 #
 #    AuctionHouseBot.Items.ReqLevel.*
-#        Prevent seller from listing items below/above this required level
-#    Default: - 0 (Disabled)
+#       Description: Prevent seller from listing items below/above this required level
+#       Default:     0 - (Disabled)
 
 AuctionHouseBot.Items.ReqLevel.Min = 0
 AuctionHouseBot.Items.ReqLevel.Max = 0
@@ -2996,7 +2997,7 @@ AuctionHouseBot.Items.Amount.Orange = 0
 AuctionHouseBot.Items.Amount.Yellow = 0
 
 #
-#    AustionHouseBot.Class.*
+#    AuctionHouseBot.Class.*
 #       Description: Here you can set the class of items you prefer to be show on AH
 #                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
 #       Default:     Consumable: 6

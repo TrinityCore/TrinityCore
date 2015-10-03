@@ -367,7 +367,7 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
             player->ResurrectPlayer(1.0f);
             player->CastSpell(player, 6962, true);
             player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-            sObjectAccessor->ConvertCorpseForPlayer(*itr);
+            player->SpawnCorpseBones(false);
         }
         m_ResurrectQueue.clear();
     }
@@ -782,10 +782,10 @@ void Battleground::EndBattleground(uint32 winner)
         if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
-            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUIDLow());
+            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUID().GetCounter());
 
             stmt->setUInt32(0, battlegroundId);
-            stmt->setUInt32(1, player->GetGUIDLow());
+            stmt->setUInt32(1, player->GetGUID().GetCounter());
             stmt->setUInt32(2, score->second->GetKillingBlows());
             stmt->setUInt32(3, score->second->GetDeaths());
             stmt->setUInt32(4, score->second->GetHonorableKills());
@@ -889,8 +889,11 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             player->SpawnCorpseBones();
         }
     }
-    else // try to resurrect the offline player. If he is alive nothing will happen
-        sObjectAccessor->ConvertCorpseForPlayer(guid);
+    else
+    {
+        SQLTransaction trans(nullptr);
+        Player::OfflineResurrect(guid, trans);
+    }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
@@ -1251,7 +1254,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUIDLow());
+    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUID().GetCounter());
     if (itr == PlayerScores.end()) // player not found...
         return false;
 
@@ -1326,7 +1329,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
     GameObject* go = new GameObject;
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, GetBgMap(),
+    if (!go->Create(GetBgMap()->GenerateLowGuid<HighGuid::GameObject>(), entry, GetBgMap(),
         PHASEMASK_NORMAL, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, goState))
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
@@ -1335,7 +1338,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
         return false;
     }
 /*
-    uint32 guid = go->GetGUIDLow();
+    uint32 guid = go->GetGUID().GetCounter();
 
     // without this, UseButtonOrDoor caused the crash, since it tried to get go info from godata
     // iirc that was changed, so adding to go data map is no longer required if that was the only function using godata from GameObject without checking if it existed
@@ -1469,7 +1472,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
 
     Creature* creature = new Creature();
 
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, x, y, z, o))
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddCreature: cannot create creature (entry: %u) for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);

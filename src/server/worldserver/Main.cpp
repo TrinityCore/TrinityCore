@@ -254,10 +254,9 @@ extern int main(int argc, char** argv)
     sWorldSocketMgr.StopNetwork();
 
     sInstanceSaveMgr->Unload();
-    sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
-    sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
-    sScriptMgr->Unload();
     sOutdoorPvPMgr->Die();
+    sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+    sScriptMgr->Unload();
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
@@ -424,7 +423,7 @@ void FreezeDetectorHandler(const boost::system::error_code& error)
         else if (getMSTimeDiff(_lastChangeMsTime, curtime) > _maxCoreStuckTimeInMs)
         {
             TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-            ASSERT(false);
+            ABORT();
         }
 
         _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(1));

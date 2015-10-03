@@ -34,6 +34,7 @@
 
 #include <bitset>
 #include <list>
+#include <memory>
 
 class Unit;
 class WorldPacket;
@@ -443,10 +444,38 @@ class Map : public GridRefManager<NGridType>
 
         TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
-        Creature* GetCreature(ObjectGuid guid);
-        GameObject* GetGameObject(ObjectGuid guid);
-        Transport* GetTransport(ObjectGuid guid);
-        DynamicObject* GetDynamicObject(ObjectGuid guid);
+        Corpse* GetCorpse(ObjectGuid const& guid);
+        Creature* GetCreature(ObjectGuid const& guid);
+        GameObject* GetGameObject(ObjectGuid const& guid);
+        Transport* GetTransport(ObjectGuid const& guid);
+        DynamicObject* GetDynamicObject(ObjectGuid const& guid);
+        Pet* GetPet(ObjectGuid const& guid);
+
+        MapStoredObjectTypesContainer& GetObjectsStore() { return _objectsStore; }
+
+        typedef std::unordered_multimap<ObjectGuid::LowType, Creature*> CreatureBySpawnIdContainer;
+        CreatureBySpawnIdContainer& GetCreatureBySpawnIdStore() { return _creatureBySpawnIdStore; }
+
+        typedef std::unordered_multimap<ObjectGuid::LowType, GameObject*> GameObjectBySpawnIdContainer;
+        GameObjectBySpawnIdContainer& GetGameObjectBySpawnIdStore() { return _gameobjectBySpawnIdStore; }
+
+        std::unordered_set<Corpse*> const* GetCorpsesInCell(uint32 cellId) const
+        {
+            auto itr = _corpsesByCell.find(cellId);
+            if (itr != _corpsesByCell.end())
+                return &itr->second;
+
+            return nullptr;
+        }
+
+        Corpse* GetCorpseByPlayer(ObjectGuid const& ownerGuid) const
+        {
+            auto itr = _corpsesByPlayer.find(ownerGuid);
+            if (itr != _corpsesByPlayer.end())
+                return itr->second;
+
+            return nullptr;
+        }
 
         MapInstanced* ToMapInstanced() { if (Instanceable()) return reinterpret_cast<MapInstanced*>(this); return NULL; }
         MapInstanced const* ToMapInstanced() const { if (Instanceable()) return reinterpret_cast<MapInstanced const*>(this); return NULL; }
@@ -495,6 +524,13 @@ class Map : public GridRefManager<NGridType>
         void LoadRespawnTimes();
         void DeleteRespawnTimes();
 
+        void LoadCorpseData();
+        void DeleteCorpseData();
+        void AddCorpse(Corpse* corpse);
+        void RemoveCorpse(Corpse* corpse);
+        Corpse* ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia = false);
+        void RemoveOldCorpses();
+
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
         void SendInitTransports(Player* player);
@@ -507,7 +543,32 @@ class Map : public GridRefManager<NGridType>
 
         void UpdateAreaDependentAuras();
 
+        template<HighGuid high>
+        inline ObjectGuid::LowType GenerateLowGuid()
+        {
+            static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be generated in Map context");
+            return GetGuidSequenceGenerator<high>().Generate();
+        }
+
+        template<HighGuid high>
+        inline ObjectGuid::LowType GetMaxLowGuid()
+        {
+            static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be retrieved in Map context");
+            return GetGuidSequenceGenerator<high>().GetNextAfterMaxUsed();
+        }
+
+        void AddUpdateObject(Object* obj)
+        {
+            _updateObjects.insert(obj);
+        }
+        
+        void RemoveUpdateObject(Object* obj)
+        {
+            _updateObjects.erase(obj);
+        }
+
     private:
+
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);
@@ -560,6 +621,8 @@ class Map : public GridRefManager<NGridType>
         void ScriptsProcess();
 
         void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
+
+        void SendObjectUpdates();
 
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
@@ -653,6 +716,25 @@ class Map : public GridRefManager<NGridType>
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
         uint32 _defaultLight;
+
+        template<HighGuid high>
+        inline ObjectGuidGeneratorBase& GetGuidSequenceGenerator()
+        {
+            auto itr = _guidGenerators.find(high);
+            if (itr == _guidGenerators.end())
+                itr = _guidGenerators.insert(std::make_pair(high, std::unique_ptr<ObjectGuidGenerator<high>>(new ObjectGuidGenerator<high>()))).first;
+
+            return *itr->second;
+        }
+
+        std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
+        MapStoredObjectTypesContainer _objectsStore;
+        CreatureBySpawnIdContainer _creatureBySpawnIdStore;
+        GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
+        std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
+        std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
+
+        std::unordered_set<Object*> _updateObjects;
 };
 
 enum InstanceResetMethod
