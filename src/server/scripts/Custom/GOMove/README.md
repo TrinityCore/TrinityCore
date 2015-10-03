@@ -13,7 +13,7 @@ Some features:
 - Spawn an object again
 - move to ground level
 
-Source: https://rochet2.github.io/?page=GOMove<br />
+Source: http://rochet2.github.io/GOMove.html  
 Original idea by [Mordred](https://www.youtube.com/watch?v=a0JVXJ07KUU)
 
 ####Installation
