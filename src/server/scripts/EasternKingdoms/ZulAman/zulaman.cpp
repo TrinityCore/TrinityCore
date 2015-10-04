@@ -97,7 +97,7 @@ class npc_voljin_zulaman : public CreatureScript
                 _gongCount = 0;
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
                     return;

@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npc_barnes
-npc_berthold
 npc_image_of_medivh
 EndContentData */
 
@@ -412,41 +411,6 @@ public:
 };
 
 /*###
-# npc_berthold
-####*/
-
-#define GOSSIP_ITEM_TELEPORT    "Teleport me to the Guardian's Library"
-
-class npc_berthold : public CreatureScript
-{
-public:
-    npc_berthold() : CreatureScript("npc_berthold") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            player->CastSpell(player, SPELL_TELEPORT, true);
-
-        player->CLOSE_GOSSIP_MENU();
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (InstanceScript* instance = creature->GetInstanceScript())
-        {
-            // Check if Shade of Aran event is done
-            if (instance->GetData(TYPE_ARAN) == DONE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-};
-
-/*###
 # npc_image_of_medivh
 ####*/
 
@@ -662,6 +626,5 @@ public:
 void AddSC_karazhan()
 {
     new npc_barnes();
-    new npc_berthold();
     new npc_image_of_medivh();
 }
