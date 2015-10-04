@@ -367,9 +367,9 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
+            if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
                 player->CLOSE_GOSSIP_MENU();
                 Talk(SAY_GAMESBEGIN_1);
