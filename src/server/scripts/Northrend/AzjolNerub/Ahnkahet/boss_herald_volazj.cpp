@@ -215,21 +215,14 @@ public:
             }
 
             // Roll Insanity
-            Map* map = me->GetMap();
-            if (!map)
-                return;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            if (!PlayerList.isEmpty())
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                if (Player* player = i->GetSource())
                 {
-                    if (Player* player = i->GetSource())
-                    {
-                        for (uint32 index = 0; index <= 4; ++index)
-                            player->RemoveAurasDueToSpell(SPELL_INSANITY_TARGET + index);
-                        player->CastSpell(player, SPELL_INSANITY_TARGET + nextPhase - 173, true);
-                    }
+                    for (uint32 index = 0; index <= 4; ++index)
+                        player->RemoveAurasDueToSpell(SPELL_INSANITY_TARGET + index);
+                    player->CastSpell(player, SPELL_INSANITY_TARGET + nextPhase - 173, true);
                 }
             }
         }

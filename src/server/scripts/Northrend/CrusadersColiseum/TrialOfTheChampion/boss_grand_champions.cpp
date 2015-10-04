@@ -254,7 +254,7 @@ public:
             if (uiChargeTimer <= uiDiff)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                if (!players.isEmpty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -281,7 +281,7 @@ public:
                 if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                    if (!players.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
@@ -400,7 +400,7 @@ public:
             if (uiInterceptTimer <= uiDiff)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                if (!players.isEmpty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -867,7 +867,7 @@ public:
                 else
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                    if (!players.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {

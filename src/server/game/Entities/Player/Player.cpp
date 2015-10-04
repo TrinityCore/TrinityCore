@@ -6446,7 +6446,7 @@ void Player::RewardReputation(Unit* victim, float rate)
     {
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
-        if (map && map->IsNonRaidDungeon())
+        if (map->IsNonRaidDungeon())
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficultyID()))
                 if (dungeon->TargetLevel == 80)
                     ChampioningFaction = GetChampioningFaction();
@@ -19903,7 +19903,7 @@ void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
         // if the map is loaded, reset it
         Map* map = sMapMgr->FindMap(p->GetMapId(), p->GetInstanceId());
         if (map && map->IsDungeon())
-            if (!((InstanceMap*)map)->Reset(method))
+            if (!map->ToInstanceMap()->Reset(method))
             {
                 ++itr;
                 continue;
