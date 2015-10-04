@@ -565,6 +565,8 @@ public:
             player->GetSession()->SendNotification(GO_FAILED);
             return true;
         }
+#else
+        (void)go;
 #endif
 
         player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
