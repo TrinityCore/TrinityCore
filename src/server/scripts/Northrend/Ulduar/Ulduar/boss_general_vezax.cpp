@@ -234,16 +234,12 @@ class boss_general_vezax : public CreatureScript
 
             void CheckShamanisticRage()
             {
-                Map* map = me->GetMap();
-                if (map && map->IsDungeon())
-                {
-                    // If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
-                    Map::PlayerList const& Players = map->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                        if (Player* player = itr->GetSource())
-                            if (player->HasSpell(SPELL_SHAMANTIC_RAGE))
-                                player->CastSpell(player, SPELL_CORRUPTED_RAGE, false);
-                }
+                // If Shaman has Shamanistic Rage and use it during the fight, it will cast Corrupted Rage on him
+                Map::PlayerList const& Players = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                    if (Player* player = itr->GetSource())
+                        if (player->HasSpell(SPELL_SHAMANTIC_RAGE))
+                            player->CastSpell(player, SPELL_CORRUPTED_RAGE, false);
             }
 
             uint32 GetData(uint32 type) const override
@@ -280,34 +276,28 @@ class boss_general_vezax : public CreatureScript
             */
             Unit* CheckPlayersInRange(uint8 playersMin, float rangeMin, float rangeMax)
             {
-                Map* map = me->GetMap();
-                if (map && map->IsDungeon())
+                std::list<Player*> PlayerList;
+                Map::PlayerList const& Players = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
                 {
-                    std::list<Player*> PlayerList;
-                    Map::PlayerList const& Players = map->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                    if (Player* player = itr->GetSource())
                     {
-                        if (Player* player = itr->GetSource())
-                        {
-                            float distance = player->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                            if (rangeMin > distance || distance > rangeMax)
-                                continue;
+                        float distance = player->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        if (rangeMin > distance || distance > rangeMax)
+                            continue;
 
-                            PlayerList.push_back(player);
-                        }
+                        PlayerList.push_back(player);
                     }
-
-                    if (PlayerList.empty())
-                        return NULL;
-
-                    size_t size = PlayerList.size();
-                    if (size < playersMin)
-                        return NULL;
-
-                    return Trinity::Containers::SelectRandomContainerElement(PlayerList);
                 }
 
-                return NULL;
+                if (PlayerList.empty())
+                    return NULL;
+
+                size_t size = PlayerList.size();
+                if (size < playersMin)
+                    return NULL;
+
+                return Trinity::Containers::SelectRandomContainerElement(PlayerList);
             }
         };
 

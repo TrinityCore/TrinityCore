@@ -2200,7 +2200,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
                 return false;
 
             //FIXME: work only for instances where max == min for players
-            if (((InstanceMap*)map)->GetMaxPlayers() != achievementCriteria->Entry->Asset.GroupSize)
+            if (map->ToInstanceMap()->GetMaxPlayers() != achievementCriteria->Entry->Asset.GroupSize)
                 return false;
             break;
         }
