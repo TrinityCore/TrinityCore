@@ -729,13 +729,17 @@ class npc_dark_rider_of_acherus : public CreatureScript
 ## npc_salanar_the_horseman
 ######*/
 
-enum Spells_Salanar
+enum SalanarTheHorseman
 {
-    SPELL_REALM_OF_SHADOWS            = 52693,
+    SALANAR_SAY                       = 0,
+    QUEST_INTO_REALM_OF_SHADOWS       = 12687,
+    DARK_RIDER_OF_ACHERUS             = 28654,
+    SALANAR_IN_REALM_OF_SHADOWS       = 28788,
     SPELL_EFFECT_STOLEN_HORSE         = 52263,
     SPELL_DELIVER_STOLEN_HORSE        = 52264,
     SPELL_CALL_DARK_RIDER             = 52266,
-    SPELL_EFFECT_OVERTAKE             = 52349
+    SPELL_EFFECT_OVERTAKE             = 52349,
+    SPELL_REALM_OF_SHADOWS            = 52693
 };
 
 class npc_salanar_the_horseman : public CreatureScript
@@ -746,6 +750,16 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_salanar_the_horsemanAI(creature);
+    }
+
+    virtual bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/)
+    {
+        if(player->GetQuestStatus(QUEST_INTO_REALM_OF_SHADOWS) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            player->CastSpell(player, SPELL_REALM_OF_SHADOWS, false);
+        }
+        return true;
     }
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
@@ -766,7 +780,7 @@ public:
                             caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             caster->setFaction(35);
                             DoCast(caster, SPELL_CALL_DARK_RIDER, true);
-                            if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
+                            if (Creature* Dark_Rider = me->FindNearestCreature(DARK_RIDER_OF_ACHERUS, 15))
                                 ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
                         }
                     }
@@ -784,10 +798,11 @@ public:
                 {
                     if (Player* player = charmer->ToPlayer())
                     {
-                        // for quest Into the Realm of Shadows(12687)
-                        if (me->GetEntry() == 28788 && player->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
+                        // for quest Into the Realm of Shadows(QUEST_INTO_REALM_OF_SHADOWS)
+                        if (me->GetEntry() == SALANAR_IN_REALM_OF_SHADOWS && player->GetQuestStatus(QUEST_INTO_REALM_OF_SHADOWS) == QUEST_STATUS_INCOMPLETE)
                         {
-                            player->GroupEventHappens(12687, me);
+                            player->GroupEventHappens(QUEST_INTO_REALM_OF_SHADOWS, me);
+                            Talk(SALANAR_SAY);
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_OVERTAKE);
                             if (Creature* creature = who->ToCreature())
                             {
