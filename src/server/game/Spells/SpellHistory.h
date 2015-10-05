@@ -144,6 +144,8 @@ public:
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
 
+    uint16 GetArenaCooldownsSize();
+
 private:
     Player* GetPlayerOwner() const;
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
