@@ -117,6 +117,7 @@ public:
     void BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown) const;
 
     CooldownStorageType::size_type GetCooldownsSizeForPacket() const { return _spellCooldowns.size(); }
+    uint16 GetArenaCooldownsSize();
     
 private:
     Player* GetPlayerOwner() const;
