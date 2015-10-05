@@ -4528,14 +4528,14 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
     if (deleteFinally)
         charDelete_method = CHAR_DELETE_REMOVE;
-    else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(playerguid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
+    else if (CharacterInfo const* nameData = sWorld->GetCharacterInfo(playerguid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
-        if (nameData->m_level < charDelete_minLvl)
+        if (nameData->Level < charDelete_minLvl)
             charDelete_method = CHAR_DELETE_REMOVE;
     }
 
@@ -4862,7 +4862,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     if (updateRealmChars)
         sWorld->UpdateRealmCharCount(accountId);
 
-    sWorld->DeleteCharacterNameData(playerguid);
+    sWorld->DeleteCharacterInfo(playerguid);
 }
 
 /**

@@ -180,7 +180,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 bool Corpse::IsExpired(time_t t) const
 {
     // Deleted character
-    if (!sWorld->GetCharacterNameData(GetOwnerGUID()))
+    if (!sWorld->GetCharacterInfo(GetOwnerGUID()))
         return true;
 
     if (m_type == CORPSE_BONES)

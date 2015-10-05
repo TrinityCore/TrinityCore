@@ -778,7 +778,7 @@ class ObjectMgr
         * If the player is online, the name is retrieved immediately otherwise
         * a database query is done.
         *
-        * @remark Use sWorld->GetCharacterNameData because it doesn't require a database query when player is offline
+        * @remark Use sWorld->GetCharacterInfo because it doesn't require a database query when player is offline
         *
         * @param guid player full guid
         * @param name returned name

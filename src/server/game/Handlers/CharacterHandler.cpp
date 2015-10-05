@@ -231,8 +231,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
                 if (!(*result)[20].GetUInt32())
                     _legitCharacters.insert(guid);
 
-                if (!sWorld->HasCharacterNameData(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                    sWorld->AddCharacterNameData(guid, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
+                if (!sWorld->HasCharacterInfo(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                    sWorld->AddCharacterInfo(guid, GetAccountId(), (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
                 ++num;
             }
         }
@@ -645,7 +645,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().GetCounter());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterNameData(newChar.GetGUID(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
+            sWorld->AddCharacterInfo(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
 
             newChar.CleanupsBeforeDelete();
             delete createInfo;
@@ -1157,7 +1157,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     SendCharRename(RESPONSE_SUCCESS, *renameInfo);
 
-    sWorld->UpdateCharacterNameData(renameInfo->Guid, renameInfo->Name);
+    sWorld->UpdateCharacterInfo(renameInfo->Guid, renameInfo->Name);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
@@ -1447,7 +1447,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sWorld->UpdateCharacterNameData(customizeInfo.Guid, customizeInfo.Name, customizeInfo.Gender);
+    sWorld->UpdateCharacterInfo(customizeInfo.Guid, customizeInfo.Name, customizeInfo.Gender);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo);
 }
@@ -1596,16 +1596,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     ObjectGuid::LowType lowGuid = factionChangeInfo.Guid.GetCounter();
 
     // get the players old (at this moment current) race
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(factionChangeInfo.Guid);
+    CharacterInfo const* nameData = sWorld->GetCharacterInfo(factionChangeInfo.Guid);
     if (!nameData)
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo);
         return;
     }
 
-    uint8 oldRace = nameData->m_race;
-    uint8 playerClass = nameData->m_class;
-    uint8 level = nameData->m_level;
+    uint8 oldRace = nameData->Race;
+    uint8 playerClass = nameData->Class;
+    uint8 level = nameData->Level;
 
     // TO Do: Make async
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_AT_LOGIN_TITLES);
@@ -1695,7 +1695,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     stmt->setUInt32(0, lowGuid);
     trans->Append(stmt);
 
-    sWorld->UpdateCharacterNameData(factionChangeInfo.Guid, factionChangeInfo.Name, factionChangeInfo.Gender, factionChangeInfo.Race);
+    sWorld->UpdateCharacterInfo(factionChangeInfo.Guid, factionChangeInfo.Name, factionChangeInfo.Gender, factionChangeInfo.Race);
 
     if (oldRace != factionChangeInfo.Race)
     {

@@ -525,13 +525,14 @@ private:
 
 typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
-struct CharacterNameData
+struct CharacterInfo
 {
-    std::string m_name;
-    uint8 m_class;
-    uint8 m_race;
-    uint8 m_gender;
-    uint8 m_level;
+    std::string Name;
+    uint32 AccountId;
+    uint8 Class;
+    uint8 Race;
+    uint8 Sex;
+    uint8 Level;
 };
 
 /// The World
@@ -751,12 +752,12 @@ class World
 
         void UpdateAreaDependentAuras();
 
-        CharacterNameData const* GetCharacterNameData(ObjectGuid guid) const;
-        void AddCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
-        void UpdateCharacterNameData(ObjectGuid guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
-        void UpdateCharacterNameDataLevel(ObjectGuid guid, uint8 level);
-        void DeleteCharacterNameData(ObjectGuid guid) { _characterNameDataMap.erase(guid); }
-        bool HasCharacterNameData(ObjectGuid guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
+        CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
+        void AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void DeleteCharacterInfo(ObjectGuid const& guid) { _characterInfoStore.erase(guid); }
+        bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
+        void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -863,8 +864,9 @@ class World
         typedef std::map<uint8, uint8> AutobroadcastsWeightMap;
         AutobroadcastsWeightMap m_AutobroadcastsWeights;
 
-        std::map<ObjectGuid, CharacterNameData> _characterNameDataMap;
-        void LoadCharacterNameData();
+        typedef std::unordered_map<ObjectGuid, CharacterInfo> CharacterInfoContainer;
+        CharacterInfoContainer _characterInfoStore;
+        void LoadCharacterInfoStore();
 
         void ProcessQueryCallbacks();
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;

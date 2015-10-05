@@ -2192,23 +2192,10 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
 {
-    // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
-        return player->GetSession()->GetAccountId();
-    }
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+        return characterInfo->AccountId;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
 
-    stmt->setUInt32(0, guid.GetCounter());
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 acc = (*result)[0].GetUInt32();
-        return acc;
-    }
 
     return 0;
 }

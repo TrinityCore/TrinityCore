@@ -31,7 +31,7 @@
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
+    CharacterInfo const* nameData = sWorld->GetCharacterInfo(guid);
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
     data << guid.WriteAsPacked();
@@ -43,11 +43,11 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     }
 
     data << uint8(0);                               // name known
-    data << nameData->m_name;                       // played name
+    data << nameData->Name;                         // played name
     data << uint8(0);                               // realm name - only set for cross realm interaction (such as Battlegrounds)
-    data << uint8(nameData->m_race);
-    data << uint8(nameData->m_gender);
-    data << uint8(nameData->m_class);
+    data << uint8(nameData->Race);
+    data << uint8(nameData->Sex);
+    data << uint8(nameData->Class);
 
     if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
     {

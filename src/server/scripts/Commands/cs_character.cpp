@@ -222,7 +222,7 @@ public:
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
         stmt->setUInt32(0, delInfo.guid.GetCounter());
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-            sWorld->AddCharacterNameData(delInfo.guid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
+            sWorld->AddCharacterInfo(delInfo.guid, delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
     }
 
     static void HandleCharacterLevel(Player* player, ObjectGuid playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)
@@ -382,7 +382,7 @@ public:
                 CharacterDatabase.Execute(stmt);
             }
 
-            sWorld->UpdateCharacterNameData(targetGuid, newName);
+            sWorld->UpdateCharacterInfo(targetGuid, newName);
 
             handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
 
