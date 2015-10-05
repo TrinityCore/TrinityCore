@@ -19,12 +19,15 @@ install:
   - mkdir bin
   - cd bin
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=1 -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror"
+  - cd ..
+  - sudo chmod +x contrib/check_updates.sh
 
 script:
-  - cd ..
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
+  - ./contrib/check_updates.sh auth auth
   - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
+  - ./contrib/check_updates.sh characters characters
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - mysql -utrinity -ptrinity hotfixes < sql/base/dev/hotfixes_database.sql
   - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world
