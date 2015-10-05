@@ -3017,6 +3017,13 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->SetMap(owner->GetMap());
             //owner->GetMap()->Add(OldSummon->ToCreature());
+            if (OldSummon->getPetType() == SUMMON_PET)  
+			{  
+				OldSummon->SetHealth(OldSummon->GetMaxHealth());  
+				OldSummon->SetPower(POWER_MANA, OldSummon->GetMaxPower(POWER_MANA));  
+				OldSummon->SetPower(POWER_ENERGY, OldSummon->GetMaxPower(POWER_ENERGY));  
+				OldSummon->GetSpellHistory()->ResetAllCooldowns(); 
+			}  
 
             if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())
                 owner->ToPlayer()->PetSpellInitialize();
