@@ -58,6 +58,7 @@ set(OPENSSL_EXPECTED_VERSION 1.0.0)
 find_package(PCHSupport)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
+find_package(MySQL)
 
 include(ConfigureBoost)
 
