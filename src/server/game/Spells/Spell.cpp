@@ -2975,8 +2975,15 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-            if (m_caster->GetTypeId() == TYPEID_UNIT && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-                m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
+        {
+            if (m_caster->GetTypeId() == TYPEID_UNIT)
+            {
+                if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
+                    m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
+                else
+                    m_caster->ToCreature()->SetTarget(ObjectGuid::Empty);
+            }
+        }
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
@@ -3079,7 +3086,8 @@ void Spell::cast(bool skipCheck)
 
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
         if (m_caster->GetTypeId() == TYPEID_UNIT && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-            m_caster->SetInFront(m_targets.GetObjectTarget());
+            if (!m_caster->isInFront(m_targets.GetObjectTarget()))
+                m_caster->SetInFront(m_targets.GetObjectTarget());
 
     // Should this be done for original caster?
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3503,6 +3511,11 @@ void Spell::update(uint32 difftime)
 
                 if (m_timer > 0)
                 {
+                    if (m_caster->GetTypeId() == TYPEID_UNIT)
+                        if (WorldObject* target = sObjectAccessor->GetWorldObject(*m_caster, m_caster->GetTarget()))
+                            if (!m_caster->isInFront(target) && !GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+                                m_caster->SetInFront(target);
+
                     if (difftime >= (uint32)m_timer)
                         m_timer = 0;
                     else
@@ -4188,6 +4201,21 @@ void Spell::SendChannelStart(uint32 duration)
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
             channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
+
+    // set target for proper facing
+    if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
+    {
+        if (m_caster->GetTypeId() == TYPEID_UNIT)
+        {
+            if (m_caster->GetGUID() != channelTarget)
+            {
+                if (WorldObject const* channelObject = sObjectAccessor->GetWorldObject(*m_caster, channelTarget))
+                    m_caster->ToCreature()->FocusTarget(this, channelObject);
+            }
+            else
+                m_caster->ToCreature()->SetTarget(ObjectGuid::Empty);
+        }
+    }
 
     WorldPacket data(MSG_CHANNEL_START, (8+4+4));
     data << m_caster->GetPackGUID();

@@ -12764,10 +12764,7 @@ Unit* Creature::SelectVictim()
         return NULL;
 
     if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
-    {
-        SetInFront(target);
         return target;
-    }
 
     // Case where mob is being kited.
     // Mob may not be in range to attack or may have dropped target. In any case,
