@@ -85,7 +85,7 @@ void WorldListener::HandleClose()
 
 void WorldListener::Dispatch(zmqpp::message& msg) const
 {
-    Battlenet::Header ipcHeader;
+    IPC::BattlenetComm::Header ipcHeader;
     msg >> ipcHeader;
 
     if (ipcHeader.Ipc.Channel != IPC_CHANNEL_BNET)
@@ -97,7 +97,7 @@ void WorldListener::Dispatch(zmqpp::message& msg) const
 
 void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& realm, zmqpp::message& msg) const
 {
-    Battlenet::ToonHandle toonHandle;
+    IPC::BattlenetComm::ToonHandle toonHandle;
     bool online;
     msg >> toonHandle;
     msg >> online;
@@ -109,11 +109,16 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
             if (!session->IsToonOnline())
             {
                 Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
-                toonReady->Realm.Battlegroup = realm.Battlegroup;
-                toonReady->Realm.Index = realm.Index;
-                toonReady->Realm.Region = realm.Region;
-                toonReady->Guid = toonHandle.Guid;
-                toonReady->Name = toonHandle.Name;
+                toonReady->Name.Region = realm.Region;
+                toonReady->Name.ProgramId = "WoW";
+                toonReady->Name.Realm = realm.GetAddress();
+                toonReady->Name.Name = toonHandle.Name;
+
+                toonReady->Handle.Region = realm.Region;
+                toonReady->Handle.ProgramId = "WoW";
+                toonReady->Handle.Realm = realm.GetAddress();
+                toonReady->Handle.Id = toonHandle.Guid;
+
                 session->SetToonOnline(true);
                 session->AsyncWrite(toonReady);
             }

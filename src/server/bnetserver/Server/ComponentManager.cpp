@@ -20,7 +20,7 @@
 
 Battlenet::ComponentMgr::~ComponentMgr()
 {
-    for (Component* component : _components)
+    for (Version::Record* component : _components)
         delete component;
 }
 
@@ -32,23 +32,23 @@ void Battlenet::ComponentMgr::Load()
         do
         {
             Field* fields = result->Fetch();
-            Component* component = new Component();
-            component->Program = fields[0].GetString();
-            component->Platform = fields[1].GetString();
-            component->Build = fields[2].GetUInt32();
+            Version::Record* component = new Version::Record();
+            component->ProgramId = fields[0].GetString();
+            component->Component = fields[1].GetString();
+            component->Version = fields[2].GetUInt32();
 
             _components.insert(component);
-            _programs.insert(component->Program);
-            _platforms.insert(component->Platform);
+            _programs.insert(component->ProgramId);
+            _platforms.insert(component->Component);
 
         } while (result->NextRow());
     }
 }
 
-bool Battlenet::ComponentMgr::HasComponent(Battlenet::Component const* component) const
+bool Battlenet::ComponentMgr::HasComponent(Battlenet::Version::Record const* component) const
 {
-    for (Component const* c : _components)
-        if (component->Program == c->Program && component->Platform == c->Platform && component->Build == c->Build)
+    for (Version::Record const* c : _components)
+        if (component->ProgramId == c->ProgramId && component->Component == c->Component && component->Version == c->Version)
             return true;
 
     return false;

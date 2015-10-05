@@ -18,82 +18,6 @@
 #include "Session.h"
 #include "FriendsPackets.h"
 
-void Battlenet::Friends::GetFriendsOfFriend::Read()
-{
-    _stream.Read<uint8>(2);
-    _stream.Read<uint32>(32);
-}
-
-std::string Battlenet::Friends::GetFriendsOfFriend::ToString() const
-{
-    return "Battlenet::Friends::GetFriendsOfFriend";
-}
-
-void Battlenet::Friends::SocialNetworkCheckConnected::Read()
-{
-    SocialNetworkId = _stream.Read<uint32>(32);
-}
-
-std::string Battlenet::Friends::SocialNetworkCheckConnected::ToString() const
-{
-    return "Battlenet::Friends::SocialNetworkCheckConnected SocialNetworkId " + std::to_string(SocialNetworkId);
-}
-
-void Battlenet::Friends::SocialNetworkCheckConnected::CallHandler(Session* session)
-{
-    session->HandleSocialNetworkCheckConnected(*this);
-}
-
-void Battlenet::Friends::RealIdFriendInvite::Read()
-{
-    _stream.Read<uint32>(32);
-    uint8 type = _stream.Read<uint8>(3);
-
-    switch (type)
-    {
-        case 0:
-        {
-            _stream.Read<uint32>(32); // Presence Id?
-            break;
-        }
-        case 1: // GameAccount?
-        {
-            _stream.Read<uint8>(8);
-            _stream.Read<uint32>(32);
-            _stream.Read<uint32>(32);
-            uint8 size = _stream.Read<uint8>(7); // Only if *(a1 + 16) <= 0x64
-            _stream.ReadBytes(size);
-            break;
-        }
-        case 2:
-            Email = _stream.ReadString(9, 3);
-            break;
-        case 3:
-        {
-            _stream.Read<uint32>(32);
-            break;
-        }
-        case 4:
-        {
-            _stream.Read<uint64>(64);
-            _stream.Read<uint32>(32);
-            break;
-        }
-    }
-
-    _stream.Read<uint8>(1);
-
-    if (_stream.Read<uint8>(1))
-        Message = _stream.ReadString(9);
-
-    _stream.Read<uint32>(32);
-}
-
-std::string Battlenet::Friends::RealIdFriendInvite::ToString() const
-{
-    return "Battlenet::Friends::RealIdFriendInvite Mail: " + Email + " Message: " + Message;
-}
-
 std::string Battlenet::Friends::FriendInviteResult::ToString() const
 {
     return "Battlenet::Friends::RealIdFriendInviteResult";
@@ -125,14 +49,55 @@ void Battlenet::Friends::FriendInviteResult::Write()
     }
 }
 
-std::string Battlenet::Friends::SocialNetworkCheckConnectedResult::ToString() const
+void Battlenet::Friends::SendInvitationRequest::Read()
 {
-    return "Battlenet::Friends::SocialNetworkCheckConnectedResult";
+    Token = _stream.Read<uint32>(32);
+
+    if (_stream.Read<bool>(1))
+        PresenceId = _stream.Read<uint32>(32);
+
+    if (_stream.Read<bool>(1))
+        AccountMail = _stream.ReadString(9, 3);
+
+    if (_stream.Read<bool>(1))
+        AccountId = _stream.Read<uint32>(32);
+
+    if (_stream.Read<bool>(1))
+    {
+        GameAccount = boost::in_place();
+        GameAccount->Region = _stream.Read<uint8>(8);
+        GameAccount->ProgramId = _stream.ReadFourCC();
+        GameAccount->Id = _stream.Read<uint32>(32);
+    }
+
+    _stream.ReadSkip(7);
+
+    if (_stream.Read<bool>(1))
+        Nickname = _stream.ReadString(7);
+
+    Source = _stream.ReadFourCC();
+    Role = _stream.Read<uint32>(32);
+
+    if (_stream.Read<bool>(1))
+        InvitationMsg = _stream.ReadString(9);
 }
 
-void Battlenet::Friends::SocialNetworkCheckConnectedResult::Write()
+std::string Battlenet::Friends::SendInvitationRequest::ToString() const
 {
-    _stream.WriteSkip(23);
-    _stream.Write(Result, 16);
-    _stream.Write(SocialNetworkId, 32);
+    std::ostringstream stream;
+    stream << "Battlenet::Friends::SendInvitationRequest" << std::endl;
+    APPEND_FIELD(stream, Token);
+    APPEND_FIELD(stream, PresenceId);
+    APPEND_FIELD(stream, GameAccount);
+    APPEND_FIELD(stream, AccountId);
+    APPEND_FIELD(stream, AccountMail);
+    APPEND_FIELD(stream, Nickname);
+    APPEND_FIELD(stream, InvitationMsg);
+    APPEND_FIELD(stream, Source);
+    APPEND_FIELD(stream, Role);
+    return stream.str();
+}
+
+void Battlenet::Friends::SendInvitationRequest::CallHandler(Session* /*session*/)
+{
 }

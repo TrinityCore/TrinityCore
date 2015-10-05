@@ -20,19 +20,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/ip/address.hpp>
 
-std::string Battlenet::WoWRealm::ListSubscribeRequest::ToString() const
-{
-    return "Battlenet::WoWRealm::ListSubscribeRequest";
-}
-
 void Battlenet::WoWRealm::ListSubscribeRequest::CallHandler(Session* session)
 {
     session->HandleListSubscribeRequest(*this);
-}
-
-std::string Battlenet::WoWRealm::ListUnsubscribe::ToString() const
-{
-    return "Battlenet::WoWRealm::ListUnsubscribe";
 }
 
 void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
@@ -42,19 +32,21 @@ void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
 
 void Battlenet::WoWRealm::JoinRequestV2::Read()
 {
-    ClientSeed = _stream.Read<uint32>(32);
-    _stream.Read<uint32>(20);
-    Realm.Region = _stream.Read<uint8>(8);
-    _stream.Read<uint16>(12);
-    Realm.Battlegroup = _stream.Read<uint8>(8);
-    Realm.Index = _stream.Read<uint32>(32);
+    ClientSalt = _stream.Read<uint32>(32);
+    _stream.ReadSkip(20);
+    Id.Region = _stream.Read<uint8>(8);
+    _stream.ReadSkip(12);
+    Id.Site = _stream.Read<uint8>(8);
+    Id.Realm = _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::JoinRequestV2 ClientSeed " << ClientSeed << " Region " << uint32(Realm.Region) << " Battlegroup " << uint32(Realm.Battlegroup) << " Index " << Realm.Index;
-    return stream.str().c_str();
+    stream << "Battlenet::WoWRealm::JoinRequestV2" << std::endl;
+    APPEND_FIELD(stream, Id);
+    APPEND_FIELD(stream, ClientSalt);
+    return stream.str();
 }
 
 void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session)
@@ -62,77 +54,66 @@ void Battlenet::WoWRealm::JoinRequestV2::CallHandler(Session* session)
     session->HandleJoinRequestV2(*this);
 }
 
-Battlenet::WoWRealm::ListSubscribeResponse::~ListSubscribeResponse()
-{
-    for (ServerPacket* realmData : RealmData)
-        delete realmData;
-}
-
 void Battlenet::WoWRealm::ListSubscribeResponse::Write()
 {
-    _stream.Write(Response, 1);
-    if (Response == SUCCESS)
+    _stream.Write(Type, 1);
+    if (Type == SUCCESS)
     {
-        _stream.Write(CharacterCounts.size(), 7);
-        for (CharacterCountEntry const& entry : CharacterCounts)
+        _stream.Write(ToonCounts.size(), 7);
+        for (ToonCountEntry const& entry : ToonCounts)
         {
             _stream.Write(entry.Realm.Region, 8);
-            _stream.Write(0, 12);
-            _stream.Write(entry.Realm.Battlegroup, 8);
-            _stream.Write(entry.Realm.Index, 32);
-            _stream.Write(entry.CharacterCount, 16);
-        }
-
-        for (ServerPacket* realmData : RealmData)
-        {
-            realmData->Write();
-            _stream.WriteBytes(realmData->GetData(), realmData->GetSize());
+            _stream.WriteSkip(12);
+            _stream.Write(entry.Realm.Site, 8);
+            _stream.Write(entry.Realm.Realm, 32);
+            _stream.Write(entry.Count, 16);
         }
     }
     else
-        _stream.Write(ResponseCode, 8);
+        _stream.Write(Failure, 8);
+}
+
+std::string Battlenet::WoWRealm::ListSubscribeResponse::ToonCountEntry::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::WoWRealm::ListSubscribeResponse::ToonCountEntry" << std::endl;
+    APPEND_FIELD(stream, Realm);
+    APPEND_FIELD(stream, Count);
+    return stream.str();
 }
 
 std::string Battlenet::WoWRealm::ListSubscribeResponse::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::ListSubscribeResponse";
+    stream << "Battlenet::WoWRealm::ListSubscribeResponse" << std::endl;
 
-    if (Response == SUCCESS)
-    {
-        stream << " Realms " << CharacterCounts.size();
-
-        for (CharacterCountEntry const& entry : CharacterCounts)
-            stream << std::endl << "Region " << uint32(entry.Realm.Region) << " Battlegroup " << uint32(entry.Realm.Region) << " Index " << entry.Realm.Index << " Characters " << entry.CharacterCount;
-
-        for (ServerPacket* realmData : RealmData)
-            stream << std::endl << realmData->ToString();
-    }
+    if (Type == SUCCESS)
+        APPEND_FIELD(stream, ToonCounts);
     else
-        stream << " Failure";
+        APPEND_FIELD(stream, Failure);
 
-    return stream.str().c_str();
+    return stream.str();
 }
 
 void Battlenet::WoWRealm::ListUpdate::Write()
 {
-    _stream.Write(UpdateState, 1);
-    if (UpdateState == UPDATE)
+    _stream.Write(State.Type, 1);
+    if (State.Type == StateType::UPDATE)
     {
-        _stream.Write(Timezone, 32);
-        _stream.WriteFloat(Population);
-        _stream.Write(Lock, 8);
-        _stream.Write(0, 19);
-        _stream.Write(Type + -std::numeric_limits<int32>::min(), 32);
-        _stream.WriteString(Name, 10);
-        _stream.Write(!Version.empty(), 1);
-        if (!Version.empty())
+        _stream.Write(State.Update.Category, 32);
+        _stream.WriteFloat(State.Update.Population);
+        _stream.Write(State.Update.StateFlags, 8);
+        _stream.WriteSkip(19);
+        _stream.Write(State.Update.Type + -std::numeric_limits<int32>::min(), 32);
+        _stream.WriteString(State.Update.Name, 10);
+        _stream.Write(State.Update.PrivilegedData.is_initialized(), 1);
+        if (State.Update.PrivilegedData.is_initialized())
         {
-            _stream.WriteString(Version, 5);
-            _stream.Write(Id.Build, 32);
+            _stream.WriteString(State.Update.PrivilegedData->Version, 5);
+            _stream.Write(State.Update.PrivilegedData->ConfigId, 32);
 
-            boost::asio::ip::address_v4::bytes_type ip = Address.address().to_v4().to_bytes();
-            uint16 port = Address.port();
+            boost::asio::ip::address_v4::bytes_type ip = State.Update.PrivilegedData->Address.address().to_v4().to_bytes();
+            uint16 port = State.Update.PrivilegedData->Address.port();
 
             EndianConvertReverse(ip);
             EndianConvertReverse(port);
@@ -141,67 +122,94 @@ void Battlenet::WoWRealm::ListUpdate::Write()
             _stream.WriteBytes(&port, 2);
         }
 
-        _stream.Write(Flags, 8);
+        _stream.Write(State.Update.InfoFlags, 8);
     }
 
     _stream.Write(Id.Region, 8);
-    _stream.Write(0, 12);
-    _stream.Write(Id.Battlegroup, 8);
-    _stream.Write(Id.Index, 32);
+    _stream.WriteSkip(12);
+    _stream.Write(Id.Site, 8);
+    _stream.Write(Id.Realm, 32);
+}
+
+std::string Battlenet::WoWRealm::ListUpdate::PrivilegedDataType::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::WoWRealm::RealmInfo::PrivilegedData" << std::endl;
+    APPEND_FIELD(stream, Version);
+    APPEND_FIELD(stream, ConfigId);
+    APPEND_FIELD(stream, Address);
+    return stream.str();
+}
+
+std::string Battlenet::WoWRealm::ListUpdate::StateType::UpdateType::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::WoWRealm::ListUpdate::State::Update" << std::endl;
+    APPEND_FIELD(stream, InfoFlags);
+    APPEND_FIELD(stream, Name);
+    APPEND_FIELD(stream, Type);
+    APPEND_FIELD(stream, Category);
+    APPEND_FIELD(stream, StateFlags);
+    APPEND_FIELD(stream, Population);
+    APPEND_FIELD(stream, PrivilegedData);
+    return stream.str();
+}
+
+std::string Battlenet::WoWRealm::ListUpdate::StateType::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::WoWRealm::ListUpdate::State" << std::endl;
+
+    if (Type == UPDATE)
+        APPEND_FIELD(stream, Update);
+    else
+        APPEND_FIELD(stream, Delete);
+
+    return stream.str();
 }
 
 std::string Battlenet::WoWRealm::ListUpdate::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::ListUpdate";
-    if (UpdateState == UPDATE)
-    {
-        stream << " Timezone: " << Timezone << " Population: " << Population << " Lock: " << uint32(Lock) << " Type: " << Type << " Name: " << Name
-            << " Flags: " << uint32(Flags) << " Region: " << uint32(Id.Region) << " Battlegroup: " << uint32(Id.Battlegroup) << " Index: " << Id.Index;
-
-        if (!Version.empty())
-            stream << " Version: " << Version;
-    }
-    else
-        stream << " Delete realm [Region: " << uint32(Id.Region) << " Battlegroup : " << uint32(Id.Battlegroup) << " Index : " << Id.Index << "]";
-
-    return stream.str().c_str();
+    stream << "Battlenet::WoWRealm::ListUpdate" << std::endl;
+    APPEND_FIELD(stream, Id);
+    APPEND_FIELD(stream, State);
+    return stream.str();
 }
 
 void Battlenet::WoWRealm::ToonReady::Write()
 {
-    _stream.Write(Realm.Region, 8);
-    _stream.WriteFourCC(Game);
-    uint32 realmAddress = ((Realm.Battlegroup << 16) & 0xFF0000) | uint16(Realm.Index);
-    _stream.Write(realmAddress, 32);
-    _stream.WriteString(Name, 7, -2);
+    _stream.Write(Name.Region, 8);
+    _stream.WriteFourCC(Name.ProgramId);
+    _stream.Write(Name.Realm, 32);
+    _stream.WriteString(Name.Name, 7, -2);
     _stream.WriteSkip(21);
-    _stream.Write(0, 64);   // Unknown
-    _stream.Write(0, 32);   // Unknown
-    _stream.Write(Guid, 64);
-    _stream.Write(realmAddress, 32);
-    _stream.Write(Realm.Region, 8);
-    _stream.WriteFourCC(Game);
+    _stream.Write(ProfileAddress.Id, 64);
+    _stream.Write(ProfileAddress.Label, 32);
+    _stream.Write(Handle.Id, 64);
+    _stream.Write(Handle.Realm, 32);
+    _stream.Write(Handle.Region, 8);
+    _stream.WriteFourCC(Handle.ProgramId);
 }
 
 std::string Battlenet::WoWRealm::ToonReady::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::ToonReady" << " Game: " << Game
-        << ", Region: " << uint32(Realm.Region) << ", Battlegroup: " << uint32(Realm.Battlegroup) << ", Index: " << Realm.Index
-        << ", Guid: " << Guid << ", Name: " << Name;
-
-    return stream.str().c_str();
+    stream << "Battlenet::WoWRealm::ToonReady" << std::endl;
+    APPEND_FIELD(stream, Name);
+    APPEND_FIELD(stream, Handle);
+    APPEND_FIELD(stream, ProfileAddress);
+    return stream.str();
 }
 
 void Battlenet::WoWRealm::JoinResponseV2::Write()
 {
-    _stream.Write(Response, 1);
-    if (Response == SUCCESS)
+    _stream.Write(Type, 1);
+    if (Type == SUCCESS)
     {
-        _stream.Write(ServerSeed, 32);
-        _stream.Write(IPv4.size(), 5);
-        for (tcp::endpoint const& addr : IPv4)
+        _stream.Write(Success.ServerSalt, 32);
+        _stream.Write(Success.IPv4.size(), 5);
+        for (tcp::endpoint const& addr : Success.IPv4)
         {
             boost::asio::ip::address_v4::bytes_type ip = addr.address().to_v4().to_bytes();
             uint16 port = addr.port();
@@ -212,8 +220,8 @@ void Battlenet::WoWRealm::JoinResponseV2::Write()
             _stream.WriteBytes(&port, 2);
         }
 
-        _stream.Write(IPv6.size(), 5);
-        for (tcp::endpoint const& addr : IPv6)
+        _stream.Write(Success.IPv6.size(), 5);
+        for (tcp::endpoint const& addr : Success.IPv6)
         {
             boost::asio::ip::address_v6::bytes_type ip = addr.address().to_v6().to_bytes();
             uint16 port = addr.port();
@@ -225,24 +233,28 @@ void Battlenet::WoWRealm::JoinResponseV2::Write()
         }
     }
     else
-        _stream.Write(ResponseCode, 8);
+        _stream.Write(Failure, 8);
+}
+
+std::string Battlenet::WoWRealm::JoinResponseV2::SuccessType::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::WoWRealm::JoinResponseV2::Success" << std::endl;
+    APPEND_FIELD(stream, ServerSalt);
+    APPEND_FIELD(stream, IPv4);
+    APPEND_FIELD(stream, IPv6);
+    return stream.str();
 }
 
 std::string Battlenet::WoWRealm::JoinResponseV2::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::JoinResponseV2";
-    if (Response == SUCCESS)
-    {
-        stream << " ServerSeed " << ServerSeed << " IPv4 Addresses " << IPv4.size() << " IPv6 Addresses " << IPv6.size();
-        for (tcp::endpoint const& addr : IPv4)
-            stream << std::endl << "Battlenet::WoWRealm::JoinResponseV2::Address " << boost::lexical_cast<std::string>(addr);
+    stream << "Battlenet::WoWRealm::JoinResponseV2" << std::endl;
 
-        for (tcp::endpoint const& addr : IPv6)
-            stream << std::endl << "Battlenet::WoWRealm::JoinResponseV2::Address " << boost::lexical_cast<std::string>(addr);
-    }
+    if (Type == SUCCESS)
+        APPEND_FIELD(stream, Success);
     else
-        stream << " Failure";
+        APPEND_FIELD(stream, Failure);
 
-    return stream.str().c_str();
+    return stream.str();
 }

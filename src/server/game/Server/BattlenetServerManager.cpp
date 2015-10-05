@@ -20,7 +20,7 @@
 #include "ZmqContext.h"
 #include "BattlenetServerManager.h"
 
-void Battlenet::ServerManager::InitializeConnection()
+void IPC::BattlenetComm::ServerManager::InitializeConnection()
 {
     std::string bnetserverAddress = sConfigMgr->GetStringDefault("BnetServer.Address", "127.0.0.1");
     int32 bnetserverPort = sConfigMgr->GetIntDefault("BnetServer.Port", 1118);
@@ -28,23 +28,23 @@ void Battlenet::ServerManager::InitializeConnection()
     _socket->Start();
 }
 
-void Battlenet::ServerManager::CloseConnection()
+void IPC::BattlenetComm::ServerManager::CloseConnection()
 {
     _socket->End();
     delete _socket;
     _socket = nullptr;
 }
 
-Battlenet::Header Battlenet::ServerManager::CreateHeader(BnetCommands command)
+IPC::BattlenetComm::Header IPC::BattlenetComm::ServerManager::CreateHeader(BnetCommands command)
 {
     Header header;
     header.Ipc.Channel = IPC_CHANNEL_BNET;
     header.Ipc.Command = command;
-    header.Realm = realmHandle;
+    header.Realm = realm.Id;
     return header;
 }
 
-void Battlenet::ServerManager::SendChangeToonOnlineState(uint32 battlenetAccountId, uint32 gameAccountId, ObjectGuid guid, std::string const& name, bool online)
+void IPC::BattlenetComm::ServerManager::SendChangeToonOnlineState(uint32 battlenetAccountId, uint32 gameAccountId, ObjectGuid guid, std::string const& name, bool online)
 {
     // Do nothing for Grunt login
     if (!battlenetAccountId)
@@ -65,7 +65,7 @@ void Battlenet::ServerManager::SendChangeToonOnlineState(uint32 battlenetAccount
     Send(&msg);
 }
 
-void Battlenet::ServerManager::Send(zmqpp::message* msg)
+void IPC::BattlenetComm::ServerManager::Send(zmqpp::message* msg)
 {
     if (!_socket)
         return;

@@ -19,6 +19,7 @@
 #define _COMMANDS_H
 
 #include "Define.h"
+#include "Realm/Realm.h"
 #include <string>
 
 enum Channels
@@ -35,34 +36,30 @@ enum BnetCommands
     IPC_BNET_MAX_COMMAND
 };
 
-struct IPCHeader
+namespace IPC
 {
-    uint8 Channel;
-    uint8 Command;
-};
-
-namespace Battlenet
-{
-    struct RealmHandle
-    {
-        uint8 Region;
-        uint8 Battlegroup;
-        uint32 Index;
-    };
-
     struct Header
     {
-        IPCHeader Ipc;
-        RealmHandle Realm;
+        uint8 Channel;
+        uint8 Command;
     };
 
-    struct ToonHandle
+    namespace BattlenetComm
     {
-        uint32 AccountId;
-        uint32 GameAccountId;
-        uint64 Guid;
-        std::string Name;
-    };
+        struct Header
+        {
+            IPC::Header Ipc;
+            Battlenet::RealmHandle Realm;
+        };
+
+        struct ToonHandle
+        {
+            uint32 AccountId;
+            uint32 GameAccountId;
+            uint64 Guid;
+            std::string Name;
+        };
+    }
 }
 
 namespace zmqpp
@@ -70,14 +67,14 @@ namespace zmqpp
     class message;
 }
 
-zmqpp::message& operator>>(zmqpp::message& msg, IPCHeader& header);
+zmqpp::message& operator>>(zmqpp::message& msg, IPC::Header& header);
 zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::RealmHandle& realm);
-zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::Header& header);
-zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::ToonHandle& toonHandle);
+zmqpp::message& operator>>(zmqpp::message& msg, IPC::BattlenetComm::Header& header);
+zmqpp::message& operator>>(zmqpp::message& msg, IPC::BattlenetComm::ToonHandle& toonHandle);
 
-zmqpp::message& operator<<(zmqpp::message& msg, IPCHeader const& header);
+zmqpp::message& operator<<(zmqpp::message& msg, IPC::Header const& header);
 zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::RealmHandle const& realm);
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::Header const& header);
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::ToonHandle const& toonHandle);
+zmqpp::message& operator<<(zmqpp::message& msg, IPC::BattlenetComm::Header const& header);
+zmqpp::message& operator<<(zmqpp::message& msg, IPC::BattlenetComm::ToonHandle const& toonHandle);
 
 #endif // _COMMANDS_H

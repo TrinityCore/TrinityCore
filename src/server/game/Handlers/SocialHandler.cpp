@@ -61,7 +61,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
             uint32 team = Player::TeamForRace(fields[1].GetUInt8());
             uint32 friendAccountId = fields[2].GetUInt32();
 
-            if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmHandle.Index)))
+            if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;

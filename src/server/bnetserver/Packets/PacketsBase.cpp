@@ -22,13 +22,15 @@
 std::string Battlenet::PacketHeader::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::PacketHeader opcode: " << Opcode << ", channel: " << Channel;
+    stream << "Battlenet::PacketHeader" << std::endl;
+    APPEND_FIELD(stream, Command);
+    APPEND_FIELD(stream, Channel);
     return stream.str();
 }
 
 Battlenet::ServerPacket::ServerPacket(PacketHeader const& header) : Packet(header, *new BitStream())
 {
-    _stream.Write(header.Opcode, 6);
+    _stream.Write(header.Command, 6);
     _stream.Write(1, 1);
     _stream.Write(header.Channel, 4);
 }
