@@ -299,7 +299,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
                 _legitCharacters.insert(charInfo.Guid);
 
             if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sWorld->AddCharacterInfo(charInfo.Guid, charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
+                sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
 
             charEnum.Characters.emplace_back(charInfo);
         }
@@ -345,7 +345,7 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
             TC_LOG_INFO("network", "Loading undeleted char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
             if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sWorld->AddCharacterInfo(charInfo.Guid, charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, true);
+                sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, true);
 
             charEnum.Characters.emplace_back(charInfo);
         }
@@ -749,7 +749,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterInfo(newChar.GetGUID(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel(), false);
+            sWorld->AddCharacterInfo(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel(), false);
 
             newChar.CleanupsBeforeDelete();
             _charCreateCallback.Reset();

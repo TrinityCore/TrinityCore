@@ -551,6 +551,7 @@ typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 struct CharacterInfo
 {
     std::string Name;
+    uint32 AccountId;
     uint8 Class;
     uint8 Race;
     uint8 Sex;
@@ -777,7 +778,7 @@ class World
         void UpdateAreaDependentAuras();
 
         CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
-        void AddCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
+        void AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
         void DeleteCharacterInfo(ObjectGuid const& guid) { _characterInfoStore.erase(guid); }
         bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
         void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);

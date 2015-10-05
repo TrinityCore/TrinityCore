@@ -3365,7 +3365,7 @@ void World::LoadCharacterInfoStore()
 
     _characterInfoStore.clear();
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level, deleteDate FROM characters");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
     if (!result)
     {
         TC_LOG_INFO("server.loading", "No character name data loaded, empty query");
@@ -3375,18 +3375,19 @@ void World::LoadCharacterInfoStore()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()), fields[1].GetString(),
-            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/, fields[6].GetUInt32() != 0);
+        AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()), fields[2].GetUInt32(), fields[1].GetString(),
+            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/, fields[7].GetUInt32() != 0);
     }
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters", _characterInfoStore.size());
 }
 
-void World::AddCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted)
+void World::AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted)
 {
     CharacterInfo& data = _characterInfoStore[guid];
     data.Name = name;
+    data.AccountId = accountId;
     data.Race = race;
     data.Sex = gender;
     data.Class = playerClass;
