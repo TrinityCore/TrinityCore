@@ -713,7 +713,13 @@ void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
-    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
+    boost::asio::ip::tcp::endpoint instanceAddress;
+
+    // Prioritise ipv4, for compatibility
+    if(realm.HasIpv4Address())
+       instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
+    else
+       instanceAddress = realm.GetIpv6AddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
     instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
 
     WorldPackets::Auth::ConnectTo connectTo;

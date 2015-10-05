@@ -29,9 +29,10 @@ public:
     typedef void(*ManagerAcceptHandler)(tcp::socket&& newSocket);
 
     AsyncAcceptor(boost::asio::io_service& ioService, std::string const& bindIp, uint16 port) :
-        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
+        _acceptor(ioService),
         _socket(ioService), _closed(false)
     {
+        InitAcceptor(_acceptor, tcp::endpoint(boost::asio::ip::address::from_string (bindIp), port));
     }
 
     template <class T>
@@ -73,6 +74,22 @@ private:
     tcp::acceptor _acceptor;
     tcp::socket _socket;
     std::atomic<bool> _closed;
+
+    // Need to set ipv6_v6only on v6 sockets to ensure consistent
+    // behaviour - the default is not only OS but distribution depenendent
+    void InitAcceptor(
+        tcp::acceptor & acceptor,
+        const tcp::endpoint & endpoint,
+        bool reuse_addr = true)
+    {
+        acceptor.open(endpoint.protocol());
+        if (reuse_addr)
+            acceptor.set_option(socket_base::reuse_address(true));
+        if(endpoint.address().is_v6())
+            acceptor.set_option(boost::asio::ip::v6_only(false));
+        acceptor.bind(endpoint);
+        acceptor.listen(boost::asio::socket_base::max_connections);
+    }
 };
 
 template<class T>

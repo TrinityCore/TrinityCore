@@ -22,7 +22,7 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
     ip::address realmIp;
 
     // Attempt to send best address for client
-    if (clientAddr.is_loopback())
+    if (clientAddr.is_loopback() && clientAddr.is_v4())
     {
         // Try guessing if realm is also connected locally
         if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
@@ -51,3 +51,35 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
     // Return external IP
     return endpoint;
 }
+
+ip::tcp::endpoint Realm::GetIpv6AddressForClient(ip::address const& clientAddr) const
+{
+    ip::address realmIp;
+
+    // Attempt to send best address for client
+    if (clientAddr.is_loopback() && clientAddr.is_v6())
+    {
+        // Client is on the same machine as the server
+        realmIp = clientAddr;
+    }
+    else
+    {
+        realmIp = ExternalAddress6;
+    }
+
+    ip::tcp::endpoint endpoint(realmIp, Port);
+
+    // Return external IP
+    return endpoint;
+}
+
+bool Realm::HasIpv4Address() const
+{
+     return !ExternalAddress.is_unspecified();
+}
+
+bool Realm::HasIpv6Address() const
+{
+     return !ExternalAddress6.is_unspecified();
+}
+

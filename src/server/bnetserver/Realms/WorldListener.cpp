@@ -35,6 +35,8 @@ WorldListener::HandlerTable::HandlerTable()
 WorldListener::WorldListener(uint16 worldListenPort) : _worldListenPort(worldListenPort)
 {
     _worldSocket = sIpcContext->CreateNewSocket(zmqpp::socket_type::pull);
+    _worldSocket->set(zmqpp::socket_option::ipv4_only, 0);
+
 }
 
 WorldListener::~WorldListener()

@@ -53,7 +53,7 @@ private:
     RealmList();
 
     void UpdateRealms(boost::system::error_code const& error);
-    void UpdateRealm(Battlenet::RealmId const& id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+    void UpdateRealm(Battlenet::RealmId const& id, const std::string& name, ip::address const& address, ip::address const& address6, ip::address const& localAddr,
         ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     RealmMap _realms;

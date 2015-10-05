@@ -521,7 +521,10 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountInfo->Id);
 
-    joinResponse->IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
+    if(realm->HasIpv4Address())
+        joinResponse->IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
+    if(realm->HasIpv6Address())
+        joinResponse->IPv6.push_back(realm->GetIpv6AddressForClient(GetRemoteIpAddress()));
 
     AsyncWrite(joinResponse);
 }
@@ -1141,7 +1144,11 @@ Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const
         version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
 
         listUpdate->Version = version.str();
-        listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+        // Prioritise ipv4, for compatibility
+        if(realm->HasIpv4Address())
+            listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+        else
+            listUpdate->Address = realm->GetIpv6AddressForClient(GetRemoteIpAddress());
     }
 
     listUpdate->Flags = flag;
