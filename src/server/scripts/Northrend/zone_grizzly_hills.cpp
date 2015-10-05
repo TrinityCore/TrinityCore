@@ -762,7 +762,7 @@ public:
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
+            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 DoCast(player, SPELL_SUMMON_ASHWOOD_BRAND);
             }
