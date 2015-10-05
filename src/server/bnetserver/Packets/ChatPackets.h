@@ -38,6 +38,9 @@ namespace Battlenet
             CMSG_ENUM_CONFERENCE_DESCRIPTIONS   = 0x17, // Not implemented
             CMSG_ENUM_CONFERENCE_MEMBER_COUNTS  = 0x19, // Not implemented
             CMSG_MODIFY_CHANNEL_LIST_REQUEST    = 0x1B, // Not implemented
+            CMSG_GET_MEMBER_COUNT_REQUEST       = 0x1F, // Not implemented
+            CMSG_MODIFY_CHANNEL_LIST_REQUEST_2  = 0x20, // Not implemented
+            CMSG_GAME_DATA_SEND_REQUEST         = 0x22, // Not implemented
 
             SMSG_MEMBERSHIP_CHANGE_NOTIFY       = 0x01, // Not implemented
             SMSG_INVITE_NOTIFY                  = 0x04, // Not implemented

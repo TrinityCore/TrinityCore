@@ -49,7 +49,8 @@ namespace Battlenet
             }
 
             void Read() override { }
-            std::string ToString() const override;
+            std::string ToString() const override { return "Battlenet::WoWRealm::ListSubscribeRequest"; }
+
             void CallHandler(Session* session) override;
         };
 
@@ -62,7 +63,7 @@ namespace Battlenet
             }
 
             void Read() override { }
-            std::string ToString() const override;
+            std::string ToString() const override { return "Battlenet::WoWRealm::ListUnsubscribe"; }
             void CallHandler(Session* session) override;
         };
 
@@ -78,68 +79,92 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            uint32 ClientSeed = 0;
-            RealmId Realm;
+            uint32 ClientSalt = 0;
+            PrintableRealmHandle Id;
         };
 
         class ListSubscribeResponse final : public ServerPacket
         {
         public:
-            enum Result
+            ListSubscribeResponse() : ServerPacket(PacketHeader(SMSG_LIST_SUBSCRIBE_RESPONSE, WOWREALM))
+            {
+            }
+
+            struct ToonCountEntry : public PrintableComponent
+            {
+                ToonCountEntry(PrintableRealmHandle const& realm, uint16 count) : Realm(realm), Count(count) { }
+
+                PrintableRealmHandle Realm;
+                uint16 Count;
+
+                std::string ToString() const override;
+            };
+
+            void Write() override;
+            std::string ToString() const override;
+
+            enum
             {
                 SUCCESS = 0,
                 FAILURE = 1
             };
 
-            ListSubscribeResponse() : ServerPacket(PacketHeader(SMSG_LIST_SUBSCRIBE_RESPONSE, WOWREALM)),
-                Response(SUCCESS), ResponseCode(26)
-            {
-            }
+            int32 Type = SUCCESS;
 
-            ~ListSubscribeResponse();
-
-            struct CharacterCountEntry
-            {
-                RealmId Realm;
-                uint32 CharacterCount;
-            };
-
-            void Write() override;
-            std::string ToString() const override;
-
-            Result Response;
-            uint8 ResponseCode;
-            std::vector<CharacterCountEntry> CharacterCounts;
-            std::vector<ServerPacket*> RealmData;
+            std::vector<ToonCountEntry> ToonCounts;
+            Wow::AuthResult Failure;
         };
 
         class ListUpdate final : public ServerPacket
         {
         public:
-            enum State
-            {
-                DELETED = 0,
-                UPDATE  = 1
-            };
-
-            ListUpdate() : ServerPacket(PacketHeader(SMSG_LIST_UPDATE, WOWREALM)), UpdateState(UPDATE),
-                Timezone(0), Population(0.0f), Lock(0), Type(0), Name(""), Version(""), Flags(0)
+            ListUpdate() : ServerPacket(PacketHeader(SMSG_LIST_UPDATE, WOWREALM))
             {
             }
 
             void Write() override;
             std::string ToString() const override;
 
-            int UpdateState;
-            uint32 Timezone;
-            float Population;
-            uint8 Lock;
-            uint32 Type;
-            std::string Name;
-            std::string Version;
-            tcp::endpoint Address;
-            uint8 Flags;
-            RealmId Id;
+            PrintableRealmHandle Id;
+
+            struct PrivilegedDataType : public PrintableComponent
+            {
+                std::string Version;
+                uint32 ConfigId = 0;
+                tcp::endpoint Address;
+
+                std::string ToString() const override;
+            };
+
+            struct StateType : public PrintableComponent
+            {
+                enum
+                {
+                    DELETED = 0,
+                    UPDATE  = 1
+                };
+
+                int32 Type = UPDATE;
+                struct DeleteType : public PrintableComponent
+                {
+                    std::string ToString() const override { return "Battlenet::WoWRealm::ListUpdate::State::Delete"; }
+                } Delete;
+
+                struct UpdateType : public PrintableComponent
+                {
+                    uint8 InfoFlags = 0;
+                    std::string Name;
+                    int32 Type = 0;
+                    uint32 Category = 0;
+                    uint8 StateFlags = 0;
+                    float Population = 0.0f;
+                    Optional<PrivilegedDataType> PrivilegedData;
+
+                    std::string ToString() const override;
+                } Update;
+
+                std::string ToString() const override;
+            } State;
         };
 
         class ListComplete final : public ServerPacket
@@ -156,17 +181,16 @@ namespace Battlenet
         class ToonReady final : public ServerPacket
         {
         public:
-            ToonReady() : ServerPacket(PacketHeader(SMSG_TOON_READY, WOWREALM)), Game("WoW"), Guid(0)
+            ToonReady() : ServerPacket(PacketHeader(SMSG_TOON_READY, WOWREALM))
             {
             }
 
             void Write() override;
             std::string ToString() const override;
 
-            std::string Game;
-            RealmId Realm;
-            uint64 Guid;
-            std::string Name;
+            Toon::FullName Name;
+            Toon::Handle Handle;
+            Profile::RecordAddress ProfileAddress;
         };
 
         class ToonLoggedOut final : public ServerPacket
@@ -183,25 +207,30 @@ namespace Battlenet
         class JoinResponseV2 final : public ServerPacket
         {
         public:
-            enum Result
-            {
-                SUCCESS = 0,
-                FAILURE = 1
-            };
-
-            JoinResponseV2() : ServerPacket(PacketHeader(SMSG_JOIN_RESPONSE_V2, WOWREALM)),
-                Response(SUCCESS), ResponseCode(26), ServerSeed(0)
+            JoinResponseV2() : ServerPacket(PacketHeader(SMSG_JOIN_RESPONSE_V2, WOWREALM))
             {
             }
 
             void Write() override;
             std::string ToString() const override;
 
-            Result Response;
-            uint8 ResponseCode;
-            uint32 ServerSeed;
-            std::vector<tcp::endpoint> IPv4;
-            std::vector<tcp::endpoint> IPv6;
+            enum
+            {
+                SUCCESS = 0,
+                FAILURE = 1
+            };
+
+            int32 Type = SUCCESS;
+            struct SuccessType : public PrintableComponent
+            {
+                uint32 ServerSalt;
+                std::vector<tcp::endpoint> IPv4;
+                std::vector<tcp::endpoint> IPv6;
+
+                std::string ToString() const override;
+            } Success;
+
+            Wow::AuthResult Failure;
         };
     }
 }

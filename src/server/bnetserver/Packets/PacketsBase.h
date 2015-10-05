@@ -20,8 +20,9 @@
 
 #include "AuthCodes.h"
 #include "BitStream.h"
-#include "Define.h"
+#include "Common.h"
 #include "Errors.h"
+#include "PacketsCommon.h"
 #include <string>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -46,19 +47,19 @@ namespace Battlenet
         PROFILE         = 14
     };
 
-    struct PacketHeader
+    struct PacketHeader : public PrintableComponent
     {
-        PacketHeader(uint32 opcode, uint32 channel) : Opcode(opcode), Channel(channel) { }
-        PacketHeader() : Opcode(0), Channel(AUTHENTICATION) { }
+        PacketHeader(uint32 opcode, uint32 channel) : Command(opcode), Channel(channel) { }
+        PacketHeader() : Command(0), Channel(AUTHENTICATION) { }
 
-        uint32 Opcode;
+        uint32 Command;
         int32 Channel;
 
         bool operator<(PacketHeader const& right) const
         {
-            if (Opcode < right.Opcode)
+            if (Command < right.Command)
                 return true;
-            if (Opcode > right.Opcode)
+            if (Command > right.Command)
                 return false;
 
             return Channel < right.Channel;
@@ -66,10 +67,10 @@ namespace Battlenet
 
         bool operator==(PacketHeader const& right) const
         {
-            return Opcode == right.Opcode && Channel == right.Channel;
+            return Command == right.Command && Channel == right.Channel;
         }
 
-        std::string ToString() const;
+        std::string ToString() const override;
     };
 
     class Packet
@@ -90,8 +91,8 @@ namespace Battlenet
         BitStream& _stream;
 
     private:
-        Packet(Packet const& right);
-        Packet& operator=(Packet const& right);
+        Packet(Packet const& right) = delete;
+        Packet& operator=(Packet const& right) = delete;
     };
 
     class ClientPacket : public Packet

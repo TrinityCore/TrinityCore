@@ -125,7 +125,7 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
     ObjectGuid targetGuid = ObjectMgr::GetPlayerGUIDByName(target);
     uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(targetGuid);
     // Target must exist and have administrative rights
-    if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmHandle.Index))
+    if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
     {
         handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
         return true;
@@ -324,7 +324,7 @@ bool ticket_commandscript::HandleTicketUnAssignCommand(ChatHandler* handler, cha
     {
         ObjectGuid guid = ticket->GetAssignedToGUID();
         uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
-        security = AccountMgr::GetSecurity(accountId, realmHandle.Index);
+        security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
     }
 
     // Check security

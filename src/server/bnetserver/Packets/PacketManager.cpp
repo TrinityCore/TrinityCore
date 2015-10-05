@@ -134,9 +134,10 @@ void Battlenet::PacketManager::RegisterFriendsPackets()
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_GET_SOCIAL_NETWORK_FRIENDS, FRIENDS), "Friends::GetSocialNetworkFriends");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS), "Friends::SocialNetworkConnect");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_DISCONNECT, FRIENDS), "Friends::SocialNetworkDisconnect");
-    REGISTER_CLIENT_PACKET(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS), Friends::SocialNetworkCheckConnected);
-    REGISTER_CLIENT_PACKET(PacketHeader(Friends::CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS), Friends::GetFriendsOfFriend);
-    REGISTER_CLIENT_PACKET(PacketHeader(Friends::CMSG_REALID_FRIEND_INVITE, FRIENDS), Friends::RealIdFriendInvite);
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS), "Friends::SocialNetworkCheckConnected");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS), "Friends::GetFriendsOfFriend");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_REALID_FRIEND_INVITE, FRIENDS), "Friends::RealIdFriendInvite");
+    REGISTER_CLIENT_PACKET(PacketHeader(Friends::CMSG_SEND_INVITATION_REQUEST, FRIENDS), Friends::SendInvitationRequest);
 
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIEND_INVITE_NOTIFY, FRIENDS), "Friends::FriendInviteNotify");
     REGISTER_SERVER_PACKET(PacketHeader(Friends::SMSG_FRIEND_INVITE_RESULT, FRIENDS), Friends::FriendInviteResult);
@@ -147,15 +148,15 @@ void Battlenet::PacketManager::RegisterFriendsPackets()
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_SOCIAL_NETWORK_FRIENDS, FRIENDS), "Friends::SocialNetworkFriends");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_SOCIAL_NETWORK_CONNECT_RESULT, FRIENDS), "Friends::SocialNetworkConnectResult");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT, FRIENDS), "Friends::SocialNetworkDisconnectResult");
-    REGISTER_SERVER_PACKET(PacketHeader(Friends::SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS), Friends::SocialNetworkCheckConnectedResult);
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS), "Friends::SocialNetworkCheckConnectedResult");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_MAX_FRIENDS_NOTIFY, FRIENDS), "Friends::MaxFriendsNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIENDS_LIST_NOTIFY_3, FRIENDS), "Friends::FriendsListNotify3");
 }
 
 void Battlenet::PacketManager::RegisterPresencePackets()
 {
-    REGISTER_CLIENT_PACKET(PacketHeader(Presence::CMSG_UPDATE_REQUEST, PRESENCE), Presence::UpdateRequest);
-    REGISTER_CLIENT_PACKET(PacketHeader(Presence::CMSG_STATISTIC_SUBSCRIBE, PRESENCE), Presence::StatisticSubscribe);
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::CMSG_UPDATE_REQUEST, PRESENCE), "Presence::UpdateRequest");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::CMSG_STATISTIC_SUBSCRIBE, PRESENCE), "Presence::StatisticSubscribe");
 
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::SMSG_UPDATE_NOTIFY, PRESENCE), "Presence::UpdateNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::SMSG_FIELD_SPEC_ANNOUNCE, PRESENCE), "Presence::FieldSpecAnnounce");

@@ -84,7 +84,6 @@ WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 HotfixDatabaseWorkerPool HotfixDatabase;                    ///< Accessor to the hotfix database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
-Battlenet::RealmHandle realmHandle;                         ///< Id of the realm
 Realm realm;
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
@@ -193,7 +192,7 @@ extern int main(int argc, char** argv)
     }
 
     // Set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LoadRealmInfo();
 
@@ -230,9 +229,9 @@ extern int main(int argc, char** argv)
     sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort);
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
-    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_INVALID));
+    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
@@ -276,7 +275,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->Unload();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     // Clean up threads if any
     if (soapThread != nullptr)
@@ -463,7 +462,7 @@ bool LoadRealmInfo()
     boost::asio::ip::tcp::resolver resolver(_ioService);
     boost::asio::ip::tcp::resolver::iterator end;
 
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = %u", realmHandle.Index);
+    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = %u", realm.Id.Realm);
     if (!result)
         return false;
 
@@ -507,10 +506,9 @@ bool LoadRealmInfo()
     realm.Timezone = fields[8].GetUInt8();
     realm.AllowedSecurityLevel = AccountTypes(fields[9].GetUInt8());
     realm.PopulationLevel = fields[10].GetFloat();
-    realm.Id.Index = fields[0].GetUInt32();
-    realm.Id.Build = fields[11].GetUInt32();
     realm.Id.Region = fields[12].GetUInt8();
-    realm.Id.Battlegroup = fields[13].GetUInt8();
+    realm.Id.Site = fields[13].GetUInt8();
+    realm.Build = fields[11].GetUInt32();
     return true;
 }
 
@@ -531,25 +529,14 @@ bool StartDB()
         return false;
 
     ///- Get the realm Id from the configuration file
-    realmHandle.Index = sConfigMgr->GetIntDefault("RealmID", 0);
-    if (!realmHandle.Index)
+    realm.Id.Realm = sConfigMgr->GetIntDefault("RealmID", 0);
+    if (!realm.Id.Realm)
     {
         TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
         return false;
     }
 
-    // Realm Handles
-    QueryResult realmIdQuery = LoginDatabase.PQuery("SELECT `Region`,`Battlegroup` FROM `realmlist` WHERE `id`=%u", realmHandle.Index);
-    if (!realmIdQuery)
-    {
-        TC_LOG_ERROR("server.worldserver", "Realm id %u not defined in realmlist table", realmHandle.Index);
-        return false;
-    }
-
-    realmHandle.Region = (*realmIdQuery)[0].GetUInt8();
-    realmHandle.Battlegroup = (*realmIdQuery)[1].GetUInt8();
-
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %u region %u battlegroup %u", realmHandle.Index, uint32(realmHandle.Region), uint32(realmHandle.Battlegroup));
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %u", realm.Id.Realm);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
@@ -576,7 +563,7 @@ void StopDB()
 void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");

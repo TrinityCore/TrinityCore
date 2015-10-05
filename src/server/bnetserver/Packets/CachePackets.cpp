@@ -22,25 +22,53 @@
 void Battlenet::Cache::GetStreamItemsRequest::Read()
 {
     _stream.ReadSkip(31);
-    Index = _stream.Read<uint32>(32);
+    Token = _stream.Read<uint32>(32);
     ReferenceTime = _stream.Read<int32>(32) - std::numeric_limits<int32>::min();
-    _stream.Read<bool>(1);  // StreamDirection
-    _stream.Read<uint8>(6); // Module count, always 0
+    Direction = _stream.Read<uint8>(1);
+    MaxItems = _stream.Read<uint8>(6);
     Locale = _stream.ReadFourCC();
-    if (_stream.Read<bool>(1))
+    Stream.Type = _stream.Read<uint8>(1);
+    if (Stream.Type == StreamId::DESCRIPTION)
     {
-        ItemName = _stream.ReadFourCC();
-        Channel = _stream.ReadFourCC();
+        Stream.Description.ItemName = _stream.ReadFourCC();
+        Stream.Description.Channel = _stream.ReadFourCC();
     }
     else
-        _stream.Read<uint16>(16);
+        Stream.Index = _stream.Read<uint16>(16);
+}
+
+std::string Battlenet::Cache::GetStreamItemsRequest::StreamId::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::Cache::GetStreamItemsRequest::StreamId" << std::endl;
+
+    if (Type == INDEX)
+        APPEND_FIELD(stream, Index);
+    else
+        APPEND_FIELD(stream, Description);
+
+    return stream.str();
+}
+
+std::string Battlenet::Cache::GetStreamItemsRequest::StreamId::DescriptionType::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::Cache::GetStreamItemsRequest::StreamId::Description" << std::endl;
+    APPEND_FIELD(stream, Channel);
+    APPEND_FIELD(stream, ItemName);
+    return stream.str();
 }
 
 std::string Battlenet::Cache::GetStreamItemsRequest::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::Cache::GetStreamItemsRequest Channel: " << Channel << ", ItemName: " << ItemName
-        << ", Locale: " << Locale << ", Index: " << Index;
+    stream << "Battlenet::Cache::GetStreamItemsRequest" << std::endl;
+    APPEND_FIELD(stream, Token);
+    APPEND_FIELD(stream, MaxItems);
+    APPEND_FIELD(stream, ReferenceTime);
+    APPEND_FIELD(stream, Direction);
+    APPEND_FIELD(stream, Stream);
+    APPEND_FIELD(stream, Locale);
     return stream.str();
 }
 
@@ -51,21 +79,21 @@ void Battlenet::Cache::GetStreamItemsRequest::CallHandler(Session* session)
 
 Battlenet::Cache::GetStreamItemsResponse::~GetStreamItemsResponse()
 {
-    for (size_t i = 0; i < Modules.size(); ++i)
-        delete Modules[i];
+    for (size_t i = 0; i < Items.size(); ++i)
+        delete Items[i];
 }
 
 void Battlenet::Cache::GetStreamItemsResponse::Write()
 {
-    _stream.Write(0, 16);
-    _stream.Write(1, 16);
-    _stream.Write(Index, 32);
-    _stream.Write(Modules.size(), 6);
-    for (ModuleInfo const* info : Modules)
+    _stream.Write(Offset, 16);
+    _stream.Write(TotalNumItems, 16);
+    _stream.Write(Token, 32);
+    _stream.Write(Items.size(), 6);
+    for (ModuleInfo const* info : Items)
     {
-        _stream.WriteBytes(info->Type.c_str(), 4);
-        _stream.WriteFourCC(info->Region);
-        _stream.WriteBytes(info->ModuleId, 32);
+        _stream.WriteBytes(info->Handle.Type.c_str(), 4);
+        _stream.WriteFourCC(info->Handle.Region);
+        _stream.WriteBytes(info->Handle.ModuleId, 32);
         _stream.WriteSkip(27);
         _stream.WriteBytes(info->Data, 4);
     }
@@ -74,9 +102,10 @@ void Battlenet::Cache::GetStreamItemsResponse::Write()
 std::string Battlenet::Cache::GetStreamItemsResponse::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::Cache::GetStreamItemsResponse modules " << Modules.size();
-    for (ModuleInfo const* module : Modules)
-        stream << std::endl << "Battlenet::ModuleInfo Locale " << module->Region.c_str() << ", ModuleId " << ByteArrayToHexStr(module->ModuleId, 32) << ", Data " << ByteArrayToHexStr(module->Data, module->DataSize);
-
+    stream << "Battlenet::Cache::GetStreamItemsResponse" << std::endl;
+    APPEND_FIELD(stream, Items);
+    APPEND_FIELD(stream, Offset);
+    APPEND_FIELD(stream, TotalNumItems);
+    APPEND_FIELD(stream, Token);
     return stream.str();
 }

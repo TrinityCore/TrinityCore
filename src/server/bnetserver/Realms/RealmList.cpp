@@ -65,7 +65,7 @@ inline void UpdateField(FieldType& out, FieldType const& in, bool& changed)
     }
 }
 
-void RealmList::UpdateRealm(Battlenet::RealmId const& id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+void RealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
     ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
     float population)
 {
@@ -75,6 +75,7 @@ void RealmList::UpdateRealm(Battlenet::RealmId const& id, const std::string& nam
     realm.Keep = true;
 
     realm.Id = id;
+    UpdateField(realm.Build, build, realm.Updated);
     UpdateField(realm.Name, name, realm.Updated);
     UpdateField(realm.Type, icon, realm.Updated);
     UpdateField(realm.Flags, flag, realm.Updated);
@@ -142,6 +143,10 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
                 uint16 port = fields[5].GetUInt16();
                 uint8 icon = fields[6].GetUInt8();
+                if (icon == REALM_TYPE_FFA_PVP)
+                    icon = REALM_TYPE_PVP;
+                if (icon >= MAX_CLIENT_REALM_TYPE)
+                    icon = REALM_TYPE_NORMAL;
                 RealmFlags flag = RealmFlags(fields[7].GetUInt8());
                 uint8 timezone = fields[8].GetUInt8();
                 uint8 allowedSecurityLevel = fields[9].GetUInt8();
@@ -151,10 +156,10 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 uint8 region = fields[12].GetUInt8();
                 uint8 battlegroup = fields[13].GetUInt8();
 
-                Battlenet::RealmId id{ region, battlegroup, realmId, build };
+                Battlenet::RealmHandle id{ region, battlegroup, realmId };
 
-                UpdateRealm(id, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
-                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
+                UpdateRealm(id, build, name, externalAddress, localAddress, localSubmask, port, icon, flag,
+                    timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
                 TC_LOG_TRACE("realmlist", "Realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
             }
@@ -168,7 +173,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     }
 
     std::vector<Realm const*> updatedRealms;
-    std::vector<Battlenet::RealmId> deletedRealms;
+    std::vector<Battlenet::RealmHandle> deletedRealms;
 
     for (RealmMap::value_type& pair : _realms)
     {
@@ -181,7 +186,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
         pair.second.Keep = false;
     }
 
-    for (Battlenet::RealmId const& deleted : deletedRealms)
+    for (Battlenet::RealmHandle const& deleted : deletedRealms)
         _realms.erase(deleted);
 
     if (!updatedRealms.empty() || !deletedRealms.empty())
@@ -200,7 +205,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     }
 }
 
-Realm const* RealmList::GetRealm(Battlenet::RealmId const& id) const
+Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
     auto itr = _realms.find(id);
     if (itr != _realms.end())

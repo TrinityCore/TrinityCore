@@ -136,69 +136,69 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
         return;
     }
 
-    if (logonRequest.Program != "WoW")
+    if (logonRequest.Common.Program != "WoW")
     {
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
         AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with game other than WoW (using %s)!", GetClientInfo().c_str(), logonRequest.Program.c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with game other than WoW (using %s)!", GetClientInfo().c_str(), logonRequest.Common.Program.c_str());
         return;
     }
 
-    if (!sComponentMgr->HasPlatform(logonRequest.Platform))
+    if (!sComponentMgr->HasPlatform(logonRequest.Common.Platform))
     {
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_OS);
         AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in from an unsupported platform (using %s)!", GetClientInfo().c_str(), logonRequest.Platform.c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in from an unsupported platform (using %s)!", GetClientInfo().c_str(), logonRequest.Common.Platform.c_str());
         return;
     }
 
-    if (!sComponentMgr->HasPlatform(logonRequest.Locale))
+    if (!sComponentMgr->HasPlatform(logonRequest.Common.Locale))
     {
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
         AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with unsupported locale (using %s)!", GetClientInfo().c_str(), logonRequest.Locale.c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with unsupported locale (using %s)!", GetClientInfo().c_str(), logonRequest.Common.Locale.c_str());
         return;
     }
 
-    for (Component const& component : logonRequest.Components)
+    for (Version::Record const& component : logonRequest.Common.Versions)
     {
         if (!sComponentMgr->HasComponent(&component))
         {
             Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
-            if (!sComponentMgr->HasProgram(component.Program))
+            if (!sComponentMgr->HasProgram(component.ProgramId))
             {
                 logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
-                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component program %s!", GetClientInfo().c_str(), component.Program.c_str());
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component program %s!", GetClientInfo().c_str(), component.ProgramId.c_str());
             }
-            else if (!sComponentMgr->HasPlatform(component.Platform))
+            else if (!sComponentMgr->HasPlatform(component.Component))
             {
                 logonResponse->SetAuthResult(AUTH_INVALID_OS);
-                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component platform %s!", GetClientInfo().c_str(), component.Platform.c_str());
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component platform %s!", GetClientInfo().c_str(), component.Component.c_str());
             }
             else
             {
-                if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
+                if (component.ProgramId != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Version))
                     logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
 
-                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component version %u!", GetClientInfo().c_str(), component.Build);
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component version %u!", GetClientInfo().c_str(), component.Version);
             }
 
             AsyncWrite(logonResponse);
             return;
         }
 
-        if (component.Platform == "base")
-            _build = component.Build;
+        if (component.Component == "base")
+            _build = component.Version;
     }
 
-    std::string login = logonRequest.Login;
-    _locale = logonRequest.Locale;
-    _os = logonRequest.Platform;
+    std::string login = logonRequest.Account;
+    _locale = logonRequest.Common.Locale;
+    _os = logonRequest.Common.Platform;
 
     Utf8ToUpperOnlyLatin(login);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
@@ -341,12 +341,12 @@ void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const
         return;
     }
 
-    std::string login = resumeRequest.Login;
-    _locale = resumeRequest.Locale;
-    _os = resumeRequest.Platform;
-    auto baseComponent = std::find_if(resumeRequest.Components.begin(), resumeRequest.Components.end(), [](Component const& c) { return c.Program == "base"; });
-    if (baseComponent != resumeRequest.Components.end())
-        _build = baseComponent->Build;
+    std::string login = resumeRequest.Account;
+    _locale = resumeRequest.Common.Locale;
+    _os = resumeRequest.Common.Platform;
+    auto baseComponent = std::find_if(resumeRequest.Common.Versions.begin(), resumeRequest.Common.Versions.end(), [](Version::Record const& c) { return c.ProgramId == "base"; });
+    if (baseComponent != resumeRequest.Common.Versions.end())
+        _build = baseComponent->Version;
 
     Utf8ToUpperOnlyLatin(login);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_RECONNECT_INFO);
@@ -398,7 +398,7 @@ void Battlenet::Session::HandleResumeRequestCallback(PreparedQueryResult result)
 
 void Battlenet::Session::HandleProofResponse(Authentication::ProofResponse const& proofResponse)
 {
-    if (_modulesWaitingForData.size() < proofResponse.Modules.size())
+    if (_modulesWaitingForData.size() < proofResponse.Response.size())
     {
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(AUTH_CORRUPTED_MODULE);
@@ -407,9 +407,9 @@ void Battlenet::Session::HandleProofResponse(Authentication::ProofResponse const
     }
 
     ServerPacket* response = nullptr;
-    for (size_t i = 0; i < proofResponse.Modules.size(); ++i)
+    for (size_t i = 0; i < proofResponse.Response.size(); ++i)
     {
-        if (!(this->*(ModuleHandlers[_modulesWaitingForData.front()]))(proofResponse.Modules[i], &response))
+        if (!(this->*(ModuleHandlers[_modulesWaitingForData.front()]))(proofResponse.Response[i], &response))
             break;
 
         _modulesWaitingForData.pop();
@@ -469,17 +469,17 @@ void Battlenet::Session::HandleListSubscribeRequestCallback(PreparedQueryResult 
         do
         {
             Field* fields = result->Fetch();
-            uint32 build = fields[4].GetUInt32();
-            listSubscribeResponse->CharacterCounts.push_back({ RealmId(fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0)), fields[0].GetUInt8() });
+            listSubscribeResponse->ToonCounts.emplace_back(PrintableRealmHandle(fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32()), uint16(fields[0].GetUInt8()));
         } while (result->NextRow());
     }
 
-    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
-        listSubscribeResponse->RealmData.push_back(BuildListUpdate(&i.second));
-
-    listSubscribeResponse->RealmData.push_back(new WoWRealm::ListComplete());
-
     AsyncWrite(listSubscribeResponse);
+
+    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
+        AsyncWrite(BuildListUpdate(&i.second));
+
+    AsyncWrite(new WoWRealm::ListComplete());
+
     _subscribedToRealmListUpdates = true;
 }
 
@@ -491,29 +491,29 @@ void Battlenet::Session::HandleListUnsubscribe(WoWRealm::ListUnsubscribe const& 
 void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest)
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
-    Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
-    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE) || realm->Id.Build != _build)
+    Realm const* realm = sRealmList->GetRealm(joinRequest.Id);
+    if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE) || realm->Build != _build)
     {
-        joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
+        joinResponse->Type = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);
         return;
     }
 
-    joinResponse->ServerSeed = rand32();
+    joinResponse->Success.ServerSalt = rand32();
 
     uint8 sessionKey[40];
     HmacSha1 hmac(K.GetNumBytes(), K.AsByteArray().get());
     hmac.UpdateData((uint8*)"WoW\0", 4);
-    hmac.UpdateData((uint8*)&joinRequest.ClientSeed, 4);
-    hmac.UpdateData((uint8*)&joinResponse->ServerSeed, 4);
+    hmac.UpdateData((uint8*)&joinRequest.ClientSalt, 4);
+    hmac.UpdateData((uint8*)&joinResponse->Success.ServerSalt, 4);
     hmac.Finalize();
 
     memcpy(sessionKey, hmac.GetDigest(), hmac.GetLength());
 
     HmacSha1 hmac2(K.GetNumBytes(), K.AsByteArray().get());
     hmac2.UpdateData((uint8*)"WoW\0", 4);
-    hmac2.UpdateData((uint8*)&joinResponse->ServerSeed, 4);
-    hmac2.UpdateData((uint8*)&joinRequest.ClientSeed, 4);
+    hmac2.UpdateData((uint8*)&joinResponse->Success.ServerSalt, 4);
+    hmac2.UpdateData((uint8*)&joinRequest.ClientSalt, 4);
     hmac2.Finalize();
 
     memcpy(sessionKey + hmac.GetLength(), hmac2.GetDigest(), hmac2.GetLength());
@@ -521,25 +521,21 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
         ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountInfo->Id);
 
-    joinResponse->IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
+    joinResponse->Success.IPv4.push_back(realm->GetAddressForClient(GetRemoteIpAddress()));
 
     AsyncWrite(joinResponse);
 }
 
-void Battlenet::Session::HandleSocialNetworkCheckConnected(Friends::SocialNetworkCheckConnected const& socialNetworkCheckConnected)
-{
-    Friends::SocialNetworkCheckConnectedResult* socialNetworkCheckConnectedResult = new Friends::SocialNetworkCheckConnectedResult();
-    socialNetworkCheckConnectedResult->SocialNetworkId = socialNetworkCheckConnected.SocialNetworkId;
-    AsyncWrite(socialNetworkCheckConnectedResult);
-}
-
 void Battlenet::Session::HandleGetStreamItemsRequest(Cache::GetStreamItemsRequest const& getStreamItemsRequest)
 {
-    if (ModuleInfo* module = sModuleMgr->CreateModule(getStreamItemsRequest.Locale, getStreamItemsRequest.ItemName))
+    if (getStreamItemsRequest.Stream.Type != Cache::GetStreamItemsRequest::StreamId::DESCRIPTION)
+        return;
+
+    if (ModuleInfo* module = sModuleMgr->CreateModule(getStreamItemsRequest.Locale, getStreamItemsRequest.Stream.Description.ItemName))
     {
         Cache::GetStreamItemsResponse* getStreamItemsResponse = new Cache::GetStreamItemsResponse();
-        getStreamItemsResponse->Index = getStreamItemsRequest.Index;
-        getStreamItemsResponse->Modules.push_back(module);
+        getStreamItemsResponse->Token = getStreamItemsRequest.Token;
+        getStreamItemsResponse->Items.push_back(module);
         AsyncWrite(getStreamItemsResponse);
     }
 }
@@ -570,11 +566,11 @@ void Battlenet::Session::ReadHandler()
         try
         {
             PacketHeader header;
-            header.Opcode = stream.Read<uint32>(6);
+            header.Command = stream.Read<uint32>(6);
             if (stream.Read<bool>(1))
                 header.Channel = stream.Read<int32>(4);
 
-            if (header.Channel != AUTHENTICATION && (header.Channel != CONNECTION || header.Opcode != Connection::CMSG_PING) && !_authed)
+            if (header.Channel != AUTHENTICATION && (header.Channel != CONNECTION || header.Command != Connection::CMSG_PING) && !_authed)
             {
                 TC_LOG_DEBUG("session.packets", "%s Received not allowed %s. Client has not authed yet.", GetClientInfo().c_str(), header.ToString().c_str());
                 CloseSocket();
@@ -976,10 +972,10 @@ bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, Serv
     Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
     if (dataStream->Read<uint8>(8) == 1 && _accountInfo && _gameAccountInfo)
     {
-        logonResponse->AccountId = _accountInfo->Id;
-        logonResponse->GameAccountName = _gameAccountInfo->Name;
-        logonResponse->GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS;
-        logonResponse->FailedLogins = _accountInfo->FailedLogins;
+        logonResponse->Result.Success.AccountId = _accountInfo->Id;
+        logonResponse->Result.Success.GameAccountName = _gameAccountInfo->Name;
+        logonResponse->Result.Success.GameAccountFlags = GAMEACCOUNT_FLAG_PROPASS;
+        logonResponse->Result.Success.LogonFailures = _accountInfo->FailedLogins;
 
         SQLTransaction trans = LoginDatabase.BeginTransaction();
 
@@ -1087,7 +1083,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
     memcpy(resume->Data, resumeData.GetBuffer(), resume->DataSize);
 
     Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
-    resumeResponse->Modules.push_back(resume);
+    resumeResponse->Result.Success.FinalRequest.push_back(resume);
     ReplaceResponse(response, resumeResponse);
     _authed = true;
     sSessionMgr.AddSession(this);
@@ -1103,15 +1099,15 @@ bool Battlenet::Session::UnhandledModule(BitStream* /*dataStream*/, ServerPacket
     return false;
 }
 
-void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms)
+void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmHandle>& deletedRealms)
 {
     for (Realm const* realm : realms)
         AsyncWrite(BuildListUpdate(realm));
 
-    for (RealmId& deleted : deletedRealms)
+    for (RealmHandle& deleted : deletedRealms)
     {
         WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
-        listUpdate->UpdateState = WoWRealm::ListUpdate::DELETED;
+        listUpdate->State.Type = WoWRealm::ListUpdate::StateType::DELETED;
         listUpdate->Id = deleted;
         AsyncWrite(listUpdate);
     }
@@ -1119,32 +1115,32 @@ void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::ve
 
 Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const* realm) const
 {
-    uint32 flag = realm->Flags & ~REALM_FLAG_SPECIFYBUILD;
-    RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm->Id.Build);
-    if (realm->Id.Build != _build)
-    {
-        flag |= REALM_FLAG_INVALID;
-        if (buildInfo)
-            flag |= REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
-    }
+    uint32 flag = realm->Flags;
+    if (realm->Build != _build)
+        flag |= REALM_FLAG_VERSION_MISMATCH;
 
     WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
-    listUpdate->Timezone = realm->Timezone;
-    listUpdate->Population = realm->PopulationLevel;
-    listUpdate->Lock = (realm->AllowedSecurityLevel > _gameAccountInfo->SecurityLevel) ? 1 : 0;
-    listUpdate->Type = realm->Type;
-    listUpdate->Name = realm->Name;
+    listUpdate->State.Update.Category = realm->Timezone;
+    listUpdate->State.Update.Population = realm->PopulationLevel;
+    listUpdate->State.Update.StateFlags = (realm->AllowedSecurityLevel > _gameAccountInfo->SecurityLevel) ? 1 : 0;
+    listUpdate->State.Update.Type = realm->Type;
+    listUpdate->State.Update.Name = realm->Name;
 
-    if (flag & REALM_FLAG_SPECIFYBUILD)
+    if (_gameAccountInfo->SecurityLevel > SEC_PLAYER)
     {
+        listUpdate->State.Update.PrivilegedData = boost::in_place();
         std::ostringstream version;
-        version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
+        if (RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm->Build))
+            version << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << '.' << buildInfo->Build;
+        else
+            version << "x.x.x." << realm->Build;
 
-        listUpdate->Version = version.str();
-        listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+        listUpdate->State.Update.PrivilegedData->Version = version.str();
+        listUpdate->State.Update.PrivilegedData->ConfigId = realm->GetConfigId();
+        listUpdate->State.Update.PrivilegedData->Address = realm->GetAddressForClient(GetRemoteIpAddress());
     }
 
-    listUpdate->Flags = flag;
+    listUpdate->State.Update.InfoFlags = flag;
     listUpdate->Id = realm->Id;
     return listUpdate;
 }
