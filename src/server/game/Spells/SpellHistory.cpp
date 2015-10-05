@@ -870,6 +870,23 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
     }
 }
 
+uint16 SpellHistory::GetArenaCooldownsSize()
+{
+    uint16 count = 0;
+
+    for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+
+        if (spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS)
+            ++count;
+        ++itr;
+    }
+
+    return count;
+}
+
 template void SpellHistory::LoadFromDB<Player>(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);
 template void SpellHistory::LoadFromDB<Pet>(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);
 template void SpellHistory::SaveToDB<Player>(SQLTransaction& trans);

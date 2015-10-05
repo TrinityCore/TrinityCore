@@ -69,6 +69,9 @@ void WorldSession::HandleDuelAccepted()
     TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
     TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
 
+    player->UpdateHasCoolDownBeforeDuel();
+    plTarget->UpdateHasCoolDownBeforeDuel();
+
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
