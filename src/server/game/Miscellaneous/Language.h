@@ -28,6 +28,11 @@ enum BroadcastTextIds
 
 enum TrinityStrings
 {
+    
+    // [AZTH]
+    LANG_BG_ANNOUNCE_TEAM_READY         = 90000,
+    // [/AZTH]
+
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
     LANG_SELECT_CREATURE                = 2,
@@ -1202,10 +1207,6 @@ enum TrinityStrings
     LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD   = 11007,
 
     LANG_NPCINFO_INHABIT_TYPE                     = 11008,
-    LANG_NPCINFO_FLAGS_EXTRA                      = 11009,
-
-    // [AZTH]
-    LANG_BG_ANNOUNCE_TEAM_READY                   = 90000
-    // [/AZTH]
+    LANG_NPCINFO_FLAGS_EXTRA                      = 11009
 };
 #endif
