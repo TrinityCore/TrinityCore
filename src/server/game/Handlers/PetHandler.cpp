@@ -468,18 +468,18 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPacket& recvData)
+void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
 {
-    ObjectGuid petguid;
-    uint8  count;
+    //ObjectGuid petguid;
+    size_t count;
 
-    recvData >> petguid;
+    //recvData >> petguid;
 
-    Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
+	Unit* pet = ObjectAccessor::GetUnit(*_player, packet.petGuid);
 
     if (!pet || pet != _player->GetFirstControlled())
     {
-        TC_LOG_ERROR("network", "HandlePetSetAction: Unknown %s or owner (%s)", petguid.ToString().c_str(), _player->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("network", "HandlePetSetAction: Unknown %s or owner (%s)", packet.petGuid.ToString().c_str(), _player->GetGUID().ToString().c_str());
         return;
     }
 
@@ -490,7 +490,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         return;
     }
 
-    count = (recvData.size() == 24) ? 2 : 1;
+	count = (packet.GetSize() == 24) ? 2 : 1;
 
     uint32 position[2];
     uint32 data[2];
@@ -498,8 +498,8 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        recvData >> position[i];
-        recvData >> data[i];
+        packet.position[i] >> position[i];
+        packet.data[i] >> data[i];
 
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 

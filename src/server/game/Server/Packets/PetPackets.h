@@ -52,8 +52,7 @@ namespace WorldPackets
             PetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_ACTION, std::move(packet)) { }
 
             void Read() override;
-
-            ObjectGuid petGuid;
+	        ObjectGuid petGuid;
             ObjectGuid targetGuid;
             uint16 spellid = 0;
             uint8 commandStat = 0;
@@ -69,13 +68,10 @@ namespace WorldPackets
             PetSetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
 
             void Read() override;
-
-            ObjectGuid petGuid;
-            uint32 petBarIndex = 0;
-            uint16 spellid = 0;
-            uint8 commandStat = 0;
-            uint8 activeStat = 0;
-          
+			
+			ObjectGuid petGuid;
+			uint32 position[2];
+			uint32 data[2];
         };
 
         //CMSG_LEARN_PET_SPECIALIZATION_GROUP

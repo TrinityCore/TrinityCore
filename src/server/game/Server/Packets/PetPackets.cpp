@@ -55,11 +55,17 @@ void WorldPackets::Pet::PetAction::Read()
 
 void WorldPackets::Pet::PetSetAction::Read()
 {
-    _worldPacket >> petGuid;
-    _worldPacket >> petBarIndex;
-    _worldPacket >> spellid;
-    _worldPacket >> commandStat;
-    _worldPacket >> activeStat;
+	
+	 auto count = (_worldPacket.size() == 24) ? 2 : 1;
+	 
+	 _worldPacket >> petGuid;
+	 
+	 for (uint8 i = 0; i < count; ++i)
+	 {
+		 _worldPacket >> position[i];
+		 _worldPacket >> data[i];
+	 }
+   
 }
 
 void WorldPackets::Pet::LearnPetSpecializationGroup::Read()
