@@ -34,6 +34,7 @@
 #include "WorldSession.h"
 
 #define PET_XP_FACTOR 0.05f
+#include <Packets/PetPackets.h>
 
 Pet::Pet(Player* owner, PetType type) :
     Guardian(NULL, owner, true), m_usedTalentCount(0), m_removed(false),
@@ -291,6 +292,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         CharacterDatabase.CommitTransaction(trans);
     }
 
+	TC_LOG_DEBUG("entities.pet", "Pet Guilds Send");
+	WorldPackets::Pet::PetGuids response;
+	response.petCount = 1;
+	response.petGuids = this->GetGUID();
+	owner->GetSession()->SendPacket(response.Write());
+
+
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
     // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside
     /// @todo pets should be summoned from real cast instead of just faking it?
@@ -310,6 +318,22 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
+	
+	// Pet Added
+	if (map->AddToMap(this->ToCreature()))
+	{
+		TC_LOG_DEBUG("entities.pet", "Pet Added Send");
+		WorldPackets::Pet::PetAdded addedpacket;
+
+		addedpacket.petSlot = uint32(fields[7].GetUInt8());
+		addedpacket.petNumber = petId;
+		addedpacket.petCreatureID = fields[1].GetInt32();
+		addedpacket.petDisplayID = fields[3].GetInt32();
+		addedpacket.petExperienceLevel = fields[5].GetInt32();
+		addedpacket.petNameLenght = uint8(fields[8].GetString().length());
+		addedpacket.petName = fields[8].GetString();
+		owner->GetSession()->SendPacket(addedpacket.Write());
+	}
 
     InitTalentForLevel();                                   // set original talents points before spell loading
 
