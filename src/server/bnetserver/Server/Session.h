@@ -106,7 +106,6 @@ namespace Battlenet
         void HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& joinRequest);
 
         // Friends
-        void HandleSocialNetworkCheckConnected(Friends::SocialNetworkCheckConnected const& socialNetworkCheckConnected);
 
         // Cache
         void HandleGetStreamItemsRequest(Cache::GetStreamItemsRequest const& getStreamItemsRequest);
@@ -114,7 +113,7 @@ namespace Battlenet
         void Start() override;
         bool Update() override;
 
-        void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
+        void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmHandle>& deletedRealms);
 
         uint32 GetAccountId() const { return _accountInfo->Id; }
         uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }

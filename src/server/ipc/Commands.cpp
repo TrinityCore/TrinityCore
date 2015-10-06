@@ -18,7 +18,7 @@
 #include "Commands.h"
 #include <zmqpp/message.hpp>
 
-zmqpp::message& operator>>(zmqpp::message& msg, IPCHeader& header)
+zmqpp::message& operator>>(zmqpp::message& msg, IPC::Header& header)
 {
     msg >> header.Channel;
     msg >> header.Command;
@@ -28,19 +28,19 @@ zmqpp::message& operator>>(zmqpp::message& msg, IPCHeader& header)
 zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::RealmHandle& realm)
 {
     msg >> realm.Region;
-    msg >> realm.Battlegroup;
-    msg >> realm.Index;
+    msg >> realm.Site;
+    msg >> realm.Realm;
     return msg;
 }
 
-zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::Header& header)
+zmqpp::message& operator>>(zmqpp::message& msg, IPC::BattlenetComm::Header& header)
 {
     msg >> header.Ipc;
     msg >> header.Realm;
     return msg;
 }
 
-zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::ToonHandle& toonHandle)
+zmqpp::message& operator>>(zmqpp::message& msg, IPC::BattlenetComm::ToonHandle& toonHandle)
 {
     msg >> toonHandle.AccountId;
     msg >> toonHandle.GameAccountId;
@@ -49,7 +49,7 @@ zmqpp::message& operator>>(zmqpp::message& msg, Battlenet::ToonHandle& toonHandl
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, IPCHeader const& header)
+zmqpp::message& operator<<(zmqpp::message& msg, IPC::Header const& header)
 {
     msg << header.Channel;
     msg << header.Command;
@@ -59,19 +59,19 @@ zmqpp::message& operator<<(zmqpp::message& msg, IPCHeader const& header)
 zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::RealmHandle const& realm)
 {
     msg << realm.Region;
-    msg << realm.Battlegroup;
-    msg << realm.Index;
+    msg << realm.Site;
+    msg << realm.Realm;
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::Header const& header)
+zmqpp::message& operator<<(zmqpp::message& msg, IPC::BattlenetComm::Header const& header)
 {
     msg << header.Ipc;
     msg << header.Realm;
     return msg;
 }
 
-zmqpp::message& operator<<(zmqpp::message& msg, Battlenet::ToonHandle const& toonHandle)
+zmqpp::message& operator<<(zmqpp::message& msg, IPC::BattlenetComm::ToonHandle const& toonHandle)
 {
     msg << toonHandle.AccountId;
     msg << toonHandle.GameAccountId;

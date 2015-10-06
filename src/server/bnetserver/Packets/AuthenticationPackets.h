@@ -43,6 +43,16 @@ namespace Battlenet
             SMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2    = 0x8   // Not implemented
         };
 
+        struct RequestCommon : public PrintableComponent
+        {
+            std::string Program;
+            std::string Platform;
+            std::string Locale;
+            std::vector<Version::Record> Versions;
+
+            std::string ToString() const override;
+        };
+
         class ResumeRequest final : public ClientPacket
         {
         public:
@@ -55,11 +65,8 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            std::string Program;
-            std::string Platform;
-            std::string Locale;
-            std::vector<Component> Components;
-            std::string Login;
+            RequestCommon Common;
+            std::string Account;
             uint8 GameAccountRegion = 0;
             std::string GameAccountName;
         };
@@ -78,7 +85,7 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            std::vector<BitStream*> Modules;
+            std::vector<BitStream*> Response;
         };
 
         class LogonRequest3 final : public ClientPacket
@@ -93,53 +100,79 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            std::string Program;
-            std::string Platform;
-            std::string Locale;
-            std::vector<Component> Components;
-            std::string Login;
+            RequestCommon Common;
+            std::string Account;
             uint64 Compatibility = 0;
         };
 
-        class ResponseFailure
+        struct FailureType : public PrintableComponent
         {
-        public:
-            enum Result
+            Optional<Cache::Handle> Strings;
+
+            enum
             {
                 UPDATE = 0,
                 FAILURE = 1,
                 VERSION_CHECK_DISCONNECT = 2
             };
 
-            ResponseFailure() : ResultValue(UPDATE), Error(AUTH_OK), Wait(0) { }
+            struct ResultType : public PrintableComponent
+            {
+                int32 Type = FAILURE;
 
-            Result ResultValue;
-            AuthResult Error;
-            int32 Wait;
+                struct UpdateType : public PrintableComponent
+                {
+                    std::string ToString() const override;
+                } Update;
+
+                struct FailureType : public PrintableComponent
+                {
+                    AuthResult Error = AUTH_OK;
+                    int32 Wait = 0;
+
+                    std::string ToString() const override;
+                } Failure;
+
+                struct VersionCheckDisconnectType : public PrintableComponent
+                {
+                    std::string ToString() const override;
+                } VersionCheckDisconnect;
+
+                std::string ToString() const override;
+            } Result;
+
+            std::string ToString() const override;
         };
 
-        class Regulator
+        struct Regulator : public PrintableComponent
         {
-        public:
-            enum Info
+            enum
             {
                 NONE = 0,
                 LEAKY_BUCKET = 1
             };
 
-            Regulator() : Type(LEAKY_BUCKET), Threshold(25000000), Rate(1000) { }
+            int32 Type = LEAKY_BUCKET;
+            struct NoneType : public PrintableComponent
+            {
+                std::string ToString() const override;
+            } None;
 
-            Info Type;
-            uint32 Threshold;
-            uint32 Rate;
+            struct LeakyBucketType : public PrintableComponent
+            {
+                uint32 Threshold = 25000000;
+                uint32 Rate = 1000;
+
+                std::string ToString() const override;
+            } LeakyBucket;
+
+            std::string ToString() const override;
         };
 
         class LogonResponse final : public ServerPacket
         {
         public:
-            LogonResponse() : ServerPacket(PacketHeader(SMSG_LOGON_RESPONSE, AUTHENTICATION)),
-                PingTimeout(120000), AccountId(0), Region(2), Flags(0),
-                GameAccountRegion(2), GameAccountFlags(0), FailedLogins(0)
+            LogonResponse() : ServerPacket(PacketHeader(SMSG_LOGON_RESPONSE, AUTHENTICATION))
             {
             }
 
@@ -147,29 +180,46 @@ namespace Battlenet
 
             void Write() override;
             std::string ToString() const override;
-
-            std::vector<ModuleInfo*> Modules;
             void SetAuthResult(AuthResult result);
-            ResponseFailure Result;
 
-            int32 PingTimeout;
-            Regulator RegulatorRules;
-            std::string FirstName;
-            std::string LastName;
-            uint32 AccountId;
-            uint8 Region;
-            uint64 Flags;
-            uint8 GameAccountRegion;
-            std::string GameAccountName;
-            uint64 GameAccountFlags;
+            struct ResultType : public PrintableComponent
+            {
+                enum
+                {
+                    SUCCESS = 0,
+                    FAILURE = 1
+                };
 
-            uint32 FailedLogins;
+                int32 Type = SUCCESS;
+                struct SuccessType : public PrintableComponent
+                {
+                    std::vector<ModuleInfo*> FinalRequest;
+                    int32 PingTimeout = 120000;
+                    Optional<Regulator> RegulatorRules;
+                    Battlenet::Account::FullName FullName;
+                    uint32 AccountId = 0;
+                    uint8 Region = 2;
+                    uint64 Flags = 0;
+                    uint8 GameAccountRegion = 2;
+                    std::string GameAccountName;
+                    uint64 GameAccountFlags = 0;
+                    uint32 LogonFailures = 0;
+
+                    std::string ToString() const override;
+                } Success;
+
+                FailureType Failure;
+
+                std::string ToString() const override;
+            } Result;
+
+            Optional<std::vector<uint8>> Raf;
         };
 
         class ResumeResponse final : public ServerPacket
         {
         public:
-            ResumeResponse() : ServerPacket(PacketHeader(SMSG_RESUME_RESPONSE, AUTHENTICATION)), PingTimeout(120000)
+            ResumeResponse() : ServerPacket(PacketHeader(SMSG_RESUME_RESPONSE, AUTHENTICATION))
             {
             }
 
@@ -178,12 +228,26 @@ namespace Battlenet
             void Write() override;
             std::string ToString() const override;
 
-            std::vector<ModuleInfo*> Modules;
             void SetAuthResult(AuthResult result);
-            ResponseFailure Result;
 
-            int32 PingTimeout;
-            Regulator RegulatorRules;
+            struct ResultType
+            {
+                enum
+                {
+                    SUCCESS = 0,
+                    FAILURE = 1
+                };
+
+                int32 Type = SUCCESS;
+                struct SuccessType
+                {
+                    std::vector<ModuleInfo*> FinalRequest;
+                    int32 PingTimeout = 120000;
+                    Optional<Regulator> RegulatorRules;
+                } Success;
+
+                FailureType Failure;
+            } Result;
         };
 
         class ProofRequest final : public ServerPacket

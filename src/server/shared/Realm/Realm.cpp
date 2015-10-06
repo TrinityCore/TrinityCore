@@ -51,3 +51,13 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
     // Return external IP
     return endpoint;
 }
+
+uint32 Realm::GetConfigId() const
+{
+    return ConfigIdByType[Type];
+}
+
+uint32 const Realm::ConfigIdByType[MAX_CLIENT_REALM_TYPE] =
+{
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+};

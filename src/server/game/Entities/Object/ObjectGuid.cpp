@@ -97,12 +97,12 @@ ObjectGuid ObjectGuid::Global(HighGuid type, LowType counter)
 
 ObjectGuid ObjectGuid::RealmSpecific(HighGuid type, LowType counter)
 {
-    return ObjectGuid(uint64(uint64(type) << 58 | uint64(realmHandle.Index) << 42), counter);
+    return ObjectGuid(uint64(uint64(type) << 58 | uint64(realm.Id.Realm) << 42), counter);
 }
 
 ObjectGuid ObjectGuid::MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, LowType counter)
 {
-    return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realmHandle.Index & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6) | (uint64(subType) & 0x3F)),
+    return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realm.Id.Realm & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6) | (uint64(subType) & 0x3F)),
         uint64((uint64(serverId & 0xFFFFFF) << 40) | (counter & UI64LIT(0xFFFFFFFFFF))));
 }
 

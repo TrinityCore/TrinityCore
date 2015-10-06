@@ -20,7 +20,7 @@
 #define _REALMLIST_H
 
 #include "Common.h"
-#include "Realm.h"
+#include "Realm/Realm.h"
 #include "WorldListener.h"
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -33,7 +33,7 @@ using namespace boost::asio;
 class RealmList
 {
 public:
-    typedef std::map<Battlenet::RealmId, Realm> RealmMap;
+    typedef std::map<Battlenet::RealmHandle, Realm> RealmMap;
 
     static RealmList* instance()
     {
@@ -47,13 +47,13 @@ public:
     void Close();
 
     RealmMap const& GetRealms() const { return _realms; }
-    Realm const* GetRealm(Battlenet::RealmId const& id) const;
+    Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
 
 private:
     RealmList();
 
     void UpdateRealms(boost::system::error_code const& error);
-    void UpdateRealm(Battlenet::RealmId const& id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+    void UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
         ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     RealmMap _realms;

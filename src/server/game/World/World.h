@@ -24,7 +24,7 @@
 #define __WORLD_H
 
 #include "Common.h"
-#include "Commands.h"
+#include "Realm/Realm.h"
 #include "ObjectGuid.h"
 #include "Timer.h"
 #include "SharedDefines.h"
@@ -455,18 +455,6 @@ enum BillingPlanFlags
     SESSION_ENABLE_CAIS     = 0x80
 };
 
-/// Type of server, this is values from second column of Cfg_Configs.dbc
-enum RealmType
-{
-    REALM_TYPE_NORMAL       = 0,
-    REALM_TYPE_PVP          = 1,
-    REALM_TYPE_NORMAL2      = 4,
-    REALM_TYPE_RP           = 6,
-    REALM_TYPE_RPPVP        = 8,
-    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
-                                                            // replaced by REALM_PVP in realm list
-};
-
 enum RealmZone
 {
     REALM_ZONE_UNKNOWN       = 0,                           // any language
@@ -551,6 +539,7 @@ typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 struct CharacterInfo
 {
     std::string Name;
+    uint32 AccountId;
     uint8 Class;
     uint8 Race;
     uint8 Sex;
@@ -777,7 +766,7 @@ class World
         void UpdateAreaDependentAuras();
 
         CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
-        void AddCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
+        void AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
         void DeleteCharacterInfo(ObjectGuid const& guid) { _characterInfoStore.erase(guid); }
         bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
         void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
@@ -902,7 +891,6 @@ class World
         std::deque<PreparedQueryResultFuture> m_realmCharCallbacks;
 };
 
-extern Battlenet::RealmHandle realmHandle;
 extern Realm realm;
 uint32 GetVirtualRealmAddress();
 

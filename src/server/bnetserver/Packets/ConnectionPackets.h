@@ -91,8 +91,8 @@ namespace Battlenet
             void Read() override;
             std::string ToString() const override;
 
-            uint16 Timeout = 0;
-            uint32 Tick = 0;
+            uint16 Error = 0;
+            uint32 Timeout = 0;
         };
 
         class ConnectionClosing final : public ClientPacket
@@ -115,13 +115,15 @@ namespace Battlenet
                 TIMEOUT = 13,
             };
 
-            struct PacketInfo
+            struct PacketInfo : public PrintableComponent
             {
-                uint16 LayerId;
-                std::string Channel;
-                uint32 Timestamp;
-                std::string CommandName;
+                std::string Layer;
+                std::string Command;
+                uint16 Offset;
                 uint16 Size;
+                uint32 Time;
+
+                std::string ToString() const override;
             };
 
             ConnectionClosing(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)

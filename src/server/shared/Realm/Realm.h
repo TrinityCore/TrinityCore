@@ -26,47 +26,62 @@ using namespace boost::asio;
 
 enum RealmFlags
 {
-    REALM_FLAG_NONE         = 0x00,
-    REALM_FLAG_INVALID      = 0x01,
-    REALM_FLAG_OFFLINE      = 0x02,
-    REALM_FLAG_SPECIFYBUILD = 0x04,
-    REALM_FLAG_UNK1         = 0x08,
-    REALM_FLAG_UNK2         = 0x10,
-    REALM_FLAG_RECOMMENDED  = 0x20,
-    REALM_FLAG_NEW          = 0x40,
-    REALM_FLAG_FULL         = 0x80
+    REALM_FLAG_NONE             = 0x00,
+    REALM_FLAG_VERSION_MISMATCH = 0x01,
+    REALM_FLAG_OFFLINE          = 0x02,
+    REALM_FLAG_SPECIFYBUILD     = 0x04,
+    REALM_FLAG_UNK1             = 0x08,
+    REALM_FLAG_UNK2             = 0x10,
+    REALM_FLAG_RECOMMENDED      = 0x20,
+    REALM_FLAG_NEW              = 0x40,
+    REALM_FLAG_FULL             = 0x80
 };
 
 #pragma pack(push, 1)
 
 namespace Battlenet
 {
-    struct RealmHandle;
-
-    struct RealmId
+    struct RealmHandle
     {
-        RealmId() : Region(0), Battlegroup(0), Index(0), Build(0) { }
-        RealmId(uint8 region, uint8 battlegroup, uint32 index, uint32 build)
-            : Region(region), Battlegroup(battlegroup), Index(index), Build(build) { }
+        RealmHandle() : Region(0), Site(0), Realm(0) { }
+        RealmHandle(uint8 region, uint8 battlegroup, uint32 index)
+            : Region(region), Site(battlegroup), Realm(index) { }
 
         uint8 Region;
-        uint8 Battlegroup;
-        uint32 Index;
-        uint32 Build;
+        uint8 Site;
+        uint32 Realm;   // primary key in `realmlist` table
 
-        bool operator<(RealmId const& r) const
+        bool operator<(RealmHandle const& r) const
         {
-            return memcmp(this, &r, sizeof(RealmId) - sizeof(Build)) < 0;
+            return Realm < r.Realm;
         }
+
+        uint32 GetAddress() const { return ((Site << 16) & 0xFF0000) | uint16(Realm); }
     };
 }
 
 #pragma pack(pop)
 
+/// Type of server, this is values from second column of Cfg_Configs.dbc
+enum RealmType
+{
+    REALM_TYPE_NORMAL       = 0,
+    REALM_TYPE_PVP          = 1,
+    REALM_TYPE_NORMAL2      = 4,
+    REALM_TYPE_RP           = 6,
+    REALM_TYPE_RPPVP        = 8,
+
+    MAX_CLIENT_REALM_TYPE   = 14,
+
+    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
+                                                            // replaced by REALM_PVP in realm list
+};
+
 // Storage object for a realm
 struct Realm
 {
-    Battlenet::RealmId Id;
+    Battlenet::RealmHandle Id;
+    uint32 Build;
     ip::address ExternalAddress;
     ip::address LocalAddress;
     ip::address LocalSubnetMask;
@@ -81,6 +96,9 @@ struct Realm
     bool Keep;
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
+    uint32 GetConfigId() const;
+
+    static uint32 const ConfigIdByType[MAX_CLIENT_REALM_TYPE];
 };
 
 #endif // Realm_h__

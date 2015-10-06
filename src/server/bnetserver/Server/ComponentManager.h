@@ -19,19 +19,13 @@
 #define ComponentManager_h__
 
 #include "Define.h"
+#include "PacketsCommon.h"
 #include <cstring>
 #include <string>
 #include <set>
 
 namespace Battlenet
 {
-    struct Component
-    {
-        std::string Program;
-        std::string Platform;
-        uint32 Build;
-    };
-
     class ComponentMgr
     {
         ComponentMgr() { }
@@ -39,7 +33,7 @@ namespace Battlenet
 
     public:
         void Load();
-        bool HasComponent(Component const* component) const;
+        bool HasComponent(Version::Record const* component) const;
         bool HasProgram(std::string const& program) const { return _programs.count(program) != 0; }
         bool HasPlatform(std::string const& platform) const { return _platforms.count(platform) != 0; }
 
@@ -50,7 +44,7 @@ namespace Battlenet
         }
 
     private:
-        std::set<Component*> _components;
+        std::set<Version::Record*> _components;
         std::set<std::string> _programs;
         std::set<std::string> _platforms;
     };

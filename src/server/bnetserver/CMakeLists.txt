@@ -63,9 +63,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging
   ${CMAKE_SOURCE_DIR}/src/server/ipc
+  ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Realm
   ${CMAKE_SOURCE_DIR}/src/server/shared/Service
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}

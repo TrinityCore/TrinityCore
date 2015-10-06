@@ -50,14 +50,16 @@ void Battlenet::Connection::LogoutRequest::CallHandler(Session* session)
 
 void Battlenet::Connection::DisconnectRequest::Read()
 {
-    Timeout = _stream.Read<uint16>(16);
-    Tick = _stream.Read<uint32>(32);
+    Error = _stream.Read<uint16>(16);
+    Timeout = _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::Connection::DisconnectRequest::ToString() const
 {
     std::ostringstream str;
-    str << "Battlenet::Connection::DisconnectRequest Timeout: " << Timeout << ", Tick: " << Tick;
+    str << "Battlenet::Connection::DisconnectRequest" << std::endl;
+    APPEND_FIELD(str, Error);
+    APPEND_FIELD(str, Timeout);
     return str.str();
 }
 
@@ -67,11 +69,11 @@ void Battlenet::Connection::ConnectionClosing::Read()
     for (size_t i = 0; i < Packets.size(); ++i)
     {
         PacketInfo& info = Packets[i];
-        info.CommandName = _stream.ReadFourCC();
-        info.Timestamp = _stream.Read<uint32>(32);
+        info.Command = _stream.ReadFourCC();
+        info.Time = _stream.Read<uint32>(32);
         info.Size = _stream.Read<uint32>(16);
-        info.Channel = _stream.ReadFourCC();
-        info.LayerId = _stream.Read<uint32>(16);
+        info.Layer = _stream.ReadFourCC();
+        info.Offset = _stream.Read<uint32>(16);
     }
 
     Reason = _stream.Read<ClosingReason>(4);
@@ -79,7 +81,7 @@ void Battlenet::Connection::ConnectionClosing::Read()
 
     if (_stream.Read<bool>(1))  // HasHeader
     {
-        Header.Opcode = _stream.Read<uint32>(6);
+        Header.Command = _stream.Read<uint32>(6);
         if (_stream.Read<bool>(1))
             Header.Channel = _stream.Read<int32>(4);
     }
@@ -87,14 +89,26 @@ void Battlenet::Connection::ConnectionClosing::Read()
     Now = _stream.Read<time_t>(32);
 }
 
+std::string Battlenet::Connection::ConnectionClosing::PacketInfo::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::Connection::ConnectionClosing::PacketInfo" << std::endl;
+    APPEND_FIELD(stream, Layer);
+    APPEND_FIELD(stream, Command);
+    APPEND_FIELD(stream, Offset);
+    APPEND_FIELD(stream, Size);
+    APPEND_FIELD(stream, Time);
+    return stream.str();
+}
+
 std::string Battlenet::Connection::ConnectionClosing::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::Connection::ConnectionClosing Reason: " << Reason << ", Now: " << Now << ", Packet history size: " << Packets.size();
-    for (PacketInfo const& packet : Packets)
-        stream << std::endl << "Battlenet::Connection::ConnectionClosing::PacketInfo LayerId: " << packet.LayerId
-        << ", Channel: " << packet.Channel << ", CommandName: " << packet.CommandName << ", Size: " << packet.Size << ", Timestamp: " << packet.Timestamp;
-
+    stream << "Battlenet::Connection::ConnectionClosing" << std::endl;
+    APPEND_FIELD(stream, Header);
+    APPEND_FIELD(stream, Reason);
+    APPEND_FIELD(stream, Packets);
+    APPEND_FIELD(stream, Now);
     return stream.str();
 }
 
