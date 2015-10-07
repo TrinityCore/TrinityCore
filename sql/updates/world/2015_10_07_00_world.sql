@@ -1,1 +1,1 @@
-SELECT * FROM `gossip_menu_option` WHERE `menu_id`=344
+DELETE FROM `gossip_menu_option` WHERE `menu_id`=344 AND `id`=3;
