@@ -73,7 +73,7 @@ namespace Battlenet
         std::string ToString() const override;
     };
 
-    class Packet
+    class Packet : public PrintableComponent
     {
     public:
         Packet(PacketHeader const& header, BitStream& stream) : _header(header), _stream(stream) { }
@@ -83,8 +83,6 @@ namespace Battlenet
 
         virtual void Write() = 0;
         virtual void Read() = 0;
-
-        virtual std::string ToString() const = 0;
 
     protected:
         PacketHeader _header;
