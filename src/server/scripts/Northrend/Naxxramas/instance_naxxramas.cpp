@@ -60,7 +60,6 @@ DoorData const doorData[] =
 
 MinionData const minionData[] =
 {
-    { NPC_FOLLOWER_WORSHIPPER,  BOSS_FAERLINA   },
     { NPC_DK_UNDERSTUDY,        BOSS_RAZUVIOUS  },
     { NPC_SIR,                  BOSS_HORSEMEN   },
     { NPC_THANE,                BOSS_HORSEMEN   },
@@ -126,6 +125,7 @@ class instance_naxxramas : public InstanceMapScript
                 minHorsemenDiedTime     = 0;
                 maxHorsemenDiedTime     = 0;
                 AbominationCount        = 0;
+                hadFaerlinaGreet        = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
                 playerDied              = 0;
@@ -319,6 +319,9 @@ class instance_naxxramas : public InstanceMapScript
                     case DATA_ABOMINATION_KILLED:
                         AbominationCount = value;
                         break;
+                    case DATA_HAD_FAERLINA_GREET:
+                        hadFaerlinaGreet = (value == 1u);
+                        break;
                 }
             }
 
@@ -328,6 +331,8 @@ class instance_naxxramas : public InstanceMapScript
                 {
                     case DATA_ABOMINATION_KILLED:
                         return AbominationCount;
+                    case DATA_HAD_FAERLINA_GREET:
+                        return (uint32)hadFaerlinaGreet;
                     default:
                         break;
                 }
@@ -635,6 +640,7 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid KelthuzadDoorGUID;
             ObjectGuid LichKingGUID;
             uint8 AbominationCount;
+            bool hadFaerlinaGreet;
             uint8 CurrentWingTaunt;
 
             /* The Immortal / The Undying */
