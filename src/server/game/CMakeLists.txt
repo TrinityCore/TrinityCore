@@ -45,6 +45,10 @@ target_link_libraries(game
   PUBLIC
     ipc
     Detour)
+    shared
+    Detour
+  PRIVATE
+    efsw)
 
 set_target_properties(game
     PROPERTIES

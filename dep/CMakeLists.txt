@@ -36,6 +36,7 @@ if(SERVERS)
   add_subdirectory(process)
   add_subdirectory(zmq)
   add_subdirectory(zmqpp)
+  add_subdirectory(efsw)
 endif()
 
 if(TOOLS)
