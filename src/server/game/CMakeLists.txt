@@ -43,7 +43,9 @@ target_include_directories(game
 target_link_libraries(game
   PUBLIC
     shared
-    Detour)
+    Detour
+  PRIVATE
+    efsw)
 
 set_target_properties(game
     PROPERTIES
