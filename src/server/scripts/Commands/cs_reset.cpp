@@ -39,6 +39,8 @@ public:
     {
         static ChatCommand resetCommandTable[] =
         {
+            { "honorworld",   rbac::RBAC_PERM_COMMAND_RESET_HONORWORLD,   true, &HandleResetHonorWorldCommand,   "", NULL },
+            { "arenaseason",  rbac::RBAC_PERM_COMMAND_RESET_ARENASEASON,  true, &HandleResetArenaSeasonCommand,  "", NULL },
             { "achievements", rbac::RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS, true, &HandleResetAchievementsCommand, "", NULL },
             { "honor",        rbac::RBAC_PERM_COMMAND_RESET_HONOR,        true, &HandleResetHonorCommand,        "", NULL },
             { "level",        rbac::RBAC_PERM_COMMAND_RESET_LEVEL,        true, &HandleResetLevelCommand,        "", NULL },
@@ -55,6 +57,43 @@ public:
         };
         return commandTable;
     }
+    
+    static bool HandleResetArenaSeasonCommand(ChatHandler* /*handler*/, const char* args)
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        std::string param = args;
+        if (*args && param == "delete")
+        {
+            trans->PAppend("TRUNCATE `arena_team`");
+            trans->PAppend("TRUNCATE `arena_team_member`");
+            trans->PAppend("TRUNCATE `character_arena_stats`");
+        }
+        else
+        {
+            trans->PAppend("UPDATE `arena_team` SET `rating`=%u,`seasonGames`=0,`seasonWins`=0,`weekGames`=0,`weekWins`=0,`rank`=0", sWorld->getIntConfig(CONFIG_ARENA_START_RATING));
+            trans->PAppend("UPDATE `arena_team_member` SET `personalRating`=%u,`weekGames`=0,`weekWins`=0,`seasonGames`=0,`seasonWins`=0", sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING));
+            trans->PAppend("UPDATE `character_arena_stats` SET `matchMakerRating`=%u", sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING));
+        }
+        CharacterDatabase.CommitTransaction(trans);
+
+        return true;
+    }
+
+    static bool HandleResetHonorWorldCommand(ChatHandler* /*handler*/, const char* args)
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        trans->PAppend("UPDATE `characters` SET `totalHonorPoints`=%u,`todayHonorPoints`=0,`yesterdayHonorPoints`=0", sWorld->getIntConfig(CONFIG_START_HONOR_POINTS));
+
+        std::string param = args;
+        if (*args && param == "kills")
+            trans->PAppend("UPDATE `characters` SET `totalKills`=0,`todayKills`=0,`yesterdayKills`=0");
+
+        CharacterDatabase.CommitTransaction(trans);
+
+        return true;
+    }
+    
 
     static bool HandleResetAchievementsCommand(ChatHandler* handler, char const* args)
     {
