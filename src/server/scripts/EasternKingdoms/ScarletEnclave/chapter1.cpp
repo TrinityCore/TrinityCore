@@ -93,11 +93,6 @@ class npc_unworthy_initiate : public CreatureScript
 public:
     npc_unworthy_initiate() : CreatureScript("npc_unworthy_initiate") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_unworthy_initiateAI(creature);
-    }
-
     struct npc_unworthy_initiateAI : public ScriptedAI
     {
         npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
@@ -156,7 +151,7 @@ public:
                 me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
                 if (Player* starter = ObjectAccessor::GetPlayer(*me, playerGUID))
-                    sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
+                    Talk(SAY_EVENT_ATTACK, starter);
 
                 phase = PHASE_TO_ATTACK;
             }
@@ -286,6 +281,11 @@ public:
             }
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_unworthy_initiateAI(creature);
+    }
 };
 
 class npc_unworthy_initiate_anchor : public CreatureScript
