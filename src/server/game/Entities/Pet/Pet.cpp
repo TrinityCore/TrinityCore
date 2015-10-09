@@ -98,162 +98,163 @@ void Pet::RemoveFromWorld()
 
 bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
 {
-    m_loading = true;
+	m_loading = true;
 
-    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
+	ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
 
-    PreparedStatement* stmt;
-    PreparedQueryResult result;
+	PreparedStatement* stmt;
+	PreparedQueryResult result;
 
-    if (petnumber)
-    {
-        // Known petnumber entry
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
-        stmt->setUInt64(0, ownerid);
-        stmt->setUInt32(1, petnumber);
-    }
-    else if (current)
-    {
-        // Current pet (slot 0)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
-        stmt->setUInt64(0, ownerid);
-        stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-    }
-    else if (petEntry)
-    {
-        // known petEntry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
-        stmt->setUInt64(0, ownerid);
-        stmt->setUInt32(1, petEntry);
-        stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
-        stmt->setUInt8(3, uint8(PET_SAVE_LAST_STABLE_SLOT));
-    }
-    else
-    {
-        // Any current or other non-stabled pet (for hunter "call pet")
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT);
-        stmt->setUInt64(0, ownerid);
-        stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
-        stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
-    }
+	if (petnumber)
+	{
+		// Known petnumber entry
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY);
+		stmt->setUInt64(0, ownerid);
+		stmt->setUInt32(1, petnumber);
+	}
+	else if (current)
+	{
+		// Current pet (slot 0)
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
+		stmt->setUInt64(0, ownerid);
+		stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
+	}
+	else if (petEntry)
+	{
+		// known petEntry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_2);
+		stmt->setUInt64(0, ownerid);
+		stmt->setUInt32(1, petEntry);
+		stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
+		stmt->setUInt8(3, uint8(PET_SAVE_LAST_STABLE_SLOT));
+	}
+	else
+	{
+		// Any current or other non-stabled pet (for hunter "call pet")
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_SLOT);
+		stmt->setUInt64(0, ownerid);
+		stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
+		stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
+	}
 
-    result = CharacterDatabase.Query(stmt);
+	result = CharacterDatabase.Query(stmt);
 
-    if (!result)
-    {
-        m_loading = false;
-        return false;
-    }
+	if (!result)
+	{
+		m_loading = false;
+		return false;
+	}
 
-    Field* fields = result->Fetch();
+	Field* fields = result->Fetch();
 
-    // update for case of current pet "slot = 0"
-    petEntry = fields[1].GetUInt32();
-    if (!petEntry)
-        return false;
+	// update for case of current pet "slot = 0"
+	petEntry = fields[1].GetUInt32();
+	if (!petEntry)
+		return false;
 
-    uint32 summonSpellId = fields[14].GetUInt32();
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(summonSpellId);
+	uint32 summonSpellId = fields[14].GetUInt32();
+	SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(summonSpellId);
 
-    bool isTemporarySummon = spellInfo && spellInfo->GetDuration() > 0;
-    if (current && isTemporarySummon)
-        return false;
+	bool isTemporarySummon = spellInfo && spellInfo->GetDuration() > 0;
+	if (current && isTemporarySummon)
+		return false;
 
-    PetType petType = PetType(fields[15].GetUInt8());
-    if (petType == HUNTER_PET)
-    {
-        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
-        if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets()))
-            return false;
-    }
+	PetType petType = PetType(fields[15].GetUInt8());
+	if (petType == HUNTER_PET)
+	{
+		CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
+		if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets()))
+			return false;
+	}
 
-    uint32 petId = fields[0].GetUInt32();
+	uint32 petId = fields[0].GetUInt32();
 
-    if (current && owner->IsPetNeedBeTemporaryUnsummoned())
-    {
-        owner->SetTemporaryUnsummonedPetNumber(petId);
-        return false;
-    }
+	if (current && owner->IsPetNeedBeTemporaryUnsummoned())
+	{
+		owner->SetTemporaryUnsummonedPetNumber(petId);
+		return false;
+	}
 
-    Map* map = owner->GetMap();
-    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, petEntry))
-        return false;
+	Map* map = owner->GetMap();
+	if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, petEntry))
+		return false;
 
-    CopyPhaseFrom(owner);
+	CopyPhaseFrom(owner);
 
-    setPetType(petType);
-    setFaction(owner->getFaction());
-    SetUInt32Value(UNIT_CREATED_BY_SPELL, summonSpellId);
+	setPetType(petType);
+	setFaction(owner->getFaction());
+	SetUInt32Value(UNIT_CREATED_BY_SPELL, summonSpellId);
 
-    if (IsCritter())
-    {
-        float px, py, pz;
-        owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
-        Relocate(px, py, pz, owner->GetOrientation());
+	if (IsCritter())
+	{
+		float px, py, pz;
+		owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+		Relocate(px, py, pz, owner->GetOrientation());
 
-        if (!IsPositionValid())
-        {
-            TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
-                GetGUID().ToString().c_str(), GetEntry(), GetPositionX(), GetPositionY());
-            return false;
-        }
+		if (!IsPositionValid())
+		{
+			TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+				GetGUID().ToString().c_str(), GetEntry(), GetPositionX(), GetPositionY());
+			return false;
+		}
 
-        map->AddToMap(this->ToCreature());
-        return true;
-    }
+		map->AddToMap(this->ToCreature());
+		return true;
+	}
 
-    m_charmInfo->SetPetNumber(petId, IsPermanentPetFor(owner));
+	m_charmInfo->SetPetNumber(petId, IsPermanentPetFor(owner));
 
-    SetDisplayId(fields[3].GetUInt32());
-    SetNativeDisplayId(fields[3].GetUInt32());
-    uint32 petlevel = fields[4].GetUInt16();
-    SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-    SetName(fields[8].GetString());
+	SetDisplayId(fields[3].GetUInt32());
+	SetNativeDisplayId(fields[3].GetUInt32());
+	uint32 petlevel = fields[4].GetUInt16();
+	SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+	SetName(fields[8].GetString());
 
-    switch (getPetType())
-    {
-        case SUMMON_PET:
-            petlevel = owner->getLevel();
-            SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet dismiss, cancel)
-            break;
-        case HUNTER_PET:
-            SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_WARRIOR);
-            SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
-            SetSheath(SHEATH_STATE_MELEE);
-            SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet abandon, cancel)
-            setPowerType(POWER_FOCUS);
-            break;
-        default:
-            if (!IsPetGhoul())
-                TC_LOG_ERROR("entities.pet", "Pet have incorrect type (%u) for pet loading.", getPetType());
-            break;
-    }
+	switch (getPetType())
+	{
+	case SUMMON_PET:
+		petlevel = owner->getLevel();
+		SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
+		SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet dismiss, cancel)
+		break;
+	case HUNTER_PET:
+		SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_WARRIOR);
+		SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
+		SetSheath(SHEATH_STATE_MELEE);
+		SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
+		SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE); // this enables popup window (pet abandon, cancel)
+		setPowerType(POWER_FOCUS);
+		break;
+	default:
+		if (!IsPetGhoul())
+			TC_LOG_ERROR("entities.pet", "Pet have incorrect type (%u) for pet loading.", getPetType());
+		break;
+	}
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped here
-    SetCreatorGUID(owner->GetGUID());
+	SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped here
+	SetCreatorGUID(owner->GetGUID());
 
-    InitStatsForLevel(petlevel);
-    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
+	InitStatsForLevel(petlevel);
+	SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
 
-    SynchronizeLevelWithOwner();
+	SynchronizeLevelWithOwner();
 
-    // Set pet's position after setting level, its size depends on it
-    float px, py, pz;
-    owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
-    Relocate(px, py, pz, owner->GetOrientation());
-    if (!IsPositionValid())
-    {
-        TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
-            GetGUID().ToString().c_str(), GetEntry(), GetPositionX(), GetPositionY());
-        return false;
-    }
+	// Set pet's position after setting level, its size depends on it
+	float px, py, pz;
+	owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+	Relocate(px, py, pz, owner->GetOrientation());
+	if (!IsPositionValid())
+	{
+		TC_LOG_ERROR("entities.pet", "Pet (%s, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+			GetGUID().ToString().c_str(), GetEntry(), GetPositionX(), GetPositionY());
+		return false;
+	}
+
 	if (petlevel < 10)
 		SetReactState(REACT_ASSIST);
 	else
 		SetReactState(ReactStates(fields[6].GetUInt8()));
-    
+
 	SetCanModifyStats(true);
 
     if (getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
@@ -295,10 +296,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         CharacterDatabase.CommitTransaction(trans);
     }
 
-	TC_LOG_DEBUG("entities.pet", "Pet Guilds Send");
+	TC_LOG_DEBUG("entities.pet", "Pet Guilds Send (%s, entry %d)", GetGUID().ToString().c_str(), GetEntry());
 	WorldPackets::Pet::PetGuids response;
-	response.petCount = 1;
-	response.petGuids = this->GetGUID();
+	response.PetCount = 1;
+	response.PetGuid = this->GetGUID();
 	owner->GetSession()->SendPacket(response.Write());
 
 
@@ -320,24 +321,23 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     owner->SetMinion(this, true);
-    map->AddToMap(this->ToCreature());
-	
-	// Pet Added
+   	
+	// Pet Added to map and send packet
 	if (map->AddToMap(this->ToCreature()))
 	{
-		TC_LOG_DEBUG("entities.pet", "Pet Added Send");
+		TC_LOG_DEBUG("entities.pet", "Pet Added to Map and Send packet");
 		WorldPackets::Pet::PetAdded addedpacket;
 
-		addedpacket.petSlot = uint32(fields[7].GetUInt8());
-		addedpacket.petNumber = petId;
-		addedpacket.petCreatureID = fields[1].GetInt32();
-		addedpacket.petDisplayID = fields[3].GetInt32();
-		addedpacket.petExperienceLevel = fields[5].GetInt32();
-		addedpacket.petNameLenght = uint8(fields[8].GetString().length());
-		addedpacket.petName = fields[8].GetString();
+		addedpacket.PetSlot = uint32(fields[7].GetUInt8());
+		addedpacket.PetNumber = petId;
+		addedpacket.PetCreatureID = fields[1].GetInt32();
+		addedpacket.PetDisplayID = fields[3].GetInt32();
+		addedpacket.PetExperienceLevel = fields[5].GetInt32();
+		addedpacket.PetNameLenght = uint8(fields[8].GetString().length());
+		addedpacket.PetName = fields[8].GetString();
 		owner->GetSession()->SendPacket(addedpacket.Write());
 	}
-
+	
     InitTalentForLevel();                                   // set original talents points before spell loading
 
     uint32 timediff = uint32(time(NULL) - fields[13].GetUInt32());

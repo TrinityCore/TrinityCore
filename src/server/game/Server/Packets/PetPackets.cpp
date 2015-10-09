@@ -20,11 +20,11 @@
 
 void WorldPackets::Pet::PetRename::Read()
 {
-    _worldPacket >> petGuid;
-    _worldPacket >> petNumber;
-    _worldPacket >> petNameLenght;
-    isdeclined = _worldPacket.ReadBit();
-    if (isdeclined)
+    _worldPacket >> PetGuid;
+    _worldPacket >> PetNumber;
+    _worldPacket >> PetNameLenght;
+    IsDeclined = _worldPacket.ReadBit();
+    if (IsDeclined)
     {
         uint8 count[5];
         for (uint8 i = 0; i < 5; i++)
@@ -34,22 +34,22 @@ void WorldPackets::Pet::PetRename::Read()
 
         for (uint8 i = 0; i < 5; i++)
         {
-            declinedname.name[i] = _worldPacket.ReadString(count[i]);
+            DeclinedName.name[i] = _worldPacket.ReadString(count[i]);
         }
     }
-    petName = _worldPacket.ReadString(petNameLenght);   
+    PetName = _worldPacket.ReadString(PetNameLenght);   
 }
 
 void WorldPackets::Pet::PetAction::Read()
 {
-    _worldPacket >> petGuid;
-    _worldPacket >> spellid;
-    _worldPacket >> commandStat;
-    _worldPacket >> activeStat;
-    _worldPacket >> targetGuid;
-    _worldPacket >> position_x;
-    _worldPacket >> position_y;
-    _worldPacket >> position_z;
+    _worldPacket >> PetGuid;
+    _worldPacket >> SpellId;
+    _worldPacket >> CommandStat;
+    _worldPacket >> ActiveStat;
+    _worldPacket >> TargetGuid;
+    _worldPacket >> PositionX;
+    _worldPacket >> PositionY;
+    _worldPacket >> PositionZ;
  
 }
 
@@ -76,10 +76,10 @@ void WorldPackets::Pet::LearnPetSpecializationGroup::Read()
 
 WorldPacket const* WorldPackets::Pet::PetGuids::Write()
 {
-    _worldPacket << petCount;
-    for (size_t i = 0; i < petCount; i++)
+    _worldPacket << PetCount;
+    for (size_t i = 0; i < PetCount; i++)
     {
-        _worldPacket << petGuids;
+        _worldPacket << PetGuid;
     }
          
     return &_worldPacket;
@@ -127,19 +127,20 @@ WorldPacket const* WorldPackets::Pet::PetSpellsMessage::Write()
     _worldPacket << creatureFamily;
     _worldPacket << specialization;
     _worldPacket << timeLimit;
-    _worldPacket << petModeAndOrders;
+    _worldPacket << reactState;
+    _worldPacket << commandState;
+    _worldPacket << flags;
 
     for (uint8 i = 0; i < ACTION_BAR_INDEX_END; ++i)
         _worldPacket << PetSpellActionBar.at(i);
-       
-
+     
     _worldPacket << actionsCount;
     _worldPacket << cooldownsCount;
     _worldPacket << spellHistoryCount;
-
-    _worldPacket << spellid;
-    _worldPacket << commandStat;
-    _worldPacket << activeStat;
+       
+    _worldPacket << ActionList;
+    _worldPacket << SpellHistoryList;
+    _worldPacket << CooldownList;
 
     return &_worldPacket;
 }

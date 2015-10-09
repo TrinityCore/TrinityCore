@@ -28,7 +28,7 @@ namespace WorldPackets
 {
     namespace Pet
     {
-        //CMSG_PET_RENAME
+        
         class PetRename final : public ClientPacket
         {
         public:
@@ -36,32 +36,34 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid petGuid;
-            uint32 petNumber = 0;
-            uint8 petNameLenght = 0;
-            std::string petName;
-            bool isdeclined = false;
-            DeclinedName declinedname;
+            ObjectGuid PetGuid;
+            uint32 PetNumber = 0;
+            uint8 PetNameLenght = 0;
+            std::string PetName;
+            bool IsDeclined = false;
+            DeclinedName DeclinedName;
             
         };
 
-         //CMSG_PET_ACTION
+        
         class PetAction final : public ClientPacket
         {
         public:
             PetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_ACTION, std::move(packet)) { }
 
             void Read() override;
-	        ObjectGuid petGuid;
-            ObjectGuid targetGuid;
-            uint16 spellid = 0;
-            uint8 commandStat = 0;
-            uint8 activeStat = 0;
-            float position_x, position_y, position_z;
+	        ObjectGuid PetGuid;
+            ObjectGuid TargetGuid;
+            uint16 SpellId = 0;
+            uint8 CommandStat = 0;
+            uint8 ActiveStat = 0;
+            float PositionX = 0.0f;
+            float PositionY = 0.0f;
+            float PositionZ = 0.0f;
         };
 
 
-        //CMSG_PET_SET_ACTION
+       
         class PetSetAction final : public ClientPacket
         {
         public:
@@ -74,7 +76,7 @@ namespace WorldPackets
 			uint32 data[2];
         };
 
-        //CMSG_LEARN_PET_SPECIALIZATION_GROUP
+       
         class LearnPetSpecializationGroup final : public ClientPacket
         {
         public:
@@ -87,7 +89,7 @@ namespace WorldPackets
         };
 
 
-        // SMSG_PET_GUIDS
+       
         class PetGuids final : public ServerPacket
         {
         public:
@@ -95,44 +97,41 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 petCount = 0;
-            ObjectGuid petGuids;
+            uint32 PetCount = 0;
+            ObjectGuid PetGuid;
            
         };
-		//TODO: not compet 
-        //SMSG_PET_SPELLS_MESSAGE
-        class PetSpellsMessage final : public ServerPacket
+		///@todo not complet 
+         class PetSpellsMessage final : public ServerPacket
         {
         public:
-            PetSpellsMessage() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 4 + 40 + 4 + 4 + 4) { }
+            PetSpellsMessage() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 1 + 1 + 2 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid petGUID;
-            uint16 creatureFamily = CREATURE_FAMILY_WOLF;   // creature family (required for pet talents)
-            uint16 specialization = 0;                      //Specialization  
-            int32 timeLimit = 0;                           // TimeLimit
-            //hunterpet 256
-            //IMP = 259;
-            uint32 petModeAndOrders = 259;
+            uint16 creatureFamily = CREATURE_FAMILY_WOLF;   // Creature family (required for pet talents)
+            uint16 specialization = 0;                      // Specialization  
+            int32 timeLimit = 0;                            // TimeLimit
+            uint8 reactState = 3;                           // Recast Assist
+            uint8 commandState = 1;                         // Follow
+            uint16 flags = 0;                               // Flags, mostly unknown
             std::vector<uint32> PetSpellActionBar;
-            
             int32 actionsCount = 0;                         //ActionsCount
             uint32 cooldownsCount = 0;                      //CooldownsCount
             uint32 spellHistoryCount = 0;                   //SpellHistoryCount
             
             //ActionsList
-            uint16 spellid = 0;
-            uint8 commandStat = 0;
-            uint8 activeStat = 0;
+            std::vector<uint32> ActionList;
 
             //CooldownsList
-
+            std::vector<uint32> CooldownList;
+            
             //SpellHistoryList
-           
+            std::vector<uint32> SpellHistoryList;
         };
 
-        // SMSG_PET_ADDED
+       
         class PetAdded final : public ServerPacket
         {
         public:
@@ -140,19 +139,17 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 petSlot = 0;
-            int32 petNumber = 0; //lowGuid (42129178)
-            int32 petCreatureID = 42717; //default Wolf PEt Hunter
-            int32 petDisplayID = 903;
-            int32 petExperienceLevel = 1;
-            int8  petFlags = 0;
-			std::string petName = "Pet";
-            int8 petNameLenght = 3;
-            
-
+            int32 PetSlot = 0;
+			int32 PetNumber = 0;         
+            int32 PetCreatureID = 0; 
+            int32 PetDisplayID = 0;
+            int32 PetExperienceLevel = 1;
+            int8  PetFlags = 0;
+			std::string PetName = "Pet";
+			int8 PetNameLenght = 3;
         };
 
-        //SMSG_PET_LEARNED_SPELLS
+       
         class PetLearnedSpells final : public ServerPacket
         {
         public:
@@ -163,7 +160,7 @@ namespace WorldPackets
             PetSpellMap PetSp;
         };
 
-        //SMSG_PET_UNLEARNED_SPELLS
+       
         class PetUnlearnedSpells final : public ServerPacket
         {
         public:
