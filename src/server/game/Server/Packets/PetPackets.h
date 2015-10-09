@@ -145,8 +145,7 @@ namespace WorldPackets
             int32 PetDisplayID = 0;
             int32 PetExperienceLevel = 1;
             int8  PetFlags = 0;
-			std::string PetName = "Pet";
-			int8 PetNameLenght = 3;
+            std::string PetName = "Pet";
         };
 
        

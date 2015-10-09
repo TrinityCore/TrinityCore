@@ -333,7 +333,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 		addedpacket.PetCreatureID = fields[1].GetInt32();
 		addedpacket.PetDisplayID = fields[3].GetInt32();
 		addedpacket.PetExperienceLevel = fields[5].GetInt32();
-		addedpacket.PetNameLenght = uint8(fields[8].GetString().length());
 		addedpacket.PetName = fields[8].GetString();
 		owner->GetSession()->SendPacket(addedpacket.Write());
 	}

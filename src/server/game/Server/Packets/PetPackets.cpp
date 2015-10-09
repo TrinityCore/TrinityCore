@@ -88,14 +88,14 @@ WorldPacket const* WorldPackets::Pet::PetGuids::Write()
 
 WorldPacket const* WorldPackets::Pet::PetAdded::Write()
 {
-    _worldPacket << petSlot
-                 << petNumber
-                 << petCreatureID
-                 << petDisplayID
-                 << petExperienceLevel
-                 << petFlags
-                 << petNameLenght
-                 << petName; 
+    _worldPacket << PetSlot;
+    _worldPacket << PetNumber;
+    _worldPacket << PetCreatureID;
+    _worldPacket << PetDisplayID;
+    _worldPacket << PetExperienceLevel;
+    _worldPacket << PetFlags;
+    _worldPacket << PetName.size();
+    _worldPacket << PetName;
 
     return &_worldPacket;
 }
