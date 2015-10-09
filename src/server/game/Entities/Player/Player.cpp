@@ -20094,9 +20094,10 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (pet->isControlled())
     {
-        WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-        data << uint64(0);
-        GetSession()->SendPacket(&data);
+		/// @todo: Disable  6.x
+        //WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
+        //data << uint64(0);
+        //GetSession()->SendPacket(&data);
 
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
@@ -20245,12 +20246,12 @@ void Player::PetSpellInitialize()
 
 	CharmInfo* charmInfo = pet->GetCharmInfo();
 
-	WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 4 + 1 + 1 + 2 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 + 4 + 4);
+	WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 1 + 1 + 2 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 + 4 + 4);
     
 	data << ObjectGuid(pet->GetGUID());
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
-	int32 duration = pet->GetDuration();
-    data << int32(0);
+	data << uint16(0); //Specialization TODO: NOT COMPLET
+	data << int32(pet->GetDuration());
 	data << uint8(pet->GetReactState());
 	data << uint8(charmInfo->GetCommandState());
 	data << uint16(0); // Flags, mostly unknown
@@ -20274,9 +20275,9 @@ void Player::PetSpellInitialize()
 	uint32 spellHistoryList = 0;
 	data << uint32(spellHistoryList);                     // placeholder
 
-
-	//Write Actions
-    if (pet->IsPermanentPetFor(this))
+	// TODO: Disable this !!! 
+	
+   /* if (pet->IsPermanentPetFor(this))
     {
         // spells loop
         for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
@@ -20288,7 +20289,7 @@ void Player::PetSpellInitialize()
             ++addlist;
         }
     }
-
+	*/
 
 	//Write PetSpellCooldown
 

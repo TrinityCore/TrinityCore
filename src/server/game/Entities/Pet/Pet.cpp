@@ -249,9 +249,12 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             GetGUID().ToString().c_str(), GetEntry(), GetPositionX(), GetPositionY());
         return false;
     }
-
-    SetReactState(ReactStates(fields[6].GetUInt8()));
-    SetCanModifyStats(true);
+	if (petlevel < 10)
+		SetReactState(REACT_ASSIST);
+	else
+		SetReactState(ReactStates(fields[6].GetUInt8()));
+    
+	SetCanModifyStats(true);
 
     if (getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
