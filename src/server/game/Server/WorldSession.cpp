@@ -840,13 +840,33 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
-
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
         in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
         It will freeze clients that receive this player's movement info.
     */
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-        MOVEMENTFLAG_ROOT);
+    // Only adjust movement flag removal for vehicles with the VEHICLE_FLAG_FIXED_POSITION flag, or the hard coded exceptions below:
+    //  30236 | Argent Cannon
+    //  39759 | Tankbuster Cannon
+    if (GetPlayer()->GetVehicleBase() && ((GetPlayer()->GetVehicle()->GetVehicleInfo()->m_flags & VEHICLE_FLAG_FIXED_POSITION) || GetPlayer()->GetVehicleBase()->GetEntry() == 30236 || GetPlayer()->GetVehicleBase()->GetEntry() == 39759))
+    {
+        // Actually players in rooted vehicles still send commands, don't clear root for these!
+        // Check specifically for the following conditions:
+        // MOVEMENTFLAG_ROOT + no other flags          (0x800)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_LEFT       (0x810)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_RIGHT      (0x820)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_PITCH_UP   (0x840)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_PITCH_DOWN (0x880)
+        // If none of these are true, clear the root
+        if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN))
+            REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
+                MOVEMENTFLAG_MASK_MOVING);
+    }
+    else
+    {
+        // Only remove here for non vehicles
+        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
+            MOVEMENTFLAG_ROOT);
+    }
 
     //! Cannot hover without SPELL_AURA_HOVER
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
