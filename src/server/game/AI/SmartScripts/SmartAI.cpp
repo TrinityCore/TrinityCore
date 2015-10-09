@@ -728,12 +728,12 @@ void SmartAI::sGossipHello(Player* player)
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player);
 }
 
-void SmartAI::sGossipSelect(Player* player, uint32 sender, uint32 action)
+void SmartAI::sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, sender, action);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, menuId, gossipListId);
 }
 
-void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
+void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/) { }
 
 void SmartAI::sQuestAccept(Player* player, Quest const* quest)
 {

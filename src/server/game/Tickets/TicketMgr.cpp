@@ -75,8 +75,8 @@ bool GmTicket::LoadFromDB(Field* fields)
 
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
-    //     0       1     2      3          4        5      6     7     8           9            10         11         12        13        14        15
-    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
+    //  0       1       2         3          4          5     6     7     8           9            10         11         12        13        14        15         16         17           18
+    // id, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
@@ -97,6 +97,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (++index, uint8(_escalatedStatus));
     stmt->setBool  (++index, _viewed);
     stmt->setBool  (++index, _needMoreHelp);
+    stmt->setInt32 (++index, int32(_resolvedBy.GetCounter()));
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -355,6 +356,19 @@ void TicketMgr::CloseTicket(uint32 ticketId, ObjectGuid source)
     {
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(source);
+        if (source)
+            --_openTicketCount;
+        ticket->SaveToDB(trans);
+    }
+}
+
+void TicketMgr::ResolveAndCloseTicket(uint32 ticketId, ObjectGuid source)
+{
+    if (GmTicket* ticket = GetTicket(ticketId))
+    {
+        SQLTransaction trans = SQLTransaction(nullptr);
+        ticket->SetClosedBy(source);
+        ticket->SetResolvedBy(source);
         if (source)
             --_openTicketCount;
         ticket->SaveToDB(trans);
