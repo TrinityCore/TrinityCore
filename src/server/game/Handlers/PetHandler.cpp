@@ -498,8 +498,8 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
 
     for (uint8 i = 0; i < count; ++i)
     {
-        packet.position[i] >> position[i];
-        packet.data[i] >> data[i];
+		position[i] = packet.position[i];
+		data[i] = packet.data[i];
 
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
 
