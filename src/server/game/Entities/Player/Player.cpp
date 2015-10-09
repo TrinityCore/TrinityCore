@@ -20094,9 +20094,10 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (pet->isControlled())
     {
-        WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-        data << uint64(0);
-        GetSession()->SendPacket(&data);
+		/// @todo: Disable  6.x
+        //WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
+        //data << uint64(0);
+        //GetSession()->SendPacket(&data);
 
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
@@ -20236,33 +20237,47 @@ void Player::SendOnCancelExpectedVehicleRideAura()
 
 void Player::PetSpellInitialize()
 {
-    Pet* pet = GetPet();
+	Pet* pet = GetPet();
 
-    if (!pet)
-        return;
+	if (!pet)
+		return;
 
-    TC_LOG_DEBUG("entities.pet", "Pet Spells Groups");
+	TC_LOG_DEBUG("entities.pet", "Pet Spells Groups");
 
-    CharmInfo* charmInfo = pet->GetCharmInfo();
+	CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
-    data << pet->GetGUID();
+	WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 16 + 2 + 2 + 4 + 1 + 1 + 2 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 4 + 4 + 4);
+    
+	data << ObjectGuid(pet->GetGUID());
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
-    data << uint32(pet->GetDuration());
-    data << uint8(pet->GetReactState());
-    data << uint8(charmInfo->GetCommandState());
-    data << uint16(0); // Flags, mostly unknown
-
-    // action bar loop
-    charmInfo->BuildActionBar(&data);
-
+	data << uint16(0); //Specialization TODO: NOT COMPLET
+	data << int32(pet->GetDuration());
+	data << uint8(pet->GetReactState());
+	data << uint8(charmInfo->GetCommandState());
+	data << uint16(0); // Flags, mostly unknown
+	
+	// action bar loop
+	charmInfo->BuildActionBar(&data);
+	
+	// spells count (ActionsCount)
     size_t spellsCountPos = data.wpos();
+	uint32 addlist = 0;
+    data << uint32(addlist);                                 // placeholder
+	
+	// Cooldowns Count
+	size_t CooldownsCountPos = data.wpos();
+	uint32 cooldownsList = 0;
+	data << uint32(cooldownsList);                         // placeholder
 
-    // spells count
-    uint8 addlist = 0;
-    data << uint8(addlist);                                 // placeholder
 
-    if (pet->IsPermanentPetFor(this))
+	// PetSpellHistory
+	size_t SpellHistoryCountPos = data.wpos();
+	uint32 spellHistoryList = 0;
+	data << uint32(spellHistoryList);                     // placeholder
+
+	// TODO: Disable this !!! 
+	
+   /* if (pet->IsPermanentPetFor(this))
     {
         // spells loop
         for (PetSpellMap::iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
@@ -20274,11 +20289,18 @@ void Player::PetSpellInitialize()
             ++addlist;
         }
     }
+	*/
 
-    data.put<uint8>(spellsCountPos, addlist);
+	//Write PetSpellCooldown
 
-    // Cooldowns
-    //pet->GetSpellHistory()->WritePacket(&petSpells);
+
+	//Write PetSpellHistory
+	//pet->GetSpellHistory()->WritePacket(&petSpells);
+
+    data.put<uint32>(spellsCountPos, addlist);
+	data.put<uint32>(CooldownsCountPos,cooldownsList);
+	data.put<uint32>(SpellHistoryCountPos, spellHistoryList);
+       
 
     GetSession()->SendPacket(&data);
 }
