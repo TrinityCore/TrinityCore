@@ -7610,6 +7610,20 @@ void Player::DuelComplete(DuelCompleteType type)
     duel->opponent->SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid::Empty);
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 0);
 
+    if (sWorld->getBoolConfig(CONFIG_RESET_COOLDOWN_AFTER_DUEL) &&
+        type != DUEL_INTERRUPTED)
+    {
+        if (!HasCoolDownBeforeDuel())
+            RemoveArenaSpellCooldowns(true);
+        else
+            ChatHandler(GetSession()).PSendSysMessage(LANG_COOLDOWN_NOT_RESET_AFTER_DUEL);
+
+        if (!duel->opponent->HasCoolDownBeforeDuel())
+            duel->opponent->RemoveArenaSpellCooldowns(true);
+        else
+            ChatHandler(duel->opponent->GetSession()).PSendSysMessage(LANG_COOLDOWN_NOT_RESET_AFTER_DUEL);
+    }
+
     delete duel->opponent->duel;
     duel->opponent->duel = NULL;
     delete duel;

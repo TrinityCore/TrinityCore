@@ -8,7 +8,9 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-find_package(MySQL REQUIRED)
+if (NOT MYSQL_FOUND)
+  message(SEND_ERROR "MySQL wasn't found on your system but it's required to build the servers!")
+endif()
 
 if( USE_COREPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
