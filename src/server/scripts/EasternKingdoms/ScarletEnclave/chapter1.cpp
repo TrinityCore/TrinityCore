@@ -93,11 +93,6 @@ class npc_unworthy_initiate : public CreatureScript
 public:
     npc_unworthy_initiate() : CreatureScript("npc_unworthy_initiate") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_unworthy_initiateAI(creature);
-    }
-
     struct npc_unworthy_initiateAI : public ScriptedAI
     {
         npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
@@ -156,7 +151,7 @@ public:
                 me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
                 if (Player* starter = ObjectAccessor::GetPlayer(*me, playerGUID))
-                    sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
+                    Talk(SAY_EVENT_ATTACK, starter);
 
                 phase = PHASE_TO_ATTACK;
             }
@@ -286,6 +281,11 @@ public:
             }
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_unworthy_initiateAI(creature);
+    }
 };
 
 class npc_unworthy_initiate_anchor : public CreatureScript
@@ -460,6 +460,7 @@ enum Spells_DKI
     //SPELL_DUEL_TRIGGERED        = 52990,
     SPELL_DUEL_VICTORY          = 52994,
     SPELL_DUEL_FLAG             = 52991,
+    SPELL_GROVEL                = 7267,
 };
 
 enum Says_VBM
@@ -497,8 +498,6 @@ public:
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
-            sCreatureTextMgr->SendChat(creature, SAY_DUEL, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
-
             player->CastSpell(creature, SPELL_DUEL, false);
             player->CastSpell(player, SPELL_DUEL_FLAG, true);
         }
@@ -519,11 +518,6 @@ public:
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_death_knight_initiateAI(creature);
     }
 
     struct npc_death_knight_initiateAI : public CombatAI
@@ -560,6 +554,7 @@ public:
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
                 m_uiDuelerGUID = pCaster->GetGUID();
+                Talk(SAY_DUEL, pCaster);
                 m_bIsDuelInProgress = true;
             }
         }
@@ -580,7 +575,7 @@ public:
                         pDoneBy->AttackStop();
                         me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
                         lose = true;
-                        me->CastSpell(me, 7267, true);
+                        me->CastSpell(me, SPELL_GROVEL, true);
                         me->RestoreFaction();
                     }
                 }
@@ -610,13 +605,13 @@ public:
             {
                 if (lose)
                 {
-                    if (!me->HasAura(7267))
+                    if (!me->HasAura(SPELL_GROVEL))
                         EnterEvadeMode();
                     return;
                 }
                 else if (me->GetVictim() && me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER && me->EnsureVictim()->HealthBelowPct(10))
                 {
-                    me->EnsureVictim()->CastSpell(me->GetVictim(), 7267, true); // beg
+                    me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_GROVEL, true); // beg
                     me->EnsureVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                     EnterEvadeMode();
                     return;
@@ -629,6 +624,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_death_knight_initiateAI(creature);
+    }
 };
 
 /*######
