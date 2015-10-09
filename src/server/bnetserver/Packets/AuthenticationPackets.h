@@ -40,7 +40,7 @@ namespace Battlenet
             SMSG_PROOF_REQUEST                              = 0x2,
             SMSG_PATCH                                      = 0x3,  // Not implemented
             SMSG_AUTHORIZED_LICENSES                        = 0x4,  // Not implemented
-            SMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2    = 0x8   // Not implemented
+            SMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_RESPONSE_2   = 0x8   // Not implemented
         };
 
         struct RequestCommon : public PrintableComponent

@@ -26,6 +26,8 @@ namespace Battlenet
 {
     struct PrintableComponent
     {
+        virtual ~PrintableComponent() { }
+
         virtual std::string ToString() const = 0;
     };
 

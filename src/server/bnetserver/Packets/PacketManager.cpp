@@ -155,8 +155,8 @@ void Battlenet::PacketManager::RegisterFriendsPackets()
 
 void Battlenet::PacketManager::RegisterPresencePackets()
 {
-    REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::CMSG_UPDATE_REQUEST, PRESENCE), "Presence::UpdateRequest");
-    REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::CMSG_STATISTIC_SUBSCRIBE, PRESENCE), "Presence::StatisticSubscribe");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Presence::CMSG_UPDATE_REQUEST, PRESENCE), "Presence::UpdateRequest");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Presence::CMSG_STATISTIC_SUBSCRIBE, PRESENCE), "Presence::StatisticSubscribe");
 
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::SMSG_UPDATE_NOTIFY, PRESENCE), "Presence::UpdateNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Presence::SMSG_FIELD_SPEC_ANNOUNCE, PRESENCE), "Presence::FieldSpecAnnounce");

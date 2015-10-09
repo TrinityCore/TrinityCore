@@ -54,7 +54,7 @@ namespace Battlenet
             }
         }
 
-        ~ModuleInfo()
+        virtual ~ModuleInfo()
         {
             delete[] Data;
         }
