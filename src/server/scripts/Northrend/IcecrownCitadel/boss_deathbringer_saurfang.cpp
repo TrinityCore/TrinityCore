@@ -203,6 +203,9 @@ enum Misc
 {
     DATA_MADE_A_MESS                    = 45374613, // 4537, 4613 are achievement IDs
     FACTION_SCOURGE                     = 974,
+
+    GOSSIP_MENU_MURADIN_BRONZEBEARD     = 10934,
+    GOSSIP_MENU_HIGH_OVERLORD_SAURFANG  = 10952
 };
 
 enum MovePoints
@@ -634,6 +637,15 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 _events.Reset();
             }
 
+            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            {
+                if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
+                {
+                    player->PlayerTalkClass->SendCloseGossip();
+                    DoAction(ACTION_START_EVENT);
+                }
+            }
+
             void DoAction(int32 action) override
             {
                 switch (action)
@@ -798,28 +810,6 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             std::list<Creature*> _guardList;
         };
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We are ready to go, High Overlord. The Lich King must fall!", 631, -ACTION_START_EVENT);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-            }
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-            if (action == -ACTION_START_EVENT)
-                creature->AI()->DoAction(ACTION_START_EVENT);
-
-            return true;
-        }
-
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_high_overlord_saurfangAI>(creature);
@@ -841,6 +831,15 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
+            }
+
+            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            {
+                if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
+                {
+                    player->PlayerTalkClass->SendCloseGossip();
+                    DoAction(ACTION_START_EVENT);
+                }
             }
 
             void DoAction(int32 action) override
@@ -945,28 +944,6 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             InstanceScript* _instance;
             std::list<Creature*> _guardList;
         };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
-            {
-                player->ADD_GOSSIP_ITEM(0, "Let it begin...", 631, -ACTION_START_EVENT + 1);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-            }
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
-            if (action == -ACTION_START_EVENT + 1)
-                creature->AI()->DoAction(ACTION_START_EVENT);
-
-            return true;
-        }
 
         CreatureAI* GetAI(Creature* creature) const override
         {
