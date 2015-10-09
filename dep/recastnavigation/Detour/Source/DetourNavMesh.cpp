@@ -16,13 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
 #include <float.h>
 #include <string.h>
 #include <stdio.h>
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
+#include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include <new>
@@ -709,7 +709,7 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 		float closestPtPoly[3];
 		float diff[3];
 		bool posOverPoly = false;
-		float d = 0;
+		float d;
 		closestPointOnPoly(ref, center, closestPtPoly, &posOverPoly);
 
 		// If a point is directly over a polygon and closer than

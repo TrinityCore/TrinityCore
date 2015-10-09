@@ -111,6 +111,7 @@ public:
         instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            GahzRillaEncounter = NOT_STARTED;
             PyramidPhase = 0;
             major_wave_Timer = 0;
             minor_wave_Timer = 0;
@@ -220,7 +221,7 @@ public:
             };
         }
 
-        virtual void Update(uint32 diff)
+        virtual void Update(uint32 diff) override
         {
             switch (PyramidPhase)
             {

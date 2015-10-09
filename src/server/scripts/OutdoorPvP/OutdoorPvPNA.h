@@ -261,15 +261,15 @@ class OPvPCapturePointNA : public OPvPCapturePoint
     public:
         OPvPCapturePointNA(OutdoorPvP* pvp);
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void ChangeState();
+        void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPacket & data) override;
 
-        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
+        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
 
-        int32 HandleOpenGo(Player* player, ObjectGuid guid) override;
+        int32 HandleOpenGo(Player* player, GameObject* go) override;
 
         uint32 GetAliveGuardsCount();
         uint32 GetControllingFaction() const;

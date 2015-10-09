@@ -20,6 +20,7 @@
 #define TRINITYCORE_CHAT_H
 
 #include "SharedDefines.h"
+#include "StringFormat.h"
 #include "WorldSession.h"
 #include "RBAC.h"
 
@@ -65,12 +66,27 @@ class ChatHandler
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str);
+        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
-        void PSendSysMessage(char const* format, ...) ATTR_PRINTF(2, 3);
-        void PSendSysMessage(uint32 entry, ...);
-        std::string PGetParseString(uint32 entry, ...) const;
+
+        template<typename... Args>
+        void PSendSysMessage(const char* fmt, Args&&... args)
+        {
+            SendSysMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
+        }
+
+        template<typename... Args>
+        void PSendSysMessage(uint32 entry, Args&&... args)
+        {
+            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...).c_str());
+        }
+
+        template<typename... Args>
+        std::string PGetParseString(uint32 entry, Args&&... args) const
+        {
+            return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
+        }
 
         bool ParseCommands(const char* text);
 
@@ -150,7 +166,7 @@ class CliHandler : public ChatHandler
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str) override;
+        void SendSysMessage(const char *str, bool escapeCharacters) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;

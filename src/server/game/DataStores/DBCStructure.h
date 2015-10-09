@@ -22,21 +22,10 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "Define.h"
-#include "Path.h"
 #include "Util.h"
 
-#include <map>
-#include <set>
-#include <vector>
-
 // Structures using to access raw DBC data and required packing to portability
-
-// GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 struct AchievementEntry
 {
@@ -645,6 +634,33 @@ struct CharStartOutfitEntry
     int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
     //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
     //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
+};
+
+enum CharSectionFlags
+{
+    SECTION_FLAG_PLAYER       = 0x01,
+    SECTION_FLAG_DEATH_KNIGHT = 0x04
+};
+
+enum CharSectionType
+{
+    SECTION_TYPE_SKIN         = 0,
+    SECTION_TYPE_FACE         = 1,
+    SECTION_TYPE_FACIAL_HAIR  = 2,
+    SECTION_TYPE_HAIR         = 3,
+    SECTION_TYPE_UNDERWEAR    = 4
+};
+
+struct CharSectionsEntry
+{
+    //uint32 Id;
+    uint32 Race;
+    uint32 Gender;
+    uint32 GenType;
+    //char* TexturePath[3];
+    uint32 Flags;
+    uint32 Type;
+    uint32 Color;
 };
 
 struct CharTitlesEntry
@@ -1521,9 +1537,9 @@ struct ScalingStatValuesEntry
         return 0;
     }
 
-    uint32 getFeralBonus(uint32 mask) const                 // removed in 3.2.x?
+    uint32 getFeralBonus(uint32 /*mask*/) const                 // removed in 3.2.x?
     {
-        if (mask & 0x00010000) return 0;                    // not used?
+        //if (mask & 0x00010000) return 0;                  // not used?
         return 0;
     }
 };
@@ -1912,17 +1928,17 @@ struct TaxiPathEntry
 
 struct TaxiPathNodeEntry
 {
-                                                            // 0        m_ID
-    uint32    path;                                         // 1        m_PathID
-    uint32    index;                                        // 2        m_NodeIndex
-    uint32    mapid;                                        // 3        m_ContinentID
-    float     x;                                            // 4        m_LocX
-    float     y;                                            // 5        m_LocY
-    float     z;                                            // 6        m_LocZ
-    uint32    actionFlag;                                   // 7        m_flags
-    uint32    delay;                                        // 8        m_delay
-    uint32    arrivalEventID;                               // 9        m_arrivalEventID
-    uint32    departureEventID;                             // 10       m_departureEventID
+                                                            // 0  ID
+    uint32    PathID;                                       // 1
+    uint32    NodeIndex;                                    // 2
+    uint32    MapID;                                        // 3
+    float     LocX;                                         // 4
+    float     LocY;                                         // 5
+    float     LocZ;                                         // 6
+    uint32    Flags;                                        // 7
+    uint32    Delay;                                        // 8
+    uint32    ArrivalEventID;                               // 9
+    uint32    DepartureEventID;                             // 10
 };
 
 struct TeamContributionPointsEntry
@@ -2051,7 +2067,12 @@ struct VehicleSeatEntry
     uint32  m_flagsB;                                       // 45
                                                             // 46-57 added in 3.1, floats mostly
 
-    bool CanEnterOrExit() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0; }
+    bool CanEnterOrExit() const
+    {
+        return ((m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0 ||
+                //If it has anmation for enter/ride, means it can be entered/exited by logic
+                (m_flags & (VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER | VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) != 0);
+    }
     bool CanSwitchFromSeat() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0; }
     bool IsUsableByOverride() const { return (m_flags & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
                                     || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
@@ -2150,12 +2171,7 @@ struct WorldStateUI
 };
 */
 
-// GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
@@ -2190,15 +2206,7 @@ struct TaxiPathBySourceAndDestination
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
-struct TaxiPathNodePtr
-{
-    TaxiPathNodePtr() : i_ptr(NULL) { }
-    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) { }
-    TaxiPathNodeEntry const* i_ptr;
-    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
-};
-
-typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 14

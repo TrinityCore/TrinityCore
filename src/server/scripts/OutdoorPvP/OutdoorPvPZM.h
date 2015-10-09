@@ -184,23 +184,23 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
     public:
         OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp);
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void ChangeState() { }
+        void ChangeState() override { }
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPacket & data) override;
 
         void UpdateTowerState();
 
-        int32 HandleOpenGo(Player* player, ObjectGuid guid) override;
+        int32 HandleOpenGo(Player* player, GameObject* go) override;
 
         void SetBeaconState(uint32 controlling_team); // not good atm
 
-        bool HandleGossipOption(Player* player, ObjectGuid guid, uint32 gossipid);
+        bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid) override;
 
-        bool HandleDropFlag(Player* player, uint32 spellId);
+        bool HandleDropFlag(Player* player, uint32 spellId) override;
 
-        bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso);
+        bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso) override;
 
         uint32 GetGraveYardState() const;
 

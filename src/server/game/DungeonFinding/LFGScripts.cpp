@@ -44,6 +44,8 @@ void LFGPlayerScript::OnLogout(Player* player)
         player->GetSession()->SendLfgLfrList(false);
         sLFGMgr->LeaveLfg(player->GetGUID());
     }
+    else if (player->GetSession()->PlayerDisconnected())
+        sLFGMgr->LeaveLfg(player->GetGUID(), true);
 }
 
 void LFGPlayerScript::OnLogin(Player* player, bool /*loginFirst*/)
@@ -87,7 +89,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
             player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
             TC_LOG_ERROR("lfg", "LFGPlayerScript::OnMapChanged, Player %s (%u) is in LFG dungeon map but does not have a valid group! "
-                "Teleporting to homebind.", player->GetName().c_str(), player->GetGUIDLow());
+                "Teleporting to homebind.", player->GetName().c_str(), player->GetGUID().GetCounter());
             return;
         }
 
@@ -99,7 +101,17 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
     }
     else
+    {
+        Group* group = player->GetGroup();
+        if (group && group->GetMembersCount() == 1)
+        {
+            sLFGMgr->LeaveLfg(group->GetGUID());
+            group->Disband();
+            TC_LOG_DEBUG("lfg", "LFGPlayerScript::OnMapChanged, Player %s(%s) is last in the lfggroup so we disband the group.",
+                player->GetName().c_str(), player->GetGUID().ToString().c_str());
+        }
         player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+    }
 }
 
 LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript") { }

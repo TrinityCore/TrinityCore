@@ -17,124 +17,183 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "violet_hold.h"
 
-//Spells
 enum Spells
 {
     SPELL_CORROSIVE_SALIVA                     = 54527,
-    SPELL_OPTIC_LINK                           = 54396
+    SPELL_OPTIC_LINK                           = 54396,
+    SPELL_RAY_OF_PAIN                          = 54438,
+    SPELL_RAY_OF_SUFFERING                     = 54442,
+
+    // Visual
+    SPELL_OPTIC_LINK_LEVEL_1                   = 54393,
+    SPELL_OPTIC_LINK_LEVEL_2                   = 54394,
+    SPELL_OPTIC_LINK_LEVEL_3                   = 54395
 };
 
 class boss_moragg : public CreatureScript
 {
-public:
-    boss_moragg() : CreatureScript("boss_moragg") { }
+    public:
+        boss_moragg() : CreatureScript("boss_moragg") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<boss_moraggAI>(creature);
-    }
-
-    struct boss_moraggAI : public ScriptedAI
-    {
-        boss_moraggAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_moraggAI : public BossAI
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
+            boss_moraggAI(Creature* creature) : BossAI(creature, DATA_MORAGG) { }
 
-        void Initialize()
-        {
-            uiOpticLinkTimer = 10000;
-            uiCorrosiveSalivaTimer = 5000;
-        }
+            void Reset() override
+            {
+                BossAI::Reset();
+            }
 
-        uint32 uiOpticLinkTimer;
-        uint32 uiCorrosiveSalivaTimer;
+            void EnterCombat(Unit* who) override
+            {
+                BossAI::EnterCombat(who);
+            }
 
-        InstanceScript* instance;
+            void JustReachedHome() override
+            {
+                BossAI::JustReachedHome();
+                instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
+            }
 
-        void Reset() override
-        {
-            Initialize();
+            void JustDied(Unit* killer) override
+            {
+                BossAI::JustDied(killer);
+            }
 
-            if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_MORAGG_CELL)))
-                if (pDoor->GetGoState() == GO_STATE_READY)
-                {
-                    EnterEvadeMode();
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
                     return;
+
+                scheduler.Update(diff,
+                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
+            }
+
+            void ScheduleTasks() override
+            {
+                scheduler.Async([this]
+                {
+                    DoCast(me, SPELL_RAY_OF_PAIN);
+                    DoCast(me, SPELL_RAY_OF_SUFFERING);
+                });
+
+                scheduler.Schedule(Seconds(15), [this](TaskContext task)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        DoCast(target, SPELL_OPTIC_LINK);
+                    task.Repeat(Seconds(25));
+                });
+
+                scheduler.Schedule(Seconds(5), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_CORROSIVE_SALIVA);
+                    task.Repeat(Seconds(10));
+                });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetVioletHoldAI<boss_moraggAI>(creature);
+        }
+};
+
+class spell_moragg_ray : public SpellScriptLoader
+{
+    public:
+        spell_moragg_ray() : SpellScriptLoader("spell_moragg_ray") { }
+
+        class spell_moragg_ray_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_moragg_ray_AuraScript);
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+
+                if (!GetTarget()->IsAIEnabled)
+                    return;
+
+                if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                {
+                    uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                    GetTarget()->CastSpell(target, triggerSpell, TRIGGERED_FULL_MASK, nullptr, aurEff);
                 }
-            if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-        }
+            }
 
-        void AttackStart(Unit* who) override
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
+            void Register() override
             {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_ray_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_moragg_ray_AuraScript();
+        }
+};
+
+class spell_moragg_optic_link : public SpellScriptLoader
+{
+public:
+    spell_moragg_optic_link() : SpellScriptLoader("spell_moragg_optic_link") { }
+
+    class spell_moragg_optic_link_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_moragg_optic_link_AuraScript);
+
+        void OnPeriodic(AuraEffect const* aurEff)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (aurEff->GetTickNumber() >= 8)
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, TRIGGERED_FULL_MASK, nullptr, aurEff);
+
+                if (aurEff->GetTickNumber() >= 4)
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, TRIGGERED_FULL_MASK, nullptr, aurEff);
+
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-
-        void UpdateAI(uint32 diff) override
+        void OnUpdate(AuraEffect* aurEff)
         {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiOpticLinkTimer <= diff)
+            switch (aurEff->GetTickNumber())
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_OPTIC_LINK);
-                uiOpticLinkTimer = 15000;
-            } else uiOpticLinkTimer -= diff;
-
-            if (uiCorrosiveSalivaTimer <= diff)
-            {
-                DoCastVictim(SPELL_CORROSIVE_SALIVA);
-                uiCorrosiveSalivaTimer = 10000;
-            } else uiCorrosiveSalivaTimer -= diff;
-
-            DoMeleeAttackIfReady();
+                case 1:
+                    aurEff->SetAmount(aurEff->GetAmount() + 250); // base amount is 500
+                    break;
+                case 4:
+                    aurEff->SetAmount(aurEff->GetAmount() * 2); // goes to 1500
+                    break;
+                case 8:
+                    aurEff->SetAmount(aurEff->GetAmount() * 2); // goes to 3000
+                    break;
+                default:
+                    break;
+            }
         }
-        void JustDied(Unit* /*killer*/) override
+
+        void Register() override
         {
-            if (instance->GetData(DATA_WAVE_COUNT) == 6)
-            {
-                instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                instance->SetData(DATA_WAVE_COUNT, 7);
-            }
-            else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-            {
-                instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                instance->SetData(DATA_WAVE_COUNT, 13);
-            }
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_moragg_optic_link_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_moragg_optic_link_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
         }
     };
 
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_moragg_optic_link_AuraScript();
+    }
 };
 
 void AddSC_boss_moragg()
 {
     new boss_moragg();
+    new spell_moragg_ray();
+    new spell_moragg_optic_link();
 }

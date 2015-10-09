@@ -123,11 +123,13 @@ class boss_bronjahm : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summons.Summon(summon);
-                summon->SetReactState(REACT_PASSIVE);
-                summon->GetMotionMaster()->Clear();
-                summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
-                summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
+                if (summon->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT)
+                {
+                    summons.Summon(summon);
+                    summon->SetReactState(REACT_PASSIVE);
+                    summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
+                    summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
+                }
             }
 
             uint32 GetData(uint32 type) const override
@@ -223,9 +225,15 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
+            void IsSummonedBy(Unit* /*summoner*/) override
+            {
+                if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRONJAHM)))
+                    bronjahm->AI()->JustSummoned(me);
+            }
+
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type != CHASE_MOTION_TYPE)
+                if (type != FOLLOW_MOTION_TYPE)
                     return;
 
                 if (instance->GetGuidData(DATA_BRONJAHM).GetCounter() != id)

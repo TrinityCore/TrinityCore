@@ -68,8 +68,8 @@ struct npc_escortAI : public ScriptedAI
 
         void EnterEvadeMode() override;
 
-        void UpdateAI(uint32 diff) override;                   //the "internal" update, calls UpdateEscortAI()
-        virtual void UpdateEscortAI(uint32 const diff);     //used when it's needed to add code in update (abilities, scripted events, etc)
+        void UpdateAI(uint32 diff) override;        // the "internal" update, calls UpdateEscortAI()
+        virtual void UpdateEscortAI(uint32 diff);   // used when it's needed to add code in update (abilities, scripted events, etc)
 
         void MovementInform(uint32, uint32) override;
 
@@ -94,16 +94,16 @@ struct npc_escortAI : public ScriptedAI
         void SetEscortPaused(bool on);
 
         bool HasEscortState(uint32 escortState) { return (m_uiEscortState & escortState) != 0; }
-        virtual bool IsEscorted() override { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
+        virtual bool IsEscorted() const override { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
 
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
-        float GetMaxPlayerDistance() { return MaxPlayerDistance; }
+        float GetMaxPlayerDistance() const { return MaxPlayerDistance; }
 
         void SetDespawnAtEnd(bool despawn) { DespawnAtEnd = despawn; }
         void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
-        bool GetAttack() { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
+        bool GetAttack() const { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
-        ObjectGuid GetEventStarterGUID() { return m_uiPlayerGUID; }
+        ObjectGuid GetEventStarterGUID() const { return m_uiPlayerGUID; }
 
     protected:
         Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }

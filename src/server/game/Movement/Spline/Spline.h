@@ -76,13 +76,13 @@ protected:
     typedef float (SplineBase::*SegLenghtMethtod)(index_type) const;
     static SegLenghtMethtod seglengths[ModesEnd];
 
-    void InitLinear(const Vector3*, index_type, bool, index_type);
-    void InitCatmullRom(const Vector3*, index_type, bool, index_type);
-    void InitBezier3(const Vector3*, index_type, bool, index_type);
-    typedef void (SplineBase::*InitMethtod)(const Vector3*, index_type, bool, index_type);
+    void InitLinear(const Vector3*, index_type, index_type);
+    void InitCatmullRom(const Vector3*, index_type, index_type);
+    void InitBezier3(const Vector3*, index_type, index_type);
+    typedef void (SplineBase::*InitMethtod)(const Vector3*, index_type, index_type);
     static InitMethtod initializers[ModesEnd];
 
-    void UninitializedSpline() const { ASSERT(false);}
+    void UninitializedSpline() const { ABORT();}
 
 public:
 

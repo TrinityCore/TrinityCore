@@ -161,6 +161,7 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
+    CONFIG_RESET_COOLDOWN_AFTER_DUEL,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -741,7 +742,8 @@ class World
         void LoadDBVersion();
         char const* GetDBVersion() const { return m_DBVersion.c_str(); }
 
-        void RecordTimeDiff(const char * text, ...);
+        void ResetTimeDiffRecord();
+        void RecordTimeDiff(std::string const& text);
 
         void LoadAutobroadcasts();
 
@@ -759,6 +761,8 @@ class World
         void   ResetEventSeasonalQuests(uint16 event_id);
 
         void ReloadRBAC();
+
+        void RemoveOldCorpses();
 
     protected:
         void _UpdateGameTime();

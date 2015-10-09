@@ -175,8 +175,8 @@ class SmartAI : public CreatureAI
         void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
 
         void sGossipHello(Player* player) override;
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) override;
-        void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override;
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        void sGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
         void sQuestAccept(Player* player, Quest const* quest) override;
         //void sQuestSelect(Player* player, Quest const* quest) override;
         void sQuestReward(Player* player, Quest const* quest, uint32 opt) override;
@@ -214,7 +214,7 @@ class SmartAI : public CreatureAI
         uint32 mWPPauseTimer;
         WayPoint* mLastWP;
         Position mLastOOCPos;//set on enter combat
-        uint32 GetWPCount() { return mWayPoints ? mWayPoints->size() : 0; }
+        uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }
         bool mCanRepeatPath;
         bool mRun;
         bool mCanAutoAttack;

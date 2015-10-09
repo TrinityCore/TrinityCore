@@ -23,9 +23,6 @@
 #include "LFGQueue.h"
 #include "LFGMgr.h"
 #include "Log.h"
-#include "ObjectMgr.h"
-#include "World.h"
-#include "GroupMgr.h"
 
 #include "../Entities/Player/Player.h"
 
@@ -77,12 +74,49 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
         case LFG_INCOMPATIBLES_NO_ROLES:
             return "Incompatible roles";
         case LFG_INCOMPATIBLES_TOO_MUCH_PLAYERS:
-            return "Too much players";
+            return "Too many players";
         case LFG_INCOMPATIBLES_WRONG_GROUP_SIZE:
             return "Wrong group size";
         default:
             return "Unknown";
     }
+}
+
+std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
+{
+    if (check.empty())
+        return "";
+
+    // need the guids in order to avoid duplicates
+    GuidSet guids(check.begin(), check.end());
+
+    std::ostringstream o;
+
+    GuidSet::const_iterator it = guids.begin();
+    o << it->GetRawValue();
+    LfgQueueDataContainer::const_iterator itQueue = QueueDataStore.find(*it);
+    if (itQueue != QueueDataStore.end())
+    {
+        // skip leader flag, log only dps/tank/healer
+        auto role = itQueue->second.roles.find(*it);
+        if (role != itQueue->second.roles.end())
+            o << ' ' << GetRolesString(itQueue->second.roles.at(*it) & uint8(~PLAYER_ROLE_LEADER));
+    }
+
+    for (++it; it != guids.end(); ++it)
+    {
+        o << '|' << it->GetRawValue();
+        itQueue = QueueDataStore.find(*it);
+        if (itQueue != QueueDataStore.end())
+        {
+            // skip leader flag, log only dps/tank/healer
+            auto role = itQueue->second.roles.find(*it);
+            if (role != itQueue->second.roles.end())
+                o << ' ' << GetRolesString(itQueue->second.roles.at(*it) & uint8(~PLAYER_ROLE_LEADER));
+        }
+    }
+
+    return o.str();
 }
 
 void LFGQueue::AddToQueue(ObjectGuid guid)
@@ -283,13 +317,13 @@ LfgCompatibility LFGQueue::FindNewGroups(GuidList& check, GuidList& all)
     std::string strGuids = ConcatenateGuids(check);
     LfgCompatibility compatibles = GetCompatibles(strGuids);
 
-    TC_LOG_DEBUG("lfg.queue.match.check", "Guids: (%s): %s - all(%s)", strGuids.c_str(), GetCompatibleString(compatibles), ConcatenateGuids(all).c_str());
+    TC_LOG_DEBUG("lfg.queue.match.check", "Guids: (%s): %s - all(%s)", GetDetailedMatchRoles(check).c_str(), GetCompatibleString(compatibles), GetDetailedMatchRoles(all).c_str());
     if (compatibles == LFG_COMPATIBILITY_PENDING) // Not previously cached, calculate
         compatibles = CheckCompatibility(check);
 
     if (compatibles == LFG_COMPATIBLES_BAD_STATES && sLFGMgr->AllQueued(check))
     {
-        TC_LOG_DEBUG("lfg.queue.match.check", "Guids: (%s) compatibles (cached) changed from bad states to match", strGuids.c_str());
+        TC_LOG_DEBUG("lfg.queue.match.check", "Guids: (%s) compatibles (cached) changed from bad states to match", GetDetailedMatchRoles(check).c_str());
         SetCompatibles(strGuids, LFG_COMPATIBLES_MATCH);
         return LFG_COMPATIBLES_MATCH;
     }
@@ -327,7 +361,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     // Check for correct size
     if (check.size() > MAXGROUPSIZE || check.empty())
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s): Size wrong - Not compatibles", strGuids.c_str());
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s): Size wrong - Not compatibles", GetDetailedMatchRoles(check).c_str());
         return LFG_INCOMPATIBLES_WRONG_GROUP_SIZE;
     }
 
@@ -341,7 +375,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         LfgCompatibility child_compatibles = CheckCompatibility(check);
         if (child_compatibles < LFG_COMPATIBLES_WITH_LESS_PLAYERS) // Group not compatible
         {
-            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) child %s not compatibles", strGuids.c_str(), ConcatenateGuids(check).c_str());
+            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) child %s not compatibles", strGuids.c_str(), GetDetailedMatchRoles(check).c_str());
             SetCompatibles(strGuids, child_compatibles);
             return child_compatibles;
         }
@@ -379,7 +413,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     // Group with less that MAXGROUPSIZE members always compatible
     if (check.size() == 1 && numPlayers != MAXGROUPSIZE)
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) sigle group. Compatibles", strGuids.c_str());
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) single group. Compatibles", GetDetailedMatchRoles(check).c_str());
         LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
 
         LfgCompatibilityData data(LFG_COMPATIBLES_WITH_LESS_PLAYERS);
@@ -393,14 +427,14 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
     if (numLfgGroups > 1)
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) More than one Lfggroup (%u)", strGuids.c_str(), numLfgGroups);
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) More than one Lfggroup (%u)", GetDetailedMatchRoles(check).c_str(), numLfgGroups);
         SetCompatibles(strGuids, LFG_INCOMPATIBLES_MULTIPLE_LFG_GROUPS);
         return LFG_INCOMPATIBLES_MULTIPLE_LFG_GROUPS;
     }
 
     if (numPlayers > MAXGROUPSIZE)
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Too much players (%u)", strGuids.c_str(), numPlayers);
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Too many players (%u)", GetDetailedMatchRoles(check).c_str(), numPlayers);
         SetCompatibles(strGuids, LFG_INCOMPATIBLES_TOO_MUCH_PLAYERS);
         return LFG_INCOMPATIBLES_TOO_MUCH_PLAYERS;
     }
@@ -428,7 +462,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
         if (uint8 playersize = numPlayers - proposalRoles.size())
         {
-            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) not compatible, %u players are ignoring each other", strGuids.c_str(), playersize);
+            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) not compatible, %u players are ignoring each other", GetDetailedMatchRoles(check).c_str(), playersize);
             SetCompatibles(strGuids, LFG_INCOMPATIBLES_HAS_IGNORES);
             return LFG_INCOMPATIBLES_HAS_IGNORES;
         }
@@ -440,7 +474,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
             for (LfgRolesMap::const_iterator it = debugRoles.begin(); it != debugRoles.end(); ++it)
                 o << ", " << it->first.GetRawValue() << ": " << GetRolesString(it->second);
 
-            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Roles not compatible%s", strGuids.c_str(), o.str().c_str());
+            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Roles not compatible%s", GetDetailedMatchRoles(check).c_str(), o.str().c_str());
             SetCompatibles(strGuids, LFG_INCOMPATIBLES_NO_ROLES);
             return LFG_INCOMPATIBLES_NO_ROLES;
         }
@@ -460,7 +494,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
         if (proposalDungeons.empty())
         {
-            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) No compatible dungeons%s", strGuids.c_str(), o.str().c_str());
+            TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) No compatible dungeons%s", GetDetailedMatchRoles(check).c_str(), o.str().c_str());
             SetCompatibles(strGuids, LFG_INCOMPATIBLES_NO_DUNGEONS);
             return LFG_INCOMPATIBLES_NO_DUNGEONS;
         }
@@ -477,7 +511,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     // Enough players?
     if (numPlayers != MAXGROUPSIZE)
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Compatibles but not enough players(%u)", strGuids.c_str(), numPlayers);
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Compatibles but not enough players(%u)", GetDetailedMatchRoles(check).c_str(), numPlayers);
         LfgCompatibilityData data(LFG_COMPATIBLES_WITH_LESS_PLAYERS);
         data.roles = proposalRoles;
 
@@ -509,7 +543,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
     if (!sLFGMgr->AllQueued(check))
     {
-        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Group MATCH but can't create proposal!", strGuids.c_str());
+        TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) Group MATCH but can't create proposal!", GetDetailedMatchRoles(check).c_str());
         SetCompatibles(strGuids, LFG_COMPATIBLES_BAD_STATES);
         return LFG_COMPATIBLES_BAD_STATES;
     }
@@ -551,7 +585,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
     sLFGMgr->AddProposal(proposal);
 
-    TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) MATCH! Group formed", strGuids.c_str());
+    TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: (%s) MATCH! Group formed", GetDetailedMatchRoles(check).c_str());
     SetCompatibles(strGuids, LFG_COMPATIBLES_MATCH);
     return LFG_COMPATIBLES_MATCH;
 }
@@ -643,7 +677,23 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
     o << "Compatible Map size: " << CompatibleMapStore.size() << "\n";
     if (full)
         for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)
-            o << "(" << itr->first << "): " << GetCompatibleString(itr->second.compatibility) << "\n";
+        {
+            o << "(" << itr->first << "): " << GetCompatibleString(itr->second.compatibility);
+            if (!itr->second.roles.empty())
+            {
+                o << " (";
+                bool first = true;
+                for (const auto& role : itr->second.roles)
+                {
+                    if (!first)
+                        o << "|";
+                    o << role.first.GetRawValue() << " " << GetRolesString(role.second & uint8(~PLAYER_ROLE_LEADER));
+                    first = false;
+                }
+                o << ")";
+            }
+            o << "\n";
+        }
 
     return o.str();
 }

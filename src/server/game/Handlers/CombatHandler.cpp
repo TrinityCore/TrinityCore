@@ -22,11 +22,8 @@
 #include "WorldSession.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
-#include "ObjectDefines.h"
 #include "Vehicle.h"
-#include "VehicleDefines.h"
 #include "Player.h"
-#include "Opcodes.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
@@ -78,7 +75,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
     uint32 sheathed;
     recvData >> sheathed;
 
-    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
+    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUID().GetCounter(), sheathed);
 
     if (sheathed >= MAX_SHEATH_STATE)
     {

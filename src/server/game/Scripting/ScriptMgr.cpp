@@ -108,7 +108,7 @@ class ScriptRegistry
                         TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
                             script->GetName().c_str());
 
-                        ASSERT(false); // Error that should be fixed ASAP.
+                        ABORT(); // Error that should be fixed ASAP.
                     }
                 }
                 else
@@ -182,9 +182,8 @@ struct TSpellSummary
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
-ScriptMgr::ScriptMgr() : _scriptCount(0)
+ScriptMgr::ScriptMgr() : _scriptCount(0), _scheduledScripts(0)
 {
-    _scheduledScripts = 0;
 }
 
 ScriptMgr::~ScriptMgr() { }
@@ -961,7 +960,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
 Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
 {
     /// @todo Implement script-side battlegrounds.
-    ASSERT(false);
+    ABORT();
     return NULL;
 }
 

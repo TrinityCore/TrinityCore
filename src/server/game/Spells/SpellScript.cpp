@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
+#include <string>
 
 bool _SpellScript::_Validate(SpellInfo const* entry)
 {
@@ -85,9 +85,9 @@ uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEnt
     return mask;
 }
 
-bool _SpellScript::EffectHook::IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndex)
+bool _SpellScript::EffectHook::IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndexToCheck)
 {
-    return (GetAffectedEffectsMask(spellEntry) & 1 << effIndex) != 0;
+    return (GetAffectedEffectsMask(spellEntry) & 1 << effIndexToCheck) != 0;
 }
 
 std::string _SpellScript::EffectHook::EffIndexToString()
@@ -183,14 +183,14 @@ std::string SpellScript::EffectHandler::ToString()
     return "Index: " + EffIndexToString() + " Name: " +_SpellScript::EffectNameCheck::ToString();
 }
 
-bool SpellScript::EffectHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
+bool SpellScript::EffectHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndexToCheck)
 {
-    return _SpellScript::EffectNameCheck::Check(spellEntry, effIndex);
+    return _SpellScript::EffectNameCheck::Check(spellEntry, effIndexToCheck);
 }
 
-void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex effIndex)
+void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex effIndexToHandle)
 {
-    (spellScript->*pEffectHandlerScript)(effIndex);
+    (spellScript->*pEffectHandlerScript)(effIndexToHandle);
 }
 
 SpellScript::HitHandler::HitHandler(SpellHitFnType _pHitHandlerScript)
@@ -213,13 +213,13 @@ std::string SpellScript::TargetHook::ToString()
     return oss.str();
 }
 
-bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
+bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 effIndexToCheck)
 {
     if (!targetType)
         return false;
 
-    if (spellEntry->Effects[effIndex].TargetA.GetTarget() != targetType &&
-        spellEntry->Effects[effIndex].TargetB.GetTarget() != targetType)
+    if (spellEntry->Effects[effIndexToCheck].TargetA.GetTarget() != targetType &&
+        spellEntry->Effects[effIndexToCheck].TargetB.GetTarget() != targetType)
         return false;
 
     SpellImplicitTargetInfo targetInfo(targetType);
@@ -642,8 +642,8 @@ SpellValue const* SpellScript::GetSpellValue()
 bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (std::list<CheckAreaTargetHandler>::iterator itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end();  ++itr)
-        if (!entry->HasAreaAuraEffect() && !entry->HasEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
-            TC_LOG_ERROR("scripts", "Spell `%u` of script `%s` does not have area aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+        if (!entry->HasAreaAuraEffect() && !entry->HasEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) && !entry->HasEffect(SPELL_EFFECT_APPLY_AURA))
+            TC_LOG_ERROR("scripts", "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraDispelHandler>::iterator itr = OnDispel.begin(); itr != OnDispel.end();  ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
@@ -759,9 +759,9 @@ void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _di
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex) { }
 
-bool AuraScript::EffectBase::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
+bool AuraScript::EffectBase::CheckEffect(SpellInfo const* spellEntry, uint8 effIndexToCheck)
 {
-    return _SpellScript::EffectAuraNameCheck::Check(spellEntry, effIndex);
+    return _SpellScript::EffectAuraNameCheck::Check(spellEntry, effIndexToCheck);
 }
 
 std::string AuraScript::EffectBase::ToString()

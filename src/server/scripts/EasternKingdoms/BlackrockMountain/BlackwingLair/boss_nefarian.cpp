@@ -166,7 +166,7 @@ public:
 
     struct boss_victor_nefariusAI : public BossAI
     {
-        boss_victor_nefariusAI(Creature* creature) : BossAI(creature, BOSS_NEFARIAN)
+        boss_victor_nefariusAI(Creature* creature) : BossAI(creature, DATA_NEFARIAN)
         {
             Initialize();
         }
@@ -367,9 +367,9 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            if (sender == GOSSIP_ID && action == GOSSIP_OPTION_ID)
+            if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
                 player->CLOSE_GOSSIP_MENU();
                 Talk(SAY_GAMESBEGIN_1);
@@ -394,7 +394,7 @@ public:
 
     struct boss_nefarianAI : public BossAI
     {
-        boss_nefarianAI(Creature* creature) : BossAI(creature, BOSS_NEFARIAN)
+        boss_nefarianAI(Creature* creature) : BossAI(creature, DATA_NEFARIAN)
         {
             Initialize();
         }
@@ -458,7 +458,7 @@ public:
         {
             if (canDespawn && DespawnTimer <= diff)
             {
-                instance->SetBossState(BOSS_NEFARIAN, FAIL);
+                instance->SetBossState(DATA_NEFARIAN, FAIL);
 
                 std::list<Creature*> constructList;
                 me->GetCreatureListWithEntryInGrid(constructList, NPC_BONE_CONSTRUCT, 500.0f);

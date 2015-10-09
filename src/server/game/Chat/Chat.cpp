@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
 
@@ -29,10 +28,7 @@
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "UpdateMask.h"
-#include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
 
@@ -79,6 +75,7 @@ ChatCommand* ChatHandler::getCommandTable()
 
             // cache top-level commands
             size_t added = 0;
+            free(commandTableCache);
             commandTableCache = (ChatCommand*)malloc(sizeof(ChatCommand) * total);
             ASSERT(commandTableCache);
             memset(commandTableCache, 0, sizeof(ChatCommand) * total);
@@ -102,17 +99,6 @@ ChatCommand* ChatHandler::getCommandTable()
     }
 
     return commandTableCache;
-}
-
-std::string ChatHandler::PGetParseString(uint32 entry, ...) const
-{
-    const char *format = GetTrinityString(entry);
-    char str[1024];
-    va_list ap;
-    va_start(ap, entry);
-    vsnprintf(str, 1024, format, ap);
-    va_end(ap);
-    return std::string(str);
 }
 
 char const* ChatHandler::GetTrinityString(uint32 entry) const
@@ -200,13 +186,33 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
     return true;
 }
 
-void ChatHandler::SendSysMessage(const char *str)
+void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
 {
     WorldPacket data;
 
     // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(str);
-    char* pos = buf;
+    char* buf;
+    char* pos;
+
+    if (escapeCharacters && strchr(str, '|'))
+    {
+        size_t startPos = 0;
+        std::ostringstream o;
+        while (const char* charPos = strchr(str + startPos, '|'))
+        {
+            o.write(str + startPos, charPos - str - startPos);
+            o << "||";
+            startPos = charPos - str + 1;
+        }
+        o.write(str + startPos, strlen(str) - startPos);
+        buf = strdup(o.str().c_str());
+    }
+    else
+    {
+        buf = strdup(str);
+    }
+
+    pos = buf;
 
     while (char* line = LineFromMessage(pos))
     {
@@ -256,27 +262,6 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 void ChatHandler::SendSysMessage(uint32 entry)
 {
     SendSysMessage(GetTrinityString(entry));
-}
-
-void ChatHandler::PSendSysMessage(uint32 entry, ...)
-{
-    const char *format = GetTrinityString(entry);
-    va_list ap;
-    char str [2048];
-    va_start(ap, entry);
-    vsnprintf(str, 2048, format, ap);
-    va_end(ap);
-    SendSysMessage(str);
-}
-
-void ChatHandler::PSendSysMessage(const char *format, ...)
-{
-    va_list ap;
-    char str [2048];
-    va_start(ap, format);
-    vsnprintf(str, 2048, format, ap);
-    va_end(ap);
-    SendSysMessage(str);
 }
 
 bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)
@@ -932,19 +917,15 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
 
     Player* pl = m_session->GetPlayer();
 
-    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, entry, lowguid));
+    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, entry, lowguid));
 
     if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
     {
-        // search near player then
-        CellCoord p(Trinity::ComputeCellCoord(pl->GetPositionX(), pl->GetPositionY()));
-        Cell cell(p);
+        auto bounds = pl->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
+        if (bounds.first == bounds.second)
+            return nullptr;
 
-        Trinity::GameObjectWithDbGUIDCheck go_check(*pl, lowguid);
-        Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(pl, obj, go_check);
-
-        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
-        cell.Visit(p, object_checker, *pl->GetMap(), *pl, pl->GetGridActivationRange());
+        return bounds.first->second;
     }
 
     return obj;
@@ -1082,7 +1063,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             uint32 lowguid = atoul(idS);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return ObjectGuid(HIGHGUID_UNIT, data->id, lowguid);
+                return ObjectGuid(HighGuid::Unit, data->id, lowguid);
             else
                 return ObjectGuid::Empty;
         }
@@ -1091,7 +1072,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             uint32 lowguid = atoul(idS);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, lowguid);
+                return ObjectGuid(HighGuid::GameObject, data->id, lowguid);
             else
                 return ObjectGuid::Empty;
         }
@@ -1258,7 +1239,7 @@ bool CliHandler::isAvailable(ChatCommand const& cmd) const
     return cmd.AllowConsole;
 }
 
-void CliHandler::SendSysMessage(const char *str)
+void CliHandler::SendSysMessage(const char *str, bool /*escapeCharacters*/)
 {
     m_print(m_callbackArg, str);
     m_print(m_callbackArg, "\r\n");

@@ -4,7 +4,7 @@ Maintainer: Georg Lukas <georg@op-co.de>
 Build-Depends: debhelper (>= 7), autotools-dev, libbz2-dev
 Standards-Version: 3.7.3
 Section: libs
-Homepage: https://libmpq.org/
+Homepage: http://libmpq.org/
 
 Package: libmpq-dev
 Section: libdevel

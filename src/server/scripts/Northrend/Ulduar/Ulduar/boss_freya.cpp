@@ -594,8 +594,8 @@ class boss_freya : public CreatureScript
                 const uint32 summonSpell[2][4] =
                 {
                               /* 0Elder, 1Elder, 2Elder, 3Elder */
-                    /* 10N */    {62950, 62953, 62955, 62957},
-                    /* 25N */    {62952, 62954, 62956, 62958}
+                    /* 10N */    {62950, 62952, 62953, 62954},
+                    /* 25N */    {62955, 62956, 62957, 62958}
                 };
 
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
@@ -611,17 +611,16 @@ class boss_freya : public CreatureScript
                 me->DespawnOrUnsummon(7500);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
 
-                Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
                 {
-                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_BRIGHTLEAF + n));
-                    if (Elder[n] && Elder[n]->IsAlive())
+                    Creature* Elder = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_BRIGHTLEAF + n));
+                    if (Elder && Elder->IsAlive())
                     {
-                        Elder[n]->RemoveAllAuras();
-                        Elder[n]->AttackStop();
-                        Elder[n]->CombatStop(true);
-                        Elder[n]->DeleteThreatList();
-                        Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
+                        Elder->RemoveAllAuras();
+                        Elder->AttackStop();
+                        Elder->CombatStop(true);
+                        Elder->DeleteThreatList();
+                        Elder->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                     }
                 }
             }
@@ -750,8 +749,8 @@ class boss_elder_brightleaf : public CreatureScript
                         case EVENT_SOLAR_FLARE:
                         {
                             uint8 stackAmount = 0;
-                            if (me->GetAura(SPELL_FLUX_AURA))
-                                stackAmount = me->GetAura(SPELL_FLUX_AURA)->GetStackAmount();
+                            if (Aura* aura = me->GetAura(SPELL_FLUX_AURA))
+                                stackAmount = aura->GetStackAmount();
                             me->CastCustomSpell(SPELL_SOLAR_FLARE, SPELLVALUE_MAX_TARGETS, stackAmount, me, false);
                             events.ScheduleEvent(EVENT_SOLAR_FLARE, urand(5000, 10000));
                             break;

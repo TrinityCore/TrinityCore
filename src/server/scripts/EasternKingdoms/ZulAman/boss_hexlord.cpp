@@ -694,7 +694,7 @@ class boss_gazakroth : public CreatureScript
     public:
 
         boss_gazakroth() : CreatureScript("boss_gazakroth") { }
-        
+
         struct boss_gazakrothAI : public boss_hexlord_addAI
         {
             boss_gazakrothAI(Creature* creature) : boss_hexlord_addAI(creature)
@@ -706,7 +706,7 @@ class boss_gazakroth : public CreatureScript
             {
                 firebolt_timer = 2 * IN_MILLISECONDS;
             }
-            
+
             void Reset() override
             {
                 Initialize();

@@ -68,7 +68,7 @@ public:
 
     struct boss_vaelAI : public BossAI
     {
-        boss_vaelAI(Creature* creature) : BossAI(creature, BOSS_VAELASTRAZ)
+        boss_vaelAI(Creature* creature) : BossAI(creature, DATA_VAELASTRAZ_THE_CORRUPT)
         {
             Initialize();
             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -221,9 +221,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            if (sender == GOSSIP_ID && action == 0)
+            if (menuId == GOSSIP_ID && gossipListId == 0)
             {
                 player->CLOSE_GOSSIP_MENU();
                 BeginSpeech(player);

@@ -906,15 +906,17 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         items = sAuctionBotConfig->GetItemPerCycleNormal();
 
     uint32 houseid = 0;
-    uint32 auctioneer = 0;
     switch (config.GetHouseType())
     {
         case AUCTION_HOUSE_ALLIANCE:
-            houseid = 1; auctioneer = 79707; break;
+            houseid = AUCTIONHOUSE_ALLIANCE;
+            break;
         case AUCTION_HOUSE_HORDE:
-            houseid = 6; auctioneer = 4656; break;
+            houseid = AUCTIONHOUSE_HORDE;
+            break;
         default:
-            houseid = 7; auctioneer = 23442; break;
+            houseid = AUCTIONHOUSE_NEUTRAL;
+            break;
     }
 
     AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(houseid);
@@ -991,11 +993,11 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         AuctionEntry* auctionEntry = new AuctionEntry();
         auctionEntry->Id = sObjectMgr->GenerateAuctionID();
         auctionEntry->owner = 0;
-        auctionEntry->itemGUIDLow = item->GetGUIDLow();
+        auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
         auctionEntry->itemEntry = item->GetEntry();
         auctionEntry->startbid = bidPrice;
         auctionEntry->buyout = buyoutPrice;
-        auctionEntry->auctioneer = auctioneer;
+        auctionEntry->houseId = houseid;
         auctionEntry->bidder = 0;
         auctionEntry->bid = 0;
         auctionEntry->deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);

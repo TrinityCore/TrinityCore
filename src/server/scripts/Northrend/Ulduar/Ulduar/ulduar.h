@@ -54,6 +54,7 @@ enum UlduarNPCs
     NPC_LEVIATHAN                           = 33113,
     NPC_SALVAGED_DEMOLISHER                 = 33109,
     NPC_SALVAGED_SIEGE_ENGINE               = 33060,
+    NPC_SALVAGED_CHOPPER                    = 33062,
     NPC_IGNIS                               = 33118,
     NPC_RAZORSCALE                          = 33186,
     NPC_RAZORSCALE_CONTROLLER               = 33233,
@@ -78,6 +79,23 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    // Flame Leviathan
+    NPC_ULDUAR_COLOSSUS                     = 33237,
+    NPC_BRANN_BRONZEBEARD_INTRO             = 33579,
+    NPC_BRANN_BRONZEBEARD_FLYING_MACHINE    = 34119,
+    NPC_BRANN_S_FLYING_MACHINE              = 34120,
+    NPC_ARCHMAGE_PENTARUS                   = 33624,
+    NPC_ARCHMAGE_RHYDIAN                    = 33696,
+    NPC_LORE_KEEPER_OF_NORGANNON            = 33686,
+    NPC_HIGH_EXPLORER_DELLORAH              = 33701,
+    NPC_BRONZEBEARD_RADIO                   = 34054,
+    NPC_FLAME_LEVIATHAN                     = 33113,
+    NPC_FLAME_LEVIATHAN_SEAT                = 33114,
+    NPC_FLAME_LEVIATHAN_TURRET              = 33139,
+    NPC_LEVIATHAN_DEFENSE_TURRET            = 33142,
+    NPC_OVERLOAD_CONTROL_DEVICE             = 33143,
+    NPC_ORBITAL_SUPPORT                     = 34286,
 
     // Mimiron
     NPC_LEVIATHAN_MKII                      = 33432,
@@ -381,6 +399,12 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
+
+    // Misc
+    DATA_BRANN_BRONZEBEARD_INTRO,
+    DATA_LORE_KEEPER_OF_NORGANNON,
+    DATA_DELLORAH,
+    DATA_BRONZEBEARD_RADIO
 };
 
 enum UlduarWorldStates
@@ -403,6 +427,7 @@ enum UlduarEvents
     EVENT_DESPAWN_ALGALON       = 1,
     EVENT_UPDATE_ALGALON_TIMER  = 2,
     ACTION_INIT_ALGALON         = 6,
+    EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7
 };
 
 enum YoggSaronIllusions
@@ -423,11 +448,13 @@ class PlayerOrPetCheck
     public:
         bool operator()(WorldObject* object) const
         {
-            if (object->GetTypeId() != TYPEID_PLAYER)
-                if (!object->ToCreature()->IsPet())
-                    return true;
+            if (object->GetTypeId() == TYPEID_PLAYER)
+                return false;
 
-            return false;
+            if (Creature* creature = object->ToCreature())
+                return !creature->IsPet();
+
+            return true;
         }
 };
 

@@ -401,20 +401,21 @@ class StartAttackEvent : public BasicEvent
 {
     public:
         StartAttackEvent(Creature* summoner, Creature* owner)
-            : _summoner(summoner), _owner(owner)
+            : _summonerGuid(summoner->GetGUID()), _owner(owner)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f))
-                _owner->AI()->AttackStart(target);
+            if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
+                if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f))
+                    _owner->AI()->AttackStart(target);
             return true;
         }
 
     private:
-        Creature* _summoner;
+        ObjectGuid _summonerGuid;
         Creature* _owner;
 };
 
@@ -695,19 +696,22 @@ class boss_sara : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (_events.IsInPhase(PHASE_ONE) && damage >= me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
-                    damage = 0;
+                    damage = me->GetHealth() - 1;
 
-                    if (Creature* voice = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VOICE_OF_YOGG_SARON)))
-                        voice->AI()->DoAction(ACTION_PHASE_TRANSFORM);
+                    if (_events.IsInPhase(PHASE_ONE))
+                    {
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VOICE_OF_YOGG_SARON)))
+                            voice->AI()->DoAction(ACTION_PHASE_TRANSFORM);
 
-                    Talk(SAY_SARA_TRANSFORM_1);
-                    _events.SetPhase(PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_1, 4700, 0, PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_2, 9500, 0, PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_3, 14300, 0, PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_4, 14500, 0, PHASE_TRANSFORM);
+                        Talk(SAY_SARA_TRANSFORM_1);
+                        _events.SetPhase(PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_1, 4700, 0, PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_2, 9500, 0, PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_3, 14300, 0, PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_4, 14500, 0, PHASE_TRANSFORM);
+                    }
                 }
             }
 
@@ -903,17 +907,15 @@ class boss_yogg_saron : public CreatureScript
                 DoCast(me, SPELL_KNOCK_AWAY);
 
                 me->ResetLootMode();
-                switch (_instance->GetData(DATA_KEEPERS_COUNT))
-                {
-                    case 0:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_4);
-                    case 1:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                    case 2:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                    case 3:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                }
+                uint32 keepersCount = _instance->GetData(DATA_KEEPERS_COUNT);
+                if (keepersCount == 0)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                if (keepersCount <= 1)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                if (keepersCount <= 2)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                if (keepersCount <= 3)
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -1126,30 +1128,11 @@ class npc_ominous_cloud : public CreatureScript
                 DoCast(me, SPELL_OMINOUS_CLOUD_VISUAL);
             }
 
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-            {
-                float step = clockwise ? float(-M_PI) / 8.0f : float(M_PI) / 8.0f;
-                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                for (uint8 i = 0; i < 16; angle += step, ++i)
-                {
-                    G3D::Vector3 point;
-                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
-                    path.push_back(point);
-                }
-            }
-
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void DoAction(int32 action) override
+            void DoAction(int32 /*action*/) override
             {
-                Movement::MoveSplineInit init(me);
-                FillCirclePath(YoggSaronSpawnPos, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action != 0);
-                init.SetWalk(true);
-                init.SetCyclic();
-                init.Launch();
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true, 16);
             }
         };
 
@@ -1525,9 +1508,9 @@ class npc_observation_ring_keeper : public CreatureScript
                 DoCast(SPELL_KEEPER_ACTIVE);
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 /*action*/) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
-                if (sender != 10333)
+                if (menuId != 10333)
                     return;
 
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

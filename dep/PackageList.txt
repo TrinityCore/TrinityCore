@@ -4,9 +4,17 @@ Boost
   http://www.boost.org
   Version: 1.55
 
+Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
+  http://www.highscore.de/boost/process0.5/
+  Version: 0.5
+
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
+
+cppformat (type safe format library)
+  https://github.com/cppformat/cppformat
+  Version: 7859f8123311c1b8f69856d3c5e1b8501fbdae11
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -17,8 +25,8 @@ jemalloc (a general-purpose scalable concurrent malloc-implementation)
   Version: 3.6.0
   
 libMPQ (a library for reading MPQ files)
-  https://libmpq.org/
-  Version: 1.0.4
+  https://github.com/mbroemme/libmpq/
+  Version: d59b4cf1d107b5f6a0f67d6bc545c6c6ebef3d74
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
@@ -38,4 +46,4 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/memononen/recastnavigation
-  Version: 42b96b7306d39bb7680ddb0f89d480a8296c83ff
+  Version: 1dd5cf1883d61e723fef3d4957cf758c50e7a52b

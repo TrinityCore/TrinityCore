@@ -2,7 +2,7 @@
  *  wave.c -- this file contains decompression methods used by mpq-tools
  *            to decompress wave files.
  *
- *  Copyright (c) 2003-2007 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This source was adepted from the C++ version of wave.cpp included
  *  in stormlib. The C++ version belongs to the following authors:

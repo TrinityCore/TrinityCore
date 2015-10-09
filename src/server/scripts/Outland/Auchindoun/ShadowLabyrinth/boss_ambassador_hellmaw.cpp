@@ -93,7 +93,7 @@ class boss_ambassador_hellmaw : public CreatureScript
             {
             }
 
-            void DoAction(int32 actionId)
+            void DoAction(int32 actionId) override
             {
                 if (actionId == ACTION_AMBASSADOR_HELLMAW_INTRO)
                     DoIntro();
@@ -136,7 +136,7 @@ class boss_ambassador_hellmaw : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void UpdateEscortAI(uint32 const diff) override
+            void UpdateEscortAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

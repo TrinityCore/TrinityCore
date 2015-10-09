@@ -1,7 +1,7 @@
 /*
  *  mpq.c -- functions for developers using libmpq.
  *
- *  Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+ *  Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,23 @@
 /* support for platform specific things */
 #include "platform.h"
 
+/* static error constants. */
+static const char *__libmpq_error_strings[] = {
+	"success",
+	"open error on file",
+	"close error on file",
+	"lseek error on file",
+	"read error on file",
+	"write error on file",
+	"memory allocation error",
+	"format errror",
+	"init() wasn't called",
+	"buffer size is to small",
+	"file or block does not exist in archive",
+	"we don't know the decryption seed",
+	"error on unpacking file"
+};
+
 /* this function returns the library version information. */
 const char *libmpq__version(void) {
 
@@ -44,41 +61,25 @@ const char *libmpq__version(void) {
 	return VERSION;
 }
 
-static const char *__libmpq_error_strings[] = {
-		"success",
-		"open error on file",
-		"close error on file",
-		"lseek error on file",
-		"read error on file",
-		"write error on file",
-		"memory allocation error",
-		"format errror",
-		"init() wasn't called",
-		"buffer size is to small",
-		"file or block does not exist in archive",
-		"we don't know the decryption seed",
-		"error on unpacking file"
-	};
-
 /* this function returns a string message for a return code. */
-const char *libmpq__strerror(int32_t returncode) {
+const char *libmpq__strerror(int32_t return_code) {
+
 	/* check for array bounds */
-	if (-returncode < 0 || -returncode > sizeof(__libmpq_error_strings)/sizeof(char*))
+	if (-return_code < 0 || (size_t)-return_code > sizeof(__libmpq_error_strings)/sizeof(char*))
 		return NULL;
 
 	/* return appropriate string */
-	return __libmpq_error_strings[-returncode];
+	return __libmpq_error_strings[-return_code];
 }
 
 /* this function read a file and verify if it is a valid mpq archive, then it read and decrypt the hash table. */
 int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filename, libmpq__off_t archive_offset) {
 
 	/* some common variables. */
-	uint32_t rb             = 0;
-	uint32_t i              = 0;
-	uint32_t count          = 0;
-	int32_t result          = 0;
-	uint32_t header_search	= FALSE;
+	uint32_t i             = 0;
+	uint32_t count         = 0;
+	int32_t result         = 0;
+	uint32_t header_search = FALSE;
 
 	if (archive_offset == -1) {
 		archive_offset = 0;
@@ -118,7 +119,7 @@ int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filena
 		}
 
 		/* read header from file. */
-		if ((rb = fread(&(*mpq_archive)->mpq_header, 1, sizeof(mpq_header_s), (*mpq_archive)->fp)) != sizeof(mpq_header_s)) {
+		if (fread(&(*mpq_archive)->mpq_header, 1, sizeof(mpq_header_s), (*mpq_archive)->fp) != sizeof(mpq_header_s)) {
 
 			/* no valid mpq archive. */
 			result = LIBMPQ_ERROR_FORMAT;
@@ -182,7 +183,7 @@ int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filena
 		}
 
 		/* read header from file. */
-		if ((rb = fread(&(*mpq_archive)->mpq_header_ex, 1, sizeof(mpq_header_ex_s), (*mpq_archive)->fp)) != sizeof(mpq_header_ex_s)) {
+		if (fread(&(*mpq_archive)->mpq_header_ex, 1, sizeof(mpq_header_ex_s), (*mpq_archive)->fp) != sizeof(mpq_header_ex_s)) {
 
 			/* no valid mpq archive. */
 			result = LIBMPQ_ERROR_FORMAT;
@@ -211,7 +212,7 @@ int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filena
 	}
 
 	/* read the hash table into the buffer. */
-	if ((rb = fread((*mpq_archive)->mpq_hash, 1, (*mpq_archive)->mpq_header.hash_table_count * sizeof(mpq_hash_s), (*mpq_archive)->fp)) < 0) {
+	if (fread((*mpq_archive)->mpq_hash, 1, (*mpq_archive)->mpq_header.hash_table_count * sizeof(mpq_hash_s), (*mpq_archive)->fp) != (*mpq_archive)->mpq_header.hash_table_count * sizeof(mpq_hash_s)) {
 
 		/* something on read failed. */
 		result = LIBMPQ_ERROR_READ;
@@ -230,7 +231,7 @@ int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filena
 	}
 
 	/* read the block table into the buffer. */
-	if ((rb = fread((*mpq_archive)->mpq_block, 1, (*mpq_archive)->mpq_header.block_table_count * sizeof(mpq_block_s), (*mpq_archive)->fp)) < 0) {
+	if (fread((*mpq_archive)->mpq_block, 1, (*mpq_archive)->mpq_header.block_table_count * sizeof(mpq_block_s), (*mpq_archive)->fp) != (*mpq_archive)->mpq_header.block_table_count * sizeof(mpq_block_s)) {
 
 		/* something on read failed. */
 		result = LIBMPQ_ERROR_READ;
@@ -252,7 +253,7 @@ int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filena
 		}
 
 		/* read header from file. */
-		if ((rb = fread((*mpq_archive)->mpq_block_ex, 1, (*mpq_archive)->mpq_header.block_table_count * sizeof(mpq_block_ex_s), (*mpq_archive)->fp)) < 0) {
+		if (fread((*mpq_archive)->mpq_block_ex, 1, (*mpq_archive)->mpq_header.block_table_count * sizeof(mpq_block_ex_s), (*mpq_archive)->fp) != (*mpq_archive)->mpq_header.block_table_count * sizeof(mpq_block_ex_s)) {
 
 			/* no valid mpq archive. */
 			result = LIBMPQ_ERROR_FORMAT;
@@ -327,7 +328,7 @@ int32_t libmpq__archive_close(mpq_archive_s *mpq_archive) {
 }
 
 /* this function return the packed size of all files in the archive. */
-int32_t libmpq__archive_packed_size(mpq_archive_s *mpq_archive, libmpq__off_t *packed_size) {
+int32_t libmpq__archive_size_packed(mpq_archive_s *mpq_archive, libmpq__off_t *packed_size) {
 
 	/* some common variables. */
 	uint32_t i;
@@ -342,7 +343,7 @@ int32_t libmpq__archive_packed_size(mpq_archive_s *mpq_archive, libmpq__off_t *p
 }
 
 /* this function return the unpacked size of all files in the archive. */
-int32_t libmpq__archive_unpacked_size(mpq_archive_s *mpq_archive, libmpq__off_t *unpacked_size) {
+int32_t libmpq__archive_size_unpacked(mpq_archive_s *mpq_archive, libmpq__off_t *unpacked_size) {
 
 	/* some common variables. */
 	uint32_t i;
@@ -397,7 +398,7 @@ int32_t libmpq__archive_files(mpq_archive_s *mpq_archive, uint32_t *files) {
 	}
 
 /* this function return the packed size of the given files in the archive. */
-int32_t libmpq__file_packed_size(mpq_archive_s *mpq_archive, uint32_t file_number, libmpq__off_t *packed_size) {
+int32_t libmpq__file_size_packed(mpq_archive_s *mpq_archive, uint32_t file_number, libmpq__off_t *packed_size) {
 
 	/* check if given file number is not out of range. */
 	CHECK_FILE_NUM(file_number, mpq_archive)
@@ -410,7 +411,7 @@ int32_t libmpq__file_packed_size(mpq_archive_s *mpq_archive, uint32_t file_numbe
 }
 
 /* this function return the unpacked size of the given file in the archive. */
-int32_t libmpq__file_unpacked_size(mpq_archive_s *mpq_archive, uint32_t file_number, libmpq__off_t *unpacked_size) {
+int32_t libmpq__file_size_unpacked(mpq_archive_s *mpq_archive, uint32_t file_number, libmpq__off_t *unpacked_size) {
 
 	/* check if given file number is not out of range. */
 	CHECK_FILE_NUM(file_number, mpq_archive)
@@ -534,8 +535,8 @@ int32_t libmpq__file_read(mpq_archive_s *mpq_archive, uint32_t file_number, uint
 
 	/* some common variables. */
 	uint32_t i;
-	uint32_t blocks         = 0;
-	int32_t result          = 0;
+	uint32_t blocks                 = 0;
+	int32_t result                  = 0;
 	libmpq__off_t file_offset       = 0;
 	libmpq__off_t unpacked_size     = 0;
 	libmpq__off_t transferred_block = 0;
@@ -545,7 +546,7 @@ int32_t libmpq__file_read(mpq_archive_s *mpq_archive, uint32_t file_number, uint
 	CHECK_FILE_NUM(file_number, mpq_archive)
 
 	/* get target size of block. */
-	libmpq__file_unpacked_size(mpq_archive, file_number, &unpacked_size);
+	libmpq__file_size_unpacked(mpq_archive, file_number, &unpacked_size);
 
 	/* check if target buffer is to small. */
 	if (unpacked_size > out_size) {
@@ -574,7 +575,7 @@ int32_t libmpq__file_read(mpq_archive_s *mpq_archive, uint32_t file_number, uint
 		unpacked_size = 0;
 
 		/* get unpacked block size. */
-		libmpq__block_unpacked_size(mpq_archive, file_number, i, &unpacked_size);
+		libmpq__block_size_unpacked(mpq_archive, file_number, i, &unpacked_size);
 
 		/* read block. */
 		if ((result = libmpq__block_read(mpq_archive, file_number, i, out_buf + transferred_total, unpacked_size, &transferred_block)) < 0) {
@@ -610,7 +611,6 @@ int32_t libmpq__block_open_offset(mpq_archive_s *mpq_archive, uint32_t file_numb
 	/* some common variables. */
 	uint32_t i;
 	uint32_t packed_size;
-	int32_t rb     = 0;
 	int32_t result = 0;
 
 	/* check if given file number is not out of range. */
@@ -673,7 +673,7 @@ int32_t libmpq__block_open_offset(mpq_archive_s *mpq_archive, uint32_t file_numb
 		}
 
 		/* read block positions from begin of file. */
-		if ((rb = fread(mpq_archive->mpq_file[file_number]->packed_offset, 1, packed_size, mpq_archive->fp)) < 0) {
+		if (fread(mpq_archive->mpq_file[file_number]->packed_offset, 1, packed_size, mpq_archive->fp) != packed_size) {
 
 			/* something on read from archive failed. */
 			result = LIBMPQ_ERROR_READ;
@@ -683,8 +683,8 @@ int32_t libmpq__block_open_offset(mpq_archive_s *mpq_archive, uint32_t file_numb
 		/* check if the archive is protected some way, sometimes the file appears not to be encrypted, but it is.
 		 * a special case are files with an additional sector but LIBMPQ_FLAG_CRC not set. we don't want to handle
 		 * them as encrypted. */
-		if (mpq_archive->mpq_file[file_number]->packed_offset[0] != rb &&
-		    mpq_archive->mpq_file[file_number]->packed_offset[0] != rb + 4) {
+		if (mpq_archive->mpq_file[file_number]->packed_offset[0] != packed_size &&
+		    mpq_archive->mpq_file[file_number]->packed_offset[0] != packed_size + 4) {
 
 			/* file is encrypted. */
 			mpq_archive->mpq_block[mpq_archive->mpq_map[file_number].block_table_indices].flags |= LIBMPQ_FLAG_ENCRYPTED;
@@ -789,7 +789,7 @@ int32_t libmpq__block_close_offset(mpq_archive_s *mpq_archive, uint32_t file_num
 }
 
 /* this function return the unpacked size of the given file and block in the archive. */
-int32_t libmpq__block_unpacked_size(mpq_archive_s *mpq_archive, uint32_t file_number, uint32_t block_number, libmpq__off_t *unpacked_size) {
+int32_t libmpq__block_size_unpacked(mpq_archive_s *mpq_archive, uint32_t file_number, uint32_t block_number, libmpq__off_t *unpacked_size) {
 
 	/* check if given file number is not out of range. */
 	CHECK_FILE_NUM(file_number, mpq_archive)
@@ -860,13 +860,13 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 
 	/* some common variables. */
 	uint8_t *in_buf;
-	uint32_t seed       = 0;
-	uint32_t encrypted  = 0;
-	uint32_t compressed = 0;
-	uint32_t imploded   = 0;
-	int32_t tb          = 0;
+	uint32_t seed               = 0;
+	uint32_t encrypted          = 0;
+	uint32_t compressed         = 0;
+	uint32_t imploded           = 0;
+	int32_t tb                  = 0;
 	libmpq__off_t block_offset  = 0;
-	off_t in_size       = 0;
+	libmpq__off_t in_size       = 0;
 	libmpq__off_t unpacked_size = 0;
 
 	/* check if given file number is not out of range. */
@@ -884,7 +884,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 	}
 
 	/* get target size of block. */
-	libmpq__block_unpacked_size(mpq_archive, file_number, block_number, &unpacked_size);
+	libmpq__block_size_unpacked(mpq_archive, file_number, block_number, &unpacked_size);
 
 	/* check if target buffer is to small. */
 	if (unpacked_size > out_size) {
@@ -912,7 +912,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 	}
 
 	/* read block from file. */
-	if (fread(in_buf, 1, in_size, mpq_archive->fp) < 0) {
+    if ((libmpq__off_t)fread(in_buf, 1, in_size, mpq_archive->fp) != in_size) {
 
 		/* free buffers. */
 		free(in_buf);
@@ -925,7 +925,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 	libmpq__file_encrypted(mpq_archive, file_number, &encrypted);
 
 	/* check if file is encrypted. */
-	if (encrypted == 1) {
+	if (encrypted) {
 
 		/* get decryption key. */
 		libmpq__block_seed(mpq_archive, file_number, block_number, &seed);
@@ -945,7 +945,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 	libmpq__file_compressed(mpq_archive, file_number, &compressed);
 
 	/* check if file is compressed. */
-	if (compressed == 1) {
+	if (compressed) {
 
 		/* decompress block. */
 		if ((tb = libmpq__decompress_block(in_buf, in_size, out_buf, out_size, LIBMPQ_FLAG_COMPRESS_MULTI)) < 0) {
@@ -962,7 +962,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 	libmpq__file_imploded(mpq_archive, file_number, &imploded);
 
 	/* check if file is imploded. */
-	if (imploded == 1) {
+	if (imploded) {
 
 		/* explode block. */
 		if ((tb = libmpq__decompress_block(in_buf, in_size, out_buf, out_size, LIBMPQ_FLAG_COMPRESS_PKZIP)) < 0) {
@@ -975,8 +975,17 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 		}
 	}
 
+	/* files should not be compressed and imploded */
+	if (compressed && imploded) {
+		/* free temporary buffer. */
+		free(in_buf);
+
+		/* something on decompressing block failed. */
+		return LIBMPQ_ERROR_UNPACK;
+	}
+
 	/* check if file is neither compressed nor imploded. */
-	if (compressed == 0 && imploded == 0) {
+	if (!compressed && !imploded) {
 
 		/* copy block. */
 		if ((tb = libmpq__decompress_block(in_buf, in_size, out_buf, out_size, LIBMPQ_FLAG_COMPRESS_NONE)) < 0) {

@@ -447,7 +447,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
             Field* fields = result->Fetch();
-            inviteeGuid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
+            inviteeGuid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
             inviteeTeam = Player::TeamForRace(fields[1].GetUInt8());
             inviteeGuildId = Player::GetGuildIdFromDB(inviteeGuid);
         }

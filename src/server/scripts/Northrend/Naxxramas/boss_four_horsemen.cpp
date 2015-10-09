@@ -221,12 +221,12 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id) override
+        void MovementInform(uint32 type, uint32 point) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
 
-            if (id == 2 || id == 5 || id == 8 || id == 11)
+            if (point == 2 || point == 5 || point == 8 || point == 11)
             {
                 movementCompleted = true;
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -251,7 +251,7 @@ public:
             }
 
             nextMovementStarted = false;
-            nextWP = id + 1;
+            nextWP = point + 1;
         }
 
         // switch to "who" if nearer than current target.

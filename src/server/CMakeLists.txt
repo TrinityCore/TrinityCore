@@ -12,24 +12,19 @@
 # This to stop a few silly crashes that could have been avoided IF people
 # weren't doing some -O3 psychooptimizations etc.
 
+find_package(MySQL REQUIRED)
+
 if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
   add_definitions(-fno-delete-null-pointer-checks)
 endif()
 
-if( SERVERS )
-  set(sources_windows_Debugging
-    ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging/WheatyExceptionReport.cpp
-    ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging/WheatyExceptionReport.h
-  )
-  add_subdirectory(shared)
-  add_subdirectory(game)
-  add_subdirectory(collision)
-  add_subdirectory(authserver)
-  add_subdirectory(scripts)
-  add_subdirectory(worldserver)
-else()
-  if( TOOLS )
-    add_subdirectory(collision)
-    add_subdirectory(shared)
-  endif()
-endif()
+set(sources_windows_Debugging
+  ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
+  ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
+)
+add_subdirectory(database)
+add_subdirectory(shared)
+add_subdirectory(game)
+add_subdirectory(authserver)
+add_subdirectory(scripts)
+add_subdirectory(worldserver)

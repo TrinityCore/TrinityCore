@@ -21,8 +21,8 @@
 #include "Log.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ObjectAccessor.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {
@@ -158,7 +158,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
     for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
     {
         // Add points to player if online
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HIGHGUID_PLAYER, playerItr->first)))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, playerItr->first)))
             player->ModifyArenaPoints(playerItr->second, trans);
         else    // Update database
         {

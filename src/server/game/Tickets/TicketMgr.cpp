@@ -53,7 +53,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
-    _playerGuid         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt32());
+    _playerGuid         = ObjectGuid(HighGuid::Player, fields[++index].GetUInt32());
     _playerName         = fields[++index].GetString();
     _message            = fields[++index].GetString();
     _createTime         = fields[++index].GetUInt32();
@@ -63,7 +63,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     _posZ               = fields[++index].GetFloat();
     _lastModifiedTime   = fields[++index].GetUInt32();
     _closedBy           = ObjectGuid(uint64(fields[++index].GetInt32()));
-    _assignedTo         = ObjectGuid(HIGHGUID_PLAYER, fields[++index].GetUInt32());
+    _assignedTo         = ObjectGuid(HighGuid::Player, fields[++index].GetUInt32());
     _comment            = fields[++index].GetString();
     _response           = fields[++index].GetString();
     _completed          = fields[++index].GetBool();
@@ -75,8 +75,8 @@ bool GmTicket::LoadFromDB(Field* fields)
 
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
-    //     0       1     2      3          4        5      6     7     8           9            10         11         12        13        14        15
-    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
+    //  0       1       2         3          4          5     6     7     8           9            10         11         12        13        14        15         16         17           18
+    // id, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
@@ -97,6 +97,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (++index, uint8(_escalatedStatus));
     stmt->setBool  (++index, _viewed);
     stmt->setBool  (++index, _needMoreHelp);
+    stmt->setInt32 (++index, int32(_resolvedBy.GetCounter()));
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -296,7 +297,7 @@ void TicketMgr::LoadTickets()
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 GM tickets. DB table `gm_tickets` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
 
         return;
     }
@@ -333,7 +334,7 @@ void TicketMgr::LoadSurveys()
     _lastSurveyId = 0;
 
     uint32 oldMSTime = getMSTime();
-    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_surveys"))
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_survey"))
         _lastSurveyId = (*result)[0].GetUInt32();
 
     TC_LOG_INFO("server.loading", ">> Loaded GM Survey count from database in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -355,6 +356,19 @@ void TicketMgr::CloseTicket(uint32 ticketId, ObjectGuid source)
     {
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(source);
+        if (source)
+            --_openTicketCount;
+        ticket->SaveToDB(trans);
+    }
+}
+
+void TicketMgr::ResolveAndCloseTicket(uint32 ticketId, ObjectGuid source)
+{
+    if (GmTicket* ticket = GetTicket(ticketId))
+    {
+        SQLTransaction trans = SQLTransaction(nullptr);
+        ticket->SetClosedBy(source);
+        ticket->SetResolvedBy(source);
         if (source)
             --_openTicketCount;
         ticket->SaveToDB(trans);

@@ -21,7 +21,6 @@
 #include "WorldSession.h"
 #include "Log.h"
 #include "Database/DatabaseEnv.h"
-#include "Util.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 

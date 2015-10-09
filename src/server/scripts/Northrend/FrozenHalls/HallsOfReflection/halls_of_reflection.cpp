@@ -2412,14 +2412,14 @@ enum QuelDelarMisc
 Position const QuelDelarCenterPos = { 5309.259f, 2006.390f, 718.046f, 0.0f };
 Position const QuelDelarSummonPos = { 5298.473f, 1994.852f, 709.424f, 3.979351f };
 Position const QuelDelarMovement[] =
-{ 
+{
     { 5292.870f, 1998.950f, 718.046f, 0.0f },
     { 5295.819f, 1991.912f, 707.707f, 0.0f },
     { 5295.301f, 1989.782f, 708.696f, 0.0f }
 };
 
 Position const UtherQuelDelarMovement[] =
-{ 
+{
     { 5336.830f, 1981.700f, 709.319f, 0.0f },
     { 5314.350f, 1993.440f, 707.726f, 0.0f }
 };
@@ -2640,13 +2640,7 @@ class npc_quel_delar_sword : public CreatureScript
                                 break;
                             case EVENT_QUEL_DELAR_FLIGHT:
                             {
-                                Movement::MoveSplineInit init(me);
-                                FillCirclePath(QuelDelarCenterPos, 18.0f, 718.046f, init.Path(), true);
-                                init.SetFly();
-                                init.SetCyclic();
-                                init.SetAnimation(Movement::ToFly);
-                                init.Launch();
-
+                                me->GetMotionMaster()->MoveCirclePath(QuelDelarCenterPos.GetPositionX(), QuelDelarCenterPos.GetPositionY(), 718.046f, 18.0f, true, 16);
                                 _events.ScheduleEvent(EVENT_QUEL_DELAR_LAND, 15000);
                                 break;
                             }
@@ -2694,21 +2688,6 @@ class npc_quel_delar_sword : public CreatureScript
             }
 
         private:
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-            {
-                float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
-                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                for (uint8 i = 0; i < 16; angle += step, ++i)
-                {
-                    G3D::Vector3 point;
-                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = z;
-                    path.push_back(point);
-                }
-            }
-
             EventMap _events;
             InstanceScript* _instance;
             bool _intro;

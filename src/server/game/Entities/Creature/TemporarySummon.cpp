@@ -19,7 +19,6 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
-#include "ObjectMgr.h"
 #include "TemporarySummon.h"
 #include "Pet.h"
 #include "Player.h"
@@ -369,7 +368,7 @@ void Puppet::InitSummon()
 {
     Minion::InitSummon();
     if (!SetCharmedBy(GetOwner(), CHARM_TYPE_POSSESS))
-        ASSERT(false);
+        ABORT();
 }
 
 void Puppet::Update(uint32 time)

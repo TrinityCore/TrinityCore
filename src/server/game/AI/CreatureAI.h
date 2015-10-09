@@ -89,6 +89,9 @@ class CreatureAI : public UnitAI
         // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
         void MoveInLineOfSight_Safe(Unit* who);
 
+        // Trigger Creature "Alert" state (creature can see stealthed unit)
+        void TriggerAlert(Unit const* who) const;
+
         // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
         virtual bool CanRespawn() { return true; }
 
@@ -119,7 +122,7 @@ class CreatureAI : public UnitAI
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         virtual void AttackedBy(Unit* /*attacker*/) { }
-        virtual bool IsEscorted() { return false; }
+        virtual bool IsEscorted() const { return false; }
 
         // Called when creature is spawned or respawned (for reseting variables)
         virtual void JustRespawned() { Reset(); }

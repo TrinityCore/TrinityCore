@@ -395,6 +395,9 @@ enum NesingwaryTrapper
     GO_CARIBOU_TRAP_15  = 188008,
 
     SPELL_TRAPPED       = 46104,
+
+    // Texts
+    SAY_NESINGWARY_1    = 0
 };
 
 #define CaribouTrapsNum 15
@@ -471,7 +474,7 @@ public:
                         phase = 3;
                         break;
                     case 3:
-                        //Talk(SAY_NESINGWARY_1);
+                        Talk(SAY_NESINGWARY_1);
                         phaseTimer = 2000;
                         phase = 4;
                         break;
@@ -593,12 +596,13 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            Talk(SAY_START_1);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_START_1, player);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            Talk(SAY_END_1);
+                            Talk(SAY_START_2);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -608,12 +612,13 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            Talk(SAY_START_2);
+                            Talk(SAY_END_1);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            Talk(SAY_END_2);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_END_2, player);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
@@ -1703,7 +1708,7 @@ public:
                 break;
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
-            creature->AI()->Talk(SAY_1);
+            creature->AI()->Talk(SAY_1, player);
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
@@ -1816,7 +1821,7 @@ public:
                 player->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
-        void UpdateEscortAI(const uint32 /*diff*/) override
+        void UpdateEscortAI(uint32 /*diff*/) override
         {
             if (GetAttack() && UpdateVictim())
             {

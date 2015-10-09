@@ -28,10 +28,9 @@ EndScriptData */
 
 enum Ironaya
 {
-    SAY_AGGRO                   = 0,
     SPELL_ARCINGSMASH           = 8374,
     SPELL_KNOCKAWAY             = 10101,
-    SPELL_WSTOMP                = 11876,
+    SPELL_WSTOMP                = 11876
 };
 
 class boss_ironaya : public CreatureScript
@@ -66,10 +65,7 @@ class boss_ironaya : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-            }
+            void EnterCombat(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 uiDiff) override
             {

@@ -21,12 +21,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "UpdateData.h"
-#include "Item.h"
-#include "Map.h"
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
-#include "SpellInfo.h"
 
 using namespace Trinity;
 
@@ -135,8 +132,13 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
         return;
 
     if (c->HasReactState(REACT_AGGRESSIVE) && !c->HasUnitState(UNIT_STATE_SIGHTLESS))
+    {
         if (c->IsAIEnabled && c->CanSeeOrDetect(u, false, true))
             c->AI()->MoveInLineOfSight_Safe(u);
+        else
+            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled && c->CanSeeOrDetect(u, false, true, true))
+                c->AI()->TriggerAlert(u);
+    }
 }
 
 void PlayerRelocationNotifier::Visit(PlayerMapType &m)
