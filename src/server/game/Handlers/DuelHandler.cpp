@@ -43,6 +43,9 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "Player 1 is: %u (%s)", player->GetGUID().GetCounter(), player->GetName().c_str());
     TC_LOG_DEBUG("network", "Player 2 is: %u (%s)", plTarget->GetGUID().GetCounter(), plTarget->GetName().c_str());
 
+    player->UpdateHasCoolDownBeforeDuel();
+    plTarget->UpdateHasCoolDownBeforeDuel();
+
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;

@@ -54,6 +54,17 @@ struct UpdateResult
     size_t archived;
 };
 
+class DBUpdaterUtil
+{
+public:
+    static std::string GetMySqlCli();
+
+    static bool CheckExecutable();
+
+private:
+    static std::string& corrected_path();
+};
+
 template <class T>
 class DBUpdater
 {
@@ -79,9 +90,6 @@ public:
     static bool Populate(DatabaseWorkerPool<T>& pool);
 
 private:
-    static std::string GetMySqlCli();
-    static bool CheckExecutable();
-
     static QueryResult Retrieve(DatabaseWorkerPool<T>& pool, std::string const& query);
     static void Apply(DatabaseWorkerPool<T>& pool, std::string const& query);
     static void ApplyFile(DatabaseWorkerPool<T>& pool, Path const& path);

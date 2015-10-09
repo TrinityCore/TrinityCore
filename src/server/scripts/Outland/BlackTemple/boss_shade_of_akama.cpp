@@ -519,9 +519,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            if (action == 0)
+            if (gossipListId == 0)
             {
                 player->CLOSE_GOSSIP_MENU();
                 StartChannel = true;
