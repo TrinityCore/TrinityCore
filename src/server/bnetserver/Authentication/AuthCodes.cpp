@@ -24,6 +24,7 @@ namespace AuthHelper
     // List of client builds for verbose version info in realmlist packet
     static std::vector<RealmBuildInfo> const ClientBuilds =
     {
+        { 20574, 6, 2, 2, 'a' },
         { 20490, 6, 2, 2, 'a' },
         { 15595, 4, 3, 4, ' ' },
         { 14545, 4, 2, 2, ' ' },
@@ -43,7 +44,7 @@ namespace AuthHelper
 
     RealmBuildInfo const* GetBuildInfo(int build)
     {
-        for (int32 i = 0; ClientBuilds.size(); ++i)
+        for (int32 i = 0; i < ClientBuilds.size(); ++i)
             if (ClientBuilds[i].Build == build)
                 return &ClientBuilds[i];
 

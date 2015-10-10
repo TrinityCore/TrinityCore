@@ -37,7 +37,7 @@ namespace Battlenet
             CMSG_ENUM_CATEGORY_DESCRIPTIONS     = 0x15, // Not implemented
             CMSG_ENUM_CONFERENCE_DESCRIPTIONS   = 0x17, // Not implemented
             CMSG_ENUM_CONFERENCE_MEMBER_COUNTS  = 0x19, // Not implemented
-            CMSG_MODIFY_CHANNEL_LIST_REQUEST    = 0x1B, // Not implemented
+            CMSG_MODIFY_CHANNEL_LIST_REQUEST    = 0x1B, // Deprecated in client
             CMSG_GET_MEMBER_COUNT_REQUEST       = 0x1F, // Not implemented
             CMSG_MODIFY_CHANNEL_LIST_REQUEST_2  = 0x20, // Not implemented
             CMSG_GAME_DATA_SEND_REQUEST         = 0x22, // Not implemented
@@ -57,8 +57,13 @@ namespace Battlenet
             SMSG_CONFERENCE_DESCRIPTIONS        = 0x18, // Not implemented
             SMSG_CONFERENCE_MEMBER_COUNTS       = 0x1A, // Not implemented
             SMSG_JOIN_NOTIFY_2                  = 0x1B, // Not implemented
-            SMSG_MODIFY_CHANNEL_LIST_RESPONSE   = 0x1C, // Not implemented
-            SMSG_CONFIG_CHANGED                 = 0x1D  // Not implemented
+            SMSG_MODIFY_CHANNEL_LIST_RESPONSE   = 0x1C, // Deprecated in client
+            SMSG_CONFIG_CHANGED                 = 0x1D, // Not implemented
+            SMSG_WHISPER_ECHO_RECV              = 0x1E, // Not implemented
+            SMSG_GET_MEMBER_COUNT_RESPONSE      = 0x1F, // Not implemented
+            SMSG_MODIFY_CHANNEL_LIST_RESPONSE_2 = 0x21, // Not implemented
+            SMSG_GAME_DATA_SEND_RESPONSE        = 0x23, // Not implemented
+            SMSG_GAME_DATA_RECV                 = 0x24  // Not implemented
         };
     }
 }
