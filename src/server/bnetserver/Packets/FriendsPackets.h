@@ -44,15 +44,23 @@ namespace Battlenet
             SMSG_FRIEND_INVITE_NOTIFY                   = 0x01,  // Not implemented
             SMSG_FRIEND_INVITE_RESULT                   = 0x03,  // Not implemented
             SMSG_TOONS_OF_FRIEND_NOTIFY                 = 0x06,  // Not implemented
-            SMSG_BLOCK_INVITE_NOTIFY                    = 0x07,  // Not implemented
+            SMSG_BLOCK_INVITE_NOTIFY                    = 0x07,  // Deprecated in client
             SMSG_BLOCK_ADD_FAILURE                      = 0x09,  // Not implemented
-            SMSG_FRIENDS_OF_FRIEND                      = 0x0C,  // Not implemented
+            SMSG_FRIENDS_OF_FRIEND                      = 0x0C,  // Deprecated in client
             SMSG_SOCIAL_NETWORK_FRIENDS                 = 0x0E,  // Deprecated in client
             SMSG_SOCIAL_NETWORK_CONNECT_RESULT          = 0x10,  // Deprecated in client
             SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT       = 0x12,  // Deprecated in client
             SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT  = 0x14,  // Deprecated in client
             SMSG_MAX_FRIENDS_NOTIFY                     = 0x15,  // Not implemented
-            SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18   // Not implemented
+            SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18,  // Deprecated in client
+            SMSG_SEND_INVITATION_RESULT                 = 0x1B,  // Not implemented
+            SMSG_FRIEND_INVITATION_ADDED_NOTIFY         = 0x1C,  // Not implemented
+            SMSG_FRIEND_INVITATION_REMOVED_NOTIFY       = 0x1D,  // Not implemented
+            SMSG_FRIENDS_LIST_NOTIFY_5                  = 0x1E,  // Not implemented
+            SMSG_ACCOUNT_BLOCK_ADDED_NOTIFY             = 0x1F,  // Not implemented
+            SMSG_ACCOUNT_BLOCK_REMOVED_NOTIFY           = 0x20,  // Not implemented
+            SMSG_TOON_BLOCK_NOTIFY                      = 0x21,  // Not implemented
+            SMSG_FRIENDS_OF_FRIEND_RESULT               = 0x22   // Not implemented
         };
 
         class SendInvitationRequest final : public ClientPacket
@@ -75,17 +83,6 @@ namespace Battlenet
             Optional<std::string> InvitationMsg;
             std::string Source;
             uint32 Role;
-        };
-
-        class FriendInviteResult final : public ServerPacket
-        {
-        public:
-            FriendInviteResult() : ServerPacket(PacketHeader(SMSG_FRIEND_INVITE_RESULT, FRIENDS))
-            {
-            }
-
-            void Write() override;
-            std::string ToString() const override;
         };
     }
 }

@@ -26,8 +26,8 @@ namespace Battlenet
     {
         enum Opcode
         {
-            CMSG_COMPLAINT_REQUEST  = 0x0,  // Deprecated in client
-            CMSG_COMPLAINT_REQUEST2 = 0x1   // Not implemented
+            CMSG_COMPLAINT_REQUEST      = 0x0,  // Deprecated in client
+            CMSG_COMPLAINT_REQUEST_2    = 0x1   // Not implemented
         };
     }
 }

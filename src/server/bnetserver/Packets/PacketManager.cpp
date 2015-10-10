@@ -82,13 +82,16 @@ void Battlenet::PacketManager::RegisterAuthenticationPackets()
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Authentication::CMSG_LOGON_REQUEST, AUTHENTICATION), "Authentication::LogonRequest");
     REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_RESUME_REQUEST, AUTHENTICATION), Authentication::ResumeRequest);
     REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_PROOF_RESPONSE, AUTHENTICATION), Authentication::ProofResponse);
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Authentication::CMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2, AUTHENTICATION), "Authentication::GenerateSingleSignOnTokenRequest2");
     REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_LOGON_REQUEST_3, AUTHENTICATION), Authentication::LogonRequest3);
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Authentication::CMSG_SINGLE_SIGN_ON_REQUEST_3, AUTHENTICATION), "Authentication::SingleSignOnRequest3");
 
     REGISTER_SERVER_PACKET(PacketHeader(Authentication::SMSG_LOGON_RESPONSE, AUTHENTICATION), Authentication::LogonResponse);
     REGISTER_SERVER_PACKET(PacketHeader(Authentication::SMSG_RESUME_RESPONSE, AUTHENTICATION), Authentication::ResumeResponse);
     REGISTER_SERVER_PACKET(PacketHeader(Authentication::SMSG_PROOF_REQUEST, AUTHENTICATION), Authentication::ProofRequest);
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Authentication::SMSG_PATCH, AUTHENTICATION), "Authentication::Patch");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Authentication::SMSG_AUTHORIZED_LICENSES, AUTHENTICATION), "Authentication::AuthorizedLicenses");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Authentication::SMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_RESPONSE_2, AUTHENTICATION), "Authentication::GenerateSingleSignOnTokenResponse2");
 }
 
 void Battlenet::PacketManager::RegisterConnectionPackets()
@@ -135,12 +138,11 @@ void Battlenet::PacketManager::RegisterFriendsPackets()
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CONNECT, FRIENDS), "Friends::SocialNetworkConnect");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_DISCONNECT, FRIENDS), "Friends::SocialNetworkDisconnect");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS), "Friends::SocialNetworkCheckConnected");
-    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS), "Friends::GetFriendsOfFriend");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Friends::CMSG_REALID_FRIEND_INVITE, FRIENDS), "Friends::RealIdFriendInvite");
     REGISTER_CLIENT_PACKET(PacketHeader(Friends::CMSG_SEND_INVITATION_REQUEST, FRIENDS), Friends::SendInvitationRequest);
 
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIEND_INVITE_NOTIFY, FRIENDS), "Friends::FriendInviteNotify");
-    REGISTER_SERVER_PACKET(PacketHeader(Friends::SMSG_FRIEND_INVITE_RESULT, FRIENDS), Friends::FriendInviteResult);
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIEND_INVITE_RESULT, FRIENDS), "Friends::FriendInviteResult");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_TOONS_OF_FRIEND_NOTIFY, FRIENDS), "Friends::ToonsOfFriendNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_BLOCK_INVITE_NOTIFY, FRIENDS), "Friends::BlockInviteNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_BLOCK_ADD_FAILURE, FRIENDS), "Friends::BlockAddFailure");
@@ -151,6 +153,14 @@ void Battlenet::PacketManager::RegisterFriendsPackets()
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS), "Friends::SocialNetworkCheckConnectedResult");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_MAX_FRIENDS_NOTIFY, FRIENDS), "Friends::MaxFriendsNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIENDS_LIST_NOTIFY_3, FRIENDS), "Friends::FriendsListNotify3");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_SEND_INVITATION_RESULT, FRIENDS), "SendInvitationResult");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIEND_INVITATION_ADDED_NOTIFY, FRIENDS), "Friends::FriendInvitationAddedNotify");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIEND_INVITATION_REMOVED_NOTIFY, FRIENDS), "Friends::FriendInvitationRemovedNotify");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIENDS_LIST_NOTIFY_5, FRIENDS), "Friends::FriendsListNotify5");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_ACCOUNT_BLOCK_ADDED_NOTIFY, FRIENDS), "Friends::AccountBlockAddedNotify");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_ACCOUNT_BLOCK_REMOVED_NOTIFY, FRIENDS), "Friends::AccountBlockRemovedNotify");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_TOON_BLOCK_NOTIFY, FRIENDS), "Friends::ToonBlockNotify");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Friends::SMSG_FRIENDS_OF_FRIEND_RESULT, FRIENDS), "Friends::FriendsOfFriendResult");
 }
 
 void Battlenet::PacketManager::RegisterPresencePackets()
@@ -177,6 +187,9 @@ void Battlenet::PacketManager::RegisterChatPackets()
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Chat::CMSG_ENUM_CONFERENCE_DESCRIPTIONS, CHAT), "Chat::EnumConferenceDescriptions");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Chat::CMSG_ENUM_CONFERENCE_MEMBER_COUNTS, CHAT), "Chat::EnumConferenceMemberCounts");
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Chat::CMSG_MODIFY_CHANNEL_LIST_REQUEST, CHAT), "Chat::ModifyChannelListRequest");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Chat::CMSG_GET_MEMBER_COUNT_REQUEST, CHAT), "Chat::GetMemberCountRequest");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Chat::CMSG_MODIFY_CHANNEL_LIST_REQUEST_2, CHAT), "Chat::ModifyChannelListRequest2");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Chat::CMSG_GAME_DATA_SEND_REQUEST, CHAT), "Chat::GameDataSendRequest");
 
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_MEMBERSHIP_CHANGE_NOTIFY, CHAT), "Chat::MembershipChangeNotify");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_INVITE_NOTIFY, CHAT), "Chat::InviteNotify");
@@ -195,11 +208,17 @@ void Battlenet::PacketManager::RegisterChatPackets()
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_JOIN_NOTIFY_2, CHAT), "Chat::JoinNotify2");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_MODIFY_CHANNEL_LIST_RESPONSE, CHAT), "Chat::ModifyChannelListResponse");
     REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_CONFIG_CHANGED, CHAT), "Chat::ConfigChanged");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_WHISPER_ECHO_RECV, CHAT), "Chat::WhisperEchoRecv");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_GET_MEMBER_COUNT_RESPONSE, CHAT), "Chat::GetMemberCountResponse");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_MODIFY_CHANNEL_LIST_RESPONSE_2, CHAT), "Chat::ModifyChannelListResponse2");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_GAME_DATA_SEND_RESPONSE, CHAT), "Chat::GameDataSendResponse");
+    REGISTER_SERVER_PACKET_NAME(PacketHeader(Chat::SMSG_GAME_DATA_RECV, CHAT), "Chat::GameDataRecv");
 }
 
 void Battlenet::PacketManager::RegisterSupportPackets()
 {
     REGISTER_CLIENT_PACKET_NAME(PacketHeader(Support::CMSG_COMPLAINT_REQUEST, SUPPORT), "Support::ComplaintRequest");
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Support::CMSG_COMPLAINT_REQUEST_2, SUPPORT), "Support::ComplaintRequest2");
 }
 
 void Battlenet::PacketManager::RegisterAchievementPackets()

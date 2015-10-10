@@ -15,39 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Session.h"
 #include "FriendsPackets.h"
-
-std::string Battlenet::Friends::FriendInviteResult::ToString() const
-{
-    return "Battlenet::Friends::RealIdFriendInviteResult";
-}
-
-void Battlenet::Friends::FriendInviteResult::Write()
-{
-    bool hasNames = false;
-    _stream.Write(hasNames, 1);
-    if (hasNames)
-    {
-        _stream.WriteString("Testing1", 8);
-        _stream.WriteString("Testing2", 8);
-    }
-    _stream.Write(5, 32);
-
-    _stream.Write(0, 0xC); // Ignored
-
-    _stream.Write(1, 16);
-
-    bool moreInfo = true;
-    _stream.Write(moreInfo, 1);
-    if (moreInfo)
-    {
-        _stream.Write(0, 8);
-        _stream.Write(4, 32);
-        _stream.Write(3, 32);
-        _stream.WriteString("Testing3", 7, 2);
-    }
-}
 
 void Battlenet::Friends::SendInvitationRequest::Read()
 {
