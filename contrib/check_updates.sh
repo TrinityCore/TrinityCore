@@ -22,7 +22,7 @@ do
   updates=$((updates+1))
  else
   # The update isn't listed in the updates table of the given database.
-  echo "- \"sql/updates/${file}\" is missing in table '${name}'.'updates'"
+  echo "- \"sql/updates/${name}/${file}\" is missing in the '${name}'.'updates' table."
   error=1
  fi
 done
@@ -31,14 +31,14 @@ if [ ${error} -ne 0 ]
   then
     echo
     echo "Fatal error:"
-    echo "  The Database Updater is broken for database '${name}"
-    echo "  due to applied update which are missing in the '${name}'.'updates' table."
+    echo "  The Database Updater is broken for the '${name}' database,"
+    echo "  because the applied update is missing in the '${name}'.'updates' table."
     echo
     echo "How to fix:"
-    echo "  Insert the missing names of sql updates which were applied already to"
-    echo "  the 'updates' table of the '${name}' base dump ('sql/base/${name}_database.sql')."
+    echo "  Insert the missing names of the already applied sql updates"
+    echo "  to the 'updates' table of the '${name}' base dump ('sql/base/${name}_database.sql')."
     exit 1
   else
-    echo "  Everything is ok, checked ${updates} updates."
+    echo "  Everything is OK, finished checking ${updates} updates."
     exit 0
 fi
