@@ -220,7 +220,7 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
 inline void Map::_ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const
 {
     bool bOpen = false;
-    uint32 guid = scriptInfo->ToggleDoor.GOGuid;
+    ObjectGuid::LowType guid = scriptInfo->ToggleDoor.GOGuid;
     int32 nTimeToToggle = std::max(15, int32(scriptInfo->ToggleDoor.ResetDelay));
     switch (scriptInfo->command)
     {
@@ -266,7 +266,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
     }
 }
 
-inline GameObject* Map::_FindGameObject(WorldObject* searchObject, uint32 guid) const
+inline GameObject* Map::_FindGameObject(WorldObject* searchObject, ObjectGuid::LowType guid) const
 {
     auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
     if (bounds.first == bounds.second)

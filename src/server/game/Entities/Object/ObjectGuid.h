@@ -154,14 +154,14 @@ class ObjectGuid
                    : LowType(_guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
-        static uint32 GetMaxCounter(HighGuid high)
+        static LowType GetMaxCounter(HighGuid high)
         {
             return HasEntry(high)
-                   ? uint32(0x00FFFFFF)
-                   : uint32(0xFFFFFFFF);
+                   ? LowType(0x00FFFFFF)
+                   : LowType(0xFFFFFFFF);
         }
 
-        uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
+        ObjectGuid::LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
         bool IsEmpty()             const { return _guid == 0; }
         bool IsCreature()          const { return GetHigh() == HighGuid::Unit; }
@@ -283,13 +283,13 @@ class ObjectGuidGeneratorBase
 public:
     ObjectGuidGeneratorBase(ObjectGuid::LowType start = 1) : _nextGuid(start) { }
 
-    virtual void Set(uint32 val) { _nextGuid = val; }
+    virtual void Set(ObjectGuid::LowType val) { _nextGuid = val; }
     virtual ObjectGuid::LowType Generate() = 0;
     ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
 
 protected:
     static void HandleCounterOverflow(HighGuid high);
-    uint64 _nextGuid;
+    ObjectGuid::LowType _nextGuid;
 };
 
 template<HighGuid high>

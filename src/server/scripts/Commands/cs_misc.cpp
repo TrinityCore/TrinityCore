@@ -1470,7 +1470,7 @@ public:
         // Account data print variables
         std::string userName          = handler->GetTrinityString(LANG_ERROR);
         uint32 accId                  = 0;
-        uint32 lowguid                = targetGuid.GetCounter();
+        ObjectGuid::LowType lowguid   = targetGuid.GetCounter();
         std::string eMail             = handler->GetTrinityString(LANG_ERROR);
         std::string regMail           = handler->GetTrinityString(LANG_ERROR);
         uint32 security               = 0;
@@ -1659,7 +1659,7 @@ public:
         {
             Field* fields = result4->Fetch();
             xp            = fields[0].GetUInt32(); // Used for "current xp" output and "%u XP Left" calculation
-            uint32 gguid  = fields[1].GetUInt32(); // We check if have a guild for the person, so we might not require to query it at all
+            ObjectGuid::LowType gguid  = fields[1].GetUInt32(); // We check if have a guild for the person, so we might not require to query it at all
             xptotal = sObjectMgr->GetXPForLevel(level);
 
             if (gguid != 0)
@@ -2487,7 +2487,7 @@ public:
 
                 // If player found: delete his freeze aura
                 Field* fields = result->Fetch();
-                uint32 lowGuid = fields[0].GetUInt32();
+                ObjectGuid::LowType lowGuid = fields[0].GetUInt32();
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
                 stmt->setUInt32(0, lowGuid);

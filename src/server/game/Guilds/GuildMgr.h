@@ -34,21 +34,21 @@ public:
     }
 
     Guild* GetGuildByLeader(ObjectGuid guid) const;
-    Guild* GetGuildById(uint32 guildId) const;
+    Guild* GetGuildById(ObjectGuid::LowType guildId) const;
     Guild* GetGuildByName(std::string const& guildName) const;
-    std::string GetGuildNameById(uint32 guildId) const;
+    std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
 
     void LoadGuilds();
     void AddGuild(Guild* guild);
-    void RemoveGuild(uint32 guildId);
+    void RemoveGuild(ObjectGuid::LowType guildId);
 
-    uint32 GenerateGuildId();
-    void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
+    ObjectGuid::LowType GenerateGuildId();
+    void SetNextGuildId(ObjectGuid::LowType Id) { NextGuildId = Id; }
 
     void ResetTimes();
 protected:
-    typedef std::unordered_map<uint32, Guild*> GuildContainer;
-    uint32 NextGuildId;
+    typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
+    ObjectGuid::LowType NextGuildId;
     GuildContainer GuildStore;
 };
 

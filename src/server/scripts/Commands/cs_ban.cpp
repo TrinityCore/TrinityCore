@@ -300,7 +300,7 @@ public:
             return false;
 
         Player* target = ObjectAccessor::FindPlayerByName(args);
-        uint32 targetGuid = 0;
+        ObjectGuid::LowType targetGuid = 0;
         std::string name(args);
 
         if (!target)
