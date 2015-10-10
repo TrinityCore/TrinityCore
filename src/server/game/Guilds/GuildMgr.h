@@ -34,17 +34,17 @@ public:
     }
 
     Guild* GetGuildByLeader(ObjectGuid guid) const;
-    Guild* GetGuildById(uint32 guildId) const;
+    Guild* GetGuildById(ObjectGuid::LowType guildId) const;
     Guild* GetGuildByGuid(ObjectGuid guid) const;
     Guild* GetGuildByName(std::string const& guildName) const;
-    std::string GetGuildNameById(uint32 guildId) const;
+    std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
 
     void LoadGuildXpForLevel();
     void LoadGuildRewards();
 
     void LoadGuilds();
     void AddGuild(Guild* guild);
-    void RemoveGuild(uint32 guildId);
+    void RemoveGuild(ObjectGuid::LowType guildId);
 
     void SaveGuilds();
 
@@ -58,8 +58,8 @@ public:
 
     void ResetTimes(bool week);
 protected:
-    typedef std::unordered_map<uint32, Guild*> GuildContainer;
-    uint32 NextGuildId;
+    typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
+    ObjectGuid::LowType NextGuildId;
     GuildContainer GuildStore;
     std::vector<uint64> GuildXPperLevel;
     std::vector<GuildReward> GuildRewards;

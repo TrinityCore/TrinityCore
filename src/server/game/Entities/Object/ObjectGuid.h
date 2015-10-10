@@ -168,12 +168,12 @@ class ObjectGuid
             return uint32(_data._guid & UI64LIT(0x00000000FFFFFFFF));
         }
 
-        static uint32 GetMaxCounter(HighGuid /*high*/)
+        static LowType GetMaxCounter(HighGuid /*high*/)
         {
-            return uint32(0xFFFFFFFF);
+            return LowType(0xFFFFFFFF);
         }
 
-        uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
+        ObjectGuid::LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
         uint8& operator[](uint32 index)
         {

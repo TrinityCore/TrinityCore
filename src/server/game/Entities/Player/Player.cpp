@@ -971,7 +971,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
+bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo)
 {
     //FIXME: outfitId not used in player creating
     /// @todo need more checks against packet modifications
@@ -3490,7 +3490,7 @@ void Player::RemoveMail(uint32 id)
     }
 }
 
-void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, uint32 item_guid, uint32 item_count)
+void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count)
 {
     WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
     data << uint32(mailId);
@@ -4546,7 +4546,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
         updateRealmChars = false;
 
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
-    uint32 guid = playerguid.GetCounter();
+    ObjectGuid::LowType guid = playerguid.GetCounter();
     uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
 
     if (deleteFinally)
@@ -4562,7 +4562,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             charDelete_method = CHAR_DELETE_REMOVE;
     }
 
-    if (uint32 guildId = GetGuildIdFromDB(playerguid))
+    if (ObjectGuid::LowType guildId = GetGuildIdFromDB(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(playerguid, false, false, true);
 
@@ -4640,7 +4640,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                uint32 item_guidlow = itemFields[11].GetUInt32();
+                                ObjectGuid::LowType item_guidlow = itemFields[11].GetUInt32();
                                 uint32 item_template = itemFields[12].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
@@ -4687,7 +4687,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             {
                 do
                 {
-                    uint32 petguidlow = (*resultPets)[0].GetUInt32();
+                    ObjectGuid::LowType petguidlow = (*resultPets)[0].GetUInt32();
                     Pet::DeleteFromDB(petguidlow);
                 } while (resultPets->NextRow());
             }
@@ -7574,7 +7574,7 @@ uint32 Player::GetArenaTeamIdFromDB(ObjectGuid guid, uint8 type)
 
 uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
 {
-    uint32 guidLow = guid.GetCounter();
+    ObjectGuid::LowType guidLow = guid.GetCounter();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ZONE);
     stmt->setUInt32(0, guidLow);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -16965,7 +16965,7 @@ bool Player::HasPvPForcingQuest() const
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-void Player::Initialize(uint32 guid)
+void Player::Initialize(ObjectGuid::LowType guid)
 {
     Object::_Create(guid, 0, HighGuid::Player);
 }
@@ -17286,7 +17286,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
     // init saved position, and fix it later if problematic
-    uint32 transLowGUID = uint32(fields[31].GetUInt32());
+    ObjectGuid::LowType transLowGUID = uint32(fields[31].GetUInt32());
 
     Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
 
@@ -18111,8 +18111,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
     {
         uint32 zoneId = GetZoneId();
 
-        std::map<uint32, Bag*> bagMap;                               // fast guid lookup for bags
-        std::map<uint32, Item*> invalidBagMap;                       // fast guid lookup for bags
+        std::map<ObjectGuid::LowType, Bag*> bagMap;                  // fast guid lookup for bags
+        std::map<ObjectGuid::LowType, Item*> invalidBagMap;          // fast guid lookup for bags
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -18123,7 +18123,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[11].GetUInt32();
+                ObjectGuid::LowType bagGuid = fields[11].GetUInt32();
                 uint8  slot     = fields[12].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
@@ -18171,7 +18171,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 {
                     item->SetSlot(NULL_SLOT);
                     // Item is in the bag, find the bag
-                    std::map<uint32, Bag*>::iterator itr = bagMap.find(bagGuid);
+                    std::map<ObjectGuid::LowType, Bag*>::iterator itr = bagMap.find(bagGuid);
                     if (itr != bagMap.end())
                     {
                         ItemPosCountVec dest;
@@ -18181,7 +18181,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     }
                     else if (invalidBagMap.find(bagGuid) != invalidBagMap.end())
                     {
-                        std::map<uint32, Item*>::iterator invalidBagItr = invalidBagMap.find(bagGuid);
+                        std::map<ObjectGuid::LowType, Item*>::iterator invalidBagItr = invalidBagMap.find(bagGuid);
                         if (std::find(problematicItems.begin(), problematicItems.end(), invalidBagItr->second) != problematicItems.end())
                             err = EQUIP_ERR_INTERNAL_BAG_ERROR;
                     }
@@ -18280,7 +18280,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[13].GetUInt32();
+    ObjectGuid::LowType itemGuid  = fields[13].GetUInt32();
     uint32 itemEntry = fields[14].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
@@ -18418,7 +18418,7 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        uint32 itemGuid = fields[11].GetUInt32();
+        ObjectGuid::LowType itemGuid = fields[11].GetUInt32();
         uint32 itemTemplate = fields[12].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
@@ -19355,7 +19355,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
-        uint32 transLowGUID = 0;
+        ObjectGuid::LowType transLowGUID = 0;
         if (GetTransport())
             transLowGUID = GetTransport()->GetGUID().GetCounter();
         stmt->setUInt32(index++, transLowGUID);
@@ -19484,7 +19484,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
-        uint32 transLowGUID = 0;
+        ObjectGuid::LowType transLowGUID = 0;
         if (GetTransport())
             transLowGUID = GetTransport()->GetGUID().GetCounter();
         stmt->setUInt32(index++, transLowGUID);
@@ -19794,7 +19794,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
     if (m_itemUpdateQueue.empty())
         return;
 
-    uint32 lowGuid = GetGUID().GetCounter();
+    ObjectGuid::LowType lowGuid = GetGUID().GetCounter();
     for (size_t i = 0; i < m_itemUpdateQueue.size(); ++i)
     {
         Item* item = m_itemUpdateQueue[i];
@@ -19802,14 +19802,14 @@ void Player::_SaveInventory(SQLTransaction& trans)
             continue;
 
         Bag* container = item->GetContainer();
-        uint32 bag_guid = container ? container->GetGUID().GetCounter() : 0;
+        ObjectGuid::LowType bag_guid = container ? container->GetGUID().GetCounter() : 0;
 
         if (item->GetState() != ITEM_REMOVED)
         {
             Item* test = GetItemByPos(item->GetBagSlot(), item->GetSlot());
             if (test == NULL)
             {
-                uint32 bagTestGUID = 0;
+                ObjectGuid::LowType bagTestGUID = 0;
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
                     bagTestGUID = test2->GetGUID().GetCounter();
                 TC_LOG_ERROR("entities.player", "Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u (state %d) are incorrect, the player doesn't have an item at that position!", lowGuid, GetName().c_str(), item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter(), (int32)item->GetState());

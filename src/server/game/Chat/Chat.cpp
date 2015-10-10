@@ -928,7 +928,7 @@ GameObject* ChatHandler::GetNearbyGameObject()
     return obj;
 }
 
-GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid, uint32 entry)
+GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry)
 {
     if (!m_session)
         return nullptr;
@@ -1075,7 +1075,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
         }
         case SPELL_LINK_CREATURE:
         {
-            uint32 lowguid = atoul(idS);
+            ObjectGuid::LowType lowguid = atoul(idS);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
                 return ObjectGuid(HighGuid::Unit, data->id, lowguid);
@@ -1084,7 +1084,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
         }
         case SPELL_LINK_GAMEOBJECT:
         {
-            uint32 lowguid = atoul(idS);
+            ObjectGuid::LowType lowguid = atoul(idS);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
                 return ObjectGuid(HighGuid::GameObject, data->id, lowguid);

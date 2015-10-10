@@ -32,7 +32,7 @@ void GuildMgr::AddGuild(Guild* guild)
     GuildStore[guild->GetId()] = guild;
 }
 
-void GuildMgr::RemoveGuild(uint32 guildId)
+void GuildMgr::RemoveGuild(ObjectGuid::LowType guildId)
 {
     GuildStore.erase(guildId);
 }
@@ -54,7 +54,7 @@ uint32 GuildMgr::GenerateGuildId()
 }
 
 // Guild collection
-Guild* GuildMgr::GetGuildById(uint32 guildId) const
+Guild* GuildMgr::GetGuildById(ObjectGuid::LowType guildId) const
 {
     GuildContainer::const_iterator itr = GuildStore.find(guildId);
     if (itr != GuildStore.end())
@@ -88,7 +88,7 @@ Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
     return NULL;
 }
 
-std::string GuildMgr::GetGuildNameById(uint32 guildId) const
+std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
 {
     if (Guild* guild = GetGuildById(guildId))
         return guild->GetName();

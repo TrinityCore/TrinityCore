@@ -109,7 +109,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -235,8 +235,8 @@ public:
             do
             {
                 Field* fields                   = result->Fetch();
-                uint32 itemGuid                 = fields[0].GetUInt32();
-                uint32 itemSender               = fields[1].GetUInt32();
+                ObjectGuid::LowType itemGuid                 = fields[0].GetUInt32();
+                ObjectGuid::LowType itemSender               = fields[1].GetUInt32();
                 uint32 itemReceiver             = fields[2].GetUInt32();
                 uint32 itemSenderAccountId      = fields[3].GetUInt32();
                 std::string itemSenderName      = fields[4].GetString();
@@ -398,7 +398,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -534,7 +534,7 @@ public:
                         {
                             do
                             {
-                                uint32 item_guid = (*result2)[0].GetUInt32();
+                                ObjectGuid::LowType item_guid = (*result2)[0].GetUInt32();
                                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
                                 stmt->setUInt32(0, item_guid);
                                 PreparedQueryResult result3 = CharacterDatabase.Query(stmt);

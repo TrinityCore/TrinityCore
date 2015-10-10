@@ -127,12 +127,12 @@ class OPvPCapturePoint
 
         virtual void DeleteSpawns();
 
-        uint32 m_capturePointSpawnId;
+        ObjectGuid::LowType m_capturePointSpawnId;
 
         GameObject* m_capturePoint;
 
-        void AddGO(uint32 type, uint32 guid, uint32 entry = 0);
-        void AddCre(uint32 type, uint32 guid, uint32 entry = 0);
+        void AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
+        void AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
 
         bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o = 0,
             float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
@@ -199,7 +199,7 @@ class OutdoorPvP : public ZoneScript
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();
 
-        typedef std::map<uint32/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
         typedef std::pair<ObjectGuid::LowType, GameObject*> GoScriptPair;
         typedef std::pair<ObjectGuid::LowType, Creature*> CreatureScriptPair;
 
@@ -291,7 +291,7 @@ class OutdoorPvP : public ZoneScript
             m_capturePoints[cp->m_capturePointSpawnId] = cp;
         }
 
-        OPvPCapturePoint* GetCapturePoint(uint32 spawnId) const
+        OPvPCapturePoint* GetCapturePoint(ObjectGuid::LowType spawnId) const
         {
             OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(spawnId);
             if (itr != m_capturePoints.end())
