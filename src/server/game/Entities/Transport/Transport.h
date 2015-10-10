@@ -27,7 +27,7 @@ struct CreatureData;
 
 class Transport : public GameObject, public TransportBase
 {
-        friend Transport* TransportMgr::CreateTransport(uint32, uint32, Map*);
+        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*);
 
         Transport();
     public:
@@ -35,7 +35,7 @@ class Transport : public GameObject, public TransportBase
 
         ~Transport();
 
-        bool Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress);
+        bool Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         void Update(uint32 diff) override;
@@ -47,8 +47,8 @@ class Transport : public GameObject, public TransportBase
         void RemovePassenger(WorldObject* passenger);
         PassengerSet const& GetPassengers() const { return _passengers; }
 
-        Creature* CreateNPCPassenger(uint32 guid, CreatureData const* data);
-        GameObject* CreateGOPassenger(uint32 guid, GameObjectData const* data);
+        Creature* CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data);
+        GameObject* CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data);
 
         /**
         * @fn bool Transport::SummonPassenger(uint64, Position const&, TempSummonType, SummonPropertiesEntry const*, uint32, Unit*, uint32, uint32)
