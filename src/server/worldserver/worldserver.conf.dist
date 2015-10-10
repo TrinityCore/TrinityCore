@@ -2191,6 +2191,16 @@ Battleground.QueueAnnouncer.Enable = 0
 Battleground.QueueAnnouncer.PlayerOnly = 0
 
 #
+#    Battleground.AllowQueueRbgAndNormal.Enable
+#        Description: Battleground queue policy.
+#        Default:     0 - (Disabled, do not allow to queue for Random Battleground 
+#                          if the player is already queued in an other BG)
+#                     1 - (Enabled, allow to queue for Random Battleground and 
+#                          other BG simultaneously)
+
+Battleground.AllowQueueRbgAndNormal.Enable = 0
+
+#
 #    Battleground.StoreStatistics.Enable
 #        Description: Store Battleground scores in the database.
 #        Default:     0 - (Disabled)

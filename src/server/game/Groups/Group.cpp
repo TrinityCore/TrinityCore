@@ -1846,12 +1846,17 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // don't let join if someone from the group is already in that bg queue
         if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
-        // don't let join if someone from the group is in bg queue random
-        if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
-            return ERR_IN_RANDOM_BG;
-        // don't let join to bg queue random if someone from the group is already in bg queue
-        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue())
-            return ERR_IN_NON_RANDOM_BG;
+        
+        if (!sWorld->getBoolConfig(CONFIG_BATTLEGROUND_ALLOW_QUEUE_RBG_AND_NORMAL))
+        {
+            // don't let join if someone from the group is in bg queue random
+            if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
+                return ERR_IN_RANDOM_BG;
+            // don't let join to bg queue random if someone from the group is already in bg queue
+            if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue())
+                return ERR_IN_NON_RANDOM_BG;
+        }
+
         // check for deserter debuff in case not arena queue
         if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground(bgOrTemplate))
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
