@@ -637,21 +637,53 @@ void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCoo
     }
 }
 
-uint16 SpellHistory::GetArenaCooldownsSize()
+void SpellHistory::SaveCooldownStateBeforeDuel()
 {
-    uint16 count = 0;
+    _spellCooldownsBeforeDuel = _spellCooldowns;
+}
 
-    for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+void SpellHistory::RestoreCooldownStateAfterDuel()
+{
+    if (Player* player = _owner->ToPlayer())
     {
-        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+        // add all profession CDs created while in duel (if any)
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
 
-        if (spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS)
-            ++count;
-        ++itr;
+            if (spellInfo->RecoveryTime > 10 * MINUTE * IN_MILLISECONDS ||
+                spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)
+                _spellCooldownsBeforeDuel[itr->first] = _spellCooldowns[itr->first];
+        }
+
+        _spellCooldowns = _spellCooldownsBeforeDuel;
+
+        // update the client: clear all cooldowns
+        std::vector<int32> resetCooldowns;
+        resetCooldowns.reserve(_spellCooldowns.size());
+
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+            resetCooldowns.push_back(itr->first);
+
+        if (resetCooldowns.empty())
+            return;
+
+        SendClearCooldowns(resetCooldowns);
+
+        // update the client: restore old cooldowns
+        PacketCooldowns cooldowns;
+
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+        {
+            Clock::time_point now = Clock::now();
+            uint32 cooldownDuration = itr->second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.CooldownEnd - now).count() : 0;
+            cooldowns[itr->first] = cooldownDuration;
+        }
+
+        WorldPacket data;
+        BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, cooldowns);
+        player->SendDirectMessage(&data);
     }
-
-    return count;
 }
 
 template void SpellHistory::LoadFromDB<Player>(PreparedQueryResult cooldownsResult);

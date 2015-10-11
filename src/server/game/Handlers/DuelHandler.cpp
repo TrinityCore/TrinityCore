@@ -43,8 +43,14 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "Player 1 is: %u (%s)", player->GetGUID().GetCounter(), player->GetName().c_str());
     TC_LOG_DEBUG("network", "Player 2 is: %u (%s)", plTarget->GetGUID().GetCounter(), plTarget->GetName().c_str());
 
-    player->UpdateHasCoolDownBeforeDuel();
-    plTarget->UpdateHasCoolDownBeforeDuel();
+    if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
+    {
+        player->GetSpellHistory()->SaveCooldownStateBeforeDuel();
+        plTarget->GetSpellHistory()->SaveCooldownStateBeforeDuel();
+
+        player->RemoveArenaSpellCooldowns(true);
+        plTarget->RemoveArenaSpellCooldowns(true);
+    }
 
     time_t now = time(NULL);
     player->duel->startTimer = now;
