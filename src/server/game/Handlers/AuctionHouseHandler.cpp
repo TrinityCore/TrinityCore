@@ -265,6 +265,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (!auctioneerData)
         {
             TC_LOG_ERROR("misc", "Data for auctioneer not found (%s)", auctioneer.ToString().c_str());
+            SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+            delete AH;
             return;
         }
 
@@ -272,6 +274,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (!auctioneerInfo)
         {
             TC_LOG_ERROR("misc", "Non existing auctioneer (%s)", auctioneer.ToString().c_str());
+            SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+            delete AH;
             return;
         }
 
