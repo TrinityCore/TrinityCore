@@ -752,12 +752,21 @@ public:
         return true;
     }
 
-    static bool HandleReloadSkillExtraItemTemplateCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadSkillPerfectItemTemplateCommand(ChatHandler* handler, const char* /*args*/)
+    { // latched onto HandleReloadSkillExtraItemTemplateCommand as it's part of that table group (and i don't want to chance all the command IDs)
+        TC_LOG_INFO("misc", "Re-Loading Skill Perfection Data Table...");
+        LoadSkillPerfectItemTable();
+        handler->SendGlobalGMSysMessage("DB table `skill_perfect_item_template` (perfect item procs when crafting) reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadSkillExtraItemTemplateCommand(ChatHandler* handler, const char* args)
     {
         TC_LOG_INFO("misc", "Re-Loading Skill Extra Item Table...");
         LoadSkillExtraItemTable();
         handler->SendGlobalGMSysMessage("DB table `skill_extra_item_template` (extra item creation when crafting) reloaded.");
-        return true;
+
+        return HandleReloadSkillPerfectItemTemplateCommand(handler, args);
     }
 
     static bool HandleReloadSkillFishingBaseLevelCommand(ChatHandler* handler, const char* /*args*/)
