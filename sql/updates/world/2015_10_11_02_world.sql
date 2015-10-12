@@ -1,5 +1,5 @@
 -- Gameobject list for Molten Core
-SET @OGUID   := 5514;
+SET @OGUID   := 56280;
 DELETE FROM `gameobject` WHERE `guid` IN (43162,43163,43164,43165,35665);
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+14;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
