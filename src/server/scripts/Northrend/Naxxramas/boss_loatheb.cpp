@@ -27,7 +27,10 @@ enum Spells
     SPELL_WARN_NECROTIC_AURA                = 59481,
     SPELL_SUMMON_SPORE                      = 29234,
     SPELL_DEATHBLOOM                        = 29865,
-    SPELL_INEVITABLE_DOOM                   = 29204
+    SPELL_INEVITABLE_DOOM                   = 29204,
+    SPELL_FUNGAL_CREEP                      = 29232,
+
+    SPELL_DEATHBLOOM_FINAL_DAMAGE           = 55594,
 };
 
 enum Texts
@@ -72,29 +75,35 @@ class boss_loatheb : public CreatureScript
             void Reset() override
             {
                 _Reset();
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_CREEP);
                 Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-                events.ScheduleEvent(EVENT_NECROTIC_AURA, 17000);
-                events.ScheduleEvent(EVENT_DEATHBLOOM, 5000);
-                events.ScheduleEvent(EVENT_SPORE, IsHeroic() ? 18000 : 36000);
-                events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 120000);
+                events.ScheduleEvent(EVENT_NECROTIC_AURA, 17 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_DEATHBLOOM, 5 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SPORE, RAID_MODE(36,18) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 2 * MINUTE * IN_MILLISECONDS);
             }
 
-            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
             {
                 _sporeLoserData = false;
+                summon->CastSpell(summon,SPELL_FUNGAL_CREEP,true);
+            }
+
+            void SummonedCreatureDespawn(Creature* summon) override
+            {
+                summons.Despawn(summon);
+                if (summon->IsAlive())
+                    summon->CastSpell(summon,SPELL_FUNGAL_CREEP,true);
             }
 
             uint32 GetData(uint32 id) const override
             {
-                if (id != DATA_ACHIEVEMENT_SPORE_LOSER)
-                   return 0;
-
-                return uint32(_sporeLoserData);
+                return (_sporeLoserData && id == DATA_ACHIEVEMENT_SPORE_LOSER) ? 1u : 0u;
             }
 
             void UpdateAI(uint32 diff) override
@@ -111,21 +120,29 @@ class boss_loatheb : public CreatureScript
                         case EVENT_NECROTIC_AURA:
                             DoCastAOE(SPELL_NECROTIC_AURA);
                             DoCast(me, SPELL_WARN_NECROTIC_AURA);
-                            events.ScheduleEvent(EVENT_NECROTIC_AURA, 20000);
-                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, 14000);
+                            events.ScheduleEvent(EVENT_NECROTIC_AURA, 20 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, 14 * IN_MILLISECONDS);
                             break;
                         case EVENT_DEATHBLOOM:
                             DoCastAOE(SPELL_DEATHBLOOM);
-                            events.ScheduleEvent(EVENT_DEATHBLOOM, 30000);
+                            events.ScheduleEvent(EVENT_DEATHBLOOM, 30 * IN_MILLISECONDS);
                             break;
                         case EVENT_INEVITABLE_DOOM:
                             _doomCounter++;
                             DoCastAOE(SPELL_INEVITABLE_DOOM);
-                            events.ScheduleEvent(EVENT_INEVITABLE_DOOM, std::max(120000 - _doomCounter * 15000, 15000)); // needs to be confirmed
+                            if (_doomCounter > 6)
+                            {
+                                if (_doomCounter & 1) // odd
+                                    events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 14 * IN_MILLISECONDS);
+                                else
+                                    events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 17 * IN_MILLISECONDS);
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 30 * IN_MILLISECONDS);
                             break;
                         case EVENT_SPORE:
                             DoCast(me, SPELL_SUMMON_SPORE, false);
-                            events.ScheduleEvent(EVENT_SPORE, IsHeroic() ? 18000 : 36000);
+                            events.ScheduleEvent(EVENT_SPORE, RAID_MODE(36,18) * IN_MILLISECONDS);
                             break;
                         case EVENT_NECROTIC_AURA_FADING:
                             Talk(SAY_NECROTIC_AURA_FADING);
@@ -203,9 +220,46 @@ class spell_loatheb_necrotic_aura_warning : public SpellScriptLoader
         }
 };
 
+class spell_loatheb_deathbloom : public SpellScriptLoader
+{
+    public:
+        spell_loatheb_deathbloom() : SpellScriptLoader("spell_loatheb_deathbloom") { }
+
+        class spell_loatheb_deathbloom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_loatheb_deathbloom_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DEATHBLOOM_FINAL_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void AfterRemove(AuraEffect const* eff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, true, nullptr, eff, GetCasterGUID());
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_loatheb_deathbloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_loatheb_deathbloom_AuraScript();
+        }
+};
+
 void AddSC_boss_loatheb()
 {
     new boss_loatheb();
     new achievement_spore_loser();
     new spell_loatheb_necrotic_aura_warning();
+    new spell_loatheb_deathbloom();
 }

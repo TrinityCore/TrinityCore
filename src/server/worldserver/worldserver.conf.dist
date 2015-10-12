@@ -2197,6 +2197,7 @@ Battleground.StoreStatistics.Enable = 0
 #                          Don't bother with balance)
 #                     1 - (Experimental, Don't allow to invite much more players
 #                          of one faction)
+#                     2 - (Experimental, Try to have even teams)
 
 Battleground.InvitationType = 0
 

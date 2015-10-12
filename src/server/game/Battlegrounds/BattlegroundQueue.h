@@ -64,6 +64,13 @@ enum BattlegroundQueueGroupTypes
 };
 #define BG_QUEUE_GROUP_TYPES_COUNT 4
 
+enum BattlegroundQueueInvitationType
+{
+    BG_QUEUE_INVITATION_TYPE_NO_BALANCE = 0, // no balance: N+M vs N players
+    BG_QUEUE_INVITATION_TYPE_BALANCED   = 1, // teams balanced: N+1 vs N players
+    BG_QUEUE_INVITATION_TYPE_EVEN       = 2  // teams even: N vs N players
+};
+
 class Battleground;
 class BattlegroundQueue
 {

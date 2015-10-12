@@ -243,7 +243,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     ObjectGuid petitionguid;
     recvData >> petitionguid;                              // petition guid
 
-    uint32 petitionGuidLow = petitionguid.GetCounter();
+    ObjectGuid::LowType petitionGuidLow = petitionguid.GetCounter();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
 
@@ -284,7 +284,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field* fields2 = result->Fetch();
-        uint32 lowGuid = fields2[0].GetUInt32();
+        ObjectGuid::LowType lowGuid = fields2[0].GetUInt32();
 
         data << ObjectGuid(HighGuid::Player, 0, lowGuid);    // Player GUID
         data << uint32(0);                                  // there 0 ...
@@ -298,7 +298,7 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_QUERY");   // ok
 
-    uint32 guildguid;
+    ObjectGuid::LowType guildguid;
     ObjectGuid petitionguid;
     recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
     recvData >> petitionguid;                              // petition guid
@@ -470,7 +470,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
-    uint32 playerGuid = _player->GetGUID().GetCounter();
+    ObjectGuid::LowType playerGuid = _player->GetGUID().GetCounter();
     if (ownerGuid == _player->GetGUID())
         return;
 
@@ -735,7 +735,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "Petition %s turned in by %u", petitionGuid.ToString().c_str(), _player->GetGUID().GetCounter());
 
     // Get petition data from db
-    uint32 ownerguidlo;
+    ObjectGuid::LowType ownerguidlo;
     uint32 type;
     std::string name;
 

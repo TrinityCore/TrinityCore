@@ -193,7 +193,7 @@ class Battlefield : public ZoneScript
         virtual ~Battlefield();
 
         /// typedef of map witch store capturepoint and the associate gameobject entry
-        typedef std::map<uint32 /*lowguid */, BfCapturePoint*> BfCapturePointMap;
+        typedef std::map<ObjectGuid::LowType /*lowguid */, BfCapturePoint*> BfCapturePointMap;
 
         /// Call this to init the Battlefield
         virtual bool SetupBattlefield() { return true; }
@@ -400,7 +400,7 @@ class Battlefield : public ZoneScript
         // CapturePoint system
         void AddCapturePoint(BfCapturePoint* cp) { m_capturePoints[cp->GetCapturePointEntry()] = cp; }
 
-        BfCapturePoint* GetCapturePoint(uint32 lowguid) const
+        BfCapturePoint* GetCapturePoint(ObjectGuid::LowType lowguid) const
         {
             Battlefield::BfCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
             if (itr != m_capturePoints.end())

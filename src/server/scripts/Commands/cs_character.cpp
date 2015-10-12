@@ -909,7 +909,7 @@ public:
             guidStr = strtok(NULL, " ");
         }
 
-        uint32 guid = 0;
+        ObjectGuid::LowType guid = 0;
 
         if (guidStr)
         {

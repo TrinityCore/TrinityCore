@@ -652,7 +652,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
@@ -662,7 +662,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
-        uint32 GetSpawnId() const { return m_spawnId; }
+        ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
@@ -671,8 +671,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(uint32 spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
-        bool LoadGameObjectFromDB(uint32 spawnId, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
+        bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
         void DeleteFromDB();
 
         void SetOwnerGUID(ObjectGuid owner)
@@ -733,7 +733,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
-        static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
+        static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update) override;
         void EnableCollision(bool enable);
@@ -751,10 +751,10 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
-        void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
-        bool IsInSkillupList(uint32 PlayerGuidLow) const
+        void AddToSkillupList(ObjectGuid::LowType PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
+        bool IsInSkillupList(ObjectGuid::LowType PlayerGuidLow) const
         {
-            for (std::list<uint32>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
+            for (std::list<ObjectGuid::LowType>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
                 if (*i == PlayerGuidLow)
                     return true;
 
@@ -778,7 +778,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool IsLootAllowedFor(Player const* player) const;
         bool HasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint32 lootingGroupLowGUID;                         // used to find group which is looting
+        ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting
 
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
@@ -861,7 +861,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
-        std::list<uint32> m_SkillupList;
+        std::list<ObjectGuid::LowType> m_SkillupList;
 
         ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         GuidSet m_unique_users;
@@ -870,7 +870,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;
 
-        uint32 m_spawnId;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
+        ObjectGuid::LowType m_spawnId;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue m_goValue;

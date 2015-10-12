@@ -1644,6 +1644,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
     LoadSkillExtraItemTable();
 
+    TC_LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
+    LoadSkillPerfectItemTable();
+
     TC_LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
 
@@ -2505,7 +2508,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string const& nameOrIP)
 BanReturn World::BanCharacter(std::string const& name, std::string const& duration, std::string const& reason, std::string const& author)
 {
     Player* pBanned = ObjectAccessor::FindConnectedPlayerByName(name);
-    uint32 guid = 0;
+    ObjectGuid::LowType guid = 0;
 
     uint32 duration_secs = TimeStringToSecs(duration);
 
@@ -2546,7 +2549,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
 bool World::RemoveBanCharacter(std::string const& name)
 {
     Player* pBanned = ObjectAccessor::FindConnectedPlayerByName(name);
-    uint32 guid = 0;
+    ObjectGuid::LowType guid = 0;
 
     /// Pick a player to ban if not online
     if (!pBanned)

@@ -59,14 +59,14 @@ void Corpse::RemoveFromWorld()
     WorldObject::RemoveFromWorld();
 }
 
-bool Corpse::Create(uint32 guidlow, Map* map)
+bool Corpse::Create(ObjectGuid::LowType guidlow, Map* map)
 {
     SetMap(map);
     Object::_Create(guidlow, 0, HighGuid::Corpse);
     return true;
 }
 
-bool Corpse::Create(uint32 guidlow, Player* owner)
+bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 {
     ASSERT(owner);
 
@@ -149,13 +149,13 @@ void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
+bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 {
     //        0     1     2     3            4      5          6          7       8       9        10     11        12    13          14          15         16
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, guildId, flags, dynFlags, time, corpseType, instanceId, phaseMask, guid FROM corpse WHERE mapId = ? AND instanceId = ?
 
 
-    uint32 ownerGuid = fields[16].GetUInt32();
+    ObjectGuid::LowType ownerGuid = fields[16].GetUInt32();
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();

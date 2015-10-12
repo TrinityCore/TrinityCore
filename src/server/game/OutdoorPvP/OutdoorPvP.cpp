@@ -85,7 +85,7 @@ void OPvPCapturePoint::SendChangePhase()
     SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
 }
 
-void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
+void OPvPCapturePoint::AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry)
 {
     if (!entry)
     {
@@ -99,7 +99,7 @@ void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
     m_ObjectTypes[m_Objects[type]] = type;
 }
 
-void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
+void OPvPCapturePoint::AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry)
 {
     if (!entry)
     {
@@ -115,7 +115,7 @@ void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
 
 bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
 {
-    if (uint32 guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
+    if (ObjectGuid::LowType guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
     {
         AddGO(type, guid, entry);
         return true;
@@ -126,7 +126,7 @@ bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x,
 
 bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, TeamId /*teamId = TEAM_NEUTRAL*/, uint32 spawntimedelay /*= 0*/)
 {
-    if (uint32 guid = sObjectMgr->AddCreatureData(entry, map, x, y, z, o, spawntimedelay))
+    if (ObjectGuid::LowType guid = sObjectMgr->AddCreatureData(entry, map, x, y, z, o, spawntimedelay))
     {
         AddCre(type, guid, entry);
         return true;
