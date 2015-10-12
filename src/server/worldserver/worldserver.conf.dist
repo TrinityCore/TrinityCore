@@ -1074,6 +1074,16 @@ Command.LookupMaxResults = 0
 AllowTickets = 1
 
 #
+#    DeletedCharacterTicketTrace
+#        Description: Keep trace of tickets opened by deleted characters
+#                     gm_ticket.playerGuid will be 0, old GUID and character name
+#                     will be included in gm_ticket.comment
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+DeletedCharacterTicketTrace = 0
+
+#
 #     DungeonFinder.OptionsMask
 #        Description: Dungeon and raid finder system.
 #        Value is a bitmask consisting of:
