@@ -82,7 +82,7 @@ namespace Battlenet
 
             Optional<std::string> InvitationMsg;
             std::string Source;
-            uint32 Role;
+            uint32 Role = 0;
         };
     }
 }

@@ -112,7 +112,7 @@ namespace Battlenet
             int32 Type = SUCCESS;
 
             std::vector<ToonCountEntry> ToonCounts;
-            Wow::AuthResult Failure;
+            Wow::AuthResult Failure = Wow::WOW_SUCCESS;
         };
 
         class ListUpdate final : public ServerPacket
@@ -230,7 +230,7 @@ namespace Battlenet
                 std::string ToString() const override;
             } Success;
 
-            Wow::AuthResult Failure;
+            Wow::AuthResult Failure = Wow::WOW_SUCCESS;
         };
     }
 }
