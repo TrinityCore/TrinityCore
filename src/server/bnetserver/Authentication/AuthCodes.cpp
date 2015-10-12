@@ -44,7 +44,7 @@ namespace AuthHelper
 
     RealmBuildInfo const* GetBuildInfo(int build)
     {
-        for (int32 i = 0; i < ClientBuilds.size(); ++i)
+        for (std::size_t i = 0; i < ClientBuilds.size(); ++i)
             if (ClientBuilds[i].Build == build)
                 return &ClientBuilds[i];
 
