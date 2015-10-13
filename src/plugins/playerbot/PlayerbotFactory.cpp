@@ -168,7 +168,7 @@ void PlayerbotFactory::InitPet()
             if (!petInfo)
                 continue;
 
-            uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+            uint32 guid = map->GenerateLowGuid<HighGuid::Pet>();
             pet = new Pet(bot, HUNTER_PET);
             if (!pet->Create(guid, map, 0, ids[index], 0))
             {
@@ -1157,7 +1157,7 @@ ObjectGuid PlayerbotFactory::GetRandomBot()
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid guid = ObjectGuid(HIGHGUID_PLAYER, fields[0].GetUInt32());
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
             if (!sObjectMgr->GetPlayerByLowGUID(guid))
                 guids.push_back(guid);
         } while (result->NextRow());

@@ -4,7 +4,7 @@
 #include "RandomItemMgr.h"
 
 #include "../../plugins/ahbot/AhBot.h"
-#include "../../shared/Database/DatabaseEnv.h"
+#include "../../server/database/Database/DatabaseEnv.h"
 #include "PlayerbotAI.h"
 
 #include "../../plugins/ahbot/AhBotConfig.h"

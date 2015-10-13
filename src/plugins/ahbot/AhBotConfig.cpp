@@ -1,6 +1,5 @@
 #include "../pchdef.h"
 #include "AhBotConfig.h"
-#include "SystemConfig.h"
 std::vector<std::string> split(const std::string &s, char delim);
 
 using namespace std;

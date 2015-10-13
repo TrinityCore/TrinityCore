@@ -1,19 +1,18 @@
 #pragma once
 
 #include "../server/game/Miscellaneous/Language.h"
-#include "../server/shared/Logging/Log.h"
+#include "../common/Logging/Log.h"
 #include "../server/game/World/World.h"
 #include "../server/game/Globals/ObjectMgr.h"
 #include "../server/game/Server/WorldSession.h"
-#include "../server/shared/Configuration/Config.h"
-#include "../server/shared/Utilities/Util.h"
+#include "../common/Configuration/Config.h"
+#include "../common/Utilities/Util.h"
 #include "../server/game/Accounts/AccountMgr.h"
 #include "../server/worldserver/CommandLine/CliRunnable.h"
 #include "../server/game/Maps/MapManager.h"
 #include "../server/game/Entities/Player/Player.h"
 #include "../server/game/Chat/Chat.h"
-#include "../server/shared/Database/DatabaseEnv.h"
-#include "../server/shared/SystemConfig.h"
+#include "../server/database/Database/DatabaseEnv.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 
@@ -32,7 +31,7 @@
 #include <iostream>
 
 #include <list>
-#include "../server/shared/Define.h"
+#include "../common/Define.h"
 
 #include <stdexcept>
 

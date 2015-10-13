@@ -3,7 +3,6 @@
 #include "playerbot.h"
 #include "RandomPlayerbotFactory.h"
 #include "../../game/Accounts/AccountMgr.h"
-#include "../../shared/SystemConfig.h"
 
 using namespace std;
 

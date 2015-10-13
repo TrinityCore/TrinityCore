@@ -5,9 +5,9 @@
 #include "TradeCategory.h"
 #include "AhBotConfig.h"
 #include "../DataStores/DBCStructure.h"
-#include "../../shared/Logging/Log.h"
-#include "../../shared/Database/QueryResult.h"
-#include "../../shared/Database/DatabaseEnv.h"
+#include "../../common/Logging/Log.h"
+#include "../../server/database/Database/QueryResult.h"
+#include "../../server/database/Database/DatabaseEnv.h"
 #include "../../shared/DataStores/DBCStore.h"
 #include "../AuctionHouse/AuctionHouseMgr.h"
 

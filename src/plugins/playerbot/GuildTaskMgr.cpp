@@ -5,7 +5,7 @@
 
 #include "../../plugins/ahbot/AhBot.h"
 #include "../../server/game/Guilds/GuildMgr.h"
-#include "../../shared/Database/DatabaseEnv.h"
+#include "../../server/database/Database/DatabaseEnv.h"
 #include "../../server/game/Mails/Mail.h"
 #include "PlayerbotAI.h"
 
@@ -674,7 +674,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
 
 void GuildTaskMgr::CheckKillTask(Player* player, Unit* victim)
 {
-    uint32 owner = player->GetGUIDLow();
+    uint32 owner = player->GetGUID().GetCounter();
     Creature* creature = victim->ToCreature();
     if (!creature)
         return;

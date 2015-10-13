@@ -2,13 +2,12 @@
 #include "playerbot.h"
 #include "PlayerbotAIConfig.h"
 #include "PlayerbotFactory.h"
-#include "../../shared/Database/DatabaseEnv.h"
+#include "../../server/database/Database/DatabaseEnv.h"
 #include "PlayerbotAI.h"
 #include "../../server/game/Entities/Player/Player.h"
 #include "../../server/game/Guilds/Guild.h"
 #include "../../server/game/Guilds/GuildMgr.h"
 #include "RandomPlayerbotFactory.h"
-#include "SystemConfig.h"
 
 map<uint8, vector<uint8> > RandomPlayerbotFactory::availableRaces;
 
@@ -114,7 +113,7 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     cci.FacialHair = facialHair;
     cci.OutfitId = outfitId;
 
-    if (!player->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), &cci))
+    if (!player->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), &cci))
     {
         player->DeleteFromDB(player->GetGUID(), accountId, true, true);
         delete session;
@@ -268,7 +267,7 @@ void RandomPlayerbotFactory::CreateRandomGuilds()
         sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Deleting random bot guilds...");
         for (vector<uint32>::iterator i = randomBots.begin(); i != randomBots.end(); ++i)
         {
-            ObjectGuid leader(HIGHGUID_PLAYER, *i);
+            ObjectGuid leader(HighGuid::Player, *i);
             Guild* guild = sGuildMgr->GetGuildByLeader(leader);
             if (guild) guild->Disband();
         }
@@ -279,7 +278,7 @@ void RandomPlayerbotFactory::CreateRandomGuilds()
     vector<ObjectGuid> availableLeaders;
     for (vector<uint32>::iterator i = randomBots.begin(); i != randomBots.end(); ++i)
     {
-        ObjectGuid leader(HIGHGUID_PLAYER, *i);
+        ObjectGuid leader(HighGuid::Player, *i);
         Guild* guild = sGuildMgr->GetGuildByLeader(leader);
         if (guild)
         {

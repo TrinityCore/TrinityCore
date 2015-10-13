@@ -29,9 +29,22 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/Include
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/zlib
+  ${CMAKE_SOURCE_DIR}/src/common
+  ${CMAKE_SOURCE_DIR}/src/common/Collision
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Maps
+  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
+  ${CMAKE_SOURCE_DIR}/src/common/Configuration
+  ${CMAKE_SOURCE_DIR}/src/common/Cryptography
+  ${CMAKE_SOURCE_DIR}/src/common/Cryptography/Authentication
+  ${CMAKE_SOURCE_DIR}/src/common/Debugging
+  ${CMAKE_SOURCE_DIR}/src/common/Logging
+  ${CMAKE_SOURCE_DIR}/src/common/Threading
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
@@ -40,7 +53,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Configuration
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography/Authentication
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/server/database
+  ${CMAKE_SOURCE_DIR}/src/server/database/Database
+  ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/DataStores
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
@@ -140,13 +155,13 @@ if( WIN32 )
 	add_custom_command(TARGET plugins
       POST_BUILD
  	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    ) 
+    )
 	add_custom_command(TARGET plugins
       POST_BUILD
  	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
   elseif ( MINGW )
-    
+
 	 add_custom_command(TARGET plugins
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/

@@ -19,17 +19,20 @@ int main(int argc, char* argv[])
 
     MySQL::Library_Init();
 
-    if (!WorldDatabase.Open(sConfigMgr->GetStringDefault("WorldDatabaseInfo", ""), 1, 1))
+    WorldDatabase.SetConnectionInfo(sConfigMgr->GetStringDefault("WorldDatabaseInfo", ""), 1, 1);
+    if (!WorldDatabase.Open())
     {
         TC_LOG_ERROR("server.worldserver", "Cannot connect to world database");
         return false;
     }
-    if (!CharacterDatabase.Open(sConfigMgr->GetStringDefault("CharacterDatabaseInfo", ""), 1, 1))
+    CharacterDatabase.SetConnectionInfo(sConfigMgr->GetStringDefault("CharacterDatabaseInfo", ""), 1, 1);
+    if (!CharacterDatabase.Open())
     {
         TC_LOG_ERROR("server.worldserver", "Cannot connect to Character database");
         return false;
     }
-    if (!LoginDatabase.Open(sConfigMgr->GetStringDefault("LoginDatabaseInfo", ""), 1, 1))
+    LoginDatabase.SetConnectionInfo(sConfigMgr->GetStringDefault("LoginDatabaseInfo", ""), 1, 1);
+    if (!LoginDatabase.Open())
     {
         TC_LOG_ERROR("server.worldserver", "Cannot connect to Login database");
         return false;
