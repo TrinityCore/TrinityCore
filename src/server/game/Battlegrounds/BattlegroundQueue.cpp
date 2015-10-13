@@ -503,19 +503,25 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, BattlegroundBracketId 
     // try to get even teams
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_EVEN)
     {
-        int32 hordeExtra = hordeCount - aliCount;
-        int32 aliExtra   = aliCount - hordeCount;
-
-        hordeExtra = std::max(hordeExtra, 0);
-        aliExtra   = std::max(aliExtra, 0);
-
-        if (aliCount != hordeCount)
+        // check if the teams are even
+        if (hordeFree == 1 && aliFree == 1)
         {
-            aliFree   -= aliExtra;
-            hordeFree -= hordeExtra;
+            // if we are here, the teams have the same amount of players
+            // then we have to allow to join the same amount of players
+            int32 hordeExtra = hordeCount - aliCount;
+            int32 aliExtra   = aliCount - hordeCount;
 
-            aliFree   = std::max(aliFree, 0);
-            hordeFree = std::max(hordeFree, 0);
+            hordeExtra = std::max(hordeExtra, 0);
+            aliExtra   = std::max(aliExtra, 0);
+
+            if (aliCount != hordeCount)
+            {
+                aliFree   -= aliExtra;
+                hordeFree -= hordeExtra;
+
+                aliFree   = std::max(aliFree, 0);
+                hordeFree = std::max(hordeFree, 0);
+            }
         }
     }
 
