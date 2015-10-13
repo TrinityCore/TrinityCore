@@ -20,6 +20,7 @@
 #define TRINITY_GAMEEVENT_MGR_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "Define.h"
 
