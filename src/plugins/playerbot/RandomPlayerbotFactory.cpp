@@ -74,6 +74,32 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_DRUID].push_back(RACE_TAUREN);
 }
 
+typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
+extern CharSectionsMap sCharSectionMap;
+CharSectionsEntry const* GetRandomCharSection(uint8 race, CharSectionType genType, uint8 gender, uint8 color = 255)
+{
+    vector<CharSectionsEntry const*> charSections;
+    std::pair<CharSectionsMap::const_iterator, CharSectionsMap::const_iterator> eqr = sCharSectionMap.equal_range(uint32(genType) | uint32(gender << 8) | uint32(race << 16));
+    for (CharSectionsMap::const_iterator itr = eqr.first; itr != eqr.second; ++itr)
+    {
+        CharSectionsEntry const* charSection = itr->second;
+        if ((charSection->Flags & SECTION_FLAG_PLAYER) && !(charSection->Flags & SECTION_FLAG_DEATH_KNIGHT)
+                && (charSection->Color == color || color == 255))
+        {
+            charSections.push_back(itr->second);
+        }
+    }
+    if (charSections.empty())
+    {
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "No match for race=%u gender=%u color=%u type=%u",
+                race, gender, color, genType);
+        return NULL;
+    }
+
+    uint32 charSectionIndex = urand(0, charSections.size() - 1);
+    return charSections[charSectionIndex];
+}
+
 bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
 {
     sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Creating new random bot for class %d", cls);
@@ -85,11 +111,10 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     if (name.empty())
         return false;
 
-    uint8 skin = urand(0, 7);
-    uint8 face = urand(0, 7);
-    uint8 hairStyle = urand(0, 7);
-    uint8 hairColor = urand(0, 7);
-    uint8 facialHair = urand(0, 7);
+    CharSectionsEntry const* skin = GetRandomCharSection(race, SECTION_TYPE_SKIN, gender);
+    CharSectionsEntry const* face = GetRandomCharSection(race, SECTION_TYPE_FACE, gender, skin->Color);
+    CharSectionsEntry const* hair = GetRandomCharSection(race, SECTION_TYPE_HAIR, gender);
+    CharSectionsEntry const* facialHair = GetRandomCharSection(race, SECTION_TYPE_FACIAL_HAIR, gender, hair->Color);
     uint8 outfitId = 0;
 
     WorldSession* session = new WorldSession(accountId, NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
@@ -101,16 +126,17 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     }
 
     Player *player = new Player(session);
+
     CharacterCreateInfo cci;
     cci.Name = name;
     cci.Race = race;
     cci.Class = cls;
     cci.Gender = gender;
-    cci.Skin = skin;
-    cci.Face = face;
-    cci.HairStyle = hairStyle;
-    cci.HairColor = hairColor;
-    cci.FacialHair = facialHair;
+    cci.Skin = skin->Color;
+    cci.Face = face->Type;
+    cci.HairStyle = hair->Type;
+    cci.HairColor = hair->Color;
+    cci.FacialHair = facialHair ? facialHair->Type : 0;
     cci.OutfitId = outfitId;
 
     if (!player->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), &cci))
@@ -118,8 +144,8 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
         player->DeleteFromDB(player->GetGUID(), accountId, true, true);
         delete session;
         delete player;
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Unable to create random bot for account %d - name: \"%s\"; race: %u; class: %u; gender: %u; skin: %u; face: %u; hairStyle: %u; hairColor: %u; facialHair: %u; outfitId: %u",
-                accountId, name.c_str(), race, cls, gender, skin, face, hairStyle, hairColor, facialHair, outfitId);
+        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Unable to create random bot for account %d - name: \"%s\"; race: %u; class: %u",
+                accountId, name.c_str(), race, cls);
         return false;
     }
 
@@ -127,8 +153,8 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     player->SetAtLoginFlag(AT_LOGIN_NONE);
     player->SaveToDB(true);
 
-    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Random bot created for account %d - name: \"%s\"; race: %u; class: %u; gender: %u; skin: %u; face: %u; hairStyle: %u; hairColor: %u; facialHair: %u; outfitId: %u",
-            accountId, name.c_str(), race, cls, gender, skin, face, hairStyle, hairColor, facialHair, outfitId);
+    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Random bot created for account %d - name: \"%s\"; race: %u; class: %u",
+            accountId, name.c_str(), race, cls);
 
     return true;
 }

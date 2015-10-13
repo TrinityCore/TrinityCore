@@ -281,7 +281,7 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
         sPlayerbotAIConfig.randomBotMapsAsString.c_str(),
         bot->getLevel(),
         sPlayerbotAIConfig.randomBotTeleLevel,
-        sPlayerbotAIConfig.sightDistance
+        (uint32)sPlayerbotAIConfig.sightDistance
         );
     if (results)
     {

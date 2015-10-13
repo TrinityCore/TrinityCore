@@ -1172,7 +1172,7 @@ ObjectGuid PlayerbotFactory::GetRandomBot()
 
 void PlayerbotFactory::InitQuests()
 {
-    QueryResult results = WorldDatabase.PQuery("SELECT Id, RequiredClasses, RequiredRaces FROM quest_template where Level = -1 and MinLevel <= '%u'",
+    QueryResult results = WorldDatabase.PQuery("SELECT Id FROM quest_template where QuestLevel = -1 and MinLevel <= '%u'",
             bot->getLevel());
 
     list<uint32> ids;
@@ -1180,10 +1180,7 @@ void PlayerbotFactory::InitQuests()
     {
         Field* fields = results->Fetch();
         uint32 questId = fields[0].GetUInt32();
-        uint16 requiredClasses = fields[1].GetUInt16();
-        uint16 requiredRaces = fields[2].GetUInt16();
-        if ((requiredClasses & bot->getClassMask()) && (requiredRaces & bot->getRaceMask()))
-            ids.push_back(questId);
+        ids.push_back(questId);
     } while (results->NextRow());
 
     for (int i = 0; i < 15; i++)
