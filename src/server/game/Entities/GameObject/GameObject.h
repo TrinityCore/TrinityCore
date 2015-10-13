@@ -604,6 +604,7 @@ struct GameObjectLocale
 // `gameobject_addon` table
 struct GameObjectAddon
 {
+    G3D::Quat PathRotation;
     InvisibilityType invisibilityType;
     uint32 InvisibilityValue;
 };
@@ -689,7 +690,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
          // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
         void SetWorldRotationAngles(float z_rot, float y_rot, float x_rot);
         void SetWorldRotation(G3D::Quat const& rot);
-        void SetTransportPathRotation(float qx, float qy, float qz, float qw);
+        void SetTransportPathRotation(G3D::Quat const& rotation);      // transforms(rotates) transport's path
         int64 GetPackedWorldRotation() const { return m_packedRotation; }
 
         // overwrite WorldObject function for proper name localization

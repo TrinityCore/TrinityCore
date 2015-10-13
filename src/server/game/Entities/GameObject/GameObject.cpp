@@ -223,7 +223,14 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     }
 
     SetWorldRotation(rotation);
-    SetTransportPathRotation(0.f, 0.f, 0.f, 1.f);
+
+    // For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
+    G3D::Quat transportRotation;
+
+    if (GameObjectAddon const* gameObjectAddon = sObjectMgr->GetGameObjectAddon(guidlow))
+        transportRotation = gameObjectAddon->PathRotation;
+
+    SetTransportPathRotation(transportRotation);
 
     SetObjectScale(goinfo->size);
 
@@ -1918,12 +1925,12 @@ void GameObject::SetWorldRotation(G3D::Quat const& rot)
     UpdatePackedRotation();
 }
 
-void GameObject::SetTransportPathRotation(float qx, float qy, float qz, float qw)
+void GameObject::SetTransportPathRotation(G3D::Quat const& rotation)
 {
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, qx);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, qy);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 2, qz);
-    SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, qw);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, rotation.x);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, rotation.y);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 2, rotation.z);
+    SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, rotation.w);
 }
 
 void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)

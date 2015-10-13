@@ -1050,8 +1050,8 @@ void ObjectMgr::LoadGameObjectAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1                 2
-    QueryResult result = WorldDatabase.Query("SELECT guid, invisibilityType, invisibilityValue FROM gameobject_addon");
+    //                                               0     1               2               3               4               5                 6
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_rotation0, path_rotation1, path_rotation2, path_rotation3, invisibilityType, invisibilityValue FROM gameobject_addon");
 
     if (!result)
     {
@@ -1074,8 +1074,9 @@ void ObjectMgr::LoadGameObjectAddons()
         }
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
-        gameObjectAddon.invisibilityType = InvisibilityType(fields[1].GetUInt8());
-        gameObjectAddon.InvisibilityValue = fields[2].GetUInt32();
+        gameObjectAddon.PathRotation = G3D::Quat(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
+        gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
+        gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
 
         if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
@@ -1088,6 +1089,12 @@ void ObjectMgr::LoadGameObjectAddons()
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has InvisibilityType set but has no InvisibilityValue in `gameobject_addon`, set to 1", guid);
             gameObjectAddon.InvisibilityValue = 1;
+        }
+
+        if (!gameObjectAddon.PathRotation.isUnit())
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid path rotation", guid);
+            gameObjectAddon.PathRotation = G3D::Quat();
         }
 
         ++count;

@@ -92,7 +92,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetGoType(GAMEOBJECT_TYPE_MO_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
-    SetTransportPathRotation(0.f, 0.f, 0.f, 1.f);
+    SetTransportPathRotation(G3D::Quat());
 
     m_model = CreateModel();
     return true;
