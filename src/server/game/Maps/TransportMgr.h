@@ -21,6 +21,7 @@
 #include <G3D/Quat.h>
 #include "Spline.h"
 #include "DBCStores.h"
+#include "ObjectGuid.h"
 
 struct KeyFrame;
 struct GameObjectTemplate;
