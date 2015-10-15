@@ -353,7 +353,7 @@ inline void KillRewarder::_InitXP(Player* player)
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
     if (_isBattleGround || (!_isPvP && !_killer->GetVehicle()))
-        _xp = Trinity::XP::Gain(player, _victim);
+        _xp = Trinity::XP::Gain(player, _victim, _isBattleGround);
 }
 
 inline void KillRewarder::_RewardHonor(Player* player)
