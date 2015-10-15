@@ -1144,11 +1144,11 @@ bool Guardian::UpdateStats(Stats stat)
         else
         {
             mod = 0.45f;
-           if (IsPet())
-           {
-               ownersBonus = float(owner->GetStat(stat)) * mod;
-               value += ownersBonus;
-           }
+            if (IsPet())
+            {
+                ownersBonus = float(owner->GetStat(stat)) * mod;
+                value += ownersBonus;
+            }
         }
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
