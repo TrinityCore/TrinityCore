@@ -91,7 +91,7 @@ CharSectionsEntry const* GetRandomCharSection(uint8 race, CharSectionType genTyp
     }
     if (charSections.empty())
     {
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "No match for race=%u gender=%u color=%u type=%u",
+        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "No match for race=%u gender=%u color=%u type=%u",
                 race, gender, color, genType);
         return NULL;
     }
