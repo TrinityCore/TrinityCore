@@ -956,12 +956,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     if (pet->GetAura(SPELL_WILD_HUNT_R2))
                     {
                         SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.4f);
-                        SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.3f));
+                        SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.3f));
                     }
                     else if (pet->GetAura(SPELL_WILD_HUNT_R1))
                     {
                         SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.2f);
-                        SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.15f));
+                        SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.15f));
                     }
                 }
             }
