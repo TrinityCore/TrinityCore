@@ -432,7 +432,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`PhaseID`,`modelid`,`equip
 (@GUID_BUNNY+22,@NPC_BUNNY2,571,1,8,1,0,7206.611,-3404.196,841.4804,4.223697,120,0,0,1,0,0,0,0,0);
 
 SET @NPC            := 29914;   -- Dead Iron Giant
-DELETE FROM `creature` WHERE `id`=@NPC AND `PhaseID`=4;
+DELETE FROM `creature` WHERE `id`=@NPC AND `guid` BETWEEN 129993 AND 129998;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseID`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (@GUID_BUNNY2,@NPC,571,1,4,0,0,7429.23,-3187.91,837.452,0.19249,120,0,0,50400,0,0,0,0,0),
 (@GUID_BUNNY2+1,@NPC,571,1,4,0,0,7359.28,-3176.45,837.452,1.31954,120,0,0,50400,0,0,0,0,0),
@@ -5429,3 +5429,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseID`, `position_x
 (@CGUID+6, 30352, 571, 1, 1, 5801.245, 492.336, 657.3757, 5.602507, 120, 0, 0), -- Skybreaker Marine (Area: 4395)
 (@CGUID+7, 30352, 571, 1, 1, 5802.888, 490.7988, 657.3538, 5.602507, 120, 0, 0); -- Skybreaker Marine (Area: 4395)
 
+UPDATE `creature` SET `PhaseID`=169 WHERE `PhaseID`=1;
