@@ -63,6 +63,8 @@ std::stack<SymbolDetail> WheatyExceptionReport::symbolDetails;
 bool WheatyExceptionReport::stackOverflowException;
 bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
+WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
+
 
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
@@ -76,6 +78,7 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
     m_hProcess = GetCurrentProcess();
     stackOverflowException = false;
     alreadyCrashed = false;
+    RtlGetVersion = (pRtlGetVersion)GetProcAddress(GetModuleHandle(_T("ntdll.dll")), "RtlGetVersion");
     if (!IsDebuggerPresent())
     {
         _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
@@ -207,21 +210,36 @@ BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxco
     return TRUE;
 }
 
+template<size_t size>
+void ToTchar(wchar_t const* src, TCHAR (&dst)[size], std::true_type)
+{
+    wcstombs_s(nullptr, dst, src, size);
+}
+
+template<size_t size>
+void ToTchar(wchar_t const* src, TCHAR (&dst)[size], std::false_type)
+{
+    wcscpy_s(dst, src);
+}
+
 BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
 {
     // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
     // If that fails, try using the OSVERSIONINFO structure.
-    OSVERSIONINFOEX osvi = { 0 };
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    BOOL bOsVersionInfoEx;
-    bOsVersionInfoEx = ::GetVersionEx((LPOSVERSIONINFO)(&osvi));
-    if (!bOsVersionInfoEx)
+    RTL_OSVERSIONINFOEXW osvi = { 0 };
+    osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
+    NTSTATUS bVersionEx = RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi);
+    if (bVersionEx < 0)
     {
-        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-        if (!::GetVersionEx((OSVERSIONINFO*)&osvi))
+        osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
+        if (!RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi))
             return FALSE;
     }
     *szVersion = _T('\0');
+
+    TCHAR szCSDVersion[256];
+    ToTchar(osvi.szCSDVersion, szCSDVersion, std::is_same<TCHAR, char>::type());
+
     TCHAR wszTmp[128];
     switch (osvi.dwPlatformId)
     {
@@ -237,17 +255,28 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
         #endif                                          // WINVER < 0x0500
 
             // Test for the specific product family.
-            if (osvi.dwMajorVersion == 6)
+            if (osvi.dwMajorVersion == 10)
+            {
+                if (productType == VER_NT_WORKSTATION)
+                    _tcsncat(szVersion, _T("Windows 10 "), cntMax);
+                else
+                    _tcsncat(szVersion, _T("Windows Server 2016 "), cntMax);
+            }
+            else if (osvi.dwMajorVersion == 6)
             {
                 if (productType == VER_NT_WORKSTATION)
                 {
-                    if (osvi.dwMinorVersion == 2)
+                    if (osvi.dwMinorVersion == 3)
+                        _tcsncat(szVersion, _T("Windows 8.1 "), cntMax);
+                    else if (osvi.dwMinorVersion == 2)
                         _tcsncat(szVersion, _T("Windows 8 "), cntMax);
                     else if (osvi.dwMinorVersion == 1)
                         _tcsncat(szVersion, _T("Windows 7 "), cntMax);
                     else
                         _tcsncat(szVersion, _T("Windows Vista "), cntMax);
                 }
+                else if (osvi.dwMinorVersion == 3)
+                    _tcsncat(szVersion, _T("Windows Server 2012 R2 "), cntMax);
                 else if (osvi.dwMinorVersion == 2)
                     _tcsncat(szVersion, _T("Windows Server 2012 "), cntMax);
                 else if (osvi.dwMinorVersion == 1)
@@ -265,7 +294,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
                 _tcsncat(szVersion, _T("Microsoft Windows NT "), cntMax);
 
             // Test for specific product on Windows NT 4.0 SP6 and later.
-            if (bOsVersionInfoEx)
+            if (bVersionEx >= 0)
             {
                 // Test for the workstation type.
                 if (productType == VER_NT_WORKSTATION)
@@ -282,7 +311,18 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
                 // Test for the server type.
                 else if (productType == VER_NT_SERVER)
                 {
-                    if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
+                    if (osvi.dwMajorVersion == 6 || osvi.dwMajorVersion == 10)
+                    {
+                        if (suiteMask & VER_SUITE_SMALLBUSINESS_RESTRICTED)
+                            _tcsncat(szVersion, _T("Essentials "), cntMax);
+                        else if (suiteMask & VER_SUITE_DATACENTER)
+                            _tcsncat(szVersion, _T("Datacenter "), cntMax);
+                        else if (suiteMask & VER_SUITE_ENTERPRISE)
+                            _tcsncat(szVersion, _T("Enterprise "), cntMax);
+                        else
+                            _tcsncat(szVersion, _T("Standard "), cntMax);
+                    }
+                    else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
                     {
                         if (suiteMask & VER_SUITE_DATACENTER)
                             _tcsncat(szVersion, _T("Datacenter Edition "), cntMax);
@@ -313,7 +353,7 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
             }
 
             // Display service pack (if any) and build number.
-            if (osvi.dwMajorVersion == 4 && _tcsicmp(osvi.szCSDVersion, _T("Service Pack 6")) == 0)
+            if (osvi.dwMajorVersion == 4 && _tcsicmp(szCSDVersion, _T("Service Pack 6")) == 0)
             {
                 HKEY hKey;
                 LONG lRet;
@@ -329,26 +369,26 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
                 else                                            // Windows NT 4.0 prior to SP6a
                 {
                     _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
-                        osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                        szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                     _tcsncat(szVersion, wszTmp, cntMax);
                 }
                 ::RegCloseKey(hKey);
             }
             else                                                // Windows NT 3.51 and earlier or Windows 2000 and later
             {
-                if (!_tcslen(osvi.szCSDVersion))
+                if (!_tcslen(szCSDVersion))
                     _stprintf(wszTmp, _T("(Version %d.%d, Build %d)"),
                         osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 else
                     _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
-                        osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                        szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
                 _tcsncat(szVersion, wszTmp, cntMax);
             }
             break;
         }
         default:
             _stprintf(wszTmp, _T("%s (Version %d.%d, Build %d)"),
-                osvi.szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
+                szCSDVersion, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber & 0xFFFF);
             _tcsncat(szVersion, wszTmp, cntMax);
             break;
     }
