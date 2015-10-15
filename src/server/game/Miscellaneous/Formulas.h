@@ -150,7 +150,7 @@ namespace Trinity
             return baseGain;
         }
 
-        inline uint32 Gain(Player* player, Unit* u)
+        inline uint32 Gain(Player* player, Unit* u, bool isBattleGround = false)
         {
             Creature* creature = u->ToCreature();
             uint32 gain = 0;
@@ -180,7 +180,7 @@ namespace Trinity
                     xpMod *= creature->GetCreatureTemplate()->ModExperience;
                 }
 
-                xpMod *= sWorld->getRate(RATE_XP_KILL);
+                xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL);
                 gain = uint32(gain * xpMod);
             }
 
