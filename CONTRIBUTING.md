@@ -61,13 +61,9 @@ You are welcome to create an account and help us improve and extend the wiki.
 Requirements
 ============
 
-Platform: Linux, Windows or Mac  
-Processor with SSE2 support  
-Boost ≥ 1.4.9  
-MySQL ≥ 5.1.0
-CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux) 
-OpenSSL ≥ 1.0.0  
-GCC ≥ 4.7.2 (Linux only)  
-MS Visual Studio ≥ 12 (2013) Update 4 (Windows only)
+
+Software requirements are available in the [wiki](http://collab.kpsn.org/display/tc/Requirements) for
+Windows, Linux and Mac OSX.
+
 
 If you choose Linux, we recommend to use Debian 8, since it's the Linux that we use to test compilations.
