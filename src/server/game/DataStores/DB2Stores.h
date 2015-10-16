@@ -56,6 +56,7 @@ extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLevelStore;
 extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
 extern DB2Storage<GlyphSlotEntry>                       sGlyphSlotStore;
 extern DB2Storage<GuildPerkSpellsEntry>                 sGuildPerkSpellsStore;
+extern DB2Storage<HeirloomEntry>                        sHeirloomStore;
 extern DB2Storage<HolidaysEntry>                        sHolidaysStore;
 extern DB2Storage<ImportPriceArmorEntry>                sImportPriceArmorStore;
 extern DB2Storage<ImportPriceQualityEntry>              sImportPriceQualityStore;
@@ -158,6 +159,7 @@ public:
     typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
     typedef std::vector<uint32> ToyItemIdsContainer;
+    typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
 
     static DB2Manager& Instance()
     {
@@ -193,6 +195,7 @@ public:
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
     bool GetToyItemIdMatch(uint32 toy) const;
+    HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
 
 private:
     StorageMap _stores;
@@ -218,6 +221,7 @@ private:
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
     ToyItemIdsContainer _toys;
+    HeirloomItemsContainer _heirlooms;
 };
 
 #define sDB2Manager DB2Manager::Instance()

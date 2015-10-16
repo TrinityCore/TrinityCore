@@ -287,7 +287,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
     &Spell::EffectAddGarrisonFollower,                      //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
-    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
+    &Spell::EffectCreateHeirloomItem,                       //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
@@ -310,7 +310,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
-    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
+    &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
@@ -1414,7 +1414,7 @@ void Spell::EffectHealthLeech(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
+void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const& bonusListIDs)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -1493,7 +1493,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid), GuidSet(), bonusListIDs);
 
         // was it successful? return error if not
         if (!pItem)
@@ -5867,6 +5867,26 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
         garrison->AddFollower(GetEffect(effIndex)->MiscValue);
 }
 
+void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
+
+    CollectionMgr* collectionMgr = player->GetSession()->GetCollectionMgr();
+    if (!collectionMgr)
+        return;
+
+    std::vector<int32> bonusList;
+    bonusList.push_back(collectionMgr->GetHeirloomBonus(m_misc.Raw.Data[0]));
+
+    DoCreateItem(effIndex, m_misc.Raw.Data[0], bonusList);
+    ExecuteLogEffectCreateItem(effIndex, m_misc.Raw.Data[0]);
+}
+
 void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -5959,4 +5979,14 @@ void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
     battlePetMgr->AddPet(speciesId, creatureId, breed, quality, level);
     plr->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     m_CastItem = nullptr;
+}
+
+void Spell::EffectUpgradeHeirloom(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (Player* player = m_caster->ToPlayer())
+        if (CollectionMgr* collectionMgr = player->GetSession()->GetCollectionMgr())
+            collectionMgr->UpgradeHeirloom(m_misc.Raw.Data[0], m_castItemEntry);
 }

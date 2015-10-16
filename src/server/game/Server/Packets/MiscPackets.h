@@ -26,6 +26,7 @@
 #include "Unit.h"
 #include "Player.h"
 #include "Weather.h"
+#include "CollectionMgr.h"
 
 namespace WorldPackets
 {
@@ -746,6 +747,18 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             G3D::Vector3 Pos;
             float Facing = 0.0f;
+        };
+
+        class AccountHeirloomUpdate final : public ServerPacket
+        {
+        public:
+            AccountHeirloomUpdate() : ServerPacket(SMSG_ACCOUNT_HEIRLOOM_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            HeirloomContainer const* Heirlooms = nullptr;
+            int32 Unk = 0;
         };
     }
 }
