@@ -53,6 +53,7 @@ char const GarrPlotInstanceFormat[] = "nis";
 char const GarrSiteLevelFormat[] = "niiiiffiiii";
 char const GarrSiteLevelPlotInstFormat[] = "niiffi";
 char const GlyphSlotFormat[] = "nii";
+char const HeirloomFormat[] = "niisiiiiiiii";
 char const GuildPerkSpellsFormat[] = "nii";
 char const HolidaysEntryFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 char const ImportPriceArmorFormat[] = "nffff";

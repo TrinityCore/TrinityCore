@@ -60,6 +60,7 @@ DB2Storage<GarrSiteLevelEntry>                  sGarrSiteLevelStore("GarrSiteLev
 DB2Storage<GarrSiteLevelPlotInstEntry>          sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", GarrSiteLevelPlotInstFormat, HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST);
 DB2Storage<GlyphSlotEntry>                      sGlyphSlotStore("GlyphSlot.db2", GlyphSlotFormat, HOTFIX_SEL_GLYPH_SLOT);
 DB2Storage<GuildPerkSpellsEntry>                sGuildPerkSpellsStore("GuildPerkSpells.db2", GuildPerkSpellsFormat, HOTFIX_SEL_GUILD_PERK_SPELLS);
+DB2Storage<HeirloomEntry>                       sHeirloomStore("Heirloom.db2", HeirloomFormat, HOTFIX_SEL_HEIRLOOM);
 DB2Storage<HolidaysEntry>                       sHolidaysStore("Holidays.db2", HolidaysEntryFormat, HOTFIX_SEL_HOLIDAYS);
 DB2Storage<ImportPriceArmorEntry>               sImportPriceArmorStore("ImportPriceArmor.db2", ImportPriceArmorFormat, HOTFIX_SEL_IMPORT_PRICE_ARMOR);
 DB2Storage<ImportPriceQualityEntry>             sImportPriceQualityStore("ImportPriceQuality.db2", ImportPriceQualityFormat, HOTFIX_SEL_IMPORT_PRICE_QUALITY);
@@ -233,6 +234,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sGarrSiteLevelStore);
     LOAD_DB2(sGlyphSlotStore);
     LOAD_DB2(sGuildPerkSpellsStore);
+    LOAD_DB2(sHeirloomStore);
     LOAD_DB2(sHolidaysStore);
     LOAD_DB2(sImportPriceArmorStore);
     LOAD_DB2(sImportPriceQualityStore);
@@ -488,6 +490,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ToyEntry const* toy : sToyStore)
         _toys.push_back(toy->ItemID);
+
+    for (HeirloomEntry const* heirloom : sHeirloomStore)
+        _heirlooms[heirloom->ItemID] = heirloom;
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -845,4 +850,13 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
 bool DB2Manager::GetToyItemIdMatch(uint32 toy) const
 {
     return std::find(_toys.begin(), _toys.end(), toy) != _toys.end();
+}
+
+HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
+{
+    auto itr = _heirlooms.find(itemId);
+    if (itr != _heirlooms.end())
+        return itr->second;
+
+    return nullptr;
 }
