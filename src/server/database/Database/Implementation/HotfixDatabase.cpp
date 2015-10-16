@@ -188,6 +188,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // GuildPerkSpells.db2
     PrepareStatement(HOTFIX_SEL_GUILD_PERK_SPELLS, "SELECT ID, GuildLevel, SpellID FROM guild_perk_spells ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // Heirloom.db2
+    PrepareStatement(HOTFIX_SEL_HEIRLOOM, "SELECT ID, ItemID, Flags, SourceText, Source, OldItem1, OldItem2, NextDifficultyItemID, UpgradeItemID1, UpgradeItemID2, "
+        "ItemBonusListID1, ItemBonusListID2 FROM heirloom ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_HEIRLOOM, "SELECT ID, SourceText_lang FROM heirloom_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // Holidays.db2
     PrepareStatement(HOTFIX_SEL_HOLIDAYS, "SELECT ID, Duration1, Duration2, Duration3, Duration4, Duration5, Duration6, Duration7, Duration8, "
         "Duration9, Duration10, Date1, Date2, Date3, Date4, Date5, Date6, Date7, Date8, Date9, Date10, Date11, Date12, Date13, Date14, Date15, "

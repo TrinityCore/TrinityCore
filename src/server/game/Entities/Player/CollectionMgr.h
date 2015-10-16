@@ -20,7 +20,30 @@
 
 #include "WorldSession.h"
 
+enum HeirloomPlayerFlags
+{
+    HEIRLOOM_FLAG_NONE                    = 0x00,
+    HEIRLOOM_FLAG_BONUS_LEVEL_90          = 0x01,
+    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02
+};
+
+enum HeirloomItemFlags
+{
+    HEIRLOOM_ITEM_FLAG_NONE               = 0x00,
+    HEIRLOOM_ITEM_FLAG_SHOW_ONLY_IF_KNOWN = 0x01,
+    HEIRLOOM_ITEM_FLAG_PVP                = 0x02
+};
+
+struct HeirloomData
+{
+    HeirloomData(uint32 _flags = 0, uint32 _bonusId = 0) : flags(_flags), bonusId(_bonusId) { }
+
+    uint32 flags;
+    uint32 bonusId;
+};
+
 typedef std::map<uint32, bool> ToyBoxContainer;
+typedef std::map<uint32, HeirloomData> HeirloomContainer;
 
 class CollectionMgr
 {
@@ -41,12 +64,25 @@ public:
     ToyBoxContainer const& GetAccountToys() const { return _toys; }
 
     // Account-wide heirlooms
+    void LoadHeirlooms();
+    void LoadAccountHeirlooms(PreparedQueryResult result);
+    void SaveAccountHeirlooms(SQLTransaction& trans);
+    void AddHeirloom(uint32 itemId, uint32 flags);
+    void UpgradeHeirloom(uint32 itemId, uint32 castItem);
+    void CheckHeirloomUpgrades(Item* item);
+
+    bool UpdateAccountHeirlooms(uint32 itemId, uint32 flags);
+    bool CanApplyHeirloomXpBonus(uint32 itemId, uint32 level);
+    uint32 GetHeirloomBonus(uint32 itemId) const;
+    HeirloomContainer const& GetAccountHeirlooms() const { return _heirlooms; }
+
     // Account-wide mounts
 
 private:
     WorldSession* _owner;
 
     ToyBoxContainer _toys;
+    HeirloomContainer _heirlooms;
 };
 
 #endif // CollectionMgr_h__

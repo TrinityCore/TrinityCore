@@ -569,3 +569,23 @@ void WorldPackets::Misc::WorldTeleport::Read()
     _worldPacket >> Pos;
     _worldPacket >> Facing;
 }
+
+WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
+{
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket.FlushBits();
+
+    _worldPacket << int32(Unk);
+
+    // both lists have to have the same size
+    _worldPacket << int32(Heirlooms->size());
+    _worldPacket << int32(Heirlooms->size());
+
+    for (auto const& item : *Heirlooms)
+        _worldPacket << uint32(item.first);
+
+    for (auto const& flags : *Heirlooms)
+        _worldPacket << uint32(flags.second.flags);
+
+    return &_worldPacket;
+}
