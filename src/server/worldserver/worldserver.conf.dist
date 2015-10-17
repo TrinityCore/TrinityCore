@@ -2660,12 +2660,12 @@ PlayerStart.MapsExplored = 0
 HonorPointsAfterDuel = 0
 
 #
-#    ResetCoolDownAfterDuel
-#        Description: Reset all cooldowns after duel, but only if player has no cooldowns before the duel.
+#    ResetDuelCooldowns
+#        Description: Reset all cooldowns before duel starts and restore them when duel ends.
 #        Default:     0  - (Disabled)
 #                     1  - (Enabled)
 
-ResetCoolDownAfterDuel = 0
+ResetDuelCooldowns = 0
 
 #
 #    AlwaysMaxWeaponSkill
