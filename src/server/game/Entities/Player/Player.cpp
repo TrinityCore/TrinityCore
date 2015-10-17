@@ -7624,6 +7624,21 @@ void Player::DuelComplete(DuelCompleteType type)
             ChatHandler(duel->opponent->GetSession()).PSendSysMessage(LANG_COOLDOWN_NOT_RESET_AFTER_DUEL);
     }
 
+    //need for save and restore health and mana before and after the a duel
+    if (sWorld->getBoolConfig(CONFIG_RESTORE_HEALTHMANA_AFTER_DUEL))
+    {
+        RestoreHealthAfterDuel();
+        duel->opponent->RestoreHealthAfterDuel();
+        //check if player class uses mana
+         if (!(getClass() == CLASS_WARRIOR || getClass() == CLASS_ROGUE || 
+                getClass() == CLASS_DEATH_KNIGHT))
+            RestoreManaAfterDuel(); 
+        //check if player class uses mana
+        if (!(duel->opponent->getClass() == CLASS_WARRIOR || duel->opponent->getClass() == CLASS_ROGUE || 
+                duel->opponent->getClass() == CLASS_DEATH_KNIGHT))
+            duel->opponent->RestoreManaAfterDuel(); 
+    }
+
     delete duel->opponent->duel;
     duel->opponent->duel = NULL;
     delete duel;

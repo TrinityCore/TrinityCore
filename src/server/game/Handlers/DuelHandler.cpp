@@ -46,6 +46,30 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     player->UpdateHasCoolDownBeforeDuel();
     plTarget->UpdateHasCoolDownBeforeDuel();
 
+    //need for save and restore health and mana before and after the a duel
+    if (sWorld->getBoolConfig(CONFIG_RESTORE_HEALTHMANA_AFTER_DUEL))
+    {
+        player->SaveHealthBeforeDuel();
+        player->SetHealth(player->GetMaxHealth());
+
+        plTarget->SaveHealthBeforeDuel();
+        plTarget->SetHealth(plTarget->GetMaxHealth());
+        //check if player class uses mana
+        if (!(player->getClass() == CLASS_WARRIOR || player->getClass() == CLASS_ROGUE || 
+                player->getClass() == CLASS_DEATH_KNIGHT))
+        {
+            player->SaveManaBeforeDuel();
+            player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+        }
+        //check if player class uses mana
+        if (!(plTarget->getClass() == CLASS_WARRIOR || plTarget->getClass() == CLASS_ROGUE || 
+                plTarget->getClass() == CLASS_DEATH_KNIGHT))
+        {
+            plTarget->SaveManaBeforeDuel();
+            plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
+        }
+    }
+
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
