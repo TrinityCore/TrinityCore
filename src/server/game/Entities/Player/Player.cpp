@@ -504,7 +504,7 @@ inline void KillRewarder::_InitXP(Player* player)
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
     if (_isBattleGround || (!_isPvP && !_killer->GetVehicle()))
-        _xp = Trinity::XP::Gain(player, _victim);
+        _xp = Trinity::XP::Gain(player, _victim, _isBattleGround);
 }
 
 inline void KillRewarder::_RewardHonor(Player* player)
@@ -7610,18 +7610,13 @@ void Player::DuelComplete(DuelCompleteType type)
     duel->opponent->SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid::Empty);
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 0);
 
-    if (sWorld->getBoolConfig(CONFIG_RESET_COOLDOWN_AFTER_DUEL) &&
-        type != DUEL_INTERRUPTED)
+    if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
     {
-        if (!HasCoolDownBeforeDuel())
-            RemoveArenaSpellCooldowns(true);
-        else
-            ChatHandler(GetSession()).PSendSysMessage(LANG_COOLDOWN_NOT_RESET_AFTER_DUEL);
+        RemoveArenaSpellCooldowns(true);
+        duel->opponent->RemoveArenaSpellCooldowns(true);
 
-        if (!duel->opponent->HasCoolDownBeforeDuel())
-            duel->opponent->RemoveArenaSpellCooldowns(true);
-        else
-            ChatHandler(duel->opponent->GetSession()).PSendSysMessage(LANG_COOLDOWN_NOT_RESET_AFTER_DUEL);
+        GetSpellHistory()->RestoreCooldownStateAfterDuel();
+        duel->opponent->GetSpellHistory()->RestoreCooldownStateAfterDuel();
     }
 
     //need for save and restore health and mana before and after the a duel
