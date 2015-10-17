@@ -870,21 +870,53 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
     }
 }
 
-uint16 SpellHistory::GetArenaCooldownsSize()
+void SpellHistory::SaveCooldownStateBeforeDuel()
 {
-    uint16 count = 0;
+    _spellCooldownsBeforeDuel = _spellCooldowns;
+}
 
-    for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+void SpellHistory::RestoreCooldownStateAfterDuel()
+{
+    if (Player* player = _owner->ToPlayer())
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+        // add all profession CDs created while in duel (if any)
+        for (auto const& c : _spellCooldowns)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(c.first);
 
-        if (spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
-            spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS)
-            ++count;
-        ++itr;
+            if (spellInfo->RecoveryTime > 10 * MINUTE * IN_MILLISECONDS ||
+                spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)
+                _spellCooldownsBeforeDuel[c.first] = _spellCooldowns[c.first];
+        }
+
+        _spellCooldowns = _spellCooldownsBeforeDuel;
+
+        // update the client: clear all cooldowns
+        std::vector<int32> resetCooldowns;
+        resetCooldowns.reserve(_spellCooldowns.size());
+
+        for (auto const& c : _spellCooldowns)
+            resetCooldowns.push_back(c.first);
+
+        if (resetCooldowns.empty())
+            return;
+
+        SendClearCooldowns(resetCooldowns);
+
+        // update the client: restore old cooldowns
+        WorldPackets::Spells::SpellCooldown spellCooldown;
+        spellCooldown.Caster = _owner->GetGUID();
+        spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+
+        for (auto const& c : _spellCooldowns)
+        {
+            Clock::time_point now = Clock::now();
+            uint32 cooldownDuration = c.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(c.second.CooldownEnd - now).count() : 0;
+            spellCooldown.SpellCooldowns.emplace_back(c.first, cooldownDuration);
+        }
+
+        player->SendDirectMessage(spellCooldown.Write());
     }
-
-    return count;
 }
 
 template void SpellHistory::LoadFromDB<Player>(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);

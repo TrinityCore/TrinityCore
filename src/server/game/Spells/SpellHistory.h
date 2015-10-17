@@ -145,6 +145,8 @@ public:
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
 
     uint16 GetArenaCooldownsSize();
+    void SaveCooldownStateBeforeDuel();
+    void RestoreCooldownStateAfterDuel();
 
 private:
     Player* GetPlayerOwner() const;
@@ -157,6 +159,7 @@ private:
 
     Unit* _owner;
     CooldownStorageType _spellCooldowns;
+    CooldownStorageType _spellCooldownsBeforeDuel;
     CategoryCooldownStorageType _categoryCooldowns;
     Clock::time_point _schoolLockouts[MAX_SPELL_SCHOOL];
     ChargeStorageType _categoryCharges;
