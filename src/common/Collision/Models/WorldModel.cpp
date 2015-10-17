@@ -416,10 +416,10 @@ namespace VMAP
         return 0;
     }
 
-    void GroupModel::getMeshData(std::vector<G3D::Vector3> &vertices, std::vector<MeshTriangle> &triangles, WmoLiquid* &liquid)
+    void GroupModel::getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid)
     {
-        vertices = this->vertices;
-        triangles = this->triangles;
+        outVertices = vertices;
+        outTriangles = triangles;
         liquid = iLiquid;
     }
 
@@ -597,8 +597,8 @@ namespace VMAP
         return result;
     }
 
-    void WorldModel::getGroupModels(std::vector<GroupModel> &groupModels)
+    void WorldModel::getGroupModels(std::vector<GroupModel>& outGroupModels)
     {
-        groupModels = this->groupModels;
+        outGroupModels = groupModels;
     }
 }
