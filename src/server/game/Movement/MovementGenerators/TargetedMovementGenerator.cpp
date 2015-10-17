@@ -44,38 +44,9 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (updateDestination || !i_path)
     {
         if (!i_offset)
-        {
-            // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
-        }
         else
-        {
-            float dist;
-            float size;
-
-            // Pets need special handling.
-            // We need to subtract GetObjectSize() because it gets added back further down the chain
-            //  and that makes pets too far away. Subtracting it allows pets to properly
-            //  be (GetCombatReach() + i_offset) away.
-            // Only applies when i_target is pet's owner otherwise pets and mobs end up
-            //   doing a "dance" while fighting
-            if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
-            {
-                dist = i_target->GetCombatReach();
-                size = i_target->GetCombatReach() - i_target->GetObjectSize();
-            }
-            else
-            {
-                dist = i_offset + 1.0f;
-                size = owner->GetObjectSize();
-            }
-
-            if (i_target->IsWithinDistInMap(owner, dist))
-                return;
-
-            // to at i_offset distance from target and i_angle from target facing
-            i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
-        }
+            i_target->GetClosePoint(x, y, z, CONTACT_DISTANCE, i_offset, i_angle);
     }
     else
     {
@@ -153,7 +124,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     {
         i_recheckDistance.Reset(100);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
-        float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        float allowed_dist = CONTACT_DISTANCE + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
         G3D::Vector3 dest = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)
             if (TransportBase* transport = owner->GetDirectTransport())
