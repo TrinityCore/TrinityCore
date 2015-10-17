@@ -61,7 +61,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
         i_path = new PathGenerator(owner);
 
     // allow pets to use shortcut if no path found when following their master
-    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet()
+    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && (owner->IsGuardian() || owner->IsPet())
         && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
@@ -79,7 +79,10 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
-    init.SetWalk(((D*)this)->EnableWalking());
+    
+    if (!forceDest || i_target->IsWalking())
+        init.SetWalk(((D*)this)->EnableWalking(owner));
+    
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly
     if (i_angle == 0.f)
@@ -208,13 +211,13 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature* unit)
 
 //-----------------------------------------------//
 template<>
-bool FollowMovementGenerator<Creature>::EnableWalking() const
+bool FollowMovementGenerator<Creature>::EnableWalking(Creature* owner) const
 {
-    return i_target.isValid() && i_target->IsWalking();
+    return i_target.isValid() && i_target->IsWithinDistInMap(owner, PET_FOLLOW_DIST + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE));
 }
 
 template<>
-bool FollowMovementGenerator<Player>::EnableWalking() const
+bool FollowMovementGenerator<Player>::EnableWalking(Player* /*owner*/) const
 {
     return false;
 }
