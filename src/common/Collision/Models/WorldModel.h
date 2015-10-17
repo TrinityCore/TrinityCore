@@ -91,7 +91,7 @@ namespace VMAP
             const G3D::AABox& GetBound() const { return iBound; }
             uint32 GetMogpFlags() const { return iMogpFlags; }
             uint32 GetWmoID() const { return iGroupWMOID; }
-            void getMeshData(std::vector<G3D::Vector3> &vertices, std::vector<MeshTriangle> &triangles, WmoLiquid* &liquid);
+            void getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid);
         protected:
             G3D::AABox iBound;
             uint32 iMogpFlags;// 0x8 outdor; 0x2000 indoor
@@ -116,7 +116,7 @@ namespace VMAP
             bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, LocationInfo &info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);
-            void getGroupModels(std::vector<GroupModel> &groupModels);
+            void getGroupModels(std::vector<GroupModel>& outGroupModels);
         protected:
             uint32 RootWMOID;
             std::vector<GroupModel> groupModels;
