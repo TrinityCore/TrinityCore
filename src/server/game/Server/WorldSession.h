@@ -290,7 +290,7 @@ class WorldSession
         uint32 GetCurrentVendor() const { return m_currentVendorEntry; }
         void SetCurrentVendor(uint32 vendorEntry) { m_currentVendorEntry = vendorEntry; }
 
-        uint32 GetGUIDLow() const;
+        ObjectGuid::LowType GetGUIDLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
@@ -1029,7 +1029,7 @@ class WorldSession
         // characters who failed on Player::BuildEnumData shouldn't login
         GuidSet _legitCharacters;
 
-        uint32 m_GUIDLow;                                   // set logined or recently logout player (while m_playerRecentlyLogout set)
+        ObjectGuid::LowType m_GUIDLow;                      // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
         std::shared_ptr<WorldSocket> m_Socket;
         std::string m_Address;                              // Current Remote Address

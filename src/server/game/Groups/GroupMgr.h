@@ -33,10 +33,10 @@ public:
         return &instance;
     }
 
-    typedef std::map<uint32, Group*> GroupContainer;
+    typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;
     typedef std::vector<Group*>      GroupDbContainer;
 
-    Group* GetGroupByGUID(uint32 guid) const;
+    Group* GetGroupByGUID(ObjectGuid::LowType guid) const;
 
     uint32 GenerateNewGroupDbStoreId();
     void   RegisterGroupDbStoreId(uint32 storageId, Group* group);
@@ -46,13 +46,13 @@ public:
     void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
 
     void   LoadGroups();
-    uint32 GenerateGroupId();
+    ObjectGuid::LowType GenerateGroupId();
     void   AddGroup(Group* group);
     void   RemoveGroup(Group* group);
 
 
 protected:
-    uint32           NextGroupId;
+    ObjectGuid::LowType           NextGroupId;
     uint32           NextGroupDbStoreId;
     GroupContainer   GroupStore;
     GroupDbContainer GroupDbStore;
