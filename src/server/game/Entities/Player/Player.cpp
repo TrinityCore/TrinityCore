@@ -7619,6 +7619,19 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->GetSpellHistory()->RestoreCooldownStateAfterDuel();
     }
 
+    //need for save and restore health and mana before and after the a duel
+    if (sWorld->getBoolConfig(CONFIG_RESTORE_HEALTHMANA_AFTER_DUEL))
+    {
+        RestoreHealthAfterDuel();
+        duel->opponent->RestoreHealthAfterDuel();
+        //check if player class uses mana
+         if (getPowerType() == POWER_MANA)
+            RestoreManaAfterDuel(); 
+        //check if player class uses mana
+        if (duel->opponent->getPowerType() == POWER_MANA)
+            duel->opponent->RestoreManaAfterDuel(); 
+    }
+
     delete duel->opponent->duel;
     duel->opponent->duel = NULL;
     delete duel;
