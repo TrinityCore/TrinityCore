@@ -26,6 +26,7 @@ class DuelResetScript : public PlayerScript
         // Called when a duel starts (after 3s countdown)
         void OnDuelStart(Player* player1, Player* player2) override
         {
+            // Cooldowns reset
             if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
             {
                 player1->GetSpellHistory()->SaveCooldownStateBeforeDuel();
@@ -34,11 +35,36 @@ class DuelResetScript : public PlayerScript
                 player1->RemoveArenaSpellCooldowns(true);
                 player2->RemoveArenaSpellCooldowns(true);
             }
+
+            // Health and mana reset
+            if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
+            {
+                player1->SaveHealthBeforeDuel();
+                player1->SetHealth(player1->GetMaxHealth());
+
+                player2->SaveHealthBeforeDuel();
+                player2->SetHealth(player2->GetMaxHealth());
+
+                // check if player1 class uses mana
+                if (player1->getPowerType() == POWER_MANA)
+                {
+                    player1->SaveManaBeforeDuel();
+                    player1->SetPower(POWER_MANA, player1->GetMaxPower(POWER_MANA));
+                }
+
+                // check if player2 class uses mana
+                if (player2->getPowerType() == POWER_MANA)
+                {
+                    player2->SaveManaBeforeDuel();
+                    player2->SetPower(POWER_MANA, player2->GetMaxPower(POWER_MANA));
+                }
+            }
         }
 
         // Called when a duel ends
         void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType /*type*/) override
         {
+            // Cooldown restore
             if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
             {
                 winner->RemoveArenaSpellCooldowns(true);
@@ -46,6 +72,21 @@ class DuelResetScript : public PlayerScript
 
                 winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
                 loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
+            }
+
+            // Health and mana restore
+            if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
+            {
+                winner->RestoreHealthAfterDuel();
+                loser->RestoreHealthAfterDuel();
+
+                // check if player1 class uses mana
+                if (winner->getPowerType() == POWER_MANA)
+                    winner->RestoreManaAfterDuel(); 
+
+                // check if player2 class uses mana
+                if (loser->getPowerType() == POWER_MANA)
+                    loser->RestoreManaAfterDuel(); 
             }
         }
 };
