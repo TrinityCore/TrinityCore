@@ -98,7 +98,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    uint32 ownerid = owner->GetGUID().GetCounter();
+    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
 
     PreparedStatement* stmt;
     PreparedQueryResult result;
@@ -174,7 +174,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    uint32 guid = map->GenerateLowGuid<HighGuid::Pet>();
+    ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
 
     if (!Create(guid, map, owner->GetPhaseMask(), petEntry, petId))
         return false;
@@ -415,7 +415,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
     {
-        uint32 ownerLowGUID = GetOwnerGUID().GetCounter();
+        ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
         std::string name = m_name;
         CharacterDatabase.EscapeString(name);
         trans = CharacterDatabase.BeginTransaction();
@@ -485,7 +485,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     }
 }
 
-void Pet::DeleteFromDB(uint32 guidlow)
+void Pet::DeleteFromDB(ObjectGuid::LowType guidlow)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -807,7 +807,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    uint32 guid=map->GenerateLowGuid<HighGuid::Pet>();
+    ObjectGuid::LowType guid=map->GenerateLowGuid<HighGuid::Pet>();
     uint32 petId = sObjectMgr->GeneratePetNumber();
     if (!Create(guid, map, phaseMask, cinfo->Entry, petId))
         return false;
@@ -1835,7 +1835,7 @@ bool Pet::IsPermanentPetFor(Player* owner) const
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 petId)
+bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 petId)
 {
     ASSERT(map);
     SetMap(map);

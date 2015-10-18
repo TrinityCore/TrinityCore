@@ -28,14 +28,9 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 
 ## Requirements
 
-+ Platform: Linux, Windows or Mac
-+ Processor with SSE2 support
-+ Boost ≥ 1.49
-+ MySQL ≥ 5.1.0
-+ CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
-+ OpenSSL ≥ 1.0.0
-+ GCC ≥ 4.7.2 (Linux only)
-+ MS Visual Studio ≥ 12 (2013) (Windows only)
+
+Software requirements are available in the [wiki](http://collab.kpsn.org/display/tc/Requirements) for
+Windows, Linux and Mac OSX.
 
 
 ## Install
@@ -58,8 +53,9 @@ reports are wasteful and are subject to deletion.
 
 ## Submitting fixes
 
-Fixes are submitted as pull requests via Github. For more information on how to
+C++ fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](http://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
+For SQL only fixes open a ticket or if a bug report exists for the bug post on existing ticket.
 
 
 ## Copyright

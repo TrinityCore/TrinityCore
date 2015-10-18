@@ -175,7 +175,7 @@ class SmartScript
             return 0;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
             if (bounds.first == bounds.second)
@@ -184,7 +184,7 @@ class SmartScript
             return bounds.first->second;
         }
 
-        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
             if (bounds.first == bounds.second)

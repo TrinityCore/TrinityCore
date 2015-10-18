@@ -203,7 +203,7 @@ struct CalendarEvent
             _description = calendarEvent.GetDescription();
         }
 
-        CalendarEvent(uint64 eventId, ObjectGuid creatorGUID, uint32 guildId, CalendarEventType type, int32 dungeonId,
+        CalendarEvent(uint64 eventId, ObjectGuid creatorGUID, ObjectGuid::LowType guildId, CalendarEventType type, int32 dungeonId,
             time_t eventTime, uint32 flags, time_t timezoneTime, std::string title, std::string description) :
             _eventId(eventId), _creatorGUID(creatorGUID), _guildId(guildId), _type(type), _dungeonId(dungeonId),
             _eventTime(eventTime), _flags(flags), _timezoneTime(timezoneTime), _title(title),
@@ -220,8 +220,8 @@ struct CalendarEvent
         void SetCreatorGUID(ObjectGuid guid) { _creatorGUID = guid; }
         ObjectGuid GetCreatorGUID() const { return _creatorGUID; }
 
-        void SetGuildId(uint32 guildId) { _guildId = guildId; }
-        uint32 GetGuildId() const { return _guildId; }
+        void SetGuildId(ObjectGuid::LowType guildId) { _guildId = guildId; }
+        ObjectGuid::LowType GetGuildId() const { return _guildId; }
 
         void SetTitle(const std::string& title) { _title = title; }
         std::string GetTitle() const { return _title; }
@@ -253,7 +253,7 @@ struct CalendarEvent
     private:
         uint64 _eventId;
         ObjectGuid _creatorGUID;
-        uint32 _guildId;
+        ObjectGuid::LowType _guildId;
         CalendarEventType _type;
         int32 _dungeonId;
         time_t _eventTime;
@@ -316,7 +316,7 @@ class CalendarMgr
         void UpdateInvite(CalendarInvite* invite, SQLTransaction& trans);
 
         void RemoveAllPlayerEventsAndInvites(ObjectGuid guid);
-        void RemovePlayerGuildEventsAndSignups(ObjectGuid guid, uint32 guildId);
+        void RemovePlayerGuildEventsAndSignups(ObjectGuid guid, ObjectGuid::LowType guildId);
 
         void SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarSendEventType sendType);
         void SendCalendarEventInvite(CalendarInvite const& invite);
