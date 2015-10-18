@@ -395,7 +395,7 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
     uint8 slotId = fields[13].GetUInt8();
-    uint32 itemGuid = fields[14].GetUInt32();
+    ObjectGuid::LowType itemGuid = fields[14].GetUInt32();
     uint32 itemEntry = fields[15].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
@@ -784,7 +784,7 @@ void EmblemInfo::WritePacket(WorldPacket& data) const
     data << uint32(m_backgroundColor);
 }
 
-void EmblemInfo::SaveToDB(uint32 guildId) const
+void EmblemInfo::SaveToDB(ObjectGuid::LowType guildId) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_EMBLEM_INFO);
     stmt->setUInt32(0, m_style);
@@ -1972,7 +1972,7 @@ void Guild::LoadRankFromDB(Field* fields)
 
 bool Guild::LoadMemberFromDB(Field* fields)
 {
-    uint32 lowguid = fields[1].GetUInt32();
+    ObjectGuid::LowType lowguid = fields[1].GetUInt32();
     Member *member = new Member(m_id, ObjectGuid(HighGuid::Player, lowguid), fields[2].GetUInt8());
     if (!member->LoadFromDB(fields))
     {
@@ -2019,7 +2019,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
         LogHolder* pLog = m_bankEventLog[tabId];
         if (pLog->CanInsert())
         {
-            uint32 guid = fields[2].GetUInt32();
+            ObjectGuid::LowType guid = fields[2].GetUInt32();
             GuildBankEventLogTypes eventType = GuildBankEventLogTypes(fields[3].GetUInt8());
             if (BankEventLogEntry::IsMoneyEvent(eventType))
             {
@@ -2222,7 +2222,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     // This will be prevent attempt to join many guilds and corrupt guild data integrity
     Player::RemovePetitionsAndSigns(guid, GUILD_CHARTER_TYPE);
 
-    uint32 lowguid = guid.GetCounter();
+    ObjectGuid::LowType lowguid = guid.GetCounter();
 
     // If rank was not passed, assign lowest possible rank
     if (rankId == GUILD_RANK_NONE)
@@ -2284,7 +2284,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
 
 void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
 {
-    uint32 lowguid = guid.GetCounter();
+    ObjectGuid::LowType lowguid = guid.GetCounter();
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
 
     // Guild master can be deleted when loading guild and guid doesn't exist in characters table
@@ -2635,7 +2635,7 @@ inline bool Guild::_MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 righ
 }
 
 // Add new event log record
-inline void Guild::_LogEvent(GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
+inline void Guild::_LogEvent(GuildEventLogTypes eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2, uint8 newRank)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     m_eventLog->AddEvent(trans, new EventLogEntry(m_id, m_eventLog->GetNextGUID(), eventType, playerGuid1, playerGuid2, newRank));
@@ -2645,7 +2645,7 @@ inline void Guild::_LogEvent(GuildEventLogTypes eventType, uint32 playerGuid1, u
 }
 
 // Add new bank event log record
-void Guild::_LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, uint32 lowguid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+void Guild::_LogBankEvent(SQLTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType lowguid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
 {
     if (tabId > GUILD_BANK_MAX_TABS)
         return;

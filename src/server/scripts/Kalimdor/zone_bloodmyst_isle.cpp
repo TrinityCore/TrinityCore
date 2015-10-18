@@ -808,7 +808,7 @@ public:
     private:
         int8 _phase;
         uint32 _moveTimer;
-        uint32 _eventStarterGuidLow;
+        ObjectGuid::LowType _eventStarterGuidLow;
         GuidList _explosivesGuids;
         EventMap _events;
     };

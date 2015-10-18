@@ -21,6 +21,7 @@
 
 #include "DatabaseEnv.h"
 #include "Common.h"
+#include "ObjectGuid.h"
 
 class SocialMgr;
 class PlayerSocial;
@@ -60,8 +61,8 @@ struct FriendInfo
     { }
 };
 
-typedef std::map<uint32, FriendInfo> PlayerSocialMap;
-typedef std::map<uint32, PlayerSocial> SocialMap;
+typedef std::map<ObjectGuid::LowType, FriendInfo> PlayerSocialMap;
+typedef std::map<ObjectGuid::LowType, PlayerSocial> SocialMap;
 
 /// Results of friend related commands
 enum FriendsResult
@@ -104,20 +105,20 @@ class PlayerSocial
     public:
         PlayerSocial();
         // adding/removing
-        bool AddToSocialList(uint32 friend_guid, bool ignore);
-        void RemoveFromSocialList(uint32 friend_guid, bool ignore);
-        void SetFriendNote(uint32 friendGuid, std::string note);
+        bool AddToSocialList(ObjectGuid::LowType friendGuid, bool ignore);
+        void RemoveFromSocialList(ObjectGuid::LowType friend_guid, bool ignore);
+        void SetFriendNote(ObjectGuid::LowType friendGuid, std::string note);
         // Packet send's
         void SendSocialList(Player* player);
         // Misc
-        bool HasFriend(uint32 friend_guid);
-        bool HasIgnore(uint32 ignore_guid);
-        uint32 GetPlayerGUID() const { return m_playerGUID; }
-        void SetPlayerGUID(uint32 guid) { m_playerGUID = guid; }
+        bool HasFriend(ObjectGuid::LowType friend_guid);
+        bool HasIgnore(ObjectGuid::LowType ignore_guid);
+        ObjectGuid::LowType GetPlayerGUID() const { return m_playerGUID; }
+        void SetPlayerGUID(ObjectGuid::LowType guid) { m_playerGUID = guid; }
         uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
     private:
         PlayerSocialMap m_playerSocialMap;
-        uint32 m_playerGUID;
+        ObjectGuid::LowType m_playerGUID;
 };
 
 class SocialMgr
@@ -134,15 +135,15 @@ class SocialMgr
         }
 
         // Misc
-        void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
+        void RemovePlayerSocial(ObjectGuid::LowType guid) { m_socialMap.erase(guid); }
 
-        void GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &friendInfo);
+        void GetFriendInfo(Player* player, ObjectGuid::LowType friendGUID, FriendInfo &friendInfo);
         // Packet management
-        void MakeFriendStatusPacket(FriendsResult result, uint32 friend_guid, WorldPacket* data);
-        void SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast);
+        void MakeFriendStatusPacket(FriendsResult result, ObjectGuid::LowType friend_guid, WorldPacket* data);
+        void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid::LowType friend_guid, bool broadcast);
         void BroadcastToFriendListers(Player* player, WorldPacket* packet);
         // Loading
-        PlayerSocial *LoadFromDB(PreparedQueryResult result, uint32 guid);
+        PlayerSocial *LoadFromDB(PreparedQueryResult result, ObjectGuid::LowType guid);
     private:
         SocialMap m_socialMap;
 };

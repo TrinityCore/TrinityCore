@@ -146,7 +146,7 @@ struct LootStoreItem
                                                             // Checks correctness of values
 };
 
-typedef std::set<uint32> AllowedLooterSet;
+typedef std::set<ObjectGuid::LowType> AllowedLooterSet;
 
 struct LootItem
 {
