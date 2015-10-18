@@ -298,7 +298,7 @@ struct PvPInfo
 
 struct DuelInfo
 {
-    DuelInfo() : initiator(NULL), opponent(NULL), startTimer(0), startTime(0), outOfBound(0), isMounted(false), hasCoolDownBeforeDuel(false) { }
+    DuelInfo() : initiator(NULL), opponent(NULL), startTimer(0), startTime(0), outOfBound(0), isMounted(false) { }
 
     Player* initiator;
     Player* opponent;
@@ -306,7 +306,6 @@ struct DuelInfo
     time_t startTime;
     time_t outOfBound;
     bool isMounted;
-    bool hasCoolDownBeforeDuel;
 };
 
 struct Areas
@@ -1131,7 +1130,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSummonPoint(uint32 mapid, float x, float y, float z);
         void SummonIfPossible(bool agree);
 
-        bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
+        bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
 
         void Update(uint32 time) override;
 
@@ -1497,7 +1496,7 @@ class Player : public Unit, public GridObject<Player>
         bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
         bool IsLoading() const override;
 
-        void Initialize(uint32 guid);
+        void Initialize(ObjectGuid::LowType guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
@@ -1563,7 +1562,7 @@ class Player : public Unit, public GridObject<Player>
         void ClearComboPoints();
         void SendComboPoints();
 
-        void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, uint32 item_guid = 0, uint32 item_count = 0);
+        void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType item_guid = 0, uint32 item_count = 0);
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
         void AddNewMailDeliverTime(time_t deliver_time);
@@ -1729,7 +1728,7 @@ class Player : public Unit, public GridObject<Player>
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
         uint32 GetGuildId() const { return GetUInt32Value(PLAYER_GUILDID);  }
         Guild* GetGuild();
-        static uint32 GetGuildIdFromDB(ObjectGuid guid);
+        static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
         int GetGuildIdInvited() const { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid, uint32 type);
@@ -1960,9 +1959,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
-
-        bool HasCoolDownBeforeDuel() const { return duel->hasCoolDownBeforeDuel; }
-        void UpdateHasCoolDownBeforeDuel() { duel->hasCoolDownBeforeDuel = GetSpellHistory()->GetArenaCooldownsSize() > 0; }
 
         //End of PvP System
 
