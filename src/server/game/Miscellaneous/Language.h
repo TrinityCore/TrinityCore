@@ -217,7 +217,8 @@ enum TrinityStrings
     LANG_PHASING_NO_DEFINITIONS         = 184,              // Phasing
 
     LANG_GRID_POSITION                  = 185,
-    // Room for more level 1              186-199 not used
+    LANG_TRANSPORT_POSITION             = 186,
+    // Room for more level 1              187-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
