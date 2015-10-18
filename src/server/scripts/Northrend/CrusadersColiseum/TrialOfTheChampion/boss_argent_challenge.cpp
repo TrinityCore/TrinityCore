@@ -214,7 +214,7 @@ public:
     boss_eadric() : CreatureScript("boss_eadric") { }
     struct boss_eadricAI : public BossAI
     {
-        boss_eadricAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_E)
+        boss_eadricAI(Creature* creature) : BossAI(creature, DATA_EADRIC_THE_PURE)
         {
             me->SetReactState(REACT_DEFENSIVE);
         }
@@ -223,13 +223,13 @@ public:
 
         void Reset() override
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+            if (instance->GetBossState(DATA_EADRIC_THE_PURE) != SPECIAL)
                 _Reset();
         }
 
         void SetFacerollerPlayer(ObjectGuid playerGuid)
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+            if (instance->GetBossState(DATA_EADRIC_THE_PURE) != SPECIAL)
                 faceRollerGUID = playerGuid;
         }
 
@@ -238,10 +238,10 @@ public:
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+                if (instance->GetBossState(DATA_EADRIC_THE_PURE) != SPECIAL)
                 {
                     events.Reset();
-                    instance->SetBossState(BOSS_ARGENT_CHALLENGE_E, SPECIAL);
+                    instance->SetBossState(DATA_EADRIC_THE_PURE, SPECIAL);
                     Talk(SAY_DEFEATED_E);
                 }
                 return;
@@ -250,7 +250,7 @@ public:
 
         void JustReachedHome()
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == SPECIAL)
+            if (instance->GetBossState(DATA_EADRIC_THE_PURE) == SPECIAL)
                 events.ScheduleEvent(EVENT_EADRIC_DONE, 4000);
             else
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
@@ -264,7 +264,7 @@ public:
             switch (id)
             {
                 case POINT_PREFIGHT:
-                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                    if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
                         announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
                     break;
                 case POINT_PREPARE:
@@ -281,7 +281,7 @@ public:
 
         void EnterCombat(Unit* who) override
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+            if (instance->GetBossState(DATA_EADRIC_THE_PURE) != SPECIAL)
             {
                 events.ScheduleEvent(EVENT_VENGEANCE, 500);
                 events.ScheduleEvent(EVENT_RADIANCE, urand(7000, 15000));
@@ -297,7 +297,7 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) != SPECIAL)
+            if (instance->GetBossState(DATA_EADRIC_THE_PURE) != SPECIAL)
                 BossAI::AttackStart(who);
         }
 
@@ -369,7 +369,7 @@ public:
 
     struct boss_paletressAI : public BossAI
     {
-        boss_paletressAI(Creature* creature) : BossAI(creature, BOSS_ARGENT_CHALLENGE_P)
+        boss_paletressAI(Creature* creature) : BossAI(creature, DATA_ARGENT_CONFESSOR_PALETRESS)
         {
             Initialize();
 
@@ -386,7 +386,7 @@ public:
 
         void Reset() override
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+            if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) != SPECIAL)
             {
                 me->RemoveAura(SPELL_SHIELD);
                 Initialize();
@@ -423,10 +423,10 @@ public:
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+                if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) != SPECIAL)
                 {
                     events.Reset();
-                    instance->SetBossState(BOSS_ARGENT_CHALLENGE_P, SPECIAL);
+                    instance->SetBossState(DATA_ARGENT_CONFESSOR_PALETRESS, SPECIAL);
                     Talk(SAY_DEFEATED_P);
                 }
                 return;
@@ -435,7 +435,7 @@ public:
 
         void JustReachedHome()
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == SPECIAL)
+            if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == SPECIAL)
                 events.ScheduleEvent(EVENT_PALETRESS_DONE, 4000);
             else
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
@@ -449,7 +449,7 @@ public:
             switch (id)
             {
                 case POINT_PREFIGHT:
-                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                    if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
                         announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
                     break;
                 case POINT_PREPARE:
@@ -477,7 +477,7 @@ public:
 
         void EnterCombat(Unit* who) override
         {
-            if (instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+            if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) != SPECIAL)
             {
                 events.ScheduleEvent(EVENT_HOLY_SMITE_E, 2000);
                 events.ScheduleEvent(EVENT_HOLY_FIRE, urand(9000, 12000));
@@ -494,7 +494,7 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (!me->HasAura(SPELL_SHIELD) && instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) != SPECIAL)
+            if (!me->HasAura(SPELL_SHIELD) && instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) != SPECIAL)
                 BossAI::AttackStart(who);
         }
 

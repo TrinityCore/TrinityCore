@@ -22,6 +22,7 @@ SDComment:
 SDCategory: Trial of the Champion
 EndScriptData */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -148,7 +149,7 @@ public:
                 if (!target->ToPlayer())
                     return;
 
-                if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+                if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
                     // If corpse explosion hits any player during encounter
                     // we cannot give achievement id 3804
                     knight->AI()->SetData(1, 0);
@@ -195,7 +196,7 @@ public:
         {
             if (who == me)
                 return;
-            if (Creature* knight = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
+            if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
             {
                 if (!knight->HasAura(SPELL_BLACK_KNIGHT_DIE))
                     knight->AI()->KilledUnit(who);
@@ -255,7 +256,7 @@ public:
 
     struct boss_black_knightAI : public BossAI
     {
-        boss_black_knightAI(Creature* creature) : BossAI(creature, BOSS_BLACK_KNIGHT)
+        boss_black_knightAI(Creature* creature) : BossAI(creature, DATA_THE_BLACK_KNIGHT)
         {
             Initialize();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -304,7 +305,7 @@ public:
                     events.ScheduleEvent(EVENT_DEATH_RESPITE, 8000);
 
                     // Raising announcer as a ghoul
-                    if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                    if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
                     {
                         if (announcer->GetEntry() == NPC_JAEREN)
                             announcer->CastSpell(me->GetVictim(), SPELL_RAISE_JAEREN, false, nullptr, nullptr, me->GetGUID());
@@ -364,7 +365,7 @@ public:
 
             if (id == 0)
             {
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
                     announcer->AI()->SetData(DATA_BLACK_KNIGHT_PRECAST, 0);
             }
         }
@@ -557,7 +558,7 @@ public:
                 SetEscortPaused(true);
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
                 {
                     me->SetFacingToObject(announcer);
                     announcer->AI()->SetData(DATA_BLACK_KNIGHT_PREPARE, 0);

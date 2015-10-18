@@ -16,9 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_TOC_H
-#define DEF_TOC_H
+#ifndef TRIAL_OF_CHAMPION_H_
+#define TRIAL_OF_CHAMPION_H_
 
+#define ToCScriptName "instance_trial_of_the_champion"
 #define DataHeader "TC"
 
 uint32 const EncounterCount = 4;
@@ -68,12 +69,23 @@ float const allianceOrientation = 3.114f; // Facing towards horde spectators
 float const gateOrientation = 1.582f; // Facing towards main gate
 float const centerOrientation = 4.714f; // Facing towards the center of arena
 
-enum Data
+enum DataTypes
 {
-    BOSS_GRAND_CHAMPIONS,
-    BOSS_ARGENT_CHALLENGE_E,
-    BOSS_ARGENT_CHALLENGE_P,
-    BOSS_BLACK_KNIGHT,
+    // Encounter States/Boss GUIDs
+    DATA_GRAND_CHAMPIONS            = 0,
+    DATA_EADRIC_THE_PURE            = 1,
+    DATA_ARGENT_CONFESSOR_PALETRESS = 2,
+    DATA_THE_BLACK_KNIGHT           = 3,
+
+    // Additional Data
+    DATA_ANNOUNCER,
+    DATA_MAIN_GATE,
+    DATA_TIRION,
+    DATA_VARIAN,
+    DATA_JAINA,
+    DATA_GARROSH,
+    DATA_THRALL,
+
     DATA_LESSER_CHAMPIONS_PREPARE,
     DATA_LESSER_CHAMPIONS_DEFEATED,
     DATA_START,
@@ -84,13 +96,7 @@ enum Data
     DATA_ARGENT_SOLDIER_DEFEATED,
     DATA_BLACK_KNIGHT_PREPARE,
     DATA_BLACK_KNIGHT_PRECAST,
-    DATA_BLACK_KNIGHT_DONE
-};
-
-enum Data64
-{
-    DATA_ANNOUNCER,
-    DATA_MAIN_GATE,
+    DATA_BLACK_KNIGHT_DONE,
 
     DATA_GRAND_CHAMPION_VEHICLE_1,
     DATA_GRAND_CHAMPION_VEHICLE_2,
@@ -102,14 +108,7 @@ enum Data64
 
     DATA_ARGENT_CHAMPION,
 
-    DATA_BLACK_KNIGHT_VEHICLE,
-    DATA_BLACK_KNIGHT,
-
-    DATA_TIRION,
-    DATA_VARIAN,
-    DATA_JAINA,
-    DATA_GARROSH,
-    DATA_THRALL
+    DATA_BLACK_KNIGHT_VEHICLE
 };
 
 enum Creatures
@@ -251,4 +250,10 @@ enum FlagSpells
     SPELL_FLAG_UNDERCITY                            = 63430
 };
 
-#endif
+template<class AI>
+AI* GetTrialOfChampionAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, ToCScriptName);
+}
+
+#endif // TRIAL_OF_CHAMPION_H_

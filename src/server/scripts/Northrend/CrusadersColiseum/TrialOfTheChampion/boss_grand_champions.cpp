@@ -23,12 +23,15 @@ SDComment: Cosmetic things missing
 SDCategory: Trial Of the Champion
 EndScriptData */
 
-#include "ScriptMgr.h"
+#include "GridNotifiers.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
 #include "trial_of_the_champion.h"
-#include "Player.h"
 
 enum Events
 {
@@ -184,17 +187,17 @@ Creature* FindMyMount(Creature* me, bool newMount = false)
         // Summoning a new vehicle if all others are used
         // can but should not occur
         uint32 tmpEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
-        if (Creature* newMount = me->SummonCreature(tmpEntry, bossExitPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+        if (Creature* mount = me->SummonCreature(tmpEntry, bossExitPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
         {
             if (instance->GetGuidData(DATA_GRAND_CHAMPION_1) == me->GetGUID())
-                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, newMount->GetGUID());
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1, mount->GetGUID());
             else if (instance->GetGuidData(DATA_GRAND_CHAMPION_2) == me->GetGUID())
-                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, newMount->GetGUID());
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2, mount->GetGUID());
             else if (instance->GetGuidData(DATA_GRAND_CHAMPION_3) == me->GetGUID())
-                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, newMount->GetGUID());
-            newMount->SetOrientation(centerOrientation);
-            newMount->SetHomePosition(me->GetHomePosition());
-            return newMount;
+                instance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3, mount->GetGUID());
+            mount->SetOrientation(centerOrientation);
+            mount->SetHomePosition(me->GetHomePosition());
+            return mount;
         }
     }
     if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_1))
@@ -205,7 +208,7 @@ Creature* FindMyMount(Creature* me, bool newMount = false)
         return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3));
 
     // should not happen
-    return NULL;
+    return nullptr;
 }
 
 // called on rider
@@ -215,7 +218,7 @@ void SetGrandChampionToEvadeMode(Creature* me)
     me->ApplySpellImmune(SPELL_TRAMPLE_AURA, IMMUNITY_ID, SPELL_TRAMPLE_AURA, false);
     me->DeleteThreatList();
     me->CombatStop(true);
-    me->SetLootRecipient(NULL);
+    me->SetLootRecipient(nullptr);
     me->AI()->Reset();
     if (Creature* mount = FindMyMount(me))
     {
@@ -234,9 +237,9 @@ void SetGrandChampionToEvadeMode(Creature* me)
 * Script Complete: 100%                                     *
 */
 
-struct toc_bossAI : BossAI
+struct boss_grand_championAI : BossAI
 {
-    toc_bossAI(Creature* creature) : BossAI(creature, BOSS_GRAND_CHAMPIONS)
+    boss_grand_championAI(Creature* creature) : BossAI(creature, DATA_GRAND_CHAMPIONS)
     {
         LookingForMount = false;
         MountedPhaseDone = false;
@@ -254,7 +257,7 @@ struct toc_bossAI : BossAI
     bool bDone; // if all champions have been downed
     bool bHome; // if champion has reached home after jousing phase
 
-    void Reset()
+    void Reset() override
     {
         if (MountedPhaseDone)
             DoCastPennant(me);
@@ -320,7 +323,7 @@ struct toc_bossAI : BossAI
         return !UpdateVictim() || me->GetVehicleBase() || LookingForMount || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) || !MountedPhaseDone;
     }
 
-    void EnterEvadeMode()
+    void EnterEvadeMode() override
     {
         if (LookingForMount || !MountedPhaseDone)
             return;
@@ -335,7 +338,7 @@ struct toc_bossAI : BossAI
                 {
                     pGrandChampion->RemoveAllAuras();
                     pGrandChampion->DeleteThreatList();
-                    pGrandChampion->SetLootRecipient(NULL);
+                    pGrandChampion->SetLootRecipient(nullptr);
                     pGrandChampion->setRegeneratingHealth(true);
                     pGrandChampion->GetMotionMaster()->MoveTargetedHome();
                     pGrandChampion->AI()->Reset();
@@ -345,7 +348,7 @@ struct toc_bossAI : BossAI
         BossAI::EnterEvadeMode();
     }
 
-    void JustReachedHome()
+    void JustReachedHome() override
     {
         if (bHome)
         {
@@ -361,7 +364,7 @@ struct toc_bossAI : BossAI
         _JustReachedHome();
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_TRAMPLE_AURA && LookingForMount && uiPhase == 0 && !me->IsImmunedToSpell(spell))
         {
@@ -373,7 +376,7 @@ struct toc_bossAI : BossAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
@@ -424,7 +427,7 @@ struct toc_bossAI : BossAI
             me->DisappearAndDie();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (damage >= me->GetHealth() && me->GetVehicleBase())
         {
@@ -451,43 +454,36 @@ struct toc_bossAI : BossAI
                 mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 
                 uint32 newMountEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
-                Creature* newMount = NULL;
+                Creature* newMount = nullptr;
                 float dist = 0.0f;
                 std::list<Creature*> tempList;
-                float x, y;
-                me->GetPosition(x, y);
-
-                CellCoord pair(Trinity::ComputeCellCoord(x, y));
-                Cell cell(pair);
-                cell.SetNoCreate();
 
                 Trinity::AllCreaturesOfEntryInRange check(me, newMountEntry, 100);
                 Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, tempList, check);
-                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-                cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
+                me->VisitNearbyGridObject(me->GetGridActivationRange(), searcher);
+
                 for (std::list<Creature*>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
                 {
-                    if (Creature* tmpMount = (*itr))
+                    Creature* tmpMount = *itr;
+
+                    if (instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1) == tmpMount->GetGUID() ||
+                        instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2) == tmpMount->GetGUID() ||
+                        instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3) == tmpMount->GetGUID())
+                        continue;
+
+                    if (!tmpMount->IsAlive())
+                        continue;
+
+                    if (dist == 0)
                     {
-                        if (instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1) == tmpMount->GetGUID() ||
-                            instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2) == tmpMount->GetGUID() ||
-                            instance->GetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3) == tmpMount->GetGUID())
-                            continue;
+                        dist = me->GetDistance(tmpMount);
+                        newMount = tmpMount;
+                    }
 
-                        if (!tmpMount->IsAlive())
-                            continue;
-
-                        if (dist == 0)
-                        {
-                            dist = me->GetDistance(tmpMount);
-                            newMount = tmpMount;
-                        }
-
-                        if (me->GetDistance(tmpMount) < dist)
-                        {
-                            dist = me->GetDistance(tmpMount);
-                            newMount = tmpMount;
-                        }
+                    if (me->GetDistance(tmpMount) < dist)
+                    {
+                        dist = me->GetDistance(tmpMount);
+                        newMount = tmpMount;
                     }
                 }
                 if (newMount)
@@ -507,7 +503,7 @@ struct toc_bossAI : BossAI
                 }
 
                 // Defeated mount runs towards the center of arena and disappears
-                if (Creature* announcer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
                 {
                     mount->GetMotionMaster()->Clear();
                     mount->GetMotionMaster()->MovePoint(1, announcer->GetHomePosition());
@@ -548,7 +544,7 @@ struct toc_bossAI : BossAI
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* who) override
     {
         //if (MountedPhaseDone)
         //{
@@ -563,7 +559,7 @@ struct toc_bossAI : BossAI
         //}
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* who) override
     {
         if (LookingForMount || uiPhase != 0)
             return;
@@ -572,9 +568,9 @@ struct toc_bossAI : BossAI
         BossAI::AttackStart(who);
     }
 
-    void UpdateAI(uint32 uiDiff)
+    void UpdateAI(uint32 diff) override
     {
-        events.Update(uiDiff);
+        events.Update(diff);
 
         while (uint32 eventId = events.ExecuteEvent())
         {
@@ -836,7 +832,7 @@ public:
             // and Lesser Champions begin to correct their positions
             if ((uiWaypointPath == WAYPOINT_MAP_BOSS_1 && waypointId == 3) || ((uiWaypointPath == WAYPOINT_MAP_BOSS_2 || uiWaypointPath == WAYPOINT_MAP_BOSS_3) && waypointId == 2))
             {
-                if (Creature* herald = ObjectAccessor::GetCreature(*me, (instance->GetGuidData(DATA_ANNOUNCER))))
+                if (Creature* herald = instance->GetCreature(DATA_ANNOUNCER))
                 {
                     if (TeamInInstance == ALLIANCE)
                         me->SetFacingTo(hordeOrientation);
@@ -853,15 +849,15 @@ public:
                 me->SetWalk(true);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiPointId)
+        void MovementInform(uint32 type, uint32 pointId) override
         {
-            npc_escortAI::MovementInform(uiType, uiPointId);
+            npc_escortAI::MovementInform(type, pointId);
 
-            if (uiType != POINT_MOTION_TYPE)
+            if (type != POINT_MOTION_TYPE)
                 return;
 
             // Lesser Champions correct their orientation
-            if (uiPointId == 1 && uiWaypointPath == WAYPOINT_MAP_ADDS)
+            if (pointId == 1 && uiWaypointPath == WAYPOINT_MAP_ADDS)
             {
                 uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
                 if (TeamInInstance == ALLIANCE)
@@ -873,16 +869,16 @@ public:
             }
 
             // Grand Champions' old mount will despawn when it has run to the center of arena
-            if (uiPointId == 1 && me->GetVehicleKit() && !me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
+            if (pointId == 1 && me->GetVehicleKit() && !me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                 me->DisappearAndDie();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (IsLesserChampion())
             {
                 me->Dismount();
-                if (Creature* herald = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
+                if (Creature* herald = instance->GetCreature(DATA_ANNOUNCER))
                     herald->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED, 0);
             }
         }
@@ -899,7 +895,7 @@ public:
                   DoCast(me, SPELL_SHIELD_LESSER_CHAMP, true);
         }
 
-        void AttackStart(Unit* target)
+        void AttackStart(Unit* target) override
         {
             if (IsGrandChampionVehicle())
             {
@@ -1087,27 +1083,27 @@ public:
     boss_warrior_toc5() : CreatureScript("boss_warrior_toc5") { }
 
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
-    struct boss_warrior_toc5AI : public toc_bossAI
+    struct boss_warrior_toc5AI : public boss_grand_championAI
     {
-        boss_warrior_toc5AI(Creature* creature) : toc_bossAI(creature) { }
+        boss_warrior_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
         void Reset() override
         {
-            toc_bossAI::Reset();
+            boss_grand_championAI::Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_BLADESTORM, urand(15000, 20000));
             events.ScheduleEvent(EVENT_INTERCEPT, 7000);
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(8000, 12000));
             events.ScheduleEvent(EVENT_ROLLING_THROW, 30000);
-            toc_bossAI::EnterCombat(who);
+            boss_grand_championAI::EnterCombat(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            toc_bossAI::UpdateAI(uiDiff);
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1192,33 +1188,33 @@ public:
     boss_mage_toc5() : CreatureScript("boss_mage_toc5") { }
 
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
-    struct boss_mage_toc5AI : public toc_bossAI
+    struct boss_mage_toc5AI : public boss_grand_championAI
     {
-        boss_mage_toc5AI(Creature* creature) : toc_bossAI(creature) { }
+        boss_mage_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
         void Reset() override
         {
-            toc_bossAI::Reset();
+            boss_grand_championAI::Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_FIREBALL, 2000);
             events.ScheduleEvent(EVENT_POLYMORPH, 8000);
             events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
             events.ScheduleEvent(EVENT_HASTE, 22000);
-            toc_bossAI::EnterCombat(who);
+            boss_grand_championAI::EnterCombat(who);
         }
 
         void AttackStart(Unit* who) override
         {
             me->GetMotionMaster()->MoveChase(who, 20.0f);
-            toc_bossAI::AttackStart(who);
+            boss_grand_championAI::AttackStart(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            toc_bossAI::UpdateAI(uiDiff);
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1288,9 +1284,9 @@ public:
     boss_shaman_toc5() : CreatureScript("boss_shaman_toc5") { }
 
     // Colosos && Runok Wildmane || Shaman
-    struct boss_shaman_toc5AI : public toc_bossAI
+    struct boss_shaman_toc5AI : public boss_grand_championAI
     {
-        boss_shaman_toc5AI(Creature* creature) : toc_bossAI(creature)
+        boss_shaman_toc5AI(Creature* creature) : boss_grand_championAI(creature)
         {
             Initialize();
         }
@@ -1308,17 +1304,17 @@ public:
         void Reset() override
         {
             Initialize();
-            toc_bossAI::Reset();
+            boss_grand_championAI::Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_DEF_CHECK, 5000);
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 16000);
             events.ScheduleEvent(EVENT_HEALING_WAVE, 12000);
             events.ScheduleEvent(EVENT_EARTH_SHIELD, 5000);
             events.ScheduleEvent(EVENT_HEX_MENDING, 7000);
-            toc_bossAI::EnterCombat(who);
+            boss_grand_championAI::EnterCombat(who);
         }
 
         void EnterCombatMode(bool interrupt)
@@ -1343,7 +1339,7 @@ public:
             // We look for champion with the lowest percentage health left
             // ignoring champions with full hp or with kneel state (= defeated)
             // and champions who are more than 40 yards away from me (max range of healing spells)
-            Unit* lowChampion = NULL;
+            Unit* lowChampion = nullptr;
             Creature* pGrandChampion1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1));
             Creature* pGrandChampion2 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_2));
             Creature* pGrandChampion3 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_3));
@@ -1380,7 +1376,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            toc_bossAI::UpdateAI(uiDiff);
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1477,32 +1473,32 @@ public:
     boss_hunter_toc5() : CreatureScript("boss_hunter_toc5") { }
 
     // Jaelyne Evensong && Zul'tore || Hunter
-    struct boss_hunter_toc5AI : public toc_bossAI
+    struct boss_hunter_toc5AI : public boss_grand_championAI
     {
-        boss_hunter_toc5AI(Creature* creature) : toc_bossAI(creature) { }
+        boss_hunter_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
         void Reset() override
         {
-            toc_bossAI::Reset();
+            boss_grand_championAI::Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_MULTI_SHOT, 7500);
             events.ScheduleEvent(EVENT_LIGHTNING_ARROWS, 15000);
             events.ScheduleEvent(EVENT_DISENGAGE, urand(25000, 35000));
-            toc_bossAI::EnterCombat(who);
+            boss_grand_championAI::EnterCombat(who);
         }
 
         void AttackStart(Unit* who) override
         {
             me->GetMotionMaster()->MoveChase(who, 25.0f);
-            toc_bossAI::AttackStart(who);
+            boss_grand_championAI::AttackStart(who);
         }
 
         void UpdateAI(uint32 uiDiff) override
         {
-            toc_bossAI::UpdateAI(uiDiff);
+            boss_grand_championAI::UpdateAI(uiDiff);
 
             if (CanUseNormalAI())
             {
@@ -1566,27 +1562,27 @@ public:
     boss_rogue_toc5() : CreatureScript("boss_rouge_toc5") { }
 
     // Lana Stouthammer Evensong && Deathstalker Visceri || Rogue
-    struct boss_rogue_toc5AI : public toc_bossAI
+    struct boss_rogue_toc5AI : public boss_grand_championAI
     {
-        boss_rogue_toc5AI(Creature* creature) : toc_bossAI(creature) { }
+        boss_rogue_toc5AI(Creature* creature) : boss_grand_championAI(creature) { }
 
         void Reset() override
         {
-            toc_bossAI::Reset();
+            boss_grand_championAI::Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             events.ScheduleEvent(EVENT_DEADLY_POISON, 500);
             events.ScheduleEvent(EVENT_EVISCERATE, 8000);
             events.ScheduleEvent(EVENT_FAN_OF_KNIVES, 14000);
             events.ScheduleEvent(EVENT_POISON_BOTTLE, 19000);
-            toc_bossAI::EnterCombat(who);
+            boss_grand_championAI::EnterCombat(who);
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 diff) override
         {
-            toc_bossAI::UpdateAI(uiDiff);
+            boss_grand_championAI::UpdateAI(diff);
 
             if (CanUseNormalAI())
             {

@@ -21,22 +21,35 @@ SDComment: missing fireworks when boss encounter is set to done
 SDCategory: Trial Of the Champion
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "InstanceScript.h"
-#include "trial_of_the_champion.h"
 #include "Player.h"
-#include "Vehicle.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "trial_of_the_champion.h"
+
+ObjectData const creatureData[] =
+{
+    { NPC_ARELAS,       DATA_ANNOUNCER        },
+    { NPC_JAEREN,       DATA_ANNOUNCER        },
+    { NPC_TIRION,       DATA_TIRION           },
+    { NPC_VARIAN,       DATA_VARIAN           },
+    { NPC_JAINA,        DATA_JAINA            },
+    { NPC_GARROSH,      DATA_GARROSH          },
+    { NPC_THRALL,       DATA_THRALL           },
+    { NPC_BLACK_KNIGHT, DATA_THE_BLACK_KNIGHT },
+    { 0,                0                     } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_MAIN_GATE, DATA_MAIN_GATE },
+    { 0,            0              } // END
+};
 
 class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
-    instance_trial_of_the_champion() : InstanceMapScript("instance_trial_of_the_champion", 650) { }
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_trial_of_the_champion_InstanceMapScript(map);
-    }
+    instance_trial_of_the_champion() : InstanceMapScript(ToCScriptName, 650) { }
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
@@ -44,20 +57,19 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            m_playersTeam = 0;
+            LoadObjectData(creatureData, gameObjectData);
+            TeamInInstance = 0;
             uiArgentSoldierDeaths = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
-            Map::PlayerList const &players = instance->GetPlayers();
-            if (!players.isEmpty())
+            if (!TeamInInstance)
             {
-                if (Player* player = players.begin()->GetSource())
-                {
-                    if (GetData(DATA_PLAYERS_TEAM) == 0)
-                        SetData(DATA_PLAYERS_TEAM, player->GetTeam());
-                }
+                Map::PlayerList const& players = instance->GetPlayers();
+                if (!players.isEmpty())
+                    if (Player* player = players.begin()->GetSource())
+                        TeamInInstance = player->GetTeam();
             }
 
             switch (creature->GetEntry())
@@ -76,7 +88,6 @@ public:
                     break;
                 // Coliseum Announcer || Just NPC_JAEREN must be spawned.
                 case NPC_JAEREN:
-                    uiAnnouncerGUID = creature->GetGUID();
                     if (GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
                         creature->UpdateEntry(NPC_ARELAS);
                     break;
@@ -96,24 +107,6 @@ public:
                     break;
                 case VEHICLE_BLACK_KNIGHT:
                     uiBlackKnightVehicleGUID = creature->GetGUID();
-                    break;
-                case NPC_BLACK_KNIGHT:
-                    uiBlackKnightGUID = creature->GetGUID();
-                    break;
-                case NPC_TIRION:
-                    uiTirionGUID = creature->GetGUID();
-                    break;
-                case NPC_VARIAN:
-                    uiVarianGUID = creature->GetGUID();
-                    break;
-                case NPC_JAINA:
-                    uiJainaGUID = creature->GetGUID();
-                    break;
-                case NPC_GARROSH:
-                    uiGarroshGUID = creature->GetGUID();
-                    break;
-                case NPC_THRALL:
-                    uiThrallGUID = creature->GetGUID();
                     break;
                 // Setting passive and unattackable flags to Lesser Champions and Grand Champions' vehicles
                 case VEHICLE_DARNASSUS_CHAMPION:
@@ -142,15 +135,14 @@ public:
                 default:
                     break;
             }
+
+            InstanceScript::OnCreatureCreate(creature);
         }
 
         void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
-                case GO_MAIN_GATE:
-                    uiMainGateGUID = go->GetGUID();
-                    break;
                 case GO_CHAMPIONS_LOOT:
                 case GO_CHAMPIONS_LOOT_H:
                     uiGrandChampionLootGUID = go->GetGUID();
@@ -164,6 +156,8 @@ public:
                     uiPaletressLootGUID = go->GetGUID();
                     break;
             }
+
+            InstanceScript::OnGameObjectCreate(go);
         }
 
         void SetGrandChampionData(Creature* cr)
@@ -180,29 +174,24 @@ public:
         {
             switch (uiType)
             {
-                case DATA_PLAYERS_TEAM:
-                    m_playersTeam = uiData;
-                    break;
                 case DATA_REMOVE_VEHICLES:
-                    for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                {
+                    for (ObjectGuid const& guid : VehicleList)
+                        if (Creature* summon = instance->GetCreature(guid))
+                            summon->DespawnOrUnsummon();
+
+                    // We must remove defense spells from players
+                    Map::PlayerList const &players = instance->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        if (Creature* summon = instance->GetCreature(*itr))
-                            summon->RemoveFromWorld();
-                        // We must remove defense spells from players
-                        Map::PlayerList const &players = instance->GetPlayers();
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        {
-                            Player *plr = itr->GetSource();
-                            if (plr && plr->IsAlive() && !plr->IsGameMaster())
-                            {
-                                plr->RemoveAura(62552); // Actual defense spell
-                                plr->RemoveAura(63130); // Shield Level 1 (visual only)
-                                plr->RemoveAura(63131); // Shield Level 2 (visual only)
-                                plr->RemoveAura(63132); // Shield Level 3 (visual only)
-                            }
-                        }
+                        Player* plr = itr->GetSource();
+                        plr->RemoveAura(62552); // Actual defense spell
+                        plr->RemoveAura(63130); // Shield Level 1 (visual only)
+                        plr->RemoveAura(63131); // Shield Level 2 (visual only)
+                        plr->RemoveAura(63132); // Shield Level 3 (visual only)
                     }
                     break;
+                }
                 case DATA_ARGENT_SOLDIER_DEFEATED:
                     uiArgentSoldierDeaths = uiData;
                     if (uiArgentSoldierDeaths == 9)
@@ -227,10 +216,10 @@ public:
 
             switch (type)
             {
-                case BOSS_GRAND_CHAMPIONS:
-                    if (state == DONE && GetBossState(BOSS_GRAND_CHAMPIONS) != DONE)
+                case DATA_GRAND_CHAMPIONS:
+                    if (state == DONE)
                     {
-                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        if (Creature* pAnnouncer = GetCreature(DATA_ANNOUNCER))
                         {
                             // On heroic mode we must bind players to the instance
                             if (instance->IsHeroic())
@@ -255,8 +244,8 @@ public:
                         }
                     }
                     break;
-                case BOSS_ARGENT_CHALLENGE_P:
-                case BOSS_ARGENT_CHALLENGE_E:
+                case DATA_EADRIC_THE_PURE:
+                case DATA_ARGENT_CONFESSOR_PALETRESS:
                     if (state == SPECIAL)
                     {
                         if (Creature* pChampion = instance->GetCreature(uiArgentChampionGUID))
@@ -274,7 +263,7 @@ public:
                     }
                     else if (state == DONE)
                     {
-                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        if (Creature* pAnnouncer = GetCreature(DATA_ANNOUNCER))
                         {
                             // On heroic mode we must bind players to the instance
                             if (instance->IsHeroic())
@@ -292,7 +281,7 @@ public:
                                 }
                             }
                             pAnnouncer->GetMotionMaster()->MovePoint(1, announcerWaitPos);
-                            if (type == BOSS_ARGENT_CHALLENGE_E)
+                            if (type == DATA_EADRIC_THE_PURE)
                             {
                                 DoRespawnGameObject(uiEadricLootGUID, 1 * DAY);
                                 if (GameObject* cache = instance->GetGameObject(uiEadricLootGUID))
@@ -307,10 +296,10 @@ public:
                         }
                     }
                     break;
-                case BOSS_BLACK_KNIGHT:
+                case DATA_THE_BLACK_KNIGHT:
                     if (state == DONE)
                     {
-                        if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
+                        if (Creature* pAnnouncer = GetCreature(DATA_ANNOUNCER))
                             pAnnouncer->AI()->SetData(DATA_BLACK_KNIGHT_DONE, 0);
                     }
                     break;
@@ -324,7 +313,7 @@ public:
         {
             switch (uiData)
             {
-                case DATA_PLAYERS_TEAM: return m_playersTeam;
+                case DATA_PLAYERS_TEAM: return TeamInInstance;
                 case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
                 default: break;
             }
@@ -335,9 +324,6 @@ public:
         {
             switch (uiData)
             {
-                case DATA_ANNOUNCER: return uiAnnouncerGUID;
-                case DATA_MAIN_GATE: return uiMainGateGUID;
-
                 case DATA_GRAND_CHAMPION_1: return uiGrandChampion1GUID;
                 case DATA_GRAND_CHAMPION_2: return uiGrandChampion2GUID;
                 case DATA_GRAND_CHAMPION_3: return uiGrandChampion3GUID;
@@ -349,13 +335,6 @@ public:
                 case DATA_ARGENT_CHAMPION: return uiArgentChampionGUID;
 
                 case DATA_BLACK_KNIGHT_VEHICLE: return uiBlackKnightVehicleGUID;
-                case DATA_BLACK_KNIGHT: return uiBlackKnightGUID;
-
-                case DATA_TIRION: return uiTirionGUID;
-                case DATA_VARIAN: return uiVarianGUID;
-                case DATA_JAINA: return uiJainaGUID;
-                case DATA_GARROSH: return uiGarroshGUID;
-                case DATA_THRALL: return uiThrallGUID;
 
                 case GO_CHAMPIONS_LOOT: return uiGrandChampionLootGUID;
                 case GO_EADRIC_LOOT: return uiEadricLootGUID;
@@ -380,9 +359,8 @@ public:
                     break;
             }
         }
+
     private:
-        ObjectGuid uiAnnouncerGUID;
-        ObjectGuid uiMainGateGUID;
         ObjectGuid uiGrandChampionVehicle1GUID;
         ObjectGuid uiGrandChampionVehicle2GUID;
         ObjectGuid uiGrandChampionVehicle3GUID;
@@ -394,19 +372,17 @@ public:
         ObjectGuid uiEadricLootGUID;
         ObjectGuid uiPaletressLootGUID;
         ObjectGuid uiBlackKnightVehicleGUID;
-        ObjectGuid uiBlackKnightGUID;
-        ObjectGuid uiTirionGUID;
-        ObjectGuid uiVarianGUID;
-        ObjectGuid uiJainaGUID;
-        ObjectGuid uiGarroshGUID;
-        ObjectGuid uiThrallGUID;
 
         GuidList VehicleList;
 
-        uint32 m_playersTeam;
+        uint32 TeamInInstance;
         uint8 uiArgentSoldierDeaths;
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_trial_of_the_champion_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_trial_of_the_champion()
