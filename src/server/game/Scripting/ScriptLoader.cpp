@@ -93,6 +93,7 @@ void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_achievement_scripts();
 void AddSC_action_ip_logger();
+void AddSC_duel_reset();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -809,6 +810,7 @@ void AddWorldScripts()
     // To avoid duplicate code, we check once /*ONLY*/ if logging is permitted or not.
     if (sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
         AddSC_action_ip_logger(); // location: scripts\World\action_ip_logger.cpp
+    AddSC_duel_reset();
 #endif
 }
 

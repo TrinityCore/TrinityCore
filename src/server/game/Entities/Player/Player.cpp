@@ -7474,15 +7474,6 @@ void Player::DuelComplete(DuelCompleteType type)
     duel->opponent->SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid::Empty);
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 0);
 
-    if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
-    {
-        RemoveArenaSpellCooldowns(true);
-        duel->opponent->RemoveArenaSpellCooldowns(true);
-
-        GetSpellHistory()->RestoreCooldownStateAfterDuel();
-        duel->opponent->GetSpellHistory()->RestoreCooldownStateAfterDuel();
-    }
-
     delete duel->opponent->duel;
     duel->opponent->duel = NULL;
     delete duel;
