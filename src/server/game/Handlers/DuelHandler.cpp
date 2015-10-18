@@ -52,6 +52,28 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
         plTarget->RemoveArenaSpellCooldowns(true);
     }
 
+    //need for save and restore health and mana before and after the a duel
+    if (sWorld->getBoolConfig(CONFIG_RESTORE_HEALTHMANA_AFTER_DUEL))
+    {
+        player->SaveHealthBeforeDuel();
+        player->SetHealth(player->GetMaxHealth());
+
+        plTarget->SaveHealthBeforeDuel();
+        plTarget->SetHealth(plTarget->GetMaxHealth());
+        //check if player class uses mana
+        if (player->getPowerType() == POWER_MANA)
+        {
+            player->SaveManaBeforeDuel();
+            player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+        }
+        //check if player class uses mana
+        if (plTarget->getPowerType() == POWER_MANA)
+        {
+            plTarget->SaveManaBeforeDuel();
+            plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
+        }
+    }
+
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;

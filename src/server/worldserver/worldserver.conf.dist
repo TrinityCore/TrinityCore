@@ -2623,6 +2623,14 @@ HonorPointsAfterDuel = 0
 ResetDuelCooldowns = 0
 
 #
+#    RestoreHealthManaAfterDuel
+#        Description: restore heatlh and mana after duel.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+RestoreHealthManaAfterDuel = 0
+
+#
 #    AlwaysMaxWeaponSkill
 #        Description: Players will automatically gain max weapon/defense skill when logging in,
 #                     or leveling.
