@@ -306,6 +306,15 @@ inline void Battleground::_ProcessOfflineQueue()
         {
             if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
             {
+                if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS) &&
+                    (GetStatus() == STATUS_IN_PROGRESS || GetStatus() == STATUS_WAIT_JOIN))
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                    stmt->setUInt32(0, itr->first.GetCounter());
+                    stmt->setUInt8(1, BG_DESERTION_TYPE_OFFLINE);
+                    CharacterDatabase.Execute(stmt);
+                }
+
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
                 m_OfflineQueue.pop_front();                 // remove from offline queue
                 //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
