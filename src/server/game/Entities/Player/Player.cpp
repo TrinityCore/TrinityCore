@@ -25660,52 +25660,27 @@ void Player::SendRefundInfo(Item* item)
         return;
     }
 
-    ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_SET_ITEM_PURCHASE_DATA, 8 + 4 + 4 + 4 + 4 * 4 + 4 * 4 + 4 + 4);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.FlushBits();
+    WorldPackets::Item::SetItemPurchaseData setItemPurchaseData;
+    setItemPurchaseData.ItemGUID = item->GetGUID();
+    setItemPurchaseData.PurchaseTime = GetTotalPlayedTime() - item->GetPlayedTime();
+    setItemPurchaseData.Contents.Money = item->GetPaidMoney();
 
-    data.WriteByteSeq(guid[7]);
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data
     {
-        data << uint32(iece->RequiredItemCount[i]);
-        data << uint32(iece->RequiredItem[i]);
+        setItemPurchaseData.Contents.Items[i].ItemCount = iece->RequiredItemCount[i];
+        setItemPurchaseData.Contents.Items[i].ItemID = iece->RequiredItem[i];
     }
 
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                        // currency cost data
     {
         if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
-        {
-            data << uint32(0);
-            data << uint32(0);
             continue;
-        }
 
-        CurrencyTypesEntry const* currencyType = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
-        uint32 precision = (currencyType && currencyType->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-
-        data << uint32(iece->RequiredCurrencyCount[i] / precision);
-        data << uint32(iece->RequiredCurrency[i]);
+        setItemPurchaseData.Contents.Currencies[i].CurrencyCount = iece->RequiredCurrencyCount[i];
+        setItemPurchaseData.Contents.Currencies[i].CurrencyID = iece->RequiredCurrency[i];
     }
 
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[5]);
-    data << uint32(0);
-    data.WriteByteSeq(guid[0]);
-    data << uint32(item->GetPaidMoney());               // money cost
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(setItemPurchaseData.Write());
 }
 
 bool Player::AddItem(uint32 itemId, uint32 count)
@@ -25733,57 +25708,30 @@ bool Player::AddItem(uint32 itemId, uint32 count)
 
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
 {
-    ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(!error);
-    data.WriteBit(item->GetPaidMoney() > 0);
-    data.FlushBits();
+    WorldPackets::Item::ItemPurchaseRefundResult itemPurchaseRefundResult;
+    itemPurchaseRefundResult.ItemGUID = item->GetGUID();
+    itemPurchaseRefundResult.Result = error;
     if (!error)
     {
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        itemPurchaseRefundResult.Contents = boost::in_place();
+        itemPurchaseRefundResult.Contents->Money = item->GetPaidMoney();
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data
         {
-            if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
-            {
-                data << uint32(0);
-                data << uint32(0);
-                continue;
-            }
-
-            CurrencyTypesEntry const* currencyType = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
-            uint32 precision = (currencyType && currencyType->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-
-            data << uint32(iece->RequiredCurrencyCount[i] / precision);
-            data << uint32(iece->RequiredCurrency[i]);
+            itemPurchaseRefundResult.Contents->Items[i].ItemCount = iece->RequiredItemCount[i];
+            itemPurchaseRefundResult.Contents->Items[i].ItemID = iece->RequiredItem[i];
         }
 
-        data << uint32(item->GetPaidMoney());               // money cost
-
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i) // item cost data
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                        // currency cost data
         {
-            data << uint32(iece->RequiredItemCount[i]);
-            data << uint32(iece->RequiredItem[i]);
+            if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
+                continue;
+
+            itemPurchaseRefundResult.Contents->Currencies[i].CurrencyCount = iece->RequiredCurrencyCount[i];
+            itemPurchaseRefundResult.Contents->Currencies[i].CurrencyID = iece->RequiredCurrency[i];
         }
     }
 
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[5]);
-
-    data << uint8(error);                              // error code
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(itemPurchaseRefundResult.Write());
 }
 
 void Player::RefundItem(Item* item)

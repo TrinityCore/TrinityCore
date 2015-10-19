@@ -115,6 +115,60 @@ namespace WorldPackets
             ObjectGuid ItemGUID;
         };
 
+        struct ItemPurchaseRefundItem
+        {
+            int32 ItemID = 0;
+            int32 ItemCount = 0;
+        };
+
+        struct ItemPurchaseRefundCurrency
+        {
+            int32 CurrencyID = 0;
+            int32 CurrencyCount = 0;
+        };
+
+        struct ItemPurchaseContents
+        {
+            uint32 Money = 0;
+            ItemPurchaseRefundItem Items[5] = { };
+            ItemPurchaseRefundCurrency Currencies[5] = { };
+        };
+
+        class SetItemPurchaseData final : public ServerPacket
+        {
+        public:
+            SetItemPurchaseData() : ServerPacket(SMSG_SET_ITEM_PURCHASE_DATA, 4 + 4 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 PurchaseTime = 0;
+            uint32 Flags = 0;
+            ItemPurchaseContents Contents;
+            ObjectGuid ItemGUID;
+        };
+
+        class ItemPurchaseRefundResult final : public ServerPacket
+        {
+        public:
+            ItemPurchaseRefundResult() : ServerPacket(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+            ObjectGuid ItemGUID;
+            Optional<ItemPurchaseContents> Contents;
+        };
+
+        class ItemExpirePurchaseRefund final : public ServerPacket
+        {
+        public:
+            ItemExpirePurchaseRefund() : ServerPacket(SMSG_ITEM_EXPIRE_PURCHASE_REFUND, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGUID;
+        };
+
         class RepairItem final : public ClientPacket
         {
         public:
