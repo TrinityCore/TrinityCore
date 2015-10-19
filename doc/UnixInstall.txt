@@ -14,23 +14,8 @@ using Windows refer to http://www.trinitycore.info/How-to:Win
 Installing TrinityCore is fairly simple on a Linux machine, assuming you 
 have all required applications
 
-The most important ones are:
+http://collab.kpsn.org/display/tc/Requirements
 
-    g++
-    gcc version 4.3.x or greater
-    make
-    cmake version 2.6.x or greater
-    libmysql++-dev
-    git (for checking out the core and database)
-    openssl
-    libssl-dev
-    zlib1g-dev
-    libtool
-    libmysqlclient15-dev
-    patch
-    build-essential
-    mysql-client
-    
 Most of these are included on common Linux distros, others you may have 
 to install by your self. Please check your distro's repos.
 
