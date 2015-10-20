@@ -1470,11 +1470,11 @@ class Player : public Unit, public GridObject<Player>
         /// send conquest currency points and their cap week/arena
         void SendPvpRewards() const;
         /// return count of currency witch has plr
-        uint32 GetCurrency(uint32 id, bool usePrecision) const;
+        uint32 GetCurrency(uint32 id) const;
         /// return count of currency gaind on current week
-        uint32 GetCurrencyOnWeek(uint32 id, bool usePrecision) const;
+        uint32 GetCurrencyOnWeek(uint32 id) const;
         /// return week cap by currency id
-        uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
+        uint32 GetCurrencyWeekCap(uint32 id) const;
         /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
         /// initialize currency count for custom initialization at create character

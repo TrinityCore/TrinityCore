@@ -6788,7 +6788,7 @@ void Player::SendNewCurrency(uint32 id) const
     record.Type = entry->ID;
     record.Quantity = itr->second.Quantity;
     record.WeeklyQuantity = itr->second.WeeklyQuantity;
-    record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1);
+    record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry);
     record.TrackedQuantity = itr->second.TrackedQuantity;
     record.Flags = itr->second.Flags;
 
@@ -6814,7 +6814,7 @@ void Player::SendCurrencies() const
         record.Type = entry->ID;
         record.Quantity = itr->second.Quantity;
         record.WeeklyQuantity = itr->second.WeeklyQuantity;
-        record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / ((entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1);
+        record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry);
         record.TrackedQuantity = itr->second.TrackedQuantity;
         record.Flags = itr->second.Flags;
 
@@ -6827,38 +6827,32 @@ void Player::SendCurrencies() const
 void Player::SendPvpRewards() const
 {
     WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
 
     GetSession()->SendPacket(&packet);
 }
 
-uint32 Player::GetCurrency(uint32 id, bool usePrecision) const
+uint32 Player::GetCurrency(uint32 id) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
         return 0;
 
-    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    uint32 precision = (usePrecision && currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-
-    return itr->second.Quantity / precision;
+    return itr->second.Quantity;
 }
 
-uint32 Player::GetCurrencyOnWeek(uint32 id, bool usePrecision) const
+uint32 Player::GetCurrencyOnWeek(uint32 id) const
 {
     PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
         return 0;
 
-    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    uint32 precision = (usePrecision && currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-
-    return itr->second.WeeklyQuantity / precision;
+    return itr->second.WeeklyQuantity;
 }
 
 bool Player::HasCurrency(uint32 id, uint32 count) const
@@ -6984,15 +6978,13 @@ void Player::SetCurrency(uint32 id, uint32 count, bool /*printLog*/ /*= true*/)
     }
 }
 
-uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
+uint32 Player::GetCurrencyWeekCap(uint32 id) const
 {
     CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
     if (!entry)
         return 0;
 
-    uint32 precision = (usePrecision && entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-
-    return GetCurrencyWeekCap(entry) / precision;
+    return GetCurrencyWeekCap(entry);
 }
 
 void Player::ResetCurrencyWeekCap()
@@ -7025,7 +7017,7 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
     {
             //original conquest not have week cap
         case CURRENCY_TYPE_CONQUEST_POINTS:
-            return std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, false));
+            return std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG));
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
             // should add precision mod = 100
             return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
@@ -7080,11 +7072,8 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
         if (!currencyEntry)
             continue;
 
-        uint32 precision = (currencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
-        uint32 cap = GetCurrencyWeekCap(currencyEntry);
-
         WorldPacket packet(SMSG_SET_MAX_WEEKLY_QUANTITY, 8);
-        packet << uint32(cap / precision);
+        packet << uint32(GetCurrencyWeekCap(currencyEntry));
         packet << uint32(currenciesToUpdate[i]);
         GetSession()->SendPacket(&packet);
     }
