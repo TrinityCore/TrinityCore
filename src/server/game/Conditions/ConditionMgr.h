@@ -136,7 +136,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25, // only 6.x
     CONDITION_SOURCE_TYPE_PHASE                          = 26, // only 6.x
-    CONDITION_SOURCE_TYPE_MAX                            = 27  // MAX
+    CONDITION_SOURCE_TYPE_CREATURE                       = 27,
+    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
 };
 
 enum RelationType

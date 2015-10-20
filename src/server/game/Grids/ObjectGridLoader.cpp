@@ -115,19 +115,56 @@ void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* ma
 template <class T>
 void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
 {
+    // Sadly, we need this hack for conditions check
+    Creature* tempObj = new Creature();
+    tempObj->SetMap(map);
+
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
         T* obj = new T;
-        ObjectGuid::LowType guid = *i_guid;
-        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map))
-        {
-            delete obj;
-            continue;
-        }
 
-        AddObjectHelper(cell, m, count, map, obj);
+        // Don't spawn at all if there's a respawn time
+        if ((obj->GetTypeId() == TYPEID_UNIT && !map->GetCreatureRespawnTime(*i_guid)) || (obj->GetTypeId() == TYPEID_GAMEOBJECT && !map->GetGORespawnTime(*i_guid)))
+        {
+            ObjectGuid::LowType guid = *i_guid;
+            //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
+
+            if (obj->GetTypeId() == TYPEID_UNIT)
+            {
+                // If creature in manual spawn group, don't spawn here, unless group is already active.
+                const CreatureData* cdata = sObjectMgr->GetCreatureData(guid);
+                if (cdata && cdata->groupdata && (cdata->groupdata->flags & CREATUREGROUP_FLAG_MANUAL_SPAWN) && !cdata->groupdata->isActive)
+                    continue;
+
+                // Check creature spawn condition, queue later respawn and don't spawn if not set
+                if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE, guid, tempObj))
+                {
+                    uint32 zoneAreaGridId = map->GetZoneAreaGridId(Map::OBJECT_TYPE_CREATURE, cdata->posX, cdata->posY, cdata->posZ);
+                    uint32 gridId = Trinity::ComputeGridCoord(cdata->posX, cdata->posY).GetId();
+                    map->SaveCreatureRespawnTime(guid, cdata->id, time(NULL) + (4 * MINUTE + urand(0, 2 * MINUTE)), zoneAreaGridId, gridId, false, true);
+                    continue;
+                }
+            }
+            else if (obj->GetTypeId() == TYPEID_GAMEOBJECT)
+            {
+                // If gameobject in manual spawn group, don't spawn here, unless group is already active.
+                const GameObjectData* godata = sObjectMgr->GetGOData(guid);
+                if (godata && godata->groupdata && (godata->groupdata->flags & GAMEOBJECTGROUP_FLAG_MANUAL_SPAWN) && !godata->groupdata->isActive)
+                    continue;
+            }
+
+            if (!obj->LoadFromDB(guid, map))
+            {
+                delete obj;
+                continue;
+            }
+            AddObjectHelper(cell, m, count, map, obj);
+        }
+        else
+            delete obj;
     }
+
+    delete tempObj;
 }
 
 void ObjectGridLoader::Visit(GameObjectMapType &m)

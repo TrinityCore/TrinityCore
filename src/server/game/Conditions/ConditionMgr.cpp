@@ -58,6 +58,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Spell Proc",
     "Terrain Swap",
     "Phase"
+    "Creature spawn"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -1710,6 +1711,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_PHASE: is only for 6.x branch, skipped");
             return false;
         }
+        case CONDITION_SOURCE_TYPE_CREATURE:
+            if (!sObjectMgr->GetCreatureData(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature`, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
