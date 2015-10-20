@@ -53,12 +53,12 @@ void CollectionMgr::LoadAccountToys(PreparedQueryResult result)
 void CollectionMgr::SaveAccountToys(SQLTransaction& trans)
 {
     PreparedStatement* stmt = nullptr;
-    for (ToyBoxContainer::const_iterator itr = _toys.begin(); itr != _toys.end(); ++itr)
+    for (auto const& toy : _toys)
     {
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_TOYS);
         stmt->setUInt32(0, _owner->GetBattlenetAccountId());
-        stmt->setUInt32(1, itr->first);
-        stmt->setBool(2, itr->second);
+        stmt->setUInt32(1, toy.first);
+        stmt->setBool(2, toy.second);
         trans->Append(stmt);
     }
 }
