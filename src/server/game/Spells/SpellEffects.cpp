@@ -4114,11 +4114,14 @@ void Spell::EffectEnchantHeldItem(SpellEffIndex /*effIndex*/)
     if (effectInfo->MiscValue)
     {
         uint32 enchant_id = effectInfo->MiscValue;
-        int32 duration = m_spellInfo->GetDuration();          //Try duration index first ..
+        int32 duration = m_spellInfo->GetDuration(); //Try duration index first ..
         if (!duration)
-            duration = damage;//+1;            //Base points after ..
+            duration = damage;//+1;                  //Base points after ..
         if (!duration)
-            duration = 10;                                  //10 seconds for enchants which don't have listed duration
+            duration = 10 * IN_MILLISECONDS;         //10 seconds for enchants which don't have listed duration
+
+        if (m_spellInfo->Id == 14792) // Venomhide Poison
+            duration = 5 * MINUTE * IN_MILLISECONDS;
 
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
@@ -4132,7 +4135,7 @@ void Spell::EffectEnchantHeldItem(SpellEffIndex /*effIndex*/)
             return;
 
         // Apply the temporary enchantment
-        item->SetEnchantment(slot, enchant_id, duration*IN_MILLISECONDS, 0, m_caster->GetGUID());
+        item->SetEnchantment(slot, enchant_id, duration, 0, m_caster->GetGUID());
         item_owner->ApplyEnchantment(item, slot, true);
     }
 }
