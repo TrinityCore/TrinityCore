@@ -15460,8 +15460,10 @@ void Unit::SendTeleportPacket(Position& pos)
     {
         WorldPackets::Movement::MoveTeleport moveTeleport;
         moveTeleport.MoverGUID = GetGUID();
-        moveTeleport.TransportGUID = GetTransGUID();
         moveTeleport.Pos.Relocate(pos);
+        if (TransportBase* transportBase = GetDirectTransport())
+            transportBase->CalculatePassengerOffset(moveTeleport.Pos.m_positionX, moveTeleport.Pos.m_positionY, moveTeleport.Pos.m_positionZ);
+        moveTeleport.TransportGUID = GetTransGUID();
         moveTeleport.Facing = GetOrientation();
         moveTeleport.SequenceIndex = m_movementCounter++;
         ToPlayer()->SendDirectMessage(moveTeleport.Write());
