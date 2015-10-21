@@ -128,9 +128,13 @@ INSERT INTO rbac_linked_permissions VALUES
 (100001,605), # Command: quest remove
 (100001,606), # Command: quest reward
 (100001,593), # Command: npcinfo
-(100001,578), # COmmand: npc follow
+(100001,578), # Command: npc follow
 (100001,579), # Command: npc follow stop
-(100001,777); # mailbox
+(100001,777), # mailbox
+(100001,284), # Command: character rename
+(100001,274), # Command: character customize
+(100001,275); # Command: character changefaction
+
 
 # TIER 2: Protector - Moderator
 INSERT INTO rbac_linked_permissions VALUES
@@ -147,9 +151,9 @@ INSERT INTO rbac_linked_permissions VALUES
 (100002,241),    # Command: ban character
 (100002,240),    # Command: ban account
 (100002,239),    # Command: ban
-(100002,542),    # morph
-(100002,532),    # unmute
-(100002,515),    # mute
+(100002,542),    # Command: morph
+(100002,532),    # Command: unmute
+(100002,515);    # Command: mute
 
 
 
