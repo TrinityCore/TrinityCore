@@ -7,7 +7,7 @@
 # 193: GameMaster 2
 # 192: Administrator 3
 #
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29, 532, 515);
+DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29,532,515,597,598,599,600);
 
 # QUERY TO CHECK IF THEY DIDN'T CHANGE PERMISSIONS:
 # SELECT * FROM rbac_linked_permissions WHERE id IN ( 25,26,27,28,29,51 );
@@ -141,7 +141,6 @@ INSERT INTO rbac_linked_permissions VALUES
 INSERT INTO rbac_linked_permissions VALUES
 (100002,100001), # inherit from parent TIER
 (100002,554),    # Command: modify money ( dangerous )
-(100002,515),    # Command: mute
 (100002,256),    # Command: unban playeraccount
 (100002,255),    # Command: unban ip
 (100002,254),    # Command: unban character
