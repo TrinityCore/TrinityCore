@@ -7,7 +7,7 @@
 # 193: GameMaster 2
 # 192: Administrator 3
 #
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29, 532, 515, 600, 599, 598, 597);
+DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29, 532, 515);
 
 # QUERY TO CHECK IF THEY DIDN'T CHANGE PERMISSIONS:
 # SELECT * FROM rbac_linked_permissions WHERE id IN ( 25,26,27,28,29,51 );
@@ -25,9 +25,14 @@ REPLACE INTO rbac_linked_permissions VALUES
 (195,29),
 #Allow trading between factions
 (195,51),
-#Adding mute and unmute commands
-(192, 532), # mute
-(192, 515); # unmute
+#Adding mute and unmute commands to Administrator(192)
+(192, 532), # unmute
+(192, 515), # mute
+# Adding some .npc * commands to GameMaster(193)
+(193, 597), # npc say
+(193, 598), # npc texemote
+(193, 599), # npc whisper
+(193, 600); # npc yell
 
 #
 # ADD CUSTOM PERMISSIONS
@@ -142,7 +147,10 @@ INSERT INTO rbac_linked_permissions VALUES
 (100002,241),    # Command: ban character
 (100002,240),    # Command: ban account
 (100002,239),    # Command: ban
-(100002,542);    # morph
+(100002,542),    # morph
+(100002,532),    # unmute
+(100002,515),    # mute
+
 
 
 # TIER 3
@@ -153,7 +161,11 @@ INSERT INTO rbac_linked_permissions VALUES
 # Special: Story Master
 INSERT INTO rbac_linked_permissions VALUES 
 (100010,100002), # inherit from TIER 2
-(100010,596); # Command: npc playemote
+(100010,596), # Command: npc playemote
+(100010,597), # Command: npc say
+(100010,598), # Command: npc textemote
+(100010,599), # Command: npc whisper
+(100010,600); # Command: npc yell
 
 
 # Special: test realm player
