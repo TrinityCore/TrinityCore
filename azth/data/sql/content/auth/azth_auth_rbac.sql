@@ -118,8 +118,6 @@ INSERT INTO rbac_linked_permissions VALUES
 (100001,710), # reset
 (100001,488), # additem
 (100001,489), # additemset
-(100001,275), # Command: character changefaction
-(100001,284), # Command: character rename
 (100001,287), # Command: levelup
 (100001,231), # Command: achievement add
 (100001,602), # Command: quest
