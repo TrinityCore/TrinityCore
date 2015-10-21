@@ -7,12 +7,7 @@
 # 193: GameMaster 2
 # 192: Administrator 3
 #
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId = 25;
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId = 26;
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId = 27;
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId = 28;
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId = 29;
-
+DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29, 532, 515, 600, 599, 598, 597);
 
 # QUERY TO CHECK IF THEY DIDN'T CHANGE PERMISSIONS:
 # SELECT * FROM rbac_linked_permissions WHERE id IN ( 25,26,27,28,29,51 );
@@ -29,7 +24,10 @@ REPLACE INTO rbac_linked_permissions VALUES
 #Add friends of other faction
 (195,29),
 #Allow trading between factions
-(195,51);
+(195,51),
+#Adding mute and unmute commands
+(192, 532), # mute
+(192, 515); # unmute
 
 #
 # ADD CUSTOM PERMISSIONS
@@ -127,7 +125,6 @@ INSERT INTO rbac_linked_permissions VALUES
 (100001,593), # Command: npcinfo
 (100001,578), # COmmand: npc follow
 (100001,579), # Command: npc follow stop
-(100001,596), # Command: npc playemote
 (100001,777); # mailbox
 
 # TIER 2: Protector - Moderator
@@ -155,7 +152,8 @@ INSERT INTO rbac_linked_permissions VALUES
 
 # Special: Story Master
 INSERT INTO rbac_linked_permissions VALUES 
-(100010,100002); # inherit from TIER 2
+(100010,100002), # inherit from TIER 2
+(100010,596); # Command: npc playemote
 
 
 # Special: test realm player
