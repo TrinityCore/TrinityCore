@@ -28,37 +28,33 @@ class battlenet_account_commandscript : public CommandScript
 public:
     battlenet_account_commandscript() : CommandScript("battlenet_account_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand accountSetCommandTable[] =
+        static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "password", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD, true,  &HandleAccountSetPasswordCommand, "", NULL },
-            { NULL,       0,                                                 false, NULL,                             "", NULL }
+            { "password", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD, true,  &HandleAccountSetPasswordCommand, "" },
         };
 
-        static ChatCommand accountLockCommandTable[] =
+        static std::vector<ChatCommand> accountLockCommandTable =
         {
-            { "country", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_COUNTRY, true,  &HandleAccountLockCountryCommand, "", NULL },
-            { "ip",      rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_IP,      true,  &HandleAccountLockIpCommand,      "", NULL },
-            { NULL,      0,                                                 false, NULL,                             "", NULL }
+            { "country", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_COUNTRY, true,  &HandleAccountLockCountryCommand, "" },
+            { "ip",      rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_IP,      true,  &HandleAccountLockIpCommand,      "" },
         };
 
-        static ChatCommand accountCommandTable[] =
+        static std::vector<ChatCommand> accountCommandTable =
         {
-            { "create",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,      true,  &HandleAccountCreateCommand,     "", NULL                    },
-            { "gameaccountcreate", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME, true,  &HandleGameAccountCreateCommand, "", NULL                    },
+            { "create",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,      true,  &HandleAccountCreateCommand,     ""                          },
+            { "gameaccountcreate", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME, true,  &HandleGameAccountCreateCommand, ""                          },
             { "lock",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,             false, NULL,                            "", accountLockCommandTable },
             { "set",               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,         true,  NULL,                            "", accountSetCommandTable  },
-            { "password",          rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,    false, &HandleAccountPasswordCommand,   "", NULL                    },
-            { "link",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK,        true,  &HandleAccountLinkCommand,       "", NULL                    },
-            { "unlink",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK,      true,  &HandleAccountUnlinkCommand,     "", NULL                    },
-            { NULL,                0,                                                false, NULL,                            "", NULL                    }
+            { "password",          rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,    false, &HandleAccountPasswordCommand,   ""                          },
+            { "link",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK,        true,  &HandleAccountLinkCommand,       ""                          },
+            { "unlink",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK,      true,  &HandleAccountUnlinkCommand,     ""                          },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "bnetaccount", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT, true,  NULL, "", accountCommandTable },
-            { NULL,          0,                                    false, NULL, "", NULL                }
         };
 
         return commandTable;

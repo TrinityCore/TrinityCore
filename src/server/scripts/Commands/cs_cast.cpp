@@ -33,22 +33,20 @@ class cast_commandscript : public CommandScript
 public:
     cast_commandscript() : CommandScript("cast_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand castCommandTable[] =
+        static std::vector<ChatCommand> castCommandTable =
         {
-            { "back",   rbac::RBAC_PERM_COMMAND_CAST_BACK,   false, &HandleCastBackCommand,  "", NULL },
-            { "dist",   rbac::RBAC_PERM_COMMAND_CAST_DIST,   false, &HandleCastDistCommand,  "", NULL },
-            { "self",   rbac::RBAC_PERM_COMMAND_CAST_SELF,   false, &HandleCastSelfCommand,  "", NULL },
-            { "target", rbac::RBAC_PERM_COMMAND_CAST_TARGET, false, &HandleCastTargetCommad, "", NULL },
-            { "dest",   rbac::RBAC_PERM_COMMAND_CAST_DEST,   false, &HandleCastDestCommand,  "", NULL },
-            { "",       rbac::RBAC_PERM_COMMAND_CAST,        false, &HandleCastCommand,      "", NULL },
-            { NULL,     0,                             false, NULL,                    "", NULL }
+            { "back",   rbac::RBAC_PERM_COMMAND_CAST_BACK,   false, &HandleCastBackCommand,  "" },
+            { "dist",   rbac::RBAC_PERM_COMMAND_CAST_DIST,   false, &HandleCastDistCommand,  "" },
+            { "self",   rbac::RBAC_PERM_COMMAND_CAST_SELF,   false, &HandleCastSelfCommand,  "" },
+            { "target", rbac::RBAC_PERM_COMMAND_CAST_TARGET, false, &HandleCastTargetCommad, "" },
+            { "dest",   rbac::RBAC_PERM_COMMAND_CAST_DEST,   false, &HandleCastDestCommand,  "" },
+            { "",       rbac::RBAC_PERM_COMMAND_CAST,        false, &HandleCastCommand,      "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "cast",   rbac::RBAC_PERM_COMMAND_CAST,        false, NULL,                    "", castCommandTable },
-            { NULL,     0,                             false, NULL,                    "", NULL }
         };
         return commandTable;
     }
@@ -122,7 +120,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
-            
+
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
 
@@ -220,7 +218,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
-        
+
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
 
@@ -253,7 +251,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
-            
+
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
 
