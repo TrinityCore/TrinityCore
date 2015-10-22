@@ -95,7 +95,7 @@ public:
         return true;
     }
 
-    ChatCommand* GetCommands() const override;
+    std::vector<ChatCommand> GetCommands() const override;
 };
 
 template<typename T>
@@ -364,65 +364,59 @@ bool ticket_commandscript::HandleTicketGetByIdCommand(ChatHandler* handler, char
     return true;
 }
 
-ChatCommand* ticket_commandscript::GetCommands() const
+std::vector<ChatCommand> ticket_commandscript::GetCommands() const
 {
-    static ChatCommand ticketBugCommandTable[] =
+    static std::vector<ChatCommand> ticketBugCommandTable =
     {
-        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_BUG_ASSIGN,      true, &HandleTicketAssignToCommand<BugTicket>,      "", NULL },
-        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSE,       true, &HandleTicketCloseByIdCommand<BugTicket>,     "", NULL },
-        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSEDLIST,  true, &HandleTicketListClosedCommand<BugTicket>,    "", NULL },
-        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_BUG_COMMENT,     true, &HandleTicketCommentCommand<BugTicket>,       "", NULL },
-        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_BUG_DELETE,      true, &HandleTicketDeleteByIdCommand<BugTicket>,    "", NULL },
-        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_BUG_LIST,        true, &HandleTicketListCommand<BugTicket>,          "", NULL },
-        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_BUG_UNASSIGN,    true, &HandleTicketUnAssignCommand<BugTicket>,      "", NULL },
-        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_BUG_VIEW,        true, &HandleTicketGetByIdCommand<BugTicket>,       "", NULL },
-        { NULL,         0,                                              false, NULL,                                        "", NULL }
+        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_BUG_ASSIGN,      true, &HandleTicketAssignToCommand<BugTicket>,      "" },
+        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSE,       true, &HandleTicketCloseByIdCommand<BugTicket>,     "" },
+        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_BUG_CLOSEDLIST,  true, &HandleTicketListClosedCommand<BugTicket>,    "" },
+        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_BUG_COMMENT,     true, &HandleTicketCommentCommand<BugTicket>,       "" },
+        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_BUG_DELETE,      true, &HandleTicketDeleteByIdCommand<BugTicket>,    "" },
+        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_BUG_LIST,        true, &HandleTicketListCommand<BugTicket>,          "" },
+        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_BUG_UNASSIGN,    true, &HandleTicketUnAssignCommand<BugTicket>,      "" },
+        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_BUG_VIEW,        true, &HandleTicketGetByIdCommand<BugTicket>,       "" },
     };
-    static ChatCommand ticketComplaintCommandTable[] =
+    static std::vector<ChatCommand> ticketComplaintCommandTable =
     {
-        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_ASSIGN,        true, &HandleTicketAssignToCommand<ComplaintTicket>,    "", NULL },
-        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_CLOSE,         true, &HandleTicketCloseByIdCommand<ComplaintTicket>,   "", NULL },
-        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_CLOSEDLIST,    true, &HandleTicketListClosedCommand<ComplaintTicket>,  "", NULL },
-        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_COMMENT,       true, &HandleTicketCommentCommand<ComplaintTicket>,     "", NULL },
-        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_DELETE,        true, &HandleTicketDeleteByIdCommand<ComplaintTicket>,  "", NULL },
-        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_LIST,          true, &HandleTicketListCommand<ComplaintTicket>,        "", NULL },
-        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_UNASSIGN,      true, &HandleTicketUnAssignCommand<ComplaintTicket>,    "", NULL },
-        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_VIEW,          true, &HandleTicketGetByIdCommand<ComplaintTicket>,     "", NULL },
-        { NULL,         0,                                                      false, NULL,                                            "", NULL }
+        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_ASSIGN,        true, &HandleTicketAssignToCommand<ComplaintTicket>,    "" },
+        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_CLOSE,         true, &HandleTicketCloseByIdCommand<ComplaintTicket>,   "" },
+        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_CLOSEDLIST,    true, &HandleTicketListClosedCommand<ComplaintTicket>,  "" },
+        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_COMMENT,       true, &HandleTicketCommentCommand<ComplaintTicket>,     "" },
+        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_DELETE,        true, &HandleTicketDeleteByIdCommand<ComplaintTicket>,  "" },
+        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_LIST,          true, &HandleTicketListCommand<ComplaintTicket>,        "" },
+        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_UNASSIGN,      true, &HandleTicketUnAssignCommand<ComplaintTicket>,    "" },
+        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT_VIEW,          true, &HandleTicketGetByIdCommand<ComplaintTicket>,     "" },
     };
-    static ChatCommand ticketSuggestionCommandTable[] =
+    static std::vector<ChatCommand> ticketSuggestionCommandTable =
     {
-        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_ASSIGN,       true, &HandleTicketAssignToCommand<SuggestionTicket>,   "", NULL },
-        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_CLOSE,        true, &HandleTicketCloseByIdCommand<SuggestionTicket>,  "", NULL },
-        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_CLOSEDLIST,   true, &HandleTicketListClosedCommand<SuggestionTicket>, "", NULL },
-        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_COMMENT,      true, &HandleTicketCommentCommand<SuggestionTicket>,    "", NULL },
-        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_DELETE,       true, &HandleTicketDeleteByIdCommand<SuggestionTicket>, "", NULL },
-        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_LIST,         true, &HandleTicketListCommand<SuggestionTicket>,       "", NULL },
-        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_UNASSIGN,     true, &HandleTicketUnAssignCommand<SuggestionTicket>,   "", NULL },
-        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_VIEW,         true, &HandleTicketGetByIdCommand<SuggestionTicket>,    "", NULL },
-        { NULL,         0,                                                      false, NULL,                                            "", NULL }
+        { "assign",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_ASSIGN,       true, &HandleTicketAssignToCommand<SuggestionTicket>,   "" },
+        { "close",      rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_CLOSE,        true, &HandleTicketCloseByIdCommand<SuggestionTicket>,  "" },
+        { "closedlist", rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_CLOSEDLIST,   true, &HandleTicketListClosedCommand<SuggestionTicket>, "" },
+        { "comment",    rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_COMMENT,      true, &HandleTicketCommentCommand<SuggestionTicket>,    "" },
+        { "delete",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_DELETE,       true, &HandleTicketDeleteByIdCommand<SuggestionTicket>, "" },
+        { "list",       rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_LIST,         true, &HandleTicketListCommand<SuggestionTicket>,       "" },
+        { "unassign",   rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_UNASSIGN,     true, &HandleTicketUnAssignCommand<SuggestionTicket>,   "" },
+        { "view",       rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION_VIEW,         true, &HandleTicketGetByIdCommand<SuggestionTicket>,    "" },
     };
-    static ChatCommand ticketResetCommandTable[] =
+    static std::vector<ChatCommand> ticketResetCommandTable =
     {
-        { "all",        rbac::RBAC_PERM_COMMAND_TICKET_RESET_ALL,           true, &HandleTicketResetAllCommand,                 "", NULL },
-        { "bug",        rbac::RBAC_PERM_COMMAND_TICKET_RESET_BUG,           true, &HandleTicketResetCommand<BugTicket>,         "", NULL },
-        { "complaint",  rbac::RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT,     true, &HandleTicketResetCommand<ComplaintTicket>,   "", NULL },
-        { "suggestion", rbac::RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION,    true, &HandleTicketResetCommand<SuggestionTicket>,  "", NULL },
-        { NULL,         0,                                                  false, NULL,                                        "", NULL }
+        { "all",        rbac::RBAC_PERM_COMMAND_TICKET_RESET_ALL,           true, &HandleTicketResetAllCommand,                 "" },
+        { "bug",        rbac::RBAC_PERM_COMMAND_TICKET_RESET_BUG,           true, &HandleTicketResetCommand<BugTicket>,         "" },
+        { "complaint",  rbac::RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT,     true, &HandleTicketResetCommand<ComplaintTicket>,   "" },
+        { "suggestion", rbac::RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION,    true, &HandleTicketResetCommand<SuggestionTicket>,  "" },
     };
-    static ChatCommand ticketCommandTable[] =
+    static std::vector<ChatCommand> ticketCommandTable =
     {
         { "bug",            rbac::RBAC_PERM_COMMAND_TICKET_BUG,             true, NULL, "", ticketBugCommandTable },
         { "complaint",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT,       true, NULL,              "", ticketComplaintCommandTable },
         { "reset",          rbac::RBAC_PERM_COMMAND_TICKET_RESET,           true, NULL,                  "", ticketResetCommandTable },
         { "suggestion",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION,      true, NULL,             "", ticketSuggestionCommandTable },
-        { "togglesystem",   rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,    true, &HandleToggleGMTicketSystem,              "", NULL },
-        { NULL,             0,                                              false, NULL,                                    "", NULL }
+        { "togglesystem",   rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,    true, &HandleToggleGMTicketSystem,              "" },
     };
-    static ChatCommand commandTable[] =
+    static std::vector<ChatCommand> commandTable =
     {
         { "ticket", rbac::RBAC_PERM_COMMAND_TICKET, false, NULL, "", ticketCommandTable },
-        { NULL, 0, false, NULL, "", NULL }
     };
     return commandTable;
 }
