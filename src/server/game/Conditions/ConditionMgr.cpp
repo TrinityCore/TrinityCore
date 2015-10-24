@@ -814,7 +814,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
-            sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR);
+            sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
+            sourceType == CONDITION_SOURCE_TYPE_PHASE);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -934,6 +935,18 @@ void ConditionMgr::LoadConditions(bool isReload)
         TC_LOG_INFO("misc", "Re-Loading `gossip_menu_option` Table for Conditions!");
         sObjectMgr->LoadGossipMenuItems();
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
+
+        TC_LOG_INFO("misc", "Re-Loading `terrain_phase_info` Table for Conditions!");
+        sObjectMgr->LoadTerrainPhaseInfo();
+
+        TC_LOG_INFO("misc", "Re-Loading `terrain_swap_defaults` Table for Conditions!");
+        sObjectMgr->LoadTerrainSwapDefaults();
+
+        TC_LOG_INFO("misc", "Re-Loading `terrain_worldmap` Table for Conditions!");
+        sObjectMgr->LoadTerrainWorldMaps();
+
+        TC_LOG_INFO("misc", "Re-Loading `phase_area` Table for Conditions!");
+        sObjectMgr->LoadAreaPhases();
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
@@ -1135,6 +1148,9 @@ void ConditionMgr::LoadConditions(bool isReload)
                     ++count;
                     continue;
                 }
+                case CONDITION_SOURCE_TYPE_PHASE:
+                    valid = addToPhases(cond);
+                    break;
                 default:
                     break;
             }
@@ -1149,6 +1165,17 @@ void ConditionMgr::LoadConditions(bool isReload)
                 AllocatedMemoryStore.push_back(cond);
                 ++count;
             }
+            continue;
+        }
+        else if (cond->SourceType == CONDITION_SOURCE_TYPE_TERRAIN_SWAP)
+        {
+            if (!addToTerrainSwaps(cond))
+            {
+                delete cond;
+                continue;
+            }
+
+            ++count;
             continue;
         }
 
@@ -1332,6 +1359,62 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
         }
     }
     return true;
+}
+
+static bool addToTerrainSwapStore(TerrainPhaseInfo& swaps, Condition* cond)
+{
+    bool added = false;
+    for (auto itr = swaps.begin(); itr != swaps.end(); ++itr)
+        for (auto it2 = itr->second.begin(); it2 != itr->second.end(); ++it2)
+            if (it2->Id == uint32(cond->SourceEntry))
+                it2->Conditions.push_back(cond), added = true;
+
+    return added;
+}
+
+bool ConditionMgr::addToTerrainSwaps(Condition* cond)
+{
+    bool added = false;
+    added = addToTerrainSwapStore(sObjectMgr->GetPhaseTerrainSwapStoreForLoading(), cond);
+    added = addToTerrainSwapStore(sObjectMgr->GetDefaultTerrainSwapStoreForLoading(), cond) || added;
+    if (added)
+        return true;
+
+    TC_LOG_ERROR("sql.sql", "%s No terrain swap with map %u exists.", cond->ToString().c_str(), cond->SourceEntry);
+    return false;
+}
+
+bool ConditionMgr::addToPhases(Condition* cond)
+{
+    if (!cond->SourceEntry)
+    {
+        PhaseInfo& p = sObjectMgr->GetAreaPhasesForLoading();
+        for (auto phaseItr = p.begin(); phaseItr != p.end(); ++phaseItr)
+        {
+            for (PhaseInfoStruct& phase : phaseItr->second)
+            {
+                if (phase.Id == cond->SourceGroup)
+                {
+                    phase.Conditions.push_back(cond);
+                    return true;
+                }
+            }
+        }
+    }
+    else if (std::vector<PhaseInfoStruct>* phases = sObjectMgr->GetPhasesForAreaForLoading(cond->SourceEntry))
+    {
+        for (PhaseInfoStruct& phase : *phases)
+        {
+            if (phase.Id == cond->SourceGroup)
+            {
+                phase.Conditions.push_back(cond);
+                return true;
+            }
+        }
+    }
+
+    TC_LOG_ERROR("sql.sql", "%s Area %u does not have phase %u.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
+    return false;
 }
 
 bool ConditionMgr::isSourceTypeValid(Condition* cond)
@@ -1674,12 +1757,28 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_TERRAIN_SWAP:
+        {
+            if (!sMapStore.LookupEntry(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in Map.dbc, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
+        case CONDITION_SOURCE_TYPE_PHASE:
+        {
+            if (cond->SourceEntry && !GetAreaEntryByAreaID(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in AreaTable.dbc, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
-        case CONDITION_SOURCE_TYPE_TERRAIN_SWAP:
-        case CONDITION_SOURCE_TYPE_PHASE:
         default:
             break;
     }

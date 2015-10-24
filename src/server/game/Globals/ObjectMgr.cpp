@@ -8873,8 +8873,7 @@ void ObjectMgr::LoadTerrainSwapDefaults()
 
         uint32 mapId = fields[0].GetUInt32();
 
-        MapEntry const* map = sMapStore.LookupEntry(mapId);
-        if (!map)
+        if (!sMapStore.LookupEntry(mapId))
         {
             TC_LOG_ERROR("sql.sql", "Map %u defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
             continue;
@@ -8882,14 +8881,15 @@ void ObjectMgr::LoadTerrainSwapDefaults()
 
         uint32 terrainSwap = fields[1].GetUInt32();
 
-        map = sMapStore.LookupEntry(terrainSwap);
-        if (!map)
+        if (!sMapStore.LookupEntry(terrainSwap))
         {
             TC_LOG_ERROR("sql.sql", "TerrainSwapMap %u defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
             continue;
         }
 
-        _terrainMapDefaultStore[mapId].push_back(terrainSwap);
+        PhaseInfoStruct defaultSwap;
+        defaultSwap.Id = terrainSwap;
+        _terrainMapDefaultStore[mapId].push_back(defaultSwap);
 
         ++count;
     } while (result->NextRow());
@@ -8926,7 +8926,8 @@ void ObjectMgr::LoadTerrainPhaseInfo()
             continue;
         }
 
-        uint32 terrainSwap = fields[1].GetUInt32();
+        PhaseInfoStruct terrainSwap;
+        terrainSwap.Id = fields[1].GetUInt32();
 
         _terrainPhaseInfoStore[phaseId].push_back(terrainSwap);
 
@@ -8995,9 +8996,9 @@ void ObjectMgr::LoadAreaPhases()
     {
         Field* fields = result->Fetch();
 
+        PhaseInfoStruct phase;
         uint32 area = fields[0].GetUInt32();
-        uint32 phase = fields[1].GetUInt32();
-
+        phase.Id = fields[1].GetUInt32();
         _phases[area].push_back(phase);
 
         ++count;

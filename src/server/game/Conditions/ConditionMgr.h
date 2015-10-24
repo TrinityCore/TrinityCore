@@ -292,6 +292,8 @@ class ConditionMgr
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
         bool addToSpellImplicitTargetConditions(Condition* cond);
+        bool addToTerrainSwaps(Condition* cond);
+        bool addToPhases(Condition* cond);
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
 
         static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);

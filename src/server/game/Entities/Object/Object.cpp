@@ -2807,26 +2807,25 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 void WorldObject::UpdateAreaPhase()
 {
     bool updateNeeded = false;
-    PhaseInfo phases = sObjectMgr->GetAreaPhases();
+    PhaseInfo const& phases = sObjectMgr->GetAreaPhases();
     for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
     {
         uint32 areaId = itr->first;
-        for (uint32 phaseId : itr->second)
+        for (PhaseInfoStruct const& phase : itr->second)
         {
             if (areaId == GetAreaId())
             {
-                ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_PHASE, phaseId);
-                if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+                if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                 {
                     // add new phase if condition passed, true if it wasnt added before
-                    bool up = SetInPhase(phaseId, false, true);
+                    bool up = SetInPhase(phase.Id, false, true);
                     if (!updateNeeded && up)
                         updateNeeded = true;
                 }
                 else
                 {
                     // condition failed, remove phase, true if there was something removed
-                    bool up = SetInPhase(phaseId, false, false);
+                    bool up = SetInPhase(phase.Id, false, false);
                     if (!updateNeeded && up)
                         updateNeeded = true;
                 }
@@ -2834,7 +2833,7 @@ void WorldObject::UpdateAreaPhase()
             else
             {
                 // not in area, remove phase, true if there was something removed
-                bool up = SetInPhase(phaseId, false, false);
+                bool up = SetInPhase(phase.Id, false, false);
                 if (!updateNeeded && up)
                     updateNeeded = true;
             }
@@ -2866,7 +2865,6 @@ void WorldObject::UpdateAreaPhase()
     }
 
     // only update visibility and send packets if there was a change in the phase list
-
     if (updateNeeded && GetTypeId() == TYPEID_PLAYER && IsInWorld())
         ToPlayer()->GetSession()->SendSetPhaseShift(GetPhases(), GetTerrainSwaps(), GetWorldMapAreaSwaps());
 
@@ -2883,32 +2881,31 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
         {
             if (HasInPhaseList(id)) // do not run the updates if we are already in this phase
                 return false;
+
             _phases.insert(id);
         }
         else
         {
-            for (uint32 phaseId : sObjectMgr->GetPhasesForArea(GetAreaId()))
-            {
-                if (id == phaseId)
-                {
-                    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_PHASE, phaseId);
-                    if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
-                    {
-                        // if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
-                        // this however breaks the .mod phase command, you wont be able to remove any area based phases with it
-                        return false;
-                    }
-                }
-            }
+            // if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
+            // this however breaks the .mod phase command, you wont be able to remove any area based phases with it
+            if (std::vector<PhaseInfoStruct> const* phases = sObjectMgr->GetPhasesForArea(GetAreaId()))
+                for (PhaseInfoStruct const& phase : *phases)
+                    if (id == phase.Id)
+                        if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
+                            return false;
+
             if (!HasInPhaseList(id)) // do not run the updates if we are not in this phase
                 return false;
+
             _phases.erase(id);
         }
     }
+
     RebuildTerrainSwaps();
 
     if (update && IsInWorld())
         UpdateObjectVisibility();
+
     return true;
 }
 
@@ -3111,37 +3108,30 @@ void WorldObject::RebuildTerrainSwaps()
     // Clear all terrain swaps, will be rebuilt below
     // Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
     _terrainSwaps.clear();
-    ConditionList conditions;
 
     // Check all applied phases for terrain swap and add it only once
     for (uint32 phaseId : _phases)
     {
-        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
-
-        for (uint32 swap : swaps)
+        if (std::vector<PhaseInfoStruct> const* swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId))
         {
-            // only add terrain swaps for current map
-            MapEntry const* mapEntry = sMapStore.LookupEntry(swap);
-            if (!mapEntry || mapEntry->ParentMapID != int32(GetMapId()))
-                continue;
+            for (PhaseInfoStruct const& swap : *swaps)
+            {
+                // only add terrain swaps for current map
+                MapEntry const* mapEntry = sMapStore.LookupEntry(swap.Id);
+                if (!mapEntry || mapEntry->ParentMapID != int32(GetMapId()))
+                    continue;
 
-            conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
-
-            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
-                _terrainSwaps.insert(swap);
+                if (sConditionMgr->IsObjectMeetToConditions(this, swap.Conditions))
+                    _terrainSwaps.insert(swap.Id);
+            }
         }
     }
 
     // get default terrain swaps, only for current map always
-    std::list<uint32>& mapSwaps = sObjectMgr->GetDefaultTerrainSwaps(GetMapId());
-
-    for (uint32 swap : mapSwaps)
-    {
-        conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
-
-        if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
-            _terrainSwaps.insert(swap);
-    }
+    if (std::vector<PhaseInfoStruct> const* mapSwaps = sObjectMgr->GetDefaultTerrainSwaps(GetMapId()))
+        for (PhaseInfoStruct const& swap : *mapSwaps)
+            if (sConditionMgr->IsObjectMeetToConditions(this, swap.Conditions))
+                _terrainSwaps.insert(swap.Id);
 
     // online players have a game client with world map display
     if (GetTypeId() == TYPEID_PLAYER)
@@ -3155,36 +3145,20 @@ void WorldObject::RebuildWorldMapAreaSwaps()
 
     // get ALL default terrain swaps, if we are using it (condition is true)
     // send the worldmaparea for it, to see swapped worldmaparea in client from other maps too, not just from our current
-    TerrainPhaseInfo defaults = sObjectMgr->GetDefaultTerrainSwapStore();
+    TerrainPhaseInfo const& defaults = sObjectMgr->GetDefaultTerrainSwapStore();
     for (TerrainPhaseInfo::const_iterator itr = defaults.begin(); itr != defaults.end(); ++itr)
-    {
-        for (uint32 swap : itr->second)
-        {
-            ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
-            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
-            {
-                for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
-                    _worldMapAreaSwaps.insert(map);
-            }
-        }
-    }
+        for (PhaseInfoStruct const& swap : itr->second)
+            if (std::vector<uint32> const* uiMapSwaps = sObjectMgr->GetTerrainWorldMaps(swap.Id))
+                if (sConditionMgr->IsObjectMeetToConditions(this, swap.Conditions))
+                    for (uint32 worldMapAreaId : *uiMapSwaps)
+                        _worldMapAreaSwaps.insert(worldMapAreaId);
 
     // Check all applied phases for world map area swaps
     for (uint32 phaseId : _phases)
-    {
-        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
-
-        for (uint32 swap : swaps)
-        {
-            // add world map swaps for ANY map
-
-            ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
-
-            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
-            {
-                for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
-                    _worldMapAreaSwaps.insert(map);
-            }
-        }
-    }
+        if (std::vector<PhaseInfoStruct> const* swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId))
+            for (PhaseInfoStruct const& swap : *swaps)
+                if (std::vector<uint32> const* uiMapSwaps = sObjectMgr->GetTerrainWorldMaps(swap.Id))
+                    if (sConditionMgr->IsObjectMeetToConditions(this, swap.Conditions))
+                        for (uint32 worldMapAreaId : *uiMapSwaps)
+                            _worldMapAreaSwaps.insert(worldMapAreaId);
 }
