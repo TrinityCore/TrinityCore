@@ -62,31 +62,35 @@ class DuelResetScript : public PlayerScript
         }
 
         // Called when a duel ends
-        void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType /*type*/) override
+        void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType type) override
         {
-            // Cooldown restore
-            if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
+            // do not reset anything if DUEL_INTERRUPTED
+            if (type != DUEL_INTERRUPTED)
             {
-                winner->RemoveArenaSpellCooldowns(true);
-                loser->RemoveArenaSpellCooldowns(true);
+                // Cooldown restore
+                if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
+                {
+                    winner->RemoveArenaSpellCooldowns(true);
+                    loser->RemoveArenaSpellCooldowns(true);
 
-                winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
-                loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
-            }
+                    winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
+                    loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
+                }
 
-            // Health and mana restore
-            if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
-            {
-                winner->RestoreHealthAfterDuel();
-                loser->RestoreHealthAfterDuel();
+                // Health and mana restore
+                if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_HEALTH_MANA))
+                {
+                    winner->RestoreHealthAfterDuel();
+                    loser->RestoreHealthAfterDuel();
 
-                // check if player1 class uses mana
-                if (winner->getPowerType() == POWER_MANA)
-                    winner->RestoreManaAfterDuel(); 
+                    // check if player1 class uses mana
+                    if (winner->getPowerType() == POWER_MANA)
+                        winner->RestoreManaAfterDuel(); 
 
-                // check if player2 class uses mana
-                if (loser->getPowerType() == POWER_MANA)
-                    loser->RestoreManaAfterDuel(); 
+                    // check if player2 class uses mana
+                    if (loser->getPowerType() == POWER_MANA)
+                        loser->RestoreManaAfterDuel(); 
+                }
             }
         }
 };
