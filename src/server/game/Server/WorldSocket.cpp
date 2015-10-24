@@ -130,6 +130,7 @@ bool WorldSocket::Update()
         if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         {
             auto callback = std::move(_queryCallback);
+            _queryCallback = nullptr;
             callback(_queryFuture.get());
         }
     }
