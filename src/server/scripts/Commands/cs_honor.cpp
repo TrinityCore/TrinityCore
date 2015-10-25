@@ -33,26 +33,23 @@ class honor_commandscript : public CommandScript
 public:
     honor_commandscript() : CommandScript("honor_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand honorAddCommandTable[] =
+        static std::vector<ChatCommand> honorAddCommandTable =
         {
-            { "kill", rbac::RBAC_PERM_COMMAND_HONOR_ADD_KILL, false, &HandleHonorAddKillCommand,         "", NULL },
-            { "",     rbac::RBAC_PERM_COMMAND_HONOR_ADD,      false, &HandleHonorAddCommand,             "", NULL },
-            { NULL,   0,                                false, NULL,                               "", NULL }
+            { "kill", rbac::RBAC_PERM_COMMAND_HONOR_ADD_KILL, false, &HandleHonorAddKillCommand,         "" },
+            { "",     rbac::RBAC_PERM_COMMAND_HONOR_ADD,      false, &HandleHonorAddCommand,             "" },
         };
 
-        static ChatCommand honorCommandTable[] =
+        static std::vector<ChatCommand> honorCommandTable =
         {
             { "add",    rbac::RBAC_PERM_COMMAND_HONOR_ADD,    false, NULL,               "", honorAddCommandTable },
-            { "update", rbac::RBAC_PERM_COMMAND_HONOR_UPDATE, false, &HandleHonorUpdateCommand,          "", NULL },
-            { NULL,     0,                              false, NULL,                               "", NULL }
+            { "update", rbac::RBAC_PERM_COMMAND_HONOR_UPDATE, false, &HandleHonorUpdateCommand,          "" },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "honor", rbac::RBAC_PERM_COMMAND_HONOR, false, NULL, "", honorCommandTable },
-            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }
