@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <memory>
 #include <array>
+#include <boost/functional/hash.hpp>
 
 #include "Debugging/Errors.h"
 
