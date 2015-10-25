@@ -213,13 +213,13 @@ struct Condition
     std::string ToString(bool ext = false) const; /// For logging purpose
 };
 
-typedef std::list<Condition*> ConditionContainer;
-typedef std::map<uint32 /*SourceEntry*/, ConditionContainer> ConditionsByEntryMap;
-typedef std::map<ConditionSourceType /*SourceType*/, ConditionsByEntryMap> ConditionEntriesByTypeMap;
-typedef std::map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
-typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
+typedef std::vector<Condition*> ConditionContainer;
+typedef std::unordered_map<uint32 /*SourceEntry*/, ConditionContainer> ConditionsByEntryMap;
+typedef std::unordered_map<ConditionSourceType /*SourceType*/, ConditionsByEntryMap> ConditionEntriesByTypeMap;
+typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
+typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 
-typedef std::map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
+typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 
 class ConditionMgr
 {
@@ -271,7 +271,7 @@ class ConditionMgr
         static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);
 
         void Clean(); // free up resources
-        std::list<Condition*> AllocatedMemoryStore; // some garbage collection :)
+        std::vector<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
         ConditionEntriesByTypeMap       ConditionStore;
         ConditionReferenceContainer     ConditionReferenceStore;
