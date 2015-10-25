@@ -1375,11 +1375,10 @@ bool ConditionMgr::addToTerrainSwaps(Condition* cond) const
     bool added = false;
     added = addToTerrainSwapStore(sObjectMgr->GetPhaseTerrainSwapStoreForLoading(), cond);
     added = addToTerrainSwapStore(sObjectMgr->GetDefaultTerrainSwapStoreForLoading(), cond) || added;
-    if (added)
-        return true;
-
-    TC_LOG_ERROR("sql.sql", "%s No terrain swap with map %u exists.", cond->ToString().c_str(), cond->SourceEntry);
-    return false;
+    if (!added)
+        TC_LOG_ERROR("sql.sql", "%s No terrain swap with map %u exists.", cond->ToString().c_str(), cond->SourceEntry);
+	
+    return added;
 }
 
 bool ConditionMgr::addToPhases(Condition* cond) const
