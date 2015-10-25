@@ -263,7 +263,7 @@ public:
     uint32    TriggerSpell;
     flag128   SpellClassMask;
     float     BonusCoefficientFromAP;
-    std::list<Condition*>* ImplicitTargetConditions;
+    std::vector<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
     struct ScalingInfo
     {
