@@ -28,7 +28,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 
-char const* ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
+char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
     "None",
     "Creature Loot",
@@ -105,7 +105,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
-bool Condition::Meets(ConditionSourceInfo& sourceInfo)
+bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
 {
     ASSERT(ConditionTarget < MAX_CONDITION_TARGETS);
     WorldObject* object = sourceInfo.mConditionTargets[ConditionTarget];
@@ -445,7 +445,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     return condMeets && script;
 }
 
-uint32 Condition::GetSearcherTypeMaskForCondition()
+uint32 Condition::GetSearcherTypeMaskForCondition() const
 {
     // build mask of types for which condition can return true
     // this is used for speeding up gridsearches
@@ -607,7 +607,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
     return mask;
 }
 
-uint32 Condition::GetMaxAvailableConditionTargets()
+uint32 Condition::GetMaxAvailableConditionTargets() const
 {
     // returns number of targets which are available for given source type
     switch (SourceType)
@@ -703,7 +703,7 @@ uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionContainer cons
     return mask;
 }
 
-bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions)
+bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const
 {
     //     groupId, groupCheckPassed
     std::map<uint32, bool> ElseGroupStore;
@@ -749,19 +749,19 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
     return false;
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions)
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object);
     return IsObjectMeetToConditions(srcInfo, conditions);
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions)
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object1, object2);
     return IsObjectMeetToConditions(srcInfo, conditions);
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions)
+bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const
 {
     if (conditions.empty())
         return true;
@@ -798,7 +798,7 @@ bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
     return (sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
 }
 
-ConditionContainer ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry)
+ConditionContainer ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const
 {
     ConditionContainer spellCond;
     if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
@@ -817,7 +817,7 @@ ConditionContainer ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSource
     return spellCond;
 }
 
-ConditionContainer ConditionMgr::GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId)
+ConditionContainer ConditionMgr::GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const
 {
     ConditionContainer cond;
     ConditionEntriesByCreatureIdMap::const_iterator itr = SpellClickEventConditionStore.find(creatureId);
@@ -833,7 +833,7 @@ ConditionContainer ConditionMgr::GetConditionsForSpellClickEvent(uint32 creature
     return cond;
 }
 
-ConditionContainer ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId)
+ConditionContainer ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId) const
 {
     ConditionContainer cond;
     ConditionEntriesByCreatureIdMap::const_iterator itr = VehicleSpellConditionStore.find(creatureId);
@@ -849,7 +849,7 @@ ConditionContainer ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureId,
     return cond;
 }
 
-ConditionContainer ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType)
+ConditionContainer ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType) const
 {
     ConditionContainer cond;
     SmartEventConditionContainer::const_iterator itr = SmartEventConditionStore.find(std::make_pair(entryOrGuid, sourceType));
@@ -865,7 +865,7 @@ ConditionContainer ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, u
     return cond;
 }
 
-ConditionContainer ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId)
+ConditionContainer ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId) const
 {
     ConditionContainer cond;
     ConditionEntriesByCreatureIdMap::const_iterator itr = NpcVendorConditionContainerStore.find(creatureId);
@@ -1132,7 +1132,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     TC_LOG_INFO("server.loading", ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)
+bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot) const
 {
     if (!loot)
     {
@@ -1147,7 +1147,7 @@ bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)
     return false;
 }
 
-bool ConditionMgr::addToGossipMenus(Condition* cond)
+bool ConditionMgr::addToGossipMenus(Condition* cond) const
 {
     GossipMenusMapBoundsNonConst pMenuBounds = sObjectMgr->GetGossipMenusMapBoundsNonConst(cond->SourceGroup);
 
@@ -1167,7 +1167,7 @@ bool ConditionMgr::addToGossipMenus(Condition* cond)
     return false;
 }
 
-bool ConditionMgr::addToGossipMenuItems(Condition* cond)
+bool ConditionMgr::addToGossipMenuItems(Condition* cond) const
 {
     GossipMenuItemsMapBoundsNonConst pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBoundsNonConst(cond->SourceGroup);
     if (pMenuItemBounds.first != pMenuItemBounds.second)
@@ -1186,7 +1186,7 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
     return false;
 }
 
-bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
+bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
 {
     uint32 conditionEffMask = cond->SourceGroup;
     SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->EnsureSpellInfo(cond->SourceEntry));
@@ -1269,7 +1269,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
     return true;
 }
 
-bool ConditionMgr::isSourceTypeValid(Condition* cond)
+bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 {
     if (cond->SourceType == CONDITION_SOURCE_TYPE_NONE || cond->SourceType >= CONDITION_SOURCE_TYPE_MAX)
     {
