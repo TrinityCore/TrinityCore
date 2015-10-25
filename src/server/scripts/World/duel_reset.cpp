@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Player.h"
+#include "Pet.h"
 
 class DuelResetScript : public PlayerScript
 {
@@ -32,8 +33,9 @@ class DuelResetScript : public PlayerScript
                 player1->GetSpellHistory()->SaveCooldownStateBeforeDuel();
                 player2->GetSpellHistory()->SaveCooldownStateBeforeDuel();
 
-                player1->RemoveArenaSpellCooldowns(true);
-                player2->RemoveArenaSpellCooldowns(true);
+
+                ResetSpellCooldowns(player1, true);
+                ResetSpellCooldowns(player2, true);
             }
 
             // Health and mana reset
@@ -46,14 +48,14 @@ class DuelResetScript : public PlayerScript
                 player2->SetHealth(player2->GetMaxHealth());
 
                 // check if player1 class uses mana
-                if (player1->getPowerType() == POWER_MANA)
+                if (player1->getPowerType() == POWER_MANA || player1->getClass() == CLASS_DRUID)
                 {
                     player1->SaveManaBeforeDuel();
                     player1->SetPower(POWER_MANA, player1->GetMaxPower(POWER_MANA));
                 }
 
                 // check if player2 class uses mana
-                if (player2->getPowerType() == POWER_MANA)
+                if (player2->getPowerType() == POWER_MANA || player2->getClass() == CLASS_DRUID)
                 {
                     player2->SaveManaBeforeDuel();
                     player2->SetPower(POWER_MANA, player2->GetMaxPower(POWER_MANA));
@@ -70,8 +72,9 @@ class DuelResetScript : public PlayerScript
                 // Cooldown restore
                 if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
                 {
-                    winner->RemoveArenaSpellCooldowns(true);
-                    loser->RemoveArenaSpellCooldowns(true);
+
+                    ResetSpellCooldowns(winner, true);
+                    ResetSpellCooldowns(loser, true);
 
                     winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
                     loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
@@ -84,14 +87,29 @@ class DuelResetScript : public PlayerScript
                     loser->RestoreHealthAfterDuel();
 
                     // check if player1 class uses mana
-                    if (winner->getPowerType() == POWER_MANA)
+                    if (winner->getPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
                         winner->RestoreManaAfterDuel(); 
 
                     // check if player2 class uses mana
-                    if (loser->getPowerType() == POWER_MANA)
+                    if (loser->getPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
                         loser->RestoreManaAfterDuel(); 
                 }
             }
+        }
+        
+        void ResetSpellCooldowns(Player* player, bool removeActivePetCooldowns)
+        {
+            // remove cooldowns on spells that have < 10 min CD and has no onHold
+            player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+            {
+                SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS && !itr->second.OnHold;
+            }, true);
+
+            // pet cooldowns
+            if (removeActivePetCooldowns)
+                if (Pet* pet = player->GetPet())
+                    pet->GetSpellHistory()->ResetAllCooldowns();
         }
 };
 
