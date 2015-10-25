@@ -21,6 +21,7 @@
 
 #include "Common.h"
 
+class Creature;
 class Player;
 class Unit;
 class WorldObject;
@@ -256,19 +257,22 @@ class ConditionMgr
         }
 
         void LoadConditions(bool isReload = false);
-        bool isConditionTypeValid(Condition* cond);
+        bool isConditionTypeValid(Condition* cond) const;
 
-        uint32 GetSearcherTypeMaskForConditionList(ConditionContainer const& conditions);
+        uint32 GetSearcherTypeMaskForConditionList(ConditionContainer const& conditions) const;
         bool IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const;
         bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const;
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
         static bool CanHaveSourceGroupSet(ConditionSourceType sourceType);
         static bool CanHaveSourceIdSet(ConditionSourceType sourceType);
-        ConditionContainer GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
-        ConditionContainer GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
-        ConditionContainer GetConditionsForSmartEvent(int64 entryOrGuid, uint32 eventId, uint32 sourceType) const;
-        ConditionContainer GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId) const;
-        ConditionContainer GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId) const;
+        bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, ConditionSourceInfo& sourceInfo) const;
+        bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr) const;
+        bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
+        bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const;
+        ConditionContainer const* GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
+        bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const;
+        bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
+        bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
 
         struct ConditionTypeInfo
         {
