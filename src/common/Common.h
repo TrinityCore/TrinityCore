@@ -43,6 +43,8 @@
 #include <vector>
 #include <array>
 
+#include <boost/functional/hash.hpp>
+
 #include "Debugging/Errors.h"
 
 #include "Threading/LockedQueue.h"

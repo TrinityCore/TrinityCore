@@ -564,14 +564,14 @@ struct GossipMenuItems
     uint32          BoxMoney;
     std::string     BoxText;
     uint32          BoxBroadcastTextId;
-    ConditionList   Conditions;
+    ConditionContainer   Conditions;
 };
 
 struct GossipMenus
 {
     uint32          entry;
     uint32          text_id;
-    ConditionList   conditions;
+    ConditionContainer   conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;

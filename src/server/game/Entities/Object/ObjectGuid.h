@@ -21,10 +21,8 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
-
 #include <type_traits>
 #include <functional>
-#include <unordered_set>
 
 enum TypeID
 {
