@@ -19,11 +19,7 @@
 #ifndef TRINITY_CONDITIONMGR_H
 #define TRINITY_CONDITIONMGR_H
 
-#include "Define.h"
-#include "Errors.h"
-#include <list>
-#include <map>
-#include <string>
+#include "Common.h"
 
 class Player;
 class Unit;
@@ -238,14 +234,13 @@ struct Condition
     std::string ToString(bool ext = false) const; /// For logging purpose
 };
 
-typedef std::list<Condition*> ConditionList;
-typedef std::map<uint32, ConditionList> ConditionTypeContainer;
-typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
-typedef std::map<uint32, ConditionTypeContainer> CreatureSpellConditionContainer;
-typedef std::map<uint32, ConditionTypeContainer> NpcVendorConditionContainer;
-typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
+typedef std::list<Condition*> ConditionContainer;
+typedef std::map<uint32 /*SourceEntry*/, ConditionContainer> ConditionsByEntryMap;
+typedef std::map<ConditionSourceType /*SourceType*/, ConditionsByEntryMap> ConditionEntriesByTypeMap;
+typedef std::map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
+typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 
-typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
+typedef std::map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 
 class ConditionMgr
 {
@@ -262,19 +257,19 @@ class ConditionMgr
 
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond);
-        ConditionList GetConditionReferences(uint32 refId);
+        ConditionContainer GetConditionReferences(uint32 refId);
 
-        uint32 GetSearcherTypeMaskForConditionList(ConditionList const& conditions);
-        bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions);
-        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionList const& conditions);
-        bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
+        uint32 GetSearcherTypeMaskForConditionList(ConditionContainer const& conditions);
+        bool IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions);
+        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions);
+        bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions);
         static bool CanHaveSourceGroupSet(ConditionSourceType sourceType);
         static bool CanHaveSourceIdSet(ConditionSourceType sourceType);
-        ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
-        ConditionList GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
-        ConditionList GetConditionsForSmartEvent(int64 entryOrGuid, uint32 eventId, uint32 sourceType);
-        ConditionList GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
-        ConditionList GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId);
+        ConditionContainer GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
+        ConditionContainer GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
+        ConditionContainer GetConditionsForSmartEvent(int64 entryOrGuid, uint32 eventId, uint32 sourceType);
+        ConditionContainer GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
+        ConditionContainer GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId);
 
         struct ConditionTypeInfo
         {
@@ -294,19 +289,19 @@ class ConditionMgr
         bool addToSpellImplicitTargetConditions(Condition* cond);
         bool addToTerrainSwaps(Condition* cond);
         bool addToPhases(Condition* cond);
-        bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
+        bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions);
 
         static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);
 
         void Clean(); // free up resources
         std::list<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
-        ConditionContainer                ConditionStore;
-        ConditionReferenceContainer       ConditionReferenceStore;
-        CreatureSpellConditionContainer   VehicleSpellConditionStore;
-        CreatureSpellConditionContainer   SpellClickEventConditionStore;
-        NpcVendorConditionContainer       NpcVendorConditionContainerStore;
-        SmartEventConditionContainer      SmartEventConditionStore;
+        ConditionEntriesByTypeMap       ConditionStore;
+        ConditionReferenceContainer     ConditionReferenceStore;
+        ConditionEntriesByCreatureIdMap VehicleSpellConditionStore;
+        ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
+        ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
+        SmartEventConditionContainer    SmartEventConditionStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()

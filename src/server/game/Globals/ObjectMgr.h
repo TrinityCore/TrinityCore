@@ -516,14 +516,14 @@ struct GossipMenuItems
     uint32          BoxMoney;
     std::string     BoxText;
     uint32          BoxBroadcastTextId;
-    ConditionList   Conditions;
+    ConditionContainer   Conditions;
 };
 
 struct GossipMenus
 {
     uint32          entry;
     uint32          text_id;
-    ConditionList   conditions;
+    ConditionContainer   conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
@@ -684,7 +684,7 @@ typedef std::unordered_map<uint64, DungeonEncounterList> DungeonEncounterContain
 struct PhaseInfoStruct
 {
     uint32 Id;
-    ConditionList Conditions;
+    ConditionContainer Conditions;
 };
 
 typedef std::unordered_map<uint32, std::vector<PhaseInfoStruct>> TerrainPhaseInfo; // terrain swap
