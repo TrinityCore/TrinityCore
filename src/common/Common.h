@@ -45,6 +45,7 @@
 
 #include <boost/optional.hpp>
 #include <boost/utility/in_place_factory.hpp>
+#include <boost/functional/hash.hpp>
 
 #include "Debugging/Errors.h"
 
