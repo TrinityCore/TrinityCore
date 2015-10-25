@@ -216,10 +216,9 @@ struct Condition
 
 typedef std::vector<Condition*> ConditionContainer;
 typedef std::unordered_map<uint32 /*SourceEntry*/, ConditionContainer> ConditionsByEntryMap;
-typedef std::unordered_map<ConditionSourceType /*SourceType*/, ConditionsByEntryMap> ConditionEntriesByTypeMap;
+typedef std::array<ConditionsByEntryMap, CONDITION_SOURCE_TYPE_MAX> ConditionEntriesByTypeArray;
 typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreatureIdMap;
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
-
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 
 class ConditionMgr
@@ -276,7 +275,7 @@ class ConditionMgr
         void Clean(); // free up resources
         std::vector<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
-        ConditionEntriesByTypeMap       ConditionStore;
+        ConditionEntriesByTypeArray     ConditionStore;
         ConditionReferenceContainer     ConditionReferenceStore;
         ConditionEntriesByCreatureIdMap VehicleSpellConditionStore;
         ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;

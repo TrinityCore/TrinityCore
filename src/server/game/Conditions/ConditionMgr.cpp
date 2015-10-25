@@ -802,15 +802,11 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
 {
     if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
     {
-        ConditionEntriesByTypeMap::const_iterator itr = ConditionStore.find(sourceType);
-        if (itr != ConditionStore.end())
+        ConditionsByEntryMap::const_iterator i = ConditionStore[sourceType].find(entry);
+        if (i != ConditionStore[sourceType].end())
         {
-            ConditionsByEntryMap::const_iterator i = itr->second.find(entry);
-            if (i != itr->second.end())
-            {
-                TC_LOG_DEBUG("condition", "GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sourceType), entry);
-                return IsObjectMeetToConditions(sourceInfo, i->second);
-            }
+            TC_LOG_DEBUG("condition", "GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sourceType), entry);
+            return IsObjectMeetToConditions(sourceInfo, i->second);
         }
     }
 
@@ -826,12 +822,9 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
 bool ConditionMgr::HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const
 {
     if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
-    {
-        ConditionEntriesByTypeMap::const_iterator itr = ConditionStore.find(sourceType);
-        if (itr != ConditionStore.end())
-            if (itr->second.find(entry) != itr->second.end())
-                return true;
-    }
+        if (ConditionStore[sourceType].find(entry) != ConditionStore[sourceType].end())
+            return true;
+
     return false;
 }
 
@@ -2122,12 +2115,14 @@ void ConditionMgr::Clean()
 
     ConditionReferenceStore.clear();
 
-    for (ConditionEntriesByTypeMap::iterator itr = ConditionStore.begin(); itr != ConditionStore.end(); ++itr)
-        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+    for (uint32 i = 0; i < CONDITION_SOURCE_TYPE_MAX; ++i)
+    {
+        for (ConditionsByEntryMap::iterator it = ConditionStore[i].begin(); it != ConditionStore[i].end(); ++it)
+            for (ConditionContainer::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
+                delete *itr;
 
-    ConditionStore.clear();
+        ConditionStore[i].clear();
+    }
 
     for (ConditionEntriesByCreatureIdMap::iterator itr = VehicleSpellConditionStore.begin(); itr != VehicleSpellConditionStore.end(); ++itr)
         for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
