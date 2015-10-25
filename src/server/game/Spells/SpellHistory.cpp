@@ -678,7 +678,8 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
             Clock::time_point now = Clock::now();
             uint32 cooldownDuration = itr->second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.CooldownEnd - now).count() : 0;
 
-            if (cooldownDuration == 0)
+            // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
+            if (cooldownDuration == 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS)
                 continue;
 
             cooldowns[itr->first] = cooldownDuration;
