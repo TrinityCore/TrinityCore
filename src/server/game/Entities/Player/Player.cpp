@@ -15910,7 +15910,7 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
         {
             uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
             if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
-                return m_seasonalquests.find(eventId)->second.find(quest_id) == m_seasonalquests.find(eventId)->second.end();
+                return m_seasonalquests.find(eventId)->second.find(quest_id) != m_seasonalquests.find(eventId)->second.end();
             
             return false;
         }
