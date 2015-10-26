@@ -3,11 +3,13 @@
 #
 # Current original Roles are:
 # 195: Player 0
+# 198: Comandi che vengono ereditati da 194,193,192
 # 194: Moderator 1
 # 193: GameMaster 2
 # 192: Administrator 3
 #
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29,532,515,597,598,599,600);
+DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29);
+DELETE FROM rbac_linked_permissions WHERE id = 198 AND linkedId IN  (532,515,597,598,599,600);
 
 # QUERY TO CHECK IF THEY DIDN'T CHANGE PERMISSIONS:
 # SELECT * FROM rbac_linked_permissions WHERE id IN ( 25,26,27,28,29,51 );
