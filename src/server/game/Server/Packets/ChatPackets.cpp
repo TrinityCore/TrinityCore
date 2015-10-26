@@ -265,3 +265,9 @@ WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Chat::ChatReportIgnored::Read()
+{
+    _worldPacket >> IgnoredGUID;
+    _worldPacket >> Reason;
+}

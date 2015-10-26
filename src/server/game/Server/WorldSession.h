@@ -219,6 +219,7 @@ namespace WorldPackets
         class EmoteClient;
         class ChatRegisterAddonPrefixes;
         class ChatUnregisterAllAddonPrefixes;
+        class ChatReportIgnored;
     }
 
     namespace Combat
@@ -1378,7 +1379,7 @@ class WorldSession
         void SendPlayerAmbiguousNotice(std::string const& name);
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
-        void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
+        void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored);
 
         void HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::ChatUnregisterAllAddonPrefixes& packet);
         void HandleAddonRegisteredPrefixesOpcode(WorldPackets::Chat::ChatRegisterAddonPrefixes& packet);
