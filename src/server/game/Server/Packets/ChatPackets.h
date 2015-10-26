@@ -289,6 +289,17 @@ namespace WorldPackets
             int32 ZoneID = 0;
             std::string MessageText;
         };
+
+        class ChatReportIgnored final : public ClientPacket
+        {
+        public:
+            ChatReportIgnored(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_REPORT_IGNORED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid IgnoredGUID;
+            uint8 Reason = 0;
+        };
     }
 }
 

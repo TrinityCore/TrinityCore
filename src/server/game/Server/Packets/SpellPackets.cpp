@@ -642,6 +642,16 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << int32(KitRecID);
+    _worldPacket << int32(KitType);
+    _worldPacket << uint32(Duration);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Spells::CancelCast::Read()
 {
     _worldPacket >> SpellID;
