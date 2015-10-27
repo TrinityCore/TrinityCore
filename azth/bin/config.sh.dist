@@ -4,8 +4,10 @@
 MTHREADS=0
 # enable/disable warnings during compilation
 CWARNINGS=1
-# enable/disable debug informations
+# enable/disable some debug informations ( it's not a debug compilation )
 CDEBUG=0
+# specify compilation type
+CCTYPE=Release
 # compile scripts
 CSCRIPTS=1
 # compile server
