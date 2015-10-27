@@ -778,18 +778,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         m_playerLoading = false;
         return;
     }
-    
-    // [AZTH]
-    // hack for instant80
-    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) && pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE)) {
-        SetPlayer(NULL);
-        //KickPlayer();        // maybe we don't need to kick the player, if yes instead just uncomment this                                        
-        delete pCurrChar;                                   // delete it manually
-        delete holder;                                      // delete all unprocessed queries
-        m_playerLoading = false;
-        return;
-    }
-    // [/AZTH]
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
@@ -1004,6 +992,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
     m_playerLoading = false;
+    
+    // [AZTH]
+    // hack for instant80 ( we're forcing all change faction and race )
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) || pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE)) {
+        KickPlayer();                                      
+    }
+    // [/AZTH]
 
     // Handle Login-Achievements (should be handled after loading)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
