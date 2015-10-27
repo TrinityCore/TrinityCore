@@ -778,6 +778,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         m_playerLoading = false;
         return;
     }
+    
+    // [AZTH]
+    // hack for instant80
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) && pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE)) {
+        SetPlayer(NULL);
+        //KickPlayer();        // maybe we don't need to kick the player, if yes instead just uncomment this                                        
+        delete pCurrChar;                                   // delete it manually
+        delete holder;                                      // delete all unprocessed queries
+        m_playerLoading = false;
+        return;
+    }
+    // [/AZTH]
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
