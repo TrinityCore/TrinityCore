@@ -652,15 +652,17 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
             SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
 
             if (spellInfo->RecoveryTime > 10 * MINUTE * IN_MILLISECONDS ||
-                spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS) 
+                spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)
                 _spellCooldownsBeforeDuel[itr->first] = _spellCooldowns[itr->first];
         }
-        //check for spell with onHold active before and during the duel
+
+        // check for spell with onHold active before and during the duel
         for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
         {
-            if (!itr->second.OnHold)
-                if (!_spellCooldowns[itr->first].OnHold)
-                    _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
+            if (!itr->second.OnHold &&
+                _spellCooldowns.find(itr->first) != _spellCooldowns.end() &&
+                !_spellCooldowns[itr->first].OnHold)
+                _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
         }
 
         // update the client: restore old cooldowns

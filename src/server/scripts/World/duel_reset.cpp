@@ -66,8 +66,8 @@ class DuelResetScript : public PlayerScript
         // Called when a duel ends
         void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType type) override
         {
-            // do not reset anything if DUEL_INTERRUPTED
-            if (type != DUEL_INTERRUPTED)
+            // do not reset anything if DUEL_INTERRUPTED or DUEL_FLED
+            if (type == DUEL_WON)
             {
                 // Cooldown restore
                 if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
@@ -96,7 +96,7 @@ class DuelResetScript : public PlayerScript
                 }
             }
         }
-        
+
         void ResetSpellCooldowns(Player* player, bool removeActivePetCooldowns)
         {
             // remove cooldowns on spells that have < 10 min CD and has no onHold
