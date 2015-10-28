@@ -1,4 +1,4 @@
--- 
+--
 -- Grethok the Controller SAI
 SET @ENTRY := 12557;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
@@ -7,5 +7,5 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,4,0,6,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grethok the Controller - On Just Died - Say Line 0");
 
 DELETE FROM `creature_text` WHERE `entry`=12557;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (12557, 0, 0, 'Intruders have breached the hatchery! Sound the alarm! Protect the eggs at all costs!', 14, 0, 100, 0, 0, 0, 9958, 'Grethok the Controller');

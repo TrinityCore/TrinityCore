@@ -1,6 +1,6 @@
 -- Gryphoneer Leafbeard - Gossip
 DELETE FROM `gossip_menu_option` WHERE (`menu_id`=8100 AND `id`=0);
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`) VALUES
 (8100, 0, 0, 'Send me to Shatter Point!', 17935, 1, 1, 0, 0, 0, 0, NULL, 0);
 
 -- Gryphoneer Leafbeard SAI
