@@ -733,6 +733,7 @@ class Map : public GridRefManager<NGridType>
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
         std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
+        std::unordered_set<Corpse*> _corpseBones;
 
         std::unordered_set<Object*> _updateObjects;
 };
