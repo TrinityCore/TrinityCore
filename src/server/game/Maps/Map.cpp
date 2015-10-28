@@ -1601,6 +1601,13 @@ void Map::UnloadAll()
 
         RemoveFromMap<Transport>(transport, true);
     }
+
+    for (auto& cellCorpsePair : _corpsesByCell)
+        for (Corpse* corpse : cellCorpsePair.second)
+            delete corpse;
+
+    _corpsesByCell.clear();
+    _corpsesByPlayer.clear();
 }
 
 // *****************************
@@ -3575,14 +3582,16 @@ void Map::AddCorpse(Corpse* corpse)
 {
     corpse->SetMap(this);
 
-    CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-    _corpsesByCell[cellCoord.GetId()].insert(corpse);
-    _corpsesByPlayer[corpse->GetOwnerGUID()] = corpse;
+    _corpsesByCell[corpse->GetCellCoord().GetId()].insert(corpse);
+    if (corpse->GetType() != CORPSE_BONES)
+        _corpsesByPlayer[corpse->GetOwnerGUID()] = corpse;
+    else
+        _corpseBones.insert(corpse);
 }
 
 void Map::RemoveCorpse(Corpse* corpse)
 {
-    ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
+    ASSERT(corpse);
 
     corpse->DestroyForNearbyPlayers();
     if (corpse->IsInGrid())
@@ -3593,9 +3602,11 @@ void Map::RemoveCorpse(Corpse* corpse)
         corpse->ResetMap();
     }
 
-    CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-    _corpsesByCell[cellCoord.GetId()].erase(corpse);
-    _corpsesByPlayer.erase(corpse->GetOwnerGUID());
+    _corpsesByCell[corpse->GetCellCoord().GetId()].erase(corpse);
+    if (corpse->GetType() != CORPSE_BONES)
+        _corpsesByPlayer.erase(corpse->GetOwnerGUID());
+    else
+        _corpseBones.erase(corpse);
 }
 
 Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*= false*/)
@@ -3626,7 +3637,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         for (uint8 i = OBJECT_FIELD_TYPE + 1; i < CORPSE_END; ++i)                    // don't overwrite guid and object type
             bones->SetUInt32Value(i, corpse->GetUInt32Value(i));
 
-        bones->SetGridCoord(corpse->GetGridCoord());
+        bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
         bones->SetPhaseMask(corpse->GetPhaseMask(), false);
 
@@ -3636,6 +3647,8 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
             if (corpse->GetUInt32Value(CORPSE_FIELD_ITEM + i))
                 bones->SetUInt32Value(CORPSE_FIELD_ITEM + i, 0);
+
+        AddCorpse(bones);
 
         // add bones in grid store if grid loaded where corpse placed
         AddToMap(bones);
@@ -3660,6 +3673,17 @@ void Map::RemoveOldCorpses()
 
     for (ObjectGuid const& ownerGuid : corpses)
         ConvertCorpseToBones(ownerGuid);
+
+    std::vector<Corpse*> expiredBones;
+    for (Corpse* bones : _corpseBones)
+        if (bones->IsExpired(now))
+            expiredBones.push_back(bones);
+
+    for (Corpse* bones : expiredBones)
+    {
+        RemoveCorpse(bones);
+        delete bones;
+    }
 }
 
 void Map::SendZoneDynamicInfo(Player* player)

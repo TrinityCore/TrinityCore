@@ -5164,12 +5164,13 @@ Corpse* Player::CreateCorpse()
         }
     }
 
+    // register for player, but not show
+    GetMap()->AddCorpse(corpse);
+
     // we do not need to save corpses for BG/arenas
     if (!GetMap()->IsBattlegroundOrArena())
         corpse->SaveToDB();
 
-    // register for player, but not show
-    GetMap()->AddCorpse(corpse);
     return corpse;
 }
 
