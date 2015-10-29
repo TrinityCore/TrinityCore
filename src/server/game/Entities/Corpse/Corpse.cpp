@@ -59,7 +59,7 @@ void Corpse::RemoveFromWorld()
     WorldObject::RemoveFromWorld();
 }
 
-bool Corpse::Create(ObjectGuid::LowType guidlow, Map* map)
+bool Corpse::Create(ObjectGuid::LowType guidlow)
 {
     Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(map->GetId(), 0, guidlow));
     return true;
