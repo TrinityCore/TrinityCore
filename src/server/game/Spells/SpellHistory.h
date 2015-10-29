@@ -38,15 +38,15 @@ public:
 
     struct CooldownEntry
     {
-        CooldownEntry() : ItemId(0), OnHold(false) { }
-        CooldownEntry(Clock::time_point endTime, uint32 itemId) : CooldownEnd(endTime), ItemId(itemId), OnHold(false) { }
-
         Clock::time_point CooldownEnd;
-        uint32 ItemId;
-        bool OnHold;
+        uint32 ItemId = 0;
+        uint32 CategoryId = 0;
+        Clock::time_point CategoryEnd;
+        bool OnHold = false;
     };
 
     typedef std::unordered_map<uint32 /*spellId*/, CooldownEntry> CooldownStorageType;
+    typedef std::unordered_map<uint32 /*categoryId*/, CooldownEntry*> CategoryCooldownStorageType;
     typedef std::unordered_map<uint32 /*categoryId*/, Clock::time_point> GlobalCooldownStorageType;
 
     explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
@@ -60,7 +60,8 @@ public:
     void Update();
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
-    bool IsReady(SpellInfo const* spellInfo) const;
+    void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Spell* spell = nullptr);
+    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     template<class OwnerType>
     void WritePacket(WorldPacket& packet) const;
 
@@ -74,10 +75,11 @@ public:
     template<class Type, class Period>
     void AddCooldown(uint32 spellId, uint32 itemId, std::chrono::duration<Type, Period> cooldownDuration)
     {
-        AddCooldown(spellId, itemId, Clock::now() + std::chrono::duration_cast<Clock::duration>(cooldownDuration));
+        Clock::time_point now = Clock::now();
+        AddCooldown(spellId, itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
     }
 
-    void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, bool onHold = false);
+    void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
@@ -102,8 +104,9 @@ public:
     }
 
     void ResetAllCooldowns();
-    bool HasCooldown(uint32 spellId) const;
-    uint32 GetRemainingCooldown(uint32 spellId) const;
+    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0) const;
+    bool HasCooldown(uint32 spellId, uint32 itemId = 0) const;
+    uint32 GetRemainingCooldown(SpellInfo const* spellInfo) const;
 
     // School lockouts
     void LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTime);
@@ -123,6 +126,11 @@ public:
 private:
     Player* GetPlayerOwner() const;
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
+    CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
+    {
+        _categoryCooldowns.erase(itr->second.CategoryId);
+        return _spellCooldowns.erase(itr);
+    }
 
     typedef std::unordered_map<uint32, uint32> PacketCooldowns;
     void BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns) const;
@@ -130,6 +138,7 @@ private:
     Unit* _owner;
     CooldownStorageType _spellCooldowns;
     CooldownStorageType _spellCooldownsBeforeDuel;
+    CategoryCooldownStorageType _categoryCooldowns;
     Clock::time_point _schoolLockouts[MAX_SPELL_SCHOOL];
     GlobalCooldownStorageType _globalCooldowns;
 

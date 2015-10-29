@@ -15912,7 +15912,7 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
             uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
             if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
                 return m_seasonalquests.find(eventId)->second.find(quest_id) != m_seasonalquests.find(eventId)->second.end();
-            
+
             return false;
         }
 
@@ -22723,7 +22723,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(spellData.SpellId) > 30 * IN_MILLISECONDS)
+        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->EnsureSpellInfo(spellData.SpellId)) > 30 * IN_MILLISECONDS)
             continue;
 
         GetSpellHistory()->AddCooldown(spellData.SpellId, pItem->GetEntry(), std::chrono::seconds(30));

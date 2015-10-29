@@ -2715,15 +2715,6 @@ void ObjectMgr::LoadItemTemplates()
                         TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has broken spell in spellid_%d (%d)", entry, j+1, itemTemplate.Spells[j].SpellId);
                         itemTemplate.Spells[j].SpellId = 0;
                     }
-
-                    if (spellInfo && itemTemplate.Spells[j].SpellCategory
-                        && itemTemplate.Spells[j].SpellCategory != SPELL_CATEGORY_FOOD)
-                    {
-                        bool added = sSpellsByCategoryStore[itemTemplate.Spells[j].SpellCategory].insert(itemTemplate.Spells[j].SpellId).second;
-                        if (added)
-                            TC_LOG_DEBUG("sql.sql", "Item(Entry: %u) spellid_%d (%d) category %u added to sSpellsByCategoryStore",
-                                          entry, j + 1, itemTemplate.Spells[j].SpellId, itemTemplate.Spells[j].SpellCategory);
-                    }
                 }
             }
         }
