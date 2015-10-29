@@ -1570,6 +1570,36 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
+        case SPELLFAMILY_ROGUE:
+            switch (GetId())
+            {
+                case 1784:
+                case 115191:
+                case 11327:
+                {
+                    // Enhanced Stealth
+                    if (const AuraEffect* aurEff = target->GetAuraEffect(157704, EFFECT_0))
+                    {
+                        if (!apply)
+                        {
+                            SpellInfo const* timer = sSpellMgr->GetSpellInfo(31666);
+                            target->CastSpell(target, 31666, true);
+                            if (Aura* damageAura = target->GetAura(31665))
+                            {
+                                damageAura->SetDuration(timer->GetMaxDuration());
+                                damageAura->SetMaxDuration(timer->GetMaxDuration());
+                            }
+                        }
+                        else
+                        {
+                            int32 basepoints0 = aurEff->GetAmount();
+                            target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
         case SPELLFAMILY_PALADIN:
             switch (GetId())
             {
