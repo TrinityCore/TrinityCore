@@ -482,7 +482,7 @@ bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     {
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
-            if (int32(itemTemplate->Spells[i].SpellId) == spellInfo->Id)
+            if (uint32(itemTemplate->Spells[i].SpellId) == spellInfo->Id)
             {
                 category = itemTemplate->Spells[i].SpellCategory;
                 break;
