@@ -9,10 +9,13 @@ before_install:
   - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
   - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+  - echo "yes" | sudo add-apt-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.5 main'
+  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
   - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl
+  - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl clang-3.5
   - sudo apt-get -qq install libssl-dev libmysqlclient-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev libzmq3-dev
   - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-filesystem1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev libboost-iostreams1.55-dev libboost-regex1.55-dev
+  - export CC=clang-3.5 CXX=clang++-3.5
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
@@ -23,6 +26,7 @@ install:
   - sudo chmod +x contrib/check_updates.sh
 
 script:
+  - $CXX --version
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
   - ./contrib/check_updates.sh auth auth
