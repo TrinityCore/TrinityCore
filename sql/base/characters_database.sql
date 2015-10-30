@@ -1155,7 +1155,7 @@ CREATE TABLE `character_spell_cooldown` (
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `categoryId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell category Id',
-  `categoryEnd` int(10) unsigned NOT NULL DEFAULT '0';
+  `categoryEnd` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2304,7 +2304,7 @@ CREATE TABLE `pet_spell_cooldown` (
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `categoryId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell category Id',
-  `categoryEnd` int(10) unsigned NOT NULL DEFAULT '0';
+  `categoryEnd` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
