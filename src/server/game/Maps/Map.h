@@ -561,7 +561,7 @@ class Map : public GridRefManager<NGridType>
         {
             _updateObjects.insert(obj);
         }
-        
+
         void RemoveUpdateObject(Object* obj)
         {
             _updateObjects.erase(obj);
