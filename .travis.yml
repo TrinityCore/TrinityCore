@@ -32,4 +32,4 @@ script:
   - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
-  - make -j 10
+  - make -j 10 -k
