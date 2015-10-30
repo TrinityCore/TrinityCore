@@ -23,7 +23,6 @@
 #include "SFMT.h"
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
-#include <boost/thread/tss.hpp>
 
 #if COMPILER == COMPILER_GNU
   #include <sys/socket.h>
@@ -31,19 +30,14 @@
   #include <arpa/inet.h>
 #endif
 
-static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+static thread_local std::unique_ptr<SFMTRand> sfmtRand;
 
 static SFMTRand* GetRng()
 {
-    SFMTRand* rand = sfmtRand.get();
+    if (!sfmtRand)
+        sfmtRand = Trinity::make_unique<SFMTRand>();
 
-    if (!rand)
-    {
-        rand = new SFMTRand();
-        sfmtRand.reset(rand);
-    }
-
-    return rand;
+    return sfmtRand.get();
 }
 
 int32 irand(int32 min, int32 max)
