@@ -2259,8 +2259,8 @@ void ConditionMgr::Clean()
     for (uint32 i = 0; i < CONDITION_SOURCE_TYPE_MAX; ++i)
     {
         for (ConditionsByEntryMap::iterator it = ConditionStore[i].begin(); it != ConditionStore[i].end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+            for (ConditionContainer::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
+                delete *itr;
 
         ConditionStore[i].clear();
     }
