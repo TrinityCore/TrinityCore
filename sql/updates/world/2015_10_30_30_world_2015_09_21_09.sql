@@ -21,8 +21,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (14, 11971, 16789, 0, 15, 4, 0, 0, 0, '', 'Show gossip text if player is not a hunter', 1);
 
 DELETE FROM `npc_text` WHERE id=16788;
-INSERT INTO `npc_text` (`ID`, `text0_0`, `BroadcastTextID0`, `Probability0`) VALUES 
-(16788, "Hey der, mon.$B$BDid ya want ta be stablin' yer pets, or were ya lookin' for a lost companion?", 45395, 1);
+INSERT INTO `npc_text` (`ID`, `BroadcastTextID0`, `Probability0`) VALUES 
+(16788, 45395, 1);
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id` = 11971;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
@@ -32,7 +32,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`Op
 DELETE FROM `gossip_menu` WHERE `entry`=9864 AND `text_id`=13662;
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (9864,13662);
 
-UPDATE `npc_text` SET `text0_0`="", `text0_1`="Well met, Battle-Sister. I can help stable your pets or assist you in recovering lost companions.", `BroadcastTextID0`=30667 WHERE `ID`=13662;
+UPDATE `npc_text` SET `BroadcastTextID0`=30667 WHERE `ID`=13662;
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id` = 9864;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
