@@ -24,3 +24,10 @@ UPDATE `battleground_template` SET `Weight` = 0  WHERE `ID` = 30;      -- Isle o
 UPDATE `battleground_template` SET `Weight` = 2  WHERE `ID` = 2;       -- Warsong Gulch
 UPDATE `battleground_template` SET `Weight` = 2  WHERE `ID` = 9;       -- Strand of the Ancients
 UPDATE `battleground_template` SET `Weight` = 3  WHERE `ID` IN (3, 7); -- Arathi Basin, Eye of The Storm
+
+-- Allow 'Dalaran Sewers' and 'The Ring of Valor' for 2v2 and 3v3 too
+UPDATE `azerothshard-world`.`battleground_template` SET `MinPlayersPerTeam`=0 WHERE `ID`=10;
+UPDATE `azerothshard-world`.`battleground_template` SET `MinPlayersPerTeam`=0 WHERE `ID`=11;
+
+-- Enable 'Dalaran Sewers'
+DELETE FROM `azerothshard-world`.`disables` WHERE  `sourceType`=3 AND `entry`=10;
