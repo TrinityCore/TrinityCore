@@ -27,9 +27,9 @@ REPLACE INTO rbac_linked_permissions VALUES
 (195,29),
 #Allow trading between factions
 (195,51),
-#Adding mute and unmute commands to Administrator(192)
-(192, 532), # unmute
-(192, 515), # mute
+#Adding mute and unmute commands to GaneNaster(193)
+(193, 532), # unmute
+(193, 515), # mute
 # Adding some .npc * commands to GameMaster(193)
 (193, 597), # npc say
 (193, 598), # npc texemote
