@@ -19,6 +19,7 @@
 #include "Chat.h"
 #include "Language.h"
 #include "LFGMgr.h"
+#include "ObjectMgr.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Player.h"
@@ -77,7 +78,7 @@ public:
         ObjectGuid guidTarget;
         std::string nameTarget;
 
-        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atoul(args)));
+        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(uint64(atoull(args)));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
         {
