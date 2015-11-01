@@ -720,7 +720,7 @@ enum RBACPermissions
     // 17
     // 18
     // 19
-    // 20
+    RBAC_PERM_COMMAND_WORLD_CHAT                             = 1015,
     // Visit http://www.realmsofwarcraft.com/bb for forums and information
     //
     // End of prepatch
