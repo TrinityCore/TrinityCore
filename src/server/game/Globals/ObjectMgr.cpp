@@ -2521,7 +2521,7 @@ void ObjectMgr::LoadItemTemplates()
             if (!req)
                 for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
                 {
-                    if (itemTemplate.Spells[j].SpellId)
+                    if (itemTemplate.Spells[j].SpellId > 0)
                     {
                         req = true;
                         break;
