@@ -2911,7 +2911,7 @@ void WorldObject::RebuildTerrainSwaps()
             {
                 // only add terrain swaps for current map
                 MapEntry const* mapEntry = sMapStore.LookupEntry(swap.Id);
-                if (!mapEntry || mapEntry->ParentMapID != int32(GetMapId()))
+                if (!mapEntry || mapEntry->rootPhaseMap != int32(GetMapId()))
                     continue;
 
                 if (sConditionMgr->IsObjectMeetToConditions(this, swap.Conditions))
