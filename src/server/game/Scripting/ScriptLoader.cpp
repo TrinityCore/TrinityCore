@@ -36,6 +36,9 @@ void AddSC_holiday_spell_scripts();
 
 void AddSC_SmartScripts();
 
+//TeleNPC2
+void AddSC_npc_teleport();
+
 //Commands
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
@@ -1459,11 +1462,13 @@ void AddBattlegroundScripts()
 // start46
 // start47
 // start48
-// start49
+// IceRune
+void AddSC_summon();
 // start50
 // start51
 // start52
-// start53
+// TeleNPC2
+void AddSC_npc_teleport();
 // start54
 // start55
 // start56
@@ -1585,11 +1590,13 @@ void AddCustomScripts()
 // end46
 // end47
 // end48
-// end49
+    // IceRune
+    AddSC_summon();
 // end50
 // end51
 // end52
-// end53
+    // TeleNPC2
+    AddSC_npc_teleport();
 // end54
 // end55
 // end56
