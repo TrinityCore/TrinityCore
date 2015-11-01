@@ -2,8 +2,11 @@
 # CHANGE ORIGINAL PERMISSIONS
 #
 # Current original Roles are:
+# 198 Moderator Commands
+# 197 GameMaster Commands
+# 196 Administrator Commands
+#
 # 195: Player 0
-# 198: Comandi che vengono ereditati da 194,193,192
 # 194: Moderator 1
 # 193: GameMaster 2
 # 192: Administrator 3
@@ -27,14 +30,14 @@ REPLACE INTO rbac_linked_permissions VALUES
 (195,29),
 #Allow trading between factions
 (195,51),
-#Adding mute and unmute commands to GaneNaster(193)
-(193, 532), # unmute
-(193, 515), # mute
-# Adding some .npc * commands to GameMaster(193)
-(193, 597), # npc say
-(193, 598), # npc texemote
-(193, 599), # npc whisper
-(193, 600); # npc yell
+#Adding mute and unmute commands to "GameMaster commands"(197)
+(197, 532), # unmute
+(197, 515), # mute
+# Adding some .npc * commands to "GameMaster commands"(197)
+(197, 597), # npc say
+(197, 598), # npc texemote
+(197, 599), # npc whisper
+(197, 600); # npc yell
 
 #
 # ADD CUSTOM PERMISSIONS
