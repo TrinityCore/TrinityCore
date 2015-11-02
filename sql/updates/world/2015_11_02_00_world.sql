@@ -6,9 +6,9 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 
 -- make crypt guards aggro anub when pulled
 DELETE FROM `smart_scripts` WHERE `entryorguid`=16573 AND `source_type`=0 AND `id` IN (6,7);
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_chance`,`event_flags`,`event_param1`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`target_type`,`comment`) VALUES
-(16573,0, 6, 0, 4,100,0,NULL,   39,   25,    0, 0, 0, "Crypt Guard - On Aggro - Call For Help (25yd)"),
-(16573,0, 7, 5,61,100,0,NULL,    1,    0,    0, 0, 0, "Crypt Guard - On Cast Frenzy - Say EMOTE_FRENZY");
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_chance`,`event_flags`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`target_type`,`comment`) VALUES
+(16573,0, 6, 0, 4,100,0, 39,   25,    0, 0, 0, "Crypt Guard - On Aggro - Call For Help (25yd)"),
+(16573,0, 7, 5,61,100,0,  1,    0,    0, 0, 0, "Crypt Guard - On Cast Frenzy - Say EMOTE_FRENZY");
 UPDATE `smart_scripts` SET `link`=7 WHERE `entryorguid`=16573 AND `source_type`=0 AND `id`=5;
 
 DELETE FROM `creature_text` WHERE `entry`=16573;
