@@ -533,11 +533,11 @@ struct AccountInfo
         uint32 Id;
         bool IsLockedToIP;
         std::string LastIP;
+        std::string LockCountry;
         LocaleConstant Locale;
         std::string OS;
         bool IsBanned;
 
-        std::string LockCountry;
     } BattleNet;
 
     struct
@@ -556,9 +556,9 @@ struct AccountInfo
 
     explicit AccountInfo(Field* fields)
     {
-        //           0             1           2          3            4           5          6            7      8      9          10
-        // SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, a.expansion, a.mutetime, ba.locale, a.recruiter, ba.os, ba.id, aa.gmLevel,
-        //                                                              11                                                            12    13
+        //           0             1           2          3                4            5           6          7            8      9     10          11
+        // SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, ba.os, ba.id, aa.gmLevel,
+        //                                                              12                                                            13    14
         // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
         // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?)
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
@@ -567,16 +567,17 @@ struct AccountInfo
         Game.SessionKey.SetHexStr(fields[1].GetCString());
         BattleNet.LastIP = fields[2].GetString();
         BattleNet.IsLockedToIP = fields[3].GetBool();
-        Game.Expansion = fields[4].GetUInt8();
-        Game.MuteTime = fields[5].GetInt64();
-        BattleNet.Locale = LocaleConstant(fields[6].GetUInt8());
-        Game.Recruiter = fields[7].GetUInt32();
-        BattleNet.OS = fields[8].GetString();
-        BattleNet.Id = fields[9].GetUInt32();
-        Game.Security = AccountTypes(fields[10].GetUInt8());
-        BattleNet.IsBanned = fields[11].GetUInt64() != 0;
-        Game.IsBanned = fields[12].GetUInt64() != 0;
-        Game.IsRectuiter = fields[13].GetUInt32() != 0;
+        BattleNet.LockCountry = fields[4].GetString();
+        Game.Expansion = fields[5].GetUInt8();
+        Game.MuteTime = fields[6].GetInt64();
+        BattleNet.Locale = LocaleConstant(fields[7].GetUInt8());
+        Game.Recruiter = fields[8].GetUInt32();
+        BattleNet.OS = fields[9].GetString();
+        BattleNet.Id = fields[10].GetUInt32();
+        Game.Security = AccountTypes(fields[11].GetUInt8());
+        BattleNet.IsBanned = fields[12].GetUInt64() != 0;
+        Game.IsBanned = fields[13].GetUInt64() != 0;
+        Game.IsRectuiter = fields[14].GetUInt32() != 0;
 
         uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
         if (Game.Expansion > world_expansion)
@@ -698,7 +699,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
             return;
         }
     }
-    else if (!account.BattleNet.LockCountry.empty() && !_ipCountry.empty())
+    else if (!account.BattleNet.LockCountry.empty() && account.BattleNet.LockCountry != "00" && !_ipCountry.empty())
     {
         if (account.BattleNet.LockCountry != _ipCountry)
         {
