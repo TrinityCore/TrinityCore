@@ -790,6 +790,22 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     return true;
 }
 
+void Item::SetCount(uint32 value)
+{
+    SetUInt32Value(ITEM_FIELD_STACK_COUNT, value);
+
+    if (Player* player = GetOwner())
+    {
+        if (TradeData* tradeData = player->GetTradeData())
+        {
+            TradeSlots slot = tradeData->GetTradeSlotForItem(GetGUID());
+
+            if (slot != TRADE_SLOT_INVALID)
+                tradeData->SetItem(slot, this, true);
+        }
+    }
+}
+
 bool Item::HasEnchantRequiredSkill(const Player* player) const
 {
     // Check all enchants for required skill
