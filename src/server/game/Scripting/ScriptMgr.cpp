@@ -125,7 +125,7 @@ class ScriptRegistry
                 }
             }
 
-            AddScript(std::integral_constant<bool, is_script_database_bound<TScript>::value>{}, script);
+            AddScript(is_script_database_bound<TScript>{}, script);
         }
 
         // Gets a script by its ID (assigned by ObjectMgr).
