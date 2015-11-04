@@ -129,7 +129,7 @@ class ScriptRegistry
             {
                 // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
                 // through a script name (or similar).
-                uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
+                uint32 id = sObjectMgr->GetScriptId(script->GetName());
                 if (id)
                 {
                     // Try to find an existing script.
