@@ -502,7 +502,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         float dist                   = fields[7].GetFloat();
         bgTemplate.MaxStartDistSq    = dist * dist;
         bgTemplate.Weight            = fields[8].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[9].GetCString());
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[9].GetString());
         bgTemplate.BattlemasterEntry = bl;
 
         if (bgTemplate.MaxPlayersPerTeam == 0 || bgTemplate.MinPlayersPerTeam > bgTemplate.MaxPlayersPerTeam)
