@@ -3213,7 +3213,7 @@ void InstanceMap::CreateInstanceData(bool load)
             i_data->SetCompletedEncountersMask(fields[1].GetUInt32());
             if (!data.empty())
             {
-                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id), i_InstanceId);
+                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id).c_str(), i_InstanceId);
                 i_data->Load(data.c_str());
             }
         }

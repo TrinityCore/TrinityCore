@@ -524,7 +524,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.RegenHealth        = fields[74].GetBool();
     creatureTemplate.MechanicImmuneMask = fields[75].GetUInt32();
     creatureTemplate.flags_extra        = fields[76].GetUInt32();
-    creatureTemplate.ScriptID           = GetScriptId(fields[77].GetCString());
+    creatureTemplate.ScriptID           = GetScriptId(fields[77].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -2733,7 +2733,7 @@ void ObjectMgr::LoadItemScriptNames()
                 continue;
             }
 
-            _itemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetCString());
+            _itemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetString());
             ++count;
         } while (result->NextRow());
     }
@@ -4935,8 +4935,8 @@ void ObjectMgr::LoadSpellScriptNames()
 
         Field* fields = result->Fetch();
 
-        int32 spellId          = fields[0].GetInt32();
-        char const* scriptName = fields[1].GetCString();
+        int32 spellId                = fields[0].GetInt32();
+        std::string const scriptName = fields[1].GetString();
 
         bool allRanks = false;
         if (spellId < 0)
@@ -4948,18 +4948,18 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, fields[0].GetInt32());
+            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName.c_str(), fields[0].GetInt32());
             continue;
         }
 
         if (allRanks)
         {
             if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName.c_str(), fields[0].GetInt32());
 
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName.c_str(), fields[0].GetInt32());
                 continue;
             }
             while (spellInfo)
@@ -4971,7 +4971,7 @@ void ObjectMgr::LoadSpellScriptNames()
         else
         {
             if (spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName.c_str(), spellId);
 
             _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
         }
@@ -5009,7 +5009,7 @@ void ObjectMgr::ValidateSpellScripts()
             bool valid = true;
             if (!spellScript && !auraScript)
             {
-                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second).c_str());
                 valid = false;
             }
             if (spellScript)
@@ -5149,7 +5149,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
         instanceTemplate.AllowMount = fields[3].GetBool();
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetCString());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -5641,8 +5641,8 @@ void ObjectMgr::LoadAreaTriggerScripts()
     {
         Field* fields = result->Fetch();
 
-        uint32 triggerId       = fields[0].GetUInt32();
-        char const* scriptName = fields[1].GetCString();
+        uint32 triggerId             = fields[0].GetUInt32();
+        std::string const scriptName = fields[1].GetString();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
         if (!atEntry)
@@ -6533,7 +6533,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         got.unkInt32 = fields[43].GetInt32();
         got.AIName = fields[44].GetString();
-        got.ScriptId = GetScriptId(fields[45].GetCString());
+        got.ScriptId = GetScriptId(fields[45].GetString());
 
         // Checks
 
@@ -8527,11 +8527,17 @@ void ObjectMgr::LoadScriptNames()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-uint32 ObjectMgr::GetScriptId(char const* name)
+std::string const& ObjectMgr::GetScriptName(uint32 id) const
+{
+    static std::string const empty = "";
+    return id < _scriptNamesStore.size() ? _scriptNamesStore[id] : empty;
+}
+
+uint32 ObjectMgr::GetScriptId(std::string const& name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
-    if (!name)
+    if (name.empty())
         return 0;
 
     ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
