@@ -51,6 +51,7 @@ enum LadyVashj
     SPELL_POISON_BOLT           = 40095,
     SPELL_TOXIC_SPORES          = 38575,
     SPELL_MAGIC_BARRIER         = 38112,
+    SPELL_PARALYZE              = 38132,
 
     SHIED_GENERATOR_CHANNEL     = 19870,
     ENCHANTED_ELEMENTAL         = 21958,
@@ -191,6 +192,7 @@ public:
         uint32 CoilfangStriderTimer;
         uint32 SummonSporebatTimer;
         uint32 SummonSporebatStaticTimer;
+        uint32 ParalyzecCheckTimer;
         uint8 EnchantedElementalPos;
         uint8 Phase;
 
@@ -202,7 +204,7 @@ public:
         void Reset() override
         {
             Initialize();
-
+            Paralyze(false);
             if (JustCreated)
             {
                 CanAttack = false;
@@ -225,7 +227,27 @@ public:
 
             me->SetCorpseDelay(1000*60*60);
         }
+        // Check Paralyze
+		void Paralyze(bool apply)
+		{
+			Map *map = me->GetMap();
+			Map::PlayerList const &PlayerList = map->GetPlayers();
 
+			for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+			{
+				Player* i_pl = i->GetSource();
+				if (i_pl)
+				{
+					bool check = (apply ? i_pl->HasAura(SPELL_PARALYZE) && !i_pl->HasItemCount(31088, 1, false) : i_pl->HasAura(SPELL_PARALYZE));
+
+					if (apply && i_pl->HasItemCount(31088, 1, false) && !i_pl->HasAura(SPELL_PARALYZE))
+						i_pl->AddAura(SPELL_PARALYZE, i_pl);
+					else if (check)
+						i_pl->RemoveAurasDueToSpell(SPELL_PARALYZE);
+					  
+				}
+			}
+		}
         // Called when a tainted elemental dies
         void EventTaintedElementalDeath()
         {
@@ -241,7 +263,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-
+            Paralyze(false);
             instance->SetData(DATA_LADYVASHJEVENT, DONE);
         }
 
@@ -340,7 +362,23 @@ public:
             // Return since we have no target
             if (!UpdateVictim())
                 return;
-
+            // Check Paralyze Effect
+			if (Phase == 2)
+			{
+				if (ParalyzecCheckTimer < diff)
+				{
+					Paralyze(true);
+					if (me->HasUnitState(UNIT_STATE_CHASE))
+					{
+						me->GetMotionMaster()->Clear();
+						DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
+					}
+					ParalyzecCheckTimer = 1000;
+				}
+				else
+					ParalyzecCheckTimer -= diff;
+			}
+			
             if (Phase == 1 || Phase == 3)
             {
                 // ShockBlastTimer
