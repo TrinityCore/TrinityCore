@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Guild.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
@@ -200,6 +201,16 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             data << uint32(loot->gold);
             data << uint8(1);   // "You loot..."
             SendPacket(&data);
+        }
+
+        //Guild-Level-System (Bonus: Gold)
+        if (Guild* guild = player->GetGuild())
+        {
+            //Extra Gold fuer die Gildenbank
+            if (guild->HasLevelForBonus(GUILD_BONUS_GOLD_1))
+                guild->HandleMemberDepositMoney(this, uint32(loot->gold*0.05f));
+            if (guild->HasLevelForBonus(GUILD_BONUS_GOLD_2))
+                guild->HandleMemberDepositMoney(this, uint32(loot->gold*0.1f));
         }
 
         loot->gold = 0;

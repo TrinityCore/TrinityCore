@@ -222,6 +222,29 @@ enum GuildMemberFlags
     GUILDMEMBER_STATUS_MOBILE           = 0x0008, // remote chat from mobile app
 };
 
+//Guild-Level-System [Start]
+enum GuildBonus
+{
+    GUILD_BONUS_GOLD_1 = 1,
+    GUILD_BONUS_XP_1 = 2,
+    GUILD_BONUS_SCHNELLER_GEIST = 3,
+    GUILD_BONUS_REPERATUR_1 = 4,
+    GUILD_BONUS_GOLD_2 = 5,
+    GUILD_BONUS_REITTEMPO_1 = 6,
+    GUILD_BONUS_RUF_1 = 7,
+    GUILD_BONUS_XP_2 = 8,
+    GUILD_BONUS_REPERATUR_2 = 9,
+    GUILD_BONUS_REITTEMPO_2 = 10,
+    GUILD_BONUS_RUF_2 = 11,
+    GUILD_BONUS_EHRE_1 = 12,
+    GUILD_BONUS_EHRE_2 = 13,
+
+    GUILD_BONUS_MAX = 14
+};
+
+#define GUILD_MAX_LEVEL 8
+//Guild-Level-System [End]
+
 // Emblem info
 class EmblemInfo
 {
@@ -744,6 +767,15 @@ public:
 
     void ResetTimes();
 
+    //Guild-Level-System
+    void LoadLevelInfo();
+    bool HasLevelForBonus(uint8 guildBonus);
+    void GiveXp(uint32 value);
+    void SetLevel(uint8 level, bool byCommand);
+    uint8 GetLevel() const { return m_guild_level; };
+    uint32 GetCurrentXP() const { return m_current_guildXp; };
+    uint32 GetXpForNextLevel() const { return m_xp_for_next_level; };
+
 protected:
     ObjectGuid::LowType m_id;
     std::string m_name;
@@ -763,6 +795,11 @@ protected:
     // These are actually ordered lists. The first element is the oldest entry.
     LogHolder* m_eventLog;
     LogHolder* m_bankEventLog[GUILD_BANK_MAX_TABS + 1];
+
+    //Guild-Level-System
+    uint8 m_guild_level;
+    uint32 m_current_guildXp;
+    uint32 m_xp_for_next_level;
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
