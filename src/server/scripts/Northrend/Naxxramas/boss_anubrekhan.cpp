@@ -196,13 +196,12 @@ public:
 
                         if (!guardCorpses.empty())
                         {
-                            if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
-                                if(Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
-                                {
-                                    creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, nullptr, nullptr, me->GetGUID());
-                                    creatureTarget->AI()->Talk(EMOTE_SCARAB);
-                                    creatureTarget->DespawnOrUnsummon();
-                                }
+                            if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(guardCorpses)))
+                            {
+                                creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, nullptr, nullptr, me->GetGUID());
+                                creatureTarget->AI()->Talk(EMOTE_SCARAB);
+                                creatureTarget->DespawnOrUnsummon();
+                            }
                         }
                         break;
                     case EVENT_LOCUST:
@@ -243,7 +242,7 @@ class at_anubrekhan_entrance : public AreaTriggerScript
     public:
         at_anubrekhan_entrance() : AreaTriggerScript("at_anubrekhan_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetData(DATA_HAD_ANUBREKHAN_GREET) || instance->GetBossState(BOSS_ANUBREKHAN) != NOT_STARTED)
