@@ -169,7 +169,7 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
     for (uint32 i = 1; i < fieldCount; i++)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
-        if (fmt[i - 1] == FT_BYTE || fmt[i - 1] == FT_NA_BYTE)  // byte fields
+        if (fmt[i - 1] == FT_BYTE)  // byte fields
             fieldsOffset[i] += sizeof(uint8);
         else if (fmt[i - 1] == FT_LONG)
             fieldsOffset[i] += sizeof(uint64);
