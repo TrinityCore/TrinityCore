@@ -1,47 +1,9 @@
--- 
-SET @Guid=144801;
-DELETE FROM `creature` WHERE `guid` BETWEEN @Guid+0 and @Guid+41;
-DELETE FROM `creature` WHERE `id`=22175;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`) VALUES
-(@Guid+0, 22175, 530, 1, 169, 0, 0, 2608.55, 7075.41, 364.496, 5.71923, 300, 5, 0, 7181, 0,  1),
-(@Guid+1, 22175, 530, 1, 169, 0, 0, 2238.57, 7119.23, 365.84, 3.09914, 300, 5, 0, 7181, 0,  1),
-(@Guid+2, 22175, 530, 1, 169, 0, 0, 2218.84, 7276.48, 366.109, 3.94579, 300, 5, 0, 7181, 0, 1),
-(@Guid+3, 22175, 530, 1, 169, 0, 0, 2154.76, 7242.51, 371.791, 1.50713, 300, 5, 0, 7181, 0, 1),
-(@Guid+4, 22175, 530, 1, 169, 0, 0, 1991.99, 7364.78, 366.955, 1.9501, 300, 5, 0, 7181, 0, 1),
-(@Guid+5, 22175, 530, 1, 169, 0, 0, 2076.62, 7337.08, 365.808, 0.65419, 300, 5, 0, 7181, 0, 1),
-(@Guid+6, 22175, 530, 1, 169, 0, 0, 4079.29, 5129.22, 268.446, 1.09823, 600, 5, 0, 7181, 0, 1),
-(@Guid+7, 22175, 530, 1, 169, 0, 0, 2270.3, 7189.96, 364.752, 6.06008, 300, 5, 0, 7181, 0, 1),
-(@Guid+8, 22175, 530, 1, 169, 0, 0, 2202.82, 7237.79, 375.415, 2.95619, 300, 5, 0, 7181, 0, 1),
-(@Guid+9, 22175, 530, 1, 169, 0, 0, 2008.2, 7182.08, 369.87, 5.39014, 300, 5, 0, 7181, 0, 1),
-(@Guid+10, 22175, 530, 1, 169, 0, 0, 1952.68, 7216.42, 368.281, 4.71862, 300, 5, 0, 7181, 0, 1),
-(@Guid+11, 22175, 530, 1, 169, 0, 0, 2129.63, 7169.39, 366.483, 2.49909, 300, 5, 0, 7181, 0, 1),
-(@Guid+12, 22175, 530, 1, 169, 0, 0, 2494.71, 7263.55, 367.219, 5.21106, 300, 5, 0, 7181, 0, 1),
-(@Guid+13, 22175, 530, 1, 169, 0, 0, 2054.45, 7271.76, 365.238, 2.8211, 300, 5, 0, 7181, 0, 1),
-(@Guid+14, 22175, 530, 1, 169, 0, 0, 2483.08, 7057.84, 364.585, 3.86333, 300, 5, 0, 7181, 0, 1),
-(@Guid+15, 22175, 530, 1, 169, 0, 0, 2525.27, 7252.78, 365.323, 4.43352, 300, 5, 0, 7181, 0, 1),
-(@Guid+16, 22175, 530, 1, 169, 0, 0, 2455.15, 7057.42, 366.643, 0.409148, 300, 5, 0, 7181, 0, 1),
-(@Guid+17, 22175, 530, 1, 169, 0, 0, 2050.88, 7172.54, 369.315, 4.41232, 300, 5, 0, 7181, 0,  1),
-(@Guid+18, 22175, 530, 1, 169, 0, 0, 2402.86, 7068.99, 369.09, 2.95541, 300, 5, 0, 7181, 0, 1),
-(@Guid+19, 22175, 530, 1, 169, 0, 0, 2383.77, 7040.89, 379.688, 2.85331, 300, 5, 0, 7181, 0, 1),
-(@Guid+20, 22175, 530, 1, 169, 0, 0, 2345.61, 7026.68, 387.225, 2.59727, 300, 5, 0, 7181, 0, 1),
-(@Guid+21, 22175, 530, 1, 169, 0, 0, 2209.37, 7124.08, 364.438, 5.00765, 300, 5, 0, 7181, 0, 1),
-(@Guid+22, 22175, 530, 1, 169, 0, 0, 1843.45, 7310.6, 369.195, 1.96894, 300, 5, 0, 7181, 0, 1),
-(@Guid+23, 22175, 530, 1, 169, 0, 0, 1847.23, 7324.28, 368.691, 5.12624, 300, 5, 0, 7181, 0, 1),
-(@Guid+24, 22175, 530, 1, 169, 0, 0, 1853.72, 7366.1, 366.072, 1.24245, 300, 5, 0, 7181, 0, 1),
-(@Guid+25, 22175, 530, 1, 169, 0, 0, 2148.09, 7282.4, 368.747, 6.10328, 300, 5, 0, 7181, 0, 1),
-(@Guid+26, 22175, 530, 1, 169, 0, 0, 2596.27, 7200.13, 367.541, 1.25031, 300, 5, 0, 7181, 0, 1),
-(@Guid+27, 22175, 530, 1, 169, 0, 0, 2176.91, 7309.42, 372.694, 5.73415, 300, 5, 0, 7181, 0, 1),
-(@Guid+28, 22175, 530, 1, 169, 0, 0, 2745.14, 7230.82, 368.577, 3.98822, 300, 5, 0, 7181, 0, 1),
-(@Guid+29, 22175, 530, 1, 169, 0, 0, 2725.08, 7244.41, 369.344, 6.08051, 300, 5, 0, 7181, 0, 1),
-(@Guid+30, 22175, 530, 1, 169, 0, 0, 2591.54, 7220.81, 364.005, 5.91165, 300, 5, 0, 7181, 0, 1),
-(@Guid+31, 22175, 530, 1, 169, 0, 0, 2305.98, 7154.86, 365.855, 0.25991, 300, 5, 0, 7181, 0, 1),
-(@Guid+32, 22175, 530, 1, 169, 0, 0, 2337.79, 7148.06, 368.183, 1.28878, 300, 5, 0, 7181, 0, 1),
-(@Guid+33, 22175, 530, 1, 169, 0, 0, 2425.56, 7173.66, 366.865, 6.19438, 300, 5, 0, 7181, 0, 1),
-(@Guid+34, 22175, 530, 1, 169, 0, 0, 2460.97, 7128.22, 367.7, 1.39166, 300, 5, 0, 7181, 0, 1),
-(@Guid+35, 22175, 530, 1, 169, 0, 0, 2491.67, 7155.23, 369.61, 3.2884, 300, 5, 0, 7181, 0, 1),
-(@Guid+36, 22175, 530, 1, 169, 0, 0, 2451.01, 7296.84, 365.796, 2.66794, 300, 5, 0, 7181, 0, 1),
-(@Guid+37, 22175, 530, 1, 169, 0, 0, 2439.87, 7254.54, 369.234, 2.22419, 300, 5, 0, 7181, 0, 1),
-(@Guid+38, 22175, 530, 1, 169, 0, 0, 1945.76, 7133.53, 367.456, 3.74865, 300, 5, 0, 7181, 0, 1),
-(@Guid+39, 22175, 530, 1, 169, 0, 0, 2037.34, 7265.44, 367.727, 0.68482, 300, 5, 0, 7181, 0, 1),
-(@Guid+40, 22175, 530, 1, 169, 0, 0, 1993.1, 7143.76, 373.431, 5.6768, 300, 5, 0, 7181, 0, 1),
-(@Guid+41, 22175, 530, 1, 169, 0, 0, 1948.44, 7203.54, 366.609, 1.46472, 300, 5, 0, 7181, 0, 1);
+-- Page text: Saga of the Sin'dorei
+
+DELETE FROM `page_text` WHERE `ID` IN (2823, 2824, 2825, 2826, 2827);
+INSERT INTO `page_text` (`ID`, `TEXT`, `NextPageID`) VALUES
+(2823, "Thousands of years ago, the exiled Highborne landed on the shores of Lordaeron and founded the enchanted kingdom of Quel'Thalas. These high elves, as they called themselves, created a fount of vast, magical energies within the heart of their land - the Sunwell. Over time, they grew dependant on the Sunwell's unstable energies- regardless of the bitter lessons they'd learned in ages past.", 2824),
+(2824, "During the Third War, the villainous Prince Arthas invaded Quel'Thalas and reduced the once-mighty realm to rubble and ashes. His undead army decimated nearly ninety percent of the high elven population. In addition, he used the Sunwell's energies to resurrect Kel'thuzad - a powerful undead Lich - thereby fouling the Sunwell's mystical waters. The few elven survivors, realizing that they had been cut off from the source of their arcane power, grew increasingly volatile and desperate.", 2825),
+(2825, "In the midst of the elves' darkest hour came Kael'thas Sunstrider - the last of Quel'Thalas' royal bloodline. Kael, as he was commonly known, knew that the remnants of his people would not long survive without the nourishing magics that once empowered them. Renaming his people blood elves, in honor of their fallen countrymen, he taught them how to tap into ambient mystical energies- even demonic energies - in order to sate their terrible thirst for magic.", 2826),
+(2826, "In search of a new destiny for his people - referred to in the elven vernacular now as the Sin'dorei - Kael'thas ventured to the remote world of Outland where he encountered the fallen night elf, Illidan. Under Illidan's tutelage, Kael and his blood elves have regained much of their former power.", 2827),
+(2827, "Unfortunately, the blood elves' practice of embracing demonic energies resulted in them being shunned by their former comrades in the Alliance. Thus, he remaining blood elves on Azeroth look desperately to the Horde to help them reach Outland, where they can reunite with Kael'thas and achieve the golden destiny he promised them.", 0);
