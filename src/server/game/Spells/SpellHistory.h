@@ -122,7 +122,7 @@ public:
     CooldownStorageType::size_type GetCooldownsSizeForPacket() const { return _spellCooldowns.size(); }
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
-    
+
 private:
     Player* GetPlayerOwner() const;
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;

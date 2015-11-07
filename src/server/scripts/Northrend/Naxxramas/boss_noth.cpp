@@ -178,7 +178,7 @@ public:
                 return;
             if (damage < me->GetHealth())
                 return;
-            
+
             me->SetHealth(1u);
             damage = 0u;
         }
@@ -226,7 +226,7 @@ public:
                     case EVENT_WARRIOR:
                         Talk(SAY_SUMMON);
                         Talk(EMOTE_SUMMON);
-                        
+
                         CastSummon(RAID_MODE(2, 3), 0, 0);
 
                         events.ScheduleEvent(EVENT_WARRIOR, 40 * IN_MILLISECONDS, 0, PHASE_GROUND);
@@ -291,7 +291,7 @@ public:
                         break;
                     case EVENT_GROUND:
                         ++balconyCount;
-                        
+
                         DoCastAOE(SPELL_TELEPORT_BACK);
                         Talk(EMOTE_TELEPORT_2);
 
@@ -308,7 +308,7 @@ public:
             {
                 /* workaround for movechase breaking after blinking
                    without this noth would just stand there unless his current target moves */
-                if (justBlinked && me->GetVictim() && !me->IsWithinMeleeRange(me->EnsureVictim())) 
+                if (justBlinked && me->GetVictim() && !me->IsWithinMeleeRange(me->EnsureVictim()))
                 {
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveChase(me->EnsureVictim());
@@ -321,7 +321,7 @@ public:
 
         private:
             uint32 balconyCount;
-            
+
             bool justBlinked;
 
             uint32 _SummonWarriorSpells[N_WARRIOR_SPELLS];

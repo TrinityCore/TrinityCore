@@ -120,7 +120,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
-            
+
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
 
@@ -218,7 +218,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
-        
+
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
 
@@ -251,7 +251,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
-            
+
         if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
 

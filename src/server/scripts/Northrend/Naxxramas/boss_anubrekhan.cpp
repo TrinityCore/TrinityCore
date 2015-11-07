@@ -116,7 +116,7 @@ public:
         void JustSummoned(Creature* summon) override
         {
             BossAI::JustSummoned(summon);
-            
+
             if (me->IsInCombat())
                 if (summon->GetEntry() == NPC_CRYPT_GUARD)
                     summon->AI()->Talk(EMOTE_SPAWN, me);
@@ -160,7 +160,7 @@ public:
             Talk(SAY_AGGRO);
 
             summons.DoZoneInCombat();
-            
+
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_IMPALE, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SCARABS, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS), 0, PHASE_NORMAL);
@@ -209,7 +209,7 @@ public:
                         Talk(EMOTE_LOCUST);
                         DoCast(me, SPELL_LOCUST_SWARM);
                         events.ScheduleEvent(EVENT_SPAWN_GUARD, 3 * IN_MILLISECONDS);
-                        
+
                         events.ScheduleEvent(EVENT_LOCUST_ENDS, RAID_MODE(19, 23) * IN_MILLISECONDS);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         events.SetPhase(PHASE_SWARM);
