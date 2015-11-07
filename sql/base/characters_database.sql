@@ -2977,6 +2977,7 @@ DROP TABLE IF EXISTS `pvpstats_players`;
 CREATE TABLE `pvpstats_players` (
   `battleground_id` bigint(20) unsigned NOT NULL,
   `character_guid` bigint(20) unsigned NOT NULL,
+  `winner` bit(1) NOT NULL,
   `score_killing_blows` mediumint(8) unsigned NOT NULL,
   `score_deaths` mediumint(8) unsigned NOT NULL,
   `score_honorable_kills` mediumint(8) unsigned NOT NULL,
