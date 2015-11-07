@@ -170,11 +170,11 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
         if (fmt[i - 1] == FT_BYTE)  // byte fields
-            fieldsOffset[i] += sizeof(uint8);
+            fieldsOffset[i] += 1;
         else if (fmt[i - 1] == FT_LONG)
-            fieldsOffset[i] += sizeof(uint64);
+            fieldsOffset[i] += 8;
         else                                                // 4 byte fields (int32/float/strings)
-            fieldsOffset[i] += sizeof(uint32);
+            fieldsOffset[i] += 4;
     }
 
     data = new unsigned char[recordSize * recordCount + stringSize];
