@@ -62,7 +62,7 @@ Requirements
 ============
 
 
-Software requirements are available in the [wiki](http://collab.kpsn.org/display/tc/Requirements) for
+Software requirements are available in the [wiki](http://www.trinitycore.info/display/tc/Requirements) for
 Windows, Linux and Mac OSX.
 
 
