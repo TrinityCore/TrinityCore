@@ -169,10 +169,12 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
     for (uint32 i = 1; i < fieldCount; i++)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
-        if (fmt[i - 1] == 'b')
-            fieldsOffset[i] += 1;
-        else
-            fieldsOffset[i] += 4;
+        if (fmt[i - 1] == FT_BYTE || fmt[i - 1] == FT_NA_BYTE)  // byte fields
+            fieldsOffset[i] += sizeof(uint8);
+        else if (fmt[i - 1] == FT_LONG)
+            fieldsOffset[i] += sizeof(uint64);
+        else                                                // 4 byte fields (int32/float/strings)
+            fieldsOffset[i] += sizeof(uint32);
     }
 
     data = new unsigned char[recordSize * recordCount + stringSize];
