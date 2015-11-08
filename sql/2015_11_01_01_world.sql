@@ -30,7 +30,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `smart_scripts` SET `target_type`=7 WHERE  `entryorguid` IN(20102,18927,19177,19169,19175,19171,19172,19176,19178,19173,19148) AND `source_type`=0 AND `id`=11;
 
 
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3110;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+37;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
 (@CGUID+0, 18927, 571, 1, 1, 5740.709, 686.1215, 643.8965, 3.822271, 120, 0, 0), -- 18927 (Area: 4395) (Auras: 65529 - 65529, 33209 - 33209, 33207 - 33207, 33208 - 33208)
 (@CGUID+1, 18927, 571, 1, 1, 5739.358, 684.6215, 644.1913, 0.8726646, 120, 0, 0), -- 18927 (Area: 4395) (Auras: 65529 - 65529, 33209 - 33209, 33207 - 33207, 33208 - 33208)
