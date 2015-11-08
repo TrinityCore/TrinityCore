@@ -2807,10 +2807,11 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_AURA_AOE_CHARM:
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
+                case SPELL_AURA_MOD_RESISTANCE_PCT:     // Faerie fire
+                case SPELL_AURA_MOD_ROOT:               // Roots
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                     break;
                 case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                 case SPELL_AURA_PERIODIC_LEECH:
                 case SPELL_AURA_PERIODIC_MANA_LEECH:
@@ -2820,6 +2821,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_POWER_BURN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    break;
+                case SPELL_AURA_PERIODIC_DAMAGE:        // DoTs like Shadow Word: Pain
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                     break;
             }
 
