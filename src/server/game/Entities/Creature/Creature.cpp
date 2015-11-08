@@ -440,6 +440,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
+    LoadCreaturesAddon(true);
     UpdateMovementFlags();
     return true;
 }
