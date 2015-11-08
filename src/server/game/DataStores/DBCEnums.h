@@ -527,14 +527,18 @@ enum ItemExtendedCostFlags
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL     = 1,
-    ITEM_BONUS_STAT           = 2,
-    ITEM_BONUS_QUALITY        = 3,
-    ITEM_BONUS_DESCRIPTION    = 4,
-    ITEM_BONUS_SUFFIX         = 5,
-    ITEM_BONUS_SOCKET         = 6,
-    ITEM_BONUS_APPEARANCE     = 7,
-    ITEM_BONUS_REQUIRED_LEVEL = 8,
+    ITEM_BONUS_ITEM_LEVEL                = 1,
+    ITEM_BONUS_STAT                      = 2,
+    ITEM_BONUS_QUALITY                   = 3,
+    ITEM_BONUS_DESCRIPTION               = 4,
+    ITEM_BONUS_SUFFIX                    = 5,
+    ITEM_BONUS_SOCKET                    = 6,
+    ITEM_BONUS_APPEARANCE                = 7,
+    ITEM_BONUS_REQUIRED_LEVEL            = 8,
+    ITEM_BONUS_DISPLAY_TOAST_METHOD      = 9,
+    ITEM_BONUS_REPAIR_COST_MULTIPLIER    = 10,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION = 11,
+    ITEM_BONUS_UNK_12                    = 12
 };
 
 enum ItemLimitCategoryMode

@@ -4934,7 +4934,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             else if (ditemProto->GetClass() == ITEM_CLASS_ARMOR)
                 dmultiplier = dcost->ArmorSubClassCost[ditemProto->GetSubClass()];
 
-            uint32 costs = uint32(LostDurability * dmultiplier * double(dQualitymodEntry->QualityMod));
+            uint32 costs = uint32(LostDurability * dmultiplier * double(dQualitymodEntry->QualityMod) * item->GetRepairCostMultiplier());
 
             costs = uint32(costs * discountMod * sWorld->getRate(RATE_REPAIRCOST));
 
@@ -10874,7 +10874,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
             }
 
-            ScalingStatDistributionEntry const* ssd = pProto->GetScalingStatDistribution() ? sScalingStatDistributionStore.LookupEntry(pProto->GetScalingStatDistribution()) : 0;
+            ScalingStatDistributionEntry const* ssd = pItem->GetScalingStatDistribution() ? sScalingStatDistributionStore.LookupEntry(pItem->GetScalingStatDistribution()) : 0;
             // check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
             if (ssd && ssd->MaxLevel < DEFAULT_MAX_LEVEL && ssd->MaxLevel < getLevel() && !sDB2Manager.GetHeirloomByItemId(pProto->GetId()))
                 return EQUIP_ERR_NOT_EQUIPPABLE;
@@ -15315,7 +15315,7 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
             uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
             if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
                 return m_seasonalquests.find(eventId)->second.find(quest_id) != m_seasonalquests.find(eventId)->second.end();
-            
+
             return false;
         }
 
