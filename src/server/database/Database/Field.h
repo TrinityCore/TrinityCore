@@ -23,6 +23,36 @@
 
 #include <mysql.h>
 
+/**
+    @class Field
+
+    @brief Class used to access individual fields of database query result
+
+    Guideline on field type matching:
+
+    |   MySQL type           |  method to use                         |
+    |------------------------|----------------------------------------|
+    | TINYINT                | GetBool, GetInt8, GetUInt8             |
+    | SMALLINT               | GetInt16, GetUInt16                    |
+    | MEDIUMINT, INT         | GetInt32, GetUInt32                    |
+    | BIGINT                 | GetInt64, GetUInt64                    |
+    | FLOAT                  | GetFloat                               |
+    | DOUBLE, DECIMAL        | GetDouble                              |
+    | CHAR, VARCHAR,         | GetCString, GetString                  |
+    | TINYTEXT, MEDIUMTEXT,  | GetCString, GetString                  |
+    | TEXT, LONGTEXT         | GetCString, GetString                  |
+    | TINYBLOB, MEDIUMBLOB,  | GetBinary, GetString                   |
+    | BLOB, LONGBLOB         | GetBinary, GetString                   |
+    | BINARY, VARBINARY      | GetBinary                              |
+
+    Return types of aggregate functions:
+
+    | Function |       Type        |
+    |----------|-------------------|
+    | MIN, MAX | Same as the field |
+    | SUM, AVG | DECIMAL           |
+    | COUNT    | BIGINT            |
+*/
 class Field
 {
     friend class ResultSet;
@@ -214,15 +244,15 @@ class Field
                 return 0.0f;
 
             #ifdef TRINITY_DEBUG
-            if (!IsType(MYSQL_TYPE_DOUBLE))
+            if (!IsType(MYSQL_TYPE_DOUBLE) && !IsType(MYSQL_TYPE_NEWDECIMAL))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetDouble() on non-double field %s.%s (%s.%s) at index %u. Using type: %s.",
+                TC_LOG_WARN("sql.sql", "Warning: GetDouble() on non-double/non-decimal field %s.%s (%s.%s) at index %u. Using type: %s.",
                     meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0.0f;
             }
             #endif
 
-            if (data.raw)
+            if (data.raw && !IsType(MYSQL_TYPE_NEWDECIMAL))
                 return *reinterpret_cast<double*>(data.value);
             return static_cast<double>(atof((char*)data.value));
         }
