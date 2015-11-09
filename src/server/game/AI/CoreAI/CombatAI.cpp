@@ -259,7 +259,7 @@ void TurretAI::UpdateAI(uint32 /*diff*/)
 // VehicleAI
 //////////////
 
-VehicleAI::VehicleAI(Creature* creature) : CreatureAI(creature), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
+VehicleAI::VehicleAI(Creature* creature) : CreatureAI(creature), m_HasConditions(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
 {
     LoadConditions();
     m_DoDismiss = false;
@@ -285,7 +285,7 @@ void VehicleAI::UpdateAI(uint32 diff)
 
 void VehicleAI::OnCharmed(bool apply)
 {
-    if (!me->GetVehicleKit()->IsVehicleInUse() && !apply && !conditions.empty()) // was used and has conditions
+    if (!me->GetVehicleKit()->IsVehicleInUse() && !apply && m_HasConditions) // was used and has conditions
     {
         m_DoDismiss = true; // needs reset
     }
@@ -297,16 +297,14 @@ void VehicleAI::OnCharmed(bool apply)
 
 void VehicleAI::LoadConditions()
 {
-    conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry());
-    if (!conditions.empty())
-        TC_LOG_DEBUG("condition", "VehicleAI::LoadConditions: loaded %u conditions", uint32(conditions.size()));
+    m_HasConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry());
 }
 
 void VehicleAI::CheckConditions(uint32 diff)
 {
     if (m_ConditionsTimer < diff)
     {
-        if (!conditions.empty())
+        if (m_HasConditions)
         {
             if (Vehicle* vehicleKit = me->GetVehicleKit())
                 for (SeatMap::iterator itr = vehicleKit->Seats.begin(); itr != vehicleKit->Seats.end(); ++itr)
@@ -314,7 +312,7 @@ void VehicleAI::CheckConditions(uint32 diff)
                     {
                         if (Player* player = passenger->ToPlayer())
                         {
-                            if (!sConditionMgr->IsObjectMeetToConditions(player, me, conditions))
+                            if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry(), player, me))
                             {
                                 player->ExitVehicle();
                                 return; // check other pessanger in next tick

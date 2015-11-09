@@ -45,6 +45,60 @@
     UnusedScriptNamesContainer UnusedScriptNames;
 // }
 
+// Trait which indicates whether this script type
+// must be assigned in the database.
+template<typename>
+struct is_script_database_bound
+    : std::false_type { };
+
+template<>
+struct is_script_database_bound<SpellScriptLoader>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<InstanceMapScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<ItemScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<CreatureScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<GameObjectScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<AreaTriggerScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<BattlegroundScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<OutdoorPvPScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<WeatherScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<ConditionScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<TransportScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<AchievementCriteriaScript>
+    : std::true_type { };
+
 // This is the global static registry of scripts.
 template<class TScript>
 class ScriptRegistry
@@ -75,64 +129,7 @@ class ScriptRegistry
                 }
             }
 
-            if (script->IsDatabaseBound())
-            {
-                // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
-                // through a script name (or similar).
-                uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
-                if (id)
-                {
-                    // Try to find an existing script.
-                    bool existing = false;
-                    for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
-                    {
-                        // If the script names match...
-                        if (it->second->GetName() == script->GetName())
-                        {
-                            // ... It exists.
-                            existing = true;
-                            break;
-                        }
-                    }
-
-                    // If the script isn't assigned -> assign it!
-                    if (!existing)
-                    {
-                        ScriptPointerList[id] = script;
-                        sScriptMgr->IncrementScriptCount();
-
-                    #ifdef SCRIPTS
-                        UnusedScriptNamesContainer::iterator itr = std::lower_bound(UnusedScriptNames.begin(), UnusedScriptNames.end(), script->GetName());
-                        if (itr != UnusedScriptNames.end() && *itr == script->GetName())
-                            UnusedScriptNames.erase(itr);
-                    #endif
-                    }
-                    else
-                    {
-                        // If the script is already assigned -> delete it!
-                        TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
-                            script->GetName().c_str());
-
-                        ABORT(); // Error that should be fixed ASAP.
-                    }
-                }
-                else
-                {
-                    // The script uses a script name from database, but isn't assigned to anything.
-                    TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.", script->GetName().c_str());
-
-                    // Avoid calling "delete script;" because we are currently in the script constructor
-                    // In a valid scenario this will not happen because every script has a name assigned in the database
-                    UnusedScripts.push_back(script);
-                    return;
-                }
-            }
-            else
-            {
-                // We're dealing with a code-only script; just add it.
-                ScriptPointerList[_scriptIdCounter++] = script;
-                sScriptMgr->IncrementScriptCount();
-            }
+            AddScript(is_script_database_bound<TScript>{}, script);
         }
 
         // Gets a script by its ID (assigned by ObjectMgr).
@@ -146,6 +143,68 @@ class ScriptRegistry
         }
 
     private:
+
+        // Adds a database bound script
+        static void AddScript(std::true_type, TScript* const script)
+        {
+            // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
+            // through a script name (or similar).
+            uint32 id = sObjectMgr->GetScriptId(script->GetName());
+            if (id)
+            {
+                // Try to find an existing script.
+                bool existing = false;
+                for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+                {
+                    // If the script names match...
+                    if (it->second->GetName() == script->GetName())
+                    {
+                        // ... It exists.
+                        existing = true;
+                        break;
+                    }
+                }
+
+                // If the script isn't assigned -> assign it!
+                if (!existing)
+                {
+                    ScriptPointerList[id] = script;
+                    sScriptMgr->IncrementScriptCount();
+
+                #ifdef SCRIPTS
+                    UnusedScriptNamesContainer::iterator itr = std::lower_bound(UnusedScriptNames.begin(), UnusedScriptNames.end(), script->GetName());
+                    if (itr != UnusedScriptNames.end() && *itr == script->GetName())
+                        UnusedScriptNames.erase(itr);
+                #endif
+                }
+                else
+                {
+                    // If the script is already assigned -> delete it!
+                    TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
+                        script->GetName().c_str());
+
+                    ABORT(); // Error that should be fixed ASAP.
+                }
+            }
+            else
+            {
+                // The script uses a script name from database, but isn't assigned to anything.
+                TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.", script->GetName().c_str());
+
+                // Avoid calling "delete script;" because we are currently in the script constructor
+                // In a valid scenario this will not happen because every script has a name assigned in the database
+                UnusedScripts.push_back(script);
+                return;
+            }
+        }
+
+        // Adds a non database bound script
+        static void AddScript(std::false_type, TScript* const script)
+        {
+            // We're dealing with a code-only script; just add it.
+            ScriptPointerList[_scriptIdCounter++] = script;
+            sScriptMgr->IncrementScriptCount();
+        }
 
         // Counter used for code-only scripts.
         static uint32 _scriptIdCounter;
@@ -1205,7 +1264,7 @@ void ScriptMgr::OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry)
     FOREACH_SCRIPT(AuctionHouseScript)->OnAuctionExpire(ah, entry);
 }
 
-bool ScriptMgr::OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
+bool ScriptMgr::OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo)
 {
     ASSERT(condition);
 

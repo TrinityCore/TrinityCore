@@ -3,6 +3,8 @@
 
 #if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
 
+#include <winnt.h>
+#include <winternl.h>
 #include <dbghelp.h>
 #include <set>
 #include <stdlib.h>
@@ -197,6 +199,8 @@ class WheatyExceptionReport
         static bool stackOverflowException;
         static bool alreadyCrashed;
         static std::mutex alreadyCrashedLock;
+        typedef NTSTATUS(NTAPI* pRtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
+        static pRtlGetVersion RtlGetVersion;
 
         static char* PushSymbolDetail(char* pszCurrBuffer);
         static char* PopSymbolDetail(char* pszCurrBuffer);

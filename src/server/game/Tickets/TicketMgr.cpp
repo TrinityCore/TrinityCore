@@ -32,11 +32,11 @@ inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GM ticket
-GmTicket::GmTicket() : _id(0), _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(0), _lastModifiedTime(0),
+GmTicket::GmTicket() : _id(0), _type(TICKET_TYPE_OPEN), _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(0), _lastModifiedTime(0),
                        _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false),
                        _needResponse(false), _needMoreHelp(false) { }
 
-GmTicket::GmTicket(Player* player) : _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(time(NULL)), _lastModifiedTime(time(NULL)),
+GmTicket::GmTicket(Player* player) : _type(TICKET_TYPE_OPEN), _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(time(NULL)), _lastModifiedTime(time(NULL)),
                        _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false),
                        _needResponse(false), _needMoreHelp(false)
 {
@@ -49,10 +49,11 @@ GmTicket::~GmTicket() { }
 
 bool GmTicket::LoadFromDB(Field* fields)
 {
-    //     0       1     2      3          4        5      6     7     8           9            10         11         12       13        14         15        16        17
-    // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket
+    // 0    1        2        3         4            5        6     7     8     9           10           11         12         13        14        15        16         17         18
+    // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
+    _type               = TicketType(fields[++index].GetUInt8());
     _playerGuid         = ObjectGuid(HighGuid::Player, fields[++index].GetUInt32());
     _playerName         = fields[++index].GetString();
     _message            = fields[++index].GetString();
@@ -75,11 +76,12 @@ bool GmTicket::LoadFromDB(Field* fields)
 
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
-    //  0       1       2         3          4          5     6     7     8           9            10         11         12        13        14        15         16         17           18
-    // id, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
+    //  0    1       2         3          4          5        6     7     8     9           10           11          12        13        14        15         16        17         18          19
+    // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
+    stmt->setUInt8 (++index, uint8(_type));
     stmt->setUInt32(++index, _playerGuid.GetCounter());
     stmt->setString(++index, _playerName);
     stmt->setString(++index, _message);

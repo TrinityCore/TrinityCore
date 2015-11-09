@@ -62,7 +62,7 @@ Requirements
 ============
 
 
-Software requirements are available in the [wiki](http://collab.kpsn.org/display/tc/Requirements) for
+Software requirements are available in the [wiki](http://www.trinitycore.info/display/tc/Requirements) for
 Windows, Linux and Mac OSX.
 
 If you choose Linux, we recommend to use Debian 8, since it's the Linux that we use to test compilations.
