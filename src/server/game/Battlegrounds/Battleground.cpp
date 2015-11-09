@@ -151,7 +151,6 @@ Battleground::Battleground()
 
     m_MapId             = 0;
     m_Map               = NULL;
-    m_StartMaxDist      = 0.0f;
     ScriptId            = 0;
 
     m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
@@ -243,10 +242,7 @@ void Battleground::Update(uint32 diff)
     {
         case STATUS_WAIT_JOIN:
             if (GetPlayersSize())
-            {
                 _ProcessJoin(diff);
-                _CheckSafePositions(diff);
-            }
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();
@@ -285,31 +281,6 @@ void Battleground::Update(uint32 diff)
     }
 
     PostUpdateImpl(diff);
-}
-
-inline void Battleground::_CheckSafePositions(uint32 diff)
-{
-    float maxDist = GetStartMaxDist();
-    if (!maxDist)
-        return;
-
-    m_ValidStartPositionTimer += diff;
-    if (m_ValidStartPositionTimer >= CHECK_PLAYER_POSITION_INVERVAL)
-    {
-        m_ValidStartPositionTimer = 0;
-
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            {
-                Position pos = player->GetPosition();
-                Position const* startPos = GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
-                if (pos.GetExactDistSq(startPos) > maxDist)
-                {
-                    TC_LOG_DEBUG("bg.battleground", "BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", player->GetName().c_str(), GetMapId());
-                    player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
-                }
-            }
-    }
 }
 
 void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)

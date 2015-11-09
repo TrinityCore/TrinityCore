@@ -449,7 +449,6 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
     bg->SetMaxPlayers(bgTemplate->MaxPlayersPerTeam * 2);
     bg->SetTeamStartPosition(TEAM_ALLIANCE, bgTemplate->StartLocation[TEAM_ALLIANCE]);
     bg->SetTeamStartPosition(TEAM_HORDE, bgTemplate->StartLocation[TEAM_HORDE]);
-    bg->SetStartMaxDist(bgTemplate->MaxStartDistSq);
     bg->SetLevelRange(bgTemplate->MinLevel, bgTemplate->MaxLevel);
     bg->SetScriptId(bgTemplate->ScriptId);
     bg->SetQueueId(uint64(bgTemplate->Id) | UI64LIT(0x1F10000000000000));
@@ -466,8 +465,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
     _battlegroundMapTemplates.clear();
     _battlegroundTemplates.clear();
 
-    //                                               0   1                  2                  3       4       5                 6              7             8       9
-    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
+    //                                               0   1                  2                  3       4       5                 6              7       8
+    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, HordeStartLoc, Weight, ScriptName FROM battleground_template");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
@@ -499,10 +498,8 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         bgTemplate.MaxPlayersPerTeam = fields[2].GetUInt16();
         bgTemplate.MinLevel          = fields[3].GetUInt8();
         bgTemplate.MaxLevel          = fields[4].GetUInt8();
-        float dist                   = fields[7].GetFloat();
-        bgTemplate.MaxStartDistSq    = dist * dist;
-        bgTemplate.Weight            = fields[8].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[9].GetString());
+        bgTemplate.Weight            = fields[7].GetUInt8();
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[8].GetString());
         bgTemplate.BattlemasterEntry = bl;
 
         if (bgTemplate.MaxPlayersPerTeam == 0 || bgTemplate.MinPlayersPerTeam > bgTemplate.MaxPlayersPerTeam)

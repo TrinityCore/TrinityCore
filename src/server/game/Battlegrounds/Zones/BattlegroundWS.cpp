@@ -650,13 +650,18 @@ void BattlegroundWS::UpdateTeamScore(uint32 team)
 
 void BattlegroundWS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     //uint32 SpellId = 0;
     //uint64 buff_guid = 0;
     switch (trigger)
     {
+        case 8965: // Horde Start
+        case 8966: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+            {
+                Position const* startPos = GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
+                player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
+            }
+            break;
         case 3686:                                          // Alliance elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground::Update().
             //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_1];
             break;
