@@ -103,7 +103,7 @@ public:
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
-            
+
             eruptSection = 3;
             events.ScheduleEvent(EVENT_DISRUPT, urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_FEVER, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, PHASE_FIGHT);
@@ -182,7 +182,7 @@ public:
         private:
             uint32 eruptSection;
             bool eruptDirection;
-            
+
             bool safetyDance; // is achievement still possible? (= no player deaths yet)
     };
 

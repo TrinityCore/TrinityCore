@@ -246,10 +246,10 @@ class SmartScript
                 DecPhase(abs(p));
         }
 
-        void DecPhase(int32 p = 1) 
-        { 
+        void DecPhase(int32 p = 1)
+        {
             if(mEventPhase > (uint32)p)
-                mEventPhase -= (uint32)p; 
+                mEventPhase -= (uint32)p;
             else
                 mEventPhase = 0;
         }
