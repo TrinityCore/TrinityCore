@@ -551,13 +551,9 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go) override
     {
-        Map* map = go->GetMap();
-        if (!map->IsDungeon())
-            return true;
-
 #if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
         uint8 SpectralPlayers = 0;
-        Map::PlayerList const &PlayerList = map->GetPlayers();
+        Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
             if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
@@ -569,6 +565,8 @@ public:
             player->GetSession()->SendNotification(GO_FAILED);
             return true;
         }
+#else
+        (void)go;
 #endif
 
         player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
@@ -688,12 +686,8 @@ public:
 
         void TeleportAllPlayersBack()
         {
-            Map* map = me->GetMap();
-            if (!map->IsDungeon())
-                return;
-
-            Map::PlayerList const &playerList = map->GetPlayers();
-            Position homePos = me->GetHomePosition();
+            Map::PlayerList const &playerList = me->GetMap()->GetPlayers();
+            Position const& homePos = me->GetHomePosition();
             for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
             {
                 Player* player = itr->GetSource();

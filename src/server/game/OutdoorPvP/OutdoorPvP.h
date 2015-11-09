@@ -308,12 +308,12 @@ class OutdoorPvP : public ZoneScript
 
         template<class Worker>
         void BroadcastWorker(Worker& _worker, uint32 zoneId);
-        
+
         // Hack to store map because this code is just shit
         void SetMapFromZone(uint32 zone);
         std::map<ObjectGuid::LowType, GameObject*> m_GoScriptStore;
         std::map<ObjectGuid::LowType, Creature*> m_CreatureScriptStore;
-        
+
         Map* m_map;
 };
 

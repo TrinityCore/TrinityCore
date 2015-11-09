@@ -29,13 +29,13 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 ## Requirements
 
 
-Software requirements are available in the [wiki](http://collab.kpsn.org/display/tc/Requirements) for
+Software requirements are available in the [wiki](http://www.trinitycore.info/display/tc/Requirements) for
 Windows, Linux and Mac OSX.
 
 
 ## Install
 
-Detailed installation guides are available in the [wiki](http://collab.kpsn.org/display/tc/Installation+Guide) for
+Detailed installation guides are available in the [wiki](http://www.trinitycore.info/display/tc/Installation+Guide) for
 Windows, Linux and Mac OSX.
 
 
