@@ -46,6 +46,9 @@ enum Data
     DATA_HEIGAN_ERUPT,
     DATA_GOTHIK_GATE,
     DATA_SAPPHIRON_BIRTH,
+    DATA_HAD_ANUBREKHAN_GREET,
+
+    DATA_HAD_FAERLINA_GREET,
 
     DATA_HORSEMEN0,
     DATA_HORSEMEN1,
@@ -61,6 +64,7 @@ enum Data
 
 enum Data64
 {
+    DATA_ANUBREKHAN,
     DATA_FAERLINA,
     DATA_THANE,
     DATA_LADY,
@@ -81,6 +85,7 @@ enum Data64
 
 enum CreaturesIds
 {
+    NPC_ANUBREKHAN              = 15956,
     NPC_FAERLINA                = 15953,
     NPC_THANE                   = 16064,
     NPC_LADY                    = 16065,

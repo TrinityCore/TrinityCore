@@ -600,7 +600,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
-    PetNameInvalidReason res = ObjectMgr::CheckPetName(name);
+    PetNameInvalidReason res = ObjectMgr::CheckPetName(name, GetSessionDbcLocale());
     if (res != PET_NAME_SUCCESS)
     {
         SendPetNameInvalid(res, name, NULL);

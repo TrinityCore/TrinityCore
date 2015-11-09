@@ -309,11 +309,7 @@ public:
                 {
                     if (WipeTimer <= diff)
                     {
-                        Map* map = me->GetMap();
-                        if (!map->IsDungeon())
-                            return;
-
-                        Map::PlayerList const &PlayerList = map->GetPlayers();
+                        Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                         if (PlayerList.isEmpty())
                             return;
 
@@ -518,8 +514,6 @@ public:
 
         uint32 NextStep(uint32 step)
         {
-            Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID);
-            Map* map = me->GetMap();
             switch (step)
             {
             case 0: return 9999999;
@@ -527,21 +521,21 @@ public:
                 me->Yell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL);
                 return 10000;
             case 2:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                     arca->Yell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL);
                 return 20000;
             case 3:
                 me->Yell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL);
                 return 10000;
             case 4:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                     arca->Yell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL);
                 return 20000;
             case 5:
                 me->Yell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL);
                 return 20000;
             case 6:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                     arca->Yell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL);
                 return 10000;
             case 7:
@@ -555,15 +549,15 @@ public:
                 me->TextEmote(EMOTE_DIALOG_MEDIVH_7);
                 return 10000;
             case 10:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                     DoCast(arca, SPELL_CONFLAGRATION_BLAST, false);
                 return 1000;
             case 11:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                     arca->Yell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL);
                 return 5000;
             case 12:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                 {
                     arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
                     arca->setActive(true);
@@ -575,27 +569,27 @@ public:
                 me->Yell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL);
                 return 10000;
             case 14:
+            {
                 me->SetVisible(false);
                 me->ClearInCombat();
 
-                if (map->IsDungeon())
+                InstanceMap::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    InstanceMap::PlayerList const &PlayerList = map->GetPlayers();
-                    for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    if (i->GetSource()->IsAlive())
                     {
-                        if (i->GetSource()->IsAlive())
-                        {
-                            if (i->GetSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
-                                i->GetSource()->CompleteQuest(9645);
-                        }
+                        if (i->GetSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
+                            i->GetSource()->CompleteQuest(9645);
                     }
                 }
                 return 50000;
+            }
             case 15:
-                if (arca)
+                if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
                     arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 return 5000;
-            default : return 9999999;
+            default:
+                return 9999999;
             }
         }
 
