@@ -143,8 +143,6 @@ class boss_ossirian : public CreatureScript
                 Talk(SAY_AGGRO);
 
                 Map* map = me->GetMap();
-                if (!map->IsDungeon())
-                    return;
 
                 WorldPacket data(SMSG_WEATHER, (4+4+4));
                 data << uint32(WEATHER_STATE_HEAVY_SANDSTORM) << float(1) << uint8(0);
@@ -153,7 +151,7 @@ class boss_ossirian : public CreatureScript
                 for (uint8 i = 0; i < NUM_TORNADOS; ++i)
                 {
                     Position Point = me->GetRandomPoint(RoomCenter, RoomRadius);
-                    if (Creature* Tornado = me->GetMap()->SummonCreature(NPC_SAND_VORTEX, Point))
+                    if (Creature* Tornado = map->SummonCreature(NPC_SAND_VORTEX, Point))
                         Tornado->CastSpell(Tornado, SPELL_SAND_STORM, true);
                 }
 

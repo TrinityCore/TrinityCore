@@ -1336,7 +1336,7 @@ class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                uint32 spellId = RAND<uint32>(71301, 72220, 72223, 72225);
+                uint32 spellId = RAND(71301, 72220, 72223, 72225);
                 GetHitUnit()->CastSpell(GetHitUnit(), spellId, true);
             }
 
@@ -1367,7 +1367,7 @@ class spell_dreamwalker_summon_nightmare_portal : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                uint32 spellId = RAND<uint32>(71977, 72481, 72482, 72483);
+                uint32 spellId = RAND(71977, 72481, 72482, 72483);
                 GetHitUnit()->CastSpell(GetHitUnit(), spellId, true);
             }
 

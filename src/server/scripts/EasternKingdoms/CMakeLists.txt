@@ -17,12 +17,9 @@ set(scripts_STAT_SRCS
   EasternKingdoms/AlteracValley/boss_vanndar.cpp
   EasternKingdoms/AlteracValley/alterac_valley.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
-  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_gorosh_the_dervish.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/blackrock_depths.cpp
-  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_anubshiah.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_tomb_of_seven.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_general_angerforge.cpp
-  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_grizzle.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_ambassador_flamelash.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/instance_blackrock_depths.cpp
   EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_moira_bronzebeard.cpp
