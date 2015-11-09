@@ -89,13 +89,8 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
             continue;
 
         if (eventType == e /*&& (!i->event.event_phase_mask || IsInPhase(i->event.event_phase_mask)) && !(i->event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && i->runOnce)*/)
-        {
-            ConditionList conds = sConditionMgr->GetConditionsForSmartEvent(i->entryOrGuid, i->event_id, i->source_type);
-            ConditionSourceInfo info = ConditionSourceInfo(unit, GetBaseObject());
-
-            if (sConditionMgr->IsObjectMeetToConditions(info, conds))
+            if (sConditionMgr->IsObjectMeetingSmartEventConditions(i->entryOrGuid, i->event_id, i->source_type, unit, GetBaseObject()))
                 ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
-        }
     }
 }
 
@@ -1031,16 +1026,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (!IsCreature(*itr))
-                    continue;
-
-                if ((*itr)->ToUnit()->IsAlive() && IsSmart((*itr)->ToCreature()))
+                if (Creature* target = (*itr)->ToCreature())
                 {
-                    ENSURE_AI(SmartAI, (*itr)->ToCreature()->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
-                    ENSURE_AI(SmartAI, (*itr)->ToCreature()->AI())->StartDespawn();
+                    if (target->IsAlive() && IsSmart(target))
+                    {
+                        ENSURE_AI(SmartAI, target->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
+                        ENSURE_AI(SmartAI, target->AI())->StartDespawn();
+                    }
+                    else
+                        target->DespawnOrUnsummon(e.action.forceDespawn.delay);
                 }
-                else
-                    (*itr)->ToCreature()->DespawnOrUnsummon(e.action.forceDespawn.delay);
+                else if (GameObject* goTarget = (*itr)->ToGameObject())
+                {
+                    if (IsSmartGO(goTarget))
+                        goTarget->SetRespawnTime(e.action.forceDespawn.delay + 1);
+                }
             }
 
             delete targets;
@@ -2322,10 +2322,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
 void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
 {
-    ConditionList const conds = sConditionMgr->GetConditionsForSmartEvent(e.entryOrGuid, e.event_id, e.source_type);
-    ConditionSourceInfo info = ConditionSourceInfo(unit, GetBaseObject());
-
-    if (sConditionMgr->IsObjectMeetToConditions(info, conds))
+    if (sConditionMgr->IsObjectMeetingSmartEventConditions(e.entryOrGuid, e.event_id, e.source_type, unit, GetBaseObject()))
         ProcessAction(e, unit, var0, var1, bvar, spell, gob);
 
     RecalcTimer(e, min, max);

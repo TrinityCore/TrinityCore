@@ -14,3 +14,5 @@ G3D-v9.0 hotfix1.diff - 2014-08-22 - updated to G3D9, reapplied previous patches
 G3D-v9.0 hotfix2.diff - 2014-08-23 - fix some -Wconversion warnings
 G3D-v9.0 hotfix3.diff - 2015-06-28 - fix some warnings
 G3D-v9.0 hotfix4.diff - 2015-07-02 - backport G3D10 fix
+G3D-v9.0 hotfix5.diff - 2015-07-31 - fix MSVC 2015 warning: dep/g3dlite/include/G3D/Quat.h(352): warning C4458: declaration of 'x' hides class member
+G3D-v9.0 hotfix6.diff - 2015-11-04 - fix adding std::shared_ptr, std::weak_ptr, std::dynamic_pointer_cast, std::static_pointer_cast and std::enable_shared_from_this to global namespace

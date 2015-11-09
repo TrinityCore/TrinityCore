@@ -222,7 +222,7 @@ public:
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
         stmt->setUInt32(0, delInfo.guid.GetCounter());
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-            sWorld->AddCharacterNameData(delInfo.guid, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
+            sWorld->AddCharacterInfo(delInfo.guid, delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
     }
 
     static void HandleCharacterLevel(Player* player, ObjectGuid playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)
@@ -335,7 +335,7 @@ public:
                 return false;
             }
 
-            if (ObjectMgr::CheckPlayerName(newName, true) != CHAR_NAME_SUCCESS)
+            if (ObjectMgr::CheckPlayerName(newName, target ? target->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale(), true) != CHAR_NAME_SUCCESS)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
                 handler->SetSentErrorMessage(true);
@@ -382,7 +382,7 @@ public:
                 CharacterDatabase.Execute(stmt);
             }
 
-            sWorld->UpdateCharacterNameData(targetGuid, newName);
+            sWorld->UpdateCharacterInfo(targetGuid, newName);
 
             handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
 
@@ -895,7 +895,7 @@ public:
                 return false;
             }
 
-            if (ObjectMgr::CheckPlayerName(name, true) != CHAR_NAME_SUCCESS)
+            if (ObjectMgr::CheckPlayerName(name, sWorld->GetDefaultDbcLocale(), true) != CHAR_NAME_SUCCESS)
             {
                 handler->PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
                 handler->SetSentErrorMessage(true);

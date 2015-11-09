@@ -249,7 +249,7 @@ struct PacketCounter
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -258,7 +258,7 @@ class WorldSession
         bool PlayerRecentlyLoggedOut() const { return m_playerRecentlyLogout; }
         bool PlayerDisconnected() const { return !m_Socket; }
 
-        void ReadAddonsInfo(WorldPacket& data);
+        void ReadAddonsInfo(ByteBuffer& data);
         void SendAddonsInfo();
 
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
@@ -276,9 +276,13 @@ class WorldSession
         void SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
 
+        void InitializeSession();
+        void InitializeSessionCallback(SQLQueryHolder* realmHolder);
+
         rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
+        PreparedQueryResultFuture LoadPermissionsAsync();
         void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
 
         AccountTypes GetSecurity() const { return _security; }
@@ -358,10 +362,9 @@ class WorldSession
         AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t tm, std::string const& data);
         void SendAccountDataTimes(uint32 mask);
-        void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
 
-        void LoadTutorialsData();
+        void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
         uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
@@ -965,6 +968,7 @@ class WorldSession
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
+        QueryResultHolderFuture _realmAccountLoginCallback;
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
         PreparedQueryResultFuture _stablePetCallback;
@@ -1034,6 +1038,7 @@ class WorldSession
 
         AccountTypes _security;
         uint32 _accountId;
+        std::string _accountName;
         uint8 m_expansion;
 
         typedef std::list<AddonInfo> AddonsList;
