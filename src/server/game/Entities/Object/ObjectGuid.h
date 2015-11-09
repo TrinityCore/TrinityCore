@@ -21,10 +21,8 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
-
 #include <type_traits>
 #include <functional>
-#include <unordered_set>
 
 enum TypeID
 {
@@ -130,11 +128,6 @@ class ObjectGuid
         explicit ObjectGuid(uint64 guid) : _guid(guid) { }
         ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
         ObjectGuid(HighGuid hi, LowType counter) : _guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) { }
-        ObjectGuid(ObjectGuid const& r) : _guid(r._guid) { }
-        ObjectGuid(ObjectGuid&& r) : _guid(r._guid) { }
-
-        ObjectGuid& operator=(ObjectGuid const& r) { _guid = r._guid; return *this; }
-        ObjectGuid& operator=(ObjectGuid&& r) { _guid = r._guid; return *this; }
 
         operator uint64() const { return _guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }

@@ -31,7 +31,7 @@
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
+    CharacterInfo const* nameData = sWorld->GetCharacterInfo(guid);
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
     data << guid.WriteAsPacked();
@@ -43,11 +43,11 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     }
 
     data << uint8(0);                               // name known
-    data << nameData->m_name;                       // played name
+    data << nameData->Name;                         // played name
     data << uint8(0);                               // realm name - only set for cross realm interaction (such as Battlegrounds)
-    data << uint8(nameData->m_race);
-    data << uint8(nameData->m_gender);
-    data << uint8(nameData->m_class);
+    data << uint8(nameData->Race);
+    data << uint8(nameData->Sex);
+    data << uint8(nameData->Class);
 
     if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
     {
@@ -96,9 +96,9 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
     if (ci)
     {
-        std::string Name, SubName;
+        std::string Name, Title;
         Name = ci->Name;
-        SubName = ci->SubName;
+        Title = ci->Title;
 
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
@@ -106,7 +106,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
             if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(entry))
             {
                 ObjectMgr::GetLocaleString(cl->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
+                ObjectMgr::GetLocaleString(cl->Title, loc_idx, Title);
             }
         }
         TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
@@ -115,7 +115,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << uint32(entry);                              // creature entry
         data << Name;
         data << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
-        data << SubName;
+        data << Title;
         data << ci->IconName;                               // "Directions" for guard, string for Icons 2.3.0
         data << uint32(ci->type_flags);                     // flags
         data << uint32(ci->type);                           // CreatureType.dbc
