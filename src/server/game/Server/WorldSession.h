@@ -104,6 +104,13 @@ namespace WorldPackets
         class BuyBankSlot;
     }
 
+    namespace Battlefield
+    {
+        class BFMgrEntryInviteResponse;
+        class BFMgrQueueInviteResponse;
+        class BFMgrQueueExitRequest;
+    }
+
     namespace Battleground
     {
         class AreaSpiritHealerQuery;
@@ -719,11 +726,13 @@ enum BarberShopResult
 
 enum BFLeaveReason
 {
-    BF_LEAVE_REASON_CLOSE     = 0x00000001,
-    //BF_LEAVE_REASON_UNK1      = 0x00000002, (not used)
-    //BF_LEAVE_REASON_UNK2      = 0x00000004, (not used)
-    BF_LEAVE_REASON_EXITED    = 0x00000008,
-    BF_LEAVE_REASON_LOW_LEVEL = 0x00000010
+    BF_LEAVE_REASON_CLOSE     = 1,
+    //BF_LEAVE_REASON_UNK1      = 2, (not used)
+    //BF_LEAVE_REASON_UNK2      = 4, (not used)
+    BF_LEAVE_REASON_EXITED = 8,
+    BF_LEAVE_REASON_LOW_LEVEL = 10,
+    BF_LEAVE_REASON_NOT_WHILE_IN_RAID = 15,
+    BF_LEAVE_REASON_DESERTER = 16
 };
 
 enum ChatRestrictionType
@@ -1444,14 +1453,14 @@ class WorldSession
         void HandleRequestBattlefieldStatusOpcode(WorldPackets::Battleground::RequestBattlefieldStatus& requestBattlefieldStatus);
 
         // Battlefield
-        void SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint32 time);
-        void SendBfInvitePlayerToQueue(ObjectGuid guid);
-        void SendBfQueueInviteResponse(ObjectGuid guid, uint32 zoneId, bool canQueue = true, bool full = false);
-        void SendBfEntered(ObjectGuid guid);
-        void SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
-        void HandleBfQueueInviteResponse(WorldPacket& recvData);
-        void HandleBfEntryInviteResponse(WorldPacket& recvData);
-        void HandleBfExitRequest(WorldPacket& recvData);
+        void SendBfInvitePlayerToWar(uint64 queueId, uint32 zoneId, uint32 acceptTime);
+        void SendBfInvitePlayerToQueue(uint64 queueId, int8 battleState);
+        void SendBfQueueInviteResponse(uint64 queueId, uint32 zoneId, int8 battleStatus, bool canQueue = true, bool loggingIn = false);
+        void SendBfEntered(uint64 queueId, bool relocated, bool onOffense);
+        void SendBfLeaveMessage(uint64 queueId, int8 battleState, bool relocated, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void HandleBfEntryInviteResponse(WorldPackets::Battlefield::BFMgrEntryInviteResponse& bfMgrEntryInviteResponse);
+        void HandleBfQueueInviteResponse(WorldPackets::Battlefield::BFMgrQueueInviteResponse& bfMgrQueueInviteResponse);
+        void HandleBfQueueExitRequest(WorldPackets::Battlefield::BFMgrQueueExitRequest& bfMgrQueueExitRequest);
 
         void HandleWardenDataOpcode(WorldPacket& recvData);
         void HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport);
