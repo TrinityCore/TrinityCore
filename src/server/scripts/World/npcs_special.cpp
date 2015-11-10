@@ -1541,6 +1541,7 @@ public:
 
         void Reset() override
         {
+            // TODO: solve this in a different way! setting them as stunned prevents dummies from parrying
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
             _events.Reset();
