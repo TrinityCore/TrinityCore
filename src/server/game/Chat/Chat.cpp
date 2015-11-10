@@ -1131,7 +1131,7 @@ void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
 
 char* ChatHandler::extractQuotedArg(char* args)
 {
-    if (!*args)
+    if (!args || !*args)
         return NULL;
 
     if (*args == '"')
