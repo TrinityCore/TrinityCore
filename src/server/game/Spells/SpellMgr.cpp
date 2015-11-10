@@ -3182,13 +3182,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
             case 48420:
-                spellInfo->Stances = 1 << (FORM_CAT - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_CAT - 1);
                 break;
             case 48421:
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_MOONKIN - 1);
                 break;
             case 48422:
-                spellInfo->Stances = 1 << (FORM_TREE - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
                 break;
             case 51466: // Elemental Oath (Rank 1)
             case 51470: // Elemental Oath (Rank 2)

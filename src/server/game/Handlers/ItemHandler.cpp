@@ -786,8 +786,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 if (!_player->IsGameMaster() && !leftInStock)
                     continue;
 
-                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), item->item);
-                if (!sConditionMgr->IsObjectMeetToConditions(_player, vendor, conditions))
+                if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendor->GetEntry(), item->item, _player, vendor))
                 {
                     TC_LOG_DEBUG("condition", "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), item->item);
                     continue;

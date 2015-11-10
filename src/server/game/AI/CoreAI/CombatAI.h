@@ -112,7 +112,7 @@ struct VehicleAI : public CreatureAI
     private:
         void LoadConditions();
         void CheckConditions(uint32 diff);
-        ConditionList conditions;
+        bool m_HasConditions;
         uint32 m_ConditionsTimer;
         bool m_DoDismiss;
         uint32 m_DismissTimer;
