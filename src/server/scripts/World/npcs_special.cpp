@@ -1422,6 +1422,7 @@ public:
 
         void Reset() override
         {
+            // TODO: solve this in a different way! setting them as stunned prevents dummies from parrying
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
