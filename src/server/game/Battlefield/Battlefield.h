@@ -30,7 +30,16 @@ enum BattlefieldTypes
 
 enum BattlefieldIDs
 {
-    BATTLEFIELD_BATTLEID_WG                      = 1        // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_WG                      = 1,       // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_TB                      = 21,      // Tol Barad
+    BATTLEFIELD_BATTLEID_ASHRAN                  = 24       // Ashran
+};
+
+enum BattlefieldState
+{
+    BATTLEFIELD_INACTIVE = 0,
+    BATTLEFIELD_WARMUP = 1,
+    BATTLEFIELD_IN_PROGRESS = 2
 };
 
 enum BattlefieldObjectiveStates
@@ -224,12 +233,14 @@ class Battlefield : public ZoneScript
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
-        ObjectGuid GetGUID() const { return m_Guid; }
+        uint64 GetQueueId() const { return MAKE_PAIR64(m_BattleId | 0x20000, 0x1F100000); }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
         /// Return true if battle is start, false if battle is not started
         bool IsWarTime() const { return m_isActive; }
+
+        int8 GetState() const { return m_isActive ? BATTLEFIELD_IN_PROGRESS : (m_Timer <= m_StartGroupingTimer ? BATTLEFIELD_WARMUP : BATTLEFIELD_INACTIVE); }
 
         /// Enable or Disable battlefield
         void ToggleBattlefield(bool enable) { m_IsEnabled = enable; }
@@ -344,8 +355,6 @@ class Battlefield : public ZoneScript
         void InitStalker(uint32 entry, Position const& pos);
 
     protected:
-        ObjectGuid m_Guid;
-
         ObjectGuid StalkerGuid;
         uint32 m_Timer;                                         // Global timer for event
         bool m_IsEnabled;
