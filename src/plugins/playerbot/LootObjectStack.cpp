@@ -84,16 +84,7 @@ void LootObject::Refresh(Player* bot, ObjectGuid guid)
         if (!lockInfo)
             return;
 
-        // TODO: remove?
-        /*for(uint32 i = 0; i < 6; ++i)
-        {
-            if (go->GetGOInfo()->questItems[i])
-            {
-                this->guid = guid;
-                return;
-            }
-        }*/
-
+        this->guid = guid;
         for (int i = 0; i < 8; ++i)
         {
             switch (lockInfo->Type[i])
@@ -102,7 +93,6 @@ void LootObject::Refresh(Player* bot, ObjectGuid guid)
                 if (lockInfo->Index[i] > 0)
                 {
                     reqItem = lockInfo->Index[i];
-                    this->guid = guid;
                 }
                 break;
             case LOCK_KEY_SKILL:
@@ -110,7 +100,6 @@ void LootObject::Refresh(Player* bot, ObjectGuid guid)
                 {
                     skillId = SkillByLockType(LockType(lockInfo->Index[i]));
                     reqSkillValue = lockInfo->Skill[i];
-                    this->guid = guid;
                 }
                 break;
             default:
