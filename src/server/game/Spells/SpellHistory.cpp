@@ -908,24 +908,19 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
                 _spellCooldownsBeforeDuel[c.first] = _spellCooldowns[c.first];
         }
 
-        _spellCooldowns = _spellCooldownsBeforeDuel;
-
-        // update the client: clear all cooldowns
-        std::vector<int32> resetCooldowns;
-        resetCooldowns.reserve(_spellCooldowns.size());
-
-        for (auto const& c : _spellCooldowns)
-            resetCooldowns.push_back(c.first);
-
-        if (resetCooldowns.empty())
-            return;
-
-        SendClearCooldowns(resetCooldowns);
+        // check for spell with onHold active before and during the duel
+        for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
+        {
+            if (!itr->second.OnHold &&
+                _spellCooldowns.find(itr->first) != _spellCooldowns.end() &&
+                !_spellCooldowns[itr->first].OnHold)
+                _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
+        }
 
         // update the client: restore old cooldowns
         WorldPackets::Spells::SpellCooldown spellCooldown;
         spellCooldown.Caster = _owner->GetGUID();
-        spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+        spellCooldown.Flags = SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS;
 
         for (auto const& c : _spellCooldowns)
         {
@@ -933,7 +928,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
             uint32 cooldownDuration = c.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(c.second.CooldownEnd - now).count() : 0;
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
-            if (cooldownDuration == 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS)
+            if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || c.second.OnHold)
                 continue;
 
             spellCooldown.SpellCooldowns.emplace_back(c.first, cooldownDuration);
