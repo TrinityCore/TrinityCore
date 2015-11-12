@@ -3368,6 +3368,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // use max radius from 4.3.4
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS);
                 break;
+            case 49575: // Death Grip
+                spellInfo->Effects[EFFECT_0].MiscValue = 20;
+                break;
             // ENDOF VIOLET HOLD
             //
             // ULDUAR SPELLS

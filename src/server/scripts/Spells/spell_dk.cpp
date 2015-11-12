@@ -1673,7 +1673,14 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_DEATH_GRIP, true);
+            Unit* caster = GetCaster();
+            Unit* victim = GetHitUnit();
+			
+            //Spell reflection : The hit unit will be same as caster and CastSpell will do nothing. Use the original target as caster.
+            if (caster == victim)
+                caster = GetExplTargetUnit();
+
+            caster->CastSpell(victim, SPELL_DK_DEATH_GRIP, true);
         }
 
         void Register() override
