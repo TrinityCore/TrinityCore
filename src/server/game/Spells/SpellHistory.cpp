@@ -671,19 +671,14 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
                 _spellCooldownsBeforeDuel[itr->first] = _spellCooldowns[itr->first];
         }
 
-        _spellCooldowns = _spellCooldownsBeforeDuel;
-
-        // update the client: clear all cooldowns
-        std::vector<int32> resetCooldowns;
-        resetCooldowns.reserve(_spellCooldowns.size());
-
-        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
-            resetCooldowns.push_back(itr->first);
-
-        if (resetCooldowns.empty())
-            return;
-
-        SendClearCooldowns(resetCooldowns);
+        // check for spell with onHold active before and during the duel
+        for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
+        {
+            if (!itr->second.OnHold &&
+                _spellCooldowns.find(itr->first) != _spellCooldowns.end() &&
+                !_spellCooldowns[itr->first].OnHold)
+                _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
+        }
 
         // update the client: restore old cooldowns
         PacketCooldowns cooldowns;
@@ -694,14 +689,14 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
             uint32 cooldownDuration = itr->second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.CooldownEnd - now).count() : 0;
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
-            if (cooldownDuration == 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS)
+            if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || itr->second.OnHold)
                 continue;
 
             cooldowns[itr->first] = cooldownDuration;
         }
 
         WorldPacket data;
-        BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, cooldowns);
+        BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS, cooldowns);
         player->SendDirectMessage(&data);
     }
 }

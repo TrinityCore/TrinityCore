@@ -1947,6 +1947,12 @@ class Player : public Unit, public GridObject<Player>
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
 
+        // duel health and mana reset methods
+        void SaveHealthBeforeDuel() { healthBeforeDuel = GetHealth(); }
+        void SaveManaBeforeDuel() { manaBeforeDuel = GetPower(POWER_MANA); }
+        void RestoreHealthAfterDuel() { SetHealth(healthBeforeDuel); }
+        void RestoreManaAfterDuel() { SetPower(POWER_MANA, manaBeforeDuel); }
+
         //End of PvP System
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
@@ -2629,6 +2635,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
+
+        // variables to save health and mana before duel and restore them after duel
+        uint32 healthBeforeDuel;
+        uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
 };
