@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "uldaman.h"
+#include "CreatureAI.h"
 
 enum Spells
 {
