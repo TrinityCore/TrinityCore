@@ -30,6 +30,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "ItemPackets.h"
+#include "TradeData.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {

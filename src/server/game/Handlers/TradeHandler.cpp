@@ -29,6 +29,7 @@
 #include "Language.h"
 #include "AccountMgr.h"
 #include "TradePackets.h"
+#include "TradeData.h"
 
 void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 {
