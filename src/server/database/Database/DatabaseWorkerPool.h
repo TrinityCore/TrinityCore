@@ -67,7 +67,7 @@ class DatabaseWorkerPool
 
             WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
             WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-            WPFatal(mysql_get_client_version() == LIBMYSQL_VERSION_ID, "Used MySQL library does not match the version used to compile TrinityCore.");
+            WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library does not match the version used to compile TrinityCore.");
         }
 
         ~DatabaseWorkerPool()
