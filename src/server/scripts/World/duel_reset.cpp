@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Pet.h"
+#include "SpellInfo.h"
 
 class DuelResetScript : public PlayerScript
 {
@@ -34,8 +35,8 @@ class DuelResetScript : public PlayerScript
                 player2->GetSpellHistory()->SaveCooldownStateBeforeDuel();
 
 
-                ResetSpellCooldowns(player1, true);
-                ResetSpellCooldowns(player2, true);
+                ResetSpellCooldowns(player1);
+                ResetSpellCooldowns(player2);
             }
 
             // Health and mana reset
@@ -73,8 +74,8 @@ class DuelResetScript : public PlayerScript
                 if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
                 {
 
-                    ResetSpellCooldowns(winner, true);
-                    ResetSpellCooldowns(loser, true);
+                    ResetSpellCooldowns(winner);
+                    ResetSpellCooldowns(loser);
 
                     winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
                     loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
@@ -88,16 +89,16 @@ class DuelResetScript : public PlayerScript
 
                     // check if player1 class uses mana
                     if (winner->getPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
-                        winner->RestoreManaAfterDuel(); 
+                        winner->RestoreManaAfterDuel();
 
                     // check if player2 class uses mana
                     if (loser->getPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
-                        loser->RestoreManaAfterDuel(); 
+                        loser->RestoreManaAfterDuel();
                 }
             }
         }
 
-        void ResetSpellCooldowns(Player* player, bool removeActivePetCooldowns)
+        static void ResetSpellCooldowns(Player* player)
         {
             // remove cooldowns on spells that have < 10 min CD and has no onHold
             player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
@@ -107,9 +108,8 @@ class DuelResetScript : public PlayerScript
             }, true);
 
             // pet cooldowns
-            if (removeActivePetCooldowns)
-                if (Pet* pet = player->GetPet())
-                    pet->GetSpellHistory()->ResetAllCooldowns();
+            if (Pet* pet = player->GetPet())
+                pet->GetSpellHistory()->ResetAllCooldowns();
         }
 };
 
