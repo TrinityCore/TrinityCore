@@ -14627,38 +14627,14 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin)
 {
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
-
-    data.WriteByteSeq(guid[1]);
-
-    data << float(vsin);
-    data << uint32(0);
-
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[7]);
-
-    data << float(speedXY);
-
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[3]);
-
-    data << float(speedZ);
-    data << float(vcos);
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[0]);
-
-    player->GetSession()->SendPacket(&data);
+    WorldPackets::Movement::MoveKnockBack moveKnockBack;
+    moveKnockBack.MoverGUID = GetGUID();
+    moveKnockBack.SequenceIndex = m_movementCounter++;
+    moveKnockBack.HorzSpeed = speedXY;
+    moveKnockBack.VertSpeed = speedZ;
+    moveKnockBack.Direction.x = vcos;
+    moveKnockBack.Direction.y = vsin;
+    player->GetSession()->SendPacket(moveKnockBack.Write());
 }
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
@@ -16070,6 +16046,41 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
     else
     {
         WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    return true;
+}
+
+bool Unit::SetCollision(bool disable)
+{
+    if (disable == HasUnitMovementFlag(MOVEMENTFLAG_DISABLE_COLLISION))
+        return false;
+
+    if (disable)
+        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_COLLISION);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_COLLISION);
+
+    static OpcodeServer const collisionOpcodeTable[2][2] =
+    {
+        { SMSG_MOVE_SPLINE_ENABLE_COLLISION,  SMSG_MOVE_ENABLE_COLLISION },
+        { SMSG_MOVE_SPLINE_DISABLE_COLLISION, SMSG_MOVE_DISABLE_COLLISION }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(collisionOpcodeTable[disable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(collisionOpcodeTable[disable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
     }

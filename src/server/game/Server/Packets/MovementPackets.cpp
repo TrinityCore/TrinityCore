@@ -630,6 +630,17 @@ WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << Direction;
+    _worldPacket << float(HorzSpeed);
+    _worldPacket << float(VertSpeed);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
 {
     _worldPacket << *movementInfo;

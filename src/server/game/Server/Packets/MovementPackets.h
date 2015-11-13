@@ -334,6 +334,20 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
         };
 
+        class MoveKnockBack final : public ServerPacket
+        {
+        public:
+            MoveKnockBack() : ServerPacket(SMSG_MOVE_KNOCK_BACK, 16 + 8 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            G3D::Vector2 Direction;
+            float HorzSpeed = 0.0f;
+            uint32 SequenceIndex = 0;
+            float VertSpeed = 0.0f;
+        };
+
         class MoveUpdateKnockBack final : public ServerPacket
         {
         public:
