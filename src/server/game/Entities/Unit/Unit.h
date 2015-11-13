@@ -820,7 +820,7 @@ enum MovementFlags
     // to properly calculate all movement
     MOVEMENTFLAG_MASK_CREATURE_ALLOWED =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_SWIMMING |
-        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER,
+        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION,
 
     /// @todo if needed: add more flags to this masks that are exclusive to players
     MOVEMENTFLAG_MASK_PLAYER_ONLY =
@@ -828,7 +828,7 @@ enum MovementFlags
 
     /// Movement flags that have change status opcodes associated for players
     MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE = MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT |
-        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER
+        MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION
 };
 
 enum MovementFlags2
@@ -1664,6 +1664,7 @@ class Unit : public WorldObject
         bool SetWaterWalking(bool enable, bool packetOnly = false);
         bool SetFeatherFall(bool enable, bool packetOnly = false);
         bool SetHover(bool enable, bool packetOnly = false);
+        bool SetCollision(bool disable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);

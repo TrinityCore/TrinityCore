@@ -41,6 +41,7 @@ WorldPacket const* WorldPackets::Battlefield::BFMgrQueueInvite::Write()
     _worldPacket << int32(MapID);
     _worldPacket << uint32(InstanceID);
     _worldPacket.WriteBit(Index);
+    _worldPacket.FlushBits();
     return &_worldPacket;
 }
 
