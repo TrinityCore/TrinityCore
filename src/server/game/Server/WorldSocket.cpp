@@ -112,9 +112,9 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 
     MessageBuffer initializer;
     ServerPktHeader header;
-    header.Setup.Size = ServerConnectionInitialize.size();
+    header.Setup.Size = ServerConnectionInitialize.size() + 1;
     initializer.Write(&header, sizeof(header.Setup.Size));
-    initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
+    initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.size() + 1);
 
     std::unique_lock<std::mutex> guard(_writeLock);
     QueuePacket(std::move(initializer), guard);
