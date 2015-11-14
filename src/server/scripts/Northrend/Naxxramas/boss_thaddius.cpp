@@ -395,6 +395,7 @@ public:
                         case EVENT_SHIFT_TALK:
                             Talk(SAY_ELECT);
                             Talk(EMOTE_POLARITY_SHIFTED);
+                            break;
                         case EVENT_CHAIN:
                             if (me->FindCurrentSpellBySpellId(SPELL_POLARITY_SHIFT)) // delay until shift is over
                                 events.ScheduleEvent(EVENT_CHAIN, 3 * IN_MILLISECONDS, 0, PHASE_THADDIUS);
@@ -539,6 +540,7 @@ public:
                         if (Creature* coil = myCoil())
                             if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                                 coil->CastSpell(thaddius, SPELL_SHOCK_VISUAL);
+                        break;
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
@@ -808,6 +810,7 @@ public:
                         if (Creature* coil = myCoil())
                             if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                                 coil->CastSpell(thaddius, SPELL_SHOCK_VISUAL);
+                        break;
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
