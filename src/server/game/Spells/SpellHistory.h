@@ -46,6 +46,7 @@ public:
 
     struct CooldownEntry
     {
+        uint32 SpellId = 0;
         Clock::time_point CooldownEnd;
         uint32 ItemId = 0;
         uint32 CategoryId = 0;
@@ -156,6 +157,8 @@ private:
         _categoryCooldowns.erase(itr->second.CategoryId);
         return _spellCooldowns.erase(itr);
     }
+
+    static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, int32* cooldown, uint32* categoryId, int32* categoryCooldown);
 
     Unit* _owner;
     CooldownStorageType _spellCooldowns;
