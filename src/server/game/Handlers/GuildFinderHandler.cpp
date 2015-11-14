@@ -21,321 +21,116 @@
 #include "SharedDefines.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
+#include "GuildFinderPackets.h"
+#include "World.h"
 
-void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderAddRecruit(WorldPackets::GuildFinder::LFGuildAddRecruit& lfGuildAddRecruit)
 {
-    if (sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID()).size() == 10)
+    if (sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUID()) >= 10)
         return;
 
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests = 0;
-
-    recvPacket >> classRoles >> guildInterests >> availability;
-
-    ObjectGuid guid;
-    guid[3] = recvPacket.ReadBit();
-    guid[0] = recvPacket.ReadBit();
-    guid[6] = recvPacket.ReadBit();
-    guid[1] = recvPacket.ReadBit();
-    uint16 commentLength = recvPacket.ReadBits(11);
-    guid[5] = recvPacket.ReadBit();
-    guid[4] = recvPacket.ReadBit();
-    guid[7] = recvPacket.ReadBit();
-    uint8 nameLength = recvPacket.ReadBits(7);
-    guid[2] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guid[4]);
-    recvPacket.ReadByteSeq(guid[5]);
-    std::string comment = recvPacket.ReadString(commentLength);
-    std::string playerName = recvPacket.ReadString(nameLength);
-    recvPacket.ReadByteSeq(guid[7]);
-    recvPacket.ReadByteSeq(guid[2]);
-    recvPacket.ReadByteSeq(guid[0]);
-    recvPacket.ReadByteSeq(guid[6]);
-    recvPacket.ReadByteSeq(guid[1]);
-    recvPacket.ReadByteSeq(guid[3]);
-
-    if (!guid.IsGuild())
+    if (!lfGuildAddRecruit.GuildGUID.IsGuild())
         return;
-    if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
+    if (!(lfGuildAddRecruit.ClassRoles & GUILDFINDER_ALL_ROLES) || lfGuildAddRecruit.ClassRoles > GUILDFINDER_ALL_ROLES)
         return;
-    if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
+    if (!(lfGuildAddRecruit.Availability & AVAILABILITY_ALWAYS) || lfGuildAddRecruit.Availability > AVAILABILITY_ALWAYS)
         return;
-    if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
+    if (!(lfGuildAddRecruit.PlayStyle & ALL_INTERESTS) || lfGuildAddRecruit.PlayStyle > ALL_INTERESTS)
         return;
 
-    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), guid, availability, classRoles, guildInterests, comment, time(NULL));
-    sGuildFinderMgr->AddMembershipRequest(guid, request);
+    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), lfGuildAddRecruit.GuildGUID, lfGuildAddRecruit.Availability,
+        lfGuildAddRecruit.ClassRoles, lfGuildAddRecruit.PlayStyle, lfGuildAddRecruit.Comment, time(NULL));
+    sGuildFinderMgr->AddMembershipRequest(lfGuildAddRecruit.GuildGUID, request);
 }
 
-void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderBrowse(WorldPackets::GuildFinder::LFGuildBrowse& lfGuildBrowse)
 {
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests = 0;
-    uint32 playerLevel = 0; // Raw player level (1-85), do they use MAX_FINDER_LEVEL when on level 85 ?
-
-    recvPacket >> classRoles >> availability >> guildInterests >> playerLevel;
-
-    if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
+    if (!(lfGuildBrowse.ClassRoles & GUILDFINDER_ALL_ROLES) || lfGuildBrowse.ClassRoles > GUILDFINDER_ALL_ROLES)
         return;
-    if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
+    if (!(lfGuildBrowse.Availability & AVAILABILITY_ALWAYS) || lfGuildBrowse.Availability > AVAILABILITY_ALWAYS)
         return;
-    if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
+    if (!(lfGuildBrowse.PlayStyle & ALL_INTERESTS) || lfGuildBrowse.PlayStyle > ALL_INTERESTS)
         return;
-    if (playerLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || playerLevel < 1)
+    if (lfGuildBrowse.CharacterLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || lfGuildBrowse.CharacterLevel < 1)
         return;
 
     Player* player = GetPlayer();
 
-    LFGuildPlayer settings(player->GetGUID(), classRoles, availability, guildInterests, ANY_FINDER_LEVEL);
-    LFGuildStore guildList = sGuildFinderMgr->GetGuildsMatchingSetting(settings, player->GetTeamId());
-    uint32 guildCount = guildList.size();
+    LFGuildPlayer settings(player->GetGUID(), lfGuildBrowse.ClassRoles, lfGuildBrowse.Availability, lfGuildBrowse.PlayStyle, ANY_FINDER_LEVEL);
+    std::vector<LFGuildSettings const*> guildList = sGuildFinderMgr->GetGuildsMatchingSetting(settings, player->GetTeamId());
 
-    if (guildCount == 0)
+    WorldPackets::GuildFinder::LFGuildBrowseResult lfGuildBrowseResult;
+    lfGuildBrowseResult.Post.resize(guildList.size());
+
+    for (std::size_t i = 0; i < guildList.size(); ++i)
     {
-        WorldPacket packet(SMSG_LF_GUILD_BROWSE, 0);
-        player->SendDirectMessage(&packet);
-        return;
+        LFGuildSettings const* guildSettings = guildList[i];
+        WorldPackets::GuildFinder::LFGuildBrowseData& guildData = lfGuildBrowseResult.Post[i];
+        Guild* guild = ASSERT_NOTNULL(sGuildMgr->GetGuildByGuid(guildSettings->GetGUID()));
+
+        guildData.GuildName = guild->GetName();
+        guildData.GuildGUID = guild->GetGUID();
+        guildData.GuildVirtualRealm = GetVirtualRealmAddress();
+        guildData.GuildMembers = guild->GetMembersCount();
+        guildData.GuildAchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
+        guildData.PlayStyle = guildSettings->GetInterests();
+        guildData.Availability = guildSettings->GetAvailability();
+        guildData.ClassRoles = guildSettings->GetClassRoles();
+        guildData.LevelRange = guildSettings->GetLevel();
+        guildData.EmblemStyle = guild->GetEmblemInfo().GetStyle();
+        guildData.EmblemColor = guild->GetEmblemInfo().GetColor();
+        guildData.BorderStyle = guild->GetEmblemInfo().GetBorderStyle();
+        guildData.BorderColor = guild->GetEmblemInfo().GetBorderColor();
+        guildData.Background = guild->GetEmblemInfo().GetBackgroundColor();
+        guildData.Comment = guildSettings->GetComment();
+        guildData.Cached = 0;
+        guildData.MembershipRequested = sGuildFinderMgr->HasRequest(player->GetGUID(), guild->GetGUID());
     }
 
-    ByteBuffer bufferData(65 * guildCount);
-    WorldPacket data(SMSG_LF_GUILD_BROWSE, 3 + guildCount * 65); // Estimated size
-    data.WriteBits(guildCount, 19);
-
-    for (LFGuildStore::const_iterator itr = guildList.begin(); itr != guildList.end(); ++itr)
-    {
-        LFGuildSettings guildSettings = itr->second;
-        Guild* guild = sGuildMgr->GetGuildByGuid(itr->first);
-        ASSERT(guild);
-
-        ObjectGuid guildGUID = guild->GetGUID();
-
-        data.WriteBit(guildGUID[7]);
-        data.WriteBit(guildGUID[5]);
-        data.WriteBits(guild->GetName().size(), 8);
-        data.WriteBit(guildGUID[0]);
-        data.WriteBits(guildSettings.GetComment().size(), 11);
-        data.WriteBit(guildGUID[4]);
-        data.WriteBit(guildGUID[1]);
-        data.WriteBit(guildGUID[2]);
-        data.WriteBit(guildGUID[6]);
-        data.WriteBit(guildGUID[3]);
-
-        bufferData << uint32(guild->GetEmblemInfo().GetColor());
-        bufferData << uint32(guild->GetEmblemInfo().GetBorderStyle()); // Guessed
-        bufferData << uint32(guild->GetEmblemInfo().GetStyle());
-
-        bufferData.WriteString(guildSettings.GetComment());
-
-        bufferData << uint8(0); // Unk
-
-        bufferData.WriteByteSeq(guildGUID[5]);
-
-        bufferData << uint32(guildSettings.GetInterests());
-
-        bufferData.WriteByteSeq(guildGUID[6]);
-        bufferData.WriteByteSeq(guildGUID[4]);
-
-        bufferData << uint32(guild->GetLevel());
-
-        bufferData.WriteString(guild->GetName());
-
-        bufferData << uint32(guild->GetAchievementMgr().GetAchievementPoints());
-
-        bufferData.WriteByteSeq(guildGUID[7]);
-
-        bufferData << uint8(sGuildFinderMgr->HasRequest(player->GetGUID(), guild->GetGUID())); // Request pending
-
-        bufferData.WriteByteSeq(guildGUID[2]);
-        bufferData.WriteByteSeq(guildGUID[0]);
-
-        bufferData << uint32(guildSettings.GetAvailability());
-
-        bufferData.WriteByteSeq(guildGUID[1]);
-
-        bufferData << uint32(guild->GetEmblemInfo().GetBackgroundColor());
-        bufferData << uint32(0); // Unk Int 2 (+ 128) // Always 0 or 1
-        bufferData << uint32(guild->GetEmblemInfo().GetBorderColor());
-        bufferData << uint32(guildSettings.GetClassRoles());
-
-        bufferData.WriteByteSeq(guildGUID[3]);
-        bufferData << uint32(guild->GetMembersCount());
-    }
-
-    data.FlushBits();
-    data.append(bufferData);
-
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(lfGuildBrowseResult.Write());
 }
 
-void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderDeclineRecruit(WorldPackets::GuildFinder::LFGuildDeclineRecruit& lfGuildDeclineRecruit)
 {
     if (!GetPlayer()->GetGuild())
-    {
-        recvPacket.rfinish();
-        return;
-    }
-
-    ObjectGuid playerGuid;
-
-    playerGuid[1] = recvPacket.ReadBit();
-    playerGuid[4] = recvPacket.ReadBit();
-    playerGuid[5] = recvPacket.ReadBit();
-    playerGuid[2] = recvPacket.ReadBit();
-    playerGuid[6] = recvPacket.ReadBit();
-    playerGuid[7] = recvPacket.ReadBit();
-    playerGuid[0] = recvPacket.ReadBit();
-    playerGuid[3] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(playerGuid[5]);
-    recvPacket.ReadByteSeq(playerGuid[7]);
-    recvPacket.ReadByteSeq(playerGuid[2]);
-    recvPacket.ReadByteSeq(playerGuid[3]);
-    recvPacket.ReadByteSeq(playerGuid[4]);
-    recvPacket.ReadByteSeq(playerGuid[1]);
-    recvPacket.ReadByteSeq(playerGuid[0]);
-    recvPacket.ReadByteSeq(playerGuid[6]);
-
-    if (!playerGuid.IsPlayer())
         return;
 
-    sGuildFinderMgr->RemoveMembershipRequest(playerGuid, GetPlayer()->GetGuild()->GetGUID());
+    if (!lfGuildDeclineRecruit.RecruitGUID.IsPlayer())
+        return;
+
+    sGuildFinderMgr->RemoveMembershipRequest(lfGuildDeclineRecruit.RecruitGUID, GetPlayer()->GetGuild()->GetGUID());
 }
 
-void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildFinderGetApplications(WorldPackets::GuildFinder::LFGuildGetApplications& /*lfGuildGetApplications*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_LF_GUILD_GET_APPLICATIONS"); // Empty opcode
+    std::vector<MembershipRequest const*> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID());
+    WorldPackets::GuildFinder::LFGuildApplications lfGuildApplications;
+    lfGuildApplications.Application.resize(applicatedGuilds.size());
+    lfGuildApplications.NumRemaining = 10 - sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUID());
 
-    std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID());
-    uint32 applicationsCount = applicatedGuilds.size();
-    WorldPacket data(SMSG_LF_GUILD_APPLICATIONS, 7 + 54 * applicationsCount);
-    data.WriteBits(applicationsCount, 20);
-
-    if (applicationsCount > 0)
+    for (std::size_t i = 0; i < applicatedGuilds.size(); ++i)
     {
-        ByteBuffer bufferData(54 * applicationsCount);
-        for (std::list<MembershipRequest>::const_iterator itr = applicatedGuilds.begin(); itr != applicatedGuilds.end(); ++itr)
-        {
-            Guild* guild = sGuildMgr->GetGuildByGuid(itr->GetGuildGuid());
-            ASSERT(guild);
-            LFGuildSettings guildSettings = sGuildFinderMgr->GetGuildSettings(itr->GetGuildGuid());
-            MembershipRequest request = *itr;
+        MembershipRequest const* application = applicatedGuilds[i];
+        WorldPackets::GuildFinder::LFGuildApplicationData& applicationData = lfGuildApplications.Application[i];
 
-            ObjectGuid guildGuid = ObjectGuid(guild->GetGUID());
+        Guild* guild = ASSERT_NOTNULL(sGuildMgr->GetGuildByGuid(application->GetGuildGuid()));
+        LFGuildSettings const& guildSettings = sGuildFinderMgr->GetGuildSettings(application->GetGuildGuid());
 
-            data.WriteBit(guildGuid[1]);
-            data.WriteBit(guildGuid[0]);
-            data.WriteBit(guildGuid[5]);
-            data.WriteBits(request.GetComment().size(), 11);
-            data.WriteBit(guildGuid[3]);
-            data.WriteBit(guildGuid[7]);
-            data.WriteBit(guildGuid[4]);
-            data.WriteBit(guildGuid[6]);
-            data.WriteBit(guildGuid[2]);
-            data.WriteBits(guild->GetName().size(), 8);
-
-            bufferData.WriteByteSeq(guildGuid[2]);
-            bufferData.WriteString(request.GetComment());
-            bufferData.WriteByteSeq(guildGuid[5]);
-            bufferData.WriteString(guild->GetName());
-
-            bufferData << uint32(guildSettings.GetAvailability());
-            bufferData << uint32(request.GetExpiryTime() - time(NULL)); // Time left to application expiry (seconds)
-
-            bufferData.WriteByteSeq(guildGuid[0]);
-            bufferData.WriteByteSeq(guildGuid[6]);
-            bufferData.WriteByteSeq(guildGuid[3]);
-            bufferData.WriteByteSeq(guildGuid[7]);
-
-            bufferData << uint32(guildSettings.GetClassRoles());
-
-            bufferData.WriteByteSeq(guildGuid[4]);
-            bufferData.WriteByteSeq(guildGuid[1]);
-
-            bufferData << uint32(time(NULL) - request.GetSubmitTime()); // Time since application (seconds)
-            bufferData << uint32(guildSettings.GetInterests());
-        }
-
-        data.FlushBits();
-        data.append(bufferData);
-    }
-    data << uint32(10 - sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUID())); // Applications count left
-
-    GetPlayer()->SendDirectMessage(&data);
-}
-
-// Lists all recruits for a guild - Misses times
-void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
-{
-    uint32 unkTime = 0;
-    recvPacket >> unkTime;
-
-    Player* player = GetPlayer();
-    Guild* guild = player->GetGuild();
-    if (!guild)
-        return;
-
-    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(guild->GetGUID());
-    uint32 recruitCount = recruitsList.size();
-
-    ByteBuffer dataBuffer(53 * recruitCount);
-    WorldPacket data(SMSG_LF_GUILD_RECRUITS, 7 + 26 * recruitCount + 53 * recruitCount);
-    data.WriteBits(recruitCount, 20);
-
-    for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
-    {
-        MembershipRequest request = *itr;
-        ObjectGuid playerGuid = request.GetPlayerGUID();
-
-        data.WriteBits(request.GetComment().size(), 11);
-        data.WriteBit(playerGuid[2]);
-        data.WriteBit(playerGuid[4]);
-        data.WriteBit(playerGuid[3]);
-        data.WriteBit(playerGuid[7]);
-        data.WriteBit(playerGuid[0]);
-        data.WriteBits(request.GetName().size(), 7);
-        data.WriteBit(playerGuid[5]);
-        data.WriteBit(playerGuid[1]);
-        data.WriteBit(playerGuid[6]);
-
-        dataBuffer.WriteByteSeq(playerGuid[4]);
-
-        dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
-
-        dataBuffer.WriteByteSeq(playerGuid[3]);
-        dataBuffer.WriteByteSeq(playerGuid[0]);
-        dataBuffer.WriteByteSeq(playerGuid[1]);
-
-        dataBuffer << int32(request.GetLevel());
-
-        dataBuffer.WriteByteSeq(playerGuid[6]);
-        dataBuffer.WriteByteSeq(playerGuid[7]);
-        dataBuffer.WriteByteSeq(playerGuid[2]);
-
-        dataBuffer << int32(time(NULL) - request.GetSubmitTime()); // Time in seconds since application submitted.
-        dataBuffer << int32(request.GetAvailability());
-        dataBuffer << int32(request.GetClassRoles());
-        dataBuffer << int32(request.GetInterests());
-        dataBuffer << int32(request.GetExpiryTime() - time(NULL)); // TIme in seconds until application expires.
-
-        dataBuffer.WriteString(request.GetName());
-        dataBuffer.WriteString(request.GetComment());
-
-        dataBuffer << int32(request.GetClass());
-
-        dataBuffer.WriteByteSeq(playerGuid[5]);
+        applicationData.GuildGUID = application->GetGuildGuid();
+        applicationData.GuildVirtualRealm = GetVirtualRealmAddress();
+        applicationData.GuildName = guild->GetName();
+        applicationData.ClassRoles = guildSettings.GetClassRoles();
+        applicationData.PlayStyle = guildSettings.GetInterests();
+        applicationData.Availability = guildSettings.GetAvailability();
+        applicationData.SecondsSinceCreated = time(NULL) - application->GetSubmitTime();
+        applicationData.SecondsUntilExpiration = application->GetExpiryTime() - time(NULL);
+        applicationData.Comment = application->GetComment();
     }
 
-    data.FlushBits();
-    data.append(dataBuffer);
-    data << uint32(time(NULL)); // Unk time
-
-    player->SendDirectMessage(&data);
+    GetPlayer()->SendDirectMessage(lfGuildApplications.Write());
 }
 
-void WorldSession::HandleGuildFinderPostRequest(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildFinderGetGuildPost(WorldPackets::GuildFinder::LFGuildGetGuildPost& /*lfGuildGetGuildPost*/)
 {
     Player* player = GetPlayer();
 
@@ -343,81 +138,83 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& /*recvPacket*/)
     if (!guild) // Player must be in guild
         return;
 
-    bool isGuildMaster = guild->GetLeaderGUID() == player->GetGUID();
-
-    LFGuildSettings settings = sGuildFinderMgr->GetGuildSettings(guild->GetGUID());
-
-    WorldPacket data(SMSG_LF_GUILD_POST, 35);
-    data.WriteBit(isGuildMaster); // Guessed
-
-    if (isGuildMaster)
+    WorldPackets::GuildFinder::LFGuildPost lfGuildPost;
+    if (guild->GetLeaderGUID() == player->GetGUID())
     {
-        data.WriteBits(settings.GetComment().size(), 11);
-        data.WriteBit(settings.IsListed());
-        data << uint32(settings.GetLevel());
-        data.WriteString(settings.GetComment());
-        data << uint32(0); // Unk Int32
-        data << uint32(settings.GetAvailability());
-        data << uint32(settings.GetClassRoles());
-        data << uint32(settings.GetInterests());
+        LFGuildSettings const& settings = sGuildFinderMgr->GetGuildSettings(guild->GetGUID());
+        lfGuildPost.Post = boost::in_place();
+        lfGuildPost.Post->Active = settings.IsListed();
+        lfGuildPost.Post->PlayStyle = settings.GetInterests();
+        lfGuildPost.Post->Availability = settings.GetAvailability();
+        lfGuildPost.Post->ClassRoles = settings.GetClassRoles();
+        lfGuildPost.Post->LevelRange = settings.GetLevel();
+        lfGuildPost.Post->Comment = settings.GetComment();
     }
-    else
-        data.FlushBits();
-    player->SendDirectMessage(&data);
+
+    player->SendDirectMessage(lfGuildPost.Write());
 }
 
-void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
+// Lists all recruits for a guild - Misses times
+void WorldSession::HandleGuildFinderGetRecruits(WorldPackets::GuildFinder::LFGuildGetRecruits& /*lfGuildGetRecruits*/)
 {
-    ObjectGuid guildGuid;
-
-    guildGuid[0] = recvPacket.ReadBit();
-    guildGuid[4] = recvPacket.ReadBit();
-    guildGuid[3] = recvPacket.ReadBit();
-    guildGuid[5] = recvPacket.ReadBit();
-    guildGuid[7] = recvPacket.ReadBit();
-    guildGuid[6] = recvPacket.ReadBit();
-    guildGuid[2] = recvPacket.ReadBit();
-    guildGuid[1] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guildGuid[4]);
-    recvPacket.ReadByteSeq(guildGuid[0]);
-    recvPacket.ReadByteSeq(guildGuid[3]);
-    recvPacket.ReadByteSeq(guildGuid[6]);
-    recvPacket.ReadByteSeq(guildGuid[5]);
-    recvPacket.ReadByteSeq(guildGuid[1]);
-    recvPacket.ReadByteSeq(guildGuid[2]);
-    recvPacket.ReadByteSeq(guildGuid[7]);
-
-    if (!guildGuid.IsGuild())
+    Player* player = GetPlayer();
+    Guild* guild = player->GetGuild();
+    if (!guild)
         return;
 
-    sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUID(), guildGuid);
+    time_t now = time(nullptr);
+    WorldPackets::GuildFinder::LFGuildRecruits lfGuildRecruits;
+    lfGuildRecruits.UpdateTime = now;
+    if (std::unordered_map<ObjectGuid, MembershipRequest> const* recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(guild->GetGUID()))
+    {
+        lfGuildRecruits.Recruits.resize(recruitsList->size());
+        std::size_t i = 0;
+        for (auto const& recruitRequestPair : *recruitsList)
+        {
+            WorldPackets::GuildFinder::LFGuildRecruitData& recruitData = lfGuildRecruits.Recruits[i++];
+            recruitData.RecruitGUID = recruitRequestPair.first;
+            recruitData.RecruitVirtualRealm = GetVirtualRealmAddress();
+            recruitData.Comment = recruitRequestPair.second.GetComment();
+            recruitData.ClassRoles = recruitRequestPair.second.GetClassRoles();
+            recruitData.PlayStyle = recruitRequestPair.second.GetInterests();
+            recruitData.Availability = recruitRequestPair.second.GetAvailability();
+            recruitData.SecondsSinceCreated = now - recruitRequestPair.second.GetSubmitTime();
+            recruitData.SecondsUntilExpiration = recruitRequestPair.second.GetExpiryTime() - now;
+            if (CharacterInfo const* charInfo = sWorld->GetCharacterInfo(recruitRequestPair.first))
+            {
+                recruitData.Name = charInfo->Name;
+                recruitData.CharacterClass = charInfo->Class;
+                recruitData.CharacterGender = charInfo->Sex;
+                recruitData.CharacterLevel = charInfo->Level;
+            }
+        }
+    }
+
+    player->SendDirectMessage(lfGuildRecruits.Write());
+}
+
+void WorldSession::HandleGuildFinderRemoveRecruit(WorldPackets::GuildFinder::LFGuildRemoveRecruit& lfGuildRemoveRecruit)
+{
+    if (!lfGuildRemoveRecruit.GuildGUID.IsGuild())
+        return;
+
+    sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUID(), lfGuildRemoveRecruit.GuildGUID);
 }
 
 // Sent any time a guild master sets an option in the interface and when listing / unlisting his guild
-void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderSetGuildPost(WorldPackets::GuildFinder::LFGuildSetGuildPost& lfGuildSetGuildPost)
 {
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests =  0;
-    uint32 level = 0;
-
-    recvPacket >> level >> availability >> guildInterests >> classRoles;
     // Level sent is zero if untouched, force to any (from interface). Idk why
-    if (!level)
-        level = ANY_FINDER_LEVEL;
+    if (!lfGuildSetGuildPost.LevelRange)
+        lfGuildSetGuildPost.LevelRange = ANY_FINDER_LEVEL;
 
-    uint16 length = recvPacket.ReadBits(11);
-    bool listed = recvPacket.ReadBit();
-    std::string comment = recvPacket.ReadString(length);
-
-    if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
+    if (!(lfGuildSetGuildPost.ClassRoles & GUILDFINDER_ALL_ROLES) || lfGuildSetGuildPost.ClassRoles > GUILDFINDER_ALL_ROLES)
         return;
-    if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
+    if (!(lfGuildSetGuildPost.Availability & AVAILABILITY_ALWAYS) || lfGuildSetGuildPost.Availability > AVAILABILITY_ALWAYS)
         return;
-    if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
+    if (!(lfGuildSetGuildPost.PlayStyle & ALL_INTERESTS) || lfGuildSetGuildPost.PlayStyle > ALL_INTERESTS)
         return;
-    if (!(level & ALL_GUILDFINDER_LEVELS) || level > ALL_GUILDFINDER_LEVELS)
+    if (!(lfGuildSetGuildPost.LevelRange & ALL_GUILDFINDER_LEVELS) || lfGuildSetGuildPost.LevelRange > ALL_GUILDFINDER_LEVELS)
         return;
 
     Player* player = GetPlayer();
@@ -430,6 +227,7 @@ void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
     if (guild->GetLeaderGUID() != player->GetGUID())
         return;
 
-    LFGuildSettings settings(listed, player->GetTeamId(), guild->GetGUID(), classRoles, availability, guildInterests, level, comment);
+    LFGuildSettings settings(lfGuildSetGuildPost.Active, player->GetTeamId(), guild->GetGUID(), lfGuildSetGuildPost.ClassRoles,
+        lfGuildSetGuildPost.Availability, lfGuildSetGuildPost.PlayStyle, lfGuildSetGuildPost.LevelRange, lfGuildSetGuildPost.Comment);
     sGuildFinderMgr->SetGuildSettings(guild->GetGUID(), settings);
 }
