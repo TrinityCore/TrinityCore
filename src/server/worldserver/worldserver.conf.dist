@@ -1142,11 +1142,11 @@ BirthdayTime = 1222964635
 #           DATABASE_CHARACTER = 2, // Character database
 #           DATABASE_WORLD     = 4, // World database
 #
-#        Default:     0  - (All Disabled)
+#        Default:     7  - (All enabled)
 #                     4  - (Enable world only)
-#                     7  - (All enabled)
+#                     0  - (All disabled)
 
-Updates.EnableDatabases = 0
+Updates.EnableDatabases = 7
 
 #
 #    Updates.SourcePath
