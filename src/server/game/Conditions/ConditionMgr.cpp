@@ -839,7 +839,6 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
 
 bool ConditionMgr::HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const
 {
-    ConditionContainer spellCond;
     if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
         if (ConditionStore[sourceType].find(entry) != ConditionStore[sourceType].end())
             return true;
