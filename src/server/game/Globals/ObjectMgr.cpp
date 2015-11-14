@@ -1036,7 +1036,7 @@ void ObjectMgr::LoadCreatureAddons()
 
             if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has duplicate aura (spell %lu) in `auras` field in `creature_addon`.", guid, spellId);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has duplicate aura (spell %lu) in `auras` field in `creature_addon`.", guid, spellId);
                 continue;
             }
 
