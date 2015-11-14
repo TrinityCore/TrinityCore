@@ -2258,6 +2258,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
     {
         target->SetFlag(field, flag);
 
+        // [AZTH]
         Unit::AuraMap const& auras = target->GetOwnedAuras();
         for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
@@ -2269,6 +2270,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
                     target->RemoveAurasDueToSpell(auraInfo->Id);
             }
         }
+        // [/AZTH]
     }
 
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
