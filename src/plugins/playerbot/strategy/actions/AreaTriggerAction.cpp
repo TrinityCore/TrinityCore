@@ -34,8 +34,6 @@ bool ReachAreaTriggerAction::Execute(Event event)
         return true;
     }
 
-    ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
-
     MotionMaster &mm = *bot->GetMotionMaster();
     mm.Clear();
 	mm.MovePoint(atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
@@ -64,11 +62,6 @@ bool AreaTriggerAction::Execute(Event event)
     AreaTrigger const* at = sObjectMgr->GetAreaTrigger(triggerId);
     if (!at)
         return true;
-
-    ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
-
-    MotionMaster &mm = *bot->GetMotionMaster();
-    mm.Clear();
 
     WorldPacket p(CMSG_AREATRIGGER);
     p << triggerId;
