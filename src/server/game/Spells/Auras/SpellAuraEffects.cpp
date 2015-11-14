@@ -2255,7 +2255,21 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
 
     // if disarm effects should be applied, wait to set flag until damage mods are unapplied
     if (apply)
+    {
         target->SetFlag(field, flag);
+
+        Unit::AuraMap const& auras = target->GetOwnedAuras();
+        for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        {
+            SpellInfo const* auraInfo = itr->second->GetSpellInfo();
+            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (auraInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
+                    auraInfo->AttributesEx3 & SPELL_ATTR3_MAIN_HAND)
+                    target->RemoveAurasDueToSpell(auraInfo->Id);
+            }
+        }
+    }
 
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
         target->UpdateDamagePhysical(attType);
