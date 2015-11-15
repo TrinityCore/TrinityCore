@@ -47,8 +47,8 @@ enum Data
     DATA_GOTHIK_GATE,
     DATA_SAPPHIRON_BIRTH,
     DATA_HAD_ANUBREKHAN_GREET,
-
     DATA_HAD_FAERLINA_GREET,
+    DATA_HAD_THADDIUS_GREET,
 
     DATA_HORSEMEN0,
     DATA_HORSEMEN1,
@@ -91,10 +91,11 @@ enum CreaturesIds
     NPC_LADY                    = 16065,
     NPC_BARON                   = 30549,
     NPC_SIR                     = 16063,
-    NPC_THADDIUS                = 15928,
     NPC_HEIGAN                  = 15936,
+    NPC_THADDIUS                = 15928,
     NPC_FEUGEN                  = 15930,
     NPC_STALAGG                 = 15929,
+    NPC_TESLA                   = 16218,
     NPC_SAPPHIRON               = 15989,
     NPC_KEL_THUZAD              = 15990,
     NPC_CRYPT_GUARD             = 16573,
@@ -173,6 +174,10 @@ enum InstanceEvents
     EVENT_DIALOGUE_GOTHIK_ZELIEK2,
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
     EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
+
+    // Thaddius AI requesting timed encounter respawn
+    EVENT_THADDIUS_BEGIN_RESET,
+    EVENT_THADDIUS_RESET,
 
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,

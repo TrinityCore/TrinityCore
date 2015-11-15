@@ -53,6 +53,7 @@
 #include "SpellHistory.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "TradeData.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 

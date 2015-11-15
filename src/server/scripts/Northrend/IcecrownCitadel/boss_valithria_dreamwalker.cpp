@@ -309,7 +309,7 @@ class boss_valithria_dreamwalker : public CreatureScript
             {
                 me->SetHealth(_spawnHealth);
                 me->SetReactState(REACT_PASSIVE);
-                me->LoadCreaturesAddon(true);
+                me->LoadCreaturesAddon();
                 // immune to percent heals
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_OBS_MOD_HEALTH, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
@@ -1072,7 +1072,7 @@ class npc_dream_cloud : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
                 me->SetCorpseDelay(0);  // remove corpse immediately
-                me->LoadCreaturesAddon(true);
+                me->LoadCreaturesAddon();
             }
 
             void UpdateAI(uint32 diff) override

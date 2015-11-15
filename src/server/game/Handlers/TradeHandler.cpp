@@ -28,6 +28,7 @@
 #include "SocialMgr.h"
 #include "Language.h"
 #include "AccountMgr.h"
+#include "TradeData.h"
 
 void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
 {

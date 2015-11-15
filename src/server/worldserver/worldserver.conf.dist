@@ -1142,11 +1142,11 @@ BirthdayTime = 1222964635
 #           DATABASE_CHARACTER = 2, // Character database
 #           DATABASE_WORLD     = 4, // World database
 #
-#        Default:     0  - (All Disabled)
+#        Default:     7  - (All enabled)
 #                     4  - (Enable world only)
-#                     7  - (All enabled)
+#                     0  - (All disabled)
 
-Updates.EnableDatabases = 0
+Updates.EnableDatabases = 7
 
 #
 #    Updates.SourcePath
@@ -2639,6 +2639,13 @@ HonorPointsAfterDuel = 0
 #                     1  - (Enabled)
 
 ResetDuelCooldowns = 0
+
+#    ResetDuelHealthMana
+#        Description: Reset health and mana before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelHealthMana = 0
 
 #
 #    AlwaysMaxWeaponSkill
