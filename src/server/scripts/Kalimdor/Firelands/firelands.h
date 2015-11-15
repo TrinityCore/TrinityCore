@@ -52,7 +52,7 @@ class DelayedAttackStartEvent : public BasicEvent
     public:
         DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
 
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
         {
             _owner->AI()->DoZoneInCombat(_owner, 200.0f);
             return true;

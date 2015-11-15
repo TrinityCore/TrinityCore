@@ -1063,7 +1063,7 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_shield_of_the_righteous_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return false;
@@ -1089,13 +1089,13 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
                 SetHitDamage(damage);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pal_shield_of_the_righteous_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pal_shield_of_the_righteous_SpellScript();
         }

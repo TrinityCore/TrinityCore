@@ -283,7 +283,7 @@ class spell_force_of_earth : public SpellScriptLoader
                 GetCaster()->SetDisplayId(26693); // can be moved to SAI part, need sniffs to see what this dummy does (note: npc 43552)
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectLaunch += SpellEffectFn(spell_force_of_earth_SpellScript::DummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }

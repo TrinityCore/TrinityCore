@@ -104,7 +104,7 @@ class RespawnEggEvent : public BasicEvent
     public:
         explicit RespawnEggEvent(Creature* egg) : _egg(egg) { }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _egg->RestoreDisplayId();
             return true;
