@@ -535,6 +535,8 @@ Player::Player(WorldSession* session): Unit(true)
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
+    healthBeforeDuel = 0;
+    manaBeforeDuel = 0;
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
 }
