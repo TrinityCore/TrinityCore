@@ -18,6 +18,7 @@
 #include "ObjectMgr.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
+#include "GuildFinderPackets.h"
 #include "World.h"
 
 GuildFinderMgr::GuildFinderMgr()
@@ -103,7 +104,8 @@ void GuildFinderMgr::LoadMembershipRequests()
 
         MembershipRequest request(playerId, guildId, availability, classRoles, interests, comment, time_t(submitTime));
 
-        _membershipRequests[guildId].push_back(request);
+        _membershipRequestsByGuild[guildId][playerId] = request;
+        _membershipRequestsByPlayer[playerId][guildId] = request;
 
         ++count;
     } while (result->NextRow());
@@ -113,7 +115,8 @@ void GuildFinderMgr::LoadMembershipRequests()
 
 void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, MembershipRequest const& request)
 {
-    _membershipRequests[guildGuid].push_back(request);
+    _membershipRequestsByGuild[guildGuid][request.GetPlayerGUID()] = request;
+    _membershipRequestsByPlayer[request.GetPlayerGUID()][guildGuid] = request;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_APPLICANT);
@@ -138,101 +141,101 @@ void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, Membershi
 
 void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid const& playerId)
 {
-    for (MembershipRequestStore::iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
+    auto playerItr = _membershipRequestsByPlayer.find(playerId);
+    if (playerItr == _membershipRequestsByPlayer.end())
+        return;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    for (auto& guildRequestPair : playerItr->second)
     {
-        std::vector<MembershipRequest>::iterator itr2 = itr->second.begin();
-        for (; itr2 != itr->second.end(); ++itr2)
-            if (itr2->GetPlayerGUID() == playerId)
-                break;
-
-        if (itr2 == itr->second.end())
-            continue;
-
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-        stmt->setUInt64(0, itr2->GetGuildGuid().GetCounter());
-        stmt->setUInt64(1, itr2->GetPlayerGUID().GetCounter());
+        stmt->setUInt64(0, guildRequestPair.first.GetCounter());
+        stmt->setUInt64(1, playerId.GetCounter());
         trans->Append(stmt);
 
-        CharacterDatabase.CommitTransaction(trans);
-        itr->second.erase(itr2);
-
         // Notify the guild master and officers the list changed
-        if (Guild* guild = sGuildMgr->GetGuildByGuid(itr->first))
+        if (Guild* guild = sGuildMgr->GetGuildByGuid(guildRequestPair.first))
             SendApplicantListUpdate(guild);
+
+        auto guildItr = _membershipRequestsByGuild.find(guildRequestPair.first);
+        if (guildItr == _membershipRequestsByGuild.end())
+            continue;
+
+        guildItr->second.erase(playerId);
+        if (guildItr->second.empty())
+            _membershipRequestsByGuild.erase(guildItr);
     }
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    _membershipRequestsByPlayer.erase(playerItr);
 }
 
 void GuildFinderMgr::RemoveMembershipRequest(ObjectGuid const& playerId, ObjectGuid const& guildId)
 {
-    std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
-    for (; itr != _membershipRequests[guildId].end(); ++itr)
-        if (itr->GetPlayerGUID() == playerId)
-            break;
+    auto guildItr = _membershipRequestsByGuild.find(guildId);
+    if (guildItr != _membershipRequestsByGuild.end())
+    {
+        guildItr->second.erase(playerId);
+        if (guildItr->second.empty())
+            _membershipRequestsByGuild.erase(guildItr);
+    }
 
-    if (itr == _membershipRequests[guildId].end())
-        return;
+    auto playerItr = _membershipRequestsByPlayer.find(playerId);
+    if (playerItr != _membershipRequestsByPlayer.end())
+    {
+        playerItr->second.erase(guildId);
+        if (playerItr->second.empty())
+            _membershipRequestsByPlayer.erase(playerItr);
+    }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-    stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
-    stmt->setUInt64(1, itr->GetPlayerGUID().GetCounter());
+    stmt->setUInt64(0, guildId.GetCounter());
+    stmt->setUInt64(1, playerId.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
 
     // Notify the applicant his submittion has been removed
-    if (Player* player = ObjectAccessor::FindPlayer(itr->GetPlayerGUID()))
+    if (Player* player = ObjectAccessor::FindPlayer(playerId))
         SendMembershipRequestListUpdate(player);
 
     // Notify the guild master and officers the list changed
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildId))
         SendApplicantListUpdate(guild);
-
-    _membershipRequests[guildId].erase(itr);
 }
 
-std::list<MembershipRequest> GuildFinderMgr::GetAllMembershipRequestsForPlayer(ObjectGuid const& playerGuid)
+std::vector<MembershipRequest const*> GuildFinderMgr::GetAllMembershipRequestsForPlayer(ObjectGuid const& playerGuid)
 {
-    std::list<MembershipRequest> resultSet;
-    for (MembershipRequestStore::const_iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
-    {
-        std::vector<MembershipRequest> const& guildReqs = itr->second;
-        for (std::vector<MembershipRequest>::const_iterator itr2 = guildReqs.begin(); itr2 != guildReqs.end(); ++itr2)
-        {
-            if (itr2->GetPlayerGUID() == playerGuid)
-            {
-                resultSet.push_back(*itr2);
-                break;
-            }
-        }
-    }
+    std::vector<MembershipRequest const*> resultSet;
+    auto playerItr = _membershipRequestsByPlayer.find(playerGuid);
+    if (playerItr == _membershipRequestsByPlayer.end())
+        return resultSet;
+
+    resultSet.reserve(playerItr->second.size());
+    for (auto const& guildRequestPair : playerItr->second)
+        resultSet.push_back(&guildRequestPair.second);
+
     return resultSet;
 }
 
 uint8 GuildFinderMgr::CountRequestsFromPlayer(ObjectGuid const& playerId)
 {
-    uint8 result = 0;
-    for (MembershipRequestStore::const_iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
-    {
-        for (std::vector<MembershipRequest>::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-        {
-            if (itr2->GetPlayerGUID() != playerId)
-                continue;
-            ++result;
-            break;
-        }
-    }
-    return result;
+    auto playerItr = _membershipRequestsByPlayer.find(playerId);
+    return playerItr != _membershipRequestsByPlayer.end() ? playerItr->second.size() : 0;
 }
 
-LFGuildStore GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, TeamId faction)
+std::vector<LFGuildSettings const*> GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, TeamId faction)
 {
-    LFGuildStore resultSet;
+    std::vector<LFGuildSettings const*> resultSet;
     for (LFGuildStore::const_iterator itr = _guildSettings.begin(); itr != _guildSettings.end(); ++itr)
     {
         LFGuildSettings const& guildSettings = itr->second;
+
+        if (!guildSettings.IsListed())
+            continue;
 
         if (guildSettings.GetTeam() != faction)
             continue;
@@ -249,7 +252,7 @@ LFGuildStore GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, T
         if (!(guildSettings.GetLevel() & settings.GetLevel()))
             continue;
 
-        resultSet.insert(std::make_pair(itr->first, guildSettings));
+        resultSet.push_back(&itr->second);
     }
 
     return resultSet;
@@ -257,10 +260,11 @@ LFGuildStore GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, T
 
 bool GuildFinderMgr::HasRequest(ObjectGuid const& playerId, ObjectGuid const& guildId)
 {
-    for (std::vector<MembershipRequest>::const_iterator itr = _membershipRequests[guildId].begin(); itr != _membershipRequests[guildId].end(); ++itr)
-        if (itr->GetPlayerGUID() == playerId)
-            return true;
-    return false;
+    auto guildItr = _membershipRequestsByGuild.find(guildId);
+    if (guildItr == _membershipRequestsByGuild.end())
+        return false;
+
+    return guildItr->second.count(playerId) > 0;
 }
 
 void GuildFinderMgr::SetGuildSettings(ObjectGuid const& guildGuid, LFGuildSettings const& settings)
@@ -284,30 +288,38 @@ void GuildFinderMgr::SetGuildSettings(ObjectGuid const& guildGuid, LFGuildSettin
 
 void GuildFinderMgr::DeleteGuild(ObjectGuid const& guildId)
 {
-    std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
-    while (itr != _membershipRequests[guildId].end())
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    auto guildItr = _membershipRequestsByGuild.find(guildId);
+    if (guildItr != _membershipRequestsByGuild.end())
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        for (auto playerRequestPair : guildItr->second)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
+            stmt->setUInt64(0, guildId.GetCounter());
+            stmt->setUInt64(1, playerRequestPair.first.GetCounter());
+            trans->Append(stmt);
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-        stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
-        stmt->setUInt64(1, itr->GetPlayerGUID().GetCounter());
-        trans->Append(stmt);
+            auto playerItr = _membershipRequestsByPlayer.find(playerRequestPair.first);
+            if (playerItr != _membershipRequestsByPlayer.end())
+            {
+                playerItr->second.erase(guildId);
+                if (playerItr->second.empty())
+                    _membershipRequestsByPlayer.erase(playerItr);
+            }
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
-        stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
-        trans->Append(stmt);
-
-        CharacterDatabase.CommitTransaction(trans);
-
-        // Notify the applicant his submition has been removed
-        if (Player* player = ObjectAccessor::FindPlayer(itr->GetPlayerGUID()))
-            SendMembershipRequestListUpdate(player);
-
-        ++itr;
+            // Notify the applicant his submition has been removed
+            if (Player* player = ObjectAccessor::FindPlayer(playerRequestPair.first))
+                SendMembershipRequestListUpdate(player);
+        }
     }
 
-    _membershipRequests.erase(guildId);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
+    stmt->setUInt64(0, guildId.GetCounter());
+    trans->Append(stmt);
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    _membershipRequestsByGuild.erase(guildId);
     _guildSettings.erase(guildId);
 
     // Notify the guild master the list changed (even if he's not a GM any more, not sure if needed)
@@ -317,14 +329,13 @@ void GuildFinderMgr::DeleteGuild(ObjectGuid const& guildId)
 
 void GuildFinderMgr::SendApplicantListUpdate(Guild* guild)
 {
-    WorldPacket data(SMSG_LF_GUILD_APPLICANT_LIST_CHANGED, 0);
+    WorldPackets::GuildFinder::LFGuildApplicantListChanged applicantListChanged;
+    guild->BroadcastPacketToRank(applicantListChanged.Write(), GR_OFFICER);
     if (Player* player = ObjectAccessor::FindPlayer(guild->GetLeaderGUID()))
-        player->SendDirectMessage(&data);
-    guild->BroadcastPacketToRank(&data, GR_OFFICER);
+        player->SendDirectMessage(applicantListChanged.GetRawPacket());
 }
 
 void GuildFinderMgr::SendMembershipRequestListUpdate(Player* player)
 {
-    WorldPacket data(SMSG_LF_GUILD_APPLICATIONS_LIST_CHANGED, 0);
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(WorldPackets::GuildFinder::LFGuildApplicationsListChanged().Write());
 }

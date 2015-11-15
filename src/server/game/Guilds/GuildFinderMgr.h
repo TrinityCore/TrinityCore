@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "World.h"
 #include "GuildMgr.h"
 
 enum GuildFinderOptionsInterest
@@ -81,12 +80,9 @@ struct MembershipRequest
         uint8 GetAvailability() const  { return _availability; }
         uint8 GetClassRoles() const    { return _classRoles; }
         uint8 GetInterests() const     { return _interests; }
-        uint8 GetClass() const         { return sWorld->GetCharacterInfo(GetPlayerGUID())->Class; }
-        uint8 GetLevel() const         { return sWorld->GetCharacterInfo(GetPlayerGUID())->Level; }
         time_t GetSubmitTime() const   { return _time; }
         time_t GetExpiryTime() const   { return time_t(_time + 30 * 24 * 3600); } // Adding 30 days
         std::string const& GetComment() const { return _comment; }
-        std::string const& GetName() const    { return sWorld->GetCharacterInfo(GetPlayerGUID())->Name; }
 
     private:
         std::string _comment;
@@ -182,8 +178,7 @@ struct LFGuildSettings : public LFGuildPlayer
         TeamId _team;
 };
 
-typedef std::map<ObjectGuid /* guildGuid */, LFGuildSettings> LFGuildStore;
-typedef std::map<ObjectGuid /* guildGuid */, std::vector<MembershipRequest> > MembershipRequestStore;
+typedef std::unordered_map<ObjectGuid /* guildGuid */, LFGuildSettings> LFGuildStore;
 
 class GuildFinderMgr
 {
@@ -193,7 +188,8 @@ class GuildFinderMgr
 
         LFGuildStore  _guildSettings;
 
-        MembershipRequestStore _membershipRequests;
+        std::unordered_map<ObjectGuid /*guildGUID*/, std::unordered_map<ObjectGuid /*playerGUID*/, MembershipRequest>> _membershipRequestsByGuild;
+        std::unordered_map<ObjectGuid /*playerGUID*/, std::unordered_map<ObjectGuid /*guildGUID*/, MembershipRequest>> _membershipRequestsByPlayer;
 
         void LoadGuildSettings();
         void LoadMembershipRequests();
@@ -212,7 +208,7 @@ class GuildFinderMgr
          * @brief Returns settings for a guild.
          * @param guildGuid The guild's database guid.
          */
-        LFGuildSettings GetGuildSettings(ObjectGuid const& guildGuid) { return _guildSettings[guildGuid]; }
+        LFGuildSettings const& GetGuildSettings(ObjectGuid const& guildGuid) { return _guildSettings[guildGuid]; }
 
         /**
          * @brief Files a membership request to a guild
@@ -241,20 +237,24 @@ class GuildFinderMgr
          * @brief Returns a set of membership requests for a guild
          * @param guildGuid The guild's database guid.
          */
-        std::vector<MembershipRequest> GetAllMembershipRequestsForGuild(ObjectGuid const& guildGuid) { return _membershipRequests[guildGuid]; }
+        std::unordered_map<ObjectGuid, MembershipRequest> const* GetAllMembershipRequestsForGuild(ObjectGuid const& guildGuid)
+        {
+            auto itr = _membershipRequestsByGuild.find(guildGuid);
+            return itr != _membershipRequestsByGuild.end() ? &itr->second : nullptr;
+        }
 
         /**
          * @brief Returns a list of membership requests for a player.
          * @param playerGuid The player's database guid.
          */
-        std::list<MembershipRequest> GetAllMembershipRequestsForPlayer(ObjectGuid const& playerGuid);
+        std::vector<MembershipRequest const*> GetAllMembershipRequestsForPlayer(ObjectGuid const& playerGuid);
 
         /**
          * @brief Returns a store of guilds matching the settings provided, using bitmask operators.
          * @param settings The player's finder settings
          * @param teamId   The player's faction (TEAM_ALLIANCE or TEAM_HORDE)
          */
-        LFGuildStore GetGuildsMatchingSetting(LFGuildPlayer& settings, TeamId faction);
+        std::vector<LFGuildSettings const*> GetGuildsMatchingSetting(LFGuildPlayer& settings, TeamId faction);
 
         /// Provided a player guid and a guild guid, determines if a pending request is filed with these keys.
         bool HasRequest(ObjectGuid const& playerId, ObjectGuid const& guildId);
