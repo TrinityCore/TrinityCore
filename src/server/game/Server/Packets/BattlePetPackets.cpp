@@ -81,7 +81,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
 
 WorldPacket const* WorldPackets::BattlePet::BattlePetUpdates::Write()
 {
-    _worldPacket << Pets.size();
+    _worldPacket << uint32(Pets.size());
 
     for (auto const& pet : Pets)
         _worldPacket << pet;
@@ -95,7 +95,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetUpdates::Write()
 
 WorldPacket const* WorldPackets::BattlePet::PetBattleSlotUpdates::Write()
 {
-    _worldPacket << Slots.size();
+    _worldPacket << uint32(Slots.size());
 
     for (auto const& slot : Slots)
         _worldPacket << slot;
