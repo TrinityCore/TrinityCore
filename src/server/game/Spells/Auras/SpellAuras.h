@@ -361,7 +361,7 @@ class ChargeDropEvent : public BasicEvent
     friend class Aura;
     protected:
         ChargeDropEvent(Aura* base, AuraRemoveMode mode) : _base(base), _mode(mode) { }
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/);
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
 
     private:
         Aura* _base;

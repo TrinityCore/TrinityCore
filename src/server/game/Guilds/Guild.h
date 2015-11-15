@@ -533,7 +533,7 @@ private:
                m_flags &= ~1;
         }
 
-        void SaveToDB(SQLTransaction& trans) const;
+        void SaveToDB(SQLTransaction& trans) const override;
         void WritePacket(WorldPackets::Guild::GuildNews& newsPacket) const;
 
     private:
