@@ -187,7 +187,7 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket* packet)
+void WorldSession::SendPacket(WorldPacket const* packet)
 {
     if (!m_Socket)
         return;
