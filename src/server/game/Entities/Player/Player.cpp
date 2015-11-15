@@ -355,6 +355,8 @@ Player::Player(WorldSession* session) : Unit(true)
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
+    healthBeforeDuel = 0;
+    manaBeforeDuel = 0;
     _maxPersonalArenaRate = 0;
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
