@@ -1343,6 +1343,15 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 GetCaster()->CastSpell(targets, spellInfo, NULL, TRIGGERED_FULL_MASK);
             }
 
+            void OverrideCooldown()
+            {
+                // Because the ghoul is summoned by one of triggered spells SendCooldownEvent is not sent for this spell
+                // but the client has locked it by itself so we need some link between this spell and the real spell summoning.
+                // Luckily such link already exists - spell category
+                // This starts infinite category cooldown which can later be used by SendCooldownEvent to send packet for this spell
+                GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, nullptr, true);
+            }
+
             void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_dk_raise_dead_SpellScript::CheckCast);
@@ -1351,6 +1360,7 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 OnCast += SpellCastFn(spell_dk_raise_dead_SpellScript::ConsumeReagents);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleRaiseDead, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleRaiseDead, EFFECT_2, SPELL_EFFECT_DUMMY);
+                AfterCast += SpellCastFn(spell_dk_raise_dead_SpellScript::OverrideCooldown);
             }
 
         private:
