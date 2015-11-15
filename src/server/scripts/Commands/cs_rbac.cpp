@@ -49,7 +49,7 @@ class rbac_commandscript : public CommandScript
 public:
     rbac_commandscript() : CommandScript("rbac_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
         static std::vector<ChatCommand> rbacAccountCommandTable =
         {
