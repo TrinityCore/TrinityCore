@@ -278,7 +278,7 @@ class spell_mage_blizzard : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_blizzard_SpellScript);
 
-           bool Validate(SpellInfo const* /*spellInfo*/)
+           bool Validate(SpellInfo const* /*spellInfo*/) override
            {
                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
                    return false;
@@ -299,13 +299,13 @@ class spell_mage_blizzard : public SpellScriptLoader
                }
            }
 
-           void Register()
+           void Register() override
            {
                OnEffectHitTarget += SpellEffectFn(spell_mage_blizzard_SpellScript::AddChillEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
            }
        };
 
-       SpellScript* GetSpellScript() const
+       SpellScript* GetSpellScript() const override
        {
            return new spell_mage_blizzard_SpellScript();
        }
@@ -657,13 +657,13 @@ class spell_mage_frostbolt : public SpellScriptLoader
                }
            }
 
-           void Register()
+           void Register() override
            {
                OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
            }
        };
 
-       SpellScript* GetSpellScript() const
+       SpellScript* GetSpellScript() const override
        {
            return new spell_mage_frostbolt_SpellScript();
        }
@@ -848,7 +848,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
                    GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2, true);
            }
 
-           void Register()
+           void Register() override
            {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_ice_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_mage_ice_barrier_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
@@ -1239,7 +1239,7 @@ class spell_mage_replenish_mana : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_replenish_mana_SpellScript);
 
-           bool Validate(SpellInfo const* /*spellInfo*/)
+           bool Validate(SpellInfo const* /*spellInfo*/) override
            {
                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED))
                    return false;
@@ -1255,13 +1255,13 @@ class spell_mage_replenish_mana : public SpellScriptLoader
                }
            }
 
-           void Register()
+           void Register() override
            {
                AfterCast += SpellCastFn(spell_mage_replenish_mana_SpellScript::HandleImprovedManaGem);
            }
        };
 
-       SpellScript* GetSpellScript() const
+       SpellScript* GetSpellScript() const override
        {
            return new spell_mage_replenish_mana_SpellScript();
        }
@@ -1479,7 +1479,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_water_elemental_freeze_SpellScript);
 
-           bool Validate(SpellInfo const* /*spellInfo*/)
+           bool Validate(SpellInfo const* /*spellInfo*/) override
            {
                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
                    return false;
@@ -1507,7 +1507,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
                }
            }
 
-           void Register()
+           void Register() override
            {
                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_water_elemental_freeze_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                AfterCast += SpellCastFn(spell_mage_water_elemental_freeze_SpellScript::HandleImprovedFreeze);
@@ -1517,7 +1517,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
            bool _didHit = false;
        };
 
-       SpellScript* GetSpellScript() const
+       SpellScript* GetSpellScript() const override
        {
            return new spell_mage_water_elemental_freeze_SpellScript();
        }

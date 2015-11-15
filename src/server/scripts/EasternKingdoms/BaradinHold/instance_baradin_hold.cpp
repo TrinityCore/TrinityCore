@@ -104,7 +104,7 @@ class instance_baradin_hold: public InstanceMapScript
             ObjectGuid AlizabalGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_baradin_hold_InstanceMapScript(map);
         }

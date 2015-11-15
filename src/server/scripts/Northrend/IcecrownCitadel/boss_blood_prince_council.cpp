@@ -159,7 +159,7 @@ class StandUpEvent : public BasicEvent
     public:
         StandUpEvent(Creature& owner) : BasicEvent(), _owner(owner) { }
 
-        bool Execute(uint64 /*eventTime*/, uint32 /*diff*/)
+        bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
         {
             _owner.HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
             return true;

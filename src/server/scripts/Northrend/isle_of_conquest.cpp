@@ -210,7 +210,7 @@ class StartLaunchEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             Player* player = ObjectAccessor::FindPlayer(_guid);
             if (!player || !player->GetVehicle())

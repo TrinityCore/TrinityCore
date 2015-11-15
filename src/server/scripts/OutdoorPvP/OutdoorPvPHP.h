@@ -96,9 +96,9 @@ class OPvPCapturePointHP : public OPvPCapturePoint
     public:
         OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
 
-        void ChangeState();
+        void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     private:
         OutdoorPvPHPTowerType m_TowerType;
@@ -109,18 +109,18 @@ class OutdoorPvPHP : public OutdoorPvP
     public:
         OutdoorPvPHP();
 
-        bool SetupOutdoorPvP();
+        bool SetupOutdoorPvP() override;
 
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        void HandlePlayerEnterZone(Player* player, uint32 zone) override;
+        void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        void SendRemoveWorldStates(Player* player);
+        void SendRemoveWorldStates(Player* player) override;
 
-        void HandleKillImpl(Player* player, Unit* killed);
+        void HandleKillImpl(Player* player, Unit* killed) override;
 
         uint32 GetAllianceTowersControlled() const;
         void SetAllianceTowersControlled(uint32 count);
