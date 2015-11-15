@@ -1,13 +1,3 @@
-macro(get_WIN32_WINNT version)
-    if (WIN32 AND CMAKE_SYSTEM_VERSION)
-        set(ver ${CMAKE_SYSTEM_VERSION})
-        string(REPLACE "." "" ver ${ver})
-        string(REGEX REPLACE "([0-9])" "0\\1" ver ${ver})
-
-        set(${version} "0x${ver}")
-    endif()
-endmacro()
-
 if(WIN32)
  set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
@@ -25,8 +15,7 @@ if(WIN32)
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     OFF)
 
-  get_WIN32_WINNT(ver)
-  add_definitions(-D_WIN32_WINNT=${ver})
+  add_definitions(-D_WIN32_WINNT=0x0601)
 endif()
 
 find_package(Boost 1.49 REQUIRED system filesystem thread program_options iostreams regex)
