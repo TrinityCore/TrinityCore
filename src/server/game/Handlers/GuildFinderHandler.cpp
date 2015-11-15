@@ -51,7 +51,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPackets::GuildFinder::LFGuildBro
         return;
     if (!(lfGuildBrowse.PlayStyle & ALL_INTERESTS) || lfGuildBrowse.PlayStyle > ALL_INTERESTS)
         return;
-    if (lfGuildBrowse.CharacterLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || lfGuildBrowse.CharacterLevel < 1)
+    if (lfGuildBrowse.CharacterLevel > int32(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) || lfGuildBrowse.CharacterLevel < 1)
         return;
 
     Player* player = GetPlayer();
