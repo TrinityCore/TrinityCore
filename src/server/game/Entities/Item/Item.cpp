@@ -28,6 +28,7 @@
 #include "ConditionMgr.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "TradeData.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
