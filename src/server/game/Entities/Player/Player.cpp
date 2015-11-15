@@ -14991,8 +14991,9 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
         if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
         {
             uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
-            if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
-                return m_seasonalquests.find(eventId)->second.find(quest_id) != m_seasonalquests.find(eventId)->second.end();
+            auto seasonalQuestItr = m_seasonalquests.find(eventId);
+            if (seasonalQuestItr != m_seasonalquests.end())
+                return seasonalQuestItr->second.find(quest_id) != seasonalQuestItr->second.end();
 
             return false;
         }
@@ -15020,7 +15021,8 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
             if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
             {
                 uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
-                if (m_seasonalquests.find(eventId) == m_seasonalquests.end() || m_seasonalquests.find(eventId)->second.find(quest_id) == m_seasonalquests.find(eventId)->second.end())
+                auto seasonalQuestItr = m_seasonalquests.find(eventId);
+                if (seasonalQuestItr == m_seasonalquests.end() || seasonalQuestItr->second.find(quest_id) == seasonalQuestItr->second.end())
                     return QUEST_STATUS_NONE;
             }
 
