@@ -14,14 +14,14 @@
 
 -- MinPlayersPerTeam
 UPDATE `battleground_template` SET `MinPlayersPerTeam` = 2  WHERE `ID` = 2; -- Warsong Gulch
-UPDATE `battleground_template` SET `MinPlayersPerTeam` = 4  WHERE `ID` IN (3, 7, 9); -- Arathi Basin, Eye of The Storm, Strand of the Ancients
+UPDATE `battleground_template` SET `MinPlayersPerTeam` = 3  WHERE `ID` IN (3, 7, 9); -- Arathi Basin, Eye of The Storm, Strand of the Ancients
 UPDATE `battleground_template` SET `MinPlayersPerTeam` = 10 WHERE `ID` = 1; -- Alterac Valley
-UPDATE `battleground_template` SET `MinPlayersPerTeam` = 4  WHERE `ID` = 32; -- RBG
+UPDATE `battleground_template` SET `MinPlayersPerTeam` = 3  WHERE `ID` = 32; -- RBG
 
 -- Weights
 UPDATE `battleground_template` SET `Weight` = 0  WHERE `ID` = 1;       -- Alterac Valley
 UPDATE `battleground_template` SET `Weight` = 0  WHERE `ID` = 30;      -- Isle of Conquest
-UPDATE `battleground_template` SET `Weight` = 2  WHERE `ID` = 2;       -- Warsong Gulch
+UPDATE `battleground_template` SET `Weight` = 3  WHERE `ID` = 2;       -- Warsong Gulch
 UPDATE `battleground_template` SET `Weight` = 2  WHERE `ID` = 9;       -- Strand of the Ancients
 UPDATE `battleground_template` SET `Weight` = 3  WHERE `ID` IN (3, 7); -- Arathi Basin, Eye of The Storm
 
