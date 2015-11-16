@@ -1622,7 +1622,6 @@ class Player : public Unit, public GridObject<Player>
         void SaveGoldToDB(SQLTransaction& trans) const;
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
-        static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -1635,7 +1634,6 @@ class Player : public Unit, public GridObject<Player>
         void SetBindPoint(ObjectGuid guid) const;
         void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const;
         void ResetPetTalents();
-        void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();
@@ -1832,7 +1830,7 @@ class Player : public Unit, public GridObject<Player>
 
         PvPInfo pvpInfo;
         void UpdatePvPState(bool onlyFFA = false);
-        void SetPvP(bool state);
+        void SetPvP(bool state) override;
         void UpdatePvP(bool state, bool override=false);
         void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
@@ -1903,8 +1901,6 @@ class Player : public Unit, public GridObject<Player>
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
 
-        uint32 GetSpellByProto(ItemTemplate* proto);
-
         float GetHealthBonusFromStamina();
 
         bool UpdateStats(Stats stat) override;
@@ -1925,7 +1921,7 @@ class Player : public Unit, public GridObject<Player>
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
-        inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
+        void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility() const;
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing) const;
         float GetSpellCritFromIntellect() const;
@@ -1987,8 +1983,8 @@ class Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID) const;
         void SendResetFailedNotify(uint32 mapid) const;
 
-        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
-        bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
+        bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
+        bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
         void SendMessageToSet(WorldPacket const* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
