@@ -1433,7 +1433,6 @@ class Player : public Unit, public GridObject<Player>
         void SaveGoldToDB(SQLTransaction& trans) const;
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
-        static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
         static void Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
         static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
@@ -1447,7 +1446,6 @@ class Player : public Unit, public GridObject<Player>
         void SetBindPoint(ObjectGuid guid) const;
         void SendTalentWipeConfirm(ObjectGuid guid) const;
         void ResetPetTalents();
-        void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();
@@ -1610,7 +1608,7 @@ class Player : public Unit, public GridObject<Player>
 
         PvPInfo pvpInfo;
         void UpdatePvPState(bool onlyFFA = false);
-        void SetPvP(bool state);
+        void SetPvP(bool state) override;
         void UpdatePvP(bool state, bool override=false);
         void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
@@ -1703,7 +1701,7 @@ class Player : public Unit, public GridObject<Player>
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
         void UpdateDefenseBonusesMod();
-        inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
+        void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility() const;
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing) const;
         float GetMissPercentageFromDefence() const;
@@ -1765,8 +1763,8 @@ class Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(uint32 reason, uint32 MapId) const;
         void SendResetFailedNotify(uint32 mapid) const;
 
-        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
-        bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
+        bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
+        bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
         void SendMessageToSet(WorldPacket* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
