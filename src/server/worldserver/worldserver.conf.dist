@@ -3684,6 +3684,142 @@ Transmogrification.SetCopperCost = 0
 #
 ###################################################################################################
 
+###################################################################################################
+#
+# BeastMaster Configuration
+#
+# BeastMaster Hunter Only
+#                 = 0 (Anyone can use)
+#         default = 1 (Hunter only)
+
+BeastMaster.OnlyHunter = 1
+
+#
+# BeastMaster Enable Normal Pets
+#                 = 0  (Normal pets disabled)
+#         default = 1  (Normal Pets enabled)
+#
+
+BeastMaster.EnableNormalPet = 1
+
+#
+# BeastMaster Enable Exotic Pets
+#                 = 0  (Anyone Can get Exotic pets)
+#         default = 1  (Can only get Exotic Pets if you know how)
+#
+
+BeastMaster.EnableExoticPet = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#    Level NPC
+###################################################################################################
+
+LevelNPC.OnlyGMs = 0
+LevelNPC.EnableLevel80 = 1
+LevelNPC.EnableLevel100 = 1
+LevelNPC.EnableLevel150 = 1
+LevelNPC.EnableLevel200 = 0
+LevelNPC.EnableLevel255 = 0
+LevelNPC.UseTokens = 0
+LevelNPC.ItemEntryNum = 99999
+LevelNPC.SkillGoldCost = 10
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+# NPC Buff rewritten by LordPsyan
+#
+#        GM Only
+#         Default 0 = Any Player
+#                 1 = GM1 or higher
+
+Npc_Buff.OnlyGMs = 0
+
+#     Enables Small Buff
+#         Default 0 = Disable
+#                 1 = Enable
+
+Npc_Buff.EnableSmallBuff = 1
+
+#     Enables Geat Buff
+#         Default 0 = Disable
+#                 1 = Enable
+
+Npc_Buff.EnableGreatBuff = 1
+
+#     Enables GM Only Buff
+#         Default 0 = Disable
+#                 1 = Enable
+
+Npc_Buff.EnableGMBuff = 1
+
+#     Enables Player Tools
+#         Default 0 = Disable
+#                 1 = Enable
+
+Npc_Buff.EnablePlayerTools = 1
+
+#     Enables Remove Res Sickness
+#         Default 0 = Disable
+#                 1 = Enable
+
+Npc_Buff.EnableRemoveResSickness = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#       Profession NPC
+#
+# Enable or Disable Primary Professions
+#         default = 1 (Enabled)
+#                   = 0 (Disabled)
+
+ProfessionNPC.EnableProfessions = 1
+
+# Enable or Disable Secondary Professions
+#         default = 1 (Enabled)
+#                   = 0 (Disabled)
+
+ProfessionNPC.EnableSecondarySkills = 1
+
+# Number of Skill points
+#         default = 10
+
+SkillPoints = 10
+
+# GM Only
+#         default = 0 (Anyone can use)
+#                   = 1 (GM only)
+
+ProfessionNPC.OnlyGMs = 0
+
+# Cost of skill points (in copper)
+#         default = 10000 (10 gold)
+
+SkillGoldCost = 10000
+
+# Use Tokens instead of gold
+#         default = 0 (Use Gold)
+#                 = 1 (Use Tokens)
+
+ProfessionNPC.UseTokens = 1
+
+# Entry number of "token" Item
+#         default = 0 (No item. ProfessionNPC.UseTokens must = 0)
+#                 = n (n = entry number of item)
+
+ProfessionNPC.ItemEntryNum = 99999
+
+#
+###################################################################################################
+
 #
 # Prepatch by LordPsyan.
 # See http://www.realmsofwarcraft.com/bb for forums and information.

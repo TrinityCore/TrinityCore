@@ -1,0 +1,1 @@
+REPLACE INTO `mail` (`id`, `messageType`, `stationery`, `mailTemplateId`, `sender`, `receiver`, `subject`, `has_items`, `expire_time`, `deliver_time`, `money`, `cod`, `checked`) VALUES (60003, 0, 41, 0, 0, 0, 'Money For You!', 0, 0, 0, 4294967295, 0, 1);

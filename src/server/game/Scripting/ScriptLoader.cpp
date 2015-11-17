@@ -688,7 +688,6 @@ void AddSC_outdoorpvp_zm();
 // player
 void AddSC_chat_log();
 void AddSC_action_ip_logger();
-
 #endif
 
 void AddScripts()
@@ -1414,7 +1413,8 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-// start01
+    // All In One NPC
+    void AddSC_npc_all();
 // start02
 // start03
 // start04
@@ -1422,11 +1422,13 @@ void AddBattlegroundScripts()
 // start06
 // start07
 // start08
-// start09
+    // Beastmaster
+    void AddSC_Npc_Beastmaster();
 // start10
 // start11
 // start12
-// start13
+    // Bounty Hunter
+    void AddSC_BountyHunter();
 // start14
 // start15
 // start16
@@ -1439,19 +1441,23 @@ void AddBattlegroundScripts()
 // start22
 // start23
 // start24
-// start25
+    // Level NPC
+    void AddSC_levelnpc();
 // start26
 // start27
 // start28
-// start29
+    // Lottery NPC
+    void AddSC_npc_lottery();
 // start30
 // start31
 // start32
-// start33
+    // Buff NPC
+    void AddSC_Npc_Buff();
 // start34
 // start35
 // start36
-// start37
+    // Enchant NPC
+    void AddSC_npc_enchantment();
 // start38
 // start39
 // start40
@@ -1459,7 +1465,8 @@ void AddBattlegroundScripts()
 // start42
 // start43
 // start44
-// start45
+    // Profession Npc
+    void AddSC_professionnpc();
 // start46
 // start47
 // start48
@@ -1544,7 +1551,8 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-// end01
+    // All In One NPC
+    AddSC_npc_all();
 // end02
 // end03
 // end04
@@ -1552,11 +1560,13 @@ void AddCustomScripts()
 // end06
 // end07
 // end08
-// end09
+    // Beastmaster
+    AddSC_Npc_Beastmaster();
 // end10
 // end11
 // end12
-// end13
+    // Bounty Hunter
+    AddSC_BountyHunter();
 // end14
 // end15
 // end16
@@ -1569,19 +1579,23 @@ void AddCustomScripts()
 // end22
 // end23
 // end24
-// end25
+    // Level NPC
+    AddSC_levelnpc();
 // end26
 // end27
 // end28
-// end29
+    // Lottery NPC
+    AddSC_npc_lottery();
 // end30
 // end31
 // end32
-// end33
+    // Buff NPC
+    AddSC_Npc_Buff();
 // end34
 // end35
 // end36
-// end37
+    // Enchant NPC
+    AddSC_npc_enchantment();
 // end38
 // end39
 // end40
@@ -1589,7 +1603,8 @@ void AddCustomScripts()
 // end42
 // end43
 // end44
-// end45
+    // Profession Npc
+    AddSC_professionnpc();
 // end46
 // end47
 // end48

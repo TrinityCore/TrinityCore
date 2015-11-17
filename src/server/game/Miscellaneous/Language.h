@@ -800,7 +800,18 @@ enum TrinityStrings
     LANG_NPCINFO_SPELLCLICK             = 840,
     LANG_NPCINFO_MAILBOX                = 841,
     LANG_NPCINFO_PLAYER_VEHICLE         = 842,
-
+// Start AIO by LordPsyan
+    LANG_SOTA                           = 990,
+    LANG_AV                             = 991,
+    LANG_ARENA_3                        = 992,
+    LANG_ARENA_2                        = 993,
+    LANG_ARENA_1                        = 994,
+    LANG_RANDOM                         = 995,
+    LANG_EOTS                           = 996,
+    LANG_AB                             = 997,
+    LANG_WSG                            = 998,
+    LANG_WG                             = 999,
+// End AIO
     // Pinfo commands
     LANG_PINFO_PLAYER                   = 453,
     LANG_PINFO_GM_ACTIVE                = 548,
@@ -1246,9 +1257,9 @@ enum TrinityStrings
     // 35
     // 36
     // 37
-    // 38
-    // 39
-    // 40
+   LANG_LOTTERY_ANNOUNCE_JACKPOT = 11010,
+   LANG_LOTTERY_ANNOUNCE_JACKPOT_M_PLAYERS = 11011,
+   LANG_LOTTERY_ANNOUNCE = 11012
     // Visit http://www.realmsofwarcraft.com/bb for forums and information
     //
     // End of prepatch
