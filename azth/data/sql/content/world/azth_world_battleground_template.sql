@@ -18,6 +18,9 @@ UPDATE `battleground_template` SET `MinPlayersPerTeam` = 3  WHERE `ID` IN (3, 7,
 UPDATE `battleground_template` SET `MinPlayersPerTeam` = 10 WHERE `ID` = 1; -- Alterac Valley
 UPDATE `battleground_template` SET `MinPlayersPerTeam` = 3  WHERE `ID` = 32; -- RBG
 
+-- MaxPlayersPerTeam
+UPDATE `azerothshard-world`.`battleground_template` SET `MaxPlayersPerTeam`=15 WHERE  `ID`=32;
+
 -- Weights
 UPDATE `battleground_template` SET `Weight` = 0  WHERE `ID` = 1;       -- Alterac Valley
 UPDATE `battleground_template` SET `Weight` = 0  WHERE `ID` = 30;      -- Isle of Conquest
