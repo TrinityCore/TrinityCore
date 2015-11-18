@@ -1292,7 +1292,7 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        OpenCascStorage(0);
+        OpenCascStorage(FirstLocale);
         ExtractMaps(build);
         CascCloseStorage(CascStorage);
     }
