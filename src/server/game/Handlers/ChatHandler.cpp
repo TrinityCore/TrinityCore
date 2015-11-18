@@ -38,7 +38,30 @@
 #include "Util.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
-
+// Prepatch by LordPsyan
+// 61
+// 62
+// 63
+// 64
+// 65
+// 66
+// 67
+// 68
+// 69
+// 70
+// 71
+// 72
+// 73
+// 74
+// 75
+// 76
+// 77
+// 78
+// 79
+// 80
+// Visit http://www.realmsofwarcraft.com/bb for forums and information
+//
+// End of prepatch
 void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {
     uint32 type;

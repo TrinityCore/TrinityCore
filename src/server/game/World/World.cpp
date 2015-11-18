@@ -64,7 +64,30 @@
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WorldSession.h"
-
+// Prepatch by LordPsyan
+// 01
+// 02
+// 03
+// 04
+// 05
+// 06
+// 07
+// 08
+// 09
+// 10
+// 11
+// 12
+// 13
+// 14
+// 15
+// 16
+// 17
+// 18
+// 19
+// 20
+// Visit http://www.realmsofwarcraft.com/bb for forums and information
+//
+// End of prepatch
 
 std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1112,7 +1135,30 @@ void World::LoadConfigSettings(bool reload)
     m_visibility_notify_periodOnContinents = sConfigMgr->GetIntDefault("Visibility.Notify.Period.OnContinents", DEFAULT_VISIBILITY_NOTIFY_PERIOD);
     m_visibility_notify_periodInInstances = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InInstances",   DEFAULT_VISIBILITY_NOTIFY_PERIOD);
     m_visibility_notify_periodInBGArenas = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InBGArenas",    DEFAULT_VISIBILITY_NOTIFY_PERIOD);
-
+    // Prepatch by LordPsyan
+    // 01
+    // 02
+    // 03
+    // 04
+    // 05
+    // 06
+    // 07
+    // 08
+    // 09
+    // 10
+    // 11
+    // 12
+    // 13
+    // 14
+    // 15
+    // 16
+    // 17
+    // 18
+    // 19
+    // 20
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = sConfigMgr->GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.MinLevel", 0);
@@ -1287,7 +1333,30 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Creature.Zone.Area.Data", false);
     m_bool_configs[CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Gameoject.Zone.Area.Data", false);
-
+// Prepatch by LordPsyan
+// 01
+// 02
+// 03
+// 04
+// 05
+// 06
+// 07
+// 08
+// 09
+// 10
+// 11
+// 12
+// 13
+// 14
+// 15
+// 16
+// 17
+// 18
+// 19
+// 20
+// Visit http://www.realmsofwarcraft.com/bb for forums and information
+//
+// End of prepatch
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
