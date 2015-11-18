@@ -2347,7 +2347,8 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.ContainerSlots            = uint32(fields[26].GetUInt8());
         itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
 
-        for (uint8 i = 0; i < itemTemplate.StatsCount; ++i)
+        // Loops according to StatsCount, but never exceeds MAX_ITEM_PROTO_STATS (Client-side limited to 10)
+        for (uint8 i = 0; i < itemTemplate.StatsCount && i <= MAX_ITEM_PROTO_STATS; ++i)
         {
             itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[28 + i*2].GetUInt8());
             itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i*2].GetInt16());
@@ -2594,6 +2595,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.ContainerSlots = MAX_BAG_SIZE;
         }
 
+        // Checks StatsCount against client-side limit (10). It was previously considered, but we throw (for code style and consistency) the log here.
         if (itemTemplate.StatsCount > MAX_ITEM_PROTO_STATS)
         {
             TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has too large value in statscount (%u), replace by hardcoded limit (%u).", entry, itemTemplate.StatsCount, MAX_ITEM_PROTO_STATS);
