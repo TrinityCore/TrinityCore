@@ -61,6 +61,7 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100003','Role: Azeroth GM 
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100010','Role: Story Teller');
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100011','Role: Test Player');
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100012','Role: Azeroth Player');
+INSERT INTO `rbac_permissions` (`id`, `name`) VALUES('100013','Role: Test GM');
 
 SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 
@@ -68,6 +69,7 @@ SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 DELETE FROM `rbac_default_permissions` WHERE permissionId >= 100000;
 
 INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('0', '100011', 2); 
+INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('2', '100013', 2); 
 INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`) VALUES ('0', '100012'); 
 
 # Query to check current used permissions
@@ -189,6 +191,12 @@ INSERT INTO rbac_linked_permissions VALUES
 (100011,489), # additemset
 (100011,737); # tele
 
+# Special: test realm GM
+INSERT INTO rbac_linked_permissions VALUES 
+(100013,193), # inheriting from GM LVL 2 ( it shouldn't be necessary but needed for research )
+(100013,100011), # inherit from test player
+(100013,100002); # tele
+
 # Special: Azeroth player
 INSERT INTO rbac_linked_permissions VALUES 
 (100012,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
@@ -209,6 +217,5 @@ INSERT INTO rbac_linked_permissions VALUES
 (100012,718), # Command: server
 (100012, 1000), # command QC
 (100012,736); # Command: server motd
-
 
 

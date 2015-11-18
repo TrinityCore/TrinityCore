@@ -254,7 +254,6 @@ CREATE TABLE `battleground_deserters` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
-=======
 -- Dumping data for table `battleground_deserters`
 --
 
