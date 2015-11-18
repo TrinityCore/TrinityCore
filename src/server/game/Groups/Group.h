@@ -323,6 +323,11 @@ class Group
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
 
+        // ai playerbot mod
+        ObjectGuid GetTargetIcon(int index) { return m_targetIcons[index]; }
+        Rolls* GetRolls() { return &RollId; }
+        // end
+
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);
         void _homebindIfInstance(Player* player);

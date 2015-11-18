@@ -241,5 +241,9 @@ template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOU
 
 void AddSC_ahbot_commandscript()
 {
+    // playerbot mod
+    if (sWorld->getIntConfig(CONFIG_AHBOT_USE_PLUGINS) == 0)
+    {
     new ahbot_commandscript();
+    }
 }

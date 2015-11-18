@@ -25,7 +25,11 @@
 #ifdef _WIN32
   #include <winsock2.h>
 #endif
+#ifdef _WIN32
 #include <mysql.h>
+#else
+#include </usr/include/mysql/mysql.h>
+#endif
 
 class ResultSet
 {

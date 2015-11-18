@@ -82,7 +82,10 @@
 // 15
 // 16
 // 17
-// 18
+// playerbot mod
+#include "../../plugins/ahbot/AhBot.h"
+#include "../../plugins/playerbot/PlayerbotAIConfig.h"
+#include "../../plugins/playerbot/RandomPlayerbotMgr.h"
 // 19
 // 20
 // Visit http://www.realmsofwarcraft.com/bb for forums and information
@@ -1330,6 +1333,7 @@ void World::LoadConfigSettings(bool reload)
 
     // AHBot
     m_int_configs[CONFIG_AHBOT_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("AuctionHouseBot.Update.Interval", 20);
+    m_int_configs[CONFIG_AHBOT_USE_PLUGINS] = sConfigMgr->GetBoolDefault("AuctionHouseBot.Use.Plugins", false);
 
     m_bool_configs[CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Creature.Zone.Area.Data", false);
     m_bool_configs[CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Gameoject.Zone.Area.Data", false);
@@ -1951,6 +1955,11 @@ void World::SetInitialWorldSettings()
 
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
+
+    TC_LOG_INFO("server.loading", "Initializing AuctionHouseBot...");
+    auctionbot.Init();
+
+    sPlayerbotAIConfig.Initialize();
 }
 
 void World::DetectDBCLang()
@@ -2120,14 +2129,24 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr->Update();
-    }
 
-    /// <li> Handle AHBot operations
+        // ahbot mod
+        auctionbot.Update();
+    }
+        // playerbot mod
+    // <li> Handle AHBot operations
+    if (sWorld->getIntConfig(CONFIG_AHBOT_USE_PLUGINS) == 0)
+    {
     if (m_timers[WUPDATE_AHBOT].Passed())
     {
         sAuctionBot->Update();
         m_timers[WUPDATE_AHBOT].Reset();
     }
+    } else {
+    sRandomPlayerbotMgr.UpdateAI(diff);
+    sRandomPlayerbotMgr.UpdateSessions(diff);
+    }
+    // end of playerbot mod
 
     /// <li> Handle session updates when the timer has passed
     ResetTimeDiffRecord();
@@ -2691,6 +2710,10 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
         m_ShutdownTimer = time;
         ShutdownMsg(true, nullptr, reason);
     }
+
+    // playerbot mod
+    sRandomPlayerbotMgr.LogoutAllBots();
+    // end of playerbot mod
 
     sScriptMgr->OnShutdownInitiate(ShutdownExitCode(exitcode), ShutdownMask(options));
 }

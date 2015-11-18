@@ -207,6 +207,7 @@ add_library(game STATIC
   ${game_STAT_PCH_SRC}
 )
 
+add_dependencies(plugins revision_data.h)
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(game ${game_STAT_PCH_HDR} ${game_STAT_PCH_SRC})

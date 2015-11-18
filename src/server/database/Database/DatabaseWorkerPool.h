@@ -30,7 +30,11 @@
 #include "AdhocStatement.h"
 #include "StringFormat.h"
 
+#ifdef _WIN32
 #include <mysqld_error.h>
+#else
+#include </usr/include/mysql/mysqld_error.h>
+#endif
 #include <memory>
 
 #define MIN_MYSQL_SERVER_VERSION 50100u

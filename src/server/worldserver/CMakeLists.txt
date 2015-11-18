@@ -134,6 +134,7 @@ target_link_libraries(worldserver
   common
   shared
   database
+  plugins
   scripts
   g3dlib
   gsoap

@@ -46,6 +46,9 @@
 
 #include <zlib.h>
 
+// Playerbot mod
+#include "../../plugins/playerbot/playerbot.h"
+
 namespace {
 
 std::string const DefaultPlayerName = "<none>";
@@ -189,6 +192,14 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket* packet)
 {
+    // Playerbot mod: send packet to bot AI
+    if (GetPlayer()) {
+        if (GetPlayer()->GetPlayerbotAI())
+            GetPlayer()->GetPlayerbotAI()->HandleBotOutgoingPacket(*packet);
+        else if (GetPlayer()->GetPlayerbotMgr())
+            GetPlayer()->GetPlayerbotMgr()->HandleMasterOutgoingPacket(*packet);
+    }
+
     if (!m_Socket)
         return;
 
@@ -259,6 +270,8 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
+    if (GetPlayer() && GetPlayer()->GetPlayerbotAI()) return true;
+
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
 
@@ -321,6 +334,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
                             LogUnprocessedTail(packet);
+
+                            // playerbot mod
+                            if (_player && _player->GetPlayerbotMgr())
+                                _player->GetPlayerbotMgr()->HandleMasterIncomingPacket(*packet);
+                            // playerbot mod end
                         }
                         // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                         break;
@@ -400,6 +418,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
+    // playerbot mod
+    if (GetPlayer() && GetPlayer()->GetPlayerbotMgr())
+        GetPlayer()->GetPlayerbotMgr()->UpdateSessions(0);
+    // end of playerbot mod
+
     if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
@@ -448,6 +471,11 @@ void WorldSession::LogoutPlayer(bool save)
     {
         if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
+
+        // Playerbot mod: log out all player bots owned by this toon
+        if (GetPlayer()->GetPlayerbotMgr())
+            GetPlayer()->GetPlayerbotMgr()->LogoutAllBots();
+        sRandomPlayerbotMgr.OnPlayerLogout(_player);
 
         ///- If the player just died before logging out, make him appear as a ghost
         if (_player->GetDeathTimer())
@@ -533,7 +561,8 @@ void WorldSession::LogoutPlayer(bool save)
         _player->CleanupChannels();
 
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
-        _player->UninviteFromGroup();
+        // playerbot mod
+        //_player->UninviteFromGroup();
 
         // remove player from the group if he is:
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
@@ -1615,4 +1644,15 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     }
 
     return maxPacketCounterAllowed;
+}
+
+void WorldSession::HandleBotPackets()
+{
+    WorldPacket* packet;
+    while (_recvQueue.next(packet))
+    {
+        OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
+        (this->*opHandle.handler)(*packet);
+        delete packet;
+    }
 }

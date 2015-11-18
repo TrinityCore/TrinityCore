@@ -2655,12 +2655,12 @@ PlayerStart.MapsExplored = 0
 HonorPointsAfterDuel = 0
 
 #
-#    ResetDuelCooldowns
-#        Description: Reset all cooldowns before duel starts and restore them when duel ends.
+#    ResetCoolDownAfterDuel
+#        Description: Reset all cooldowns after duel, but only if player has no cooldowns before the duel.
 #        Default:     0  - (Disabled)
 #                     1  - (Enabled)
 
-ResetDuelCooldowns = 0
+ResetCoolDownAfterDuel = 0
 
 #    ResetDuelHealthMana
 #        Description: Reset health and mana before duel starts and restore them when duel ends.
@@ -2863,6 +2863,16 @@ NoGrayAggro.Below = 0
 
 ###################################################################################################
 # AUCTION HOUSE BOT SETTINGS
+#
+#    AuctionHouseBot.Use.Plugins
+#       Description: If using AHBot from Plugins (ahbot.conf set for enabled)
+#                    You must set this to 1.
+#       Default:     0 (Use TC ahbot)
+#                    1 (Use plugins ahbot)
+#
+
+AuctionHouseBot.Use.Plugins = 0
+
 #
 #    AuctionHouseBot.Update.Interval
 #       Description: Interval in seconds for AHBot to get updated
@@ -3347,6 +3357,8 @@ Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
+Logger.playerbot=1,Console Server
+Logger.ahbot=3,Console Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server
