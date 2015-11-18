@@ -1473,7 +1473,8 @@ void AddSC_npc_teleport();
 // start54
 // start55
 // start56
-// start57
+void AddSC_PWS_Transmogrification();
+void AddSC_CS_Transmogrification();
 // start58
 // start59
 // start60
@@ -1524,7 +1525,7 @@ void AddSC_World_Chat();
 // start105
 // start106
 // start107
-// start108
+void AddSC_NPC_TransmogDisplayVendor();
 // start109
 // start100
 // start111
@@ -1602,7 +1603,8 @@ void AddCustomScripts()
 // end54
 // end55
 // end56
-// end57
+    AddSC_PWS_Transmogrification();
+    AddSC_CS_Transmogrification();
 // end58
 // end59
 // end60
@@ -1653,7 +1655,7 @@ void AddCustomScripts()
 // end105
 // end106
 // end107
-// end108
+    AddSC_NPC_TransmogDisplayVendor();
 // end109
 // end100
 // end111

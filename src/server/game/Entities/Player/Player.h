@@ -29,6 +29,7 @@
 #include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "Unit.h"
+#include "../../scripts/Custom/Transmogrification.h"
 #include "TradeData.h"
 
 #include <limits>
@@ -126,6 +127,19 @@ struct SpellModifier
     Aura* const ownerAura;
 };
 
+typedef std::unordered_map<ObjectGuid, uint32> TransmogMapType;
+
+#ifdef PRESETS
+typedef std::map<uint8, uint32> PresetslotMapType;
+struct PresetData
+{
+    std::string name;
+    PresetslotMapType slotMap; // slotMap[slotId] = entry
+};
+typedef std::map<uint8, PresetData> PresetMapType;
+#endif
+
+typedef std::unordered_map<ObjectGuid, uint32> TransmogMapType;
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
@@ -2231,7 +2245,10 @@ class Player : public Unit, public GridObject<Player>
     // 04
     // 05
     // 06
-    // 07
+        TransmogMapType transmogMap; // transmogMap[iGUID] = entry
+#ifdef PRESETS
+        PresetMapType presetMap; // presetMap[presetId] = presetData
+#endif
     // 08
     // 09
     // 10
