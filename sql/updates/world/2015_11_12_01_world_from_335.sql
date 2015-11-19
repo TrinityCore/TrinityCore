@@ -31,7 +31,12 @@ INSERT INTO `creature_addon` (`guid`,`auras`) VALUES
 (@CGUID+1,28097);
 
 -- tesla coil search trigger range (index 30 is 500 yards)
-UPDATE `spell_dbc` set `EffectRadiusIndex1`=30, `AttributesEx2`=0 WHERE `Id` IN (28098,28110);
+UPDATE `spell_dbc` set `AttributesEx2`=0 WHERE `Id` IN (28098,28110);
+DELETE FROM `spelleffect_dbc` WHERE `Id` IN (28098,28110);
+INSERT INTO `spelleffect_dbc` (`Id`,`EffectRadiusIndex`,'EffectSpellId','EffectIndex') VALUES
+(28098,30,0,0),
+(28110,30,0,0);
+
 -- tesla coil search ignores LoS
 DELETE FROM `disables` WHERE `sourceType`=0 AND `entry` IN (28096,28098,28110,28111);
 INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`comment`) VALUES
