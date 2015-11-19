@@ -37,6 +37,10 @@
 #include <map>
 #include <fstream>
 
+#include "Common.h"
+#ifdef PLATFORM_WINDOWS
+#undef PLATFORM_WINDOWS
+#endif
 //From Extractor
 #include "adtfile.h"
 #include "wdtfile.h"
@@ -45,6 +49,9 @@
 #include "mpqfile.h"
 
 #include "vmapexport.h"
+
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 //------------------------------------------------------------------------------
 // Defines
@@ -74,20 +81,130 @@ bool preciseVectorData = false;
 const char* szWorkDirWmo = "./Buildings";
 const char* szRawVMAPMagic = "VMAP043";
 
-bool OpenCascStorage()
+#define CASC_LOCALES_COUNT 17
+char const* CascLocaleNames[CASC_LOCALES_COUNT] =
 {
-    if (!CascOpenStorage("Data", 0, &CascStorage))
-    {
-        printf("Error %d\n", GetLastError());
-        return false;
-    }
+    "none", "enUS",
+    "koKR", "unknown",
+    "frFR", "deDE",
+    "zhCN", "esES",
+    "zhTW", "enGB",
+    "enCN", "enTW",
+    "esMX", "ruRU",
+    "ptBR", "itIT",
+    "ptPT"
+};
 
-    printf("\n");
-    return true;
+uint32 WowLocaleToCascLocaleFlags[12] =
+{
+    CASC_LOCALE_ENUS | CASC_LOCALE_ENGB,
+    CASC_LOCALE_KOKR,
+    CASC_LOCALE_FRFR,
+    CASC_LOCALE_DEDE,
+    CASC_LOCALE_ZHCN,
+    CASC_LOCALE_ZHTW,
+    CASC_LOCALE_ESES,
+    CASC_LOCALE_ESMX,
+    CASC_LOCALE_RURU,
+    0,
+    CASC_LOCALE_PTBR | CASC_LOCALE_PTPT,
+    CASC_LOCALE_ITIT,
+};
+
+namespace
+{
+    const char* HumanReadableCASCError(int error)
+    {
+        switch (error)
+        {
+        case ERROR_SUCCESS: return "SUCCESS";
+        case ERROR_FILE_CORRUPT: return "FILE_CORRUPT";
+        case ERROR_CAN_NOT_COMPLETE: return "CAN_NOT_COMPLETE";
+        case ERROR_HANDLE_EOF: return "HANDLE_EOF";
+        case ERROR_NO_MORE_FILES: return "NO_MORE_FILES";
+        case ERROR_BAD_FORMAT: return "BAD_FORMAT";
+        case ERROR_INSUFFICIENT_BUFFER: return "INSUFFICIENT_BUFFER";
+        case ERROR_ALREADY_EXISTS: return "ALREADY_EXISTS";
+        case ERROR_DISK_FULL: return "DISK_FULL";
+        case ERROR_INVALID_PARAMETER: return "INVALID_PARAMETER";
+        case ERROR_NOT_SUPPORTED: return "NOT_SUPPORTED";
+        case ERROR_NOT_ENOUGH_MEMORY: return "NOT_ENOUGH_MEMORY";
+        case ERROR_INVALID_HANDLE: return "INVALID_HANDLE";
+        case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
+        case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
+        default: return "UNKNOWN";
+        }
+    }
 }
 
-// Local testing functions
+uint32 ReadBuild(int locale)
+{
+    // include build info file also
+    std::string filename = std::string("component.wow-") + localeNames[locale] + ".txt";
+    //printf("Read %s file... ", filename.c_str());
 
+    HANDLE dbcFile;
+    if (!CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL, 0, &dbcFile))
+    {
+        printf("Locale %s not installed.\n", localeNames[locale]);
+        return 0;
+    }
+
+    char buff[512];
+    DWORD readBytes = 0;
+    CascReadFile(dbcFile, buff, 512, &readBytes);
+    if (!readBytes)
+    {
+        printf("Fatal error: Not found %s file!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string text = std::string(buff, readBytes);
+    CascCloseFile(dbcFile);
+
+    size_t pos = text.find("version=\"");
+    size_t pos1 = pos + strlen("version=\"");
+    size_t pos2 = text.find("\"", pos1);
+    if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string build_str = text.substr(pos1, pos2 - pos1);
+
+    int build = atoi(build_str.c_str());
+    if (build <= 0)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    return build;
+}
+
+bool OpenCascStorage(int locale)
+{
+    try
+    {
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        if (!CascOpenStorage(storage_dir.string().c_str(), WowLocaleToCascLocaleFlags[locale], &CascStorage))
+        {
+            printf("error opening casc storage '%s' locale %s: %s\n", storage_dir.string().c_str(), localeNames[locale], HumanReadableCASCError(GetLastError()));
+            return false;
+        }
+        printf("opened casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
+        return true;
+    }
+    catch (boost::filesystem::filesystem_error& error)
+    {
+        printf("error opening casc storage : %s\n", error.what());
+        return false;
+    }
+}
+
+
+// Local testing functions
 bool FileExists(const char* file)
 {
     if (FILE* n = fopen(file, "rb"))
@@ -386,7 +503,28 @@ int main(int argc, char ** argv)
                     ))
             success = (errno == EEXIST);
 
-    if (!OpenCascStorage())
+    int FirstLocale = -1;
+    for (int i = 0; i < TOTAL_LOCALES; ++i)
+    {
+        if (i == LOCALE_none)
+            continue;
+
+        if (!OpenCascStorage(i))
+            continue;
+
+        FirstLocale = i;
+        uint32 build = ReadBuild(i);
+        if (!build)
+        {
+            CascCloseStorage(CascStorage);
+            continue;
+        }
+
+        printf("Detected client build: %u\n\n", build);
+        break;
+    }
+
+    if (!OpenCascStorage(FirstLocale))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
             printf("Unable to open storage!\n");
