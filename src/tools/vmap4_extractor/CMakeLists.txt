@@ -14,7 +14,6 @@ file(GLOB_RECURSE sources *.cpp *.h)
 # uncomment next line to disable debug mode
 add_definitions("-DIOMAP_DEBUG")
 
-# build setup currently only supports libmpq 0.4.x
 if( NOT MSVC )
   add_definitions("-Wall")
   add_definitions("-ggdb")
@@ -22,6 +21,8 @@ if( NOT MSVC )
 endif()
 
 include_directories(
+  ${CMAKE_SOURCE_DIR}/src/common
+  ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/dep/CascLib/src
 )
 
@@ -29,8 +30,10 @@ add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
   casc
+  common
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 add_dependencies(vmap4extractor casc)
