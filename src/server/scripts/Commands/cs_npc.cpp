@@ -718,7 +718,23 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
-        handler->PSendSysMessage(LANG_NPCINFO_PHASEMASK, target->GetPhaseMask());
+
+        if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
+        {
+            handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseid, data->phaseGroup);
+            if (data->phaseGroup)
+            {
+                std::set<uint32> _phases = target->GetPhases();
+
+                if (!_phases.empty())
+                {
+                    handler->PSendSysMessage(LANG_NPCINFO_PHASE_IDS);
+                    for (uint32 phaseId : _phases)
+                        handler->PSendSysMessage("%u", phaseId);
+                }
+            }
+        }
+
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
         handler->PSendSysMessage(LANG_NPCINFO_POSITION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
         handler->PSendSysMessage(LANG_NPCINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str());
