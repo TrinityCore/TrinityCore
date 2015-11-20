@@ -36,7 +36,7 @@ flags like
 
     SERVERS             Build worldserver and bnetserver
     SCRIPTS              Build core with scripts included
-    TOOLS                Build map/vmap extraction/assembler tools
+    TOOLS                Build map/mmaps/vmap extraction/assembler tools
     USE_SCRIPTPCH        Use precompiled headers when compiling scripts
     USE_COREPCH          Use precompiled headers when compiling servers
     WITH_WARNINGS        Show all warnings during compile
