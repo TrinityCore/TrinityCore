@@ -391,15 +391,6 @@ void ParsMapFiles()
     }
 }
 
-void getGamePath()
-{
-#ifdef _WIN32
-    strcpy(input_path,"Data\\");
-#else
-    strcpy(input_path,"Data/");
-#endif
-}
-
 bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
@@ -453,9 +444,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         printf("   -d <path>: Path to the vector data source folder.\n");
         printf("   -? : This message.\n");
     }
-
-    if(!hasInputPathParam)
-        getGamePath();
 
     return result;
 }
