@@ -34,21 +34,21 @@ than where to install using flags built into our cmake files. Just open
 up CMakeLists.txt in the main folder and take a look at some of the 
 flags like
 
-    SERVERS             Build worldserver and authserver
-    SCRIPTS             Build core with scripts included
-    TOOLS               Build map/vmap extraction/assembler tools
-    USE_SCRIPTPCH       Use precompiled headers when compiling scripts
-    USE_COREPCH         Use precompiled headers when compiling servers
-    WITH_WARNINGS       Show all warnings during compile
-    WITH_COREDEBUG      Include additional debug-code in core
-    PREFIX              Set installation directory
-    NOJEM               Do not build with jemalloc (advanced users only)
-    CONF_DIR            Set path as default configuration directory
-    LIBSDIR             Set path as default library directory
-    CMAKE_C_FLAGS       Set C_FLAGS for compile (advanced users only)
-    CMAKE_CXX_FLAGS     Set CXX_FLAGS for compile (advanced users only)
-    CMAKE_BUILD_TYPE    Set buildtype - the supported modes are :
-                        Release, MinSizeRel, RelWithDebInfo, Debug
+    SERVERS              Build worldserver and authserver
+    SCRIPTS              Build core with scripts included
+    TOOLS                Build map/vmap extraction/assembler tools
+    USE_SCRIPTPCH        Use precompiled headers when compiling scripts
+    USE_COREPCH          Use precompiled headers when compiling servers
+    WITH_WARNINGS        Show all warnings during compile
+    WITH_COREDEBUG       Include additional debug-code in core
+    CMAKE_INSTALL_PREFIX Set installation directory
+    NOJEM                Do not build with jemalloc (advanced users only)
+    CONF_DIR             Set path as default configuration directory
+    LIBSDIR              Set path as default library directory
+    CMAKE_C_FLAGS        Set C_FLAGS for compile (advanced users only)
+    CMAKE_CXX_FLAGS      Set CXX_FLAGS for compile (advanced users only)
+    CMAKE_BUILD_TYPE     Set buildtype - the supported modes are :
+                         Release, MinSizeRel, RelWithDebInfo, Debug
 
 Of course, replace the paths in PREFIX, CONF_DIR and LIBSDIR with the
 directories you wish to install TrinityCore to. The datadir is where maps,
