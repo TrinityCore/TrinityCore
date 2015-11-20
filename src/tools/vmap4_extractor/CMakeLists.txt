@@ -11,15 +11,6 @@
 
 file(GLOB_RECURSE sources *.cpp *.h)
 
-# uncomment next line to disable debug mode
-add_definitions("-DIOMAP_DEBUG")
-
-if( NOT MSVC )
-  add_definitions("-Wall")
-  add_definitions("-ggdb")
-  add_definitions("-O3")
-endif()
-
 include_directories(
   ${CMAKE_SOURCE_DIR}/src/common
   ${CMAKE_SOURCE_DIR}/src/server/shared
