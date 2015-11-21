@@ -12827,6 +12827,29 @@ void Player::SwapItem(uint16 src, uint16 dst)
     {
         if (IsInventoryPos(dst))
         {
+
+            //MojaveZ Lock Slot
+            if (IsEquipmentPos(src))
+            {
+                switch (srcslot)
+                {
+                case EQUIPMENT_SLOT_BODY:
+                case EQUIPMENT_SLOT_CHEST:
+                case EQUIPMENT_SLOT_TABARD:
+                {
+                    Item *pBodyItem = GetItemByPos(srcbag, EQUIPMENT_SLOT_BODY);
+                    Item *pChestItem = GetItemByPos(srcbag, EQUIPMENT_SLOT_CHEST);
+                    Item *pTabardItem = GetItemByPos(srcbag, EQUIPMENT_SLOT_TABARD);
+                    if ((pBodyItem != NULL) && (pChestItem != NULL) && (pTabardItem != NULL))
+                        break;
+                }
+                case EQUIPMENT_SLOT_LEGS:
+                    SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pSrcItem, NULL);
+                    return;
+                }
+            }
+            //MojaveZ Lock Slot
+
             ItemPosCountVec dest;
             InventoryResult msg = CanStoreItem(dstbag, dstslot, dest, pSrcItem, false);
             if (msg != EQUIP_ERR_OK)
@@ -13030,6 +13053,28 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
     }
+
+    //MojaveZ Lock Slot
+    if (IsEquipmentPos(src))
+    {
+        switch (srcslot)
+        {
+        case EQUIPMENT_SLOT_BODY:
+        case EQUIPMENT_SLOT_CHEST:
+        case EQUIPMENT_SLOT_TABARD:
+        {
+            Item *pBodyItem = GetItemByPos(srcbag, EQUIPMENT_SLOT_BODY);
+            Item *pChestItem = GetItemByPos(srcbag, EQUIPMENT_SLOT_CHEST);
+            Item *pTabardItem = GetItemByPos(srcbag, EQUIPMENT_SLOT_TABARD);
+            if ((pBodyItem != NULL) && (pChestItem != NULL) && (pTabardItem != NULL))
+                break;
+        }
+        case EQUIPMENT_SLOT_LEGS:
+            SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pSrcItem, NULL);
+            return;
+        }
+    }
+    //MojaveZ Lock Slot
 
     // now do moves, remove...
     RemoveItem(dstbag, dstslot, false);
