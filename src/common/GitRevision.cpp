@@ -32,13 +32,13 @@ char const* GitRevision::GetFullDatabase()
     return _FULL_DATABASE;
 }
 
-#define _PACKAGENAME "TrinityCore"
+#define _PACKAGENAME "irik Game\nPowered By irik.ir\nCore Licence: "
 
 char const* GitRevision::GetFullVersion()
 {
 #if PLATFORM == PLATFORM_WINDOWS
 # ifdef _WIN64
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win64, " _BUILD_DIRECTIVE ")";
+    return _PACKAGENAME _HASH "\nHome Game Development Team" ;
 # else
     return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win32, " _BUILD_DIRECTIVE ")";
 # endif
