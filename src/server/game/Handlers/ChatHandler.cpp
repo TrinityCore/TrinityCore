@@ -552,6 +552,23 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     recvData >> emoteNum;
     recvData >> guid;
 
+
+    //Disable Emote
+    uint32 banned_emote[] =
+    {
+        34, //Dance
+        58, //Kiss
+        77, //Rude
+        80  //Sexy
+    };
+    
+    for (uint32 i = 0; i < (sizeof(banned_emote) / sizeof(uint32)); i++)
+        if (text_emote == banned_emote[i])
+    return;
+    //Disable Emote
+
+
+
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
     EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(text_emote);
