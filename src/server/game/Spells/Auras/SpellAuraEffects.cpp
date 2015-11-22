@@ -1134,7 +1134,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (!spellInfo || !(spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
-                if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
+                if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
             }
 
@@ -1148,7 +1148,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(glyph->SpellId);
                         if (!spellInfo || !(spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                             continue;
-                        if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
+
+                        if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, this);
                     }
                 }
@@ -1158,7 +1159,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             if (target->ToPlayer()->HasSpell(17007))
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1<<(GetMiscValue()-1)))
+                if (spellInfo && spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, 24932, true, NULL, this);
             }
             // Improved Barkskin - apply/remove armor bonus due to shapeshift
@@ -1278,14 +1279,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
             // Use the new aura to see on what stance the target will be
-            uint32 newStance = 0;
-            if (newAura)
-            {
-                if (newAura->GetMiscValue() > 0 && newAura->GetMiscValue() <= 32) //Not null and GetMiscValue is not == FORM_NONE
-                    newStance = 1 << (newAura->GetMiscValue() - 1);
-                else
-                    TC_LOG_ERROR("spell.aura", "newAura->GetMiscValue() returned value %i for SpellID: %u when it was expecting a value in range [0..31] for a bitshift", newAura->GetMiscValue(), newAura->GetId());
-            }
+            uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
+
             // If the stances are not compatible with the spell, remove it
             if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
                 target->RemoveAura(itr);
@@ -2260,7 +2255,23 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
 
     // if disarm effects should be applied, wait to set flag until damage mods are unapplied
     if (apply)
+    {
         target->SetFlag(field, flag);
+
+        // [AZTH]
+        Unit::AuraMap const& auras = target->GetOwnedAuras();
+        for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        {
+            SpellInfo const* auraInfo = itr->second->GetSpellInfo();
+            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (auraInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
+                    auraInfo->AttributesEx3 & SPELL_ATTR3_MAIN_HAND)
+                    target->RemoveAurasDueToSpell(auraInfo->Id);
+            }
+        }
+        // [/AZTH]
+    }
 
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
         target->UpdateDamagePhysical(attType);

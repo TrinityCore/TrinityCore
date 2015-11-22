@@ -83,6 +83,8 @@ add_library(common STATIC
   ${common_STAT_PCH_SRC}
 )
 
+add_dependencies(common revision_data.h)
+
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(common ${common_STAT_PCH_HDR} ${common_STAT_PCH_SRC})

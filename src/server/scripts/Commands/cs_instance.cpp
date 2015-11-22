@@ -168,22 +168,22 @@ public:
     static bool HandleInstanceSaveDataCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
         {
             handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!((InstanceMap*)map)->GetInstanceScript())
+        if (!map->GetInstanceScript())
         {
             handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        ((InstanceMap*)map)->GetInstanceScript()->SaveToDB();
+        map->GetInstanceScript()->SaveToDB();
 
         return true;
     }
@@ -225,15 +225,15 @@ public:
             return false;
         }
 
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
         {
             handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!map->ToInstanceMap()->GetInstanceScript())
+        if (!map->GetInstanceScript())
         {
             handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
@@ -244,14 +244,14 @@ public:
         state = atoi(param2);
 
         // Reject improper values.
-        if (state > TO_BE_DECIDED || encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
+        if (state > TO_BE_DECIDED || encounterId > map->GetInstanceScript()->GetEncounterCount())
         {
             handler->PSendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        map->ToInstanceMap()->GetInstanceScript()->SetBossState(encounterId, (EncounterState)state);
+        map->GetInstanceScript()->SetBossState(encounterId, EncounterState(state));
         std::string stateName = InstanceScript::GetBossStateName(state);
         handler->PSendSysMessage(LANG_COMMAND_INST_SET_BOSS_STATE, encounterId, state, stateName);
         return true;
@@ -292,15 +292,15 @@ public:
             return false;
         }
 
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
         {
             handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!map->ToInstanceMap()->GetInstanceScript())
+        if (!map->GetInstanceScript())
         {
             handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
@@ -309,14 +309,14 @@ public:
 
         encounterId = atoi(param1);
 
-        if (encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
+        if (encounterId > map->GetInstanceScript()->GetEncounterCount())
         {
             handler->PSendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint8 state = map->ToInstanceMap()->GetInstanceScript()->GetBossState(encounterId);
+        uint32 state = map->GetInstanceScript()->GetBossState(encounterId);
         std::string stateName = InstanceScript::GetBossStateName(state);
         handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state, stateName);
         return true;

@@ -29,7 +29,7 @@ namespace Trinity
     DECLSPEC_NORETURN void Fatal(char const* file, int line, char const* function, char const* message) ATTR_NORETURN;
 
     DECLSPEC_NORETURN void Error(char const* file, int line, char const* function, char const* message) ATTR_NORETURN;
-    
+
     DECLSPEC_NORETURN void Abort(char const* file, int line, char const* function) ATTR_NORETURN;
 
     void Warning(char const* file, int line, char const* function, char const* message);
