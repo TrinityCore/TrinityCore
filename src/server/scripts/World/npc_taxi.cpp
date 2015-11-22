@@ -48,7 +48,7 @@ EndScriptData
 #define GOSSIP_VERONIA          "Fly me to Manaforge Coruu please"
 #define GOSSIP_DEESAK           "Fly me to Ogri'la please"
 #define GOSSIP_AFRASASTRASZ1    "Can I get a ride back to ground level, Lord Afrasastrasz?"
-#define GOSSIP_AFRASASTRASZ2    "My Lord, I must go to the upper floor of the temple."
+#define GOSSIP_AFRASASTRASZ2    "My lord, I must go to the upper floor of the temple."
 #define GOSSIP_TARIOLSTRASZ1    "Steward, please allow me to ride one of the drakes to the queen's chamber at the top of the temple."
 #define GOSSIP_TARIOLSTRASZ2    "Can you spare a drake to travel to Lord Afrasastrasz, in the middle of the temple?"
 #define GOSSIP_TORASTRASZA1     "I would like to see Lord Afrasastrasz, in the middle of the temple."
