@@ -29,7 +29,11 @@ bool UseMeetingStoneAction::Execute(Event event)
         return false;
     }
 
-    GameObject *gameObject = ai->GetGameObject(guid);
+    Map* map = master->GetMap();
+    if (!map)
+        return NULL;
+
+    GameObject *gameObject = map->GetGameObject(guid);
     if (!gameObject)
         return false;
 
@@ -77,5 +81,6 @@ bool SummonAction::Teleport()
         }
     }
 
-    return true;
+    ai->TellMasterNoFacing("There is not enough place to summon me");
+    return false;
 }
