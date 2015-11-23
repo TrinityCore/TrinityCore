@@ -4668,7 +4668,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_READY;
         }
 
-        if (!m_caster->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry))
+        // [AZTH] Freezing Arrow hackfix:  && m_spellInfo->Id == 60202
+        if (!m_caster->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry) && m_spellInfo->Id != 60202)
+        // [/AZTH]
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
