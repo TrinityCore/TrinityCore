@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Pet.h"
+#include "SpellInfo.h"
 
 class DuelResetScript : public PlayerScript
 {
@@ -102,7 +103,7 @@ class DuelResetScript : public PlayerScript
             // remove cooldowns on spells that have < 10 min CD and has no onHold
             player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
             {
-                SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
                 return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS && !itr->second.OnHold;
             }, true);
 
