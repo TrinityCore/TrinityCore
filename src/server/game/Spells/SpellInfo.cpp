@@ -452,7 +452,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
@@ -467,7 +467,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         else if (caster)
             level = caster->getLevel();
 
-        if (!_spellInfo->HasAttribute(SPELL_ATTR11_UNK2) && _spellInfo->HasAttribute(SPELL_ATTR10_UNK12))
+        if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_UNK12))
             level = _spellInfo->BaseLevel;
 
         if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel > level)
@@ -481,13 +481,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
 
             if (!_spellInfo->Scaling.ScalesFromItemLevel)
             {
-                if (!_spellInfo->HasAttribute(SPELL_ATTR11_UNK2))
+                if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
                 {
                     if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class : ((MAX_CLASSES - 1 /*last class*/) - _spellInfo->Scaling.Class)) - 1))
                         value = gtScaling->value;
                 }
                 else
-                    value = GetRandomPropertyPoints(level, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                    value = GetRandomPropertyPoints(itemLevel != -1 ? uint32(itemLevel) : 1u, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
             }
             else
                 value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
@@ -496,7 +496,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
 
             if (level < _spellInfo->Scaling.NerfMaxLevel)
-                value *= ((((1.0 - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
+                value *= ((((1.0f - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
         }
 
         value *= Scaling.Coefficient;

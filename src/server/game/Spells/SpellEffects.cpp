@@ -1625,7 +1625,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        if (Aura* aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]))
+        if (Aura* aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0], nullptr, ObjectGuid::Empty, m_castItemLevel))
         {
             m_spellAura = aura;
             m_spellAura->_RegisterForTargets();
@@ -2000,6 +2000,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
             m_CastItem = NULL;
             m_castItemGUID.Clear();
             m_castItemEntry = 0;
+            m_castItemLevel = -1;
 
             player->StoreItem(dest, pNewItem, true);
             return;
@@ -2020,6 +2021,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
             m_CastItem = NULL;
             m_castItemGUID.Clear();
             m_castItemEntry = 0;
+            m_castItemLevel = -1;
 
             player->BankItem(dest, pNewItem, true);
             return;
@@ -2044,6 +2046,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
             m_CastItem = NULL;
             m_castItemGUID.Clear();
             m_castItemEntry = 0;
+            m_castItemLevel = -1;
 
             player->EquipItem(dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();

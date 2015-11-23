@@ -5198,7 +5198,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
 bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator)
 {
-    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateGatherSkill: Player '%s' (%s), SkillID: %u, SkillLevel: %u,  RedLevel: %u)", 
+    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateGatherSkill: Player '%s' (%s), SkillID: %u, SkillLevel: %u,  RedLevel: %u)",
         GetName().c_str(), GetGUID().ToString().c_str(), SkillId, SkillValue, RedLevel);
 
     uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
@@ -5472,7 +5472,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
                 if (!skillEntry)
                 {
-                    TC_LOG_ERROR("misc", "Player::SetSkill: Skill (SkillID: %u) not found in SkillLineStore for player '%s' (%s)", 
+                    TC_LOG_ERROR("misc", "Player::SetSkill: Skill (SkillID: %u) not found in SkillLineStore for player '%s' (%s)",
                         id, GetName().c_str(), GetGUID().ToString().c_str());
                     return;
                 }
@@ -11632,7 +11632,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
 void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool unequip_check)
 {
-    TC_LOG_DEBUG("entities.player.items", "Player::DestroyItemCount: Player '%s' (%s), Item: %u, Count: %u", 
+    TC_LOG_DEBUG("entities.player.items", "Player::DestroyItemCount: Player '%s' (%s), Item: %u, Count: %u",
         GetName().c_str(), GetGUID().ToString().c_str(), itemEntry, count);
     uint32 remcount = 0;
 
@@ -12422,7 +12422,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         RemoveItemFromBuyBackSlot(slot, true);
         TC_LOG_DEBUG("entities.player.items", "Player::AddItemToBuyBackSlot: Player '%s' (%s), Item: %u, Slot: %u",
             GetName().c_str(), GetGUID().ToString().c_str(), pItem->GetEntry(), slot);
-        
+
         m_items[slot] = pItem;
         time_t base = time(nullptr);
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
@@ -17102,8 +17102,8 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
     }
 
     /*
-                    0         1      2           3                4           5            6           7              8
-    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, stackCount, maxDuration, remainTime, remainCharges FROM character_aura WHERE guid = ?
+                    0         1      2           3                4           5            6           7              8              9
+    SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, stackCount, maxDuration, remainTime, remainCharges, castItemLevel FROM character_aura WHERE guid = ?
     */
     if (auraResult)
     {
@@ -17118,6 +17118,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
             int32 maxDuration = fields[6].GetInt32();
             int32 remainTime = fields[7].GetInt32();
             uint8 remainCharges = fields[8].GetUInt8();
+            int32 castItemLevel = fields[9].GetInt32();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(key.SpellId);
             if (!spellInfo)
@@ -17148,7 +17149,7 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
                 remainCharges = 0;
 
             AuraLoadEffectInfo& info = effectInfo[key];
-            if (Aura* aura = Aura::TryCreate(spellInfo, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid))
+            if (Aura* aura = Aura::TryCreate(spellInfo, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, castItemLevel))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -18861,7 +18862,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt->setUInt8(index++, aura->GetStackAmount());
         stmt->setInt32(index++, aura->GetMaxDuration());
         stmt->setInt32(index++, aura->GetDuration());
-        stmt->setUInt8(index, aura->GetCharges());
+        stmt->setUInt8(index++, aura->GetCharges());
+        stmt->setInt32(index++, aura->GetCastItemLevel());
         trans->Append(stmt);
 
         for (AuraEffect const* effect : aura->GetAuraEffects())

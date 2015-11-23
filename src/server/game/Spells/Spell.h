@@ -501,7 +501,7 @@ class Spell
         SpellCastResult CheckCasterAuras() const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], var); }
+        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], var, m_castItemLevel); }
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -548,6 +548,7 @@ class Spell
         Item* m_CastItem;
         ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
+        int32 m_castItemLevel;
         uint8 m_cast_count;
         uint32 m_castFlagsEx;
         union

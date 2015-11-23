@@ -4065,3 +4065,4 @@ uint32 ConversationDynamicUpdateFieldFlags[CONVERSATION_DYNAMIC_END] =
     UF_FLAG_PUBLIC,                                         // CONVERSATION_DYNAMIC_FIELD_ACTORS
     UF_FLAG_0x100,                                          // CONVERSATION_DYNAMIC_FIELD_LINES
 };
+
