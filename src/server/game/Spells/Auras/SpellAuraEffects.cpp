@@ -592,7 +592,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     int32 amount = 0;
 
     if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION) || G3D::fuzzyEq(GetSpellEffectInfo()->BonusCoefficient, 0.0f))
-        amount = GetSpellEffectInfo()->CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
+        amount = GetSpellEffectInfo()->CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), nullptr, GetBase()->GetCastItemLevel());
     else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
         amount = int32(caster->GetFloatValue(PLAYER_MASTERY) * GetSpellEffectInfo()->BonusCoefficient);
 
@@ -617,11 +617,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                                 if (pEnchant)
                                 {
                                     for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
+                                    {
                                         if (pEnchant->EffectSpellID[t] == m_spellInfo->Id)
                                         {
-                                        amount = uint32((item_rand_suffix->AllocationPct[k] * castItem->GetItemSuffixFactor()) / 10000);
-                                        break;
+                                            amount = uint32((item_rand_suffix->AllocationPct[k] * castItem->GetItemSuffixFactor()) / 10000);
+                                            break;
                                         }
+                                    }
                                 }
 
                                 if (amount)

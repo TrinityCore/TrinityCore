@@ -570,6 +570,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
     m_CastItem = NULL;
     m_castItemGUID.Clear();
     m_castItemEntry = 0;
+    m_castItemLevel = -1;
     m_castFlagsEx = 0;
 
     unitTarget = NULL;
@@ -2604,7 +2605,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             bool refresh = false;
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo) ? m_spellValue->EffectBasePoints : basePoints, m_CastItem, ObjectGuid::Empty, &refresh);
+                m_originalCaster, (aurSpellInfo == m_spellInfo) ? m_spellValue->EffectBasePoints : basePoints,
+                m_CastItem, ObjectGuid::Empty, &refresh, m_castItemLevel);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -2859,6 +2861,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     {
         m_castItemGUID = m_CastItem->GetGUID();
         m_castItemEntry = m_CastItem->GetEntry();
+        m_castItemLevel = int32(m_CastItem->GetItemLevel(m_CastItem->GetOwner()));
     }
 
     InitExplicitTargets(*targets);
@@ -2887,7 +2890,10 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_spellState = SPELL_STATE_PREPARING;
 
     if (triggeredByAura)
-        m_triggeredByAuraSpell  = triggeredByAura->GetSpellInfo();
+    {
+        m_triggeredByAuraSpell = triggeredByAura->GetSpellInfo();
+        m_castItemLevel = triggeredByAura->GetBase()->GetCastItemLevel();
+    }
 
     // create and add update event for this spell
     SpellEvent* Event = new SpellEvent(this);
@@ -6462,6 +6468,7 @@ bool Spell::UpdatePointers()
     if (!m_castItemGUID.IsEmpty() && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         m_CastItem = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID);
+        m_castItemLevel = -1;
         // cast item not found, somehow the item is no longer where we expected
         if (!m_CastItem)
             return false;
@@ -6469,6 +6476,8 @@ bool Spell::UpdatePointers()
         // check if the item is really the same, in case it has been wrapped for example
         if (m_castItemEntry != m_CastItem->GetEntry())
             return false;
+
+        m_castItemLevel = int32(m_CastItem->GetItemLevel(m_caster->ToPlayer()));
     }
 
     m_targets.Update(m_caster);

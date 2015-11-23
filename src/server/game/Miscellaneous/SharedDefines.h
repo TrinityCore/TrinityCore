@@ -751,12 +751,12 @@ enum SpellAttr11
 {
     SPELL_ATTR11_UNK0                             = 0x00000001, //  0
     SPELL_ATTR11_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR11_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL           = 0x00000004, //  2
     SPELL_ATTR11_UNK3                             = 0x00000008, //  3
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
     SPELL_ATTR11_UNK5                             = 0x00000020, //  5
     SPELL_ATTR11_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR11_UNK7                             = 0x00000080, //  7
+    SPELL_ATTR11_NO_RANK                          = 0x00000080, //  7 Spell_C_GetSpellRank returns 0 instead of 5 * std::min(SpellLevels->MaxLevel, caster->Level)
     SPELL_ATTR11_UNK8                             = 0x00000100, //  8
     SPELL_ATTR11_UNK9                             = 0x00000200, //  9
     SPELL_ATTR11_UNK10                            = 0x00000400, // 10

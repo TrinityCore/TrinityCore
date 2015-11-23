@@ -3017,7 +3017,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(!casterGUID.IsEmpty() || caster);
 
@@ -3031,7 +3031,10 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
         // check if cast item changed
         ObjectGuid castItemGUID;
         if (castItem)
+        {
             castItemGUID = castItem->GetGUID();
+            castItemLevel = castItem->GetItemLevel(castItem->GetOwner());
+        }
 
         // find current aura from spell and change it's stackamount, or refresh it's duration
         if (Aura* foundAura = GetOwnedAura(newAura->Id, casterGUID, (newAura->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC)) ? castItemGUID : ObjectGuid::Empty, 0))
@@ -3067,6 +3070,8 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
             {
                 ObjectGuid* oldGUID = const_cast<ObjectGuid*>(&foundAura->m_castItemGuid);
                 *oldGUID = castItemGUID;
+                int32* oldItemLevel = const_cast<int32*>(&foundAura->m_castItemLevel);
+                *oldItemLevel = castItemLevel;
             }
 
             // try to increase stack amount
@@ -10920,13 +10925,13 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints /*= nullptr*/, float* variance /*= nullptr*/) const
+int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
 {
     SpellEffectInfo const* effect = spellProto->GetEffect(GetMap()->GetDifficultyID(), effect_index);
     if (variance)
         *variance = 0.0f;
 
-    return effect ? effect->CalcValue(this, basePoints, target, variance) : 0;
+    return effect ? effect->CalcValue(this, basePoints, target, variance, itemLevel) : 0;
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
