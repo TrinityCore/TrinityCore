@@ -20,18 +20,10 @@
 
 #include <cstdio>
 #include <deque>
-#include <list>
+#include <fstream>
 #include <set>
 #include <cstdlib>
 #include <cstring>
-
-#ifdef _WIN32
-#include "direct.h"
-#else
-#include <sys/stat.h>
-#include <unistd.h>
-#define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
-#endif
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -43,26 +35,10 @@
 #include "DBFilesClientList.h"
 #include "CascLib.h"
 #include "dbcfile.h"
+#include "StringFormat.h"
 
 #include "adt.h"
 #include "wdt.h"
-#include <fcntl.h>
-
-#if defined( __GNUC__ )
-    #define _open   open
-    #define _close close
-    #ifndef O_BINARY
-        #define O_BINARY 0
-    #endif
-#else
-    #include <io.h>
-#endif
-
-#ifdef O_LARGEFILE
-    #define OPEN_FLAGS (O_RDONLY | O_BINARY | O_LARGEFILE)
-#else
-    #define OPEN_FLAGS (O_RDONLY | O_BINARY)
-#endif
 
 namespace
 {
@@ -162,31 +138,14 @@ uint32 WowLocaleToCascLocaleFlags[12] =
     CASC_LOCALE_ITIT,
 };
 
-void CreateDir(std::string const& path)
+void CreateDir(boost::filesystem::path const& path)
 {
-    if (chdir(path.c_str()) == 0)
-    {
-        chdir("../");
+    namespace fs = boost::filesystem;
+    if (fs::exists(path))
         return;
-    }
 
-#ifdef _WIN32
-    _mkdir(path.c_str());
-#else
-    mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO); // 0777
-#endif
-}
-
-bool FileExists(TCHAR const* fileName)
-{
-    int fp = _open(fileName, OPEN_FLAGS);
-    if(fp != -1)
-    {
-        _close(fp);
-        return true;
-    }
-
-    return false;
+    if (!fs::create_directory(path))
+        throw new std::runtime_error("Unable to create directory" + path.string());
 }
 
 void Usage(char const* prg)
@@ -275,7 +234,7 @@ void HandleArgs(int argc, char* arg[])
 uint32 ReadBuild(int locale)
 {
     // include build info file also
-    std::string filename  = std::string("component.wow-") + localeNames[locale] + ".txt";
+    std::string filename = Trinity::StringFormat("component.wow-%s.txt", localeNames[locale]);
     //printf("Read %s file... ", filename.c_str());
 
     HANDLE dbcFile;
@@ -355,7 +314,7 @@ uint32 ReadMapDBC()
     }
 
     CascCloseFile(dbcFile);
-    printf("Done! (%u maps loaded)\n", uint32(map_count));
+    printf("Done! (" SZFMTD " maps loaded)\n", map_count);
     return map_count;
 }
 
@@ -385,7 +344,7 @@ void ReadAreaTableDBC()
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     CascCloseFile(dbcFile);
-    printf("Done! (%u areas loaded)\n", uint32(area_count));
+    printf("Done! (" SZFMTD " areas loaded)\n", area_count);
 }
 
 void ReadLiquidTypeTableDBC()
@@ -414,7 +373,7 @@ void ReadLiquidTypeTableDBC()
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     CascCloseFile(dbcFile);
-    printf("Done! (%u LiqTypes loaded)\n", (uint32)liqTypeCount);
+    printf("Done! (" SZFMTD " LiqTypes loaded)\n", liqTypeCount);
 }
 
 //
@@ -529,17 +488,17 @@ bool TransformToHighRes(uint16 holes, uint8 hiResHoles[8])
     return *((uint64*)hiResHoles) != 0;
 }
 
-bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/, uint32 build)
+bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int /*cell_y*/, int /*cell_x*/, uint32 build)
 {
     ChunkedFile adt;
 
-    if (!adt.loadFile(CascStorage, filename))
+    if (!adt.loadFile(CascStorage, inputPath))
         return false;
 
     // Prepare map header
     map_fileheader map;
-    map.mapMagic = *(uint32 const*)MAP_MAGIC;
-    map.versionMagic = *(uint32 const*)MAP_VERSION_MAGIC;
+    map.mapMagic = *reinterpret_cast<uint32 const*>(MAP_MAGIC);
+    map.versionMagic = *reinterpret_cast<uint32 const*>(MAP_VERSION_MAGIC);
     map.buildMagic = build;
 
     // Get area flags data
@@ -734,7 +693,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                     case LIQUID_TYPE_MAGMA: liquid_flags[i][j] |= MAP_LIQUID_TYPE_MAGMA; break;
                     case LIQUID_TYPE_SLIME: liquid_flags[i][j] |= MAP_LIQUID_TYPE_SLIME; break;
                     default:
-                        printf("\nCan't find Liquid type %u for map %s\nchunk %d,%d\n", h->liquidType, filename, i, j);
+                        printf("\nCan't find Liquid type %u for map %s\nchunk %d,%d\n", h->liquidType, inputPath.c_str(), i, j);
                         break;
                 }
                 // Dark water detect
@@ -790,7 +749,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     map.areaMapSize   = sizeof(map_areaHeader);
 
     map_areaHeader areaHeader;
-    areaHeader.fourcc = *(uint32 const*)MAP_AREA_MAGIC;
+    areaHeader.fourcc = *reinterpret_cast<uint32 const*>(MAP_AREA_MAGIC);
     areaHeader.flags = 0;
     if (fullAreaData)
     {
@@ -800,7 +759,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     else
     {
         areaHeader.flags |= MAP_AREA_NO_AREA;
-        areaHeader.gridArea = (uint16)areaflag;
+        areaHeader.gridArea = static_cast<uint16>(areaflag);
     }
 
     //============================================
@@ -848,7 +807,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     map.heightMapSize = sizeof(map_heightHeader);
 
     map_heightHeader heightHeader;
-    heightHeader.fourcc = *(uint32 const*)MAP_HEIGHT_MAGIC;
+    heightHeader.fourcc = *reinterpret_cast<uint32 const*>(MAP_HEIGHT_MAGIC);
     heightHeader.flags = 0;
     heightHeader.gridHeight    = minHeight;
     heightHeader.gridMaxHeight = maxHeight;
@@ -958,7 +917,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
         }
         map.liquidMapOffset = map.heightMapOffset + map.heightMapSize;
         map.liquidMapSize = sizeof(map_liquidHeader);
-        liquidHeader.fourcc = *(uint32 const*)MAP_LIQUID_MAGIC;
+        liquidHeader.fourcc = *reinterpret_cast<uint32 const*>(MAP_LIQUID_MAGIC);
         liquidHeader.flags = 0;
         liquidHeader.liquidType = 0;
         liquidHeader.offsetX = minX;
@@ -997,61 +956,62 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
         map.holesSize = 0;
 
     // Ok all data prepared - store it
-    FILE* output = fopen(filename2, "wb");
-    if (!output)
+    std::ofstream outFile(outputPath, std::ofstream::out | std::ofstream::binary);
+    if (!outFile)
     {
-        printf("Can't create the output file '%s'\n", filename2);
+        printf("Can't create the output file '%s'\n", outputPath.c_str());
         return false;
     }
-    fwrite(&map, sizeof(map), 1, output);
+
+    outFile.write(reinterpret_cast<const char*>(&map), sizeof(map));
     // Store area data
-    fwrite(&areaHeader, sizeof(areaHeader), 1, output);
+    outFile.write(reinterpret_cast<const char*>(&areaHeader), sizeof(areaHeader));
     if (!(areaHeader.flags&MAP_AREA_NO_AREA))
-        fwrite(area_flags, sizeof(area_flags), 1, output);
+        outFile.write(reinterpret_cast<const char*>(area_flags), sizeof(area_flags));
 
     // Store height data
-    fwrite(&heightHeader, sizeof(heightHeader), 1, output);
+    outFile.write(reinterpret_cast<const char*>(&heightHeader), sizeof(heightHeader));
     if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
     {
         if (heightHeader.flags & MAP_HEIGHT_AS_INT16)
         {
-            fwrite(uint16_V9, sizeof(uint16_V9), 1, output);
-            fwrite(uint16_V8, sizeof(uint16_V8), 1, output);
+            outFile.write(reinterpret_cast<const char*>(uint16_V9), sizeof(uint16_V9));
+            outFile.write(reinterpret_cast<const char*>(uint16_V8), sizeof(uint16_V8));
         }
         else if (heightHeader.flags & MAP_HEIGHT_AS_INT8)
         {
-            fwrite(uint8_V9, sizeof(uint8_V9), 1, output);
-            fwrite(uint8_V8, sizeof(uint8_V8), 1, output);
+            outFile.write(reinterpret_cast<const char*>(uint8_V9), sizeof(uint8_V9));
+            outFile.write(reinterpret_cast<const char*>(uint8_V8), sizeof(uint8_V8));
         }
         else
         {
-            fwrite(V9, sizeof(V9), 1, output);
-            fwrite(V8, sizeof(V8), 1, output);
+            outFile.write(reinterpret_cast<const char*>(V9), sizeof(V9));
+            outFile.write(reinterpret_cast<const char*>(V8), sizeof(V8));
         }
     }
 
     // Store liquid data if need
     if (map.liquidMapOffset)
     {
-        fwrite(&liquidHeader, sizeof(liquidHeader), 1, output);
+        outFile.write(reinterpret_cast<const char*>(&liquidHeader), sizeof(liquidHeader));
         if (!(liquidHeader.flags & MAP_LIQUID_NO_TYPE))
         {
-            fwrite(liquid_entry, sizeof(liquid_entry), 1, output);
-            fwrite(liquid_flags, sizeof(liquid_flags), 1, output);
+            outFile.write(reinterpret_cast<const char*>(liquid_entry), sizeof(liquid_entry));
+            outFile.write(reinterpret_cast<const char*>(liquid_flags), sizeof(liquid_flags));
         }
 
         if (!(liquidHeader.flags & MAP_LIQUID_NO_HEIGHT))
         {
             for (int y = 0; y < liquidHeader.height; y++)
-                fwrite(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
+                outFile.write(reinterpret_cast<const char*>(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX]), sizeof(float) * liquidHeader.width);
         }
     }
 
     // store hole data
     if (hasHoles)
-        fwrite(holes, map.holesSize, 1, output);
+        outFile.write(reinterpret_cast<const char*>(holes), map.holesSize);
 
-    fclose(output);
+    outFile.close();
 
     return true;
 }
@@ -1075,8 +1035,8 @@ void ExtractWmos(ChunkedFile& file, std::set<std::string>& wmoList)
 
 void ExtractMaps(uint32 build)
 {
-    char storagePath[1024];
-    char output_filename[1024];
+    std::string storagePath;
+    std::string outputFileName;
 
     printf("Extracting maps...\n");
 
@@ -1096,7 +1056,7 @@ void ExtractMaps(uint32 build)
     {
         printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
-        sprintf(storagePath, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
+        storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         ChunkedFile wdt;
         if (!wdt.loadFile(CascStorage, storagePath, false))
             continue;
@@ -1111,11 +1071,11 @@ void ExtractMaps(uint32 build)
                 if (!(chunk->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
                     continue;
 
-                sprintf(storagePath, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                sprintf(output_filename, "%s/maps/%04u_%02u_%02u.map", output_path, map_ids[z].id, y, x);
-                ConvertADT(storagePath, output_filename, y, x, build);
+                storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
+                outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path, map_ids[z].id, y, x);
+                ConvertADT(storagePath, outputFileName, y, x, build);
 
-                sprintf(storagePath, "World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
+                storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
                 ChunkedFile adtObj;
                 if (adtObj.loadFile(CascStorage, storagePath, false))
                     ExtractWmos(adtObj, wmoList);
@@ -1142,12 +1102,12 @@ void ExtractMaps(uint32 build)
     delete[] map_ids;
 }
 
-bool ExtractFile(HANDLE fileInArchive, char const* filename)
+bool ExtractFile(HANDLE fileInArchive, std::string filename)
 {
-    FILE* output = fopen(filename, "wb");
+    FILE* output = fopen(filename.c_str(), "wb");
     if (!output)
     {
-        printf("Can't create the output file '%s'\n", filename);
+        printf("Can't create the output file '%s'\n", filename.c_str());
         return false;
     }
 
@@ -1191,8 +1151,8 @@ void ExtractDBFilesClient(int l)
         {
             filename = outputPath + filename.substr(filename.rfind('\\') + 1);
 
-            if (!FileExists(filename.c_str()))
-                if (ExtractFile(dbcFile, filename.c_str()))
+            if (!boost::filesystem::exists(filename))
+                if (ExtractFile(dbcFile, filename))
                     ++count;
 
             CascCloseFile(dbcFile);

@@ -19,7 +19,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "loadlib.h"
-#include <cstdio>
 
 u_map_fcc MverMagic = { { 'R','E','V','M' } };
 
@@ -34,20 +33,20 @@ ChunkedFile::~ChunkedFile()
     free();
 }
 
-bool ChunkedFile::loadFile(HANDLE mpq, char* filename, bool log)
+bool ChunkedFile::loadFile(HANDLE mpq, std::string const& fileName, bool log)
 {
     free();
     HANDLE file;
-    if (!CascOpenFile(mpq, filename, CASC_LOCALE_ALL, 0, &file))
+    if (!CascOpenFile(mpq, fileName.c_str(), CASC_LOCALE_ALL, 0, &file))
     {
         if (log)
-            printf("No such file %s\n", filename);
+            printf("No such file %s\n", fileName.c_str());
         return false;
     }
 
-    data_size = CascGetFileSize(file, NULL);
+    data_size = CascGetFileSize(file, nullptr);
     data = new uint8[data_size];
-    CascReadFile(file, data, data_size, NULL/*bytesRead*/);
+    CascReadFile(file, data, data_size, nullptr/*bytesRead*/);
     parseChunks();
     if (prepareLoadedData())
     {
@@ -55,7 +54,7 @@ bool ChunkedFile::loadFile(HANDLE mpq, char* filename, bool log)
         return true;
     }
 
-    printf("Error loading %s\n", filename);
+    printf("Error loading %s\n", fileName.c_str());
     CascCloseFile(file);
     free();
 
