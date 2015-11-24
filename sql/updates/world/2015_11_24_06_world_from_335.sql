@@ -1,8 +1,9 @@
 -- 
 -- Quest Tomb of the Lighbringer - 9446
 -- Old scripts cleanup
-DELETE FROM `script_waypoint` WHERE `entry`=17238;
+-- DELETE FROM `script_waypoint` WHERE `entry`=17238;
 -- Creature text
+/*
 DELETE FROM `creature_text` WHERE `entry`=17238;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `TEXT`, `TYPE`, `LANGUAGE`, `probability`, `emote`, `duration`, `sound`, `TextRange`, `COMMENT`, `BroadcastTextId`) VALUES
 (17238, 0, 0, "Shall we begin, my friend?", 12, 7, 100, 6, 0, 0, 0, "Q Tomb of the Lighbringer", 13613),
@@ -72,3 +73,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (17238, 17,  976, -1823, 81, "anchorite_truuen_Q9446");
 
 UPDATE `creature_text` SET `text`="%s's will falters.", `BroadcastTextId`=5594 WHERE `entry`=10321 AND `groupid`=0 AND `id`=0; -- Fix text for a previous commit
+*/
