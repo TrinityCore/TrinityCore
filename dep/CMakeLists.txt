@@ -32,10 +32,10 @@ endif()
 if(SERVERS OR TOOLS)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
+  add_subdirectory(cppformat)
 endif()
 
 if(SERVERS)
-  add_subdirectory(cppformat)
   add_subdirectory(gsoap)
 endif()
 
