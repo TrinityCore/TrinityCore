@@ -173,7 +173,8 @@ public:
         uint32_t statesize = SFMT_N*4;      // Size of state vector
 
         // Fill state vector with random numbers from seed
-        ((uint32_t*)state)[0] = y;
+        uint32_t* s = (uint32_t*)&state;
+        s[0] = y;
         const uint32_t factor = 1812433253U;// Multiplication factor
 
         for (i = 1; i < statesize; i++) {
