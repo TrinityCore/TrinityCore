@@ -186,7 +186,7 @@ public:
 
             void Reset() override
             {
-                if(events.IsInPhase(PHASE_TRANSITION) || (events.IsInPhase(PHASE_THADDIUS) && me->IsAlive()))
+                if (events.IsInPhase(PHASE_TRANSITION) || (events.IsInPhase(PHASE_THADDIUS) && me->IsAlive()))
                     BeginResetEncounter();
             }
 
@@ -640,7 +640,7 @@ public:
 
             void UpdateAI(uint32 uiDiff) override
             {
-                if(!isFeignDeath)
+                if (!isFeignDeath)
                     if (!UpdateVictim())
                         return;
 
@@ -657,7 +657,7 @@ public:
                 else
                     powerSurgeTimer -= uiDiff;
 
-                if(!isFeignDeath)
+                if (!isFeignDeath)
                     DoMeleeAttackIfReady();
             }
 
@@ -825,7 +825,7 @@ public:
 
             void KilledUnit(Unit* victim) override
             {
-                if(victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_FEUGEN_SLAY);
             }
 
