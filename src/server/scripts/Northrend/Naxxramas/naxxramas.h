@@ -175,7 +175,7 @@ enum InstanceEvents
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
     EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
 
-    // Thaddius AI requesting timed encounter respawn
+    // Thaddius AI requesting timed encounter (re-)spawn
     EVENT_THADDIUS_BEGIN_RESET,
     EVENT_THADDIUS_RESET,
 

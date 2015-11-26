@@ -173,7 +173,8 @@ public:
                     events.SetPhase(PHASE_NOT_ENGAGED);
                     SetCombatMovement(false);
 
-                    BeginResetEncounter(); // initialize everything properly, and ensure that the coils are loaded by the time we initialize
+                    // initialize everything properly, and ensure that the coils are loaded by the time we initialize
+                    BeginResetEncounter(true);
                 }
             }
 
@@ -185,7 +186,7 @@ public:
 
             void Reset() override
             {
-                if(events.IsInPhase(PHASE_TRANSITION) || events.IsInPhase(PHASE_THADDIUS))
+                if(events.IsInPhase(PHASE_TRANSITION) || (events.IsInPhase(PHASE_THADDIUS) && me->IsAlive()))
                     BeginResetEncounter();
             }
 
@@ -278,15 +279,16 @@ public:
                 events.ScheduleEvent(EVENT_TRANSITION_3, 14 * IN_MILLISECONDS, 0, PHASE_TRANSITION);
             }
 
-            void BeginResetEncounter()
+            void BeginResetEncounter(bool initial = false)
             {
-                if (!me->IsAlive())
+                if (instance->GetBossState(BOSS_THADDIUS) == DONE)
                     return;
                 if (events.IsInPhase(PHASE_RESETTING))
                     return;
-                   
-                instance->ProcessEvent(me, EVENT_THADDIUS_BEGIN_RESET);
 
+                if (initial) // signal shorter spawn timer to instance script
+                    instance->SetBossState(BOSS_THADDIUS, SPECIAL);
+                instance->ProcessEvent(me, EVENT_THADDIUS_BEGIN_RESET);
                 instance->SetBossState(BOSS_THADDIUS, NOT_STARTED);
 
                 // remove polarity shift debuffs on reset
@@ -307,17 +309,19 @@ public:
 
             void ResetEncounter()
             {
-                events.SetPhase(PHASE_NOT_ENGAGED);
                 feugenAlive = true;
                 stalaggAlive = true;
+
                 me->Respawn(true);
-                me->CastSpell(me, SPELL_THADDIUS_INACTIVE_VISUAL);
+                _Reset();
+                events.SetPhase(PHASE_NOT_ENGAGED);
+
+                me->CastSpell(me, SPELL_THADDIUS_INACTIVE_VISUAL, true);
 
                 if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                     feugen->AI()->DoAction(ACTION_RESET_ENCOUNTER);
                 if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                     stalagg->AI()->DoAction(ACTION_RESET_ENCOUNTER);
-                _Reset();
             }
 
             void UpdateAI(uint32 diff) override
