@@ -188,7 +188,7 @@ class instance_naxxramas : public InstanceMapScript
                 AddMinion(creature, false);
             }
 
-            void ProcessEvent(WorldObject* source, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*source*/, uint32 eventId) override
             {
                 switch (eventId)
                 {
