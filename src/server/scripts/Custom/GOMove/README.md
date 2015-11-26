@@ -21,7 +21,7 @@ Original idea by [Mordred](https://www.youtube.com/watch?v=a0JVXJ07KUU)
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/gomove
 - Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...gomove.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...gomove.patch
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...gomove
 
 Using direct merge:
 - open git bash to source location
