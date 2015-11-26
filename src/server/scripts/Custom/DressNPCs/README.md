@@ -14,7 +14,7 @@ Known bugs: Portraits dont work properly - a client side visual bug
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/dressnpcs
 - Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...dressnpcs.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...dressnpcs.patch
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...dressnpcs
 
 Using direct merge:
 - open git bash to source location
