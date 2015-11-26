@@ -9,7 +9,7 @@ Source: https://rochet2.github.io/?page=Multivendor
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/multivendor
 - Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...multivendor.diff
-- Patch: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...multivendor.patch
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:3.3.5...multivendor
 
 Using direct merge:
 - open git bash to source location
