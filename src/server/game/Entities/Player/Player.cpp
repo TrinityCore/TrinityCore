@@ -2563,7 +2563,7 @@ void Player::SetGameMaster(bool on)
 
 bool Player::CanBeGameMaster() const
 {
-    return m_session && m_session->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
+    return GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
 }
 
 void Player::SetGMVisible(bool on)
@@ -18672,31 +18672,31 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
 
 bool Player::CheckInstanceLoginValid(Map* map)
 {
-    if (!map->IsDungeon() || IsGameMaster())
+    if (!map->IsDungeon() || IsInstanceLoginGameMasterException())
         return true;
 
     if (map->IsRaid())
     {
         // cannot be in raid instance without a group
         if (!GetGroup())
-            return IsInstanceLoginGameMasterException();
+            return false;
     }
     else
     {
         // cannot be in normal instance without a group and more players than 1 in instance
         if (!GetGroup() && map->GetPlayersCountExceptGMs() > 1)
-            return IsInstanceLoginGameMasterException();
+            return false;
     }
 
     // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
-    return sMapMgr->CanPlayerEnter(map->GetId(), this, true) || IsInstanceLoginGameMasterException();
+    return sMapMgr->CanPlayerEnter(map->GetId(), this, true);
 }
 
 bool Player::IsInstanceLoginGameMasterException() const
 {
     if (CanBeGameMaster())
     {
-        ChatHandler(GetSession()).PSendSysMessage("You didn't get kicked out of the instance even if Player::CheckInstanceLoginValid() returned false and without .gm on flag");
+        ChatHandler(GetSession()).SendSysMessage(LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION);
         return true;
     }
     else
