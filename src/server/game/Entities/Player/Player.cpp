@@ -4764,7 +4764,7 @@ Corpse* Player::CreateCorpse()
     // prevent existence 2 corpse for player
     SpawnCorpseBones();
 
-    uint32 _uf, _pb, _pb2, _cfb1, _cfb2;
+    uint32 _pb, _pb2, _cfb1, _cfb2;
 
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
