@@ -1180,10 +1180,10 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
                     switch (spellId)
                     {
                         case SPELL_SUNREAVER_DISGUISE_TRIGGER:
-                            spellId = gender ? SPELL_SUNREAVER_DISGUISE_FEMALE : SPELL_SUNREAVER_DISGUISE_MALE;
+                            spellId = gender == GENDER_FEMALE ? SPELL_SUNREAVER_DISGUISE_FEMALE : SPELL_SUNREAVER_DISGUISE_MALE;
                             break;
                         case SPELL_SILVER_COVENANT_DISGUISE_TRIGGER:
-                            spellId = gender ? SPELL_SILVER_COVENANT_DISGUISE_FEMALE : SPELL_SILVER_COVENANT_DISGUISE_MALE;
+                            spellId = gender == GENDER_FEMALE ? SPELL_SILVER_COVENANT_DISGUISE_FEMALE : SPELL_SILVER_COVENANT_DISGUISE_MALE;
                             break;
                         default:
                             break;

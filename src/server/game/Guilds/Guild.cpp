@@ -506,7 +506,7 @@ void Guild::Member::SetStats(Player* player)
     m_name      = player->GetName();
     m_level     = player->getLevel();
     m_class     = player->getClass();
-    _gender     = player->getGender();
+    _gender     = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();

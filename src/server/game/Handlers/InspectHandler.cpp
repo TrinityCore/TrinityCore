@@ -48,7 +48,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     }
 
     inspectResult.ClassID = player->getClass();
-    inspectResult.GenderID = player->getGender();
+    inspectResult.GenderID = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
 
     if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || GetPlayer()->IsGameMaster())
     {

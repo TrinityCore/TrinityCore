@@ -1589,7 +1589,7 @@ public:
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
-            gender            = target->getGender();
+            gender            = target->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
             phase             = target->GetPhaseMask();
         }
         // get additional information from DB
