@@ -19,16 +19,14 @@
 #include "vmapexport.h"
 #include "wmo.h"
 #include "vec3d.h"
+#include "mpq_libmpq04.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
-#include <map>
-#include <fstream>
 #undef min
 #undef max
-#include "mpq_libmpq04.h"
 
-using namespace std;
 extern uint16 *LiqType;
 
 WMORoot::WMORoot(std::string &filename)
