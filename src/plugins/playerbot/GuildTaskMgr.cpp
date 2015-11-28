@@ -225,18 +225,41 @@ bool GuildTaskMgr::SendAdvertisement(uint32 owner, uint32 guildId)
     if (!leader)
         return false;
 
-    uint32 itemTask = GetTaskValue(owner, guildId, "itemTask");
+    uint32 validIn;
+    uint32 itemTask = GetTaskValue(owner, guildId, "itemTask", &validIn);
     if (itemTask)
-        return SendItemAdvertisement(itemTask, owner, guildId);
+        return SendItemAdvertisement(itemTask, owner, guildId, validIn);
 
-    uint32 killTask = GetTaskValue(owner, guildId, "killTask");
+    uint32 killTask = GetTaskValue(owner, guildId, "killTask", &validIn);
     if (killTask)
-        return SendKillAdvertisement(killTask, owner, guildId);
+        return SendKillAdvertisement(killTask, owner, guildId, validIn);
 
     return false;
 }
 
-bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 guildId)
+string formatTime(uint32 secs)
+{
+    ostringstream out;
+    if (secs < 3600)
+    {
+        out << secs / 60 << " min";
+    }
+    else if (secs < 7200)
+    {
+        out << "1 hr " << (secs - 3600) / 60 << " min";
+    }
+    else if (secs < 3600 * 24)
+    {
+        out << secs / 3600 << " hr";
+    } else
+    {
+        out << secs / 3600 / 24 << " days";
+    }
+
+    return out.str();
+}
+
+bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 guildId, uint32 validIn)
 {
     Guild *guild = sGuildMgr->GetGuildById(guildId);
     Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
@@ -257,6 +280,7 @@ bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 gui
     else
         body << "some ";
     body << "we'd really appreciate that and pay a high price.\n";
+    body << "The task will expire in " << formatTime(validIn) << "\n";
     body << "\n";
     body << "Best Regards,\n";
     body << guild->GetName() << "\n";
@@ -268,7 +292,7 @@ bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 gui
 }
 
 
-bool GuildTaskMgr::SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32 guildId)
+bool GuildTaskMgr::SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32 guildId, uint32 validIn)
 {
     Guild *guild = sGuildMgr->GetGuildById(guildId);
     Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
@@ -284,6 +308,7 @@ bool GuildTaskMgr::SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32
     body << "\n";
     body << "As you probably know " << proto->Name << " is wanted dead for the crimes it did against our guild. If you should kill it ";
     body << "we'd really appreciate that.\n";
+    body << "The task will expire in " << formatTime(validIn) << "\n";
     body << "\n";
     body << "Best Regards,\n";
     body << guild->GetName() << "\n";
@@ -591,6 +616,7 @@ void GuildTaskMgr::CheckItemTask(uint32 itemId, uint32 obtained, Player* ownerPl
                 bot->GetGuild()->GetName().c_str(), ownerPlayer->GetName().c_str());
         SetTaskValue(owner, guildId, "reward", 1,
                 urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
+        ChatHandler(ownerPlayer->GetSession()).PSendSysMessage("You have completed a guild task");
     }
     else
     {
@@ -689,5 +715,6 @@ void GuildTaskMgr::CheckKillTask(Player* player, Unit* victim)
                 guild->GetName().c_str(), player->GetName().c_str());
         SetTaskValue(owner, guildId, "reward", 1,
                 urand(sPlayerbotAIConfig.minGuildTaskRewardTime, sPlayerbotAIConfig.maxGuildTaskRewardTime));
+        ChatHandler(player->GetSession()).PSendSysMessage("You have completed a guild task");
     }
 }

@@ -31,8 +31,8 @@ class GuildTaskMgr
         uint32 SetTaskValue(uint32 owner, uint32 guildId, string type, uint32 value, uint32 validIn);
         uint32 CreateTask(uint32 owner, uint32 guildId);
         bool SendAdvertisement(uint32 owner, uint32 guildId);
-        bool SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 guildId);
-        bool SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32 guildId);
+        bool SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 guildId, uint32 validIn);
+        bool SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32 guildId, uint32 validIn);
         bool SendThanks(uint32 owner, uint32 guildId);
         bool Reward(uint32 owner, uint32 guildId);
         bool CreateItemTask(uint32 owner, uint32 guildId);
