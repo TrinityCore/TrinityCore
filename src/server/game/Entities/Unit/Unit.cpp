@@ -13010,7 +13010,7 @@ void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32 & duration, Sp
 
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_DURATION, duration, spell);
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, duration, spell);
 
     if (!(spellInfo->HasAttribute(SPELL_ATTR0_ABILITY) || spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) || spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS)) &&
         ((GetTypeId() == TYPEID_PLAYER && spellInfo->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
