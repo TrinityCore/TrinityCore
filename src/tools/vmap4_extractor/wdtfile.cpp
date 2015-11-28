@@ -19,6 +19,7 @@
 #include "vmapexport.h"
 #include "wdtfile.h"
 #include "adtfile.h"
+
 #include <cstdio>
 
 char * wdtGetPlainName(char * FileName)
@@ -30,7 +31,7 @@ char * wdtGetPlainName(char * FileName)
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : WDT(file_name), gWmoInstansName(NULL), gnWMO(0)
+WDTFile::WDTFile(char* file_name, char* file_name1) : gWmoInstansName(NULL), gnWMO(0), WDT(file_name)
 {
     filename.append(file_name1,strlen(file_name1));
 }
@@ -77,7 +78,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 WDT.read(buf, size);
                 char *p=buf;
                 int q = 0;
-                gWmoInstansName = new string[size];
+                gWmoInstansName = new std::string[size];
                 while (p < buf + size)
                 {
                     char* s=wdtGetPlainName(p);

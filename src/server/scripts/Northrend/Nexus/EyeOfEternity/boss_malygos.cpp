@@ -1244,8 +1244,9 @@ public:
                 ++_wpCount;
             }
             else if (Vehicle* hoverDisk = me->GetVehicleKit())
-                if (Unit* lordPassenger = hoverDisk->GetPassenger(0))
-                    lordPassenger->ToCreature()->AI()->DoAction(ACTION_SET_DISK_VICTIM_CHASE);
+                if (Unit* passenger = hoverDisk->GetPassenger(0))
+                    if (Creature* lordPassenger = passenger->ToCreature())
+                        lordPassenger->AI()->DoAction(ACTION_SET_DISK_VICTIM_CHASE);
         }
 
     private:
