@@ -197,7 +197,7 @@ public:
                         if (!guardCorpses.empty())
                         {
                             if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
-                                if(Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
+                                if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
                                 {
                                     creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, nullptr, nullptr, me->GetGUID());
                                     creatureTarget->AI()->Talk(EMOTE_SCARAB);
