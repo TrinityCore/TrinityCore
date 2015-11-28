@@ -19,10 +19,9 @@
 #ifndef _MMAP_COMMON_H
 #define _MMAP_COMMON_H
 
-#include <string>
-#include <vector>
-
 #include "Common.h"
+
+#include <vector>
 
 #ifndef _WIN32
     #include <stddef.h>
