@@ -394,7 +394,6 @@ void ParsMapFiles()
 bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
-    bool hasInputPathParam = false;
     preciseVectorData = false;
 
     for(int i = 1; i < argc; ++i)
@@ -407,7 +406,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         {
             if((i+1)<argc)
             {
-                hasInputPathParam = true;
                 strncpy(input_path, argv[i + 1], sizeof(input_path));
                 input_path[sizeof(input_path) - 1] = '\0';
 

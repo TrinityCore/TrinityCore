@@ -445,7 +445,7 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
         return;
 
     // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
-    _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : DEFAULT_SUMMON_BATTLE_PET_SPELL);
+    _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
 
     // TODO: set pet level, quality... update fields
 }
