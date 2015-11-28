@@ -285,7 +285,10 @@ bool GuildTaskMgr::SendItemAdvertisement(uint32 itemId, uint32 owner, uint32 gui
     body << "Best Regards,\n";
     body << guild->GetName() << "\n";
     body << leader->GetName() << "\n";
-    MailDraft("Guild Task Advertisement", body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
+
+    ostringstream subject;
+    subject << "Guild Task: " << proto->Name1;
+    MailDraft(subject.str(), body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
     CharacterDatabase.CommitTransaction(trans);
 
     return true;
@@ -313,7 +316,10 @@ bool GuildTaskMgr::SendKillAdvertisement(uint32 creatureId, uint32 owner, uint32
     body << "Best Regards,\n";
     body << guild->GetName() << "\n";
     body << leader->GetName() << "\n";
-    MailDraft("Guild Task Advertisement", body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
+
+    ostringstream subject;
+    subject << "Guild Task: " << proto->Name;
+    MailDraft(subject.str(), body.str()).SendMailTo(trans, MailReceiver(player), MailSender(leader));
     CharacterDatabase.CommitTransaction(trans);
 
     return true;
