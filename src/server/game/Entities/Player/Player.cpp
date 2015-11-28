@@ -2563,7 +2563,7 @@ void Player::SetGameMaster(bool on)
 
 bool Player::CanBeGameMaster() const
 {
-    return m_session && m_session->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
+    return GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
 }
 
 void Player::SetGMVisible(bool on)
@@ -18694,7 +18694,7 @@ bool Player::IsInstanceLoginGameMasterException() const
 {
     if (CanBeGameMaster())
     {
-        ChatHandler(GetSession()).PSendSysMessage("You didn't get kicked out of the instance even if Player::CheckInstanceLoginValid() returned false and without .gm on flag");
+        ChatHandler(GetSession()).SendSysMessage(LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION);
         return true;
     }
     else
