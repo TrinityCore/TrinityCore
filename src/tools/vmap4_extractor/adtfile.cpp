@@ -86,11 +86,11 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
 
     uint32 size;
 
-    string xMap;
-    string yMap;
+    std::string xMap;
+    std::string yMap;
 
     Adtfilename.erase(Adtfilename.find(".adt"),4);
-    string TempMapNumber;
+    std::string TempMapNumber;
     TempMapNumber = Adtfilename.substr(Adtfilename.length()-6,6);
     xMap = TempMapNumber.substr(TempMapNumber.find("_")+1,(TempMapNumber.find_last_of("_")-1) - (TempMapNumber.find("_")));
     yMap = TempMapNumber.substr(TempMapNumber.find_last_of("_")+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of("_")));
@@ -134,7 +134,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 ADT.read(buf, size);
                 char *p=buf;
                 int t=0;
-                ModelInstansName = new string[size];
+                ModelInstansName = new std::string[size];
                 while (p<buf+size)
                 {
                     fixnamen(p,strlen(p));
@@ -143,7 +143,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
 
                     ModelInstansName[t++] = s;
 
-                    string path(p);
+                    std::string path(p);
                     ExtractSingleModel(path);
 
                     p = p+strlen(p)+1;
