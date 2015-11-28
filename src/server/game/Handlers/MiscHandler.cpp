@@ -283,7 +283,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         uint32 pzoneid = target->GetZoneId();
-        uint8 gender = target->getGender();
+        uint8 gender = target->GetByteValue(PLAYER_BYTES_3, 0);
 
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)

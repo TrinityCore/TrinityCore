@@ -22,7 +22,6 @@
 #include "PathCommon.h"
 #include "TerrainBuilder.h"
 #include "Recast.h"
-#include "DetourNavMesh.h"
 
 namespace MMAP
 {
