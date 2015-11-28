@@ -81,7 +81,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 {
-    bool hasSpline = false;
+    //bool hasSpline = false;
 
     data >> movementInfo.guid;
     data >> movementInfo.time;
@@ -106,7 +106,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
-    hasSpline = data.ReadBit(); // todo 6.x read this infos
+    /*hasSpline = */data.ReadBit(); // todo 6.x read this infos
 
     data.ReadBit(); // HeightChangeFailed
     data.ReadBit(); // RemoteTimeValid
