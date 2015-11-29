@@ -189,6 +189,8 @@ INSERT INTO rbac_linked_permissions VALUES
 (100011,447), # lookup item
 (100011,488), # additem
 (100011,489), # additemset
+(100011,287), # Command: levelup
+(100011,554), # Command: modify money ( dangerous )
 (100011,737); # tele
 
 # Special: test realm GM
