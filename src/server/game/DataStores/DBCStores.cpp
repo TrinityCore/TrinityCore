@@ -406,6 +406,10 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
         if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i))
             sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
 
+    ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
+        "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",
+        MAX_DIFFICULTY, sDifficultyStore.GetNumRows());
+
     for (uint32 i = 0; i < sFactionStore.GetNumRows(); ++i)
     {
         FactionEntry const* faction = sFactionStore.LookupEntry(i);
