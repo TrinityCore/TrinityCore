@@ -104,7 +104,7 @@ private:
     static ActionNode* growl(PlayerbotAI* ai)
     {
         return new ActionNode ("growl",
-            /*P*/ NextAction::array(0, new NextAction("reach spell"), NULL),
+            /*P*/ NULL,
             /*A*/ NULL,
             /*C*/ NULL);
     }

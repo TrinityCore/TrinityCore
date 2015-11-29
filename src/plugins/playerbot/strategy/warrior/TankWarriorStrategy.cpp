@@ -22,7 +22,7 @@ private:
     static ActionNode* melee(PlayerbotAI* ai)
     {
         return new ActionNode ("melee",
-            /*P*/ NextAction::array(0, new NextAction("defensive stance"), new NextAction("reach melee"), NULL),
+            /*P*/ NextAction::array(0, new NextAction("defensive stance"), NULL),
             /*A*/ NULL,
             /*C*/ NULL);
     }

@@ -30,11 +30,6 @@ namespace ai {
 	{
 	public:
 		CastRakeAction(PlayerbotAI* ai) : CastDebuffSpellAction(ai, "rake") {}
-
-        virtual NextAction** getPrerequisites()
-        {
-            return NextAction::merge( NextAction::array(0, new NextAction("reach melee"), NULL), CastDebuffSpellAction::getPrerequisites());
-        }
 	};
 
 

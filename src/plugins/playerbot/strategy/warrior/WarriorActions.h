@@ -117,14 +117,12 @@ namespace ai
 
     //debuffs
     BEGIN_DEBUFF_ACTION(CastRendAction, "rend")
-        virtual NextAction** getPrerequisites();
     END_SPELL_ACTION()
 
     class CastRendOnAttackerAction : public CastDebuffSpellOnAttackerAction
     {
     public:
         CastRendOnAttackerAction(PlayerbotAI* ai) : CastDebuffSpellOnAttackerAction(ai, "rend") {}
-        virtual NextAction** getPrerequisites();
     };
 
     BEGIN_DEBUFF_ACTION(CastDisarmAction, "disarm")
@@ -132,7 +130,6 @@ namespace ai
     END_SPELL_ACTION()
 
     BEGIN_DEBUFF_ACTION(CastSunderArmorAction, "sunder armor") // 5 times
-        virtual NextAction** getPrerequisites();
     END_SPELL_ACTION()
 
     class CastDemoralizingShoutAction : public CastDebuffSpellAction {
