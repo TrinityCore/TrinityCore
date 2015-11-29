@@ -3756,6 +3756,21 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            case 18754: // Improved succubus (1 talent)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;     // affects the duration of seduction, let's minimize affection 
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.22;           // reduce cast time of seduction by 22%  
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
+            case 18755: // Improved succubus (2 talents)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.44;           // reduces cast time of seduction by 44% 
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
+            case 18756: // Improved succubus (3 talents)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.66;           // reduces cast time of seduction by 66% 
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
             default:
                 break;
         }
