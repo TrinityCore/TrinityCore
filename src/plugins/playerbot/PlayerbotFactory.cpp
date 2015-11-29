@@ -1203,6 +1203,17 @@ ObjectGuid PlayerbotFactory::GetRandomBot()
     return guids[index];
 }
 
+void AddPrevQuests(uint32 questId, list<uint32>& questIds)
+{
+    Quest const *quest = sObjectMgr->GetQuestTemplate(questId);
+    for (Quest::PrevQuests::const_iterator iter = quest->prevQuests.begin(); iter != quest->prevQuests.end(); ++iter)
+    {
+        uint32 prevId = abs(*iter);
+        AddPrevQuests(prevId, questIds);
+        questIds.push_back(prevId);
+    }
+}
+
 void PlayerbotFactory::InitQuests()
 {
     ObjectMgr::QuestMap const& questTemplates = sObjectMgr->GetQuestTemplates();
@@ -1212,16 +1223,12 @@ void PlayerbotFactory::InitQuests()
         uint32 questId = i->first;
         Quest const *quest = i->second;
 
-        if (quest->GetMinLevel() > bot->getLevel() || quest->GetQuestLevel() == -1 ||
+        if (!quest->GetRequiredClasses() ||
+                quest->GetMinLevel() > bot->getLevel() ||
                 quest->IsDailyOrWeekly() || quest->IsRepeatable() || quest->IsMonthly())
             continue;
 
-        for (Quest::PrevQuests::const_iterator iter = quest->prevQuests.begin(); iter != quest->prevQuests.end(); ++iter)
-        {
-            uint32 prevId = abs(*iter);
-            questIds.push_back(prevId);
-        }
-
+        AddPrevQuests(questId, questIds);
         questIds.push_back(questId);
     }
 
@@ -1230,12 +1237,12 @@ void PlayerbotFactory::InitQuests()
         uint32 questId = *i;
         Quest const *quest = sObjectMgr->GetQuestTemplate(questId);
 
-        bot->SetQuestStatus(questId, QUEST_STATUS_NONE);
-
         if (!bot->SatisfyQuestClass(quest, false) ||
-                !bot->SatisfyQuestRace(quest, false) ||
-                !bot->SatisfyQuestStatus(quest, false))
+                !bot->SatisfyQuestRace(quest, false))
             continue;
+
+        bot->RemoveActiveQuest(questId, false);
+        bot->RemoveRewardedQuest(questId, false);
 
         bot->SetQuestStatus(questId, QUEST_STATUS_COMPLETE);
         bot->RewardQuest(quest, 0, bot, false);
