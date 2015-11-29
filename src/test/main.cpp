@@ -10,7 +10,7 @@ uint32 realmID;                                             ///< Id of the realm
 int main(int argc, char* argv[])
 {
 
-    std::string configError;
+    /*std::string configError;
     if (!sConfigMgr->LoadInitial("worldserver.conf", configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
@@ -22,19 +22,19 @@ int main(int argc, char* argv[])
     WorldDatabase.SetConnectionInfo(sConfigMgr->GetStringDefault("WorldDatabaseInfo", ""), 1, 1);
     if (!WorldDatabase.Open())
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to world database");
+        printf("Cannot connect to world database");
         return false;
     }
     CharacterDatabase.SetConnectionInfo(sConfigMgr->GetStringDefault("CharacterDatabaseInfo", ""), 1, 1);
     if (!CharacterDatabase.Open())
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to Character database");
+        printf("Cannot connect to Character database");
         return false;
     }
     LoginDatabase.SetConnectionInfo(sConfigMgr->GetStringDefault("LoginDatabaseInfo", ""), 1, 1);
     if (!LoginDatabase.Open())
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to Login database");
+        printf("Cannot connect to Login database");
         return false;
     }
 
@@ -48,8 +48,9 @@ int main(int argc, char* argv[])
      LoadDBCStores(dataPath);
 
      auctionbot.Init();
+*/
 
-    sPlayerbotAIConfig.Initialize();
+    //sPlayerbotAIConfig.Initialize();
     sPlayerbotAIConfig.enabled = true;
     sPlayerbotAIConfig.globalCoolDown = 1000;
     sPlayerbotAIConfig.reactDelay = 100;

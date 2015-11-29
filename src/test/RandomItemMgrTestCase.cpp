@@ -81,4 +81,4 @@ protected:
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( RandomItemMgrTestCase );
+//CPPUNIT_TEST_SUITE_REGISTRATION( RandomItemMgrTestCase );
