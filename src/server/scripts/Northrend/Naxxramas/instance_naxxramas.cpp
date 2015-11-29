@@ -60,7 +60,6 @@ DoorData const doorData[] =
 
 MinionData const minionData[] =
 {
-    { NPC_DK_UNDERSTUDY,        BOSS_RAZUVIOUS  },
     { NPC_SIR,                  BOSS_HORSEMEN   },
     { NPC_THANE,                BOSS_HORSEMEN   },
     { NPC_LADY,                 BOSS_HORSEMEN   },
@@ -142,6 +141,9 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                     case NPC_FAERLINA:
                         FaerlinaGUID = creature->GetGUID();
+                        break;
+                    case NPC_RAZUVIOUS:
+                        RazuviousGUID = creature->GetGUID();
                         break;
                     case NPC_THANE:
                         ThaneGUID = creature->GetGUID();
@@ -378,6 +380,8 @@ class instance_naxxramas : public InstanceMapScript
                         return AnubRekhanGUID;
                     case DATA_FAERLINA:
                         return FaerlinaGUID;
+                    case DATA_RAZUVIOUS:
+                        return RazuviousGUID;
                     case DATA_THANE:
                         return ThaneGUID;
                     case DATA_LADY:
@@ -652,6 +656,8 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid HeiganGUID;
 
             /* The Military Quarter */
+            // Instructor Razuvious
+            ObjectGuid RazuviousGUID;
             // Gothik the Harvester
             ObjectGuid GothikGateGUID;
             // The Four Horsemen
