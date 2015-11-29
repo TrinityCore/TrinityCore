@@ -145,6 +145,7 @@ enum ProcFlags
     PROC_FLAG_DONE_OFFHAND_ATTACK             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
 
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
+    PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
 
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
