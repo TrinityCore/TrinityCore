@@ -3053,6 +3053,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 52479: // Gift of the Harvester
             case 48246: // Ball of Flame
             case 36327: // Shoot Arcane Explosion Arrow
+            case 55479: // Force Obedience
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
