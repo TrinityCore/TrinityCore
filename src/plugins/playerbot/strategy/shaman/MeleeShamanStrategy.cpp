@@ -58,7 +58,7 @@ void MeleeShamanStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "searing totem",
-        NextAction::array(0, new NextAction("searing totem", 22.0f), NULL)));
+        NextAction::array(0, new NextAction("reach melee", 22.0f), new NextAction("searing totem", 22.0f), NULL)));
 
     triggers.push_back(new TriggerNode(
         "shock",
