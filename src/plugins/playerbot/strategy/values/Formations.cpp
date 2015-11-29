@@ -23,6 +23,32 @@ namespace ai
         virtual string GetTargetName() { return "line target"; }
     };
 
+    class NearFormation : public MoveFormation
+    {
+    public:
+        NearFormation(PlayerbotAI* ai) : MoveFormation(ai, "near") {}
+        virtual WorldLocation GetLocation()
+        {
+            Player* master = GetMaster();
+            if (!master)
+                return WorldLocation();
+
+            float range = sPlayerbotAIConfig.followDistance;
+            float angle = GetFollowAngle();
+            float x = master->GetPositionX() + cos(angle) * range;
+            float y = master->GetPositionY() + sin(angle) * range;
+            float z = master->GetPositionZ();
+            float ground = master->GetMap()->GetHeight(x, y, z + 0.5f);
+            if (ground <= INVALID_HEIGHT)
+                return Formation::NullLocation;
+
+            return WorldLocation(master->GetMapId(), x, y, ground + 0.5f);
+        }
+
+        virtual float GetMaxDistance() { return sPlayerbotAIConfig.followDistance; }
+    };
+
+
     class ChaosFormation : public MoveFormation
     {
     public:
@@ -219,7 +245,7 @@ float Formation::GetFollowAngle()
     return 0;
 }
 
-FormationValue::FormationValue(PlayerbotAI* ai) : ManualSetValue<Formation*>(ai, new MeleeFormation(ai), "formation")
+FormationValue::FormationValue(PlayerbotAI* ai) : ManualSetValue<Formation*>(ai, new NearFormation(ai), "formation")
 {
 }
 
@@ -235,7 +261,7 @@ bool SetFormationAction::Execute(Event event)
         return true;
     }
 
-    if (formation == "melee" || formation == "default")
+    if (formation == "melee")
     {
         if (value->Get()) delete value->Get();
         value->Set(new MeleeFormation(ai));
@@ -270,11 +296,16 @@ bool SetFormationAction::Execute(Event event)
         if (value->Get()) delete value->Get();
         value->Set(new ArrowFormation(ai));
     }
+    else if (formation == "near" || formation == "default")
+    {
+        if (value->Get()) delete value->Get();
+        value->Set(new NearFormation(ai));
+    }
     else
     {
         ostringstream str; str << "Invalid formation: |cffff0000" << formation;
         ai->TellMaster(str);
-        ai->TellMaster("Please set to any of:|cffffffff melee (default), queue, chaos, circle, line, shield, arrow");
+        ai->TellMaster("Please set to any of:|cffffffff melee (default), queue, chaos, circle, line, shield, arrow, near");
         return false;
     }
 
