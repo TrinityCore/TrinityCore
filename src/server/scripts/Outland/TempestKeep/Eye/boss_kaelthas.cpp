@@ -943,7 +943,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 //REND_Timer
                 if (Silence_Timer <= diff)
                 {
-                    DoCastVictim(SPELL_SILENCE1);
+                    DoCastVictim(SPELL_REND);
                     Silence_Timer = 8000;
                 }
                 else
