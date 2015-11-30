@@ -11,13 +11,13 @@
 # 193: GameMaster 2
 # 192: Administrator 3
 #
-DELETE FROM rbac_linked_permissions WHERE id = 194 AND linkedId IN  (25,26,27,28,29);
-DELETE FROM rbac_linked_permissions WHERE id = 198 AND linkedId IN  (532,515,597,598,599,600);
+DELETE FROM `rbac_linked_permissions` WHERE `id` = 194 AND `linkedId` IN  (25,26,27,28,29);
+DELETE FROM `rbac_linked_permissions` WHERE `id` = 198 AND `linkedId` IN  (532,515,597,598,599,600);
 
 # QUERY TO CHECK IF THEY DIDN'T CHANGE PERMISSIONS:
 # SELECT * FROM rbac_linked_permissions WHERE id IN ( 25,26,27,28,29,51 );
 
-REPLACE INTO rbac_linked_permissions VALUES
+REPLACE INTO `rbac_linked_permissions` VALUES
 #Allow say chat between factions
 (195,25),
 #Allow channel chat between factions
@@ -44,11 +44,11 @@ REPLACE INTO rbac_linked_permissions VALUES
 #
 
 # delete custom commands
-DELETE FROM `rbac_linked_permissions` WHERE linkedId > 1000 AND linkedId < 3000; 
+DELETE FROM `rbac_linked_permissions` WHERE `linkedId` > 1000 AND `linkedId` < 3000;
 
 # delete custom roles
-DELETE FROM rbac_linked_permissions WHERE id >= 100000;
-DELETE FROM rbac_linked_permissions WHERE linkedId >= 100000;
+DELETE FROM `rbac_linked_permissions` WHERE `id` >= 100000;
+DELETE FROM `rbac_linked_permissions` WHERE `linkedId` >= 100000;
 
 SET FOREIGN_KEY_CHECKS=0; -- disable temporary FKEY check
 
@@ -77,7 +77,7 @@ INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`) VALUES ('0', '1
 
 
 # TIER 1: Supporter - Player
-INSERT INTO rbac_linked_permissions VALUES
+INSERT INTO `rbac_linked_permissions` VALUES
 (100001,194), # inheriting from GM 1 ( it shouldn't be necessary but needed for research )
 (100001,100012), # inheriting from Azeroth Player
 (100001,373), # gm fly
@@ -86,26 +86,27 @@ INSERT INTO rbac_linked_permissions VALUES
 (100001,523), # revive
 (100001,517), # pinfo
 (100001,526), # Command: set skill
-(100001,558), #Command: modify rep
-(100001,451), #Command: lookup player
-(100001,452), #Command: lookup player ip
-(100001,453), #Command: lookup player account
-(100001,454), #Command: lookup player email
-(100001,455), #Command: lookup skill ( can inspect other players skills )
-(100001,459), #Command: lookup tele
-(100001,417), #Command: learn
-(100001,418), #Command: learn all
-(100001,419), #Command: learn all my
-(100001,420), #Command: learn all my class
-(100001,421), #Command: learn all my pettalents
-(100001,422), #Command: learn all my spells
-(100001,423), #Command: learn all my talents
-(100001,424), #Command: learn all gm
-(100001,425), #Command: learn all crafts
-(100001,426), #Command: learn all default
-(100001,427), #Command: learn all lang
-(100001,428), #Command: learn all recipes
-(100001,429), #COmmand: unlearn
+(100001,558), # Command: modify rep
+(100001,451), # Command: lookup player
+(100001,452), # Command: lookup player ip
+(100001,453), # Command: lookup player account
+(100001,454), # Command: lookup player email
+(100001,455), # Command: lookup skill ( can inspect other players skills )
+(100001,459), # Command: lookup tele
+(100001,556), # Command: modify phase
+(100001,417), # Command: learn
+(100001,418), # Command: learn all
+(100001,419), # Command: learn all my
+(100001,420), # Command: learn all my class
+(100001,421), # Command: learn all my pettalents
+(100001,422), # Command: learn all my spells
+(100001,423), # Command: learn all my talents
+(100001,424), # Command: learn all gm
+(100001,425), # Command: learn all crafts
+(100001,426), # Command: learn all default
+(100001,427), # Command: learn all lang
+(100001,428), # Command: learn all recipes
+(100001,429), # COmmand: unlearn
 (100001,251), # Command: banlist ip
 (100001,250), # Command: banlist character
 (100001,249), # Command: banlist account
@@ -143,7 +144,7 @@ INSERT INTO rbac_linked_permissions VALUES
 
 
 # TIER 2: Protector - Moderator
-INSERT INTO rbac_linked_permissions VALUES
+INSERT INTO `rbac_linked_permissions` VALUES
 (100002,100001), # inherit from parent TIER
 (100002,554),    # Command: modify money ( dangerous )
 (100002,256),    # Command: unban playeraccount
@@ -163,12 +164,12 @@ INSERT INTO rbac_linked_permissions VALUES
 
 
 # TIER 3
-INSERT INTO rbac_linked_permissions VALUES
+INSERT INTO `rbac_linked_permissions` VALUES
 (100003,193),    # inheriting from GM LVL 2 ( it shouldn't be necessary )
 (100003,100002); # inherit from parent TIER
 
 # Special: Story Master
-INSERT INTO rbac_linked_permissions VALUES 
+INSERT INTO `rbac_linked_permissions` VALUES
 (100010,100002), # inherit from TIER 2
 (100010,596), # Command: npc playemote
 (100010,597), # Command: npc say
@@ -178,7 +179,7 @@ INSERT INTO rbac_linked_permissions VALUES
 
 
 # Special: test realm player
-INSERT INTO rbac_linked_permissions VALUES 
+INSERT INTO `rbac_linked_permissions` VALUES
 (100011,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
 (100011,291), # cheat
 (100011,294), # cheat explore
@@ -194,13 +195,13 @@ INSERT INTO rbac_linked_permissions VALUES
 (100011,737); # tele
 
 # Special: test realm GM
-INSERT INTO rbac_linked_permissions VALUES 
+INSERT INTO `rbac_linked_permissions` VALUES
 (100013,193), # inheriting from GM LVL 2 ( it shouldn't be necessary but needed for research )
 (100013,100011), # inherit from test player
 (100013,100002); # tele
 
 # Special: Azeroth player
-INSERT INTO rbac_linked_permissions VALUES 
+INSERT INTO `rbac_linked_permissions` VALUES
 (100012,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
 (100012,442), #Command: lookup
 (100012,443), #Command: lookup area
