@@ -236,6 +236,14 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
     switch (trigger)
     {
+        case 6638: // Horde Start
+        case 6634: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+            {
+                Position const* startPos = GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
+                player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
+            }
+            break;
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (player->GetTeam() != ALLIANCE)
                 player->GetSession()->SendNotification("Only The Alliance can use that portal");

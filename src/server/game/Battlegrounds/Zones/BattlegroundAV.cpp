@@ -493,11 +493,16 @@ void BattlegroundAV::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*
 
 void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     switch (trigger)
     {
+        case 6633: // Horde Start
+        case 6632: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && entered)
+            {
+                Position const* startPos = GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
+                player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
+            }
+            break;
         case 95:
         case 2608:
             if (player->GetTeam() != ALLIANCE)

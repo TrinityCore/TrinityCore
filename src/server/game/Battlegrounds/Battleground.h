@@ -359,9 +359,6 @@ class Battleground
         void SetTeamStartPosition(TeamId teamId, Position const& pos);
         Position const* GetTeamStartPosition(TeamId teamId) const;
 
-        void SetStartMaxDist(float startMaxDist) { m_StartMaxDist = startMaxDist; }
-        float GetStartMaxDist() const { return m_StartMaxDist; }
-
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) { }
@@ -623,7 +620,6 @@ class Battleground
         uint32 m_MapId;
         BattlegroundMap* m_Map;
         Position StartPosition[BG_TEAMS_COUNT];
-        float m_StartMaxDist;
         uint32 ScriptId;
 };
 #endif
