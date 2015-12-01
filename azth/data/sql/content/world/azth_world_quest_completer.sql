@@ -24,3 +24,6 @@ UPDATE `quest_bugged` SET `bugged` = 1 WHERE `ID` IN (
     11449,
     11450
 );
+
+-- Scouring the Desert
+UPDATE `quest_bugged` SET `bugged` = 1 WHERE `ID` IN (9422, 9419);
