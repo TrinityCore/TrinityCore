@@ -1533,7 +1533,7 @@ float Creature::GetAttackDistance(Unit const* player) const
 void Creature::setDeathState(DeathState s)
 {
     Unit::setDeathState(s);
-
+    
     if (s == JUST_DIED)
     {
         m_corpseRemoveTime = time(NULL) + m_corpseDelay;
@@ -1547,6 +1547,7 @@ void Creature::setDeathState(DeathState s)
         SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
         SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0); // if creature is mounted on a virtual mount, remove it at death
+        SetUInt32Value(UNIT_NPC_EMOTESTATE, 0); // fix client crash
 
         setActive(false);
 
@@ -1565,6 +1566,7 @@ void Creature::setDeathState(DeathState s)
 
         Unit::setDeathState(CORPSE);
     }
+    
     else if (s == JUST_RESPAWNED)
     {
         //if (IsPet())
