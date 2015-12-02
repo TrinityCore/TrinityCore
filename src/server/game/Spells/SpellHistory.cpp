@@ -733,7 +733,7 @@ void SpellHistory::RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry)
             if (!itr->second.empty())
                 setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.front().RechargeEnd - Clock::now()).count());
             setSpellCharges.ConsumedCharges = itr->second.size();
-            setSpellCharges.IsPet = player == _owner;
+            setSpellCharges.IsPet = player != _owner;
 
             player->SendDirectMessage(setSpellCharges.Write());
         }
