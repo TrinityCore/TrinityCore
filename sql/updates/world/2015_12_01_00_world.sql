@@ -9,4 +9,4 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (24724, 'spell_hallow_end_wand'), -- Skeleton Costume
 (24733, 'spell_hallow_end_wand'), -- Bat Costume
 (24737, 'spell_hallow_end_wand'), -- Ghost Costume
-(24741, 'spell_hallow_end_wand')  -- Wisp Costume;
+(24741, 'spell_hallow_end_wand');  -- Wisp Costume
