@@ -541,10 +541,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
         {
             // Haste modifies periodic time of channeled spells
             if (m_spellInfo->IsChanneled())
-            {
-                if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                    caster->ModSpellCastTime(m_spellInfo, m_amplitude);
-            }
+                caster->ModSpellDurationTime(m_spellInfo, m_amplitude);
             // and periodic time of auras affected by SPELL_AURA_PERIODIC_HASTE
             else if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
                 m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
@@ -1866,43 +1863,43 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         {
                             // Blood Elf
                             case RACE_BLOODELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17829 : 17830);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 17830 : 17829);
                                 break;
                             // Orc
                             case RACE_ORC:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10139 : 10140);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10140 : 10139);
                                 break;
                             // Troll
                             case RACE_TROLL:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10135 : 10134);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10134 : 10135);
                                 break;
                             // Tauren
                             case RACE_TAUREN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10136 : 10147);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10147 : 10136);
                                 break;
                             // Undead
                             case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10146 : 10145);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10145 : 10146);
                                 break;
                             // Draenei
                             case RACE_DRAENEI:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17827 : 17828);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 17828 : 17827);
                                 break;
                             // Dwarf
                             case RACE_DWARF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10141 : 10142);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10142 : 10141);
                                 break;
                             // Gnome
                             case RACE_GNOME:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10148 : 10149);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10149 : 10148);
                                 break;
                             // Human
                             case RACE_HUMAN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10137 : 10138);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10138 : 10137);
                                 break;
                             // Night Elf
                             case RACE_NIGHTELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10143 : 10144);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10144 : 10143);
                                 break;
                             default:
                                 break;
@@ -4662,17 +4659,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 {
                     if (caster)
                     {
-                        switch (caster->getGender())
-                        {
-                            case GENDER_FEMALE:
-                                caster->CastSpell(target, 37095, true, NULL, this); // Blood Elf Disguise
-                                break;
-                            case GENDER_MALE:
-                                caster->CastSpell(target, 37093, true, NULL, this);
-                                break;
-                            default:
-                                break;
-                        }
+                        if (caster->getGender() == GENDER_FEMALE)
+                            caster->CastSpell(target, 37095, true, NULL, this); // Blood Elf Disguise
+                        else
+                            caster->CastSpell(target, 37093, true, NULL, this);
                     }
                     break;
                 }
@@ -4702,15 +4692,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 46354:                                     // Blood Elf Illusion
                     if (caster)
                     {
-                        switch (caster->getGender())
-                        {
-                            case GENDER_FEMALE:
-                                caster->CastSpell(target, 46356, true, NULL, this);
-                                break;
-                            case GENDER_MALE:
-                                caster->CastSpell(target, 46355, true, NULL, this);
-                                break;
-                        }
+                        if (caster->getGender() == GENDER_FEMALE)
+                            caster->CastSpell(target, 46356, true, NULL, this);
+                        else
+                            caster->CastSpell(target, 46355, true, NULL, this);
                     }
                     break;
                 case 46361:                                     // Reinforced Net

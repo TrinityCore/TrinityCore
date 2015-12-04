@@ -1119,7 +1119,7 @@ struct CharmInfo
         void InitEmptyActionBar(bool withAttack = true);
 
                                                             //return true if successful
-        bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE);
+        bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE, uint8 preferredSlot = 0);
         bool RemoveSpellFromActionBar(uint32 spell_id);
         void LoadPetActionBar(const std::string& data);
         void BuildActionBar(WorldPacket* data);
@@ -1982,6 +1982,7 @@ class Unit : public WorldObject
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
+        void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
         float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }

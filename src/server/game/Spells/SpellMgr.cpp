@@ -2801,14 +2801,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         {
             switch (spellInfo->Effects[j].ApplyAuraName)
             {
-                case SPELL_AURA_MOD_POSSESS:
-                case SPELL_AURA_MOD_CONFUSE:
-                case SPELL_AURA_MOD_CHARM:
-                case SPELL_AURA_AOE_CHARM:
-                case SPELL_AURA_MOD_FEAR:
-                case SPELL_AURA_MOD_STUN:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                    break;
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
@@ -2901,22 +2893,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (spellInfo->SpellVisual[0] == 3879)
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
 
-        switch (spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_WARRIOR:
-                // Shout
-                if (spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                break;
-            case SPELLFAMILY_DRUID:
-                // Roar
-                if (spellInfo->SpellFamilyFlags[0] & 0x8)
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                break;
-            default:
-                break;
-        }
-
         spellInfo->_InitializeExplicitTargetMask();
     }
 
@@ -2947,6 +2923,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
             }
+
+            // Passive talent auras cannot target pets
+            if (spellInfo->IsPassive() && GetTalentSpellCost(i))
+                if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
+                    spellInfo->Effects[j].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         }
 
         if (spellInfo->ActiveIconID == 2158)  // flight

@@ -15,17 +15,15 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include <limits.h>
 
 #include "PathCommon.h"
 #include "MapBuilder.h"
-
 #include "MapTree.h"
-#include "ModelInstance.h"
-
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMesh.h"
-#include "DetourCommon.h"
+#include "IntermediateValues.h"
+
+#include <limits.h>
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
 #define MMAP_VERSION 5
@@ -164,7 +162,7 @@ namespace MMAP
     {
         while (1)
         {
-            uint32 mapId;
+            uint32 mapId = 0;
 
             _queue.WaitAndPop(mapId);
 
@@ -215,12 +213,14 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY)
+    void MapBuilder::getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY) const
     {
-        maxX = INT_MAX;
-        maxY = INT_MAX;
-        minX = INT_MIN;
-        minY = INT_MIN;
+        // min and max are initialized to invalid values so the caller iterating the [min, max] range
+        // will never enter the loop unless valid min/max values are found
+        maxX = 0;
+        maxY = 0;
+        minX = std::numeric_limits<uint32>::max();
+        minY = std::numeric_limits<uint32>::max();
 
         float bmin[3] = { 0, 0, 0 };
         float bmax[3] = { 0, 0, 0 };

@@ -29,6 +29,7 @@
 #include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "Unit.h"
+#include "TradeData.h"
 
 #include <limits>
 #include <string>
@@ -690,14 +691,6 @@ struct ItemPosCount
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
-enum TradeSlots
-{
-    TRADE_SLOT_COUNT            = 7,
-    TRADE_SLOT_TRADED_COUNT     = 6,
-    TRADE_SLOT_NONTRADED        = 6,
-    TRADE_SLOT_INVALID          = -1
-};
-
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                     = 0x00,
@@ -1010,88 +1003,6 @@ struct TradeStatusInfo
     uint8 Slot;
 };
 
-class TradeData
-{
-    public:                                                 // constructors
-        TradeData(Player* player, Player* trader) :
-            m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem() { }
-
-        Player* GetTrader() const { return m_trader; }
-        TradeData* GetTraderData() const;
-
-        Item* GetItem(TradeSlots slot) const;
-        bool HasItem(ObjectGuid itemGuid) const;
-        TradeSlots GetTradeSlotForItem(ObjectGuid itemGuid) const;
-        void SetItem(TradeSlots slot, Item* item, bool update = false);
-
-        uint32 GetSpell() const { return m_spell; }
-        void SetSpell(uint32 spell_id, Item* castItem = NULL);
-
-        Item*  GetSpellCastItem() const;
-        bool HasSpellCastItem() const { return !m_spellCastItem.IsEmpty(); }
-
-        uint32 GetMoney() const { return m_money; }
-        void SetMoney(uint32 money);
-
-        bool IsAccepted() const { return m_accepted; }
-        void SetAccepted(bool state, bool crosssend = false);
-
-        bool IsInAcceptProcess() const { return m_acceptProccess; }
-        void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
-
-    private:                                                // internal functions
-
-        void Update(bool for_trader = true);
-
-    private:                                                // fields
-
-        Player*    m_player;                                // Player who own of this TradeData
-        Player*    m_trader;                                // Player who trade with m_player
-
-        bool       m_accepted;                              // m_player press accept for trade list
-        bool       m_acceptProccess;                        // one from player/trader press accept and this processed
-
-        uint32     m_money;                                 // m_player place money to trade
-
-        uint32     m_spell;                                 // m_player apply spell to non-traded slot item
-        ObjectGuid m_spellCastItem;                         // applied spell cast by item use
-
-        ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
-};
-
-class KillRewarder
-{
-public:
-    KillRewarder(Player* killer, Unit* victim, bool isBattleGround);
-
-    void Reward();
-
-private:
-    void _InitXP(Player* player);
-    void _InitGroupData();
-
-    void _RewardHonor(Player* player);
-    void _RewardXP(Player* player, float rate);
-    void _RewardReputation(Player* player, float rate);
-    void _RewardKillCredit(Player* player);
-    void _RewardPlayer(Player* player, bool isDungeon);
-    void _RewardGroup();
-
-    Player* _killer;
-    Unit* _victim;
-    Group* _group;
-    float _groupRate;
-    Player* _maxNotGrayMember;
-    uint32 _count;
-    uint32 _sumLevel;
-    uint32 _xp;
-    bool _isFullXP;
-    uint8 _maxLevel;
-    bool _isBattleGround;
-    bool _isPvP;
-};
-
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1167,6 +1078,7 @@ class Player : public Unit, public GridObject<Player>
         bool isAcceptWhispers() const { return (m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS) != 0; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
         bool IsGameMaster() const { return (m_ExtraFlags & PLAYER_EXTRA_GM_ON) != 0; }
+        bool CanBeGameMaster() const;
         void SetGameMaster(bool on);
         bool isGMChat() const { return (m_ExtraFlags & PLAYER_EXTRA_GM_CHAT) != 0; }
         void SetGMChat(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
@@ -1331,7 +1243,7 @@ class Player : public Unit, public GridObject<Player>
 
         float GetReputationPriceDiscount(Creature const* creature) const;
 
-        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
+        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : nullptr; }
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
 
@@ -2595,6 +2507,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
         void ScheduleDelayedOperation(uint32 operation) { if (operation < DELAYED_END) m_DelayedOperations |= operation; }
+        
+        bool IsInstanceLoginGameMasterException() const;
 
         MapReference m_mapRef;
 
