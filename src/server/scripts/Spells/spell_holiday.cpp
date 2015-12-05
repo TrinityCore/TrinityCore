@@ -277,6 +277,86 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
         }
 };
 
+// Hallowed wands
+enum HallowendData
+{
+    //wand spells
+    SPELL_HALLOWED_WAND_PIRATE             = 24717,
+    SPELL_HALLOWED_WAND_NINJA              = 24718,
+    SPELL_HALLOWED_WAND_LEPER_GNOME        = 24719,
+    SPELL_HALLOWED_WAND_RANDOM             = 24720,
+    SPELL_HALLOWED_WAND_SKELETON           = 24724,
+    SPELL_HALLOWED_WAND_WISP               = 24733,
+    SPELL_HALLOWED_WAND_GHOST              = 24737,
+    SPELL_HALLOWED_WAND_BAT                = 24741
+};
+
+class spell_hallow_end_wand : public SpellScriptLoader
+{
+public:
+    spell_hallow_end_wand() : SpellScriptLoader("spell_hallow_end_wand") {}
+
+    class spell_hallow_end_wand_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hallow_end_wand_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellEntry*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_FEMALE))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect()
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+
+            uint32 spellId = 0;
+            uint8 gender = target->getGender();
+
+            switch (GetSpellInfo()->Id)
+            {
+                case SPELL_HALLOWED_WAND_LEPER_GNOME:
+                    spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_PIRATE:
+                    spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_GHOST:
+                    spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_NINJA:
+                    spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_RANDOM:
+                    spellId = RAND(SPELL_HALLOWED_WAND_PIRATE, SPELL_HALLOWED_WAND_NINJA, SPELL_HALLOWED_WAND_LEPER_GNOME, SPELL_HALLOWED_WAND_SKELETON, SPELL_HALLOWED_WAND_WISP, SPELL_HALLOWED_WAND_GHOST, SPELL_HALLOWED_WAND_BAT);
+                    break;
+                default:
+                    return;
+            }
+            caster->CastSpell(target, spellId, true);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_hallow_end_wand_SpellScript::HandleScriptEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hallow_end_wand_SpellScript();
+    }
+};
+
 enum PilgrimsBountyBuffFood
 {
     // Pilgrims Bounty Buff Food
@@ -886,6 +966,7 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
+    new spell_hallow_end_wand();
     // Pilgrims Bounty
     new spell_pilgrims_bounty_buff_food("spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
