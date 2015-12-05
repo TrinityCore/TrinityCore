@@ -89,7 +89,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "PhaseMask",            true, false, false },
     { "Level",                true, true,  false },
     { "Quest Completed",      true, false, false },
-    { "Near Creature",        true, true,  false },
+    { "Near Creature",        true, true,  true  },
     { "Near GameObject",      true, true,  false },
     { "Object Entry or Guid", true, true,  true  },
     { "Object TypeMask",      true, false, false },
@@ -280,7 +280,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_NEAR_CREATURE:
         {
-            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
+            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) ? true : false;
             break;
         }
         case CONDITION_NEAR_GAMEOBJECT:
