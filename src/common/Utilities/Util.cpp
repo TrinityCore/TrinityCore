@@ -58,6 +58,13 @@ uint32 urand(uint32 min, uint32 max)
     return GetRng()->URandom(min, max);
 }
 
+uint32 urandms(uint32 min, uint32 max)
+{
+    ASSERT(max >= min);
+    ASSERT(INT_MAX/IN_MILLISECONDS >= max);
+    return GetRng()->URandom(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
+}
+
 float frand(float min, float max)
 {
     ASSERT(max >= min);
