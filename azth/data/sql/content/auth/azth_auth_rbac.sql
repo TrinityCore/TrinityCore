@@ -31,13 +31,13 @@ REPLACE INTO `rbac_linked_permissions` VALUES
 #Allow trading between factions
 (195,51),
 #Adding mute and unmute commands to "GameMaster commands"(197)
-(197, 532), # unmute
-(197, 515), # mute
+(197, 532), # Command: unmute
+(197, 515), # Command: mute
 # Adding some .npc * commands to "GameMaster commands"(197)
-(197, 597), # npc say
-(197, 598), # npc texemote
-(197, 599), # npc whisper
-(197, 600); # npc yell
+(197, 597), # Command: npc say
+(197, 598), # Command: npc texemote
+(197, 599), # Command: npc whisper
+(197, 600); # Command: npc yell
 
 #
 # ADD CUSTOM PERMISSIONS
@@ -80,11 +80,11 @@ INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`) VALUES ('0', '1
 INSERT INTO `rbac_linked_permissions` VALUES
 (100001,194), # inheriting from GM 1 ( it shouldn't be necessary but needed for research )
 (100001,100012), # inheriting from Azeroth Player
-(100001,373), # gm fly
-(100001,513), # maxskill
-(100001,522), # respawn
-(100001,523), # revive
-(100001,517), # pinfo
+(100001,373), # Command: gm fly
+(100001,513), # Command: maxskill
+(100001,522), # Command: respawn
+(100001,523), # Command: revive
+(100001,517), # Command: pinfo
 (100001,526), # Command: set skill
 (100001,558), # Command: modify rep
 (100001,451), # Command: lookup player
@@ -115,17 +115,17 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001,246), # Command: baninfo character
 (100001,245), # Command: baninfo account
 (100001,244), # Command: baninfo
-(100001,521), # repairitems
-(100001,711), # reset achievements
-(100001,717), # reset all
-(100001,712), # reset honor
-(100001,713), # reset level
-(100001,714), # reset spells
-(100001,715), # reset stats
-(100001,716), # reset talents
-(100001,710), # reset
-(100001,488), # additem
-(100001,489), # additemset
+(100001,521), # Command: repairitems
+(100001,711), # Command: reset achievements
+(100001,717), # Command: reset all
+(100001,712), # Command: reset honor
+(100001,713), # Command: reset level
+(100001,714), # Command: reset spells
+(100001,715), # Command: reset stats
+(100001,716), # Command: reset talents
+(100001,710), # Command: reset
+(100001,488), # Command: additem
+(100001,489), # Command: additemset
 (100001,287), # Command: levelup
 (100001,231), # Command: achievement add
 (100001,602), # Command: quest
@@ -136,7 +136,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001,593), # Command: npcinfo
 (100001,578), # Command: npc follow
 (100001,579), # Command: npc follow stop
-(100001,777), # mailbox
+(100001,777), # Command: mailbox
 (100001,284), # Command: character rename
 (100001,274), # Command: character customize
 (100001,275), # Command: character changefaction
@@ -181,24 +181,26 @@ INSERT INTO `rbac_linked_permissions` VALUES
 # Special: test realm player
 INSERT INTO `rbac_linked_permissions` VALUES
 (100011,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
-(100011,291), # cheat
-(100011,294), # cheat explore
-(100011,298), # cheat taxi
-(100011,377), # go
-(100011,378), # go creature
-(100011,442), # lookup
-(100011,447), # lookup item
-(100011,488), # additem
-(100011,489), # additemset
+(100011,291), # Command: cheat
+(100011,294), # Command: cheat explore
+(100011,298), # Command: cheat taxi
+(100011,377), # Command: go
+(100011,378), # Command: go creature
+(100011,442), # Command: lookup
+(100011,447), # Command: lookup item
+(100011,488), # Command: additem
+(100011,489), # Command: additemset
 (100011,287), # Command: levelup
 (100011,554), # Command: modify money ( dangerous )
-(100011,737); # tele
+(100011,737); # Command: tele
 
 # Special: test realm GM
 INSERT INTO `rbac_linked_permissions` VALUES
-(100013,193), # inheriting from GM LVL 2 ( it shouldn't be necessary but needed for research )
-(100013,100011), # inherit from test player
-(100013,100002); # tele
+(100013,193),     # inheriting from GM LVL 2 ( it shouldn't be necessary but needed for research )
+(100013,100011),  # inherit from test player
+(100013,498),     # Command: damage
+(100013,500),     # Command: die
+(100013,100002);  # Command: tele
 
 # Special: Azeroth player
 INSERT INTO `rbac_linked_permissions` VALUES
@@ -220,5 +222,3 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100012,718), # Command: server
 (100012, 1000), # command QC
 (100012,736); # Command: server motd
-
-
