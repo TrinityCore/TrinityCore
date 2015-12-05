@@ -9,13 +9,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources *.cpp *.h)
+file(GLOB_RECURSE mapextractor_SRCS *.cpp *.h)
 
 set(include_Dirs
-    ${CMAKE_SOURCE_DIR}/src/server/shared
-    ${CMAKE_SOURCE_DIR}/dep/libmpq
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/dep/libmpq
+  ${CMAKE_SOURCE_DIR}/src/common
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
 )
 
 if( WIN32 )
@@ -28,13 +31,16 @@ endif()
 include_directories(${include_Dirs})
 
 add_executable(mapextractor
-  ${sources}
+  ${mapextractor_SRCS}
 )
 
 target_link_libraries(mapextractor
+  common
+  format
   mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 if( UNIX )

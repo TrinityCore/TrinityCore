@@ -471,7 +471,7 @@ bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
         return true;
 
     uint32 category = 0;
-    GetCooldownDurations(spellInfo, itemId, nullptr, &itemId, nullptr);
+    GetCooldownDurations(spellInfo, itemId, nullptr, &category, nullptr);
     if (!category)
         return false;
 

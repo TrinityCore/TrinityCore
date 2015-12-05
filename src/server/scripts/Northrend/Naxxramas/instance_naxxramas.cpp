@@ -188,14 +188,15 @@ class instance_naxxramas : public InstanceMapScript
                 AddMinion(creature, false);
             }
 
-            void ProcessEvent(WorldObject* source, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*source*/, uint32 eventId) override
             {
                 switch (eventId)
                 {
                     case EVENT_THADDIUS_BEGIN_RESET:
-                        if (!source->ToCreature() || source->ToCreature()->GetEntry() != NPC_THADDIUS)
-                            return;
-                        events.ScheduleEvent(EVENT_THADDIUS_RESET, 30 * IN_MILLISECONDS);
+                        if (GetBossState(BOSS_THADDIUS) == SPECIAL) // this is the initial spawn, we want a shorter spawn time
+                            events.ScheduleEvent(EVENT_THADDIUS_RESET, 5 * IN_MILLISECONDS);
+                        else
+                            events.ScheduleEvent(EVENT_THADDIUS_RESET, 30 * IN_MILLISECONDS);
                         break;
                 }
             }
