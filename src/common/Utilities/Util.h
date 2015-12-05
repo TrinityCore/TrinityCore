@@ -82,6 +82,9 @@ int32 irand(int32 min, int32 max);
 /* Return a random number in the range min..max (inclusive). */
 uint32 urand(uint32 min, uint32 max);
 
+/* Return a random millisecond value between min and max seconds. Functionally equivalent to urand(min*IN_MILLISECONDS, max*IN_MILLISECONDS). */
+uint32 urandms(uint32 min, uint32 max);
+
 /* Return a random number in the range 0 .. UINT32_MAX. */
 uint32 rand32();
 

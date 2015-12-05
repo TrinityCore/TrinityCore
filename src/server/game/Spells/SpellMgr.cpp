@@ -2923,6 +2923,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
             }
+
+            // Passive talent auras cannot target pets
+            if (spellInfo->IsPassive() && GetTalentSpellCost(i))
+                if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
+                    spellInfo->Effects[j].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         }
 
         if (spellInfo->ActiveIconID == 2158)  // flight
