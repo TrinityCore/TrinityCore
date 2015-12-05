@@ -298,7 +298,7 @@ struct CreatureModelDataEntry
 {
     uint32      ID;                                         // 0
     uint32      Flags;                                      // 1
-    //uint32    FileDataID;                                 // 2
+    uint32      FileDataID;                                 // 2
     //uint32    SizeClass;                                  // 3
     //float     ModelScale;                                 // 4
     //uint32    BloodID;                                    // 5

@@ -1261,7 +1261,11 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     if (data && data->displayid)
         return data->displayid;
 
-    return cinfo->GetRandomValidModelId();
+    if (!(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER))
+        return cinfo->GetRandomValidModelId();
+
+    // Triggers by default receive the invisible model
+    return cinfo->GetFirstInvisibleModel();
 }
 
 void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data /*= NULL*/)
@@ -1321,6 +1325,9 @@ void ObjectMgr::LoadCreatureModelInfo()
     _creatureModelStore.rehash(result->GetRowCount());
     uint32 count = 0;
 
+    // List of model FileDataIDs that the client treats as invisible stalker
+    uint32 trigggerCreatureModelFileID[5] = { 124640, 124641, 124642, 343863, 439302 };
+
     do
     {
         Field* fields = result->Fetch();
@@ -1340,6 +1347,7 @@ void ObjectMgr::LoadCreatureModelInfo()
         modelInfo.combat_reach           = fields[2].GetFloat();
         modelInfo.displayId_other_gender = fields[3].GetUInt32();
         modelInfo.gender                 = creatureDisplay->Gender;
+        modelInfo.is_trigger             = false;
 
         // Checks
 
@@ -1359,6 +1367,18 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         if (modelInfo.combat_reach < 0.1f)
             modelInfo.combat_reach = DEFAULT_COMBAT_REACH;
+
+        if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(creatureDisplay->ModelID))
+        {
+            for (uint32 i = 0; i < 5; ++i)
+            {
+                if (modelData->FileDataID == trigggerCreatureModelFileID[i])
+                {
+                    modelInfo.is_trigger = true;
+                    break;
+                }
+            }
+        }
 
         ++count;
     }
