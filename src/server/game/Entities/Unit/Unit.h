@@ -898,6 +898,12 @@ public:
     uint32 GetHitMask() const { return _hitMask; }
 
     SpellInfo const* GetSpellInfo() const { return NULL; }
+    SpellInfo const* EnsureSpellInfo() const
+    {
+        SpellInfo const* spellInfo = GetSpellInfo();
+        ASSERT(spellInfo);
+        return spellInfo;
+    }
     SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
 
     DamageInfo* GetDamageInfo() const { return _damageInfo; }
