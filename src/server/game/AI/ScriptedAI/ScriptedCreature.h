@@ -181,9 +181,6 @@ struct ScriptedAI : public CreatureAI
     // Variables
     // *************
 
-    //Pointer to creature we are manipulating
-    Creature* me;
-
     //For fleeing
     bool IsFleeing;
 
