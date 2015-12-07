@@ -433,7 +433,7 @@ public:
                         {
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = false;
-                            me->Kill(me);
+                            me->KillSelf();
                         }
                     }
                     break;
