@@ -359,8 +359,8 @@ public:
                     {
                         die = false;
                         if (Unit* body = ObjectAccessor::GetUnit(*me, bodyGUID))
-                            body->Kill(body);
-                        me->Kill(me);
+                            body->KillSelf();
+                        me->KillSelf();
                     }
                     else wait -= diff;
                 }

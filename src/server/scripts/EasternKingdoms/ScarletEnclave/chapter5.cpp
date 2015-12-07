@@ -1218,7 +1218,7 @@ public:
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiLichKingGUID)) // Lich king disappears here
                             {
                                 temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN17);
-                                temp->Kill(temp);
+                                temp->KillSelf();
                             }
                             JumpToNextStep(10000);
                             break;
@@ -1633,7 +1633,7 @@ public:
                 if (temp->IsAlive())
                 {
                     temp->SetVisible(false);
-                    temp->Kill(temp);
+                    temp->KillSelf();
                 }
         }
     };

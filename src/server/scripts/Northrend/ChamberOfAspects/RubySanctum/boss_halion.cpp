@@ -359,11 +359,11 @@ class boss_halion : public CreatureScript
 
                 if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TWILIGHT_HALION)))
                     if (twilightHalion->IsAlive())
-                        twilightHalion->Kill(twilightHalion);
+                        twilightHalion->KillSelf();
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HALION_CONTROLLER)))
                     if (controller->IsAlive())
-                        controller->Kill(controller);
+                        controller->KillSelf();
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
@@ -522,7 +522,7 @@ class boss_twilight_halion : public CreatureScript
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HALION_CONTROLLER)))
                     if (controller->IsAlive())
-                        controller->Kill(controller);
+                        controller->KillSelf();
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }

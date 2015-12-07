@@ -531,7 +531,7 @@ public:
                             }
                         break;
                     case ACTION_TRANSITION:
-                        me->Kill(me); // true death
+                        me->KillSelf(); // true death
                         me->DespawnOrUnsummon();
 
                         if (Creature* coil = myCoil())
@@ -801,7 +801,7 @@ public:
                         magneticPullTimer = 30 * IN_MILLISECONDS;
                         break;
                     case ACTION_TRANSITION:
-                        me->Kill(me); // true death this time around
+                        me->KillSelf(); // true death this time around
                         me->DespawnOrUnsummon();
 
                         if (Creature* coil = myCoil())

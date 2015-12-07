@@ -698,7 +698,7 @@ public:
 
             if (KillTimer <= diff)
             {
-                me->Kill(me);
+                me->KillSelf();
                 KillTimer = 9999999;
             } else KillTimer -= diff;
 

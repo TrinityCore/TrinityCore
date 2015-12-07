@@ -1001,7 +1001,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (me && !me->isDead())
             {
-                me->Kill(me);
+                me->KillSelf();
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_DIE: %s", me->GetGUID().ToString().c_str());
             }
             break;
@@ -1282,7 +1282,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (!IsUnit(*itr))
                     continue;
 
-                (*itr)->ToUnit()->Kill((*itr)->ToUnit());
+                (*itr)->ToUnit()->KillSelf();
             }
 
             delete targets;
