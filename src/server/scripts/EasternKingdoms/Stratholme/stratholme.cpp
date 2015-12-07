@@ -170,7 +170,7 @@ public:
                     {
                         if (Player* player = temp->ToPlayer())
                             player->KilledMonsterCredit(NPC_RESTLESS, me->GetGUID());
-                        me->Kill(me);
+                        me->KillSelf();
                     }
                 }
                 else
@@ -248,7 +248,7 @@ public:
             if (Tagged)
             {
                 if (Die_Timer <= diff)
-                    me->Kill(me);
+                    me->KillSelf();
                 else Die_Timer -= diff;
             }
 

@@ -820,7 +820,7 @@ class npc_vengeful_shade : public CreatureScript
                     case SPELL_VENGEFUL_BLAST_25N:
                     case SPELL_VENGEFUL_BLAST_10H:
                     case SPELL_VENGEFUL_BLAST_25H:
-                        me->Kill(me);
+                        me->KillSelf();
                         break;
                     default:
                         break;
@@ -1008,7 +1008,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
                     if (Unit* owner = GetCaster()->ToTempSummon()->GetSummoner())
                         owner->GetAI()->SetGUID(GetCaster()->GetGUID(), GUID_CULTIST);
 
-                GetCaster()->Kill(GetCaster());
+                GetCaster()->KillSelf();
                 GetCaster()->SetDisplayId(uint32(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010));
             }
 

@@ -218,7 +218,7 @@ public:
                                 break;
                             case 5:
                                 me->SetVisible(false);
-                                me->Kill(me);
+                                me->KillSelf();
                                 break;
 
                         }

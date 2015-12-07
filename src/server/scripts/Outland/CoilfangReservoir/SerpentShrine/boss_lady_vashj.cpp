@@ -633,7 +633,7 @@ public:
                 }
                 if (Creature* vashj = ObjectAccessor::GetCreature(*me, VashjGUID))
                     if (!vashj->IsInCombat() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase != 2 || vashj->isDead())
-                        me->Kill(me);
+                        me->KillSelf();
                 Move = 1000;
             } else Move -= diff;
         }
