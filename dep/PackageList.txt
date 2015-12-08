@@ -14,7 +14,7 @@ bzip2 (a freely available, patent free, high-quality data compressor)
 
 cppformat (type safe format library)
   https://github.com/cppformat/cppformat
-  Version: 7859f8123311c1b8f69856d3c5e1b8501fbdae11
+  Version: 5c76d107cbaf5e851bd66b6c563e4fc7c90be7ad
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
