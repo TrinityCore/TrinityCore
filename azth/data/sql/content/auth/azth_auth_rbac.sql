@@ -158,6 +158,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100002,240),    # Command: ban account
 (100002,239),    # Command: ban
 (100002,542),    # Command: morph
+(100002,543),    # Command: demorph
 (100002,532),    # Command: unmute
 (100002,515);    # Command: mute
 
