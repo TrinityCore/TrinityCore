@@ -179,6 +179,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001,274),    # Command: character customize
 (100001,275),    # Command: character changefaction
 (100001,276),    # Command: character changerace
+(100001,795),    # Command: instance setbossstate
+(100001,796),    # Command: instance getbossstate
 (100001,529);    # Command: unaura
 
 
@@ -272,6 +274,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100013,391),     # Command: gobject delete
 (100013,390),     # Command: gobject add temp
 (100013,389),     # Command: gobject add
+(100013,795),    # Command: instance setbossstate
+(100013,796),    # Command: instance getbossstate
 (100013,370),     # Command: event stop
 (100013,369);     # Command: event start
 
