@@ -13235,36 +13235,25 @@ void Player::TradeCancel(bool sendback)
 
 void Player::UpdateSoulboundTradeItems()
 {
-    if (m_itemSoulboundTradeable.empty())
-        return;
-
     // also checks for garbage data
-    for (ItemDurationList::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end();)
+    for (GuidUnorderedSet::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end();)
     {
-        ASSERT(*itr);
-        if ((*itr)->GetOwnerGUID() != GetGUID())
-        {
-            m_itemSoulboundTradeable.erase(itr++);
-            continue;
-        }
-        if ((*itr)->CheckSoulboundTradeExpire())
-        {
-            m_itemSoulboundTradeable.erase(itr++);
-            continue;
-        }
-        ++itr;
+        Item* item = GetItemByGuid(*itr);
+        if (!item || item->GetOwnerGUID() != GetGUID() || item->CheckSoulboundTradeExpire())
+            itr = m_itemSoulboundTradeable.erase(itr);
+        else
+            ++itr;
     }
 }
 
 void Player::AddTradeableItem(Item* item)
 {
-    m_itemSoulboundTradeable.push_back(item);
+    m_itemSoulboundTradeable.insert(item->GetGUID());
 }
 
-/// @todo should never allow an item to be added to m_itemSoulboundTradeable twice
 void Player::RemoveTradeableItem(Item* item)
 {
-    m_itemSoulboundTradeable.remove(item);
+    m_itemSoulboundTradeable.erase(item->GetGUID());
 }
 
 void Player::UpdateItemDuration(uint32 time, bool realtimeonly)
@@ -23839,7 +23828,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         // farsight dynobj or puppet may be very far away
         UpdateVisibilityOf(target);
 
-        if (target->isType(TYPEMASK_UNIT) && !GetVehicle())
+        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
             ((Unit*)target)->AddPlayerToVision(this);
     }
     else
@@ -23852,7 +23841,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        if (target->isType(TYPEMASK_UNIT) && !GetVehicle())
+        if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
             ((Unit*)target)->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash

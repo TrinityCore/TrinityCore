@@ -374,6 +374,12 @@ public:
 
         if (show == "del")
         {
+            if (!arg_id)
+            {
+                handler->SendSysMessage("|cffff33ffERROR: Waypoint script guid not present.|r");
+                return true;
+            }
+
             id = atoi(arg_id);
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
