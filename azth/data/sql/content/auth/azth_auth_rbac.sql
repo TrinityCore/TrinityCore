@@ -178,6 +178,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001,284),    # Command: character rename
 (100001,274),    # Command: character customize
 (100001,275),    # Command: character changefaction
+(100001,276),    # Command: character changerace
 (100001,529);    # Command: unaura
 
 
