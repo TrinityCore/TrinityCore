@@ -473,8 +473,8 @@ enum AuraType
     SPELL_AURA_413                                          = 413,
     SPELL_AURA_414                                          = 414,
     SPELL_AURA_415                                          = 415,
-    SPELL_AURA_416                                          = 416,
-    SPELL_AURA_417                                          = 417,
+    SPELL_AURA_MOD_COOLDOWN_BY_HASTE_EFFECTS                = 416,  // NYI
+    SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_EFFECTS         = 417,  // NYI
     SPELL_AURA_MOD_MAX_POWER                                = 418,  // NYI
     SPELL_AURA_MOD_BASE_MANA_PCT                            = 419,
     SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,  // NYI
