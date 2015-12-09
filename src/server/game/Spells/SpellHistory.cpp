@@ -696,7 +696,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
         {
             if (!itr->second.OnHold && !_spellCooldowns[itr->first].OnHold)
-                    _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
+                _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
         }
 
         // update the client: restore old cooldowns
