@@ -277,20 +277,21 @@ INSERT INTO `rbac_linked_permissions` VALUES
 # Special: Azeroth player
 INSERT INTO `rbac_linked_permissions` VALUES
 (100012,195), # inheriting from PLAYER ( it shouldn't be necessary but needed for research )
-(100012,442),  #Command: lookup
-(100012,443),  #Command: lookup area
-(100012,444),  #Command: lookup creature
-(100012,445),  #Command: lookup event
-(100012,446),  #Command: lookup faction
-(100012,447),  #Command: lookup item
-(100012,448),  #Command: lookup itemset
-(100012,449),  #Command: lookup object
-(100012,450),  #Command: lookup quest
-(100012,456),  #Command: lookup spell
-(100012,457),  #Command: lookup spell id
-(100012,458),  #Command: lookup taxinode
-(100012,460),  #Command: lookup title
-(100012,461),  #Command: lookup map
+(100012,309),  # Command: debug hostil
+(100012,442),  # Command: lookup
+(100012,443),  # Command: lookup area
+(100012,444),  # Command: lookup creature
+(100012,445),  # Command: lookup event
+(100012,446),  # Command: lookup faction
+(100012,447),  # Command: lookup item
+(100012,448),  # Command: lookup itemset
+(100012,449),  # Command: lookup object
+(100012,450),  # Command: lookup quest
+(100012,456),  # Command: lookup spell
+(100012,457),  # Command: lookup spell id
+(100012,458),  # Command: lookup taxinode
+(100012,460),  # Command: lookup title
+(100012,461),  # Command: lookup map
 (100012,718),  # Command: server
-(100012,1000), # command QC
+(100012,1000), # Command: qc
 (100012,736);  # Command: server motd
