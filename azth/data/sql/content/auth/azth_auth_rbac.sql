@@ -181,7 +181,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001, 244),    # Command: baninfo
 (100001, 521),    # Command: repairitems
 (100001, 711),    # Command: reset achievements
-(100001, 717),    # Command: reset all
 (100001, 712),    # Command: reset honor
 (100001, 713),    # Command: reset level
 (100001, 714),    # Command: reset spells
