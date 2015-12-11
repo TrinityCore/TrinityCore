@@ -21,7 +21,7 @@
 #
 
 # Set general custom permission
-UPDATE `rbac_linked_permissions` SET `id` = 195 WHERE `id` < 100000 IN (
+UPDATE `rbac_linked_permissions` SET `id` = 195 WHERE `id` < 100000 AND `linkedId` IN (
   25, # Allow say chat between factions
   26, # Allow channel chat between factions
   27, # Two side mail interaction
@@ -31,7 +31,7 @@ UPDATE `rbac_linked_permissions` SET `id` = 195 WHERE `id` < 100000 IN (
 );
 
 # Move to GM level 3 some dangerous commands
-UPDATE `rbac_linked_permissions` SET `id` = 192 WHERE `id` < 100000 IN (
+UPDATE `rbac_linked_permissions` SET `id` = 192 WHERE `id` < 100000 AND `linkedId` IN (
   772, # Command: wp unload
   771, # Command: wp modify
   770, # Command: wp load
@@ -95,7 +95,14 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 ('100011', 'Role: Test Player'),
 ('100012', 'Role: Azeroth Player'),
 ('100013', 'Role: Test GM'),
-('100014', 'Role: Master Test GM');
+('100014', 'Role: Master Test GM'),
+('200000', 'DISABLED COMMANDS');
+
+-- Disable dangerous commands
+UPDATE `rbac_linked_permissions` SET `id` = 200000 WHERE `id` < 100000 AND `linkedId` IN (
+  717    # Command: reset all
+);
+
 
 SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 
