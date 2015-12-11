@@ -20,12 +20,6 @@
 # EDIT DEFAULT PERMISSIONS
 #
 
-DELETE FROM `rbac_linked_permissions` WHERE `id` = 194 AND `linkedId` IN  (25,26,27,28,29);
-DELETE FROM `rbac_linked_permissions` WHERE `id` = 198 AND `linkedId` IN  (532,515,597,598,599,600);
-
-# QUERY TO CHECK IF THEY DIDN'T CHANGE PERMISSIONS:
-# SELECT * FROM rbac_linked_permissions WHERE id IN ( 25,26,27,28,29,51 );
-
 # Set general custom permission
 UPDATE `rbac_linked_permissions` SET `id` = 195 WHERE `id` < 100000 IN (
   25, # Allow say chat between factions
@@ -100,7 +94,8 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 ('100010', 'Role: Story Teller'),
 ('100011', 'Role: Test Player'),
 ('100012', 'Role: Azeroth Player'),
-('100013', 'Role: Test GM');
+('100013', 'Role: Test GM'),
+('100014', 'Role: Master Test GM');
 
 SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 
@@ -311,4 +306,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100013, 795),     # Command: instance setbossstate
 (100013, 796),     # Command: instance getbossstate
 (100013, 370),     # Command: event stop
-(100013, 369);     # Command: event start
+(100013, 369),     # Command: event start
+
+# [100014] Master Test GM
+(100014, 100013); # inheriting from Test GM
