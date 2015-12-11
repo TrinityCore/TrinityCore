@@ -102,7 +102,8 @@ SET FOREIGN_KEY_CHECKS=1; -- re-enable foreign key check
 # Add default permissions
 DELETE FROM `rbac_default_permissions` WHERE `permissionId` >= 100000;
 INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('0', '100011', 2); 
-INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('2', '100013', 2); 
+INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('1', '100013', 2); 
+INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`, `realmId`) VALUES ('2', '100014', 2); 
 INSERT INTO `rbac_default_permissions` (`secId`, `permissionId`) VALUES ('0', '100012'); 
 
 # Query to check current used permissions
