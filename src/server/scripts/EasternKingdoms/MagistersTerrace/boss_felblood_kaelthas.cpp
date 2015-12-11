@@ -542,7 +542,6 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 me->SetHealth(0);
                 me->StopMoving();
-                me->ClearComboPointHolders();
                 me->RemoveAllAurasOnDeath();
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);

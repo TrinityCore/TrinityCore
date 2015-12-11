@@ -1660,12 +1660,10 @@ class Player : public Unit, public GridObject<Player>
         void SetSelection(ObjectGuid const& guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
-        ObjectGuid GetComboTarget() const { return m_comboTarget; }
 
-        void AddComboPoints(Unit* target, int8 count, Spell* spell = nullptr);
+        void AddComboPoints(int8 count, Spell* spell = nullptr);
         void GainSpellComboPoints(int8 count);
         void ClearComboPoints();
-        void SendComboPoints();
 
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType item_guid = UI64LIT(0), uint32 item_count = 0) const;
         void SendNewMail() const;
@@ -2639,7 +2637,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ExtraFlags;
 
-        ObjectGuid m_comboTarget;
         int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;

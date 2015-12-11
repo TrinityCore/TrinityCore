@@ -2110,10 +2110,6 @@ class Unit : public WorldObject
 
         void SetControlled(bool apply, UnitState state);
 
-        void AddComboPointHolder(ObjectGuid lowguid) { m_ComboPointHolders.insert(lowguid); }
-        void RemoveComboPointHolder(ObjectGuid lowguid) { m_ComboPointHolders.erase(lowguid); }
-        void ClearComboPointHolders();
-
         ///----------Pet responses methods-----------------
         void SendPetActionFeedback (uint8 msg);
         void SendPetTalk (uint32 pettalk);
@@ -2338,8 +2334,6 @@ class Unit : public WorldObject
         HostileRefManager m_HostileRefManager;
 
         FollowerRefManager m_FollowingRefManager;
-
-        GuidSet m_ComboPointHolders;
 
         RedirectThreatInfo _redirectThreadInfo;
 
