@@ -18,51 +18,7 @@
 
 #include "Opcodes.h"
 #include "WorldSession.h"
-#include "Packets/AchievementPackets.h"
-#include "Packets/AuctionHousePackets.h"
-#include "Packets/BankPackets.h"
-#include "Packets/BattlefieldPackets.h"
-#include "Packets/BattlegroundPackets.h"
-#include "Packets/BattlePetPackets.h"
-#include "Packets/BlackMarketPackets.h"
-#include "Packets/CalendarPackets.h"
-#include "Packets/ChannelPackets.h"
-#include "Packets/CharacterPackets.h"
-#include "Packets/ChatPackets.h"
-#include "Packets/ClientConfigPackets.h"
-#include "Packets/CombatPackets.h"
-#include "Packets/DuelPackets.h"
-#include "Packets/EquipmentSetPackets.h"
-#include "Packets/GameObjectPackets.h"
-#include "Packets/GarrisonPackets.h"
-#include "Packets/GuildPackets.h"
-#include "Packets/GuildFinderPackets.h"
-#include "Packets/PartyPackets.h"
-#include "Packets/InspectPackets.h"
-#include "Packets/InstancePackets.h"
-#include "Packets/ItemPackets.h"
-#include "Packets/LootPackets.h"
-#include "Packets/MailPackets.h"
-#include "Packets/MiscPackets.h"
-#include "Packets/MovementPackets.h"
-#include "Packets/NPCPackets.h"
-#include "Packets/PetitionPackets.h"
-#include "Packets/QueryPackets.h"
-#include "Packets/QuestPackets.h"
-#include "Packets/ReferAFriendPackets.h"
-#include "Packets/ReputationPackets.h"
-#include "Packets/ScenePackets.h"
-#include "Packets/SocialPackets.h"
-#include "Packets/TalentPackets.h"
-#include "Packets/TaxiPackets.h"
-#include "Packets/TicketPackets.h"
-#include "Packets/TokenPackets.h"
-#include "Packets/TotemPackets.h"
-#include "Packets/ToyPackets.h"
-#include "Packets/TradePackets.h"
-#include "Packets/VehiclePackets.h"
-#include "Packets/VoidStoragePackets.h"
-#include "Packets/WhoPackets.h"
+#include "Packets/AllPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -717,7 +673,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SET_ACTIVE_MOVER,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Movement::SetActiveMover, &WorldSession::HandleSetActiveMoverOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_ACTIVE_VOICE_CHANNEL,                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleSetActiveVoiceChannel     );
     DEFINE_HANDLER(CMSG_SET_ADVANCED_COMBAT_LOGGING,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::ClientConfig::SetAdvancedCombatLogging, &WorldSession::HandleSetAdvancedCombatLogging);
-    DEFINE_HANDLER(CMSG_SET_ASSISTANT_LEADER,                               STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Party::SetAssistantLeader, &WorldSession::HandleSetAssistantLeaderOpcode);
+    DEFINE_HANDLER(CMSG_SET_ASSISTANT_LEADER,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::SetAssistantLeader, &WorldSession::HandleSetAssistantLeaderOpcode);
     DEFINE_HANDLER(CMSG_SET_BACKPACK_AUTOSORT_DISABLED,                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SET_BANK_AUTOSORT_DISABLED,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SET_BANK_BAG_SLOT_FLAG,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
