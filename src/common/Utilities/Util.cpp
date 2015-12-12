@@ -20,7 +20,7 @@
 #include "Common.h"
 #include "CompilerDefs.h"
 #include "utf8.h"
-#include "SFMT.h"
+#include "randutils.hpp"
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
 #include <boost/thread/tss.hpp>
@@ -32,59 +32,45 @@
   #include <arpa/inet.h>
 #endif
 
-static boost::thread_specific_ptr<SFMTRand> sfmtRand;
-
-static SFMTRand* GetRng()
-{
-    SFMTRand* rand = sfmtRand.get();
-
-    if (!rand)
-    {
-        rand = new SFMTRand();
-        sfmtRand.reset(rand);
-    }
-
-    return rand;
-}
+thread_local randutils::mt19937_rng rng;
 
 int32 irand(int32 min, int32 max)
 {
     ASSERT(max >= min);
-    return int32(GetRng()->IRandom(min, max));
+    return rng.uniform(min, max);
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
     ASSERT(max >= min);
-    return GetRng()->URandom(min, max);
+    return rng.uniform(min, max);
 }
 
 uint32 urandms(uint32 min, uint32 max)
 {
     ASSERT(max >= min);
-    ASSERT(INT_MAX/IN_MILLISECONDS >= max);
-    return GetRng()->URandom(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
+    return rng.uniform(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
 }
 
 float frand(float min, float max)
 {
     ASSERT(max >= min);
-    return float(GetRng()->Random() * (max - min) + min);
+    return rng.uniform(min, max);
 }
 
 uint32 rand32()
 {
-    return GetRng()->BRandom();
+    return rng.uniform(0u, std::numeric_limits<uint32>::max());
 }
 
 double rand_norm()
 {
-    return GetRng()->Random();
+    return rng.uniform(0.0, 1.0);
 }
 
 double rand_chance()
 {
-    return GetRng()->Random() * 100.0;
+    return rng.uniform(0.0, 100.0);
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
