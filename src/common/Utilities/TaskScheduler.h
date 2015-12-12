@@ -400,7 +400,6 @@ private:
         auto const milli_min = std::chrono::duration_cast<std::chrono::milliseconds>(min);
         auto const milli_max = std::chrono::duration_cast<std::chrono::milliseconds>(max);
 
-        // TC specific: use SFMT URandom
         return std::chrono::milliseconds(urand(milli_min.count(), milli_max.count()));
     }
 

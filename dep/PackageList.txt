@@ -24,10 +24,6 @@ jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
   Version: 3.6.0
 
-SFMT (SIMD-oriented Fast Mersenne Twister)
-  Based on http://agner.org/random/
-  Version: 2010-Aug-03
-
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
   Version: 2.3.4

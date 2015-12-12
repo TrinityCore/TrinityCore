@@ -20,9 +20,9 @@
 #include "Common.h"
 #include "CompilerDefs.h"
 #include "utf8.h"
-#include "SFMT.h"
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
+#include <random>
 #include <boost/thread/tss.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
@@ -32,59 +32,68 @@
   #include <arpa/inet.h>
 #endif
 
-static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+// TODO: Replace by thread_local once VS 2013 is no longer supported
+static boost::thread_specific_ptr<std::mt19937> mtRand;
 
-static SFMTRand* GetRng()
+static std::mt19937& GetRng()
 {
-    SFMTRand* rand = sfmtRand.get();
-
-    if (!rand)
+    if (!mtRand.get())
     {
-        rand = new SFMTRand();
-        sfmtRand.reset(rand);
+        std::array<int, std::mt19937::state_size> seed_data;
+        std::random_device r;
+        std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
+        std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+
+        mtRand.reset(new std::mt19937(seq));
     }
 
-    return rand;
+    return *mtRand;
 }
 
 int32 irand(int32 min, int32 max)
 {
     ASSERT(max >= min);
-    return int32(GetRng()->IRandom(min, max));
+
+    std::uniform_int_distribution<int32> dist(min, max);
+    return dist(GetRng());
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
     ASSERT(max >= min);
-    return GetRng()->URandom(min, max);
+
+    std::uniform_int_distribution<uint32> dist(min, max);
+    return dist(GetRng());
 }
 
 uint32 urandms(uint32 min, uint32 max)
 {
-    ASSERT(max >= min);
-    ASSERT(INT_MAX/IN_MILLISECONDS >= max);
-    return GetRng()->URandom(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
+    return urand(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
 }
 
 float frand(float min, float max)
 {
     ASSERT(max >= min);
-    return float(GetRng()->Random() * (max - min) + min);
+
+    std::uniform_real_distribution<float> dist(min, max);
+    return dist(GetRng());
 }
 
 uint32 rand32()
 {
-    return GetRng()->BRandom();
+    return urand(0u, std::numeric_limits<uint32>::max());
 }
 
 double rand_norm()
 {
-    return GetRng()->Random();
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    return dist(GetRng());
 }
 
 double rand_chance()
 {
-    return GetRng()->Random() * 100.0;
+    std::uniform_real_distribution<double> dist(0.0, 100.0);
+    return dist(GetRng());
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
