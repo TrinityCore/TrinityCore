@@ -20,10 +20,9 @@
 #include "Common.h"
 #include "CompilerDefs.h"
 #include "utf8.h"
-#include "randutils.hpp"
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
-#include <boost/thread/tss.hpp>
+#include <random>
 #include <boost/algorithm/string/case_conv.hpp>
 
 #if COMPILER == COMPILER_GNU
@@ -32,45 +31,61 @@
   #include <arpa/inet.h>
 #endif
 
-thread_local randutils::mt19937_rng rng;
+std::mt19937 init_rng()
+{
+    std::array<int, std::mt19937::state_size> seed_data;
+    std::random_device r;
+    std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
+    std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+    return std::mt19937(seq);
+}
+
+thread_local std::mt19937 rng = init_rng();
 
 int32 irand(int32 min, int32 max)
 {
     ASSERT(max >= min);
-    return rng.uniform(min, max);
+
+    std::uniform_int_distribution<int32> dist(min, max);
+    return dist(rng);
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
     ASSERT(max >= min);
-    return rng.uniform(min, max);
+
+    std::uniform_int_distribution<uint32> dist(min, max);
+    return dist(rng);
 }
 
 uint32 urandms(uint32 min, uint32 max)
 {
-    ASSERT(max >= min);
-    return rng.uniform(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
+    return urand(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
 }
 
 float frand(float min, float max)
 {
     ASSERT(max >= min);
-    return rng.uniform(min, max);
+
+    std::uniform_real_distribution<float> dist(min, max);
+    return dist(rng);
 }
 
 uint32 rand32()
 {
-    return rng.uniform(0u, std::numeric_limits<uint32>::max());
+    return urand(0u, std::numeric_limits<uint32>::max());
 }
 
 double rand_norm()
 {
-    return rng.uniform(0.0, 1.0);
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    return dist(rng);
 }
 
 double rand_chance()
 {
-    return rng.uniform(0.0, 100.0);
+    std::uniform_real_distribution<double> dist(0.0, 100.0);
+    return dist(rng);
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
