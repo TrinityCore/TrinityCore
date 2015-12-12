@@ -23,6 +23,7 @@
 #include "Errors.h" // for ASSERT
 #include <stdarg.h>
 #include <random>
+#include <boost/thread/tss.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
 #if COMPILER == COMPILER_GNU
@@ -31,23 +32,32 @@
   #include <arpa/inet.h>
 #endif
 
-std::mt19937 init_rng()
-{
-    std::array<int, std::mt19937::state_size> seed_data;
-    std::random_device r;
-    std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
-    std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-    return std::mt19937(seq);
-}
+// TODO: Replace by thread_local once VS 2013 is no longer supported
+static boost::thread_specific_ptr<std::mt19937> mtRand;
 
-thread_local std::mt19937 rng = init_rng();
+static std::mt19937* GetRng()
+{
+    std::mt19937* rand = mtRand.get();
+
+    if (!rand)
+    {
+        std::array<int, std::mt19937::state_size> seed_data;
+        std::random_device r;
+        std::generate_n(seed_data.data(), seed_data.size(), std::ref(r));
+        std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+
+        mtRand.reset(new std::mt19937(seq));
+    }
+
+    return rand;
+}
 
 int32 irand(int32 min, int32 max)
 {
     ASSERT(max >= min);
 
     std::uniform_int_distribution<int32> dist(min, max);
-    return dist(rng);
+    return dist(*mtRand);
 }
 
 uint32 urand(uint32 min, uint32 max)
@@ -55,7 +65,7 @@ uint32 urand(uint32 min, uint32 max)
     ASSERT(max >= min);
 
     std::uniform_int_distribution<uint32> dist(min, max);
-    return dist(rng);
+    return dist(*mtRand);
 }
 
 uint32 urandms(uint32 min, uint32 max)
@@ -68,7 +78,7 @@ float frand(float min, float max)
     ASSERT(max >= min);
 
     std::uniform_real_distribution<float> dist(min, max);
-    return dist(rng);
+    return dist(*mtRand);
 }
 
 uint32 rand32()
@@ -79,13 +89,13 @@ uint32 rand32()
 double rand_norm()
 {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
-    return dist(rng);
+    return dist(*mtRand);
 }
 
 double rand_chance()
 {
     std::uniform_real_distribution<double> dist(0.0, 100.0);
-    return dist(rng);
+    return dist(*mtRand);
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
