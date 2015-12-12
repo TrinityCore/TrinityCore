@@ -37,9 +37,7 @@ static boost::thread_specific_ptr<std::mt19937> mtRand;
 
 static std::mt19937& GetRng()
 {
-    std::mt19937* rand = mtRand.get();
-
-    if (!rand)
+    if (!mtRand.get())
     {
         std::array<int, std::mt19937::state_size> seed_data;
         std::random_device r;
@@ -49,7 +47,7 @@ static std::mt19937& GetRng()
         mtRand.reset(new std::mt19937(seq));
     }
 
-    return *rand;
+    return *mtRand;
 }
 
 int32 irand(int32 min, int32 max)
