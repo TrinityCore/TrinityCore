@@ -35,7 +35,7 @@
 // TODO: Replace by thread_local once VS 2013 is no longer supported
 static boost::thread_specific_ptr<std::mt19937> mtRand;
 
-static std::mt19937* GetRng()
+static std::mt19937& GetRng()
 {
     std::mt19937* rand = mtRand.get();
 
@@ -49,7 +49,7 @@ static std::mt19937* GetRng()
         mtRand.reset(new std::mt19937(seq));
     }
 
-    return rand;
+    return *rand;
 }
 
 int32 irand(int32 min, int32 max)
@@ -57,7 +57,7 @@ int32 irand(int32 min, int32 max)
     ASSERT(max >= min);
 
     std::uniform_int_distribution<int32> dist(min, max);
-    return dist(*mtRand);
+    return dist(GetRng());
 }
 
 uint32 urand(uint32 min, uint32 max)
@@ -65,7 +65,7 @@ uint32 urand(uint32 min, uint32 max)
     ASSERT(max >= min);
 
     std::uniform_int_distribution<uint32> dist(min, max);
-    return dist(*mtRand);
+    return dist(GetRng());
 }
 
 uint32 urandms(uint32 min, uint32 max)
@@ -78,7 +78,7 @@ float frand(float min, float max)
     ASSERT(max >= min);
 
     std::uniform_real_distribution<float> dist(min, max);
-    return dist(*mtRand);
+    return dist(GetRng());
 }
 
 uint32 rand32()
@@ -89,13 +89,13 @@ uint32 rand32()
 double rand_norm()
 {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
-    return dist(*mtRand);
+    return dist(GetRng());
 }
 
 double rand_chance()
 {
     std::uniform_real_distribution<double> dist(0.0, 100.0);
-    return dist(*mtRand);
+    return dist(GetRng());
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
