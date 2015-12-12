@@ -25,6 +25,7 @@
 #include "CombatAI.h"
 #include "Pet.h"
 #include "PetAI.h"
+#include "Cell.h"
 #include "GridNotifiers.h"
 
 enum MageSpells
@@ -107,10 +108,10 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 }
                 // Prioritize units with threat referenced to owner
                 if (highestThreat > 0.0f && highestThreatUnit)
-                        me->Attack(highestThreatUnit, false);
+					me->Attack(highestThreatUnit, false);
                 // If there is no such target, try to attack nearest hostile unit if such exists
                 else if (nearestPlayer)
-                        me->Attack(nearestPlayer, false);
+					me->Attack(nearestPlayer, false);
             }
 
             bool IsInThreatList(Unit* target)
