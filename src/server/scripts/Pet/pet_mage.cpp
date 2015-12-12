@@ -25,6 +25,7 @@
 #include "CombatAI.h"
 #include "Pet.h"
 #include "PetAI.h"
+#include "GridNotifiers.h"
 
 enum MageSpells
 {
