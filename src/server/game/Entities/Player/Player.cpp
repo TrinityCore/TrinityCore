@@ -152,8 +152,6 @@ Player::Player(WorldSession* session) : Unit(true)
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS))
         SetAcceptWhispers(true);
 
-    m_comboPoints = 0;
-
     m_regenTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
@@ -22041,7 +22039,7 @@ void Player::AddComboPoints(int8 count, Spell* spell)
     if (!count)
         return;
 
-    int8 * comboPoints = spell ? &spell->m_comboPointGain : &m_comboPoints;
+    int8 * comboPoints = spell ? &spell->m_comboPointGain : 0;
 
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
@@ -22053,8 +22051,10 @@ void Player::AddComboPoints(int8 count, Spell* spell)
     else if (*comboPoints < 0)
         *comboPoints = 0;
 
+    int8 cp = *comboPoints;
+
     if (!spell)
-        SetPower(POWER_COMBO_POINTS, m_comboPoints);
+        SetPower(POWER_COMBO_POINTS, cp);
 }
 
 void Player::GainSpellComboPoints(int8 count)
@@ -22062,11 +22062,13 @@ void Player::GainSpellComboPoints(int8 count)
     if (!count)
         return;
 
-    m_comboPoints += count;
-    if (m_comboPoints > 5) m_comboPoints = 5;
-    else if (m_comboPoints < 0) m_comboPoints = 0;
+    int8 cp = GetPower(POWER_COMBO_POINTS);
+    
+    cp += count;
+    if (cp > 5) cp = 5;
+    else if (cp < 0) cp = 0;
 
-    SetPower(POWER_COMBO_POINTS, m_comboPoints);
+    SetPower(POWER_COMBO_POINTS, cp);
 }
 
 void Player::ClearComboPoints()
@@ -22074,9 +22076,7 @@ void Player::ClearComboPoints()
     // without combopoints lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
-    m_comboPoints = 0;
-
-    SetPower(POWER_COMBO_POINTS, m_comboPoints);
+    SetPower(POWER_COMBO_POINTS, 0);
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)

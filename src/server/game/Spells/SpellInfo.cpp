@@ -557,7 +557,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
     {
         // bonus amount from combo points
         if (caster->m_movedPlayer && comboDamage)
-            if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
+            if (uint8 comboPoints = caster->m_movedPlayer->GetPower(POWER_COMBO_POINTS))
                 value += comboDamage * comboPoints;
 
         value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);

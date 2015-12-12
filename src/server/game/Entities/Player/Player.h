@@ -1659,8 +1659,6 @@ class Player : public Unit, public GridObject<Player>
         void SetTarget(ObjectGuid const& /*guid*/) override { } /// Used for serverside target changes, does not apply to players
         void SetSelection(ObjectGuid const& guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { return m_comboPoints; }
-
         void AddComboPoints(int8 count, Spell* spell = nullptr);
         void GainSpellComboPoints(int8 count);
         void ClearComboPoints();
@@ -2636,8 +2634,6 @@ class Player : public Unit, public GridObject<Player>
         bool m_itemUpdateQueueBlocked;
 
         uint32 m_ExtraFlags;
-
-        int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;
         QuestStatusSaveMap m_QuestStatusSave;
