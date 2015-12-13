@@ -25,6 +25,7 @@
 #endif
 #include "CascLib.h"
 #include <map>
+#include <string>
 
 #ifndef _WIN32
 int GetLastError();
