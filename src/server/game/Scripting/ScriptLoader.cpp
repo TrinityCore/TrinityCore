@@ -683,6 +683,11 @@ void AddSC_boss_slabhide();
 void AddSC_boss_ozruk();
 void AddSC_boss_high_priestess_azil();
 
+// Pandaria
+
+
+// Draenor
+
 // Events
 void AddSC_event_childrens_week();
 
@@ -721,6 +726,8 @@ void AddScripts()
     AddOutlandScripts();
     AddNorthrendScripts();
     AddMaelstromScripts();
+    AddPandariaScripts();
+    AddDraenorScripts();
     AddEventScripts();
     AddPetScripts();
     AddBattlegroundScripts();
@@ -1421,6 +1428,18 @@ void AddMaelstromScripts()
     AddSC_boss_slabhide();
     AddSC_boss_ozruk();
     AddSC_boss_high_priestess_azil();
+#endif
+}
+
+void AddPandariaScripts()
+{
+#ifdef SCRIPTS
+#endif
+}
+
+void AddDraenorScripts()
+{
+#ifdef SCRIPTS
 #endif
 }
 
