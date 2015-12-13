@@ -27,6 +27,8 @@ void AddKalimdorScripts();
 void AddOutlandScripts();
 void AddNorthrendScripts();
 void AddMaelstromScripts();
+void AddPandariaScripts();
+void AddDraenorScripts();
 void AddEventScripts();
 void AddPetScripts();
 void AddBattlegroundScripts();
