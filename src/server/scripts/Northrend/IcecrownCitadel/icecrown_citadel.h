@@ -116,6 +116,7 @@ enum DataTypes
     DATA_TERENAS_MENETHIL           = 39,
     DATA_ENEMY_GUNSHIP              = 40,
     DATA_UPPERSPIRE_TELE_ACT        = 41,
+    DATA_PUTRICIDE_TRAP             = 42
 };
 
 enum CreaturesIds
@@ -234,6 +235,7 @@ enum CreaturesIds
     NPC_TEAR_GAS_TARGET_STALKER                 = 38317,
     NPC_MUTATED_ABOMINATION_10                  = 37672,
     NPC_MUTATED_ABOMINATION_25                  = 38285,
+    NPC_PUTRICIDE_TRAP                          = 38879,
 
     // Blood Prince Council
     NPC_PRINCE_KELESETH                         = 37972,
