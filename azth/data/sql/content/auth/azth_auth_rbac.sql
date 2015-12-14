@@ -259,19 +259,21 @@ INSERT INTO `rbac_linked_permissions` VALUES
 ### TEST SERVER ROLES ###
 
 # Special: test realm player
-(100011, 195), # inheriting from PLAYER
-(100011, 291), # Command: cheat
-(100011, 294), # Command: cheat explore
-(100011, 298), # Command: cheat taxi
-(100011, 377), # Command: go
-(100011, 378), # Command: go creature
-(100011, 442), # Command: lookup
-(100011, 447), # Command: lookup item
-(100011, 488), # Command: additem
-(100011, 489), # Command: additemset
-(100011, 287), # Command: levelup
-(100011, 554), # Command: modify money ( dangerous )
-(100011, 737), # Command: tele
+(100011, 100012), # inheriting from Azeroth Player
+(100011, 291),    # Command: cheat
+(100011, 294),    # Command: cheat explore
+(100011, 298),    # Command: cheat taxi
+(100011, 377),    # Command: go
+(100011, 378),    # Command: go creature
+(100011, 442),    # Command: lookup
+(100011, 447),    # Command: lookup item
+(100011, 488),    # Command: additem
+(100011, 489),    # Command: additemset
+(100011, 287),    # Command: levelup
+(100011, 554),    # Command: modify money ( dangerous )
+(100011, 737),    # Command: tele
+(100011, 593),    # Command: npcinfo
+(100011, 796),    # Command: instance getbossstate
 
 # Special: test realm GM
 (100013, 193),     # inheriting from GM LVL 2
