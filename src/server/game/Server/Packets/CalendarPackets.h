@@ -542,6 +542,18 @@ namespace WorldPackets
             std::string Notes;
             bool ClearPending = false;
         };
+
+        class CalendarComplain final : public ClientPacket
+        {
+        public:
+            CalendarComplain(WorldPacket&& packet) : ClientPacket(CMSG_CALENDAR_COMPLAIN, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid InvitedByGUID;
+            uint64 InviteID = 0;
+            uint64 EventID = 0;
+        };
     }
 }
 
