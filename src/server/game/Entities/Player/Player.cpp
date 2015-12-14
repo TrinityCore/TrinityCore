@@ -22039,7 +22039,8 @@ void Player::AddComboPoints(int8 count, Spell* spell)
     if (!count)
         return;
 
-    int8 * comboPoints = spell ? &spell->m_comboPointGain : 0;
+    int8 cp = GetPower(POWER_COMBO_POINTS);
+    int8 *comboPoints = spell ? &spell->m_comboPointGain : &cp;
 
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
@@ -22050,8 +22051,6 @@ void Player::AddComboPoints(int8 count, Spell* spell)
         *comboPoints = 5;
     else if (*comboPoints < 0)
         *comboPoints = 0;
-
-    int8 cp = *comboPoints;
 
     if (!spell)
         SetPower(POWER_COMBO_POINTS, cp);
