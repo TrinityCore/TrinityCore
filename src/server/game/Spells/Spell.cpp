@@ -5553,7 +5553,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // check if caster has at least 1 combo point for spells that require combo points
     if (m_needComboPoints)
         if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetPower(POWER_COMBO_POINTS))
+            if (!plrCaster->GetComboPoints())
                 return SPELL_FAILED_NO_COMBO_POINTS;
 
     // all ok

@@ -718,7 +718,7 @@ class spell_dru_rip : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // 0.01 * $AP * cp
-                    uint8 cp = caster->ToPlayer()->GetPower(POWER_COMBO_POINTS);
+                    uint8 cp = caster->ToPlayer()->GetComboPoints();
 
                     // Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
                     if (AuraEffect const* auraEffIdolOfFeralShadows = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_FERAL_SHADOWS, EFFECT_0))

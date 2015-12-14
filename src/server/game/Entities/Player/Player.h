@@ -1660,6 +1660,7 @@ class Player : public Unit, public GridObject<Player>
         void SetTarget(ObjectGuid const& /*guid*/) override { } /// Used for serverside target changes, does not apply to players
         void SetSelection(ObjectGuid const& guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
+        uint8 GetComboPoints() const { return GetPower(POWER_COMBO_POINTS); }
         void AddComboPoints(int8 count, Spell* spell = nullptr);
         void GainSpellComboPoints(int8 count);
         void ClearComboPoints();

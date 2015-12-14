@@ -511,7 +511,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     if (Player* player = m_caster->ToPlayer())
                     {
                         // consume from stack dozes not more that have combo-points
-                        if (uint32 combo = player->GetPower(POWER_COMBO_POINTS))
+                        if (uint32 combo = player->GetComboPoints())
                         {
                             // Lookup for Deadly poison (only attacker applied)
                             if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00010000, 0, 0), m_caster->GetGUID()))
@@ -541,7 +541,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (Player* player = m_caster->ToPlayer())
                     {
-                        if (uint32 combo = player->GetPower(POWER_COMBO_POINTS))
+                        if (uint32 combo = player->GetComboPoints())
                         {
                             float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                             damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));

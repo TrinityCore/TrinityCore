@@ -661,7 +661,7 @@ class spell_rog_rupture : public SpellScriptLoader
                         0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 8} damage over 16 secs
                     };
 
-                    uint8 cp = caster->ToPlayer()->GetPower(POWER_COMBO_POINTS);
+                    uint8 cp = caster->ToPlayer()->GetComboPoints();
                     if (cp > 5)
                         cp = 5;
 
@@ -891,7 +891,7 @@ public:
         {
             if (AuraEffect* blade = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_ROGUE_SERRATED_BLADES_R1, EFFECT_0))
             {
-                uint8 combo = GetCaster()->ToPlayer()->GetPower(POWER_COMBO_POINTS);
+                uint8 combo = GetCaster()->ToPlayer()->GetComboPoints();
 
                 if (roll_chance_i(blade->GetAmount() * combo))
                     if (Aura* dot = GetHitUnit()->GetAura(SPELL_ROGUE_RUPTURE, GetCaster()->GetGUID()))
