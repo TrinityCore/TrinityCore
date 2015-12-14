@@ -159,6 +159,7 @@ namespace WorldPackets
         class CalendarRemoveInvite;
         class CalendarUpdateEvent;
         class SetSavedInstanceExtend;
+        class CalendarComplain;
     }
 
     namespace Character
@@ -1563,7 +1564,7 @@ class WorldSession
         void HandleCalendarEventRemoveInvite(WorldPackets::Calendar::CalendarRemoveInvite& calendarRemoveInvite);
         void HandleCalendarEventStatus(WorldPackets::Calendar::CalendarEventStatus& calendarEventStatus);
         void HandleCalendarEventModeratorStatus(WorldPackets::Calendar::CalendarEventModeratorStatus& calendarEventModeratorStatus);
-        void HandleCalendarComplain(WorldPacket& recvData);
+        void HandleCalendarComplain(WorldPackets::Calendar::CalendarComplain& calendarComplain);
         void HandleCalendarGetNumPending(WorldPackets::Calendar::CalendarGetNumPending& calendarGetNumPending);
         void HandleCalendarEventSignup(WorldPackets::Calendar::CalendarEventSignUp& calendarEventSignUp);
 
