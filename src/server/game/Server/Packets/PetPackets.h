@@ -104,6 +104,22 @@ namespace WorldPackets
 
             std::vector<uint32> spells;
         };
+
+        class ClientPetAction final : public ClientPacket
+        {
+        public:
+            ClientPetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_ACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+
+            uint32 Action = 0;
+            ObjectGuid TargetGUID;
+            float PositionX = 0;
+            float PositionY = 0;
+            float PositionZ = 0;
+        };
     }
 }
 

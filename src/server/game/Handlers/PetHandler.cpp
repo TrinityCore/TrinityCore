@@ -28,6 +28,7 @@
 #include "CreatureAI.h"
 #include "Util.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "World.h"
 #include "Group.h"
 #include "SpellHistory.h"
@@ -59,19 +60,17 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetAction(WorldPacket& recvData)
+void WorldSession::HandlePetAction(WorldPackets::Pet::ClientPetAction packet)
 {
-    ObjectGuid guid1;
-    uint32 data;
-    ObjectGuid guid2;
-    float x, y, z;
-    recvData >> guid1;                                     //pet guid
-    recvData >> data;
-    recvData >> guid2;                                     //tag guid
+    ObjectGuid guid1 = packet.PetGUID;         //pet guid
+    ObjectGuid guid2 = packet.TargetGUID;      //tag guid
+
+    uint32 data = packet.Action;
+
     // Position
-    recvData >> x;
-    recvData >> y;
-    recvData >> z;
+    float x = packet.PositionX;
+    float y = packet.PositionY;
+    float z = packet.PositionZ;
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1

@@ -472,6 +472,11 @@ namespace WorldPackets
         class ClearRaidMarker;
     }
 
+    namespace Pet
+    {
+        class ClientPetAction;
+    }
+
     namespace Petition
     {
         class DeclinePetition;
@@ -1431,7 +1436,7 @@ class WorldSession
         void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
 
         //Pet
-        void HandlePetAction(WorldPacket& recvData);
+        void HandlePetAction(WorldPackets::Pet::ClientPetAction packet);
         void HandlePetStopAttack(WorldPacket& recvData);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);

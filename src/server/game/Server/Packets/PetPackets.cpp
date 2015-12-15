@@ -90,3 +90,15 @@ WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
         _worldPacket << int32(spell);
     return &_worldPacket;
 }
+
+void WorldPackets::Pet::ClientPetAction::Read()
+{
+    _worldPacket >> PetGUID;
+    
+    _worldPacket >> Action;
+    _worldPacket >> TargetGUID;
+    
+    _worldPacket >> PositionX;
+    _worldPacket >> PositionY;
+    _worldPacket >> PositionZ;
+}
