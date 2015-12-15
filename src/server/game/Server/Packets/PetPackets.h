@@ -120,6 +120,29 @@ namespace WorldPackets
             float PositionY = 0;
             float PositionZ = 0;
         };
+
+        class PetStopAttack final : public ClientPacket
+        {
+        public:
+            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+        };
+
+        class PetSetAction final : public ClientPacket
+        {
+        public:
+            PetSetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+
+            uint32 Index;
+            uint32 Action;
+        };
     }
 }
 

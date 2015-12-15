@@ -102,3 +102,16 @@ void WorldPackets::Pets::ClientPetAction::Read()
     _worldPacket >> PositionY;
     _worldPacket >> PositionZ;
 }
+
+void WorldPackets::Pets::PetStopAttack::Read()
+{
+    _worldPacket >> PetGUID;
+}
+
+void WorldPackets::Pets::PetSetAction::Read()
+{
+    _worldPacket >> PetGUID;
+
+    _worldPacket >> Index;
+    _worldPacket >> Action;
+}
