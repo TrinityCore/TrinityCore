@@ -19875,9 +19875,8 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (pet->isControlled())
     {
-        WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-        data << uint64(0);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Pet::PetSpells petSpellsPacket;
+        GetSession()->SendPacket(petSpellsPacket.Write());
 
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
@@ -20068,20 +20067,16 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
-    data << charm->GetGUID();
-    data << uint16(0);
-    data << uint32(0);
-    data << uint32(0);
+    WorldPackets::Pet::PetSpells petSpellsPacket;
+    petSpellsPacket.PetGUID = charm->GetGUID();
 
-    charmInfo->BuildActionBar(&data);
-
-    data << uint8(0);                                       // spells count
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        petSpellsPacket.ActionButtons[i] = charmInfo->GetActionBarEntry(i)->packedData;
 
     // Cooldowns
-    //charm->GetSpellHistory()->WritePacket(&petSpells);
+    charm->GetSpellHistory()->WritePacket(&petSpellsPacket);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(petSpellsPacket.Write());
 }
 
 void Player::VehicleSpellInitialize()
@@ -20193,9 +20188,8 @@ void Player::CharmSpellInitialize()
 
 void Player::SendRemoveControlBar() const
 {
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-    data << uint64(0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Pet::PetSpells packet;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell) const

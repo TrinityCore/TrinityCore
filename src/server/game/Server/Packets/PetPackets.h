@@ -54,7 +54,7 @@ namespace WorldPackets
             int32 TimeLimit = 0;
             uint8 ReactState = 0;
             uint8 CommandState = 0;
-            uint8 Flag = 0;
+            uint16 Flag = 0;
 
             uint32 ActionButtons[10];
 
