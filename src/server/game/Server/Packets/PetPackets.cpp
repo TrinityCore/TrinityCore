@@ -17,7 +17,7 @@
 
 #include "PetPackets.h"
 
-WorldPacket const* WorldPackets::Pet::PetSpells::Write()
+WorldPacket const* WorldPackets::Pets::PetSpells::Write()
 {
     _worldPacket << PetGUID;
     _worldPacket << int16(CreatureFamily);
@@ -54,7 +54,7 @@ WorldPacket const* WorldPackets::Pet::PetSpells::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pet::PetStableList::Write()
+WorldPacket const* WorldPackets::Pets::PetStableList::Write()
 {
     _worldPacket << StableMaster;
 
@@ -75,7 +75,7 @@ WorldPacket const* WorldPackets::Pet::PetStableList::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pet::PetLearnedSpells::Write()
+WorldPacket const* WorldPackets::Pets::PetLearnedSpells::Write()
 {
     _worldPacket << uint32(spells.size());
     for (uint32 spell : spells)
@@ -83,7 +83,7 @@ WorldPacket const* WorldPackets::Pet::PetLearnedSpells::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
+WorldPacket const* WorldPackets::Pets::PetUnlearnedSpells::Write()
 {
     _worldPacket << uint32(spells.size());
     for (uint32 spell : spells)
@@ -91,7 +91,7 @@ WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Pet::ClientPetAction::Read()
+void WorldPackets::Pets::ClientPetAction::Read()
 {
     _worldPacket >> PetGUID;
     

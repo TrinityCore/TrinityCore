@@ -556,7 +556,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_PETITION_SHOW_LIST,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionShowList, &WorldSession::HandlePetitionShowList);
     DEFINE_HANDLER(CMSG_PETITION_SHOW_SIGNATURES,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionShowSignatures, &WorldSession::HandlePetitionShowSignatures);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ABANDON,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                );
-    DEFINE_HANDLER(CMSG_PET_ACTION,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Pet::ClientPetAction, &WorldSession::HandlePetAction                 );
+    DEFINE_HANDLER(CMSG_PET_ACTION,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Pets::ClientPetAction, &WorldSession::HandlePetAction);
     DEFINE_HANDLER(CMSG_PET_BATTLE_FINAL_NOTIFY,                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_BATTLE_INPUT,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH_RESULT,              STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);

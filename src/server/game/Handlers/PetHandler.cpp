@@ -60,7 +60,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetAction(WorldPackets::Pet::ClientPetAction packet)
+void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
 {
     ObjectGuid guid1 = packet.PetGUID;         //pet guid
     ObjectGuid guid2 = packet.TargetGUID;      //tag guid

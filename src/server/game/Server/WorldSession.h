@@ -472,7 +472,7 @@ namespace WorldPackets
         class ClearRaidMarker;
     }
 
-    namespace Pet
+    namespace Pets
     {
         class ClientPetAction;
     }
@@ -1436,7 +1436,7 @@ class WorldSession
         void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
 
         //Pet
-        void HandlePetAction(WorldPackets::Pet::ClientPetAction packet);
+        void HandlePetAction(WorldPackets::Pets::ClientPetAction& packet);
         void HandlePetStopAttack(WorldPacket& recvData);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);

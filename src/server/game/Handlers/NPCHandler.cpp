@@ -504,7 +504,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     if (!GetPlayer())
         return;
 
-    WorldPackets::Pet::PetStableList packet;
+    WorldPackets::Pets::PetStableList packet;
 
     packet.StableMaster = guid;
 
@@ -514,7 +514,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     // not let move dead pet in slot
     if (pet && pet->IsAlive() && pet->getPetType() == HUNTER_PET)
     {
-        WorldPackets::Pet::PetStableInfo stableEntry;
+        WorldPackets::Pets::PetStableInfo stableEntry;
         stableEntry.PetSlot = petSlot;
         stableEntry.PetNumber = pet->GetCharmInfo()->GetPetNumber();
         stableEntry.CreatureID = pet->GetEntry();
@@ -532,7 +532,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
         do
         {
             Field* fields = result->Fetch();
-            WorldPackets::Pet::PetStableInfo stableEntry;
+            WorldPackets::Pets::PetStableInfo stableEntry;
 
             stableEntry.PetSlot = petSlot;
             stableEntry.PetNumber = fields[1].GetUInt32();          // petnumber
