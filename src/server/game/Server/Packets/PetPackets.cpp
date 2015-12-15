@@ -53,3 +53,40 @@ WorldPacket const* WorldPackets::Pet::PetSpells::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetStableList::Write()
+{
+    _worldPacket << StableMaster;
+
+    _worldPacket << pets.size();
+    for (PetStableInfo pet : pets)
+    {
+        _worldPacket << int32(pet.PetSlot);
+        _worldPacket << int32(pet.PetNumber);
+        _worldPacket << int32(pet.CreatureID);
+        _worldPacket << int32(pet.DisplayID);
+        _worldPacket << int32(pet.ExperienceLevel);
+        _worldPacket << int32(pet.PetFlags);
+
+        _worldPacket << int8(pet.PetName.length());
+        _worldPacket << pet.PetName;
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetLearnedSpells::Write()
+{
+    _worldPacket << uint32(spells.size());
+    for (uint32 spell : spells)
+        _worldPacket << int32(spell);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
+{
+    _worldPacket << uint32(spells.size());
+    for (uint32 spell : spells)
+        _worldPacket << int32(spell);
+    return &_worldPacket;
+}

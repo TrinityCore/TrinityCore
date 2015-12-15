@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -1427,9 +1428,9 @@ bool Pet::learnSpell(uint32 spell_id)
 
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
-        data << uint32(spell_id);
-        GetOwner()->GetSession()->SendPacket(&data);
+        WorldPackets::Pet::PetLearnedSpells packet;
+        packet.spells.push_back(spell_id);
+        GetOwner()->GetSession()->SendPacket(packet.Write());
         GetOwner()->PetSpellInitialize();
     }
     return true;
@@ -1478,9 +1479,9 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
-            data << uint32(spell_id);
-            GetOwner()->GetSession()->SendPacket(&data);
+            WorldPackets::Pet::PetUnlearnedSpells packet;
+            packet.spells.push_back(spell_id);
+            GetOwner()->GetSession()->SendPacket(packet.Write());
         }
         return true;
     }

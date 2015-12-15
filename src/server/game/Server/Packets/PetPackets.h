@@ -62,6 +62,48 @@ namespace WorldPackets
             std::vector<PetSpellCooldown> Cooldowns;
             std::vector<PetSpellHistory> SpellHistory;
         };
+
+        struct PetStableInfo
+        {
+            int32 PetSlot = 0;
+            int32 PetNumber = 0;
+            int32 CreatureID = 0;
+            int32 DisplayID = 0;
+            int32 ExperienceLevel = 0;
+            int32 PetFlags = 0;
+            std::string PetName;
+        };
+
+        class PetStableList final : public ServerPacket
+        {
+        public:
+            PetStableList() : ServerPacket(SMSG_PET_STABLE_LIST, 0) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid StableMaster;
+            std::vector<PetStableInfo> pets;
+        };
+
+        class PetLearnedSpells final : public ServerPacket
+        {
+        public:
+            PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELLS, 0) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<uint32> spells;
+        };
+
+        class PetUnlearnedSpells final : public ServerPacket
+        {
+        public:
+            PetUnlearnedSpells() : ServerPacket(SMSG_PET_UNLEARNED_SPELLS, 0) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<uint32> spells;
+        };
     }
 }
 
