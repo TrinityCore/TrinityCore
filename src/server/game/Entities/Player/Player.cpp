@@ -5837,8 +5837,6 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
     uint8 plevel = getLevel();                              // if defense than victim == attacker
     uint8 greylevel = Trinity::XP::GetGrayLevel(plevel);
     uint8 moblevel = victim->getLevelForTarget(this);
-    if (moblevel < greylevel)
-        return;
 
     if (moblevel > plevel + 5)
         moblevel = plevel + 5;
