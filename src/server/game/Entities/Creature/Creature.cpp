@@ -103,6 +103,48 @@ int32 CreatureTemplate::GetFirstValidModelId() const
     return 0;
 }
 
+uint32 CreatureTemplate::GetFirstInvisibleModel() const
+{
+    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid1));
+    if (modelInfo && modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid1);
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid2));
+    if (modelInfo && modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid2);
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid3));
+    if (modelInfo && modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid3);
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid4));
+    if (modelInfo && modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid4);
+
+    return 11686;
+}
+
+uint32 CreatureTemplate::GetFirstVisibleModel() const
+{
+    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid1));
+    if (modelInfo && !modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid1);
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid2));
+    if (modelInfo && !modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid2);
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid3));
+    if (modelInfo && !modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid3);
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(sObjectMgr->GetCreatureDisplay(Modelid4));
+    if (modelInfo && !modelInfo->is_trigger)
+        return sObjectMgr->GetCreatureDisplay(Modelid4);
+
+    return 17519;
+}
+
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     if (Unit* victim = ObjectAccessor::GetUnit(m_owner, m_victim))
