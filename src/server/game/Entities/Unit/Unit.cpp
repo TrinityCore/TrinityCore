@@ -13712,6 +13712,9 @@ void Unit::UpdateCharmAI()
                     delete i_AI;
                     i_AI = i_disabledAI;
                     i_disabledAI = nullptr;
+
+            if (GetTypeId() == TYPEID_UNIT)
+                ToCreature()->AI()->OnCharmed(false);
                 }
             }
             else
