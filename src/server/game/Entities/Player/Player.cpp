@@ -1538,6 +1538,7 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
 }
 
 void Player::setDeathState(DeathState s)
@@ -2150,6 +2151,17 @@ void Player::RemoveFromWorld()
             SetViewpoint(viewpoint, false);
         }
     }
+}
+
+bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
+{
+    // players are immune to taunt (the aura and the spell effect)
+    if (spellInfo->Effects[index].IsAura(SPELL_AURA_MOD_TAUNT))
+        return true;
+    if (spellInfo->Effects[index].IsEffect(SPELL_EFFECT_ATTACK_ME))
+        return true;
+
+    return Unit::IsImmunedToSpellEffect(spellInfo, index);
 }
 
 void Player::RegenerateAll()
@@ -5828,8 +5840,6 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
     uint8 plevel = getLevel();                              // if defense than victim == attacker
     uint8 greylevel = Trinity::XP::GetGrayLevel(plevel);
     uint8 moblevel = victim->getLevelForTarget(this);
-    if (moblevel < greylevel)
-        return;
 
     if (moblevel > plevel + 5)
         moblevel = plevel + 5;
