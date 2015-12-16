@@ -268,7 +268,6 @@ class boss_deathbringer_saurfang : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetReactState(REACT_DEFENSIVE);
                 events.SetPhase(PHASE_COMBAT);
                 Initialize();
                 me->SetPower(POWER_ENERGY, 0);
