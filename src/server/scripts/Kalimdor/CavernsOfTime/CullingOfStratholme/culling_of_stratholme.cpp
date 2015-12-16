@@ -817,7 +817,7 @@ public:
                                 cityman1->AI()->Talk(SAY_PHASE204);
                                 cityman1->SetTarget(me->GetGUID());
                                 if (Creature* cityman0 = ObjectAccessor::GetCreature(*me, citymenGUID[0]))
-                                    cityman0->Kill(cityman0);
+                                    cityman0->KillSelf();
                                 me->SetTarget(citymenGUID[1]);
                             }
                             JumpToNextStep(0);
@@ -829,7 +829,7 @@ public:
                             break;
                         case 33:
                             if (Creature* cityman1 = ObjectAccessor::GetCreature(*me, citymenGUID[1]))
-                                cityman1->Kill(cityman1);
+                                cityman1->KillSelf();
                             JumpToNextStep(1000);
                             break;
                         case 34:

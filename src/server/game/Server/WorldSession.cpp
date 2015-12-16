@@ -858,9 +858,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_PITCH_UP   (0x840)
         // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_PITCH_DOWN (0x880)
         // If none of these are true, clear the root
-        if (mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN))
-            REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-                MOVEMENTFLAG_MASK_MOVING);
+        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN),
+            MOVEMENTFLAG_MASK_MOVING);
     }
     else
     {

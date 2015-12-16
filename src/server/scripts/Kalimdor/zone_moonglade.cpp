@@ -108,64 +108,6 @@ public:
 };
 
 /*######
-## npc_great_bear_spirit
-######*/
-
-#define GOSSIP_BEAR1 "What do you represent, spirit?"
-#define GOSSIP_BEAR2 "I seek to understand the importance of strength of the body."
-#define GOSSIP_BEAR3 "I seek to understand the importance of strength of the heart."
-#define GOSSIP_BEAR4 "I have heard your words, Great Bear Spirit, and I understand. I now seek your blessings to fully learn the way of the Claw."
-
-class npc_great_bear_spirit : public CreatureScript
-{
-public:
-    npc_great_bear_spirit() : CreatureScript("npc_great_bear_spirit") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(4721, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(4733, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(4734, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                player->SEND_GOSSIP_MENU(4735, creature->GetGUID());
-                if (player->GetQuestStatus(5929) == QUEST_STATUS_INCOMPLETE)
-                    player->AreaExploredOrEventHappens(5929);
-                if (player->GetQuestStatus(5930) == QUEST_STATUS_INCOMPLETE)
-                    player->AreaExploredOrEventHappens(5930);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        //ally or horde quest
-        if (player->GetQuestStatus(5929) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(5930) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            player->SEND_GOSSIP_MENU(4719, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(4718, creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
 ## npc_silva_filnaveth
 ######*/
 
@@ -712,7 +654,6 @@ public:
 void AddSC_moonglade()
 {
     new npc_bunthen_plainswind();
-    new npc_great_bear_spirit();
     new npc_silva_filnaveth();
     new npc_clintar_spirit();
     new npc_omen();
