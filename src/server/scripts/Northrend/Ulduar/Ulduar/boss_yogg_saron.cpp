@@ -2423,7 +2423,7 @@ class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
             {
                 if (Unit* vehicle = GetTarget()->GetVehicleBase())
                     if (vehicle->IsAlive())
-                        vehicle->Kill(vehicle); // should tentacle die or just release its target?
+                        vehicle->KillSelf(); // should tentacle die or just release its target?
             }
 
             void Register() override
@@ -2905,7 +2905,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsAlive())
-                    GetTarget()->Kill(GetTarget());
+                    GetTarget()->KillSelf();
             }
 
             void Register() override

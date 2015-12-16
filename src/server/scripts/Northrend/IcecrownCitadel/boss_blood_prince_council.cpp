@@ -136,11 +136,12 @@ enum Events
 
 enum Actions
 {
-    ACTION_STAND_UP             = 1,
-    ACTION_CAST_INVOCATION      = 2,
-    ACTION_REMOVE_INVOCATION    = 3,
-    ACTION_KINETIC_BOMB_JUMP    = 4,
-    ACTION_FLAME_BALL_CHASE     = 5,
+    ACTION_START_INTRO          = 1,
+    ACTION_STAND_UP             = 2,
+    ACTION_CAST_INVOCATION      = 3,
+    ACTION_REMOVE_INVOCATION    = 4,
+    ACTION_KINETIC_BOMB_JUMP    = 5,
+    ACTION_FLAME_BALL_CHASE     = 6,
 };
 
 enum Points
@@ -162,6 +163,7 @@ class StandUpEvent : public BasicEvent
         bool Execute(uint64 /*eventTime*/, uint32 /*diff*/)
         {
             _owner.HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+            _owner.SetReactState(REACT_AGGRESSIVE);
             return true;
         }
 
@@ -382,8 +384,6 @@ class boss_prince_keleseth_icc : public CreatureScript
 
                 if (!me->isDead())
                     JustRespawned();
-
-                me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset() override
@@ -395,7 +395,6 @@ class boss_prince_keleseth_icc : public CreatureScript
                 _isEmpowered = false;
                 me->SetHealth(_spawnHealth);
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
-                me->SetReactState(REACT_DEFENSIVE);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -597,8 +596,6 @@ class boss_prince_taldaram_icc : public CreatureScript
 
                 if (!me->isDead())
                     JustRespawned();
-
-                me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset() override
@@ -610,12 +607,6 @@ class boss_prince_taldaram_icc : public CreatureScript
                 _isEmpowered = false;
                 me->SetHealth(_spawnHealth);
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
-                me->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/) override
-
-            {
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -821,8 +812,6 @@ class boss_prince_valanar_icc : public CreatureScript
 
                 if (!me->isDead())
                     JustRespawned();
-
-                me->SetReactState(REACT_DEFENSIVE);
             }
 
             void Reset() override
@@ -834,12 +823,6 @@ class boss_prince_valanar_icc : public CreatureScript
                 _isEmpowered = false;
                 me->SetHealth(me->GetMaxHealth());
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
-                me->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/) override
-
-            {
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -905,6 +888,7 @@ class boss_prince_valanar_icc : public CreatureScript
                     default:
                         break;
                 }
+
                 summons.Summon(summon);
                 if (me->IsInCombat())
                     DoZoneInCombat(summon);
@@ -1070,25 +1054,28 @@ class npc_blood_queen_lana_thel : public CreatureScript
                     me->SetVisible(true);
             }
 
-            void MoveInLineOfSight(Unit* who) override
-
+            void DoAction(int32 action) override
             {
-                if (_introDone)
-                    return;
-
-                if (!me->IsWithinDistInMap(who, 35.0f, false))
-                    return;
-
-                _introDone = true;
-                Talk(SAY_INTRO_1);
-                _events.SetPhase(1);
-                _events.ScheduleEvent(EVENT_INTRO_1, 14000);
-                // summon a visual trigger
-                if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
+                switch (action)
                 {
-                    summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
-                    summon->SetSpeed(MOVE_FLIGHT, 0.15f, true);
-                    summon->GetMotionMaster()->MovePoint(0, triggerEndPos);
+                    case ACTION_START_INTRO:
+                        if (!_introDone)
+                        {
+                            _introDone = true;
+                            Talk(SAY_INTRO_1);
+                            _events.SetPhase(1);
+                            _events.ScheduleEvent(EVENT_INTRO_1, 14000);
+                            // summon a visual trigger
+                            if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
+                            {
+                                summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
+                                summon->SetSpeed(MOVE_FLIGHT, 0.15f, true); // todo: creature is swimming, check if this is blizzlike or not.
+                                summon->GetMotionMaster()->MovePoint(0, triggerEndPos);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -1328,7 +1315,6 @@ class npc_dark_nucleus : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 ScriptedAI::MoveInLineOfSight(who);
             }
@@ -1670,6 +1656,21 @@ class spell_blood_council_shadow_prison_damage : public SpellScriptLoader
         }
 };
 
+class at_blood_prince_council_start_intro : public AreaTriggerScript
+{
+    public:
+        at_blood_prince_council_start_intro() : AreaTriggerScript("at_blood_prince_council_start_intro") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* bloodQueen = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL)))
+                    bloodQueen->AI()->DoAction(ACTION_START_INTRO);
+
+            return true;
+        }
+};
+
 void AddSC_boss_blood_prince_council()
 {
     new boss_blood_council_controller();
@@ -1689,4 +1690,5 @@ void AddSC_boss_blood_prince_council()
     new spell_valanar_kinetic_bomb_absorb();
     new spell_blood_council_shadow_prison();
     new spell_blood_council_shadow_prison_damage();
+    new at_blood_prince_council_start_intro();
 }
