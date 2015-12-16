@@ -295,7 +295,7 @@ public:
             {
                 Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]);
                 if (axe && axe->IsAlive())
-                    axe->Kill(axe);
+                    axe->KillSelf();
                 axes[i].Clear();
             }
         }
