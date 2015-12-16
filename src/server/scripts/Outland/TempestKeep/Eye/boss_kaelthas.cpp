@@ -1286,7 +1286,7 @@ class npc_kael_flamestrike : public CreatureScript
                         DoCast(me, SPELL_FLAME_STRIKE_DMG);
                     }
                     else
-                        me->Kill(me);
+                        me->KillSelf();
 
                     KillSelf = true;
                     Timer = 1000;

@@ -168,11 +168,6 @@ class boss_rotface : public CreatureScript
                     Talk(SAY_SLIME_SPRAY);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/) override
-            {
-                // don't enter combat
-            }
-
             void JustSummoned(Creature* summon) override
             {
                 if (summon->GetEntry() == NPC_VILE_GAS_STALKER)
