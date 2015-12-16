@@ -121,7 +121,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                             {
                                 Creature* add = instance->GetCreature(guid);
                                 if (add && add->IsAlive())
-                                    add->Kill(add);
+                                    add->KillSelf();
                             }
                             HorsemanAdds.clear();
                             HandleGameObject(PumpkinShrineGUID, false);

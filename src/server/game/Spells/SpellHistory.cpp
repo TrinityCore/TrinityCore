@@ -695,9 +695,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         // check for spell with onHold active before and during the duel
         for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
         {
-            if (!itr->second.OnHold &&
-                _spellCooldowns.find(itr->first) != _spellCooldowns.end() &&
-                !_spellCooldowns[itr->first].OnHold)
+            if (!itr->second.OnHold && !_spellCooldowns[itr->first].OnHold)
                 _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
         }
 

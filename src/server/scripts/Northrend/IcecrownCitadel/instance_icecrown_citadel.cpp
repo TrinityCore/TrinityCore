@@ -173,6 +173,12 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
+                    case NPC_LORD_MARROWGAR:
+                        LordMarrowgarGUID = creature->GetGUID();
+                        break;
+                    case NPC_LADY_DEATHWHISPER:
+                        LadyDeahtwhisperGUID = creature->GetGUID();
+                        break;
                     case NPC_KOR_KRON_GENERAL:
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALLIANCE_COMMANDER);
@@ -248,6 +254,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_BLOOD_ORB_CONTROLLER:
                         BloodCouncilControllerGUID = creature->GetGUID();
+                        break;
+                    case NPC_BLOOD_QUEEN_LANA_THEL_COUNCIL:
+                        BloodQueenLanaThelCouncilGUID = creature->GetGUID();
                         break;
                     case NPC_BLOOD_QUEEN_LANA_THEL:
                         BloodQueenLanaThelGUID = creature->GetGUID();
@@ -712,6 +721,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
+                    case DATA_LORD_MARROWGAR:
+                        return LordMarrowgarGUID;
+                    case DATA_LADY_DEATHWHISPER:
+                        return LadyDeahtwhisperGUID;
                     case DATA_ICECROWN_GUNSHIP_BATTLE:
                         return GunshipGUID;
                     case DATA_ENEMY_GUNSHIP:
@@ -738,6 +751,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return BloodCouncilGUIDs[2];
                     case DATA_BLOOD_PRINCES_CONTROL:
                         return BloodCouncilControllerGUID;
+                    case DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL:
+                        return BloodQueenLanaThelCouncilGUID;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         return BloodQueenLanaThelGUID;
                     case DATA_CROK_SCOURGEBANE:
@@ -1425,6 +1440,8 @@ class instance_icecrown_citadel : public InstanceMapScript
 
         protected:
             EventMap Events;
+            ObjectGuid LordMarrowgarGUID;
+            ObjectGuid LadyDeahtwhisperGUID;
             ObjectGuid LadyDeathwisperElevatorGUID;
             ObjectGuid GunshipGUID;
             ObjectGuid EnemyGunshipGUID;
@@ -1452,6 +1469,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             ObjectGuid PutricideTableGUID;
             ObjectGuid BloodCouncilGUIDs[3];
             ObjectGuid BloodCouncilControllerGUID;
+            ObjectGuid BloodQueenLanaThelCouncilGUID;
             ObjectGuid BloodQueenLanaThelGUID;
             ObjectGuid CrokScourgebaneGUID;
             ObjectGuid CrokCaptainGUIDs[4];

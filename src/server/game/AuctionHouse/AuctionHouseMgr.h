@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include <set>
 
 class Item;
 class Player;
@@ -82,6 +83,7 @@ struct AuctionEntry
     time_t expire_time;
     ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
+    uint32 etime;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
 
     // helpers
@@ -151,6 +153,8 @@ class AuctionHouseMgr
         }
 
         typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
+        typedef std::vector<AuctionEntry*> PlayerAuctions;
+        typedef std::pair<PlayerAuctions*, uint32> AuctionPair;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetAuctionsMapByHouseId(uint8 auctionHouseId);
@@ -184,7 +188,10 @@ class AuctionHouseMgr
 
         void AddAItem(Item* it);
         bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false);
-
+        void PendingAuctionAdd(Player* player, AuctionEntry* aEntry);
+        uint32 PendingAuctionCount(const Player* player) const;
+        void PendingAuctionProcess(Player* player);
+        void UpdatePendingAuctions();
         void Update();
 
     private:
@@ -192,6 +199,8 @@ class AuctionHouseMgr
         AuctionHouseObject mHordeAuctions;
         AuctionHouseObject mAllianceAuctions;
         AuctionHouseObject mNeutralAuctions;
+
+        std::map<ObjectGuid, AuctionPair> pendingAuctionMap;
 
         ItemMap mAitems;
 };

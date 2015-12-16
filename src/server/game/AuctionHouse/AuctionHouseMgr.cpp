@@ -83,12 +83,23 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
 
     float multiplier = CalculatePct(float(entry->depositPercent), 3);
     uint32 timeHr = (((time / 60) / 60) / 12);
-    uint32 deposit = uint32(((multiplier * MSV * count / 3) * timeHr * 3) * sWorld->getRate(RATE_AUCTION_DEPOSIT));
+    uint32 deposit = uint32(MSV * multiplier * sWorld->getRate(RATE_AUCTION_DEPOSIT));
+    float remainderbase = float(MSV * multiplier * sWorld->getRate(RATE_AUCTION_DEPOSIT)) - deposit;
+
+    deposit *= timeHr * count;
+
+    int i = count;
+    while (i > 0 && (remainderbase * i) != uint32(remainderbase * i))
+        i--;
+
+    if (i)
+        deposit += remainderbase * i * timeHr;
 
     TC_LOG_DEBUG("auctionHouse", "MSV:        %u", MSV);
     TC_LOG_DEBUG("auctionHouse", "Items:      %u", count);
     TC_LOG_DEBUG("auctionHouse", "Multiplier: %f", multiplier);
     TC_LOG_DEBUG("auctionHouse", "Deposit:    %u", deposit);
+    TC_LOG_DEBUG("auctionHouse", "Deposit rm: %f", remainderbase * count);
 
     if (deposit < AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT))
         return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
@@ -387,6 +398,116 @@ bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem)
 
     mAitems.erase(i);
     return true;
+}
+
+void AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry)
+{
+    PlayerAuctions* thisAH;
+    auto itr = pendingAuctionMap.find(player->GetGUID());
+    if (itr != pendingAuctionMap.end())
+        thisAH = itr->second.first;
+    else
+    {
+        thisAH = new PlayerAuctions;
+        pendingAuctionMap[player->GetGUID()] = AuctionPair(thisAH, 0);
+    }
+    thisAH->push_back(aEntry);
+}
+
+uint32 AuctionHouseMgr::PendingAuctionCount(const Player* player) const
+{
+    auto const itr = pendingAuctionMap.find(player->GetGUID());
+    if (itr != pendingAuctionMap.end())
+        return itr->second.first->size();
+
+    return 0;
+}
+
+void AuctionHouseMgr::PendingAuctionProcess(Player* player)
+{
+    auto iterMap = pendingAuctionMap.find(player->GetGUID());
+    if (iterMap == pendingAuctionMap.end())
+        return;
+
+    PlayerAuctions* thisAH = iterMap->second.first;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    uint32 totalItems = 0;
+    for (auto itrAH = thisAH->begin(); itrAH != thisAH->end(); ++itrAH)
+    {
+        AuctionEntry* AH = (*itrAH);
+        totalItems += AH->itemCount;
+    }
+
+    uint32 totaldeposit = 0;
+    auto itr = (*thisAH->begin());
+
+    if (Item* item = GetAItem(itr->itemGUIDLow))
+         totaldeposit = GetAuctionDeposit(itr->auctionHouseEntry, itr->etime, item, totalItems);
+
+    uint32 depositremain = totaldeposit;
+    for (auto itr = thisAH->begin(); itr != thisAH->end(); ++itr)
+    {
+        AuctionEntry* AH = (*itr);
+
+        if (next(itr) == thisAH->end())
+            AH->deposit = depositremain;
+        else
+        {
+            AH->deposit = totaldeposit / thisAH->size();
+            depositremain -= AH->deposit;
+        }
+
+        AH->DeleteFromDB(trans);
+        AH->SaveToDB(trans);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+    pendingAuctionMap.erase(player->GetGUID());
+    delete thisAH;
+    player->ModifyMoney(-int32(totaldeposit));
+}
+
+void AuctionHouseMgr::UpdatePendingAuctions()
+{
+    for (auto itr = pendingAuctionMap.begin(); itr != pendingAuctionMap.end();)
+    {
+        ObjectGuid playerGUID = itr->first;
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID))
+        {
+            // Check if there were auctions since last update process if not
+            if (PendingAuctionCount(player) == itr->second.second)
+            {
+                ++itr;
+                PendingAuctionProcess(player);
+            }
+            else
+            {
+                ++itr;
+                pendingAuctionMap[playerGUID].second = PendingAuctionCount(player);
+            }
+        }
+        else
+        {
+            // Expire any auctions that we couldn't get a deposit for
+            TC_LOG_WARN("auctionHouse", "Player %s was offline, unable to retrieve deposit!", playerGUID.ToString().c_str());
+            PlayerAuctions* thisAH = itr->second.first;
+            ++itr;
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            for (auto AHitr = thisAH->begin(); AHitr != thisAH->end();)
+            {
+                AuctionEntry* AH = (*AHitr);
+                ++AHitr;
+                AH->expire_time = time(NULL);
+                AH->DeleteFromDB(trans);
+                AH->SaveToDB(trans);
+            }
+            CharacterDatabase.CommitTransaction(trans);
+            pendingAuctionMap.erase(playerGUID);
+            delete thisAH;
+        }
+    }
 }
 
 void AuctionHouseMgr::Update()

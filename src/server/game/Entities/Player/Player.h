@@ -1047,6 +1047,8 @@ class Player : public Unit, public GridObject<Player>
 
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const override;
+
         void SetInWater(bool apply);
 
         bool IsInWater() const override { return m_isInWater; }
@@ -2410,7 +2412,7 @@ class Player : public Unit, public GridObject<Player>
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
-        ItemDurationList m_itemSoulboundTradeable;
+        GuidUnorderedSet m_itemSoulboundTradeable;
 
         void ResetTimeSync();
         void SendTimeSync();

@@ -127,6 +127,18 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         if (RewardChoiceItemId[i])
             ++_rewChoiceItemsCount;
+
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+        DetailsEmote[i] = 0;
+
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+        DetailsEmoteDelay[i] = 0;
+
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+        OfferRewardEmote[i] = 0;
+
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+        OfferRewardEmoteDelay[i] = 0;
 }
 
 void Quest::LoadQuestDetails(Field* fields)
