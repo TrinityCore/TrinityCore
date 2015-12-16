@@ -272,6 +272,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100011, 287),    # Command: levelup
 (100011, 554),    # Command: modify money ( dangerous )
 (100011, 737),    # Command: tele
+(100011, 459),    # Command: lookup tele
 (100011, 593),    # Command: npcinfo
 (100011, 796),    # Command: instance getbossstate
 
@@ -296,8 +297,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100013, 584),     # Command: npc set flag
 (100013, 583),     # Command: npc set factionid
 (100013, 580),     # Command: npc set
-(100013, 579),     # Command: npc add follow stop
-(100013, 578),     # Command: npc add follow
+(100013, 579),     # Command: npc follow stop
+(100013, 578),     # Command: npc follow
 (100013, 577),     # Command: npc add delete item
 (100013, 576),     # Command: npc add delete
 (100013, 575),     # Command: npc add temp
@@ -316,6 +317,50 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100013, 796),     # Command: instance getbossstate
 (100013, 370),     # Command: event stop
 (100013, 369),     # Command: event start
+(100013, 373),     # Command: gm fly
+(100013, 517),     # Command: pinfo
+(100013, 513),     # Command: maxskill
+(100013, 522),     # Command: respawn
+(100013, 523),     # Command: revive
+(100013, 526),     # Command: set skill
+(100013, 558),     # Command: modify rep
+(100013, 455),     # Command: lookup skill ( can inspect other players skills )
+(100013, 556),     # Command: modify phase
+(100013, 417),     # Command: learn
+(100013, 418),     # Command: learn all
+(100013, 419),     # Command: learn all my
+(100013, 420),     # Command: learn all my class
+(100013, 421),     # Command: learn all my pettalents
+(100013, 422),     # Command: learn all my spells
+(100013, 423),     # Command: learn all my talents
+(100013, 424),     # Command: learn all gm
+(100013, 425),     # Command: learn all crafts
+(100013, 426),     # Command: learn all default
+(100013, 427),     # Command: learn all lang
+(100013, 428),     # Command: learn all recipes
+(100013, 429),     # COmmand: unlearn
+(100013, 521),     # Command: repairitems
+(100013, 711),     # Command: reset achievements
+(100013, 712),     # Command: reset honor
+(100013, 713),     # Command: reset level
+(100013, 714),     # Command: reset spells
+(100013, 715),     # Command: reset stats
+(100013, 716),     # Command: reset talents
+(100013, 710),     # Command: reset
+(100013, 488),     # Command: additem
+(100013, 489),     # Command: additemset
+(100013, 231),     # Command: achievement add
+(100013, 602),     # Command: quest
+(100013, 603),     # Command: quest add
+(100013, 604),     # Command: quest complete
+(100013, 605),     # Command: quest remove
+(100013, 606),     # Command: quest reward
+(100013, 777),     # Command: mailbox
+(100013, 284),     # Command: character rename
+(100013, 274),     # Command: character customize
+(100013, 275),     # Command: character changefaction
+(100013, 276),     # Command: character changerace
+(100013, 529),     # Command: unaura
 
 # [100014] Master Test GM
 (100014, 100013); # inheriting from Test GM
