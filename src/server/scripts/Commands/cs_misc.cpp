@@ -1845,7 +1845,7 @@ public:
         if (handler->HasLowerSecurity (target, targetGuid, true))
             return false;
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTED);
         std::string muteBy = "";
         if (handler->GetSession())
             muteBy = handler->GetSession()->GetPlayerName();
@@ -1876,7 +1876,7 @@ public:
         stmt->setString(2, muteBy.c_str());
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTED);
         stmt->setUInt32(0, accountId);
         stmt->setUInt32(1, notSpeakTime);
         stmt->setString(2, muteBy.c_str());
@@ -1924,11 +1924,8 @@ public:
             target->GetSession()->m_muteTime = 0;
         }
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
-        stmt->setInt64(0, 0);
-        stmt->setString(1, "");
-        stmt->setString(2, "");
-        stmt->setUInt32(3, accountId);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTED_UNMUTE);
+        stmt->setUInt32(0, accountId);
         LoginDatabase.Execute(stmt);
 
         if (target)
@@ -1972,7 +1969,7 @@ public:
     // helper for mutehistory
     static bool HandleMuteInfoHelper(uint32 accountId, char const* accountName, ChatHandler *handler)
     {
-        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO);
+        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTED);
         stmt->setUInt32(0, accountId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
