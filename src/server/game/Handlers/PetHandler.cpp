@@ -523,17 +523,13 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pets::PetSetAction& packet)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket& recvData)
+void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
 {
-    ObjectGuid petguid;
-    uint8 isdeclined;
+    ObjectGuid petguid = packet.PetGUID;
+    boolean isdeclined = packet.HasDeclinedNames;
 
-    std::string name;
-    DeclinedName declinedname;
-
-    recvData >> petguid;
-    recvData >> name;
-    recvData >> isdeclined;
+    std::string name = packet.NewName;
+    DeclinedName declinedname = packet.DeclinedNames;
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
@@ -563,11 +559,6 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     if (isdeclined)
     {
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        {
-            recvData >> declinedname.name[i];
-        }
-
         std::wstring wname;
         if (!Utf8toWStr(name, wname))
             return;
@@ -742,12 +733,10 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
 {
     WorldPacket data(SMSG_PET_NAME_INVALID, 4 + name.size() + 1 + 1);
-    data << uint32(error);
-    data << name;
-    data << uint8(declinedName ? 1 : 0);
-    if (declinedName)
-        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << declinedName->name[i];
+    WorldPackets::Pets::PetNameInvalid petNameInvalid;
+    petNameInvalid.result = error;
+    petNameInvalid.NewName = name;
+    petNameInvalid.DeclinedNames = declinedName;
 
-    SendPacket(&data);
+    SendPacket(petNameInvalid.Write());
 }

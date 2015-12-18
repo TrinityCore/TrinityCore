@@ -23,8 +23,9 @@ WorldPacket const* WorldPackets::Pets::PetSpells::Write()
     _worldPacket << int16(CreatureFamily);
     _worldPacket << int16(Specialization);
     _worldPacket << int32(TimeLimit);
-    uint32 PetModeAndOrders = ReactState + (CommandState << 8) + (Flag << 16);
-    _worldPacket << uint32(PetModeAndOrders);
+
+    uint32 petModeAndOrders = ReactState + (CommandState << 8) + (Flag << 16);
+    _worldPacket << uint32(petModeAndOrders);
 
     for (uint32 actionButton : ActionButtons)
         _worldPacket << int32(actionButton);
@@ -69,7 +70,7 @@ WorldPacket const* WorldPackets::Pets::PetStableList::Write()
         _worldPacket << int32(pet.PetFlags);
 
         _worldPacket << int8(pet.PetName.length());
-        _worldPacket << pet.PetName;
+        _worldPacket.WriteString(pet.PetName);
     }
 
     return &_worldPacket;
@@ -88,6 +89,27 @@ WorldPacket const* WorldPackets::Pets::PetUnlearnedSpells::Write()
     _worldPacket << uint32(spells.size());
     for (uint32 spell : spells)
         _worldPacket << int32(spell);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
+{
+    _worldPacket << PetGUID;
+    _worldPacket << int32(PetNumber);
+
+    _worldPacket << uint8(NewName.length());
+
+    _worldPacket.WriteBit(HasDeclinedNames);
+    if (HasDeclinedNames)
+    {
+        for (int i = 0; i < 5; i++)
+            _worldPacket.WriteBits(DeclinedNames.name[i].length, 7);
+
+        for (int i = 0; i < 5; i++)
+            _worldPacket << DeclinedNames.name[i];
+    }
+
+    _worldPacket.WriteString(NewName);
     return &_worldPacket;
 }
 
@@ -114,4 +136,32 @@ void WorldPackets::Pets::PetSetAction::Read()
 
     _worldPacket >> Index;
     _worldPacket >> Action;
+}
+
+void WorldPackets::Pets::PetRename::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> PetNumber;
+
+    int8 nameLen = 0;
+    _worldPacket >> nameLen;
+
+    HasDeclinedNames = _worldPacket.ReadBit();
+    if (HasDeclinedNames)
+    {
+        int count[5];
+        for (int i = 0; i < 5; i++)
+        {
+            count[i] = _worldPacket.ReadBits(7);
+            _worldPacket.FlushBits();
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            DeclinedNames[i].name = _worldPacket.ReadString(count[i]);
+            _worldPacket.FlushBits();
+        }
+    }
+
+    NewName = _worldPacket.ReadString(nameLen);
 }

@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "Unit.h"
 #include "WorldSession.h"
 
 namespace WorldPackets
@@ -49,14 +50,14 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid PetGUID;
-            int CreatureFamily = 0;
-            int Specialization = 0;
+            int16 CreatureFamily = 0;
+            int16 Specialization = 0;
             int32 TimeLimit = 0;
             uint8 ReactState = 0;
             uint8 CommandState = 0;
             uint16 Flag = 0;
 
-            uint32 ActionButtons[10];
+            std::array<int, 10> ActionButtons;
 
             std::vector<uint32> Actions;
             std::vector<PetSpellCooldown> Cooldowns;
@@ -82,7 +83,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid StableMaster;
-            std::vector<PetStableInfo> pets;
+            std::vector<PetStableInfo> Pets;
         };
 
         class PetLearnedSpells final : public ServerPacket
@@ -92,7 +93,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<uint32> spells;
+            std::vector<uint32> Spells;
         };
 
         class PetUnlearnedSpells final : public ServerPacket
@@ -102,7 +103,25 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<uint32> spells;
+            std::vector<uint32> Spells;
+        };
+
+        class PetNameInvalid final : public ServerPacket
+        {
+        public:
+            PetNameInvalid() : ServerPacket(SMSG_PET_NAME_INVALID, 0) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+
+            ObjectGuid PetGUID;
+            int32 PetNumber = 0;
+
+            boolean HasDeclinedNames = false;
+            DeclinedName DeclinedNames;
+
+            std::string NewName;
         };
 
         class ClientPetAction final : public ClientPacket
@@ -116,9 +135,9 @@ namespace WorldPackets
 
             uint32 Action = 0;
             ObjectGuid TargetGUID;
-            float PositionX = 0;
-            float PositionY = 0;
-            float PositionZ = 0;
+            float PositionX = 0.0f;
+            float PositionY = 0.0f;
+            float PositionZ = 0.0f;
         };
 
         class PetStopAttack final : public ClientPacket
@@ -142,6 +161,22 @@ namespace WorldPackets
 
             uint32 Index;
             uint32 Action;
+        };
+
+        class PetRename final : public ClientPacket
+        {
+        public:
+            PetRename(WorldPacket&& packet) : ClientPacket(CMSG_PET_RENAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            int32 PetNumber = 0;
+
+            boolean HasDeclinedNames = false;
+            DeclinedName DeclinedNames;
+
+            std::string NewName;
         };
     }
 }
