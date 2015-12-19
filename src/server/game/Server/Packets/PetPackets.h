@@ -118,7 +118,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             int32 PetNumber = 0;
 
-            boolean HasDeclinedNames = false;
+            bool HasDeclinedNames = false;
             std::string DeclinedNames[5] = {};
 
             std::string NewName;
@@ -171,7 +171,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             int32 PetNumber = 0;
 
-            boolean HasDeclinedNames = false;
+            bool HasDeclinedNames = false;
             std::string DeclinedNames[5] = {};
 
             std::string NewName;

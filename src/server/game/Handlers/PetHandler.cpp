@@ -521,7 +521,7 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pets::PetSetAction& packet)
 void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
 {
     ObjectGuid petguid = packet.PetGUID;
-    boolean isdeclined = packet.HasDeclinedNames;
+    bool isdeclined = packet.HasDeclinedNames;
 
     std::string name = packet.NewName;
     DeclinedName declinedname;
