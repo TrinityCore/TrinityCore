@@ -760,6 +760,24 @@ namespace WorldPackets
             HeirloomContainer const* Heirlooms = nullptr;
             int32 Unk = 0;
         };
+
+        class MountSpecial final : public ClientPacket
+        {
+        public:
+            MountSpecial(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SPECIAL_ANIM, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SpecialMountAnim final : public ServerPacket
+        {
+        public:
+            SpecialMountAnim() : ServerPacket(SMSG_SPECIAL_MOUNT_ANIM, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
     }
 }
 

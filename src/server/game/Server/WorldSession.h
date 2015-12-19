@@ -408,6 +408,7 @@ namespace WorldPackets
         class TogglePvP;
         class SetPvP;
         class WorldTeleport;
+        class MountSpecial;
     }
 
     namespace Movement
@@ -1091,7 +1092,7 @@ class WorldSession
         void HandleInspectPVP(WorldPackets::Inspect::InspectPVPRequest& request);
         void HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect);
 
-        void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
+        void HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& mountSpecial);
 
         // character view
         void HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet);
