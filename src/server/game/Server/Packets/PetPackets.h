@@ -50,9 +50,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid PetGUID;
-            int16 CreatureFamily = 0;
-            int16 Specialization = 0;
-            int32 TimeLimit = 0;
+            uint16 CreatureFamily = 0;
+            uint16 Specialization = 0;
+            uint32 TimeLimit = 0;
             uint8 ReactState = 0;
             uint8 CommandState = 0;
             uint16 Flag = 0;
@@ -66,12 +66,12 @@ namespace WorldPackets
 
         struct PetStableInfo
         {
-            int32 PetSlot = 0;
-            int32 PetNumber = 0;
-            int32 CreatureID = 0;
-            int32 DisplayID = 0;
-            int32 ExperienceLevel = 0;
-            int32 PetFlags = 0;
+            uint32 PetSlot = 0;
+            uint32 PetNumber = 0;
+            uint32 CreatureID = 0;
+            uint32 DisplayID = 0;
+            uint32 ExperienceLevel = 0;
+            uint32 PetFlags = 0;
             std::string PetName;
         };
 
@@ -106,6 +106,16 @@ namespace WorldPackets
             std::vector<uint32> Spells;
         };
 
+        
+        struct PetRenameData
+        {
+            ObjectGuid PetGUID;
+            int32 PetNumber = 0;
+            std::string NewName;
+            bool HasDeclinedNames = false;
+            std::string DeclinedNames[5] = {};
+        };
+
         class PetNameInvalid final : public ServerPacket
         {
         public:
@@ -113,15 +123,19 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            PetRenameData RenameData;
+
             uint8 Result = 0;
+        };
 
-            ObjectGuid PetGUID;
-            int32 PetNumber = 0;
+        class PetRename final : public ClientPacket
+        {
+        public:
+            PetRename(WorldPacket&& packet) : ClientPacket(CMSG_PET_RENAME, std::move(packet)) { }
 
-            bool HasDeclinedNames = false;
-            std::string DeclinedNames[5] = {};
+            void Read() override;
 
-            std::string NewName;
+            PetRenameData RenameData;
         };
 
         class ClientPetAction final : public ClientPacket
@@ -141,7 +155,7 @@ namespace WorldPackets
         class PetStopAttack final : public ClientPacket
         {
         public:
-            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
+            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
 
             void Read() override;
 
@@ -161,21 +175,6 @@ namespace WorldPackets
             uint32 Action;
         };
 
-        class PetRename final : public ClientPacket
-        {
-        public:
-            PetRename(WorldPacket&& packet) : ClientPacket(CMSG_PET_RENAME, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid PetGUID;
-            int32 PetNumber = 0;
-
-            bool HasDeclinedNames = false;
-            std::string DeclinedNames[5] = {};
-
-            std::string NewName;
-        };
     }
 }
 

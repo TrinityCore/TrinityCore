@@ -94,23 +94,51 @@ WorldPacket const* WorldPackets::Pets::PetUnlearnedSpells::Write()
 
 WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
 {
-    _worldPacket << PetGUID;
-    _worldPacket << int32(PetNumber);
+    _worldPacket << RenameData.PetGUID;
+    _worldPacket << int32(RenameData.PetNumber);
 
-    _worldPacket << uint8(NewName.length());
+    _worldPacket << uint8(RenameData.NewName.length());
 
-    _worldPacket.WriteBit(HasDeclinedNames);
-    if (HasDeclinedNames)
+    _worldPacket.WriteBit(RenameData.HasDeclinedNames);
+    if (RenameData.HasDeclinedNames)
     {
         for (int i = 0; i < 5; i++)
-            _worldPacket.WriteBits(DeclinedNames[i].length(), 7);
+            _worldPacket.WriteBits(RenameData.DeclinedNames[i].length(), 7);
 
         for (int i = 0; i < 5; i++)
-            _worldPacket << DeclinedNames[i];
+            _worldPacket << RenameData.DeclinedNames[i];
     }
 
-    _worldPacket.WriteString(NewName);
+    _worldPacket.WriteString(RenameData.NewName);
     return &_worldPacket;
+}
+
+void WorldPackets::Pets::PetRename::Read()
+{
+    _worldPacket >> RenameData.PetGUID;
+    _worldPacket >> RenameData.PetNumber;
+
+    int8 nameLen = 0;
+    _worldPacket >> nameLen;
+
+    RenameData.HasDeclinedNames = _worldPacket.ReadBit();
+    if (RenameData.HasDeclinedNames)
+    {
+        int count[5];
+        for (int i = 0; i < 5; i++)
+        {
+            count[i] = _worldPacket.ReadBits(7);
+            _worldPacket.FlushBits();
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            RenameData.DeclinedNames[i] = _worldPacket.ReadString(count[i]);
+            _worldPacket.FlushBits();
+        }
+    }
+
+    RenameData.NewName = _worldPacket.ReadString(nameLen);
 }
 
 void WorldPackets::Pets::ClientPetAction::Read()
@@ -136,32 +164,4 @@ void WorldPackets::Pets::PetSetAction::Read()
 
     _worldPacket >> Index;
     _worldPacket >> Action;
-}
-
-void WorldPackets::Pets::PetRename::Read()
-{
-    _worldPacket >> PetGUID;
-    _worldPacket >> PetNumber;
-
-    int8 nameLen = 0;
-    _worldPacket >> nameLen;
-
-    HasDeclinedNames = _worldPacket.ReadBit();
-    if (HasDeclinedNames)
-    {
-        int count[5];
-        for (int i = 0; i < 5; i++)
-        {
-            count[i] = _worldPacket.ReadBits(7);
-            _worldPacket.FlushBits();
-        }
-
-        for (int i = 0; i < 5; i++)
-        {
-            DeclinedNames[i] = _worldPacket.ReadString(count[i]);
-            _worldPacket.FlushBits();
-        }
-    }
-
-    NewName = _worldPacket.ReadString(nameLen);
 }
