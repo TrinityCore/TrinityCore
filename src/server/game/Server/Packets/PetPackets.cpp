@@ -59,8 +59,8 @@ WorldPacket const* WorldPackets::Pets::PetStableList::Write()
 {
     _worldPacket << StableMaster;
 
-    _worldPacket << pets.size();
-    for (PetStableInfo pet : pets)
+    _worldPacket << Pets.size();
+    for (PetStableInfo pet : Pets)
     {
         _worldPacket << int32(pet.PetSlot);
         _worldPacket << int32(pet.PetNumber);
@@ -78,16 +78,16 @@ WorldPacket const* WorldPackets::Pets::PetStableList::Write()
 
 WorldPacket const* WorldPackets::Pets::PetLearnedSpells::Write()
 {
-    _worldPacket << uint32(spells.size());
-    for (uint32 spell : spells)
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spell : Spells)
         _worldPacket << int32(spell);
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Pets::PetUnlearnedSpells::Write()
 {
-    _worldPacket << uint32(spells.size());
-    for (uint32 spell : spells)
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spell : Spells)
         _worldPacket << int32(spell);
     return &_worldPacket;
 }
@@ -103,10 +103,10 @@ WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
     if (HasDeclinedNames)
     {
         for (int i = 0; i < 5; i++)
-            _worldPacket.WriteBits(DeclinedNames.name[i].length, 7);
+            _worldPacket.WriteBits(DeclinedNames[i].length(), 7);
 
         for (int i = 0; i < 5; i++)
-            _worldPacket << DeclinedNames.name[i];
+            _worldPacket << DeclinedNames[i];
     }
 
     _worldPacket.WriteString(NewName);
@@ -120,9 +120,9 @@ void WorldPackets::Pets::ClientPetAction::Read()
     _worldPacket >> Action;
     _worldPacket >> TargetGUID;
     
-    _worldPacket >> PositionX;
-    _worldPacket >> PositionY;
-    _worldPacket >> PositionZ;
+    _worldPacket >> Pos.m_positionX;
+    _worldPacket >> Pos.m_positionY;
+    _worldPacket >> Pos.m_positionZ;
 }
 
 void WorldPackets::Pets::PetStopAttack::Read()
@@ -158,7 +158,7 @@ void WorldPackets::Pets::PetRename::Read()
 
         for (int i = 0; i < 5; i++)
         {
-            DeclinedNames[i].name = _worldPacket.ReadString(count[i]);
+            DeclinedNames[i] = _worldPacket.ReadString(count[i]);
             _worldPacket.FlushBits();
         }
     }

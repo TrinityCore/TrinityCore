@@ -67,11 +67,6 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
 
     uint32 data = packet.Action;
 
-    // Position
-    float x = packet.PositionX;
-    float y = packet.PositionY;
-    float z = packet.PositionZ;
-
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
 
@@ -105,7 +100,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
-        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, x, y, z);
+        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.Pos.GetPositionX(), packet.Pos.GetPositionY(), packet.Pos.GetPositionZ());
     else
     {
         //If a pet is dismissed, m_Controlled will change
@@ -114,7 +109,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
                 controlled.push_back(*itr);
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, x, y, z);
+            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, packet.Pos.GetPositionX(), packet.Pos.GetPositionY(), packet.Pos.GetPositionZ());
     }
 }
 
@@ -529,7 +524,9 @@ void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
     boolean isdeclined = packet.HasDeclinedNames;
 
     std::string name = packet.NewName;
-    DeclinedName declinedname = packet.DeclinedNames;
+    DeclinedName declinedname;
+    for (int i = 0; i < 5; i++)
+        declinedname.name[i] = packet.DeclinedNames[i];
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
@@ -732,11 +729,11 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
 
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
 {
-    WorldPacket data(SMSG_PET_NAME_INVALID, 4 + name.size() + 1 + 1);
     WorldPackets::Pets::PetNameInvalid petNameInvalid;
-    petNameInvalid.result = error;
+    petNameInvalid.Result = error;
     petNameInvalid.NewName = name;
-    petNameInvalid.DeclinedNames = declinedName;
+    for (int i = 0; i < 5; i++)
+        petNameInvalid.DeclinedNames[i] = declinedName[i].name[i];
 
     SendPacket(petNameInvalid.Write());
 }

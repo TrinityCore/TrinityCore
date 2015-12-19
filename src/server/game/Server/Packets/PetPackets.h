@@ -119,7 +119,7 @@ namespace WorldPackets
             int32 PetNumber = 0;
 
             boolean HasDeclinedNames = false;
-            DeclinedName DeclinedNames;
+            std::string DeclinedNames[5] = {};
 
             std::string NewName;
         };
@@ -135,9 +135,7 @@ namespace WorldPackets
 
             uint32 Action = 0;
             ObjectGuid TargetGUID;
-            float PositionX = 0.0f;
-            float PositionY = 0.0f;
-            float PositionZ = 0.0f;
+            Position Pos;
         };
 
         class PetStopAttack final : public ClientPacket
@@ -174,7 +172,7 @@ namespace WorldPackets
             int32 PetNumber = 0;
 
             boolean HasDeclinedNames = false;
-            DeclinedName DeclinedNames;
+            std::string DeclinedNames[5] = {};
 
             std::string NewName;
         };

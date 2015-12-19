@@ -524,7 +524,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
         stableEntry.PetName = pet->GetName();                                       
         ++petSlot;
 
-        packet.pets.push_back(stableEntry);
+        packet.Pets.push_back(stableEntry);
     }
 
     if (result)
@@ -543,7 +543,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
             stableEntry.PetName = fields[4].GetString();            // Name
 
             ++petSlot;
-            packet.pets.push_back(stableEntry);
+            packet.Pets.push_back(stableEntry);
         }
         while (result->NextRow());
     }

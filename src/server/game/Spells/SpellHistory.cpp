@@ -343,7 +343,6 @@ void SpellHistory::WritePacket(WorldPackets::Pets::PetSpells* petSpells) const
 
     for (auto const& p : _spellCooldowns)
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(p.first);
         WorldPackets::Pets::PetSpellCooldown petSpellCooldown;
         petSpellCooldown.SpellID = p.first;
         petSpellCooldown.Category = p.second.CategoryId;
