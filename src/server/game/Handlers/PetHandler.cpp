@@ -65,10 +65,8 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
     ObjectGuid guid1 = packet.PetGUID;         //pet guid
     ObjectGuid guid2 = packet.TargetGUID;      //tag guid
 
-    uint32 data = packet.Action;
-
-    uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
-    uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
+    uint32 spellid = UNIT_ACTION_BUTTON_ACTION(packet.Action);
+    uint8 flag = UNIT_ACTION_BUTTON_TYPE(packet.Action);             //delete = 0x07 CastSpell = C1
 
     // used also for charmed creature
     Unit* pet = ObjectAccessor::GetUnit(*_player, guid1);
@@ -100,7 +98,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
-        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.Pos.GetPositionX(), packet.Pos.GetPositionY(), packet.Pos.GetPositionZ());
+        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.ActionPosition.x, packet.ActionPosition.y, packet.ActionPosition.z);
     else
     {
         //If a pet is dismissed, m_Controlled will change
@@ -109,7 +107,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
                 controlled.push_back(*itr);
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, packet.Pos.GetPositionX(), packet.Pos.GetPositionY(), packet.Pos.GetPositionZ());
+            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, packet.ActionPosition.x, packet.ActionPosition.y, packet.ActionPosition.z);
     }
 }
 

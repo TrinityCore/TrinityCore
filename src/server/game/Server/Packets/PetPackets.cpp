@@ -102,10 +102,10 @@ WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
     _worldPacket.WriteBit(RenameData.HasDeclinedNames);
     if (RenameData.HasDeclinedNames)
     {
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             _worldPacket.WriteBits(RenameData.DeclinedNames.name[i].length(), 7);
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             _worldPacket << RenameData.DeclinedNames.name[i];
     }
 
@@ -124,14 +124,14 @@ void WorldPackets::Pets::PetRename::Read()
     RenameData.HasDeclinedNames = _worldPacket.ReadBit();
     if (RenameData.HasDeclinedNames)
     {
-        int count[5];
-        for (int i = 0; i < 5; i++)
+        int count[MAX_DECLINED_NAME_CASES];
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
         {
             count[i] = _worldPacket.ReadBits(7);
             _worldPacket.FlushBits();
         }
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
         {
             RenameData.DeclinedNames.name[i] = _worldPacket.ReadString(count[i]);
             _worldPacket.FlushBits();
@@ -148,9 +148,7 @@ void WorldPackets::Pets::ClientPetAction::Read()
     _worldPacket >> Action;
     _worldPacket >> TargetGUID;
     
-    _worldPacket >> Pos.m_positionX;
-    _worldPacket >> Pos.m_positionY;
-    _worldPacket >> Pos.m_positionZ;
+    _worldPacket >> ActionPosition;
 }
 
 void WorldPackets::Pets::PetStopAttack::Read()

@@ -149,7 +149,7 @@ namespace WorldPackets
 
             uint32 Action = 0;
             ObjectGuid TargetGUID;
-            Position Pos;
+            G3D::Vector3 ActionPosition;
         };
 
         class PetStopAttack final : public ClientPacket
