@@ -113,7 +113,7 @@ namespace WorldPackets
             int32 PetNumber = 0;
             std::string NewName;
             bool HasDeclinedNames = false;
-            std::string DeclinedNames[5] = {};
+            DeclinedName DeclinedNames;
         };
 
         class PetNameInvalid final : public ServerPacket
@@ -171,8 +171,8 @@ namespace WorldPackets
 
             ObjectGuid PetGUID;
 
-            uint32 Index;
-            uint32 Action;
+            uint32 Index = 0;
+            uint32 Action = 0;
         };
 
     }

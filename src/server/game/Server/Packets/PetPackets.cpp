@@ -103,10 +103,10 @@ WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
     if (RenameData.HasDeclinedNames)
     {
         for (int i = 0; i < 5; i++)
-            _worldPacket.WriteBits(RenameData.DeclinedNames[i].length(), 7);
+            _worldPacket.WriteBits(RenameData.DeclinedNames.name[i].length(), 7);
 
         for (int i = 0; i < 5; i++)
-            _worldPacket << RenameData.DeclinedNames[i];
+            _worldPacket << RenameData.DeclinedNames.name[i];
     }
 
     _worldPacket.WriteString(RenameData.NewName);
@@ -133,7 +133,7 @@ void WorldPackets::Pets::PetRename::Read()
 
         for (int i = 0; i < 5; i++)
         {
-            RenameData.DeclinedNames[i] = _worldPacket.ReadString(count[i]);
+            RenameData.DeclinedNames.name[i] = _worldPacket.ReadString(count[i]);
             _worldPacket.FlushBits();
         }
     }

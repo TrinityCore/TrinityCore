@@ -520,13 +520,11 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pets::PetSetAction& packet)
 
 void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
 {
-    ObjectGuid petguid = packet.PetGUID;
-    bool isdeclined = packet.HasDeclinedNames;
+    ObjectGuid petguid = packet.RenameData.PetGUID;
+    bool isdeclined = packet.RenameData.HasDeclinedNames;
 
-    std::string name = packet.NewName;
-    DeclinedName declinedname;
-    for (int i = 0; i < 5; i++)
-        declinedname.name[i] = packet.DeclinedNames[i];
+    std::string name = packet.RenameData.NewName;
+    DeclinedName declinedname = packet.RenameData.DeclinedNames;
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
@@ -731,9 +729,9 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 {
     WorldPackets::Pets::PetNameInvalid petNameInvalid;
     petNameInvalid.Result = error;
-    petNameInvalid.NewName = name;
+    petNameInvalid.RenameData.NewName = name;
     for (int i = 0; i < 5; i++)
-        petNameInvalid.DeclinedNames[i] = declinedName[i].name[i];
+        petNameInvalid.RenameData.DeclinedNames.name[i] = declinedName[i].name[i];
 
     SendPacket(petNameInvalid.Write());
 }
