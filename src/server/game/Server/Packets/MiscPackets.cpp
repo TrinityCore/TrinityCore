@@ -589,3 +589,9 @@ WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
+{
+    _worldPacket << UnitGUID;
+    return &_worldPacket;
+}

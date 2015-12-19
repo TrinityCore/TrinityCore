@@ -1154,3 +1154,10 @@ void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::Se
 {
     _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 }
+
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& /*mountSpecial*/)
+{
+    WorldPackets::Misc::SpecialMountAnim specialMountAnim;
+    specialMountAnim.UnitGUID = _player->GetGUID();
+    GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
+}

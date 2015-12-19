@@ -483,14 +483,6 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveM
             TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
-{
-    WorldPacket data(SMSG_SPECIAL_MOUNT_ANIM, 8);
-    data << GetPlayer()->GetGUID();
-
-    GetPlayer()->SendMessageToSet(&data, false);
-}
-
 void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
     GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
