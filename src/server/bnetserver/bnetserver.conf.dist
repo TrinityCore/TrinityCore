@@ -130,12 +130,12 @@ WrongPass.BanTime = 600
 WrongPass.BanType = 0
 
 #
-#    Wrong.Password.Login.Logging
+#    WrongPass.Logging
 #        Description: Additionally log attempted wrong password logging
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Wrong.Password.Login.Logging = 0
+WrongPass.Logging = 0
 
 #
 ###################################################################################################
