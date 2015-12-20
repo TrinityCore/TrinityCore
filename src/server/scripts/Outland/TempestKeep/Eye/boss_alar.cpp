@@ -484,7 +484,7 @@ class npc_ember_of_alar : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 me->setDeathState(JUST_DIED);
             }

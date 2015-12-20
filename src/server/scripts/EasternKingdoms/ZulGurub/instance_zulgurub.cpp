@@ -29,8 +29,8 @@ EndScriptData */
 
 DoorData const doorData[] =
 {
-    { GO_FORCEFIELD, DATA_ARLOKK, DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { 0,             0,           DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+    { GO_FORCEFIELD, DATA_ARLOKK, DOOR_TYPE_ROOM },
+    { 0,             0,           DOOR_TYPE_ROOM } // END
 };
 
 class instance_zulgurub : public InstanceMapScript
