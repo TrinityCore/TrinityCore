@@ -15310,18 +15310,6 @@ void Player::SetQuestSlotTimer(uint16 slot, uint32 timer)
     SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
 }
 
-void Player::SwapQuestSlot(uint16 slot1, uint16 slot2)
-{
-    for (int i = 0; i < MAX_QUEST_OFFSET; ++i)
-    {
-        uint32 temp1 = GetUInt32Value(PLAYER_QUEST_LOG + MAX_QUEST_OFFSET * slot1 + i);
-        uint32 temp2 = GetUInt32Value(PLAYER_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i);
-
-        SetUInt32Value(PLAYER_QUEST_LOG + MAX_QUEST_OFFSET * slot1 + i, temp2);
-        SetUInt32Value(PLAYER_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i, temp1);
-    }
-}
-
 void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
 {
     if (!questBit)
