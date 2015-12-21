@@ -55,7 +55,7 @@ struct PlayerLevelInfo;
 struct PageText
 {
     std::string Text;
-    uint16 NextPageID;
+    uint32 NextPageID;
 };
 
 /// Key for storing temp summon data in TempSummonDataContainer
