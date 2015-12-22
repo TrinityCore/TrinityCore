@@ -15425,7 +15425,7 @@ void Unit::SendTeleportPacket(Position& pos)
         if (TransportBase* transportBase = GetDirectTransport())
             transportBase->CalculatePassengerOffset(moveTeleport.Pos.m_positionX, moveTeleport.Pos.m_positionY, moveTeleport.Pos.m_positionZ);
         moveTeleport.TransportGUID = GetTransGUID();
-        moveTeleport.Facing = GetOrientation();
+        moveTeleport.Facing = pos.GetOrientation();
         moveTeleport.SequenceIndex = m_movementCounter++;
         ToPlayer()->SendDirectMessage(moveTeleport.Write());
     }
