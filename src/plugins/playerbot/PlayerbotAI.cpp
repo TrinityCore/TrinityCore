@@ -1354,6 +1354,16 @@ string PlayerbotAI::HandleRemoteCommand(string command)
         ostringstream out; out << bot->GetMapId() << "," << bot->GetPositionX() << "," << bot->GetPositionY() << "," << bot->GetPositionZ() << "," << bot->GetOrientation();
         return out.str();
     }
+    else if (command == "tpos")
+    {
+        Unit* target = *GetAiObjectContext()->GetValue<Unit*>("current target");
+        if (!target) {
+            return "";
+        }
+
+        ostringstream out; out << target->GetMapId() << "," << target->GetPositionX() << "," << target->GetPositionY() << "," << target->GetPositionZ() << "," << target->GetOrientation();
+        return out.str();
+    }
     else if (command == "target")
     {
         Unit* target = *GetAiObjectContext()->GetValue<Unit*>("current target");
