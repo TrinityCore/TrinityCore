@@ -8,6 +8,6 @@ void MoveRandomStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
     triggers.push_back(new TriggerNode(
         "random",
-        NextAction::array(0, new NextAction("move random", 1.0f), NULL)));
+        NextAction::array(0, new NextAction("move random", 1.5f), NULL)));
 }
 
