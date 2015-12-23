@@ -354,7 +354,7 @@ bool MoveOutOfEnemyContactAction::Execute(Event event)
 
 bool MoveOutOfEnemyContactAction::isUseful()
 {
-    return AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.contactDistance;
+    return AI_VALUE2(float, "distance", "current target") < (sPlayerbotAIConfig.meleeDistance + sPlayerbotAIConfig.contactDistance);
 }
 
 bool SetFacingTargetAction::Execute(Event event)
