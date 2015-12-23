@@ -49,7 +49,7 @@ namespace ai
         {
             ostringstream out;
             set<string> names = valueContexts.GetCreated();
-            for (set<string>::iterator i = names.begin(); i != names.end(); ++i)
+            for (set<string>::iterator i = names.begin(); i != names.end(); ++i, out << "|")
             {
                 UntypedValue* value = GetUntypedValue(*i);
                 if (!value)
@@ -59,7 +59,7 @@ namespace ai
                 if (text == "?")
                     continue;
 
-                out << "{" << *i << "=" << text << "} ";
+                out << "{" << *i << "=" << text << "}";
             }
             return out.str();
         }

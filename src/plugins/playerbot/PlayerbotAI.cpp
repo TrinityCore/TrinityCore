@@ -1395,6 +1395,10 @@ string PlayerbotAI::HandleRemoteCommand(string command)
     {
         return currentEngine->GetLastAction();
     }
+    else if (command == "values")
+    {
+        return GetAiObjectContext()->FormatValues();
+    }
     ostringstream out; out << "invalid command: " << command;
     return out.str();
 }
