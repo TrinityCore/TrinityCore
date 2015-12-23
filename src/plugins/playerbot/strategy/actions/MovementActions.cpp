@@ -88,7 +88,7 @@ bool MovementAction::MoveTo(Unit* target, float distance)
     float ty = target->GetPositionY();
     float tz = target->GetPositionZ();
 
-    float distanceToTarget = bot->GetDistance(target);
+    float distanceToTarget = bot->GetDistance2d(target);
     float angle = bot->GetAngle(target);
     float needToGo = distanceToTarget - distance;
 
