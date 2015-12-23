@@ -23,6 +23,7 @@ namespace ai
             creators["holy wrath"] = &holy_wrath;
             creators["lay on hands"] = &lay_on_hands;
             creators["lay on hands on party"] = &lay_on_hands_on_party;
+            creators["hammer of wrath"] = &hammer_of_wrath;
         }
     private:
         static ActionNode* lay_on_hands(PlayerbotAI* ai)
@@ -135,6 +136,13 @@ namespace ai
             return new ActionNode ("holy wrath",
                 /*P*/ NULL,
                 /*A*/ NextAction::array(0, new NextAction("consecration"), NULL),
+                /*C*/ NULL);
+        }
+        static ActionNode* hammer_of_wrath(PlayerbotAI* ai)
+        {
+            return new ActionNode ("hammer of wrath",
+                /*P*/ NULL,
+                /*A*/ NextAction::array(0, new NextAction("melee"), NULL),
                 /*C*/ NULL);
         }
     };
