@@ -170,6 +170,7 @@ namespace ai
             creators["spell id"] = &MockValueContext::spell_id;
             creators["threat"] = &MockValueContext::stats;
             creators["bag space"] = &MockValueContext::stats;
+            creators["speed"] = &MockValueContext::stats;
         }
 
     private:
@@ -252,6 +253,7 @@ namespace ai
 
               GetValue<uint8>("threat")->Set(0);
               GetValue<uint8>("bag space")->Set(0);
+              GetValue<uint8>("speed", "current target")->Set(80);
           }
 
     public:

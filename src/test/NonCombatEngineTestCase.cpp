@@ -9,7 +9,6 @@ using namespace ai;
 class NonCombatEngineTestCase : public EngineTestBase
 {
   CPPUNIT_TEST_SUITE( NonCombatEngineTestCase );
-      CPPUNIT_TEST( followMaster );
       CPPUNIT_TEST( stay );
       CPPUNIT_TEST( eatDrink );
       CPPUNIT_TEST( dpsAssist );
@@ -44,15 +43,6 @@ protected:
 		tickWithAttackerCount(0);
 		tickInMeleeRange();
         assertActions(">S:runaway>S:runaway");
-    }
-
-    void followMaster()
-    {
-        engine->addStrategy("follow");
-
-        set<float>("distance", "master target", 20);
-		tickWithAttackerCount(0);
-		assertActions(">S:follow");
     }
 
     void stay()

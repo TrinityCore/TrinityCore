@@ -42,7 +42,14 @@ protected:
 
 		tickWithLowHealth(19);
 
-		assertActions(">T:frostbolt>T:frost nova>S:flee>T:frostbolt>T:shoot>S:ice block");
+		context->GetValue<uint8>("speed", "current target")->Set(100);
+        spellAvailable("frost nova");
+        spellAvailable("frostbolt");
+        tickInMeleeRange();
+        tickInMeleeRange();
+        context->GetValue<uint8>("speed", "current target")->Set(80);
+
+		assertActions(">T:frostbolt>T:frost nova>S:flee>T:frostbolt>T:shoot>S:ice block>T:frost nova>T:frostbolt");
 	}
 
     void dispel()
