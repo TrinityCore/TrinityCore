@@ -29,6 +29,7 @@ protected:
 	virtual void setupEngine(AiObjectContext* AiObjectContext, ...);
 	void setupEngineCallback(const char*  name);
 	void tick();
+	void ticks(int count);
 	void assertActions(string  expected);
 
 	void tickWithNoTarget();
@@ -80,6 +81,7 @@ protected:
     void tickWithAoeHeal(string type, int amount = 2);
     void tickWithItemForSpell(string spell);
     void tickWithEnemyHealerIsCastingInterruptableSpell(string interrupt);
+    void runStressTest();
 
 protected:
     MockPlayerbotAIBase *ai;

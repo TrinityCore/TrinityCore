@@ -92,7 +92,7 @@ namespace ai
 	    virtual ~Engine(void);
 
     private:
-        bool MultiplyAndPush(NextAction** actions, float forceRelevance, bool skipPrerequisites, Event event);
+        bool MultiplyAndPush(NextAction** actions, float forceRelevance, bool skipPrerequisites, Event event, const char* pushType);
         void Reset();
         void ProcessTriggers();
         void PushDefaultActions();
