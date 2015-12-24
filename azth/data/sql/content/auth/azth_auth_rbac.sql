@@ -214,7 +214,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001, 529),    # Command: unaura
 (100001, 743),    # Command: ticket assign
 (100001, 500),    # Command: die
-(100001, 489),    # Command: additemset
 
 # [100002] TIER 2: Protector - Moderator
 (100002, 193),    # inheriting from GM 2
