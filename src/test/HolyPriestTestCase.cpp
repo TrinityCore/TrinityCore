@@ -12,6 +12,7 @@ class HolyPriestTestCase : public EngineTestBase
     CPPUNIT_TEST( combat );
 	CPPUNIT_TEST( incompatibles );
 	CPPUNIT_TEST( flee );
+	CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -50,6 +51,11 @@ protected:
         engine->addStrategies("shadow", "holy", NULL);
 
         CPPUNIT_ASSERT_EQUAL(engine->ListStrategies(), string("Strategies: holy"));
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

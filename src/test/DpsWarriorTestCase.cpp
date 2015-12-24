@@ -16,6 +16,7 @@ class DpsWarriorTestCase : public EngineTestBase
     CPPUNIT_TEST( hamstring );
 	CPPUNIT_TEST( victoryRush );
 	CPPUNIT_TEST( aoe );
+	CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -121,6 +122,11 @@ protected:
         tickInMeleeRange();
 
         assertActions(">S:battle stance>T:cleave>T:thunder clap>T:demoralizing shout>A:rend on attacker>T:bloodthirst");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

@@ -13,6 +13,7 @@ class DpsWarlockTestCase : public EngineTestBase
       CPPUNIT_TEST( aoe );
       CPPUNIT_TEST( low_mana );
       CPPUNIT_TEST( cc );
+      CPPUNIT_TEST( stress );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -87,6 +88,11 @@ protected:
         tickWithCcTarget("fear");
 
         assertActions(">Cc:fear on cc");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

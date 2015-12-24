@@ -16,6 +16,7 @@ class MeleeShamanTestCase : public EngineTestBase
     CPPUNIT_TEST( boost );
     CPPUNIT_TEST( interruptSpell );
     CPPUNIT_TEST( interrupt_enemy_healer );
+    CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -97,6 +98,11 @@ protected:
         tickWithEnemyHealerIsCastingInterruptableSpell("wind shear");
 
         assertActions(">H:wind shear on enemy healer");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

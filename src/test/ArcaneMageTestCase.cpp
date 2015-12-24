@@ -11,6 +11,7 @@ class ArcaneMageTestCase : public EngineTestBase
   CPPUNIT_TEST_SUITE( ArcaneMageTestCase );
       CPPUNIT_TEST( combatVsMelee );
       CPPUNIT_TEST( avoid_melee );
+      CPPUNIT_TEST( stress );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +44,12 @@ protected:
 
 		assertActions(">T:frost nova>S:flee");
 	}
+
+    void stress()
+    {
+        runStressTest();
+    }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ArcaneMageTestCase );

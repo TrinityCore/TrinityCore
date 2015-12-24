@@ -13,6 +13,7 @@ class DpsRogueTestCase : public EngineTestBase
 		CPPUNIT_TEST( healHimself );
 		CPPUNIT_TEST( interruptSpells );
 		CPPUNIT_TEST( interrupt_enemy_healer );
+		CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -69,6 +70,12 @@ protected:
 
 		assertActions(">H:kick on enemy healer");
 	}
+
+    void stress()
+    {
+        runStressTest();
+    }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( DpsRogueTestCase );

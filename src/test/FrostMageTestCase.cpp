@@ -18,6 +18,7 @@ class FrostMageTestCase : public EngineTestBase
   CPPUNIT_TEST( incompatibles );
   CPPUNIT_TEST( low_mana );
   CPPUNIT_TEST( interrupt_enemy_healer );
+  CPPUNIT_TEST( stress );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -140,6 +141,10 @@ protected:
         assertActions(">H:counterspell on enemy healer");
     }
 
+    void stress()
+    {
+        runStressTest();
+    }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( FrostMageTestCase );

@@ -19,6 +19,7 @@ class HealPriestTestCase : public EngineTestBase
 	CPPUNIT_TEST( racials );
 	CPPUNIT_TEST( incompatibles );
 	CPPUNIT_TEST( range );
+	CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -189,6 +190,11 @@ protected:
         tickOutOfSpellRange();
 
         assertActions(">T:reach spell");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

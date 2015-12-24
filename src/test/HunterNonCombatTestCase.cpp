@@ -35,7 +35,7 @@ protected:
 
         engine->addStrategy("bdps");
 		tickWithAttackerCount(1);
-        
+
         assertActions(">S:aspect of the pack>S:trueshot aura>S:aspect of the hawk");
     }
 
@@ -44,7 +44,7 @@ protected:
         addAura("trueshot aura");
 
         engine->addStrategy("bmana");
-        
+
 		tick();
         addAura("aspect of the viper");
 
@@ -54,12 +54,12 @@ protected:
     void summonPet()
     {
         tickWithNoPet();
-        
+
 		tickWithPetDead();
 		tickWithPetLowHealth(30);
 
 		assertActions(">S:call pet>S:revive pet>Pet:mend pet");
-	}        
+	}
 
     void buffIfPackUnavailable()
     {
@@ -69,7 +69,6 @@ protected:
 
 		assertActions(">S:aspect of the cheetah");
     }
-    
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( HunterNonCombatTestCase );

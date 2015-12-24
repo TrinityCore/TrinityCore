@@ -11,6 +11,7 @@ class DpsPaladinTestCase : public EngineTestBase
     CPPUNIT_TEST_SUITE( DpsPaladinTestCase );
     CPPUNIT_TEST( buff );
 	CPPUNIT_TEST( combatVsMelee );
+	CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -26,7 +27,7 @@ public:
 
         set<float>("distance", "current target", 0.0f);
     }
- 
+
 protected:
     void buff()
     {
@@ -34,10 +35,10 @@ protected:
         removeAura("blessing of might");
         removeAura("seal of vengeance");
         removeAura("holy shield");
-        
+
         tick();
         addAura("devotion aura");
-        
+
         tick();
         tick();
         tick();
@@ -45,20 +46,20 @@ protected:
         addAura("seal of wisdom");
 
         tick();
-        tick(); 
+        tick();
         addAura("blessing of kings");
-                
+
         assertActions(">S:retribution aura>S:seal of vengeance>S:seal of command>S:seal of wisdom>S:seal of justice>S:blessing of might>S:blessing of kings");
     }
 
     void combatVsMelee()
     {
 		tickOutOfMeleeRange();
-        
-        tick(); 
-		tick(); 
+
+        tick();
+		tick();
 		addTargetAura("judgement of wisdom");
-		
+
 		tick();
 
 		tickWithAttackerCount(3);
@@ -67,6 +68,11 @@ protected:
 		tickWithTargetLowHealth(19);
 
 		assertActions(">T:reach melee>T:judgement of wisdom>T:judgement of light>T:crusader strike>S:divine storm>T:consecration>T:hammer of wrath");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

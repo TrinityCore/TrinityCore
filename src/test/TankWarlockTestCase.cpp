@@ -12,6 +12,7 @@ class TankWarlockTestCase : public EngineTestBase
       CPPUNIT_TEST( summonPet );
       CPPUNIT_TEST( cc );
       CPPUNIT_TEST( incompatibles );
+      CPPUNIT_TEST( stress );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -45,6 +46,11 @@ protected:
         engine->addStrategies("tank", "dps", NULL);
 
         CPPUNIT_ASSERT(engine->ListStrategies() == "Strategies: dps");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

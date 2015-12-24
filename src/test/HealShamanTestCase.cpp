@@ -131,6 +131,7 @@ protected:
 
         assertActions(">S:healing stream totem");
     }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( HealShamanTestCase );

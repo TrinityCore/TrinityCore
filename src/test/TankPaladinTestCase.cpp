@@ -24,6 +24,7 @@ class TankPaladinTestCase : public EngineTestBase
 		CPPUNIT_TEST( resistanceIncompatibles );
 		CPPUNIT_TEST( lowMana );
 		CPPUNIT_TEST( interrupt_enemy_healer );
+		CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -218,6 +219,11 @@ protected:
         tickWithEnemyHealerIsCastingInterruptableSpell("hammer of justice");
 
         assertActions(">H:hammer of justice on enemy healer");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

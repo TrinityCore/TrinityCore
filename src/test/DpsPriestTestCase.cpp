@@ -12,6 +12,7 @@ class DpsPriestTestCase : public EngineTestBase
     CPPUNIT_TEST( combat );
     CPPUNIT_TEST( low_mana );
     CPPUNIT_TEST( aoe );
+    CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -82,6 +83,12 @@ protected:
         tick();
 
         assertActions(">A:shadow word: pain on attacker>T:mind blast");
+    }
+
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

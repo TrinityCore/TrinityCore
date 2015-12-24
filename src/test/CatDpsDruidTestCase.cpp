@@ -17,6 +17,7 @@ class CatDpsDruidTestCase : public EngineTestBase
     CPPUNIT_TEST( cower );
     CPPUNIT_TEST( buff );
 	CPPUNIT_TEST( aoe );
+	CPPUNIT_TEST( stress );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -127,6 +128,12 @@ protected:
 		tickWithAttackerCount(3);
 
 		assertActions(">T:rake>T:swipe (cat)");
+    }
+
+    void stress()
+    {
+        addAura("cat form");
+        runStressTest();
     }
 };
 

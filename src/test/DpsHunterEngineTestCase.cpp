@@ -17,6 +17,7 @@ class DpsHunterEngineTestCase : public EngineTestBase
   CPPUNIT_TEST( buff );
   CPPUNIT_TEST( incompatibles );
   CPPUNIT_TEST( feign_death );
+  CPPUNIT_TEST( stress );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -58,7 +59,7 @@ protected:
         tick();
 		tickWithSpellAvailable("auto shot");
 
-		assertActions(">S:aspect of the hawk>T:hunter's mark>T:black arrow>T:serpent sting>T:explosive shot>T:auto shot>T:wing clip>S:flee>T:concussive shot>T:wyvern sting>T:chimera shot>T:arcane shot>T:auto shot");
+		assertActions(">S:aspect of the hawk>T:hunter's mark>T:black arrow>T:serpent sting>T:explosive shot>T:auto shot>T:wing clip>S:flee>T:concussive shot>T:wyvern sting>T:chimera shot>T:auto shot>T:arcane shot");
 
 	}
 
@@ -154,6 +155,11 @@ protected:
         tickWithMyAttackerCount(3);
 
         assertActions(">T:hunter's mark>S:feign death>S:flee");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 

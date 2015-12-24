@@ -16,6 +16,7 @@ class FireMageTestCase : public EngineTestBase
   CPPUNIT_TEST( boost );
   CPPUNIT_TEST( aoe );
   CPPUNIT_TEST( invisibility );
+  CPPUNIT_TEST( stress );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -97,6 +98,11 @@ protected:
 		tickWithMyAttackerCount(3);
 
 		assertActions(">S:invisibility");
+    }
+
+    void stress()
+    {
+        runStressTest();
     }
 };
 
