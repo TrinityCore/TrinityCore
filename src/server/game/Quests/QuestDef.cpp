@@ -22,6 +22,13 @@
 
 Quest::Quest(Field* questRecord)
 {
+    EmoteOnIncomplete = 0;
+    EmoteOnComplete = 0;
+    _reqItemsCount = 0;
+    _reqCreatureOrGOcount = 0;
+    _rewItemsCount = 0;
+    _rewChoiceItemsCount = 0;
+
     Id = questRecord[0].GetUInt32();
     Method = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt16();
@@ -54,12 +61,18 @@ Quest::Quest(Field* questRecord)
     {
         RewardItemId[i] = questRecord[27+i*2].GetUInt32();
         RewardItemIdCount[i] = questRecord[28+i*2].GetUInt16();
+
+        if (RewardItemId[i])
+            ++_rewItemsCount;
     }
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
         RewardChoiceItemId[i] = questRecord[35+i*2].GetUInt32();
         RewardChoiceItemCount[i] = questRecord[36+i*2].GetUInt16();
+
+        if (RewardChoiceItemId[i])
+            ++_rewChoiceItemsCount;
     }
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
@@ -80,65 +93,40 @@ Quest::Quest(Field* questRecord)
     CompletedText = questRecord[70].GetString();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    {
         RequiredNpcOrGo[i] = questRecord[71+i].GetInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         RequiredNpcOrGoCount[i] = questRecord[75+i].GetUInt16();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        ItemDrop[i] = questRecord[79+i].GetUInt32();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        ItemDropQuantity[i] = questRecord[83+i].GetUInt16();
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        RequiredItemId[i] = questRecord[87+i].GetUInt32();
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        RequiredItemCount[i] = questRecord[93+i].GetUInt16();
-
-    // int8 Unknown0 = questRecord[99].GetUInt8();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i] = questRecord[100+i].GetString();
 
-    EmoteOnIncomplete = 0;
-    EmoteOnComplete = 0;
-
-    //int32 VerifiedBuild = questRecord[104].GetInt32();
-
-    _reqItemsCount = 0;
-    _reqCreatureOrGOcount = 0;
-    _rewItemsCount = 0;
-    _rewChoiceItemsCount = 0;
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        if (RequiredItemId[i])
-            ++_reqItemsCount;
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         if (RequiredNpcOrGo[i])
             ++_reqCreatureOrGOcount;
+    }
 
-    for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        if (RewardItemId[i])
-            ++_rewItemsCount;
+    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    {
+        ItemDrop[i] = questRecord[79+i].GetUInt32();
+        ItemDropQuantity[i] = questRecord[83+i].GetUInt16();
+    }
 
-    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        if (RewardChoiceItemId[i])
-            ++_rewChoiceItemsCount;
+    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    {
+        RequiredItemId[i] = questRecord[87+i].GetUInt32();
+        RequiredItemCount[i] = questRecord[93+i].GetUInt16();
+
+        if (RequiredItemId[i])
+            ++_reqItemsCount;
+    }
+
+    // int8 Unknown0 = questRecord[99].GetUInt8();
+    // int32 VerifiedBuild = questRecord[104].GetInt32();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    {
         DetailsEmote[i] = 0;
-
-    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmoteDelay[i] = 0;
-
-    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmote[i] = 0;
-
-    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmoteDelay[i] = 0;
+    }
 }
 
 void Quest::LoadQuestDetails(Field* fields)
