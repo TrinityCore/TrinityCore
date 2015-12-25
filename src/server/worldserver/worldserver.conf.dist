@@ -1939,6 +1939,13 @@ Rate.Auction.Cut     = 1
 Rate.Honor = 1
 
 #
+#    Rate.ArenaPoints
+#        Description: Arena points gain rate.
+#        Default:     1
+
+Rate.ArenaPoints = 1
+
+#
 #    Rate.Talent
 #        Description: Talent point rate.
 #        Default:     1
@@ -2429,6 +2436,39 @@ Arena.ArenaStartPersonalRating = 0
 #        Default:     1500
 
 Arena.ArenaStartMatchmakerRating = 1500
+
+#
+#    Arena.ArenaWinRatingModifier1
+#        Description: Modifier of rating addition when winner team rating is less than 1300
+#                     be aware that from 1000 to 1300 it gradually decreases automatically down to the half of it
+#                     (increasing this value will give more rating)
+#        Default:     48
+
+Arena.ArenaWinRatingModifier1 = 48
+
+#
+#    Arena.ArenaWinRatingModifier2
+#        Description: Modifier of rating addition when winner team rating is equal or more than 1300
+#                     (increasing this value will give more rating)
+#        Default:     24
+
+Arena.ArenaWinRatingModifier2 = 24
+
+
+#
+#    Arena.ArenaLoseRatingModifier
+#        Description: Modifier of rating subtraction for loser team
+#                     (increasing this value will subtract more rating)
+#        Default:     24
+
+Arena.ArenaLoseRatingModifier = 24
+
+#
+#    Arena.ArenaMatchmakerRatingModifier
+#        Description: Modifier of matchmaker rating
+#        Default:     24
+
+Arena.ArenaMatchmakerRatingModifier = 24
 
 #
 #    ArenaLog.ExtendedInfo
