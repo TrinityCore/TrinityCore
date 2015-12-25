@@ -4,25 +4,22 @@
 
 using namespace ai;
 
-bool CastSpellAction::Execute(Event event) 
+bool CastSpellAction::Execute(Event event)
 {
-	return ai->CastSpell(spell, GetTarget()); 
+	return ai->CastSpell(spell, GetTarget());
 }
 
-bool CastSpellAction::isPossible() 
+bool CastSpellAction::isPossible()
 {
-    if (AI_VALUE2(float, "distance", GetTargetName()) > range)
-        return false;
-
 	return ai->CanCastSpell(spell, GetTarget());
 }
 
-bool CastSpellAction::isUseful() 
+bool CastSpellAction::isUseful()
 {
 	return GetTarget() && AI_VALUE2(bool, "spell cast useful", spell);
 }
 
-bool CastAuraSpellAction::isUseful() 
+bool CastAuraSpellAction::isUseful()
 {
 	return CastSpellAction::isUseful() && !ai->HasAura(spell, GetTarget());
 }
@@ -36,7 +33,7 @@ bool CastEnchantItemAction::isUseful()
     return spellId && AI_VALUE2(Item*, "item for spell", spellId);
 }
 
-bool CastHealingSpellAction::isUseful() 
+bool CastHealingSpellAction::isUseful()
 {
 	return CastAuraSpellAction::isUseful() && AI_VALUE2(uint8, "health", GetTargetName()) < (100 - estAmount);
 }

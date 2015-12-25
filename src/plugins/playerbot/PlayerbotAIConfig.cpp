@@ -47,7 +47,7 @@ bool PlayerbotAIConfig::Initialize()
     reactDelay = (uint32) config.GetIntDefault("AiPlayerbot.ReactDelay", 100);
 
     sightDistance = config.GetFloatDefault("AiPlayerbot.SightDistance", 50.0f);
-    spellDistance = config.GetFloatDefault("AiPlayerbot.SpellDistance", 30.0f);
+    spellDistance = config.GetFloatDefault("AiPlayerbot.SpellDistance", 25.0f);
     reactDistance = config.GetFloatDefault("AiPlayerbot.ReactDistance", 150.0f);
     grindDistance = config.GetFloatDefault("AiPlayerbot.GrindDistance", 100.0f);
     lootDistance = config.GetFloatDefault("AiPlayerbot.LootDistance", 20.0f);
