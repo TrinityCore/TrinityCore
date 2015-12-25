@@ -74,23 +74,6 @@ namespace Trinity
          * Select a random element from a container where each element has a different chance to be selected.
          *
          * @param container Container to select an element from
-         * @param weightExtractor Function retrieving chance of each element in container
-         *
-         * Note: container cannot be empty
-         */
-        template <class C>
-        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::function<double(typename C::value_type const&)> weightExtractor)
-        {
-            std::vector<double> weights;
-            weights.reserve(container.size());
-            std::transform(container.begin(), container.end(), std::back_inserter(weights), weightExtractor);
-            return SelectRandomWeightedContainerElement(container, weights);
-        }
-
-        /*
-         * Select a random element from a container where each element has a different chance to be selected.
-         *
-         * @param container Container to select an element from
          * @param weights Chances of each element to be selected, must be in the same order as elements in container
          *
          * Note: container cannot be empty
@@ -102,6 +85,23 @@ namespace Trinity
             typename C::const_iterator it = container.begin();
             std::advance(it, dd(SFMTEngine::Instance()));
             return it;
+        }
+
+        /*
+         * Select a random element from a container where each element has a different chance to be selected.
+         *
+         * @param container Container to select an element from
+         * @param weightExtractor Function retrieving chance of each element in container
+         *
+         * Note: container cannot be empty
+         */
+        template <class C>
+        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::function<double(typename C::value_type const&)> weightExtractor)
+        {
+            std::vector<double> weights;
+            weights.reserve(container.size());
+            std::transform(container.begin(), container.end(), std::back_inserter(weights), weightExtractor);
+            return SelectRandomWeightedContainerElement(container, weights);
         }
 
         /**
