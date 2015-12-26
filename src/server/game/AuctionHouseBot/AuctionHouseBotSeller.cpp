@@ -737,20 +737,20 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
 }
 
 // Determines the stack size to use for the item
-void AuctionBotSeller::SetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& stackcnt)
+uint32 AuctionBotSeller::GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const
 {
     uint32 randomStackPercent = config.GetRandomStackRatioPerClass(ItemClass(itemProto->Class));
     if (randomStackPercent >= 100)
-        stackcnt = urand(1, itemProto->GetMaxStackSize());
+        return urand(1, itemProto->GetMaxStackSize());
     else if (randomStackPercent == 0)
-        stackcnt = 1;
+        return 1;
     else
     {
         uint32 randomStackRoll = urand(0, 99);
         if (randomStackRoll < randomStackPercent)
-            stackcnt = urand(1, itemProto->GetMaxStackSize());
+            return urand(1, itemProto->GetMaxStackSize());
         else
-            stackcnt = 1;
+            return 1;
     }
 }
 
@@ -987,8 +987,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
             continue;
         }
 
-        uint32 stackCount = 1;
-        SetStackSizeForItem(prototype, config, stackCount);
+        uint32 stackCount = GetStackSizeForItem(prototype, config);
 
         Item* item = Item::CreateItem(itemId, stackCount);
         if (!item)

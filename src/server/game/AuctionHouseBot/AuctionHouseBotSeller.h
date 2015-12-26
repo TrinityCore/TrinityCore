@@ -33,7 +33,7 @@ typedef std::vector<std::vector<uint32>> AllItemsArray;
 
 struct SellerItemClassInfo
 {
-    SellerItemClassInfo(): AmountOfItems(0), MissItems(0), Quantity(0), PriceRatio(0) {}
+    SellerItemClassInfo(): AmountOfItems(0), MissItems(0), Quantity(0), PriceRatio(0), RandomStackRatio(100) {}
 
     uint32 AmountOfItems;
     uint32 MissItems;
@@ -142,7 +142,7 @@ private:
     uint32 SetStat(SellerConfiguration& config);
     bool GetItemsToSell(SellerConfiguration& config, ItemsToSellArray& itemsToSellArray, AllItemsArray const& addedItem);
     void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt);
-    void SetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& stackcnt);
+    uint32 GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const;
     void LoadItemsQuantity(SellerConfiguration& config);
     static uint32 GetBuyModifier(ItemTemplate const* prototype);
     static uint32 GetSellModifier(ItemTemplate const* itemProto);
