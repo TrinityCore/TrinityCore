@@ -3190,6 +3190,46 @@ AuctionHouseBot.forceIncludeItems = ""
 AuctionHouseBot.forceExcludeItems = ""
 
 #
+#    AuctionHouseBot.Class.RandomStackRatio.*
+#       Description: Used to determine how often an item of the class will be single or randomly-size stacked
+#                    Value needs to be between 0 and 100, no decimal.  Anything higher than 100 will be treated as 100
+#       Examples:    100 = stacks will always be random in size
+#                    50 = half the time the stacks are random, the other half being single stack
+#                    0 = stacks will always single size
+#       Default:     Consumable: 20 (20% random stack size, 80% single stack size)
+#                    Container: 0 (100% single stack size)
+#                    Weapon: 0 (100% single stack size)
+#                    Gem: 20 (20% random stack size, 80% single stack size)
+#                    Armor: 0 (100% single stack size)
+#                    Reagent: 100 (100% random stack size)
+#                    Projectile: 100 (100% random stack size)
+#                    TradeGood: 50 (50% random stack size, 50% single stack size)
+#                    Generic: 100 (100% random stack size)
+#                    Recipe: 0 (100% single stack size)
+#                    Quiver: 0 (100% single stack size)
+#                    Quest: 100 (100% random stack size)
+#                    Key: 100 (100% random stack size)
+#                    Misc: 100 (100% random stack size)
+#                    Glyph: 0 (100% single stack size)
+#
+
+AuctionHouseBot.Class.RandomStackRatio.Consumable = 20
+AuctionHouseBot.Class.RandomStackRatio.Container = 0
+AuctionHouseBot.Class.RandomStackRatio.Weapon = 0
+AuctionHouseBot.Class.RandomStackRatio.Gem = 20
+AuctionHouseBot.Class.RandomStackRatio.Armor = 0
+AuctionHouseBot.Class.RandomStackRatio.Reagent = 100
+AuctionHouseBot.Class.RandomStackRatio.Projectile = 100
+AuctionHouseBot.Class.RandomStackRatio.TradeGood = 50
+AuctionHouseBot.Class.RandomStackRatio.Generic = 100
+AuctionHouseBot.Class.RandomStackRatio.Recipe = 0
+AuctionHouseBot.Class.RandomStackRatio.Quiver = 0
+AuctionHouseBot.Class.RandomStackRatio.Quest = 100
+AuctionHouseBot.Class.RandomStackRatio.Key = 100
+AuctionHouseBot.Class.RandomStackRatio.Misc = 100
+AuctionHouseBot.Class.RandomStackRatio.Glyph = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
