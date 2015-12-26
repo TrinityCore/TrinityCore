@@ -69,14 +69,14 @@ void Bag::RemoveFromWorld()
     Item::RemoveFromWorld();
 }
 
-bool Bag::Create(uint32 guidlow, uint32 itemid, Player const* owner)
+bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
 
     if (!itemProto || itemProto->ContainerSlots > MAX_BAG_SIZE)
         return false;
 
-    Object::_Create(guidlow, 0, HIGHGUID_CONTAINER);
+    Object::_Create(guidlow, 0, HighGuid::Container);
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
@@ -109,7 +109,7 @@ void Bag::SaveToDB(SQLTransaction& trans)
     Item::SaveToDB(trans);
 }
 
-bool Bag::LoadFromDB(uint32 guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
+bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
     if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
         return false;

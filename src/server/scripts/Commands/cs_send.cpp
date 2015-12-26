@@ -27,21 +27,19 @@ class send_commandscript : public CommandScript
 public:
     send_commandscript() : CommandScript("send_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand sendCommandTable[] =
+        static std::vector<ChatCommand> sendCommandTable =
         {
-            { "items",   rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   true, &HandleSendItemsCommand,   "", NULL },
-            { "mail",    rbac::RBAC_PERM_COMMAND_SEND_MAIL,    true, &HandleSendMailCommand,    "", NULL },
-            { "message", rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, true, &HandleSendMessageCommand, "", NULL },
-            { "money",   rbac::RBAC_PERM_COMMAND_SEND_MONEY,   true, &HandleSendMoneyCommand,   "", NULL },
-            { NULL,      0,                             false, NULL,                      "", NULL }
+            { "items",   rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   true, &HandleSendItemsCommand,   "" },
+            { "mail",    rbac::RBAC_PERM_COMMAND_SEND_MAIL,    true, &HandleSendMailCommand,    "" },
+            { "message", rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, true, &HandleSendMessageCommand, "" },
+            { "money",   rbac::RBAC_PERM_COMMAND_SEND_MONEY,   true, &HandleSendMoneyCommand,   "" },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "send", rbac::RBAC_PERM_COMMAND_SEND, false, NULL, "", sendCommandTable },
-            { NULL,   0,                      false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -77,7 +75,7 @@ public:
         std::string text    = msgText;
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         /// @todo Fix poor design
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -176,7 +174,7 @@ public:
         }
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         // fill mail
         MailDraft draft(subject, text);
@@ -236,7 +234,7 @@ public:
         std::string text    = msgText;
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 

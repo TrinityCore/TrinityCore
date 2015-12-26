@@ -555,7 +555,10 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
         ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
 
     if (iMap)
+    {
         iMap->DeleteRespawnTimes();
+        iMap->DeleteCorpseData();
+    }
     else
         Map::DeleteRespawnTimesInDB(mapid, instanceId);
 

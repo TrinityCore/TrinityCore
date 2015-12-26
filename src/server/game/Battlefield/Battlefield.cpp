@@ -695,7 +695,7 @@ void BfGraveyard::Resurrect()
         player->CastSpell(player, 6962, true);
         player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
 
-        sObjectAccessor->ConvertCorpseForPlayer(player->GetGUID());
+        player->SpawnCorpseBones(false);
     }
 
     m_ResurrectQueue.clear();
@@ -770,7 +770,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
     }
 
     Creature* creature = new Creature();
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, x, y, z, o))
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
         delete creature;
@@ -803,7 +803,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z
 
     // Create gameobject
     GameObject* go = new GameObject;
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
+    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u not found in database! Battlefield not created!", entry);
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Cannot create gameobject template %u! Battlefield not created!", entry);
@@ -901,7 +901,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 
     TC_LOG_DEBUG("bg.battlefield", "Creating capture point %u", capturePoint->GetEntry());
 
-    m_capturePointGUID = ObjectGuid(HIGHGUID_GAMEOBJECT, capturePoint->GetEntry(), capturePoint->GetGUIDLow());
+    m_capturePointGUID = ObjectGuid(HighGuid::GameObject, capturePoint->GetEntry(), capturePoint->GetGUID().GetCounter());
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();

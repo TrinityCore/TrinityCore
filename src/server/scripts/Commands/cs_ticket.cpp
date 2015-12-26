@@ -36,38 +36,35 @@ class ticket_commandscript : public CommandScript
 public:
     ticket_commandscript() : CommandScript("ticket_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand ticketResponseCommandTable[] =
+        static std::vector<ChatCommand> ticketResponseCommandTable =
         {
-            { "append",   rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE_APPEND,   true,  &HandleGMTicketResponseAppendCommand,   "", NULL },
-            { "appendln", rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE_APPENDLN, true,  &HandleGMTicketResponseAppendLnCommand, "", NULL },
-            { NULL,       0,                                         false, NULL,                                    "", NULL }
+            { "append",   rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE_APPEND,   true,  &HandleGMTicketResponseAppendCommand,   "" },
+            { "appendln", rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE_APPENDLN, true,  &HandleGMTicketResponseAppendLnCommand, "" },
         };
-        static ChatCommand ticketCommandTable[] =
+        static std::vector<ChatCommand> ticketCommandTable =
         {
-            { "assign",        rbac::RBAC_PERM_COMMAND_TICKET_ASSIGN,        true, &HandleGMTicketAssignToCommand,          "", NULL },
-            { "close",         rbac::RBAC_PERM_COMMAND_TICKET_CLOSE,         true, &HandleGMTicketCloseByIdCommand,         "", NULL },
-            { "closedlist",    rbac::RBAC_PERM_COMMAND_TICKET_CLOSEDLIST,    true, &HandleGMTicketListClosedCommand,        "", NULL },
-            { "comment",       rbac::RBAC_PERM_COMMAND_TICKET_COMMENT,       true, &HandleGMTicketCommentCommand,           "", NULL },
-            { "complete",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLETE,      true, &HandleGMTicketCompleteCommand,          "", NULL },
-            { "delete",        rbac::RBAC_PERM_COMMAND_TICKET_DELETE,        true, &HandleGMTicketDeleteByIdCommand,        "", NULL },
-            { "escalate",      rbac::RBAC_PERM_COMMAND_TICKET_ESCALATE,      true, &HandleGMTicketEscalateCommand,          "", NULL },
-            { "escalatedlist", rbac::RBAC_PERM_COMMAND_TICKET_ESCALATEDLIST, true, &HandleGMTicketListEscalatedCommand,     "", NULL },
-            { "list",          rbac::RBAC_PERM_COMMAND_TICKET_LIST,          true, &HandleGMTicketListCommand,              "", NULL },
-            { "onlinelist",    rbac::RBAC_PERM_COMMAND_TICKET_ONLINELIST,    true, &HandleGMTicketListOnlineCommand,        "", NULL },
-            { "reset",         rbac::RBAC_PERM_COMMAND_TICKET_RESET,         true, &HandleGMTicketResetCommand,             "", NULL },
+            { "assign",        rbac::RBAC_PERM_COMMAND_TICKET_ASSIGN,        true, &HandleGMTicketAssignToCommand,          "" },
+            { "close",         rbac::RBAC_PERM_COMMAND_TICKET_CLOSE,         true, &HandleGMTicketCloseByIdCommand,         "" },
+            { "closedlist",    rbac::RBAC_PERM_COMMAND_TICKET_CLOSEDLIST,    true, &HandleGMTicketListClosedCommand,        "" },
+            { "comment",       rbac::RBAC_PERM_COMMAND_TICKET_COMMENT,       true, &HandleGMTicketCommentCommand,           "" },
+            { "complete",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLETE,      true, &HandleGMTicketCompleteCommand,          "" },
+            { "delete",        rbac::RBAC_PERM_COMMAND_TICKET_DELETE,        true, &HandleGMTicketDeleteByIdCommand,        "" },
+            { "escalate",      rbac::RBAC_PERM_COMMAND_TICKET_ESCALATE,      true, &HandleGMTicketEscalateCommand,          "" },
+            { "escalatedlist", rbac::RBAC_PERM_COMMAND_TICKET_ESCALATEDLIST, true, &HandleGMTicketListEscalatedCommand,     "" },
+            { "list",          rbac::RBAC_PERM_COMMAND_TICKET_LIST,          true, &HandleGMTicketListCommand,              "" },
+            { "onlinelist",    rbac::RBAC_PERM_COMMAND_TICKET_ONLINELIST,    true, &HandleGMTicketListOnlineCommand,        "" },
+            { "reset",         rbac::RBAC_PERM_COMMAND_TICKET_RESET,         true, &HandleGMTicketResetCommand,             "" },
             { "response",      rbac::RBAC_PERM_COMMAND_TICKET_RESPONSE,      true, NULL,              "", ticketResponseCommandTable },
-            { "togglesystem",  rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,  true, &HandleToggleGMTicketSystem,             "", NULL },
-            { "unassign",      rbac::RBAC_PERM_COMMAND_TICKET_UNASSIGN,      true, &HandleGMTicketUnAssignCommand,          "", NULL },
-            { "viewid",        rbac::RBAC_PERM_COMMAND_TICKET_VIEWID,        true, &HandleGMTicketGetByIdCommand,           "", NULL },
-            { "viewname",      rbac::RBAC_PERM_COMMAND_TICKET_VIEWNAME,      true, &HandleGMTicketGetByNameCommand,         "", NULL },
-            { NULL,            0,                                     false, NULL,                                    "", NULL }
+            { "togglesystem",  rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,  true, &HandleToggleGMTicketSystem,             "" },
+            { "unassign",      rbac::RBAC_PERM_COMMAND_TICKET_UNASSIGN,      true, &HandleGMTicketUnAssignCommand,          "" },
+            { "viewid",        rbac::RBAC_PERM_COMMAND_TICKET_VIEWID,        true, &HandleGMTicketGetByIdCommand,           "" },
+            { "viewname",      rbac::RBAC_PERM_COMMAND_TICKET_VIEWNAME,      true, &HandleGMTicketGetByNameCommand,         "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "ticket", rbac::RBAC_PERM_COMMAND_TICKET, false, NULL, "", ticketCommandTable },
-            { NULL,     0,                        false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -153,7 +150,7 @@ public:
             return true;
         }
 
-        sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : ObjectGuid(uint64(-1)));
+        sTicketMgr->ResolveAndCloseTicket(ticket->GetId(), player ? player->GetGUID() : ObjectGuid(uint64(0)));
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL, NULL);
@@ -248,7 +245,10 @@ public:
         if (Player* player = ticket->GetPlayer())
             ticket->SendResponse(player->GetSession());
 
+        Player* gm = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
+
         SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetResolvedBy(gm ? gm->GetGUID() : ObjectGuid(uint64(0)));
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
 

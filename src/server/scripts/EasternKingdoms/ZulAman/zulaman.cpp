@@ -268,9 +268,9 @@ class npc_harrison_jones : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override { }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-               if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
+               if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                {
                     player->CLOSE_GOSSIP_MENU();
                     me->SetFacingToObject(player);

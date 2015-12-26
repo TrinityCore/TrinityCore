@@ -245,7 +245,7 @@ void BattlegroundIC::StartingEventOpenDoors()
 void BattlegroundIC::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundICScore(player->GetGUID());
+    PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundICScore(player->GetGUID());
 
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);

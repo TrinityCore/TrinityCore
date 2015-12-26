@@ -230,7 +230,7 @@ public:
             Talk(ATTACK_YELL, who);
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             player->CLOSE_GOSSIP_MENU();
             me->setFaction(FACTION_HOSTILE);

@@ -21,7 +21,7 @@
 
 enum Spells
 {
-    SPELL_HATEFUL_STRIKE                        = 41926,
+    SPELL_HATEFUL_STRIKE                        = 28308,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
     SPELL_SLIME_BOLT                            = 32309
@@ -33,7 +33,7 @@ enum Yells
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
     EMOTE_BERSERK                               = 3,
-    EMOTE_ENRAGE                                = 4
+    EMOTE_FRENZY                                = 4
 };
 
 enum Events
@@ -185,7 +185,7 @@ public:
             if (!Enraged && HealthBelowPct(5))
             {
                 DoCast(me, SPELL_FRENZY, true);
-                Talk(EMOTE_ENRAGE);
+                Talk(EMOTE_FRENZY);
                 Enraged = true;
             }
 

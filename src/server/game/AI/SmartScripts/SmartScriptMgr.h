@@ -539,8 +539,9 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
+    SMART_ACTION_RISE_UP                            = 114,    // distance
 
-    SMART_ACTION_END                                = 114
+    SMART_ACTION_END                                = 115
 };
 
 struct SmartAction

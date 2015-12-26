@@ -42,66 +42,62 @@ class debug_commandscript : public CommandScript
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand debugPlayCommandTable[] =
+        static std::vector<ChatCommand> debugPlayCommandTable =
         {
-            { "cinematic",     rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_CINEMATIC, false, &HandleDebugPlayCinematicCommand,   "", NULL },
-            { "movie",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MOVIE,     false, &HandleDebugPlayMovieCommand,       "", NULL },
-            { "sound",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_SOUND,     false, &HandleDebugPlaySoundCommand,       "", NULL },
-            { NULL,            0,                                      false, NULL,                               "", NULL }
+            { "cinematic",     rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_CINEMATIC, false, &HandleDebugPlayCinematicCommand,   "" },
+            { "movie",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MOVIE,     false, &HandleDebugPlayMovieCommand,       "" },
+            { "sound",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_SOUND,     false, &HandleDebugPlaySoundCommand,       "" },
         };
-        static ChatCommand debugSendCommandTable[] =
+        static std::vector<ChatCommand> debugSendCommandTable =
         {
-            { "buyerror",      rbac::RBAC_PERM_COMMAND_DEBUG_SEND_BUYERROR,      false, &HandleDebugSendBuyErrorCommand,        "", NULL },
-            { "channelnotify", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHANNELNOTIFY, false, &HandleDebugSendChannelNotifyCommand,   "", NULL },
-            { "chatmessage",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHATMESSAGE,   false, &HandleDebugSendChatMsgCommand,         "", NULL },
-            { "equiperror",    rbac::RBAC_PERM_COMMAND_DEBUG_SEND_EQUIPERROR,    false, &HandleDebugSendEquipErrorCommand,      "", NULL },
-            { "largepacket",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_LARGEPACKET,   false, &HandleDebugSendLargePacketCommand,     "", NULL },
-            { "opcode",        rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE,        false, &HandleDebugSendOpcodeCommand,          "", NULL },
-            { "qpartymsg",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QPARTYMSG,     false, &HandleDebugSendQuestPartyMsgCommand,   "", NULL },
-            { "qinvalidmsg",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QINVALIDMSG,   false, &HandleDebugSendQuestInvalidMsgCommand, "", NULL },
-            { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "", NULL },
-            { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "", NULL },
-            { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "", NULL },
-            { NULL,            0,                                          false, NULL,                                   "", NULL }
+            { "buyerror",      rbac::RBAC_PERM_COMMAND_DEBUG_SEND_BUYERROR,      false, &HandleDebugSendBuyErrorCommand,        "" },
+            { "channelnotify", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHANNELNOTIFY, false, &HandleDebugSendChannelNotifyCommand,   "" },
+            { "chatmessage",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHATMESSAGE,   false, &HandleDebugSendChatMsgCommand,         "" },
+            { "equiperror",    rbac::RBAC_PERM_COMMAND_DEBUG_SEND_EQUIPERROR,    false, &HandleDebugSendEquipErrorCommand,      "" },
+            { "largepacket",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_LARGEPACKET,   false, &HandleDebugSendLargePacketCommand,     "" },
+            { "opcode",        rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE,        false, &HandleDebugSendOpcodeCommand,          "" },
+            { "qpartymsg",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QPARTYMSG,     false, &HandleDebugSendQuestPartyMsgCommand,   "" },
+            { "qinvalidmsg",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QINVALIDMSG,   false, &HandleDebugSendQuestInvalidMsgCommand, "" },
+            { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
+            { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
+            { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
         };
-        static ChatCommand debugCommandTable[] =
+        static std::vector<ChatCommand> debugCommandTable =
         {
-            { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "", NULL },
-            { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "", NULL },
-            { "hostil",        rbac::RBAC_PERM_COMMAND_DEBUG_HOSTIL,        false, &HandleDebugHostileRefListCommand,   "", NULL },
-            { "anim",          rbac::RBAC_PERM_COMMAND_DEBUG_ANIM,          false, &HandleDebugAnimCommand,             "", NULL },
-            { "arena",         rbac::RBAC_PERM_COMMAND_DEBUG_ARENA,         false, &HandleDebugArenaCommand,            "", NULL },
-            { "bg",            rbac::RBAC_PERM_COMMAND_DEBUG_BG,            false, &HandleDebugBattlegroundCommand,     "", NULL },
-            { "getitemstate",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE,  false, &HandleDebugGetItemStateCommand,     "", NULL },
-            { "lootrecipient", rbac::RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT, false, &HandleDebugGetLootRecipientCommand, "", NULL },
-            { "getvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_GETVALUE,      false, &HandleDebugGetValueCommand,         "", NULL },
-            { "getitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMVALUE,  false, &HandleDebugGetItemValueCommand,     "", NULL },
-            { "Mod32Value",    rbac::RBAC_PERM_COMMAND_DEBUG_MOD32VALUE,    false, &HandleDebugMod32ValueCommand,       "", NULL },
+            { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "" },
+            { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "" },
+            { "hostil",        rbac::RBAC_PERM_COMMAND_DEBUG_HOSTIL,        false, &HandleDebugHostileRefListCommand,   "" },
+            { "anim",          rbac::RBAC_PERM_COMMAND_DEBUG_ANIM,          false, &HandleDebugAnimCommand,             "" },
+            { "arena",         rbac::RBAC_PERM_COMMAND_DEBUG_ARENA,         false, &HandleDebugArenaCommand,            "" },
+            { "bg",            rbac::RBAC_PERM_COMMAND_DEBUG_BG,            false, &HandleDebugBattlegroundCommand,     "" },
+            { "getitemstate",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE,  false, &HandleDebugGetItemStateCommand,     "" },
+            { "lootrecipient", rbac::RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT, false, &HandleDebugGetLootRecipientCommand, "" },
+            { "getvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_GETVALUE,      false, &HandleDebugGetValueCommand,         "" },
+            { "getitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMVALUE,  false, &HandleDebugGetItemValueCommand,     "" },
+            { "Mod32Value",    rbac::RBAC_PERM_COMMAND_DEBUG_MOD32VALUE,    false, &HandleDebugMod32ValueCommand,       "" },
             { "play",          rbac::RBAC_PERM_COMMAND_DEBUG_PLAY,          false, NULL,              "", debugPlayCommandTable },
             { "send",          rbac::RBAC_PERM_COMMAND_DEBUG_SEND,          false, NULL,              "", debugSendCommandTable },
-            { "setaurastate",  rbac::RBAC_PERM_COMMAND_DEBUG_SETAURASTATE,  false, &HandleDebugSetAuraStateCommand,     "", NULL },
-            { "setitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_SETITEMVALUE,  false, &HandleDebugSetItemValueCommand,     "", NULL },
-            { "setvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_SETVALUE,      false, &HandleDebugSetValueCommand,         "", NULL },
-            { "spawnvehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE,  false, &HandleDebugSpawnVehicleCommand,     "", NULL },
-            { "setvid",        rbac::RBAC_PERM_COMMAND_DEBUG_SETVID,        false, &HandleDebugSetVehicleIdCommand,     "", NULL },
-            { "entervehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_ENTERVEHICLE,  false, &HandleDebugEnterVehicleCommand,     "", NULL },
-            { "uws",           rbac::RBAC_PERM_COMMAND_DEBUG_UWS,           false, &HandleDebugUpdateWorldStateCommand, "", NULL },
-            { "update",        rbac::RBAC_PERM_COMMAND_DEBUG_UPDATE,        false, &HandleDebugUpdateCommand,           "", NULL },
-            { "itemexpire",    rbac::RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE,    false, &HandleDebugItemExpireCommand,       "", NULL },
-            { "areatriggers",  rbac::RBAC_PERM_COMMAND_DEBUG_AREATRIGGERS,  false, &HandleDebugAreaTriggersCommand,     "", NULL },
-            { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "", NULL },
-            { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "", NULL },
-            { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "", NULL },
-            { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "", NULL },
-            { NULL,            0,                                     false, NULL,                                "", NULL }
+            { "setaurastate",  rbac::RBAC_PERM_COMMAND_DEBUG_SETAURASTATE,  false, &HandleDebugSetAuraStateCommand,     "" },
+            { "setitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_SETITEMVALUE,  false, &HandleDebugSetItemValueCommand,     "" },
+            { "setvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_SETVALUE,      false, &HandleDebugSetValueCommand,         "" },
+            { "spawnvehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE,  false, &HandleDebugSpawnVehicleCommand,     "" },
+            { "setvid",        rbac::RBAC_PERM_COMMAND_DEBUG_SETVID,        false, &HandleDebugSetVehicleIdCommand,     "" },
+            { "entervehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_ENTERVEHICLE,  false, &HandleDebugEnterVehicleCommand,     "" },
+            { "uws",           rbac::RBAC_PERM_COMMAND_DEBUG_UWS,           false, &HandleDebugUpdateWorldStateCommand, "" },
+            { "update",        rbac::RBAC_PERM_COMMAND_DEBUG_UPDATE,        false, &HandleDebugUpdateCommand,           "" },
+            { "itemexpire",    rbac::RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE,    false, &HandleDebugItemExpireCommand,       "" },
+            { "areatriggers",  rbac::RBAC_PERM_COMMAND_DEBUG_AREATRIGGERS,  false, &HandleDebugAreaTriggersCommand,     "" },
+            { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "" },
+            { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "" },
+            { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "" },
+            { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "debug",         rbac::RBAC_PERM_COMMAND_DEBUG,   true,  NULL,               "", debugCommandTable },
-            { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,  false, &HandleWPGPSCommand, "", NULL },
-            { NULL,            0,                        false, NULL,                "", NULL }
+            { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,  false, &HandleWPGPSCommand, "" },
         };
         return commandTable;
     }
@@ -502,7 +498,7 @@ public:
             return false;
 
         handler->PSendSysMessage("Loot recipient for creature %s (GUID %u, DB GUID %u) is %s",
-            target->GetName().c_str(), target->GetGUIDLow(), target->GetDBTableGUIDLow(),
+            target->GetName().c_str(), target->GetGUID().GetCounter(), target->GetSpawnId(),
             target->hasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
         return true;
     }
@@ -597,7 +593,7 @@ public:
                         break;
                 }
 
-                handler->PSendSysMessage("bag: %d slot: %d guid: %d - state: %s", bagSlot, item->GetSlot(), item->GetGUIDLow(), st.c_str());
+                handler->PSendSysMessage("bag: %d slot: %d guid: %d - state: %s", bagSlot, item->GetSlot(), item->GetGUID().GetCounter(), st.c_str());
             }
             if (updateQueue.empty())
                 handler->PSendSysMessage("The player's updatequeue is empty");
@@ -618,7 +614,7 @@ public:
 
                 if (item->GetSlot() != i)
                 {
-                    handler->PSendSysMessage("Item with slot %d and guid %d has an incorrect slot value: %d", i, item->GetGUIDLow(), item->GetSlot());
+                    handler->PSendSysMessage("Item with slot %d and guid %d has an incorrect slot value: %d", i, item->GetGUID().GetCounter(), item->GetSlot());
                     error = true;
                     continue;
                 }
@@ -642,28 +638,28 @@ public:
                     uint16 qp = item->GetQueuePos();
                     if (qp > updateQueue.size())
                     {
-                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) larger than the update queue size! ", item->GetSlot(), item->GetGUIDLow(), qp);
+                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) larger than the update queue size! ", item->GetSlot(), item->GetGUID().GetCounter(), qp);
                         error = true;
                         continue;
                     }
 
                     if (updateQueue[qp] == NULL)
                     {
-                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) pointing to NULL in the queue!", item->GetSlot(), item->GetGUIDLow(), qp);
+                        handler->PSendSysMessage("The item with slot %d and guid %d has its queuepos (%d) pointing to NULL in the queue!", item->GetSlot(), item->GetGUID().GetCounter(), qp);
                         error = true;
                         continue;
                     }
 
                     if (updateQueue[qp] != item)
                     {
-                        handler->PSendSysMessage("The item with slot %d and guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", item->GetSlot(), item->GetGUIDLow(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUIDLow());
+                        handler->PSendSysMessage("The item with slot %d and guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", item->GetSlot(), item->GetGUID().GetCounter(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUID().GetCounter());
                         error = true;
                         continue;
                     }
                 }
                 else if (item->GetState() != ITEM_UNCHANGED)
                 {
-                    handler->PSendSysMessage("The item with slot %d and guid %d is not in queue but should be (state: %d)!", item->GetSlot(), item->GetGUIDLow(), item->GetState());
+                    handler->PSendSysMessage("The item with slot %d and guid %d is not in queue but should be (state: %d)!", item->GetSlot(), item->GetGUID().GetCounter(), item->GetState());
                     error = true;
                     continue;
                 }
@@ -678,7 +674,7 @@ public:
 
                         if (item2->GetSlot() != j)
                         {
-                            handler->PSendSysMessage("The item in bag %d and slot %d (guid: %d) has an incorrect slot value: %d", bag->GetSlot(), j, item2->GetGUIDLow(), item2->GetSlot());
+                            handler->PSendSysMessage("The item in bag %d and slot %d (guid: %d) has an incorrect slot value: %d", bag->GetSlot(), j, item2->GetGUID().GetCounter(), item2->GetSlot());
                             error = true;
                             continue;
                         }
@@ -710,28 +706,28 @@ public:
                             uint16 qp = item2->GetQueuePos();
                             if (qp > updateQueue.size())
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) larger than the update queue size! ", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), qp);
+                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) larger than the update queue size! ", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp);
                                 error = true;
                                 continue;
                             }
 
                             if (updateQueue[qp] == NULL)
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to NULL in the queue!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), qp);
+                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to NULL in the queue!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp);
                                 error = true;
                                 continue;
                             }
 
                             if (updateQueue[qp] != item2)
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUIDLow());
+                                handler->PSendSysMessage("The item in bag %d at slot %d having guid %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUID().GetCounter());
                                 error = true;
                                 continue;
                             }
                         }
                         else if (item2->GetState() != ITEM_UNCHANGED)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d having guid %d is not in queue but should be (state: %d)!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), item2->GetState());
+                            handler->PSendSysMessage("The item in bag %d at slot %d having guid %d is not in queue but should be (state: %d)!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), item2->GetState());
                             error = true;
                             continue;
                         }
@@ -806,14 +802,14 @@ public:
         ThreatContainer::StorageType const &threatList = target->getThreatManager().getThreatList();
         ThreatContainer::StorageType::const_iterator itr;
         uint32 count = 0;
-        handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUIDLow());
+        handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
         for (itr = threatList.begin(); itr != threatList.end(); ++itr)
         {
             Unit* unit = (*itr)->getTarget();
             if (!unit)
                 continue;
             ++count;
-            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUIDLow(), (*itr)->getThreat());
+            handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), (*itr)->getThreat());
         }
         handler->SendSysMessage("End of threat list.");
         return true;
@@ -826,13 +822,13 @@ public:
             target = handler->GetSession()->GetPlayer();
         HostileReference* ref = target->getHostileRefManager().getFirst();
         uint32 count = 0;
-        handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName().c_str(), target->GetGUIDLow());
+        handler->PSendSysMessage("Hostil reference list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
         while (ref)
         {
             if (Unit* unit = ref->GetSource()->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUIDLow(), ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->getThreat());
             }
             ref = ref->next();
         }
@@ -929,7 +925,7 @@ public:
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
+        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, x, y, z, o, nullptr, id))
         {
             delete v;
             return false;
@@ -971,10 +967,10 @@ public:
         if (!e || !f)
             return false;
 
-        uint32 guid = (uint32)atoi(e);
+        ObjectGuid::LowType guid = (uint32)atoi(e);
         uint32 index = (uint32)atoi(f);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, guid));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
 
         if (!i)
             return false;
@@ -1001,11 +997,11 @@ public:
         if (!e || !f || !g)
             return false;
 
-        uint32 guid = (uint32)atoi(e);
+        ObjectGuid::LowType guid = (uint32)atoi(e);
         uint32 index = (uint32)atoi(f);
         uint32 value = (uint32)atoi(g);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, guid));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
 
         if (!i)
             return false;
@@ -1027,9 +1023,9 @@ public:
         if (!e)
             return false;
 
-        uint32 guid = (uint32)atoi(e);
+        ObjectGuid::LowType guid = (uint32)atoi(e);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, guid));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
 
         if (!i)
             return false;
@@ -1054,7 +1050,7 @@ public:
     static bool HandleDebugLoSCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (Unit* unit = handler->getSelectedUnit())
-            handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUIDLow(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
+            handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUID().GetCounter(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
         return true;
     }
 
@@ -1199,7 +1195,7 @@ public:
 
         if (opcode >= handler->GetSession()->GetPlayer()->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, handler->GetSession()->GetPlayer()->GetGUIDLow(), handler->GetSession()->GetPlayer()->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, handler->GetSession()->GetPlayer()->GetGUID().GetCounter(), handler->GetSession()->GetPlayer()->GetValuesCount());
             return false;
         }
 
@@ -1249,13 +1245,13 @@ public:
         {
             value = unit->GetUInt32Value(updateIndex);
 
-            handler->PSendSysMessage(LANG_UPDATE, unit->GetGUIDLow(), updateIndex, value);
+            handler->PSendSysMessage(LANG_UPDATE, unit->GetGUID().GetCounter(), updateIndex, value);
             return true;
         }
 
         value = atoi(val);
 
-        handler->PSendSysMessage(LANG_UPDATE_CHANGE, unit->GetGUIDLow(), updateIndex, value);
+        handler->PSendSysMessage(LANG_UPDATE_CHANGE, unit->GetGUID().GetCounter(), updateIndex, value);
 
         unit->SetUInt32Value(updateIndex, value);
 
@@ -1410,11 +1406,12 @@ public:
         if (!map)
             map = player->GetMap();
 
+        handler->PSendSysMessage("Loading all cells (mapId: %u). Current next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
         for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
             for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
                 map->LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
 
-        handler->PSendSysMessage("Cells loaded (mapId: %u)", map->GetId());
+        handler->PSendSysMessage("Cells loaded (mapId: %u) After load - Next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
         return true;
     }
 };

@@ -969,10 +969,10 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     // check spell family name/flags (if set) for spells
     if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION))
     {
-        if (procEntry.spellFamilyName && eventInfo.GetSpellInfo() && (procEntry.spellFamilyName != eventInfo.GetSpellInfo()->SpellFamilyName))
+        if (procEntry.spellFamilyName && eventInfo.GetSpellInfo() && (procEntry.spellFamilyName != eventInfo.EnsureSpellInfo()->SpellFamilyName))
             return false;
 
-        if (procEntry.spellFamilyMask && eventInfo.GetSpellInfo() && !(procEntry.spellFamilyMask & eventInfo.GetSpellInfo()->SpellFamilyFlags))
+        if (procEntry.spellFamilyMask && eventInfo.GetSpellInfo() && !(procEntry.spellFamilyMask & eventInfo.EnsureSpellInfo()->SpellFamilyFlags))
             return false;
     }
 
@@ -2801,14 +2801,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         {
             switch (spellInfo->Effects[j].ApplyAuraName)
             {
-                case SPELL_AURA_MOD_POSSESS:
-                case SPELL_AURA_MOD_CONFUSE:
-                case SPELL_AURA_MOD_CHARM:
-                case SPELL_AURA_AOE_CHARM:
-                case SPELL_AURA_MOD_FEAR:
-                case SPELL_AURA_MOD_STUN:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                    break;
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
@@ -2901,22 +2893,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (spellInfo->SpellVisual[0] == 3879)
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
 
-        switch (spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_WARRIOR:
-                // Shout
-                if (spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                break;
-            case SPELLFAMILY_DRUID:
-                // Roar
-                if (spellInfo->SpellFamilyFlags[0] & 0x8)
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                break;
-            default:
-                break;
-        }
-
         spellInfo->_InitializeExplicitTargetMask();
     }
 
@@ -2947,6 +2923,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
             }
+
+            // Passive talent auras cannot target pets
+            if (spellInfo->IsPassive() && GetTalentSpellCost(i))
+                if (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
+                    spellInfo->Effects[j].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         }
 
         if (spellInfo->ActiveIconID == 2158)  // flight
@@ -3072,6 +3053,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 52479: // Gift of the Harvester
             case 48246: // Ball of Flame
             case 36327: // Shoot Arcane Explosion Arrow
+            case 55479: // Force Obedience
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
@@ -3105,11 +3087,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 28796: // Poison Bolt Volly - Faerlina
                 spellInfo->MaxAffectedTargets = 5;
                 break;
+            case 54835: // Curse of the Plaguebringer - Noth (H)
+                spellInfo->MaxAffectedTargets = 8;
+                break;
             case 40827: // Sinful Beam
             case 40859: // Sinister Beam
             case 40860: // Vile Beam
             case 40861: // Wicked Beam
-            case 54835: // Curse of the Plaguebringer - Noth (H)
             case 54098: // Poison Bolt Volly - Faerlina (H)
                 spellInfo->MaxAffectedTargets = 10;
                 break;
@@ -3180,13 +3164,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
             case 48420:
-                spellInfo->Stances = 1 << (FORM_CAT - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_CAT - 1);
                 break;
             case 48421:
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_MOONKIN - 1);
                 break;
             case 48422:
-                spellInfo->Stances = 1 << (FORM_TREE - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
                 break;
             case 51466: // Elemental Oath (Rank 1)
             case 51470: // Elemental Oath (Rank 2)

@@ -722,18 +722,6 @@ namespace Trinity
         NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&);
     };
 
-    class GameObjectWithDbGUIDCheck
-    {
-        public:
-            GameObjectWithDbGUIDCheck(WorldObject const& /*obj*/, uint32 db_guid) : i_db_guid(db_guid) { }
-            bool operator()(GameObject const* go) const
-            {
-                return go->GetDBTableGUIDLow() == i_db_guid;
-            }
-        private:
-            uint32 i_db_guid;
-    };
-
     // Unit checks
 
     class MostHPMissingInRange
@@ -833,18 +821,6 @@ namespace Trinity
             WorldObject const* i_obj;
             Unit const* i_funit;
             float i_range;
-    };
-
-    class CreatureWithDbGUIDCheck
-    {
-        public:
-            CreatureWithDbGUIDCheck(WorldObject const* /*obj*/, uint32 lowguid) : i_lowguid(lowguid) { }
-            bool operator()(Creature* u)
-            {
-                return u->GetDBTableGUIDLow() == i_lowguid;
-            }
-        private:
-            uint32 i_lowguid;
     };
 
     class AnyFriendlyUnitInObjectRangeCheck

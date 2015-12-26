@@ -21,19 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class CharacterDatabaseConnection : public MySQLConnection
-{
-    public:
-        //- Constructors for sync and async connections
-        CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-        CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
-
-        //- Loads database type specific prepared statements
-        void DoPrepareStatements() override;
-};
-
-typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
-
 enum CharacterDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -156,7 +143,6 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GIFT,
     CHAR_SEL_CHARACTER_GIFT_BY_ITEM,
     CHAR_SEL_ACCOUNT_BY_NAME,
-    CHAR_SEL_ACCOUNT_BY_GUID,
     CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES,
     CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES,
     CHAR_SEL_CHARACTER_NAME_CLASS,
@@ -281,8 +267,8 @@ enum CharacterDatabaseStatements
     CHAR_SEL_CORPSES,
     CHAR_INS_CORPSE,
     CHAR_DEL_CORPSE,
-    CHAR_DEL_PLAYER_CORPSES,
-    CHAR_DEL_OLD_CORPSES,
+    CHAR_DEL_CORPSES_FROM_MAP,
+    CHAR_SEL_CORPSE_LOCATION,
 
     CHAR_SEL_CREATURE_RESPAWNS,
     CHAR_REP_CREATURE_RESPAWN,
@@ -300,6 +286,7 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GM_TICKET,
     CHAR_DEL_ALL_GM_TICKETS,
     CHAR_DEL_PLAYER_GM_TICKETS,
+    CHAR_UPD_PLAYER_GM_TICKETS_ON_CHAR_DELETION,
 
     CHAR_INS_GM_SURVEY,
     CHAR_INS_GM_SUBSURVEY,
@@ -544,7 +531,24 @@ enum CharacterDatabaseStatements
     CHAR_UPD_QUEST_TRACK_COMPLETE_TIME,
     CHAR_UPD_QUEST_TRACK_ABANDON_TIME,
 
+    CHAR_INS_DESERTER_TRACK,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
+
+class CharacterDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef CharacterDatabaseStatements Statements;
+
+    //- Constructors for sync and async connections
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
+    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 
 #endif

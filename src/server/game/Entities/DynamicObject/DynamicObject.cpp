@@ -51,7 +51,7 @@ void DynamicObject::AddToWorld()
     ///- Register the dynamicObject for guid lookup and for caster
     if (!IsInWorld())
     {
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<DynamicObject>(GetGUID(), this);
         WorldObject::AddToWorld();
         BindToCaster();
     }
@@ -74,11 +74,12 @@ void DynamicObject::RemoveFromWorld()
 
         UnbindFromCaster();
         WorldObject::RemoveFromWorld();
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<DynamicObject>(GetGUID());
+
     }
 }
 
-bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type)
 {
     SetMap(caster->GetMap());
     Relocate(pos);
@@ -88,7 +89,7 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::DynamicObject, caster->GetPhaseMask());
 
     SetEntry(spellId);
     SetObjectScale(1);

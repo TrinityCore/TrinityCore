@@ -23,12 +23,44 @@
 
 #include <mysql.h>
 
+/**
+    @class Field
+
+    @brief Class used to access individual fields of database query result
+
+    Guideline on field type matching:
+
+    |   MySQL type           |  method to use                         |
+    |------------------------|----------------------------------------|
+    | TINYINT                | GetBool, GetInt8, GetUInt8             |
+    | SMALLINT               | GetInt16, GetUInt16                    |
+    | MEDIUMINT, INT         | GetInt32, GetUInt32                    |
+    | BIGINT                 | GetInt64, GetUInt64                    |
+    | FLOAT                  | GetFloat                               |
+    | DOUBLE, DECIMAL        | GetDouble                              |
+    | CHAR, VARCHAR,         | GetCString, GetString                  |
+    | TINYTEXT, MEDIUMTEXT,  | GetCString, GetString                  |
+    | TEXT, LONGTEXT         | GetCString, GetString                  |
+    | TINYBLOB, MEDIUMBLOB,  | GetBinary, GetString                   |
+    | BLOB, LONGBLOB         | GetBinary, GetString                   |
+    | BINARY, VARBINARY      | GetBinary                              |
+
+    Return types of aggregate functions:
+
+    | Function |       Type        |
+    |----------|-------------------|
+    | MIN, MAX | Same as the field |
+    | SUM, AVG | DECIMAL           |
+    | COUNT    | BIGINT            |
+*/
 class Field
 {
     friend class ResultSet;
     friend class PreparedResultSet;
 
     public:
+        Field();
+        ~Field();
 
         bool GetBool() const // Wrapper, actually gets integer
         {
@@ -43,7 +75,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetUInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetUInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -61,7 +94,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -79,7 +113,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetUInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetUInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -97,7 +132,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -115,7 +151,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetUInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetUInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -133,7 +170,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -151,7 +189,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetUInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetUInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -169,7 +208,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
             #endif
@@ -187,7 +227,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_FLOAT))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetFloat() on non-float field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetFloat() on non-float field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0.0f;
             }
             #endif
@@ -203,14 +244,15 @@ class Field
                 return 0.0f;
 
             #ifdef TRINITY_DEBUG
-            if (!IsType(MYSQL_TYPE_DOUBLE))
+            if (!IsType(MYSQL_TYPE_DOUBLE) && !IsType(MYSQL_TYPE_NEWDECIMAL))
             {
-                TC_LOG_WARN("sql.sql", "Warning: GetDouble() on non-double field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Warning: GetDouble() on non-double/non-decimal field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0.0f;
             }
             #endif
 
-            if (data.raw)
+            if (data.raw && !IsType(MYSQL_TYPE_NEWDECIMAL))
                 return *reinterpret_cast<double*>(data.value);
             return static_cast<double>(atof((char*)data.value));
         }
@@ -223,7 +265,8 @@ class Field
             #ifdef TRINITY_DEBUG
             if (IsNumeric())
             {
-                TC_LOG_WARN("sql.sql", "Error: GetCString() on numeric field. Using type: %s.", FieldTypeToString(data.type));
+                TC_LOG_WARN("sql.sql", "Error: GetCString() on numeric field %s.%s (%s.%s) at index %u. Using type: %s.",
+                    meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return NULL;
             }
             #endif
@@ -236,14 +279,11 @@ class Field
             if (!data.value)
                 return "";
 
-            if (data.raw)
-            {
-                char const* string = GetCString();
-                if (!string)
-                    string = "";
-                return std::string(string, data.length);
-            }
-            return std::string((char*)data.value);
+            char const* string = GetCString();
+            if (!string)
+                return "";
+
+            return std::string(string, data.length);
         }
 
         bool IsNull() const
@@ -251,10 +291,17 @@ class Field
             return data.value == NULL;
         }
 
-    protected:
-        Field();
-        ~Field();
+        struct Metadata
+        {
+            char const* TableName;
+            char const* TableAlias;
+            char const* Name;
+            char const* Alias;
+            char const* Type;
+            uint32 Index;
+        };
 
+    protected:
         #pragma pack(push, 1)
         struct
         {
@@ -265,12 +312,14 @@ class Field
          } data;
         #pragma pack(pop)
 
-        void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length);
+        void SetByteValue(void* newValue, enum_field_types newType, uint32 length);
         void SetStructuredValue(char* newValue, enum_field_types newType);
 
         void CleanUp()
         {
-            delete[] ((char*)data.value);
+            // Field does not own the data if fetched with prepared statement
+            if (!data.raw)
+                delete[] ((char*)data.value);
             data.value = NULL;
         }
 
@@ -375,6 +424,19 @@ class Field
                 default:                     return "-Unknown-";
             }
         }
+
+        void SetMetadata(MYSQL_FIELD* field, uint32 fieldIndex)
+        {
+            meta.TableName = field->org_table;
+            meta.TableAlias = field->table;
+            meta.Name = field->org_name;
+            meta.Alias = field->name;
+            meta.Type = FieldTypeToString(field->type);
+            meta.Index = fieldIndex;
+        }
+
+        Metadata meta;
+
         #endif
 };
 

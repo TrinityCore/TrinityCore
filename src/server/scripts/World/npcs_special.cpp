@@ -57,6 +57,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "Pet.h"
 #include "CreatureTextMgr.h"
+#include "SmartAI.h"
 
 /*########
 # npc_air_force_bots
@@ -2321,6 +2322,71 @@ public:
     }
 };
 
+enum StableMasters
+{
+    SPELL_MINIWING                  = 54573,
+    SPELL_JUBLING                   = 54611,
+    SPELL_DARTER                    = 54619,
+    SPELL_WORG                      = 54631,
+    SPELL_SMOLDERWEB                = 54634,
+    SPELL_CHIKEN                    = 54677,
+    SPELL_WOLPERTINGER              = 54688,
+
+    STABLE_MASTER_GOSSIP_SUB_MENU   = 9820
+};
+
+class npc_stable_master : public CreatureScript
+{
+    public:
+        npc_stable_master() : CreatureScript("npc_stable_master") { }
+
+        struct npc_stable_masterAI : public SmartAI
+        {
+            npc_stable_masterAI(Creature* creature) : SmartAI(creature) { }
+
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            {
+                SmartAI::sGossipSelect(player, menuId, gossipListId);
+                if (menuId != STABLE_MASTER_GOSSIP_SUB_MENU)
+                    return;
+
+                switch (gossipListId)
+                {
+                    case 0:
+                        player->CastSpell(player, SPELL_MINIWING, false);
+                        break;
+                    case 1:
+                        player->CastSpell(player, SPELL_JUBLING, false);
+                        break;
+                    case 2:
+                        player->CastSpell(player, SPELL_DARTER, false);
+                        break;
+                    case 3:
+                        player->CastSpell(player, SPELL_WORG, false);
+                        break;
+                    case 4:
+                        player->CastSpell(player, SPELL_SMOLDERWEB, false);
+                        break;
+                    case 5:
+                        player->CastSpell(player, SPELL_CHIKEN, false);
+                        break;
+                    case 6:
+                        player->CastSpell(player, SPELL_WOLPERTINGER, false);
+                        break;
+                    default:
+                        return;
+                }
+
+                player->PlayerTalkClass->SendCloseGossip();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_stable_masterAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2343,4 +2409,5 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_imp_in_a_ball();
+    new npc_stable_master();
 }

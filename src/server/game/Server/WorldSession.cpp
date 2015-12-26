@@ -95,7 +95,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -104,6 +104,7 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     m_Socket(sock),
     _security(sec),
     _accountId(id),
+    _accountName(std::move(name)),
     m_expansion(expansion),
     _warden(NULL),
     _logoutTime(0),
@@ -170,19 +171,19 @@ std::string WorldSession::GetPlayerInfo() const
 {
     std::ostringstream ss;
 
-    ss << "[Player: " << GetPlayerName() << " (";
-    if (_player != NULL)
-        ss << _player->GetGUID().ToString() << ", ";
+    ss << "[Player: ";
+    if (!m_playerLoading && _player)
+        ss << _player->GetName() << ' ' << _player->GetGUID().ToString() << ", ";
 
-    ss << "Account: " << GetAccountId() << ")]";
+    ss << "Account: " << GetAccountId() << "]";
 
     return ss.str();
 }
 
 /// Get player guid if available. Use for logging purposes only
-uint32 WorldSession::GetGuidLow() const
+ObjectGuid::LowType WorldSession::GetGUIDLow() const
 {
-    return GetPlayer() ? GetPlayer()->GetGUIDLow() : 0;
+    return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
 }
 
 /// Send a packet to the client
@@ -340,7 +341,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
                         else if (_player->IsInWorld())
                             LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
-                        else if(AntiDOS.EvaluateOpcode(*packet, currentTime))
+                        else if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                         {
                             sScriptMgr->OnPacketReceive(this, *packet);
                             (this->*opHandle.handler)(*packet);
@@ -483,6 +484,15 @@ void WorldSession::LogoutPlayer(bool save)
         {
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
+                // track if player logs out after invited to join BG
+                if (_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId) && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                    stmt->setUInt32(0, _player->GetGUID().GetCounter());
+                    stmt->setUInt8(1, BG_DESERTION_TYPE_INVITE_LOGOUT);
+                    CharacterDatabase.Execute(stmt);
+                }
+
                 _player->RemoveBattlegroundQueueId(bgQueueTypeId);
                 BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
                 queue.RemovePlayer(_player->GetGUID(), true);
@@ -538,8 +548,8 @@ void WorldSession::LogoutPlayer(bool save)
         }
 
         //! Broadcast a logout message to the player's friends
-        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
-        sSocialMgr->RemovePlayerSocial(_player->GetGUIDLow());
+        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID().GetCounter(), true);
+        sSocialMgr->RemovePlayerSocial(_player->GetGUID().GetCounter());
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
@@ -550,7 +560,7 @@ void WorldSession::LogoutPlayer(bool save)
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
         TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d",
-            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUIDLow(), _player->getLevel());
+            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().GetCounter(), _player->getLevel());
         if (Map* _map = _player->FindMap())
             _map->RemovePlayerFromMap(_player, true);
 
@@ -666,13 +676,6 @@ void WorldSession::SendAuthWaitQue(uint32 position)
     }
 }
 
-void WorldSession::LoadGlobalAccountData()
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
-    stmt->setUInt32(0, GetAccountId());
-    LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
-}
-
 void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 {
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
@@ -709,7 +712,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string const& data)
 {
     uint32 id = 0;
-    uint32 index = 0;
+    CharacterDatabaseStatements index;
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
         id = GetAccountId();
@@ -748,13 +751,11 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
     SendPacket(&data);
 }
 
-void WorldSession::LoadTutorialsData()
+void WorldSession::LoadTutorialsData(PreparedQueryResult result)
 {
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
-    stmt->setUInt32(0, GetAccountId());
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    if (result)
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
             m_Tutorials[i] = (*result)[i].GetUInt32();
 
@@ -830,7 +831,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
         { \
             TC_LOG_DEBUG("entities.unit", "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
                 "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow(), maskToRemove); \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().GetCounter(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
         } \
     }
@@ -840,13 +841,32 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
             mi->RemoveMovementFlag((maskToRemove));
     #endif
 
-
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
         in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
         It will freeze clients that receive this player's movement info.
     */
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-        MOVEMENTFLAG_ROOT);
+    // Only adjust movement flag removal for vehicles with the VEHICLE_FLAG_FIXED_POSITION flag, or the hard coded exceptions below:
+    //  30236 | Argent Cannon
+    //  39759 | Tankbuster Cannon
+    if (GetPlayer()->GetVehicleBase() && ((GetPlayer()->GetVehicle()->GetVehicleInfo()->m_flags & VEHICLE_FLAG_FIXED_POSITION) || GetPlayer()->GetVehicleBase()->GetEntry() == 30236 || GetPlayer()->GetVehicleBase()->GetEntry() == 39759))
+    {
+        // Actually players in rooted vehicles still send commands, don't clear root for these!
+        // Check specifically for the following conditions:
+        // MOVEMENTFLAG_ROOT + no other flags          (0x800)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_LEFT       (0x810)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_RIGHT      (0x820)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_PITCH_UP   (0x840)
+        // MOVEMENTFLAG_ROOT + MOVEMENTFLAG_PITCH_DOWN (0x880)
+        // If none of these are true, clear the root
+        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN),
+            MOVEMENTFLAG_MASK_MOVING);
+    }
+    else
+    {
+        // Only remove here for non vehicles
+        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
+            MOVEMENTFLAG_ROOT);
+    }
 
     //! Cannot hover without SPELL_AURA_HOVER
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
@@ -937,7 +957,7 @@ void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
         *data << mi->splineElevation;
 }
 
-void WorldSession::ReadAddonsInfo(WorldPacket &data)
+void WorldSession::ReadAddonsInfo(ByteBuffer &data)
 {
     if (data.rpos() + 4 > data.size())
         return;
@@ -1082,7 +1102,7 @@ void WorldSession::SetPlayer(Player* player)
 
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (_player)
-        m_GUIDLow = _player->GetGUIDLow();
+        m_GUIDLow = _player->GetGUID().GetCounter();
 }
 
 void WorldSession::InitializeQueryCallbackParameters()
@@ -1095,6 +1115,9 @@ void WorldSession::InitializeQueryCallbackParameters()
 void WorldSession::ProcessQueryCallbacks()
 {
     PreparedQueryResult result;
+
+    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+        InitializeSessionCallback(_realmAccountLoginCallback.get());
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -1195,15 +1218,84 @@ void WorldSession::InitWarden(BigNumber* k, std::string const& os)
 void WorldSession::LoadPermissions()
 {
     uint32 id = GetAccountId();
-    std::string name;
-    AccountMgr::GetName(id, name);
     uint8 secLevel = GetSecurity();
 
-    _RBACData = new rbac::RBACData(id, name, realmID, secLevel);
+    _RBACData = new rbac::RBACData(id, _accountName, realmID, secLevel);
     _RBACData->LoadFromDB();
+}
+
+PreparedQueryResultFuture WorldSession::LoadPermissionsAsync()
+{
+    uint32 id = GetAccountId();
+    uint8 secLevel = GetSecurity();
 
     TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
-                   id, name.c_str(), realmID, secLevel);
+        id, _accountName.c_str(), realmID, secLevel);
+
+    _RBACData = new rbac::RBACData(id, _accountName, realmID, secLevel);
+    return _RBACData->LoadFromDBAsync();
+}
+
+class AccountInfoQueryHolderPerRealm : public SQLQueryHolder
+{
+public:
+    enum
+    {
+        GLOBAL_ACCOUNT_DATA = 0,
+        TUTORIALS,
+
+        MAX_QUERIES
+    };
+
+    AccountInfoQueryHolderPerRealm() { SetSize(MAX_QUERIES); }
+
+    bool Initialize(uint32 accountId)
+    {
+        bool ok = true;
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
+        stmt->setUInt32(0, accountId);
+        ok = SetPreparedQuery(GLOBAL_ACCOUNT_DATA, stmt) && ok;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
+        stmt->setUInt32(0, accountId);
+        ok = SetPreparedQuery(TUTORIALS, stmt) && ok;
+
+        return ok;
+    }
+};
+
+void WorldSession::InitializeSession()
+{
+    AccountInfoQueryHolderPerRealm* realmHolder = new AccountInfoQueryHolderPerRealm();
+    if (!realmHolder->Initialize(GetAccountId()))
+    {
+        delete realmHolder;
+        SendAuthResponse(AUTH_SYSTEM_ERROR, false);
+        return;
+    }
+
+    _realmAccountLoginCallback = CharacterDatabase.DelayQueryHolder(realmHolder);
+}
+
+void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder)
+{
+    LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
+    LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
+
+    if (!m_inQueue)
+        SendAuthResponse(AUTH_OK, true);
+    else
+        SendAuthWaitQue(0);
+
+    SetInQueue(false);
+    ResetTimeOutTime();
+
+    SendAddonsInfo();
+    SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
+    SendTutorialsData();
+
+    delete realmHolder;
 }
 
 rbac::RBACData* WorldSession::GetRBACData()

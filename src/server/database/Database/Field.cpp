@@ -30,18 +30,11 @@ Field::~Field()
     CleanUp();
 }
 
-void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length)
+void Field::SetByteValue(void* newValue, enum_field_types newType, uint32 length)
 {
-    if (data.value)
-        CleanUp();
-
     // This value stores raw bytes that have to be explicitly cast later
-    if (newValue)
-    {
-        data.value = new char[newSize];
-        memcpy(data.value, newValue, newSize);
-        data.length = length;
-    }
+    data.value = newValue;
+    data.length = length;
     data.type = newType;
     data.raw = true;
 }

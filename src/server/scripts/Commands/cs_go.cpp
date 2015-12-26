@@ -36,27 +36,25 @@ class go_commandscript : public CommandScript
 public:
     go_commandscript() : CommandScript("go_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand goCommandTable[] =
+        static std::vector<ChatCommand> goCommandTable =
         {
-            { "creature",  rbac::RBAC_PERM_COMMAND_GO_CREATURE,  false, &HandleGoCreatureCommand,  "", NULL },
-            { "graveyard", rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD, false, &HandleGoGraveyardCommand, "", NULL },
-            { "grid",      rbac::RBAC_PERM_COMMAND_GO_GRID,      false, &HandleGoGridCommand,      "", NULL },
-            { "object",    rbac::RBAC_PERM_COMMAND_GO_OBJECT,    false, &HandleGoObjectCommand,    "", NULL },
-            { "taxinode",  rbac::RBAC_PERM_COMMAND_GO_TAXINODE,  false, &HandleGoTaxinodeCommand,  "", NULL },
-            { "trigger",   rbac::RBAC_PERM_COMMAND_GO_TRIGGER,   false, &HandleGoTriggerCommand,   "", NULL },
-            { "zonexy",    rbac::RBAC_PERM_COMMAND_GO_ZONEXY,    false, &HandleGoZoneXYCommand,    "", NULL },
-            { "xyz",       rbac::RBAC_PERM_COMMAND_GO_XYZ,       false, &HandleGoXYZCommand,       "", NULL },
-            { "ticket",    rbac::RBAC_PERM_COMMAND_GO_TICKET,    false, &HandleGoTicketCommand,    "", NULL },
-            { "",          rbac::RBAC_PERM_COMMAND_GO,           false, &HandleGoXYZCommand,       "", NULL },
-            { NULL,        0,                              false, NULL,                      "", NULL }
+            { "creature",           rbac::RBAC_PERM_COMMAND_GO_CREATURE,            false, &HandleGoCreatureCommand,                    "" },
+            { "graveyard",          rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD,           false, &HandleGoGraveyardCommand,                   "" },
+            { "grid",               rbac::RBAC_PERM_COMMAND_GO_GRID,                false, &HandleGoGridCommand,                        "" },
+            { "object",             rbac::RBAC_PERM_COMMAND_GO_OBJECT,              false, &HandleGoObjectCommand,                      "" },
+            { "taxinode",           rbac::RBAC_PERM_COMMAND_GO_TAXINODE,            false, &HandleGoTaxinodeCommand,                    "" },
+            { "trigger",            rbac::RBAC_PERM_COMMAND_GO_TRIGGER,             false, &HandleGoTriggerCommand,                     "" },
+            { "zonexy",             rbac::RBAC_PERM_COMMAND_GO_ZONEXY,              false, &HandleGoZoneXYCommand,                      "" },
+            { "xyz",                rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "" },
+            { "ticket",             rbac::RBAC_PERM_COMMAND_GO_TICKET,              false, &HandleGoTicketCommand,                      "" },
+            { "",                   rbac::RBAC_PERM_COMMAND_GO,                     false, &HandleGoXYZCommand,                         "" },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "go", rbac::RBAC_PERM_COMMAND_GO, false, NULL, "", goCommandTable },
-            { NULL, 0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -135,20 +133,8 @@ public:
         float z = fields[2].GetFloat();
         float o = fields[3].GetFloat();
         uint32 mapId = fields[4].GetUInt16();
-        uint32 guid = fields[5].GetUInt32();
-        uint32 id = fields[6].GetUInt32();
 
         Transport* transport = NULL;
-
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid(HIGHGUID_UNIT, id, guid), (Creature*)NULL))
-        {
-            x = creature->GetPositionX();
-            y = creature->GetPositionY();
-            z = creature->GetPositionZ();
-            o = creature->GetOrientation();
-            mapId = creature->GetMapId();
-            transport = creature->GetTransport();
-        }
 
         if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
         {

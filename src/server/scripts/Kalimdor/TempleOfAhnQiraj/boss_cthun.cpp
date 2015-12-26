@@ -586,21 +586,10 @@ public:
                 //WisperTimer
                 if (WisperTimer <= diff)
                 {
-                    Map* map = me->GetMap();
-                    if (!map->IsDungeon())
-                        return;
-
                     //Play random sound to the zone
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
-
-                    if (!PlayerList.isEmpty())
-                    {
-                        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                        {
-                            if (Player* pPlr = itr->GetSource())
-                                pPlr->PlayDirectSound(RANDOM_SOUND_WHISPER, pPlr);
-                        }
-                    }
+                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+                        me->PlayDirectSound(RANDOM_SOUND_WHISPER, itr->GetSource());
 
                     //One random wisper every 90 - 300 seconds
                     WisperTimer = urand(90000, 300000);
@@ -928,7 +917,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override
@@ -954,7 +943,7 @@ public:
             //KillSelfTimer
             if (KillSelfTimer <= diff)
             {
-                me->Kill(me);
+                me->KillSelf();
                 return;
             } else KillSelfTimer -= diff;
 
@@ -1008,7 +997,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override
@@ -1036,7 +1025,7 @@ public:
                 if (EvadeTimer <= diff)
                 {
                     if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                        p->Kill(p);
+                        p->KillSelf();
 
                     //Dissapear and reappear at new position
                     me->SetVisible(false);
@@ -1044,7 +1033,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (!target)
                     {
-                        me->Kill(me);
+                        me->KillSelf();
                         return;
                     }
 
@@ -1124,7 +1113,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override
@@ -1153,7 +1142,7 @@ public:
                 if (EvadeTimer <= diff)
                 {
                     if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                        p->Kill(p);
+                        p->KillSelf();
 
                     //Dissapear and reappear at new position
                     me->SetVisible(false);
@@ -1161,7 +1150,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (!target)
                     {
-                        me->Kill(me);
+                        me->KillSelf();
                         return;
                     }
 
@@ -1242,7 +1231,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override

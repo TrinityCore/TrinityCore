@@ -153,10 +153,6 @@ class ScriptObject
 
     public:
 
-        // Do not override this in scripts; it should be overridden by the various script type classes. It indicates
-        // whether or not this script type must be assigned in the database.
-        virtual bool IsDatabaseBound() const { return false; }
-
         const std::string& GetName() const { return _name; }
 
     protected:
@@ -197,8 +193,6 @@ class SpellScriptLoader : public ScriptObject
         SpellScriptLoader(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return true; }
 
         // Should return a fully valid SpellScript pointer.
         virtual SpellScript* GetSpellScript() const { return NULL; }
@@ -356,8 +350,6 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 
     public:
 
-        bool IsDatabaseBound() const final override { return true; }
-
         // Gets an InstanceScript object for this instance.
         virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
 };
@@ -376,8 +368,6 @@ class ItemScript : public ScriptObject
         ItemScript(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a dummy spell effect is triggered on the item.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Item* /*target*/) { return false; }
@@ -426,8 +416,6 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 
     public:
 
-        bool IsDatabaseBound() const final override { return true; }
-
         // Called when a dummy spell effect is triggered on the creature.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, Creature* /*target*/) { return false; }
 
@@ -463,8 +451,6 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         GameObjectScript(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return true; }
 
         // Called when a dummy spell effect is triggered on the gameobject.
         virtual bool OnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/, GameObject* /*target*/) { return false; }
@@ -511,8 +497,6 @@ class AreaTriggerScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final override { return true; }
-
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) { return false; }
 };
@@ -525,8 +509,6 @@ class BattlegroundScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final override { return true; }
-
         // Should return a fully valid Battleground object for the type ID.
         virtual Battleground* GetBattleground() const = 0;
 };
@@ -538,8 +520,6 @@ class OutdoorPvPScript : public ScriptObject
         OutdoorPvPScript(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return true; }
 
         // Should return a fully valid OutdoorPvP object for the type ID.
         virtual OutdoorPvP* GetOutdoorPvP() const = 0;
@@ -554,7 +534,7 @@ class CommandScript : public ScriptObject
     public:
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual ChatCommand* GetCommands() const = 0;
+        virtual std::vector<ChatCommand> GetCommands() const = 0;
 };
 
 class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
@@ -564,8 +544,6 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
         WeatherScript(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return true; }
 
         // Called when the weather changes in the zone this script is associated with.
         virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
@@ -600,10 +578,8 @@ class ConditionScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final override { return true; }
-
         // Called when a single condition is checked for a player.
-        virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
+        virtual bool OnConditionCheck(Condition const* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
 };
 
 class VehicleScript : public ScriptObject
@@ -648,8 +624,6 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 
     public:
 
-        bool IsDatabaseBound() const final override { return true; }
-
         // Called when a player boards the transport.
         virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
 
@@ -670,8 +644,6 @@ class AchievementCriteriaScript : public ScriptObject
         AchievementCriteriaScript(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return true; }
 
         // Called when an additional criteria is checked.
         virtual bool OnCheck(Player* source, Unit* target) = 0;
@@ -809,8 +781,6 @@ class GuildScript : public ScriptObject
 
     public:
 
-        bool IsDatabaseBound() const final override { return false; }
-
         // Called when a member is added to the guild.
         virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
 
@@ -839,9 +809,9 @@ class GuildScript : public ScriptObject
         virtual void OnItemMove(Guild* /*guild*/, Player* /*player*/, Item* /*pItem*/, bool /*isSrcBank*/, uint8 /*srcContainer*/, uint8 /*srcSlotId*/,
             bool /*isDestBank*/, uint8 /*destContainer*/, uint8 /*destSlotId*/) { }
 
-        virtual void OnEvent(Guild* /*guild*/, uint8 /*eventType*/, uint32 /*playerGuid1*/, uint32 /*playerGuid2*/, uint8 /*newRank*/) { }
+        virtual void OnEvent(Guild* /*guild*/, uint8 /*eventType*/, ObjectGuid::LowType /*playerGuid1*/, ObjectGuid::LowType /*playerGuid2*/, uint8 /*newRank*/) { }
 
-        virtual void OnBankEvent(Guild* /*guild*/, uint8 /*eventType*/, uint8 /*tabId*/, uint32 /*playerGuid*/, uint32 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/) { }
+        virtual void OnBankEvent(Guild* /*guild*/, uint8 /*eventType*/, uint8 /*tabId*/, ObjectGuid::LowType /*playerGuid*/, uint32 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/) { }
 };
 
 class GroupScript : public ScriptObject
@@ -851,8 +821,6 @@ class GroupScript : public ScriptObject
         GroupScript(const char* name);
 
     public:
-
-        bool IsDatabaseBound() const final override { return false; }
 
         // Called when a member is added to a group.
         virtual void OnAddMember(Group* /*group*/, ObjectGuid /*guid*/) { }
@@ -1014,7 +982,7 @@ class ScriptMgr
 
     public: /* CommandScript */
 
-        std::vector<ChatCommand*> GetChatCommands();
+        std::vector<ChatCommand> GetChatCommands();
 
     public: /* WeatherScript */
 
@@ -1030,7 +998,7 @@ class ScriptMgr
 
     public: /* ConditionScript */
 
-        bool OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo);
+        bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo);
 
     public: /* VehicleScript */
 
@@ -1111,8 +1079,8 @@ class ScriptMgr
         void OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &amount);
         void OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
             bool isDestBank, uint8 destContainer, uint8 destSlotId);
-        void OnGuildEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank);
-        void OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId);
+        void OnGuildEvent(Guild* guild, uint8 eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2, uint8 newRank);
+        void OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId);
 
     public: /* GroupScript */
 

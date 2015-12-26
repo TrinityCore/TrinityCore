@@ -174,11 +174,11 @@ class InstanceScript : public ZoneScript
 
         inline Creature* GetCreature(uint32 type)
         {
-            return ObjectAccessor::GetObjectInMap<Creature>(GetObjectGuid(type), instance, nullptr);
+            return instance->GetCreature(GetObjectGuid(type));
         }
         inline GameObject* GetGameObject(uint32 type)
         {
-            return ObjectAccessor::GetObjectInMap<GameObject>(GetObjectGuid(type), instance, nullptr);
+            return instance->GetGameObject(GetObjectGuid(type));
         }
 
         // Called when a player successfully enters the instance.
@@ -220,6 +220,7 @@ class InstanceScript : public ZoneScript
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
+        static std::string GetBossStateName(uint8 state);
         BossBoundaryMap const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
 
         // Achievement criteria additional requirements check

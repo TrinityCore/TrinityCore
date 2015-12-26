@@ -1508,9 +1508,9 @@ class npc_observation_ring_keeper : public CreatureScript
                 DoCast(SPELL_KEEPER_ACTIVE);
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 /*action*/) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
-                if (sender != 10333)
+                if (menuId != 10333)
                     return;
 
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -2423,7 +2423,7 @@ class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
             {
                 if (Unit* vehicle = GetTarget()->GetVehicleBase())
                     if (vehicle->IsAlive())
-                        vehicle->Kill(vehicle); // should tentacle die or just release its target?
+                        vehicle->KillSelf(); // should tentacle die or just release its target?
             }
 
             void Register() override
@@ -2905,7 +2905,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsAlive())
-                    GetTarget()->Kill(GetTarget());
+                    GetTarget()->KillSelf();
             }
 
             void Register() override

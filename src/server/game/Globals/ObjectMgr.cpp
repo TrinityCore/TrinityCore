@@ -223,15 +223,8 @@ ObjectMgr::ObjectMgr():
     _itemTextId(1),
     _mailId(1),
     _hiPetNumber(1),
-    _hiCharGuid(1),
-    _hiCreatureGuid(1),
-    _hiPetGuid(1),
-    _hiVehicleGuid(1),
-    _hiItemGuid(1),
-    _hiGoGuid(1),
-    _hiDoGuid(1),
-    _hiCorpseGuid(1),
-    _hiMoTransGuid(1),
+    _creatureSpawnId(1),
+    _gameObjectSpawnId(1),
     DBCLocaleIndex(LOCALE_enUS)
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
@@ -298,8 +291,8 @@ void ObjectMgr::LoadCreatureLocales()
 
     _creatureLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, subname_loc1, name_loc2, subname_loc2, name_loc3, subname_loc3, name_loc4, subname_loc4, name_loc5, subname_loc5, name_loc6, subname_loc6, name_loc7, subname_loc7, name_loc8, subname_loc8 FROM locales_creature");
-
+    //                                               0      1       2     3
+    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, Title FROM creature_template_locale");
     if (!result)
         return;
 
@@ -307,16 +300,20 @@ void ObjectMgr::LoadCreatureLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id               = fields[0].GetUInt32();
+        std::string localeName  = fields[1].GetString();
 
-        CreatureLocale& data = _creatureLocaleStore[entry];
+        std::string name        = fields[2].GetString();
+        std::string title       = fields[3].GetString();
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.SubName);
-        }
+        CreatureLocale& data = _creatureLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        AddLocaleString(name,       locale, data.Name);
+        AddLocaleString(title,      locale, data.Title);
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature locale strings in %u ms", uint32(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -449,7 +446,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.Modelid3         = fields[8].GetUInt32();
     creatureTemplate.Modelid4         = fields[9].GetUInt32();
     creatureTemplate.Name             = fields[10].GetString();
-    creatureTemplate.SubName          = fields[11].GetString();
+    creatureTemplate.Title            = fields[11].GetString();
     creatureTemplate.IconName         = fields[12].GetString();
     creatureTemplate.GossipMenuId     = fields[13].GetUInt32();
     creatureTemplate.minlevel         = fields[14].GetUInt8();
@@ -506,7 +503,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.RegenHealth        = fields[71].GetBool();
     creatureTemplate.MechanicImmuneMask = fields[72].GetUInt32();
     creatureTemplate.flags_extra        = fields[73].GetUInt32();
-    creatureTemplate.ScriptID           = GetScriptId(fields[74].GetCString());
+    creatureTemplate.ScriptID           = GetScriptId(fields[74].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -557,6 +554,12 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
             if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
                 TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %lu defined in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(*itr)) != creatureAddon.auras.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                continue;
+            }
 
             creatureAddon.auras[i++] = atoul(*itr);
         }
@@ -968,7 +971,7 @@ void ObjectMgr::LoadCreatureAddons()
     {
         Field* fields = result->Fetch();
 
-        uint32 guid = fields[0].GetUInt32();
+        ObjectGuid::LowType guid = fields[0].GetUInt32();
 
         CreatureData const* creData = GetCreatureData(guid);
         if (!creData)
@@ -1005,6 +1008,12 @@ void ObjectMgr::LoadCreatureAddons()
 
             if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
                 TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has SPELL_AURA_CONTROL_VEHICLE aura %lu defined in `auras` field in `creature_addon`.", guid, atoul(*itr));
+
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(*itr)) != creatureAddon.auras.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has duplicate aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                continue;
+            }
 
             creatureAddon.auras[i++] = atoul(*itr);
         }
@@ -1091,7 +1100,7 @@ GameObjectAddon const* ObjectMgr::GetGameObjectAddon(ObjectGuid::LowType lowguid
     return NULL;
 }
 
-CreatureAddon const* ObjectMgr::GetCreatureAddon(uint32 lowguid)
+CreatureAddon const* ObjectMgr::GetCreatureAddon(ObjectGuid::LowType lowguid)
 {
     CreatureAddonContainer::const_iterator itr = _creatureAddonStore.find(lowguid);
     if (itr != _creatureAddonStore.end())
@@ -1227,7 +1236,11 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     if (data && data->displayid)
         return data->displayid;
 
-    return cinfo->GetRandomValidModelId();
+    if (!(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER))
+        return cinfo->GetRandomValidModelId();
+
+    // Triggers by default receive the invisible model
+    return cinfo->GetFirstInvisibleModel();
 }
 
 void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
@@ -1292,6 +1305,12 @@ void ObjectMgr::LoadCreatureModelInfo()
         Field* fields = result->Fetch();
 
         uint32 modelId = fields[0].GetUInt32();
+        CreatureDisplayInfoEntry const* creatureDisplay = sCreatureDisplayInfoStore.LookupEntry(modelId);
+        if (!creatureDisplay)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has model for nonexistent display id (%u).", modelId);
+            continue;
+        }
 
         CreatureModelInfo& modelInfo = _creatureModelStore[modelId];
 
@@ -1299,11 +1318,9 @@ void ObjectMgr::LoadCreatureModelInfo()
         modelInfo.combat_reach         = fields[2].GetFloat();
         modelInfo.gender               = fields[3].GetUInt8();
         modelInfo.modelid_other_gender = fields[4].GetUInt32();
+        modelInfo.is_trigger           = false;
 
         // Checks
-
-        if (!sCreatureDisplayInfoStore.LookupEntry(modelId))
-            TC_LOG_ERROR("sql.sql", "Table `creature_model_info` has model for nonexistent display id (%u).", modelId);
 
         if (modelInfo.gender > GENDER_NONE)
         {
@@ -1319,6 +1336,9 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         if (modelInfo.combat_reach < 0.1f)
             modelInfo.combat_reach = DEFAULT_COMBAT_REACH;
+
+        if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(creatureDisplay->ModelId))
+            modelInfo.is_trigger = strstr(modelData->ModelPath, "InvisibleStalker") != nullptr;
 
         ++count;
     }
@@ -1345,8 +1365,8 @@ void ObjectMgr::LoadLinkedRespawn()
     {
         Field* fields = result->Fetch();
 
-        uint32 guidLow = fields[0].GetUInt32();
-        uint32 linkedGuidLow = fields[1].GetUInt32();
+        ObjectGuid::LowType guidLow = fields[0].GetUInt32();
+        ObjectGuid::LowType linkedGuidLow = fields[1].GetUInt32();
         uint8  linkType = fields[2].GetUInt8();
 
         ObjectGuid guid, linkedGuid;
@@ -1386,8 +1406,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::Unit, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
                 break;
             }
             case CREATURE_TO_GO:
@@ -1423,8 +1443,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_UNIT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::Unit, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_GO:
@@ -1460,8 +1480,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_GAMEOBJECT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
                 break;
             }
             case GO_TO_CREATURE:
@@ -1497,8 +1517,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HIGHGUID_GAMEOBJECT, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HIGHGUID_UNIT, master->id, linkedGuidLow);
+                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
+                linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
                 break;
             }
         }
@@ -1511,14 +1531,14 @@ void ObjectMgr::LoadLinkedRespawn()
     TC_LOG_INFO("server.loading", ">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(_linkedRespawnStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
+bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid::LowType linkedGuidLow)
 {
     if (!guidLow)
         return false;
 
     CreatureData const* master = GetCreatureData(guidLow);
     ASSERT(master);
-    ObjectGuid guid(HIGHGUID_UNIT, master->id, guidLow);
+    ObjectGuid guid(HighGuid::Unit, master->id, guidLow);
 
     if (!linkedGuidLow) // we're removing the linking
     {
@@ -1549,7 +1569,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
     }
 
-    ObjectGuid linkedGuid(HIGHGUID_UNIT, slave->id, linkedGuidLow);
+    ObjectGuid linkedGuid(HighGuid::Unit, slave->id, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
     PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
@@ -1679,7 +1699,7 @@ void ObjectMgr::LoadCreatures()
     {
         Field* fields = result->Fetch();
 
-        uint32 guid         = fields[0].GetUInt32();
+        ObjectGuid::LowType guid = fields[0].GetUInt32();
         uint32 entry        = fields[1].GetUInt32();
 
         CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
@@ -1810,7 +1830,7 @@ void ObjectMgr::LoadCreatures()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " creatures in %u ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
+void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
     uint8 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
@@ -1824,7 +1844,7 @@ void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
     }
 }
 
-void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
+void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
     uint8 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
@@ -1838,7 +1858,7 @@ void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
     }
 }
 
-uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
+ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
 {
     GameObjectTemplate const* goinfo = GetGameObjectTemplate(entry);
     if (!goinfo)
@@ -1848,7 +1868,8 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!map)
         return 0;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    ObjectGuid::LowType guid = GenerateGameObjectSpawnId();
+
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
     data.mapid          = mapId;
@@ -1888,40 +1909,8 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     return guid;
 }
 
-bool ObjectMgr::MoveCreatureData(uint32 guid, uint32 mapId, const Position& pos)
-{
-    CreatureData& data = NewOrExistCreatureData(guid);
-    if (!data.id)
-        return false;
 
-    RemoveCreatureFromGrid(guid, &data);
-    if (data.posX == pos.GetPositionX() && data.posY == pos.GetPositionY() && data.posZ == pos.GetPositionZ())
-        return true;
-    data.posX = pos.GetPositionX();
-    data.posY = pos.GetPositionY();
-    data.posZ = pos.GetPositionZ();
-    data.orientation = pos.GetOrientation();
-    AddCreatureToGrid(guid, &data);
-
-    // Spawn if necessary (loaded grids only)
-    if (Map* map = sMapMgr->CreateBaseMap(mapId))
-    {
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
-        {
-            Creature* creature = new Creature();
-            if (!creature->LoadCreatureFromDB(guid, map))
-            {
-                TC_LOG_ERROR("misc", "MoveCreatureData: Cannot add creature guid %u to map", guid);
-                delete creature;
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
+ObjectGuid::LowType ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay /*= 0*/)
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
@@ -1929,8 +1918,11 @@ uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, 
 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
+    Map* map = sMapMgr->CreateBaseMap(mapId);
+    if (!map)
+        return 0;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_UNIT);
+    ObjectGuid::LowType guid = GenerateCreatureSpawnId();
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
     data.mapid = mapId;
@@ -1955,19 +1947,15 @@ uint32 ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float x, float y, 
 
     AddCreatureToGrid(guid, &data);
 
-    // Spawn if necessary (loaded grids only)
-    if (Map* map = sMapMgr->CreateBaseMap(mapId))
+    // We use spawn coords to spawn
+    if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
     {
-        // We use spawn coords to spawn
-        if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
+        Creature* creature = new Creature();
+        if (!creature->LoadCreatureFromDB(guid, map))
         {
-            Creature* creature = new Creature();
-            if (!creature->LoadCreatureFromDB(guid, map))
-            {
-                TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
-                delete creature;
-                return 0;
-            }
+            TC_LOG_ERROR("misc", "AddCreature: Cannot add creature entry %u to map", entry);
+            delete creature;
+            return 0;
         }
     }
 
@@ -2005,7 +1993,7 @@ void ObjectMgr::LoadGameobjects()
     {
         Field* fields = result->Fetch();
 
-        uint32 guid         = fields[0].GetUInt32();
+        ObjectGuid::LowType guid = fields[0].GetUInt32();
         uint32 entry        = fields[1].GetUInt32();
 
         GameObjectTemplate const* gInfo = GetGameObjectTemplate(entry);
@@ -2133,7 +2121,7 @@ void ObjectMgr::LoadGameobjects()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " gameobjects in %u ms", _gameObjectDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
+void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     uint8 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
@@ -2147,7 +2135,7 @@ void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
     }
 }
 
-void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data)
+void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     uint8 mask = data->spawnMask;
     for (uint8 i = 0; mask != 0; i++, mask >>= 1)
@@ -2161,9 +2149,9 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
     }
 }
 
-Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
+Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
 {
-    ObjectGuid guid(HIGHGUID_PLAYER, lowguid);
+    ObjectGuid guid(HighGuid::Player, lowguid);
     return ObjectAccessor::FindPlayer(guid);
 }
 
@@ -2177,7 +2165,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
-        return ObjectGuid(HIGHGUID_PLAYER, (*result)[0].GetUInt32());
+        return ObjectGuid(HighGuid::Player, (*result)[0].GetUInt32());
 
     return ObjectGuid::Empty;
 }
@@ -2231,23 +2219,10 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
 {
-    // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
-        return player->GetSession()->GetAccountId();
-    }
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+        return characterInfo->AccountId;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
 
-    stmt->setUInt32(0, guid.GetCounter());
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 acc = (*result)[0].GetUInt32();
-        return acc;
-    }
 
     return 0;
 }
@@ -2383,6 +2358,12 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.ContainerSlots            = uint32(fields[26].GetUInt8());
         itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
 
+        if (itemTemplate.StatsCount > MAX_ITEM_PROTO_STATS)
+        {
+            TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has too large value in statscount (%u), replace by hardcoded limit (%u).", entry, itemTemplate.StatsCount, MAX_ITEM_PROTO_STATS);
+            itemTemplate.StatsCount = MAX_ITEM_PROTO_STATS;
+        }
+
         for (uint8 i = 0; i < itemTemplate.StatsCount; ++i)
         {
             itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[28 + i*2].GetUInt8());
@@ -2453,7 +2434,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Duration                = fields[129].GetUInt32();
         itemTemplate.ItemLimitCategory       = uint32(fields[130].GetInt16());
         itemTemplate.HolidayId               = fields[131].GetUInt32();
-        itemTemplate.ScriptId                = sObjectMgr->GetScriptId(fields[132].GetCString());
+        itemTemplate.ScriptId                = sObjectMgr->GetScriptId(fields[132].GetString());
         itemTemplate.DisenchantID            = fields[133].GetUInt32();
         itemTemplate.FoodType                = uint32(fields[134].GetUInt8());
         itemTemplate.MinMoneyLoot            = fields[135].GetUInt32();
@@ -2569,7 +2550,7 @@ void ObjectMgr::LoadItemTemplates()
             if (!req)
                 for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
                 {
-                    if (itemTemplate.Spells[j].SpellId)
+                    if (itemTemplate.Spells[j].SpellId > 0)
                     {
                         req = true;
                         break;
@@ -2628,12 +2609,6 @@ void ObjectMgr::LoadItemTemplates()
         {
             TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has too large value in ContainerSlots (%u), replace by hardcoded limit (%u).", entry, itemTemplate.ContainerSlots, MAX_BAG_SIZE);
             itemTemplate.ContainerSlots = MAX_BAG_SIZE;
-        }
-
-        if (itemTemplate.StatsCount > MAX_ITEM_PROTO_STATS)
-        {
-            TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has too large value in statscount (%u), replace by hardcoded limit (%u).", entry, itemTemplate.StatsCount, MAX_ITEM_PROTO_STATS);
-            itemTemplate.StatsCount = MAX_ITEM_PROTO_STATS;
         }
 
         for (uint8 j = 0; j < itemTemplate.StatsCount; ++j)
@@ -2753,15 +2728,6 @@ void ObjectMgr::LoadItemTemplates()
                     {
                         TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has broken spell in spellid_%d (%d)", entry, j+1, itemTemplate.Spells[j].SpellId);
                         itemTemplate.Spells[j].SpellId = 0;
-                    }
-
-                    if (spellInfo && itemTemplate.Spells[j].SpellCategory
-                        && itemTemplate.Spells[j].SpellCategory != SPELL_CATEGORY_FOOD)
-                    {
-                        bool added = sSpellsByCategoryStore[itemTemplate.Spells[j].SpellCategory].insert(itemTemplate.Spells[j].SpellId).second;
-                        if (added)
-                            TC_LOG_DEBUG("sql.sql", "Item(Entry: %u) spellid_%d (%d) category %u added to sSpellsByCategoryStore",
-                                          entry, j + 1, itemTemplate.Spells[j].SpellId, itemTemplate.Spells[j].SpellCategory);
                     }
                 }
             }
@@ -5160,8 +5126,8 @@ void ObjectMgr::LoadSpellScriptNames()
 
         Field* fields = result->Fetch();
 
-        int32 spellId          = fields[0].GetInt32();
-        char const* scriptName = fields[1].GetCString();
+        int32 spellId                = fields[0].GetInt32();
+        std::string const scriptName = fields[1].GetString();
 
         bool allRanks = false;
         if (spellId < 0)
@@ -5173,18 +5139,18 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, spellId);
+            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName.c_str(), spellId);
             continue;
         }
 
         if (allRanks)
         {
             if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName.c_str(), fields[0].GetInt32());
 
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName.c_str(), fields[0].GetInt32());
                 continue;
             }
 
@@ -5197,7 +5163,7 @@ void ObjectMgr::LoadSpellScriptNames()
         else
         {
             if (spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName.c_str(), spellId);
 
             _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
         }
@@ -5235,7 +5201,7 @@ void ObjectMgr::ValidateSpellScripts()
             bool valid = true;
             if (!spellScript && !auraScript)
             {
-                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second).c_str());
                 valid = false;
             }
             if (spellScript)
@@ -5371,7 +5337,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
         instanceTemplate.AllowMount = fields[3].GetBool();
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetCString());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -5658,7 +5624,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
         Player* player = NULL;
         if (serverUp)
-            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HIGHGUID_PLAYER, m->receiver));
+            player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, m->receiver));
 
         if (player && player->m_mailsLoaded)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
@@ -5836,8 +5802,8 @@ void ObjectMgr::LoadAreaTriggerScripts()
     {
         Field* fields = result->Fetch();
 
-        uint32 triggerId       = fields[0].GetUInt32();
-        char const* scriptName = fields[1].GetCString();
+        uint32 triggerId             = fields[0].GetUInt32();
+        std::string const scriptName = fields[1].GetString();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
         if (!atEntry)
@@ -6058,7 +6024,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     // not need to check validity of map object; MapId _MUST_ be valid here
     if (range.first == range.second && !map->IsBattlegroundOrArena())
     {
-        TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
+        if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
+            TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
         return GetDefaultGraveYard(team);
     }
 
@@ -6454,29 +6421,21 @@ void ObjectMgr::SetHighestGuids()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
-        _hiCharGuid = (*result)[0].GetUInt32()+1;
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
-    if (result)
-        _hiCreatureGuid = (*result)[0].GetUInt32()+1;
+        GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        _hiItemGuid = (*result)[0].GetUInt32()+1;
+        GetGuidSequenceGenerator<HighGuid::Item>().Set((*result)[0].GetUInt32()+1);
 
     // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid);      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid);          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid);         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid);     // One-time query
-
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
-    if (result)
-        _hiGoGuid = (*result)[0].GetUInt32()+1;
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());     // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        _hiMoTransGuid = (*result)[0].GetUInt32()+1;
+        GetGuidSequenceGenerator<HighGuid::Mo_Transport>().Set((*result)[0].GetUInt32()+1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -6485,10 +6444,6 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
         _mailId = (*result)[0].GetUInt32()+1;
-
-    result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
-    if (result)
-        _hiCorpseGuid = (*result)[0].GetUInt32()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
@@ -6505,6 +6460,14 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
+
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+    if (result)
+        _creatureSpawnId = (*result)[0].GetUInt32() + 1;
+
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
+    if (result)
+        _gameObjectSpawnId = (*result)[0].GetUInt32() + 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6537,59 +6500,29 @@ uint32 ObjectMgr::GenerateMailID()
     return _mailId++;
 }
 
-uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
+uint32 ObjectMgr::GeneratePetNumber()
 {
-    switch (guidhigh)
+    return ++_hiPetNumber;
+}
+
+uint32 ObjectMgr::GenerateCreatureSpawnId()
+{
+    if (_creatureSpawnId >= uint32(0xFFFFFF))
     {
-        case HIGHGUID_ITEM:
-        {
-            ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
-            return _hiItemGuid++;
-        }
-        case HIGHGUID_UNIT:
-        {
-            ASSERT(_hiCreatureGuid < 0x00FFFFFE && "Creature guid overflow!");
-            return _hiCreatureGuid++;
-        }
-        case HIGHGUID_PET:
-        {
-            ASSERT(_hiPetGuid < 0x00FFFFFE && "Pet guid overflow!");
-            return _hiPetGuid++;
-        }
-        case HIGHGUID_VEHICLE:
-        {
-            ASSERT(_hiVehicleGuid < 0x00FFFFFF && "Vehicle guid overflow!");
-            return _hiVehicleGuid++;
-        }
-        case HIGHGUID_PLAYER:
-        {
-            ASSERT(_hiCharGuid < 0xFFFFFFFE && "Player guid overflow!");
-            return _hiCharGuid++;
-        }
-        case HIGHGUID_GAMEOBJECT:
-        {
-            ASSERT(_hiGoGuid < 0x00FFFFFE && "Gameobject guid overflow!");
-            return _hiGoGuid++;
-        }
-        case HIGHGUID_CORPSE:
-        {
-            ASSERT(_hiCorpseGuid < 0xFFFFFFFE && "Corpse guid overflow!");
-            return _hiCorpseGuid++;
-        }
-        case HIGHGUID_DYNAMICOBJECT:
-        {
-            ASSERT(_hiDoGuid < 0xFFFFFFFE && "DynamicObject guid overflow!");
-            return _hiDoGuid++;
-        }
-        case HIGHGUID_MO_TRANSPORT:
-        {
-            ASSERT(_hiMoTransGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
-            return _hiMoTransGuid++;
-        }
-        default:
-            ASSERT(false && "ObjectMgr::GenerateLowGuid - Unknown HIGHGUID type");
-            return 0;
+        TC_LOG_ERROR("misc", "Creature spawn id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
     }
+    return _creatureSpawnId++;
+}
+
+uint32 ObjectMgr::GenerateGameObjectSpawnId()
+{
+    if (_gameObjectSpawnId >= uint32(0xFFFFFF))
+    {
+        TC_LOG_ERROR("misc", "Creature spawn id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _gameObjectSpawnId++;
 }
 
 void ObjectMgr::LoadGameObjectLocales()
@@ -6615,6 +6548,8 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(name, locale, data.Name);
         AddLocaleString(castBarCaption, locale, data.CastBarCaption);
@@ -6726,7 +6661,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[10 + i].GetInt32(); // data1 and data6 can be -1
 
         got.AIName = fields[34].GetString();
-        got.ScriptId = GetScriptId(fields[35].GetCString());
+        got.ScriptId = GetScriptId(fields[35].GetString());
 
         // Checks
 
@@ -6971,49 +6906,6 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     }
 
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
-}
-
-uint32 ObjectMgr::GeneratePetNumber()
-{
-    return ++_hiPetNumber;
-}
-
-void ObjectMgr::LoadCorpses()
-{
-    uint32 oldMSTime = getMSTime();
-
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 corpses. DB table `corpse` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 guid = fields[16].GetUInt32();
-        CorpseType type = CorpseType(fields[13].GetUInt8());
-        if (type >= MAX_CORPSE_TYPE)
-        {
-            TC_LOG_ERROR("misc", "Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
-            continue;
-        }
-
-        Corpse* corpse = new Corpse(type);
-        if (!corpse->LoadCorpseFromDB(guid, fields))
-        {
-            delete corpse;
-            continue;
-        }
-
-        sObjectAccessor->AddCorpse(corpse);
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u corpses in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadReputationRewardRate()
@@ -7454,7 +7346,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     TC_LOG_INFO("server.loading", ">> Loaded %u spellclick definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::DeleteCreatureData(uint32 guid)
+void ObjectMgr::DeleteCreatureData(ObjectGuid::LowType guid)
 {
     // remove mapid*cellid -> guid_set map
     CreatureData const* data = GetCreatureData(guid);
@@ -7464,7 +7356,7 @@ void ObjectMgr::DeleteCreatureData(uint32 guid)
     _creatureDataStore.erase(guid);
 }
 
-void ObjectMgr::DeleteGOData(uint32 guid)
+void ObjectMgr::DeleteGOData(ObjectGuid::LowType guid)
 {
     // remove mapid*cellid -> guid_set map
     GameObjectData const* data = GetGOData(guid);
@@ -7472,20 +7364,6 @@ void ObjectMgr::DeleteGOData(uint32 guid)
         RemoveGameobjectFromGrid(guid, data);
 
     _gameObjectDataStore.erase(guid);
-}
-
-void ObjectMgr::AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance)
-{
-    // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(mapid, 0)][cellid];
-    cell_guids.corpses[player_guid] = instance;
-}
-
-void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid)
-{
-    // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(mapid, 0)][cellid];
-    cell_guids.corpses.erase(player_guid);
 }
 
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go)
@@ -7714,7 +7592,7 @@ bool isValidString(const std::wstring& wstr, uint32 strictMask, bool numericOrSp
     return false;
 }
 
-ResponseCodes ObjectMgr::CheckPlayerName(const std::string& name, bool create)
+ResponseCodes ObjectMgr::CheckPlayerName(std::string const& name, LocaleConstant locale, bool create /*= false*/)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
@@ -7736,7 +7614,7 @@ ResponseCodes ObjectMgr::CheckPlayerName(const std::string& name, bool create)
         if (wname[i] == wname[i-1] && wname[i] == wname[i-2])
             return CHAR_NAME_THREE_CONSECUTIVE;
 
-    return CHAR_NAME_SUCCESS;
+    return ValidateName(name, locale);
 }
 
 bool ObjectMgr::IsValidCharterName(const std::string& name)
@@ -7757,7 +7635,7 @@ bool ObjectMgr::IsValidCharterName(const std::string& name)
     return isValidString(wname, strictMask, true);
 }
 
-PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
+PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name, LocaleConstant locale)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
@@ -7774,6 +7652,17 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
     if (!isValidString(wname, strictMask, false))
         return PET_NAME_MIXED_LANGUAGES;
 
+    switch (ValidateName(name, locale))
+    {
+        case CHAR_NAME_PROFANE:
+            return PET_NAME_PROFANE;
+        case CHAR_NAME_RESERVED:
+            return PET_NAME_RESERVED;
+        case RESPONSE_FAILURE:
+            return PET_NAME_INVALID;
+        default:
+            break;
+    }
     return PET_NAME_SUCCESS;
 }
 
@@ -8706,7 +8595,7 @@ void ObjectMgr::LoadScriptNames()
 
     do
     {
-        _scriptNamesStore.emplace_back((*result)[0].GetCString());
+        _scriptNamesStore.push_back((*result)[0].GetString());
     }
     while (result->NextRow());
 
@@ -8720,11 +8609,18 @@ void ObjectMgr::LoadScriptNames()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-uint32 ObjectMgr::GetScriptId(char const* name)
+std::string const& ObjectMgr::GetScriptName(uint32 id) const
+{
+    static std::string const empty = "";
+    return id < _scriptNamesStore.size() ? _scriptNamesStore[id] : empty;
+}
+
+
+uint32 ObjectMgr::GetScriptId(std::string const& name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
-    if (!name)
+    if (name.empty())
         return 0;
 
     ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
@@ -9187,7 +9083,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     if (Creature* cre = veh->GetBase()->ToCreature())
     {
         // Give preference to GUID-based accessories
-        VehicleAccessoryContainer::const_iterator itr = _vehicleAccessoryStore.find(cre->GetDBTableGUIDLow());
+        VehicleAccessoryContainer::const_iterator itr = _vehicleAccessoryStore.find(cre->GetSpawnId());
         if (itr != _vehicleAccessoryStore.end())
             return &itr->second;
     }

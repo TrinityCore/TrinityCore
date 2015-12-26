@@ -21,19 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-class LoginDatabaseConnection : public MySQLConnection
-{
-    public:
-        //- Constructors for sync and async connections
-        LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-        LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
-
-        //- Loads database type specific prepared statements
-        void DoPrepareStatements() override;
-};
-
-typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
-
 enum LoginDatabaseStatements
 {
     /*  Naming standard for defines:
@@ -45,6 +32,7 @@ enum LoginDatabaseStatements
     LOGIN_SEL_REALMLIST,
     LOGIN_DEL_EXPIRED_IP_BANS,
     LOGIN_UPD_EXPIRED_ACCOUNT_BANS,
+    LOGIN_SEL_IP_INFO,
     LOGIN_SEL_IP_BANNED,
     LOGIN_INS_IP_AUTO_BANNED,
     LOGIN_SEL_ACCOUNT_BANNED,
@@ -108,8 +96,6 @@ enum LoginDatabaseStatements
     LOGIN_SEL_ACCOUNT_INFO,
     LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST,
     LOGIN_SEL_ACCOUNT_ACCESS,
-    LOGIN_SEL_ACCOUNT_RECRUITER,
-    LOGIN_SEL_BANS,
     LOGIN_SEL_ACCOUNT_WHOIS,
     LOGIN_SEL_REALMLIST_SECURITY_LEVEL,
     LOGIN_DEL_ACCOUNT,
@@ -132,5 +118,20 @@ enum LoginDatabaseStatements
     LOGIN_SEL_ACCOUNT_MUTE_INFO,
     MAX_LOGINDATABASE_STATEMENTS
 };
+
+class LoginDatabaseConnection : public MySQLConnection
+{
+public:
+    typedef LoginDatabaseStatements Statements;
+
+    //- Constructors for sync and async connections
+    LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
+    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
 
 #endif

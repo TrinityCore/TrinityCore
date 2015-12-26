@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapManager.h"
 #include "ScriptMgr.h"
 #include "OutdoorPvPNA.h"
 #include "Player.h"
@@ -43,7 +44,7 @@ void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
 uint32 OPvPCapturePointNA::GetAliveGuardsCount()
 {
     uint32 cnt = 0;
-    for (std::map<uint32, ObjectGuid>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
+    for (std::map<uint32, uint32>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
     {
         switch (itr->first)
         {
@@ -62,10 +63,13 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_13:
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
-            if (Creature const* const cr = HashMapHolder<Creature>::Find(itr->second))
-                if (cr->IsAlive())
+        {
+            auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(itr->second);
+            for (auto itr2 = bounds.first; itr2 != bounds.second; ++itr2)
+                if (itr2->second->IsAlive())
                     ++cnt;
             break;
+        }
         default:
             break;
         }
@@ -186,6 +190,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
 {
 //    m_TypeId = OUTDOOR_PVP_NA; _MUST_ be set in ctor, because of spawns cleanup
     // add the zones affected by the pvp buff
+    SetMapFromZone(NA_BUFF_ZONE);
     RegisterZone(NA_BUFF_ZONE);
 
     // halaa
@@ -372,9 +377,9 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
     return false;
 }
 
-int32 OPvPCapturePointNA::HandleOpenGo(Player* player, ObjectGuid guid)
+int32 OPvPCapturePointNA::HandleOpenGo(Player* player, GameObject* go)
 {
-    int32 retval = OPvPCapturePoint::HandleOpenGo(player, guid);
+    int32 retval = OPvPCapturePoint::HandleOpenGo(player, go);
     if (retval >= 0)
     {
         const go_type * gos = NULL;
@@ -567,11 +572,9 @@ void OPvPCapturePointNA::ChangeState()
         break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
-    if (flag)
-    {
-        flag->SetGoArtKit(artkit);
-    }
+    auto bounds = sMapMgr->FindMap(530, 0)->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        itr->second->SetGoArtKit(artkit);
 
     UpdateHalaaWorldState();
 }

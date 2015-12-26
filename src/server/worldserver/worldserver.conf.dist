@@ -118,9 +118,9 @@ CharacterDatabase.WorkerThreads = 1
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     2 - (CharacterDatabase.WorkerThreads)
+#        Default:     1 - (LoginDatabase.SynchThreads)
+#                     1 - (WorldDatabase.SynchThreads)
+#                     2 - (CharacterDatabase.SynchThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
@@ -956,7 +956,7 @@ Guild.BankEventLogRecordsCount = 25
 #
 #    MaxPrimaryTradeSkill
 #        Description: Maximum number of primary professions a character can learn.
-#        Range:       0-10
+#        Range:       0-11
 #        Default:     2
 
 MaxPrimaryTradeSkill = 2
@@ -1074,6 +1074,16 @@ Command.LookupMaxResults = 0
 AllowTickets = 1
 
 #
+#    DeletedCharacterTicketTrace
+#        Description: Keep trace of tickets opened by deleted characters
+#                     gm_ticket.playerGuid will be 0, old GUID and character name
+#                     will be included in gm_ticket.comment
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+DeletedCharacterTicketTrace = 0
+
+#
 #     DungeonFinder.OptionsMask
 #        Description: Dungeon and raid finder system.
 #        Value is a bitmask consisting of:
@@ -1132,11 +1142,11 @@ BirthdayTime = 1222964635
 #           DATABASE_CHARACTER = 2, // Character database
 #           DATABASE_WORLD     = 4, // World database
 #
-#        Default:     0  - (All Disabled)
+#        Default:     7  - (All enabled)
 #                     4  - (Enable world only)
-#                     7  - (All enabled)
+#                     0  - (All disabled)
 
-Updates.EnableDatabases = 0
+Updates.EnableDatabases = 7
 
 #
 #    Updates.SourcePath
@@ -1148,7 +1158,7 @@ Updates.EnableDatabases = 0
 Updates.SourcePath  = ""
 
 #
-#    Updates.SourcePath
+#    Updates.MySqlCLIPath
 #        Description: The path to your mysql cli binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
@@ -1667,6 +1677,7 @@ GM.WhisperingTo = 2
 #                    applied on players when using the .freeze command
 #       Default:     0 - (Original aura duration. Lasts until the .unfreeze command is used)
 #                    N - (Aura duration if unspecified in .freeze command, in seconds)
+
 GM.FreezeAuraDuration = 0
 
 #
@@ -1854,13 +1865,21 @@ Rate.Drop.Item.ReferencedAmount = 1
 #    Rate.XP.Quest
 #    Rate.XP.Explore
 #        Description: Experience rates.
-#        Default:     1 - (Rate.XP.Kill)
+#        Default:     1 - (Rate.XP.Kill, affects only kills outside of Battlegrounds)
 #                     1 - (Rate.XP.Quest)
 #                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
+
+#
+#    Rate.XP.BattlegroundKill
+#        Description: Experience rate for honorable kills in battlegrounds,
+#                     it works when Battleground.GiveXPForKills = 1
+#        Default:     1
+
+Rate.XP.BattlegroundKill = 1
 
 #
 #    Rate.Quest.Money.Reward
@@ -1918,6 +1937,13 @@ Rate.Auction.Cut     = 1
 #        Default:     1
 
 Rate.Honor = 1
+
+#
+#    Rate.ArenaPoints
+#        Description: Arena points gain rate.
+#        Default:     1
+
+Rate.ArenaPoints = 1
 
 #
 #    Rate.Talent
@@ -2148,7 +2174,7 @@ AutoBroadcast.Center = 0
 #
 #    AutoBroadcast.Timer
 #        Description: Timer (in milliseconds) for auto broadcasts.
-#        Default:     60000 - (10 minutes)
+#        Default:     600000 - (10 minutes)
 
 AutoBroadcast.Timer = 600000
 
@@ -2190,12 +2216,21 @@ Battleground.QueueAnnouncer.PlayerOnly = 0
 Battleground.StoreStatistics.Enable = 0
 
 #
+#    Battleground.TrackDeserters.Enable
+#        Description: Track deserters of Battlegrounds.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Battleground.TrackDeserters.Enable = 0
+
+#
 #    Battleground.InvitationType
 #        Description: Set Battleground invitation type.
 #        Default:     0 - (Normal, Invite as much players to battlegrounds as queued,
 #                          Don't bother with balance)
 #                     1 - (Experimental, Don't allow to invite much more players
 #                          of one faction)
+#                     2 - (Experimental, Try to have even teams)
 
 Battleground.InvitationType = 0
 
@@ -2219,7 +2254,8 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
-#        Description: Give experience for honorable kills in battlegrounds.
+#        Description: Give experience for honorable kills in battlegrounds,
+#                     the rate can be changed in the Rate.XP.BattlegroundKill setting.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -2402,6 +2438,39 @@ Arena.ArenaStartPersonalRating = 0
 Arena.ArenaStartMatchmakerRating = 1500
 
 #
+#    Arena.ArenaWinRatingModifier1
+#        Description: Modifier of rating addition when winner team rating is less than 1300
+#                     be aware that from 1000 to 1300 it gradually decreases automatically down to the half of it
+#                     (increasing this value will give more rating)
+#        Default:     48
+
+Arena.ArenaWinRatingModifier1 = 48
+
+#
+#    Arena.ArenaWinRatingModifier2
+#        Description: Modifier of rating addition when winner team rating is equal or more than 1300
+#                     (increasing this value will give more rating)
+#        Default:     24
+
+Arena.ArenaWinRatingModifier2 = 24
+
+
+#
+#    Arena.ArenaLoseRatingModifier
+#        Description: Modifier of rating subtraction for loser team
+#                     (increasing this value will subtract more rating)
+#        Default:     24
+
+Arena.ArenaLoseRatingModifier = 24
+
+#
+#    Arena.ArenaMatchmakerRatingModifier
+#        Description: Modifier of matchmaker rating
+#        Default:     24
+
+Arena.ArenaMatchmakerRatingModifier = 24
+
+#
 #    ArenaLog.ExtendedInfo
 #        Description: Include extended info to ArenaLogFile for each player after rated arena
 #                     matches (guid, name, team, IP, healing/damage done, killing blows).
@@ -2556,14 +2625,14 @@ CharDelete.KeepDays = 30
 #
 #     AllowTrackBothResources
 #        Description: Allows players to track herbs and minerals at the same time (if they have the skills)
-#        Default: 0 (do not allow)
-#                 1 (allow)
+#        Default:     0 - (Do not allow)
+#                     1 - (Allow)
 #
-#        Note: The following are client limitations and cannot be coded for:
-#           * The minimap tracking icon will display whichever skill is activated second
-#           * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
-#              bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
-#           * The minimap dots are yellow for both resources
+#        Note:        The following are client limitations and cannot be coded for:
+#                     * The minimap tracking icon will display whichever skill is activated second.
+#                     * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
+#                       bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
+#                     * The minimap dots are yellow for both resources.
 
 AllowTrackBothResources = 0
 
@@ -2602,6 +2671,21 @@ PlayerStart.MapsExplored = 0
 #                     1+ - (Enabled)
 
 HonorPointsAfterDuel = 0
+
+#
+#    ResetDuelCooldowns
+#        Description: Reset all cooldowns before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelCooldowns = 0
+
+#    ResetDuelHealthMana
+#        Description: Reset health and mana before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelHealthMana = 0
 
 #
 #    AlwaysMaxWeaponSkill
@@ -2965,8 +3049,8 @@ AuctionHouseBot.Items.ItemLevel.Max = 0
 
 #
 #    AuctionHouseBot.Items.ReqLevel.*
-#        Prevent seller from listing items below/above this required level
-#    Default: - 0 (Disabled)
+#       Description: Prevent seller from listing items below/above this required level
+#       Default:     0 - (Disabled)
 
 AuctionHouseBot.Items.ReqLevel.Min = 0
 AuctionHouseBot.Items.ReqLevel.Max = 0
@@ -2996,7 +3080,7 @@ AuctionHouseBot.Items.Amount.Orange = 0
 AuctionHouseBot.Items.Amount.Yellow = 0
 
 #
-#    AustionHouseBot.Class.*
+#    AuctionHouseBot.Class.*
 #       Description: Here you can set the class of items you prefer to be show on AH
 #                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
 #       Default:     Consumable: 6

@@ -80,7 +80,7 @@ public:
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
             GameObject* go = new GameObject();
-            if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
+            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance,
                 PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
                 0, 0, 0, 0, 120, GO_STATE_READY))
             {

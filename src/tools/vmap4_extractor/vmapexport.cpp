@@ -17,14 +17,15 @@
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
-#include <cstdio>
-#include <iostream>
-#include <vector>
-#include <list>
-#include <errno.h>
+
+#include "adtfile.h"
+#include "wdtfile.h"
+#include "dbcfile.h"
+#include "wmo.h"
+#include "mpq_libmpq04.h"
+#include "vmapexport.h"
 
 #ifdef WIN32
-    #include <Windows.h>
     #include <sys/stat.h>
     #include <direct.h>
     #define mkdir _mkdir
@@ -32,22 +33,13 @@
     #include <sys/stat.h>
 #endif
 
+#include <cstdio>
+#include <iostream>
+#include <vector>
+#include <errno.h>
+
 #undef min
 #undef max
-
-//#pragma warning(disable : 4505)
-//#pragma comment(lib, "Winmm.lib")
-
-#include <map>
-
-//From Extractor
-#include "adtfile.h"
-#include "wdtfile.h"
-#include "dbcfile.h"
-#include "wmo.h"
-#include "mpq_libmpq04.h"
-
-#include "vmapexport.h"
 
 //------------------------------------------------------------------------------
 // Defines
@@ -129,12 +121,12 @@ bool ExtractWmo()
 
     for (ArchiveSet::const_iterator ar_itr = gOpenArchives.begin(); ar_itr != gOpenArchives.end() && success; ++ar_itr)
     {
-        vector<string> filelist;
+        std::vector<std::string> filelist;
 
         (*ar_itr)->GetFileListTo(filelist);
-        for (vector<string>::iterator fname = filelist.begin(); fname != filelist.end() && success; ++fname)
+        for (std::vector<std::string>::iterator fname = filelist.begin(); fname != filelist.end() && success; ++fname)
         {
-            if (fname->find(".wmo") != string::npos)
+            if (fname->find(".wmo") != std::string::npos)
                 success = ExtractSingleWmo(*fname);
         }
     }
@@ -203,7 +195,7 @@ bool ExtractSingleWmo(std::string& fname)
             sprintf(groupFileName, "%s_%03u.wmo", temp, i);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
-            string s = groupFileName;
+            std::string s = groupFileName;
             WMOGroup fgroup(s);
             if(!fgroup.open())
             {
@@ -305,7 +297,7 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     printf("\nGame path: %s\n", input_path);
 
     char path[512];
-    string in_path(input_path);
+    std::string in_path(input_path);
     std::vector<std::string> locales, searchLocales;
 
     searchLocales.push_back("enGB");
@@ -345,10 +337,10 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     }
 
     // open expansion and common files
-    pArchiveNames.push_back(input_path + string("common.MPQ"));
-    pArchiveNames.push_back(input_path + string("common-2.MPQ"));
-    pArchiveNames.push_back(input_path + string("expansion.MPQ"));
-    pArchiveNames.push_back(input_path + string("lichking.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("common.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("common-2.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("expansion.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("lichking.MPQ"));
 
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");

@@ -67,6 +67,8 @@ class DatabaseWorkerPool
 
             WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
             WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
+            WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s).",
+                mysql_get_client_info(), MYSQL_SERVER_VERSION);
         }
 
         ~DatabaseWorkerPool()
@@ -428,10 +430,12 @@ class DatabaseWorkerPool
             Other
         */
 
+        typedef typename T::Statements PreparedStatementIndex;
+
         //! Automanaged (internally) pointer to a prepared statement object for usage in upper level code.
         //! Pointer is deleted in this->DirectExecute(PreparedStatement*), this->Query(PreparedStatement*) or PreparedStatementTask::~PreparedStatementTask.
         //! This object is not tied to the prepared statement on the MySQL context yet until execution.
-        PreparedStatement* GetPreparedStatement(uint32 index)
+        PreparedStatement* GetPreparedStatement(PreparedStatementIndex index)
         {
             return new PreparedStatement(index);
         }
@@ -482,7 +486,7 @@ class DatabaseWorkerPool
                 else if (type == IDX_SYNCH)
                     t = new T(*_connectionInfo);
                 else
-                    ASSERT(false);
+                    ABORT();
 
                 _connections[type][i] = t;
                 ++_connectionCount[type];

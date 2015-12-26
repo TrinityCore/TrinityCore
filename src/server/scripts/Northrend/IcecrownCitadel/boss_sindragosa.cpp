@@ -234,7 +234,6 @@ class boss_sindragosa : public CreatureScript
             void Reset() override
             {
                 BossAI::Reset();
-                me->SetReactState(REACT_DEFENSIVE);
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
@@ -648,7 +647,7 @@ class npc_spinestalker : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetDBTableGUIDLow());  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -659,7 +658,6 @@ class npc_spinestalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
                 _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
-                me->SetReactState(REACT_DEFENSIVE);
 
                 if (!_summoned)
                 {
@@ -671,7 +669,7 @@ class npc_spinestalker : public CreatureScript
             void JustRespawned() override
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetDBTableGUIDLow());  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -699,6 +697,7 @@ class npc_spinestalker : public CreatureScript
                     me->GetMotionMaster()->MoveIdle();
                     me->StopMoving();
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SpinestalkerFlyPos);
+                    me->SetReactState(REACT_DEFENSIVE);
                 }
             }
 
@@ -714,6 +713,7 @@ class npc_spinestalker : public CreatureScript
                 me->SetHomePosition(SpinestalkerLandPos);
                 me->SetFacingTo(SpinestalkerLandPos.GetOrientation());
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_AGGRESSIVE);
             }
 
             void UpdateAI(uint32 diff) override
@@ -784,7 +784,7 @@ class npc_rimefang : public CreatureScript
                 // Increase add count
                 if (!me->isDead())
                 {
-                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetDBTableGUIDLow());  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -794,7 +794,6 @@ class npc_rimefang : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
                 _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
-                me->SetReactState(REACT_DEFENSIVE);
                 Initialize();
 
                 if (!_summoned)
@@ -807,7 +806,7 @@ class npc_rimefang : public CreatureScript
             void JustRespawned() override
             {
                 ScriptedAI::JustRespawned();
-                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetDBTableGUIDLow());  // this cannot be in Reset because reset also happens on evade
+                _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -835,6 +834,7 @@ class npc_rimefang : public CreatureScript
                     me->GetMotionMaster()->MoveIdle();
                     me->StopMoving();
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
+                    me->SetReactState(REACT_DEFENSIVE);
                 }
             }
 
@@ -850,6 +850,7 @@ class npc_rimefang : public CreatureScript
                 me->SetHomePosition(RimefangLandPos);
                 me->SetFacingTo(RimefangLandPos.GetOrientation());
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetReactState(REACT_AGGRESSIVE);
             }
 
             void EnterCombat(Unit* /*victim*/) override
@@ -951,7 +952,7 @@ class npc_sindragosa_trash : public CreatureScript
                 if (!me->isDead())
                 {
                     if (me->GetEntry() == NPC_FROSTWING_WHELP)
-                        _instance->SetData(_frostwyrmId, me->GetDBTableGUIDLow());  // this cannot be in Reset because reset also happens on evade
+                        _instance->SetData(_frostwyrmId, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
                     Reset();
                 }
             }
@@ -974,7 +975,7 @@ class npc_sindragosa_trash : public CreatureScript
 
                 // Increase add count
                 if (me->GetEntry() == NPC_FROSTWING_WHELP)
-                    _instance->SetData(_frostwyrmId, me->GetDBTableGUIDLow());  // this cannot be in Reset because reset also happens on evade
+                    _instance->SetData(_frostwyrmId, me->GetSpawnId());  // this cannot be in Reset because reset also happens on evade
             }
 
             void SetData(uint32 type, uint32 data) override

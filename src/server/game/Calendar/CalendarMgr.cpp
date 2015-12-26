@@ -58,7 +58,7 @@ void CalendarMgr::LoadFromDB()
             Field* fields = result->Fetch();
 
             uint64 eventId          = fields[0].GetUInt64();
-            ObjectGuid creatorGUID  = ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt32());
+            ObjectGuid creatorGUID  = ObjectGuid(HighGuid::Player, fields[1].GetUInt32());
             std::string title       = fields[2].GetString();
             std::string description = fields[3].GetString();
             CalendarEventType type  = CalendarEventType(fields[4].GetUInt8());
@@ -66,7 +66,7 @@ void CalendarMgr::LoadFromDB()
             uint32 eventTime        = fields[6].GetUInt32();
             uint32 flags            = fields[7].GetUInt32();
             uint32 timezoneTime     = fields[8].GetUInt32();
-            uint32 guildId = 0;
+            ObjectGuid::LowType guildId = 0;
 
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
                 guildId = Player::GetGuildIdFromDB(creatorGUID);
@@ -91,8 +91,8 @@ void CalendarMgr::LoadFromDB()
 
             uint64 inviteId             = fields[0].GetUInt64();
             uint64 eventId              = fields[1].GetUInt64();
-            ObjectGuid invitee          = ObjectGuid(HIGHGUID_PLAYER, fields[2].GetUInt32());
-            ObjectGuid senderGUID       = ObjectGuid(HIGHGUID_PLAYER, fields[3].GetUInt32());
+            ObjectGuid invitee          = ObjectGuid(HighGuid::Player, fields[2].GetUInt32());
+            ObjectGuid senderGUID       = ObjectGuid(HighGuid::Player, fields[3].GetUInt32());
             CalendarInviteStatus status = CalendarInviteStatus(fields[4].GetUInt8());
             uint32 statusTime           = fields[5].GetUInt32();
             CalendarModerationRank rank = CalendarModerationRank(fields[6].GetUInt8());
@@ -270,7 +270,7 @@ void CalendarMgr::RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
         RemoveInvite((*itr)->GetInviteId(), (*itr)->GetEventId(), guid);
 }
 
-void CalendarMgr::RemovePlayerGuildEventsAndSignups(ObjectGuid guid, uint32 guildId)
+void CalendarMgr::RemovePlayerGuildEventsAndSignups(ObjectGuid guid, ObjectGuid::LowType guildId)
 {
     for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
         if ((*itr)->GetCreatorGUID() == guid && ((*itr)->IsGuildEvent() || (*itr)->IsGuildAnnouncement()))
@@ -573,7 +573,7 @@ void CalendarMgr::SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calend
         Player* invitee = ObjectAccessor::FindPlayer(inviteeGuid);
 
         uint8 inviteeLevel = invitee ? invitee->getLevel() : Player::GetLevelFromDB(inviteeGuid);
-        uint32 inviteeGuildId = invitee ? invitee->GetGuildId() : Player::GetGuildIdFromDB(inviteeGuid);
+        ObjectGuid::LowType inviteeGuildId = invitee ? invitee->GetGuildId() : Player::GetGuildIdFromDB(inviteeGuid);
 
         data << inviteeGuid.WriteAsPacked();
         data << uint8(inviteeLevel);

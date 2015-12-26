@@ -7,9 +7,6 @@ C++ Format
 .. image:: https://ci.appveyor.com/api/projects/status/qk0bhyhqp1ekpat8
    :target: https://ci.appveyor.com/project/vitaut/cppformat
    
-.. image:: https://webapi.biicode.com/v1/badges/vitaut/vitaut/cppformat/master?dummy
-   :target: https://www.biicode.com/vitaut/cppformat
-
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/cppformat/cppformat
    :target: https://gitter.im/cppformat/cppformat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
@@ -149,6 +146,8 @@ Projects using this library
 
 * `readpe <https://bitbucket.org/sys_dev/readpe>`_: Read Portable Executable
 
+* `redis-cerberus <https://github.com/HunanTV/redis-cerberus>`_: A Redis cluster proxy
+
 * `Saddy <https://code.google.com/p/saddy/>`_:
   Small crossplatform 2D graphic engine
 
@@ -156,6 +155,10 @@ Projects using this library
   Business intelligence software
 
 * `spdlog <https://github.com/gabime/spdlog>`_: Super fast C++ logging library
+
+* `Stellar <https://www.stellar.org/>`_: Financial platform
+
+* `Touch Surgery <https://www.touchsurgery.com/>`_: Surgery simulator
 
 * `TrinityCore <https://github.com/TrinityCore/TrinityCore>`_: Open-source MMORPG framework
 

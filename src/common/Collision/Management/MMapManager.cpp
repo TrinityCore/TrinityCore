@@ -230,7 +230,7 @@ namespace MMAP
             // if the grid is later reloaded, dtNavMesh::addTile will return error but no extra memory is used
             // we cannot recover from this error - assert out
             TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload %03u%02i%02i.mmtile from navmesh", mapId, x, y);
-            ASSERT(false);
+            ABORT();
         }
         else
         {

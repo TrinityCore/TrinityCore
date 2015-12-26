@@ -1199,9 +1199,9 @@ class npc_tirion_fordring_tft : public CreatureScript
                     SetEquipmentSlots(true);    // remove glow on ashbringer
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
+            void sGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
             {
-                if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
+                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
                     _events.SetPhase(PHASE_INTRO);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

@@ -348,7 +348,7 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
-Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map* map /*= NULL*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= NULL*/)
 {
     // instance case, execute GetGameObjectEntry hook
     if (map)
@@ -381,7 +381,8 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
     float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base
-    uint32 guidLow = guid ? guid : sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT);
+    ObjectGuid::LowType guidLow = guid ? guid : sObjectMgr->GetGenerator<HighGuid::Mo_Transport>().Generate();
+
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
@@ -404,7 +405,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
         trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
     // Passengers will be loaded once a player is near
-
+    HashMapHolder<Transport>::Insert(trans);
     trans->GetMap()->AddToMap<Transport>(trans);
     return trans;
 }
@@ -424,7 +425,7 @@ void TransportMgr::SpawnContinentTransports()
         do
         {
             Field* fields = result->Fetch();
-            uint32 guid = fields[0].GetUInt32();
+            ObjectGuid::LowType guid = fields[0].GetUInt32();
             uint32 entry = fields[1].GetUInt32();
 
             if (TransportTemplate const* tInfo = GetTransportTemplate(entry))
