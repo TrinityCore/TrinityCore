@@ -81,7 +81,8 @@ namespace Trinity
         template <class C>
         typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights)
         {
-            std::discrete_distribution<uint32> dd(weights.begin(), weights.end());
+            Trinity::discrete_distribution_param<uint32> ddParam(weights.begin(), weights.end());
+            std::discrete_distribution<uint32> dd(ddParam);
             typename C::const_iterator it = container.begin();
             std::advance(it, dd(SFMTEngine::Instance()));
             return it;
