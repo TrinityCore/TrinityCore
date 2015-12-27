@@ -2118,7 +2118,7 @@ class Player : public Unit, public GridObject<Player>
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
-        bool CheckInstanceLoginValid(Map* map);
+        bool CheckInstanceValidity(bool /*isLogin*/);
         bool CheckInstanceCount(uint32 instanceId) const;
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
 
