@@ -39,7 +39,7 @@ class MapManager
 
         Map* CreateBaseMap(uint32 mapId);
         Map* FindBaseNonInstanceMap(uint32 mapId) const;
-        Map* CreateMap(uint32 mapId, Player* player);
+        Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId=0);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
         uint16 GetAreaFlag(uint32 mapid, float x, float y, float z) const
@@ -108,7 +108,7 @@ class MapManager
 
         void DoDelayedMovesAndRemoves();
 
-        bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
+        Map::EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
         void InitializeVisibilityDistanceInfo();
 
         /* statistics */

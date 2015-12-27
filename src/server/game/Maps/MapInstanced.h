@@ -37,13 +37,13 @@ class MapInstanced : public Map
         void DelayedUpdate(const uint32 diff) override;
         //void RelocationNotify();
         void UnloadAll() override;
-        bool CanEnter(Player* player) override;
+        EnterState CannotEnter(Player* /*player*/) override;
 
-        Map* CreateInstanceForPlayer(const uint32 mapId, Player* player);
+        Map* CreateInstanceForPlayer(const uint32 mapId, Player* player, uint32 loginInstanceId=0);
         Map* FindInstanceMap(uint32 instanceId) const
         {
             InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);
-            return(i == m_InstancedMaps.end() ? NULL : i->second);
+            return(i == m_InstancedMaps.end() ? nullptr : i->second);
         }
         bool DestroyInstance(InstancedMaps::iterator &itr);
 

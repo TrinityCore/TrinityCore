@@ -160,7 +160,7 @@ class InstanceScript : public ZoneScript
 
         virtual void Update(uint32 /*diff*/) { }
 
-        // Used by the map's CanEnter function.
+        // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
 
