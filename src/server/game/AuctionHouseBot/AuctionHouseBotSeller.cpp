@@ -739,19 +739,10 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
 // Determines the stack size to use for the item
 uint32 AuctionBotSeller::GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const
 {
-    uint32 randomStackPercent = config.GetRandomStackRatioPerClass(ItemClass(itemProto->Class));
-    if (randomStackPercent >= 100)
+    if (config.GetRandomStackRatioPerClass(ItemClass(itemProto->Class)) > urand(0, 99))
         return urand(1, itemProto->GetMaxStackSize());
-    else if (randomStackPercent == 0)
-        return 1;
     else
-    {
-        uint32 randomStackRoll = urand(0, 99);
-        if (randomStackRoll < randomStackPercent)
-            return urand(1, itemProto->GetMaxStackSize());
-        else
-            return 1;
-    }
+        return 1;
 }
 
 // Determine the multiplier for the sell price of any weapon without a buy price.
