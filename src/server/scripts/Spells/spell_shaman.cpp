@@ -178,6 +178,10 @@ class spell_sha_bloodlust : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED))
                     return false;
+                // [AZTH]
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION))
+                    return false;
+                // [/AZTH]
                 return true;
             }
 
@@ -641,6 +645,10 @@ class spell_sha_heroism : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION))
                     return false;
+                // [AZTH]
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED))
+                    return false;
+                // [/AZTH]
                 return true;
             }
 
