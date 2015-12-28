@@ -12,3 +12,13 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 -- Lillehoff (32540)
 UPDATE `creature` SET `phaseMask` = -1 WHERE id = 32540;
 
+
+-- Global auctioneer
+SET @GUID := 900030;
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+5;
+INSERT INTO `creature` VALUES
+(@GUID+0, 8661, 0, 0, 0, 1, 1, 0, 1, -8806.9, 673.122, 96.5989, 4.68813, 300, 0, 0, 6645, 0, 0, 0, 0, 0, 0),
+(@GUID+1, 8661, 571, 0, 0, 1, 1, 0, 1, 5913.91, 621.969, 646.49, 1.31721, 300, 0, 0, 6645, 0, 0, 0, 0, 0, 0),
+(@GUID+2, 8661, 571, 0, 0, 1, 1, 0, 1, 5698.51, 679.243, 645.816, 4.41722, 300, 0, 0, 6645, 0, 0, 0, 0, 0, 0),
+(@GUID+3, 8661, 1, 0, 0, 1, 1, 0, 1, 1662.5, -4450.23, 19.5189, 0.434289, 300, 0, 0, 6645, 0, 0, 0, 0, 0, 0);
+
