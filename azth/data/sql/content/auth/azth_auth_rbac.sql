@@ -212,6 +212,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001, 276),    # Command: character changerace
 (100001, 795),    # Command: instance setbossstate
 (100001, 529),    # Command: unaura
+(100001, 743),    # Command: ticket assign
+(100001, 500),    # Command: die
 
 # [100002] TIER 2: Protector - Moderator
 (100002, 193),    # inheriting from GM 2
@@ -239,10 +241,14 @@ INSERT INTO `rbac_linked_permissions` VALUES
 # [100010] Story Teller
 (100010, 100000), # inherit from TIER 0
 (100010, 596),    # Command: npc playemote
-(100010, 597),    # Command: npc say
 (100010, 598),    # Command: npc textemote
 (100010, 599),    # Command: npc whisper
 (100010, 600),    # Command: npc yell
+(100010, 287),    # Command: levelup
+(100010, 417),    # Command: learn
+(100010, 480),    # Command: pet create
+(100010, 578),    # Command: npc follow
+(100010, 579),    # Command: npc follow stop
 
 # [100006] Master Story Teller
 (100006, 100010), # inheriting Story Teller
@@ -250,6 +256,10 @@ INSERT INTO `rbac_linked_permissions` VALUES
 
 # [100005] Entertainer
 (100005, 100000), # inherit from TIER 0
+(100005, 542), # Command: morph
+(100005, 543), # Command: demorph
+(100005, 535), # Command: wchange
+(100005, 597), # Command: npc say
 
 # [100004] Master Entertainer
 (100004, 100005), # inheriting from Entertainer
