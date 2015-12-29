@@ -74,28 +74,32 @@ void WorldPackets::Misc::SetSelection::Read()
 
 WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
 {
-    _worldPacket << uint32(Data.size());
+    _worldPacket.WriteBits (Data.size(), 21);
+
+    for (Record const& data : Data)
+    {
+        _worldPacket.WriteBit(data.WeeklyQuantity.is_initialized());
+        _worldPacket.WriteBit(data.MaxWeeklyQuantity.is_initialized());
+        _worldPacket.WriteBits(data.Flags, 5);
+        _worldPacket.WriteBit(data.TrackedQuantity.is_initialized());
+    }
+    _worldPacket.FlushBits();
 
     for (Record const& data : Data)
     {
         _worldPacket << uint32(data.Type);
-        _worldPacket << uint32(data.Quantity);
-
-        _worldPacket.WriteBit(data.WeeklyQuantity.is_initialized());
-        _worldPacket.WriteBit(data.MaxWeeklyQuantity.is_initialized());
-        _worldPacket.WriteBit(data.TrackedQuantity.is_initialized());
-
-        _worldPacket.WriteBits(data.Flags, 5);
-
         if (data.WeeklyQuantity)
             _worldPacket << uint32(*data.WeeklyQuantity);
+
+        _worldPacket << uint32(data.Quantity);
+
         if (data.MaxWeeklyQuantity)
             _worldPacket << uint32(*data.MaxWeeklyQuantity);
+
+
         if (data.TrackedQuantity)
             _worldPacket << uint32(*data.TrackedQuantity);
     }
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
