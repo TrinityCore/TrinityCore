@@ -465,27 +465,24 @@ WorldPacket const* WorldPackets::Spells::CastFailed::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData)
 {
-    data << float(spellModifierData.ModifierValue);
     data << uint8(spellModifierData.ClassIndex);
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier const& spellModifier)
-{
-    data << uint8(spellModifier.ModIndex);
-    data << uint32(spellModifier.ModifierData.size());
-    for (WorldPackets::Spells::SpellModifierData const& modData : spellModifier.ModifierData)
-        data << modData;
+    data << float(spellModifierData.ModifierValue);
 
     return data;
 }
 
 WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
 {
-    _worldPacket << uint32(Modifiers.size());
-    for (WorldPackets::Spells::SpellModifier const& spellMod : Modifiers)
-        _worldPacket << spellMod;
+    _worldPacket.WriteBits(Modifiers.size(), 22);
+    for (WorldPackets::Spells::SpellModifier const& spellModifier : Modifiers)
+        _worldPacket.WriteBits (spellModifier.ModifierData.size(), 21);
+
+    for (WorldPackets::Spells::SpellModifier const& spellModifier : Modifiers)
+    {
+       for (WorldPackets::Spells::SpellModifierData const& modData : spellModifier.ModifierData)
+            _worldPacket << modData;
+        _worldPacket << uint8(spellModifier.ModIndex);
+    }
 
     return &_worldPacket;
 }
