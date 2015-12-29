@@ -782,7 +782,10 @@ void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
 
 void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession)
 {
-    _type = ConnectionType(PAIR64_HIPART(authSession->Key));
+    WorldSession::ConnectToKey key;
+    key.Raw = authSession->Key;
+
+    _type = ConnectionType(key.Fields.ConnectionType);
     if (_type != CONNECTION_TYPE_INSTANCE)
     {
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
@@ -793,7 +796,7 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
     // Client switches packet headers after sending CMSG_AUTH_CONTINUED_SESSION
     _headerBuffer.Resize(SizeOfClientHeader[1][1]);
 
-    uint32 accountId = PAIR64_LOPART(authSession->Key);
+    uint32 accountId = uint32(key.Fields.AccountId);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setUInt32(0, accountId);
 
@@ -813,7 +816,10 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
         return;
     }
 
-    uint32 accountId = PAIR64_LOPART(authSession->Key);
+    WorldSession::ConnectToKey key;
+    key.Raw = authSession->Key;
+
+    uint32 accountId = uint32(key.Fields.AccountId);
     Field* fields = result->Fetch();
     std::string login = fields[0].GetString();
     BigNumber k;
@@ -835,7 +841,7 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
         return;
     }
 
-    sWorld->AddInstanceSocket(shared_from_this(), accountId);
+    sWorld->AddInstanceSocket(shared_from_this(), authSession->Key);
     AsyncRead();
 }
 
