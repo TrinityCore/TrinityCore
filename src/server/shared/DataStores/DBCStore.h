@@ -267,17 +267,6 @@ class DBCStorage
 
         bool LoadStringsFrom(char const* fn)
         {
-            // DBC must be already loaded using Load
-            if (!indexTable.asT)
-                return false;
-
-            DBCFileLoader dbc;
-            // Check if load was successful, only then continue
-            if (!dbc.Load(fn, fmt))
-                return false;
-
-            stringPoolList.push_back(dbc.AutoProduceStrings(fmt, reinterpret_cast<char*>(dataTable)));
-
             return true;
         }
 
