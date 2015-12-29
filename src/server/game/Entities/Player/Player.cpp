@@ -22117,19 +22117,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // worldServerInfo.XRealmPvpAlert;  /// @todo
     SendDirectMessage(worldServerInfo.Write());
 
-    // SMSG_ACCOUNT_MOUNT_UPDATE
-    // SMSG_ACCOUNT_TOYS_UPDATE
-    WorldPackets::Toy::AccountToysUpdate toysUpdate;
-    toysUpdate.IsFullUpdate = true;
-    toysUpdate.Toys = &GetSession()->GetCollectionMgr()->GetAccountToys();
-    SendDirectMessage(toysUpdate.Write());
-
-    // SMSG_ACCOUNT_HEIRLOOM_UPDATE
-    WorldPackets::Misc::AccountHeirloomUpdate heirloomUpdate;
-    heirloomUpdate.IsFullUpdate = true;
-    heirloomUpdate.Heirlooms = &GetSession()->GetCollectionMgr()->GetAccountHeirlooms();
-    SendDirectMessage(heirloomUpdate.Write());
-
     WorldPackets::Character::InitialSetup initialSetup;
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
     SendDirectMessage(initialSetup.Write());
