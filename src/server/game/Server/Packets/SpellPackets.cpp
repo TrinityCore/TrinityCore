@@ -41,10 +41,8 @@ WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()
 
 WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
 {
-    _worldPacket.reserve(1 + 4 * KnownSpells.size());
-
+    _worldPacket.WriteBits (KnownSpells.size(), 22);
     _worldPacket.WriteBit(InitialLogin);
-    _worldPacket << uint32(KnownSpells.size());
 
     for (uint32 spellId : KnownSpells)
         _worldPacket << uint32(spellId);
