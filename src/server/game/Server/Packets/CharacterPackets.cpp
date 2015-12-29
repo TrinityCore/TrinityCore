@@ -404,9 +404,16 @@ void WorldPackets::Character::LoadingScreenNotify::Read()
 WorldPacket const* WorldPackets::Character::InitialSetup::Write()
 {
     _worldPacket << uint8(ServerExpansionLevel);
-    _worldPacket << uint8(ServerExpansionTier);
     _worldPacket << int32(ServerRegionID);
-    _worldPacket << uint32(RaidOrigin);
+    _worldPacket << uint8(ServerExpansionTier);
+    _worldPacket.WriteBits (2500, 24);
+    _worldPacket.WriteBit (RaidOrigin);
+    if (RaidOrigin)
+        _worldPacket << uint32 (RaidOrigin);
+    for (int i = 0; i < 2500; ++i)
+    {
+        _worldPacket << uint8(0);
+    }
 
     return &_worldPacket;
 }
