@@ -152,8 +152,8 @@ WorldPacket const* WorldPackets::Item::ItemTimeUpdate::Write()
 
 WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 {
-    _worldPacket << ProficiencyMask;
     _worldPacket << ProficiencyClass;
+    _worldPacket << ProficiencyMask;
 
     return &_worldPacket;
 }
