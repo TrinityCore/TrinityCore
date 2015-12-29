@@ -617,19 +617,15 @@ WorldPacket const* WorldPackets::Spells::SetSpellCharges::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellChargeEntry const& chargeEntry)
-{
-    data << uint32(chargeEntry.Category);
-    data << uint32(chargeEntry.NextRecoveryTime);
-    data << uint8(chargeEntry.ConsumedCharges);
-    return data;
-}
-
 WorldPacket const* WorldPackets::Spells::SendSpellCharges::Write()
 {
-    _worldPacket << uint32(Entries.size());
+    _worldPacket.WriteBits (Entries.size(), 21);
     for (SpellChargeEntry const& chargeEntry : Entries)
-        _worldPacket << chargeEntry;
+    {
+        _worldPacket << uint32(chargeEntry.Category);
+        _worldPacket << uint32(chargeEntry.NextRecoveryTime);
+        _worldPacket << uint8(chargeEntry.ConsumedCharges);
+    }
 
     return &_worldPacket;
 }
