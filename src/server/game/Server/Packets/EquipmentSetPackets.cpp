@@ -27,24 +27,7 @@ WorldPacket const* WorldPackets::EquipmentSet::EquipmentSetID::Write()
 
 WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 {
-    _worldPacket << uint32(SetData.size());
-
-    for (EquipmentSetInfo::EquipmentSetData const* equipSet : SetData)
-    {
-        _worldPacket << uint64(equipSet->Guid);
-        _worldPacket << uint32(equipSet->SetID);
-        _worldPacket << uint32(equipSet->IgnoreMask);
-
-        for (ObjectGuid const& guid : equipSet->Pieces)
-            _worldPacket << guid;
-
-        _worldPacket.WriteBits(equipSet->SetName.length(), 8);
-        _worldPacket.WriteBits(equipSet->SetIcon.length(), 9);
-        _worldPacket.FlushBits();
-
-        _worldPacket.WriteString(equipSet->SetName);
-        _worldPacket.WriteString(equipSet->SetIcon);
-    }
+    _worldPacket.WriteBits(0/*SetData.size()*/, 19);
 
     return &_worldPacket;
 }
