@@ -45,10 +45,6 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
         // Send current home realm. Also there is no need to send it later in realm queries.
         response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
 
-        if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
-            for (auto& templ : sObjectMgr->GetCharacterTemplates())
-                response.SuccessInfo->Templates.emplace_back(templ.second);
-
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
         response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
