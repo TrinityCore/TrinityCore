@@ -43,19 +43,10 @@ void UpdateData::AddUpdateBlock(const ByteBuffer &block)
 bool UpdateData::BuildPacket(WorldPacket* packet)
 {
     ASSERT(packet->empty());                                // shouldn't happen
-    packet->Initialize(SMSG_UPDATE_OBJECT, 2 + 4 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + m_data.wpos());
+    packet->Initialize(SMSG_UPDATE_OBJECT);
 
-    *packet << uint32(m_blockCount);
     *packet << uint16(m_map);
-
-    if (packet->WriteBit(!m_outOfRangeGUIDs.empty()))
-    {
-        *packet << uint16(0);
-        *packet << uint32(m_outOfRangeGUIDs.size());
-
-        for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
-            *packet << *i;
-    }
+    *packet << uint32(m_blockCount);
 
     *packet << uint32(m_data.size());
     packet->append(m_data);
