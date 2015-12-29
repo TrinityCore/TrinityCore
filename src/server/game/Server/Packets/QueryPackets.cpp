@@ -246,13 +246,40 @@ void WorldPackets::Query::DBQueryBulk::Read()
 {
     _worldPacket >> TableHash;
 
-    uint32 count = _worldPacket.ReadBits(13);
-
+    uint32 count = _worldPacket.ReadBits(21);
     Queries.resize(count);
+
+    #define flag(x) flags_ |= _worldPacket.ReadBit() << x
+    #define get(x) if (flags[i] & (1 << x)) Queries[i].GUID[x] = _worldPacket.read<unsigned char>() ^ 1;
+
+    std::vector<uint32> flags;
     for (uint32 i = 0; i < count; ++i)
     {
-        _worldPacket >> Queries[i].GUID;
+        uint32 flags_ (0);
+        flag (5);
+        flag (0);
+        flag (2);
+        flag (4);
+        flag (7);
+        flag (1);
+        flag (6);
+        flag (3);
+        flags.push_back (flags_);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        get (1);
+        get (3);
+        get (5);
+        get (0);
+        get (4);
+        get (2);
         _worldPacket >> Queries[i].RecordID;
+        get (6);
+        get (7);
     }
 }
 
