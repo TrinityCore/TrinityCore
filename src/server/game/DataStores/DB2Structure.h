@@ -112,6 +112,14 @@ struct BattlePetSpeciesStateEntry
     int32 Value;                                                    // 3
 };
 
+struct BattlePetEffectPropertiesEntry
+{
+    uint32 id;
+    uint32 unk_4;
+    LocalizedString* name[6];
+    uint32 value[6];
+};
+
 #define MAX_BROADCAST_TEXT_EMOTES 3
 
 struct BroadcastTextEntry
