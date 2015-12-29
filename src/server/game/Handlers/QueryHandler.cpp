@@ -420,14 +420,13 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
             response.Allow = true;
             response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
             store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
+            SendPacket(response.Write());
         }
         else
         {
             TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
             response.Timestamp = time(NULL);
         }
-
-        SendPacket(response.Write());
     }
 }
 
