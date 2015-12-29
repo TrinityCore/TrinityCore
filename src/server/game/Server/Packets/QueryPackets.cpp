@@ -270,11 +270,11 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
 
 WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
 {
-    _worldPacket << uint32(Hotfixes->size());
+    _worldPacket.WriteBits(Hotfixes->size(), 20);
     for (HotfixNotify const& hotfix : *Hotfixes)
     {
-        _worldPacket << uint32(hotfix.TableHash);
         _worldPacket << int32(hotfix.Entry);
+        _worldPacket << uint32(hotfix.TableHash);
         _worldPacket << uint32(hotfix.Timestamp);
     }
 
