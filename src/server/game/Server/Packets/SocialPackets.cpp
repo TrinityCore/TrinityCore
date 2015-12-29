@@ -39,32 +39,12 @@ WorldPackets::Social::ContactInfo::ContactInfo(ObjectGuid const& guid, FriendInf
     ClassID = friendInfo.Class;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Social::ContactInfo const& contact)
-{
-    data << contact.Guid;
-    data << contact.WowAccountGuid;
-    data << uint32(contact.VirtualRealmAddr);
-    data << uint32(contact.NativeRealmAddr);
-    data << uint32(contact.TypeFlags);
-    data << uint8(contact.Status);
-    data << uint32(contact.AreaID);
-    data << uint32(contact.Level);
-    data << uint32(contact.ClassID);
-    data.WriteBits(contact.Notes.length(), 10);
-    data.FlushBits();
-    data.WriteString(contact.Notes);
-
-    return data;
-}
-
 WorldPacket const* WorldPackets::Social::ContactList::Write()
 {
-    _worldPacket << uint32(Flags);
-    _worldPacket.WriteBits(Contacts.size(), 8);
+    _worldPacket.WriteBits(0/*Contacts.size()*/, 8);
     _worldPacket.FlushBits();
 
-    for (size_t i = 0; i < Contacts.size(); ++i)
-        _worldPacket << Contacts[i];
+    _worldPacket << uint32(Flags);
 
     return &_worldPacket;
 }
