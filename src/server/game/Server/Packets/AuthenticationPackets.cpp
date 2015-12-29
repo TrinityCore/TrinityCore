@@ -30,24 +30,45 @@ void WorldPackets::Auth::AuthSession::Read()
 {
     uint32 addonDataSize;
 
-    _worldPacket >> LoginServerID;
-    _worldPacket >> Build;
-    _worldPacket >> RegionID;
-    _worldPacket >> BattlegroupID;
     _worldPacket >> RealmID;
-    _worldPacket >> LoginServerType;
-    _worldPacket >> BuildType;
-    _worldPacket >> LocalChallenge;
-    _worldPacket >> DosResponse;
-    _worldPacket.read(Digest, SHA_DIGEST_LENGTH);
-    Account = _worldPacket.ReadString(_worldPacket.ReadBits(11));
-    UseIPv6 = _worldPacket.ReadBit();           // UseIPv6
+  _worldPacket >> Digest[14];
+  _worldPacket >> LocalChallenge;
+  _worldPacket >> Digest[0];
+  _worldPacket >> Digest[6];
+  _worldPacket >> Digest[2];
+  _worldPacket >> Digest[15];
+  _worldPacket >> Digest[9];
+  _worldPacket >> Digest[8];
+  _worldPacket >> Digest[19];
+  _worldPacket >> Digest[17];
+  _worldPacket >> LoginServerType;
+  _worldPacket >> Digest[1];
+  _worldPacket >> Digest[3];
+  _worldPacket >> Digest[12];
+  _worldPacket >> Digest[10];
+  _worldPacket >> Digest[4];
+  _worldPacket >> Digest[7];
+  _worldPacket >> Build;
+  _worldPacket >> DosResponse;
+  _worldPacket >> Digest[11];
+  _worldPacket >> Digest[13];
+  _worldPacket >> BuildType;
+  _worldPacket >> Digest[18];
+  _worldPacket >> LoginServerID;
+  _worldPacket >> BattlegroupID;
+  _worldPacket >> RegionID;
+  _worldPacket >> Digest[16];
+  _worldPacket >> Digest[5];
     _worldPacket >> addonDataSize;
     if (addonDataSize)
     {
         AddonInfo.resize(addonDataSize);
         _worldPacket.read(AddonInfo.contents(), addonDataSize);
     }
+
+    UseIPv6 = _worldPacket.ReadBit();           // UseIPv6
+    auto account_size = _worldPacket.ReadBits(11);
+    Account = _worldPacket.ReadString(account_size);
 }
 
 WorldPackets::Auth::AuthResponse::AuthResponse()
