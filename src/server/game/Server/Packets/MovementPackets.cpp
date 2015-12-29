@@ -625,7 +625,24 @@ void WorldPackets::Movement::SetActiveMover::Read()
 
 WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
 {
-    _worldPacket << MoverGUID;
+    #define flag(x) _worldPacket.WriteBit (MoverGUID[x]);
+    #define send(x) if (MoverGUID[x]) _worldPacket << uint8 (MoverGUID[x] ^ 1);
+    flag (7);
+    flag (6);
+    flag (4);
+    flag (2);
+    flag (0);
+    flag (5);
+    flag (3);
+    flag (1);
+    send (1);
+    send (0);
+    send (2);
+    send (7);
+    send (4);
+    send (6);
+    send (3);
+    send (5);
 
     return &_worldPacket;
 }
