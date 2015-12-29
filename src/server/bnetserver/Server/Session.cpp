@@ -492,7 +492,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
     Realm const* realm = sRealmList->GetRealm(joinRequest.Id);
-    if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE) || realm->Build != _build)
+    if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE))
     {
         joinResponse->Type = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);
