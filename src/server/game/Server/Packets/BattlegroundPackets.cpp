@@ -19,8 +19,8 @@
 
 WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
 {
-    _worldPacket << uint32(CurrentSeason);
     _worldPacket << uint32(PreviousSeason);
+    _worldPacket << uint32(CurrentSeason);
 
     return &_worldPacket;
 }
