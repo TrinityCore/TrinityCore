@@ -499,7 +499,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_LOGOUT_INSTANT,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_LOGOUT_REQUEST,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::LogoutRequest, &WorldSession::HandleLogoutRequestOpcode);
     DEFINE_HANDLER(CMSG_LOG_DISCONNECT,                                     STATUS_NEVER,     PROCESS_INPLACE,      WorldPacket, &WorldSession::Handle_EarlyProccess);
-    DEFINE_HANDLER(CMSG_LOG_STREAMING_ERROR,                                STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_LOG_STREAMING_ERROR,                                STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::Misc::UserRouterClientLogStreamingError, &WorldSession::HandleUserRouterClientLogStreamingError);
     DEFINE_HANDLER(CMSG_LOOT_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Loot::LootItem, &WorldSession::HandleAutostoreLootItemOpcode);
     DEFINE_HANDLER(CMSG_LOOT_MONEY,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Loot::LootMoney, &WorldSession::HandleLootMoneyOpcode);
     DEFINE_HANDLER(CMSG_LOOT_RELEASE,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Loot::LootRelease, &WorldSession::HandleLootReleaseOpcode);

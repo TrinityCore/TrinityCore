@@ -407,6 +407,7 @@ namespace WorldPackets
         class TogglePvP;
         class SetPvP;
         class WorldTeleport;
+        struct UserRouterClientLogStreamingError;
     }
 
     namespace Movement
@@ -1632,6 +1633,8 @@ class WorldSession
         void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
+        void HandleUserRouterClientLogStreamingError(WorldPackets::Misc::UserRouterClientLogStreamingError&);
 
     private:
         void InitializeQueryCallbackParameters();

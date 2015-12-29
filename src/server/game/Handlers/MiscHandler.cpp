@@ -1172,3 +1172,8 @@ void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::Se
 {
     _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 }
+
+void WorldSession::HandleUserRouterClientLogStreamingError(WorldPackets::Misc::UserRouterClientLogStreamingError& logStreamingError)
+{
+    TC_LOG_ERROR ("entities.player", "%s: %s", GetPlayerName().c_str(), logStreamingError.error.c_str());
+}

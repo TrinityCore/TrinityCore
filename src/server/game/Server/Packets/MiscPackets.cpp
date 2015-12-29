@@ -589,3 +589,10 @@ WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::UserRouterClientLogStreamingError::Read()
+{
+    unsigned char a = _worldPacket.read<unsigned char>();
+    unsigned char b = _worldPacket.read<unsigned char>();
+    error = _worldPacket.ReadString( 2 * a | ((unsigned int)b >> 7));
+}

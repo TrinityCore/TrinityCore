@@ -760,6 +760,15 @@ namespace WorldPackets
             HeirloomContainer const* Heirlooms = nullptr;
             int32 Unk = 0;
         };
+
+        struct UserRouterClientLogStreamingError final : public ClientPacket
+        {
+            UserRouterClientLogStreamingError(WorldPacket&& packet) : ClientPacket(CMSG_LOG_STREAMING_ERROR, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string error;
+        };
     }
 }
 
