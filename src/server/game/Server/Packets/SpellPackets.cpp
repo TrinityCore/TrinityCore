@@ -52,8 +52,24 @@ WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
 
 WorldPacket const* WorldPackets::Spells::UpdateActionButtons::Write()
 {
-    for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        _worldPacket << ActionButtons[i];
+    #define flag(x) for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i) if ((ActionButtons[i] >> (x * 8)) & 0xff) _worldPacket.WriteBit ((ActionButtons[i] >> (x * 8)) & 0xff)
+    #define send(x) for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i) if ((ActionButtons[i] >> (x * 8)) & 0xff) _worldPacket << uint8 ((ActionButtons[i] >> (x * 8)) & 0xff ^ 1)
+    flag (3);
+    flag (4);
+    flag (6);
+    flag (5);
+    flag (0);
+    flag (2);
+    flag (1);
+    flag (7);
+    send (7);
+    send (5);
+    send (1);
+    send (4);
+    send (6);
+    send (3);
+    send (0);
+    send (2);
 
     _worldPacket << Reason;
 
