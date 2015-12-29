@@ -886,9 +886,9 @@ void WorldSession::AbortLogin(WorldPackets::Character::LoginFailureReason reason
     SendPacket(WorldPackets::Character::CharacterLoginFailed(reason).Write());
 }
 
-void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& /*loadingScreenNotify*/)
+void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify)
 {
-    // TODO: Do something with this packet
+    TC_LOG_ERROR ("entities.player", "player is %s loading screen for map %d", loadingScreenNotify.Showing ? "showing" : "not showing", loadingScreenNotify.MapID);
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
