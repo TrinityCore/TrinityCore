@@ -425,9 +425,17 @@ void WorldPackets::Character::PlayerLogin::Read()
 
 WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
 {
+    _worldPacket << float(Pos.GetPositionX());
+    _worldPacket << float(Pos.GetOrientation());
+    _worldPacket << float(Pos.GetPositionZ());
     _worldPacket << int32(MapID);
-    _worldPacket << Pos.PositionXYZOStream();
-    _worldPacket << uint32(Reason);
+    _worldPacket << float(Pos.GetPositionY());
+    _worldPacket.WriteBit (!Reason);
+    if (Reason)
+    {
+        _worldPacket << uint32 (Reason);
+    }
+
     return &_worldPacket;
 }
 
