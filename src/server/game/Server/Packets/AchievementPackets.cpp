@@ -52,13 +52,32 @@ WorldPacket const* WorldPackets::Achievement::RespondInspectAchievements::Write(
 
 WorldPacket const* WorldPackets::Achievement::CriteriaUpdate::Write()
 {
-    _worldPacket << uint32(CriteriaID);
-    _worldPacket << uint64(Quantity);
-    _worldPacket << PlayerGUID;
-    _worldPacket << uint32(Flags);
     _worldPacket.AppendPackedTime(CurrentTime);
+    _worldPacket << uint32(CriteriaID);
     _worldPacket << uint32(ElapsedTime);
+    _worldPacket << uint64(Quantity);
+    _worldPacket << uint32(Flags);
     _worldPacket << uint32(CreationTime);
+
+    #define write_flag(x) _worldPacket.WriteBit (!!PlayerGUID[x])
+    #define write_value(x) if (PlayerGUID[x]) _worldPacket << uint8 (PlayerGUID[x] ^ 1)
+
+    write_flag (2);
+    write_flag (3);
+    write_flag (4);
+    write_flag (7);
+    write_flag (6);
+    write_flag (1);
+    write_flag (5);
+    write_flag (0);
+    write_value (7);
+    write_value (4);
+    write_value (1);
+    write_value (6);
+    write_value (5);
+    write_value (2);
+    write_value (0);
+    write_value (3);
 
     return &_worldPacket;
 }
