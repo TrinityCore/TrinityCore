@@ -50,7 +50,8 @@ namespace Connection_Patcher
 
         ofs << std::noskipws;
 
-        std::copy(binary.begin(), binary.end(), std::ostream_iterator<unsigned char>(ofs));
+        if (!ofs.write ((char*)binary.data(), binary.size()))
+            throw std::runtime_error("could not write " + path.string());
     }
 
     void Patcher::Patch(std::vector<unsigned char> const& bytes, std::vector<unsigned char> const& pattern)
