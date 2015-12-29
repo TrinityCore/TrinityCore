@@ -29,23 +29,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::EarnedAchiev
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchievements const& allAchievements)
 {
-    data << uint32(allAchievements.Earned.size());
-    data << uint32(allAchievements.Progress.size());
-
-    for (WorldPackets::Achievement::EarnedAchievement const& earned : allAchievements.Earned)
-        data << earned;
-
-    for (WorldPackets::Achievement::CriteriaProgress const& progress : allAchievements.Progress)
-    {
-        data << uint32(progress.Id);
-        data << uint64(progress.Quantity);
-        data << progress.Player;
-        data.AppendPackedTime(progress.Date);
-        data << uint32(progress.TimeFromStart);
-        data << uint32(progress.TimeFromCreate);
-        data.WriteBits(progress.Flags, 4);
-        data.FlushBits();
-    }
+    data.WriteBits (0, 19);
+    data.WriteBits (0, 20);
 
     return data;
 }
