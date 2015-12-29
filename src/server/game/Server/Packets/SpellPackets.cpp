@@ -68,7 +68,7 @@ void WorldPackets::Spells::SetActionButton::Read()
 
 WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
 {
-    _worldPacket << uint32(Spells.size());
+    _worldPacket.WriteBits (Spells.size(), 22);
     for (uint32 spellId : Spells)
         _worldPacket << uint32(spellId);
 
