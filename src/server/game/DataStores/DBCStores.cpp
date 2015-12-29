@@ -489,17 +489,6 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
         exit(1);
     }
 
-    // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(6565)          ||     // last area (areaflag) added in 6.2.2 (20444)
-        !sCharTitlesStore.LookupEntry(457)     ||     // last char title added in 6.2.2 (20444)
-        !sGemPropertiesStore.LookupEntry(2544) ||     // last gem property added in 6.2.2 (20444)
-        !sMapStore.LookupEntry(1497)           ||     // last map added in 6.2.2 (20444)
-        !sSpellStore.LookupEntry(197204)       )      // last spell added in 6.2.2 (20444)
-    {
-        TC_LOG_ERROR("misc", "You have _outdated_ DBC files. Please extract correct versions from current using client.");
-        exit(1);
-    }
-
     TC_LOG_INFO("server.loading", ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 

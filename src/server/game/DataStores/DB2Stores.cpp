@@ -510,13 +510,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         exit(1);
     }
 
-    // Check loaded DB2 files proper version
-    if (!sItemStore.LookupEntry(128706)             ||       // last item added in 6.2.0 (20216)
-        !sItemExtendedCostStore.LookupEntry(5923)  )        // last item extended cost added in 6.2.0 (20216)
-    {
-        TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
-        exit(1);
-    }
 
     TC_LOG_INFO("server.loading", ">> Initialized %d DB2 data stores in %u ms", DB2FilesCount, GetMSTimeDiffToNow(oldMSTime));
 }
