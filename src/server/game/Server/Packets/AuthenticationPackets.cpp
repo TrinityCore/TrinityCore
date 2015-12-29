@@ -594,7 +594,26 @@ void WorldPackets::Auth::AuthContinuedSession::Read()
 {
     _worldPacket >> DosResponse;
     _worldPacket >> Key;
-    _worldPacket.read(Digest, SHA_DIGEST_LENGTH);
+    _worldPacket >> Digest[12];
+    _worldPacket >> Digest[16];
+    _worldPacket >> Digest[18];
+    _worldPacket >> Digest[3];
+    _worldPacket >> Digest[10];
+    _worldPacket >> Digest[2];
+    _worldPacket >> Digest[4];
+    _worldPacket >> Digest[0];
+    _worldPacket >> Digest[7];
+    _worldPacket >> Digest[17];
+    _worldPacket >> Digest[19];
+    _worldPacket >> Digest[9];
+    _worldPacket >> Digest[5];
+    _worldPacket >> Digest[14];
+    _worldPacket >> Digest[1];
+    _worldPacket >> Digest[8];
+    _worldPacket >> Digest[6];
+    _worldPacket >> Digest[11];
+    _worldPacket >> Digest[15];
+    _worldPacket >> Digest[13];
 }
 
 void WorldPackets::Auth::ConnectToFailed::Read()
