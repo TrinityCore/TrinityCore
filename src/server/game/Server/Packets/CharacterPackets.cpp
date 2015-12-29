@@ -112,61 +112,98 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
 WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 {
-    _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + FactionChangeRestrictions.size() * sizeof(RestrictedFactionChangeRuleInfo));
-
-    _worldPacket.WriteBit(Success);
-    _worldPacket.WriteBit(IsDeletedCharacters);
-    _worldPacket << uint32(Characters.size());
-    _worldPacket << uint32(FactionChangeRestrictions.size());
+    _worldPacket.WriteBits (Characters.size(), 16);
 
     for (CharacterInfo const& charInfo : Characters)
     {
-        _worldPacket << charInfo.Guid;
-        _worldPacket << uint8(charInfo.ListPosition);
-        _worldPacket << uint8(charInfo.Race);
-        _worldPacket << uint8(charInfo.Class);
+        _worldPacket.WriteBit(charInfo.BoostInProgress);
+
+        _worldPacket.WriteBit(charInfo.Guid[0]);
+        _worldPacket.WriteBit(charInfo.Guid[5]);
+        _worldPacket.WriteBit(charInfo.GuildGuid[3]);
+        _worldPacket.WriteBit(charInfo.Guid[2]);
+        _worldPacket.WriteBit(charInfo.Guid[7]);
+        _worldPacket.WriteBit(charInfo.GuildGuid[1]);
+        _worldPacket.WriteBit(charInfo.FirstLogin);
+        _worldPacket.WriteBit(charInfo.GuildGuid[7]);
+        _worldPacket.WriteBit(charInfo.GuildGuid[0]);
+        _worldPacket.WriteBit(charInfo.GuildGuid[4]);
+        _worldPacket.WriteBit(charInfo.Guid[6]);
+        _worldPacket.WriteBit(charInfo.GuildGuid[2]);
+        _worldPacket.WriteBit(charInfo.Guid[1]);
+        _worldPacket.WriteBit(charInfo.GuildGuid[6]);
+        _worldPacket.WriteBit(charInfo.Guid[3]);
+        _worldPacket.WriteBit(charInfo.Guid[4]);
+        _worldPacket.WriteBits(charInfo.Name.length(), 6);
+        _worldPacket.WriteBit(charInfo.GuildGuid[5]);
+    }
+
+    _worldPacket.WriteBit(IsDeletedCharacters);
+    _worldPacket.WriteBits(FactionChangeRestrictions.size(), 21);
+    _worldPacket.WriteBit(Success);
+
+    for (CharacterInfo const& charInfo : Characters)
+    {
+        _worldPacket << uint32(charInfo.ProfessionIds[1]);
         _worldPacket << uint8(charInfo.Sex);
         _worldPacket << uint8(charInfo.Skin);
-        _worldPacket << uint8(charInfo.Face);
-        _worldPacket << uint8(charInfo.HairStyle);
-        _worldPacket << uint8(charInfo.HairColor);
-        _worldPacket << uint8(charInfo.FacialHair);
-        _worldPacket << uint8(charInfo.Level);
         _worldPacket << int32(charInfo.ZoneId);
-        _worldPacket << int32(charInfo.MapId);
-        _worldPacket << charInfo.PreLoadPosition;
-        _worldPacket << charInfo.GuildGuid;
-        _worldPacket << uint32(charInfo.Flags);
-        _worldPacket << uint32(charInfo.CustomizationFlag);
-        _worldPacket << uint32(charInfo.Flags3);
-        _worldPacket << uint32(charInfo.Pet.CreatureDisplayId);
         _worldPacket << uint32(charInfo.Pet.Level);
+        _worldPacket << uint8(charInfo.ListPosition);
+        #define sendg(x) if (charInfo.Guid[x]) _worldPacket << uint8(charInfo.Guid[x] ^ 1)
+        #define sendgg(x) if (charInfo.GuildGuid[x]) _worldPacket << uint8(charInfo.GuildGuid[x] ^ 1)
+        sendg (2);
+        sendgg (5);
         _worldPacket << uint32(charInfo.Pet.CreatureFamily);
-
         _worldPacket << uint32(charInfo.ProfessionIds[0]);
-        _worldPacket << uint32(charInfo.ProfessionIds[1]);
+        sendg (6);
+        sendgg (3);
+        sendgg (6);
+        _worldPacket << uint8(charInfo.Race);
+        _worldPacket << uint8(charInfo.HairColor);
+        _worldPacket << uint8(charInfo.Face);
 
         for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
         {
+            _worldPacket << uint8(charInfo.VisualItems[slot].InventoryType);
             _worldPacket << uint32(charInfo.VisualItems[slot].DisplayId);
             _worldPacket << uint32(charInfo.VisualItems[slot].DisplayEnchantId);
-            _worldPacket << uint8(charInfo.VisualItems[slot].InventoryType);
         }
-
-        _worldPacket.WriteBits(charInfo.Name.length(), 6);
-        _worldPacket.WriteBit(charInfo.FirstLogin);
-        _worldPacket.WriteBit(charInfo.BoostInProgress);
-        _worldPacket.WriteBits(charInfo.unkWod61x, 5);
-        _worldPacket.FlushBits();
-
+        sendg (5);
+        sendg (3);
+        sendgg (4);
+        _worldPacket << int32(charInfo.MapId);
+        sendg (0);
+        _worldPacket << uint8(charInfo.HairStyle);
+        sendgg (2);
+        _worldPacket << uint32(charInfo.Pet.CreatureDisplayId);
+        sendgg (0);
+        _worldPacket << uint32(charInfo.Flags3);
+        _worldPacket << charInfo.PreLoadPosition.y;
+        sendg (4);
+        sendgg (7);
+        _worldPacket << charInfo.PreLoadPosition.x;
+        sendg (7);
         _worldPacket.WriteString(charInfo.Name);
+        _worldPacket << uint8(charInfo.FacialHair);
+        sendg (1);
+        _worldPacket << uint32(charInfo.Flags);
+        _worldPacket << uint8(charInfo.Level);
+        sendgg (1);
+        _worldPacket << charInfo.PreLoadPosition.z;
+        _worldPacket << uint32(charInfo.CustomizationFlag);
+        _worldPacket << uint8(charInfo.Class);
+        #undef sendgg
+        #undef sendg
     }
 
     for (RestrictedFactionChangeRuleInfo const& rule : FactionChangeRestrictions)
     {
-        _worldPacket << int32(rule.Mask);
         _worldPacket << uint8(rule.Race);
+        _worldPacket << int32(rule.Mask);
     }
+
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
