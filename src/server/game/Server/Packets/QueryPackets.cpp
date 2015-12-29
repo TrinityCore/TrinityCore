@@ -285,10 +285,9 @@ void WorldPackets::Query::DBQueryBulk::Read()
 
 WorldPacket const* WorldPackets::Query::DBReply::Write()
 {
-    _worldPacket << uint32(TableHash);
-    _worldPacket << uint32(RecordID);
     _worldPacket << uint32(Timestamp);
-    _worldPacket.WriteBit(Allow);
+    _worldPacket << uint32(TableHash);
+    _worldPacket << int32(RecordID);
     _worldPacket << uint32(Data.size());
     _worldPacket.append(Data);
 
