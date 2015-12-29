@@ -19,67 +19,41 @@
 
 WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 {
-    _worldPacket << uint8(ComplaintStatus);
-
-    _worldPacket << uint32(ScrollOfResurrectionRequestsRemaining);
-    _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
-    _worldPacket << uint32(CfgRealmID);
-    _worldPacket << int32(CfgRealmRecID);
-    _worldPacket << uint32(UnkInt27);
-    _worldPacket << uint32(TwitterMsTillCanPost);
-    _worldPacket << uint32(TokenPollTimeSeconds);
-    _worldPacket << uint32(TokenRedeemIndex);
-
     _worldPacket.WriteBit(VoiceEnabled);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
+    _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
     _worldPacket.WriteBit(BpayStoreEnabled);
-    _worldPacket.WriteBit(BpayStoreAvailable);
-    _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
-    _worldPacket.WriteBit(BrowserEnabled);
-    _worldPacket.WriteBit(SessionAlert.is_initialized());
-    _worldPacket.WriteBit(RecruitAFriendSendingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
-    _worldPacket.WriteBit(RestrictedAccount);
-    _worldPacket.WriteBit(TutorialsEnabled);
-    _worldPacket.WriteBit(NPETutorialsEnabled);
-    _worldPacket.WriteBit(TwitterEnabled);
-    _worldPacket.WriteBit(CommerceSystemEnabled);
-    _worldPacket.WriteBit(Unk67);
-    _worldPacket.WriteBit(WillKickFromWorld);
-    _worldPacket.WriteBit(UnkBit61);
+    _worldPacket.WriteBit(RecruitAFriendSendingEnabled);
+    _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
+    _worldPacket.WriteBit(BrowserEnabled);
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
+    _worldPacket.WriteBit(SessionAlert.is_initialized());
 
     _worldPacket.FlushBits();
 
+    if (SessionAlert)
+    {
+        _worldPacket << int32(SessionAlert->Period);
+        _worldPacket << int32(SessionAlert->Delay);
+        _worldPacket << int32(SessionAlert->DisplayTime);
+    }
+
+    //! \todo wrong order?! (no fields in jam meta)
     if (EuropaTicketSystemStatus)
     {
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->TicketsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->BugsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->ComplaintsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->SuggestionsEnabled);
-
         _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.MaxTries);
         _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.PerMilliseconds);
         _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.TryCount);
         _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow);
     }
 
-    if (SessionAlert)
-    {
-        _worldPacket << int32(SessionAlert->Delay);
-        _worldPacket << int32(SessionAlert->Period);
-        _worldPacket << int32(SessionAlert->DisplayTime);
-    }
-
-    /*if (bit61)
-    {
-        var int88 = packet.ReadInt32("int88");
-        for (int i = 0; i < int88; i++)
-            packet.ReadByte("byte23", i);
-    }*/
-
-    _worldPacket.FlushBits();
+    _worldPacket << uint8(ComplaintStatus);
+    _worldPacket << uint32(ScrollOfResurrectionRequestsRemaining);
+    _worldPacket << int32(CfgRealmRecID);
+    _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
+    _worldPacket << uint32(CfgRealmID);
 
     return &_worldPacket;
 }
