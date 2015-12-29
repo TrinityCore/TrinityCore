@@ -399,7 +399,7 @@ namespace WorldPackets
         class UndeleteCooldownStatusResponse final : public ServerPacket
         {
         public:
-            UndeleteCooldownStatusResponse() : ServerPacket(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9) { }
+            UndeleteCooldownStatusResponse() : ServerPacket(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 1) { }
 
             WorldPacket const* Write() override;
 
