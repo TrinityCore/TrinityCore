@@ -159,28 +159,23 @@ void WorldPackets::Misc::TutorialSetFlag::Read()
 
 WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
 {
-    _worldPacket << uint32(DifficultyID);
     _worldPacket << uint8(IsTournamentRealm);
     _worldPacket << uint32(WeeklyReset);
-    _worldPacket.WriteBit(XRealmPvpAlert);
-    _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
-    _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
+    _worldPacket << uint32(DifficultyID);
     _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
+    _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
+    _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
     _worldPacket.WriteBit(InstanceGroupSize.is_initialized());
+    _worldPacket.FlushBits();
 
     if (RestrictedAccountMaxLevel)
         _worldPacket << uint32(*RestrictedAccountMaxLevel);
-
     if (RestrictedAccountMaxMoney)
         _worldPacket << uint32(*RestrictedAccountMaxMoney);
-
     if (IneligibleForLootMask)
         _worldPacket << uint32(*IneligibleForLootMask);
-
     if (InstanceGroupSize)
         _worldPacket << uint32(*InstanceGroupSize);
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
