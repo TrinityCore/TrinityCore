@@ -51,9 +51,6 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_BATTLE_PET_SPECIES_STATE,
 
-    HOTFIX_SEL_BattlePetEffectProperties,
-    HOTFIX_SEL_BattlePetEffectProperties_LOCALE,
-
     HOTFIX_SEL_BROADCAST_TEXT,
     HOTFIX_SEL_BROADCAST_TEXT_LOCALE,
 

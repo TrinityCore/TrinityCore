@@ -61,9 +61,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // BattlePetSpeciesState.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_SPECIES_STATE, "SELECT ID, SpeciesID, State, Value FROM battle_pet_species_state ORDER BY ID DESC", CONNECTION_SYNCH);
 
-    PrepareStatement(HOTFIX_SEL_BattlePetEffectProperties, "SELECT id, unk_4, name0, name1, name2, name3, name4, name5, value0, value1, value2, value3, value4, value5 FROM BattlePetEffectProperties ORDER BY id DESC", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_BattlePetEffectProperties, "SELECT id, name0, name1, name2, name3, name4, name5 FROM BattlePetEffectProperties_locale WHERE locale = ?", CONNECTION_SYNCH);
-
     // BroadcastText.db2
     PrepareStatement(HOTFIX_SEL_BROADCAST_TEXT, "SELECT ID, Language, MaleText, FemaleText, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, "
         "EmoteDelay3, SoundID, UnkEmoteID, Type FROM broadcast_text ORDER BY ID DESC", CONNECTION_SYNCH);

@@ -27,7 +27,6 @@ char const BattlePetBreedQualityFormat[] = "nif";
 char const BattlePetBreedStateFormat[] = "niii";
 char const BattlePetSpeciesFormat[] = "niiiiiiss";
 char const BattlePetSpeciesStateFormat[] = "niii";
-char const BattlePetEffectPropertiesFormat[] = "nissssssiiiiii";
 char const BroadcastTextFormat[] = "nissiiiiiiiii";
 char const CharStartOutfitFormat[] = "nbbbbiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const ChrClassesXPowerTypesFormat[] = "iii";
