@@ -20,9 +20,9 @@
 
 WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 {
-    _worldPacket << uint32(Challenge);
-    _worldPacket.append(DosChallenge, 8);
     _worldPacket << uint8(DosZeroBits);
+    _worldPacket.append(DosChallenge, 8);
+    _worldPacket << uint32(Challenge);
     return &_worldPacket;
 }
 
