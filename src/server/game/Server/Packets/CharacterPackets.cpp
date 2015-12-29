@@ -174,18 +174,20 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 void WorldPackets::Character::CreateCharacter::Read()
 {
     CreateInfo.reset(new CharacterCreateInfo());
+
+    _worldPacket >> CreateInfo->OutfitId;
+    _worldPacket >> CreateInfo->HairColor;
+    _worldPacket >> CreateInfo->Face;
+    _worldPacket >> CreateInfo->FacialHairStyle;
+    _worldPacket >> CreateInfo->Class;
+    _worldPacket >> CreateInfo->Race;
+    _worldPacket >> CreateInfo->Skin;
+    _worldPacket >> CreateInfo->HairStyle;
+    _worldPacket >> CreateInfo->Sex;
+
     uint32 nameLength = _worldPacket.ReadBits(6);
     bool const hasTemplateSet = _worldPacket.ReadBit();
 
-    _worldPacket >> CreateInfo->Race;
-    _worldPacket >> CreateInfo->Class;
-    _worldPacket >> CreateInfo->Sex;
-    _worldPacket >> CreateInfo->Skin;
-    _worldPacket >> CreateInfo->Face;
-    _worldPacket >> CreateInfo->HairStyle;
-    _worldPacket >> CreateInfo->HairColor;
-    _worldPacket >> CreateInfo->FacialHairStyle;
-    _worldPacket >> CreateInfo->OutfitId;
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
     if (hasTemplateSet)
         CreateInfo->TemplateSet = _worldPacket.read<int32>();
