@@ -19,20 +19,25 @@
 
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
-    _worldPacket << Info.ActiveGroup;
-    _worldPacket << uint32(Info.TalentGroups.size());
+    _worldPacket.WriteBits (Info.TalentGroups.size(), 19);
 
     for (auto& talentGroupInfo : Info.TalentGroups)
     {
-        _worldPacket << talentGroupInfo.SpecID;
-        _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
+        _worldPacket.WriteBits (talentGroupInfo.TalentIDs.size(), 23);
+    }
+
+    for (auto& talentGroupInfo : Info.TalentGroups)
+    {
+        for (uint16 talentID : talentGroupInfo.TalentIDs)
+            _worldPacket << uint16 (talentID);
 
         for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            _worldPacket << talentGroupInfo.GlyphIDs[i];
+            _worldPacket << uint16 (talentGroupInfo.GlyphIDs[i]);
 
-        for (uint16 talentID : talentGroupInfo.TalentIDs)
-            _worldPacket << talentID;
+        _worldPacket << talentGroupInfo.SpecID;
     }
+
+    _worldPacket << uint8 (Info.ActiveGroup);
 
     return &_worldPacket;
 }
