@@ -1634,6 +1634,19 @@ class WorldSession
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
 
+        union ConnectToKey
+        {
+            struct
+            {
+                uint64 AccountId : 32;
+                uint64 ConnectionType : 1;
+                uint64 Key : 31;
+            } Fields;
+
+            uint64 Raw;
+        };
+
+        uint64 GetConnectToInstanceKey() const { return _instanceConnectKey.Raw; }
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1749,6 +1762,8 @@ class WorldSession
         std::unique_ptr<BattlePetMgr> _battlePetMgr;
 
         std::unique_ptr<CollectionMgr> _collectionMgr;
+
+        ConnectToKey _instanceConnectKey;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

@@ -146,6 +146,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     }
 
     m_Socket[CONNECTION_TYPE_REALM] = sock;
+    _instanceConnectKey.Raw = UI64LIT(0);
 
     InitializeQueryCallbackParameters();
 }
@@ -716,8 +717,12 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
     instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
 
+    _instanceConnectKey.Fields.AccountId = GetAccountId();
+    _instanceConnectKey.Fields.ConnectionType = CONNECTION_TYPE_INSTANCE;
+    _instanceConnectKey.Fields.Key = urand(0, 0x7FFFFFFF);
+
     WorldPackets::Auth::ConnectTo connectTo;
-    connectTo.Key = MAKE_PAIR64(GetAccountId(), CONNECTION_TYPE_INSTANCE);
+    connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
     connectTo.Payload.Where = instanceAddress;
     connectTo.Con = CONNECTION_TYPE_INSTANCE;

@@ -227,9 +227,9 @@ void World::AddSession(WorldSession* s)
     addSessQueue.add(s);
 }
 
-void World::AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint32 sessionAccountId)
+void World::AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint64 connectToKey)
 {
-    _linkSocketQueue.add(std::make_pair(sock, sessionAccountId));
+    _linkSocketQueue.add(std::make_pair(sock, connectToKey));
 }
 
 void World::AddSession_(WorldSession* s)
@@ -298,10 +298,16 @@ void World::AddSession_(WorldSession* s)
     }
 }
 
-void World::ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint32> linkInfo)
+void World::ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint64> linkInfo)
 {
-    WorldSession* session = FindSession(linkInfo.second);
-    if (!session)
+    if (!linkInfo.first->IsOpen())
+        return;
+
+    WorldSession::ConnectToKey key;
+    key.Raw = linkInfo.second;
+
+    WorldSession* session = FindSession(uint32(key.Fields.AccountId));
+    if (!session || session->GetConnectToInstanceKey() != linkInfo.second)
     {
         linkInfo.first->SendAuthResponseError(AUTH_SESSION_EXPIRED);
         linkInfo.first->DelayedCloseSocket();
@@ -2811,7 +2817,7 @@ void World::SendServerMessage(ServerMessageType messageID, std::string stringPar
 
 void World::UpdateSessions(uint32 diff)
 {
-    std::pair<std::shared_ptr<WorldSocket>, uint32> linkInfo;
+    std::pair<std::shared_ptr<WorldSocket>, uint64> linkInfo;
     while (_linkSocketQueue.next(linkInfo))
         ProcessLinkInstanceSocket(std::move(linkInfo));
 
