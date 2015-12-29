@@ -39,40 +39,73 @@ uint8 const WorldPackets::ClientConfig::AddonInfo::PublicKey[256] =
 
 WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
 {
-    _worldPacket << uint32(Addons ? Addons->size() : 0);
-    _worldPacket << uint32(BannedAddons ? BannedAddons->size() : 0);
+    _worldPacket.WriteBits (Addons ? Addons->size() : 0, 23);
 
     if (Addons)
     {
         for (::AddonInfo const& addon : *Addons)
         {
             bool KeyProvided = addon.UsePublicKeyOrCRC && addon.CRC != STANDARD_ADDON_CRC;
-            _worldPacket << uint8(addon.Status);
 
             _worldPacket.WriteBit(addon.Enabled);                               // InfoProvided
             _worldPacket.WriteBit(KeyProvided);                                 // KeyProvided
             _worldPacket.WriteBit(0);                                           // UrlProvided
+        }
+    }
+
+    _worldPacket.WriteBits (BannedAddons ? BannedAddons->size() : 0, 18);
+
+    if (Addons)
+    {
+        for (::AddonInfo const& addon : *Addons)
+        {
+            bool KeyProvided = addon.UsePublicKeyOrCRC && addon.CRC != STANDARD_ADDON_CRC;
+
+            // key scramble:
+            // 94, 72, 38, 22, 232, 185, 20, 184, 82, 48, 158, 249, 197, 151, 170, 118, 200, 237, 0, 76, 246, 189, 
+            // 121, 162, 95, 203, 83, 125, 110, 69, 213, 227, 63, 192, 65, 131, 9, 126, 145, 233, 30, 123, 225, 26, 
+            // 214, 10, 153, 106, 52, 202, 209, 154, 18, 120, 75, 188, 50, 27, 240, 199, 243, 146, 13, 163, 60, 175, 
+            // 218, 127, 98, 97, 178, 234, 37, 230, 61, 23, 5, 11, 40, 143, 193, 195, 88, 181, 87, 51, 57, 229, 215, 
+            // 1, 104, 16, 198, 236, 147, 182, 150, 7, 168, 176, 173, 8, 74, 226, 172, 3, 164, 242, 80, 107, 4, 208, 
+            // 179, 238, 241, 174, 96, 128, 47, 2, 42, 254, 102, 100, 45, 191, 85, 159, 171, 220, 187, 36, 92, 28, 
+            // 90, 148, 99, 64, 231, 79, 253, 165, 180, 111, 86, 217, 66, 205, 135, 141, 81, 211, 89, 41, 31, 138, 
+            // 183, 228, 33, 247, 114, 252, 201, 78, 71, 122, 222, 91, 108, 44, 67, 129, 219, 53, 59, 221, 132, 15, 
+            // 84, 21, 68, 196, 136, 239, 204, 77, 206, 34, 6, 160, 14, 39, 12, 101, 130, 103, 207, 139, 117, 113, 
+            // 212, 56, 134, 54, 105, 161, 24, 251, 223, 58, 186, 149, 17, 235, 133, 115, 32, 210, 245, 216, 62, 224, 
+            // 140, 46, 112, 116, 157, 73, 109, 93, 167, 155, 137, 190, 166, 19, 194, 144, 43, 250, 255, 35, 124, 142, 
+            // 169, 49, 248, 156, 119, 244, 25, 55, 177, 70, 152, 29
+
+            //  line 2139
+
+            if (KeyProvided)
+                _worldPacket.append(PublicKey, sizeof(PublicKey));              // KeyData
+
+            _worldPacket << uint8(addon.Status);
 
             if (addon.Enabled)
             {
                 _worldPacket << uint8(1);                                       // KeyVersion
                 _worldPacket << uint32(0);                                      // Revision
             }
-
-            if (KeyProvided)
-                _worldPacket.append(PublicKey, sizeof(PublicKey));              // KeyData
         }
     }
-
+    
     if (BannedAddons)
     {
         for (BannedAddon const& addon : *BannedAddons)
         {
-            _worldPacket << uint32(addon.Id);                                   // Id
-            _worldPacket.append(addon.NameMD5, MD5_DIGEST_LENGTH);              // NameMD5 - MD5 of addon .toc filename without extension
-            _worldPacket.append(addon.VersionMD5, MD5_DIGEST_LENGTH);           // VersionMD5 - MD5 of version string declared in addon .toc file
-            _worldPacket << uint32(addon.Timestamp);                            // LastModified
+            _worldPacket.append(addon.VersionMD5+0, 4);           // VersionMD5 - MD5 of version string declared in addon .toc file
+            _worldPacket.append(addon.NameMD5+0, 4);              // NameMD5 - MD5 of addon .toc filename without extension
+            _worldPacket.append(addon.VersionMD5+4, 4);           // VersionMD5 - MD5 of version string declared in addon .toc file
+            _worldPacket.append(addon.NameMD5+4, 4);              // NameMD5 - MD5 of addon .toc filename without extension
+            _worldPacket.append(addon.VersionMD5+8, 4);           // VersionMD5 - MD5 of version string declared in addon .toc file
+            _worldPacket.append(addon.NameMD5+8, 4);              // NameMD5 - MD5 of addon .toc filename without extension
+            _worldPacket.append(addon.VersionMD5+12, 4);           // VersionMD5 - MD5 of version string declared in addon .toc file
+            _worldPacket.append(addon.NameMD5+12, 4);              // NameMD5 - MD5 of addon .toc filename without extension
+
             _worldPacket << uint32(1);                                          // Flags
+            _worldPacket << uint32(addon.Id);                                   // Id
+            _worldPacket << uint32(addon.Timestamp);                            // LastModified
         }
     }
 
