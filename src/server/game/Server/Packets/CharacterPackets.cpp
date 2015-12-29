@@ -399,8 +399,28 @@ WorldPacket const* WorldPackets::Character::UndeleteCooldownStatusResponse::Writ
 
 void WorldPackets::Character::PlayerLogin::Read()
 {
-    _worldPacket >> Guid;
     _worldPacket >> FarClip;
+
+    #define flag(x) bool has_ ## x = _worldPacket.ReadBit()
+    flag (5);
+    flag (6);
+    flag (1);
+    flag (7);
+    flag (2);
+    flag (3);
+    flag (4);
+    flag (0);
+    _worldPacket.FlushBits();
+    Guid = ObjectGuid::Create<HighGuid::Player>(0);
+    #define get(x) if (has_ ## x) Guid[x] = _worldPacket.read<unsigned char>() ^ 1;
+    get (1);
+    get (4);
+    get (5);
+    get (3);
+    get (6);
+    get (7);
+    get (0);
+    get (2);
 }
 
 WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
