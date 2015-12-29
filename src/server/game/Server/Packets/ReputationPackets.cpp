@@ -20,15 +20,14 @@
 WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
 {
     for (uint16 i = 0; i < FactionCount; ++i)
+        _worldPacket.WriteBit(FactionHasBonus[i]);
+    _worldPacket.FlushBits();
+
+    for (uint16 i = 0; i < FactionCount; ++i)
     {
         _worldPacket << uint8(FactionFlags[i]);
         _worldPacket << int32(FactionStandings[i]);
     }
-
-    for (uint16 i = 0; i < FactionCount; ++i)
-        _worldPacket.WriteBit(FactionHasBonus[i]);
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
