@@ -81,8 +81,9 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
 
 WorldPacket const* WorldPackets::ClientConfig::AccountDataTimes::Write()
 {
-    _worldPacket << PlayerGuid;
     _worldPacket << uint32(ServerTime);
+    //! \todo "timeBits": which account data entries are set
+    _worldPacket << uint32 (0);
     _worldPacket.append(AccountTimes, NUM_ACCOUNT_DATA_TYPES);
 
     return &_worldPacket;
