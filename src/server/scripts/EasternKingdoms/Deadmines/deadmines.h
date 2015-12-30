@@ -26,6 +26,7 @@ enum CannonState
     CANNON_GUNPOWDER_USED,
     CANNON_BLAST_INITIATED,
     PIRATES_ATTACK,
+    SMITE_ALARMED,
     EVENT_DONE
 };
 
@@ -48,4 +49,16 @@ enum GameObjects
     GO_DOOR_LEVER                                          = 101833,
     GO_MR_SMITE_CHEST                                      = 144111
 };
+
+enum CreaturesIds
+{
+    NPC_MR_SMITE   = 646
+};
+
+enum InstanceTexts
+{
+    SAY_ALARM1 = 0,
+    SAY_ALARM2 = 1
+};
+
 #endif
