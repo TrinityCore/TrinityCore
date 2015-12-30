@@ -1655,13 +1655,13 @@ public:
                         break;
                     case 5:
                         Talk(SAY_IMPRISIONED_BERYL_5);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                     case 6:
                         Talk(SAY_IMPRISIONED_BERYL_6, caster);
                         break;
                     case 7:
                         Talk(SAY_IMPRISIONED_BERYL_7);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                 }
             }
