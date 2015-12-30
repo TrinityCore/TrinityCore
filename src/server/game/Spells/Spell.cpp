@@ -53,6 +53,7 @@
 #include "SpellHistory.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "TradeData.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -1019,7 +1020,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             break;
     }
 
-    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
+    ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
 
     // handle emergency case - try to use other provided targets if no conditions provided
     if (targetType.GetCheckType() == TARGET_CHECK_ENTRY && (!condList || condList->empty()))
@@ -1105,7 +1106,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     std::list<WorldObject*> targets;
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
-    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
+    ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
     float coneAngle = float(M_PI) / 2;
     float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
@@ -1725,7 +1726,7 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
     }
 }
 
-uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList* condList)
+uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionContainer* condList)
 {
     // this function selects which containers need to be searched for spell target
     uint32 retMask = GRID_MAP_TYPE_MASK_ALL;
@@ -1793,7 +1794,7 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* refere
     }
 }
 
-WorldObject* Spell::SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList)
+WorldObject* Spell::SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList)
 {
     WorldObject* target = NULL;
     uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList);
@@ -1805,7 +1806,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargetObjectTypes objec
     return target;
 }
 
-void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList)
+void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList)
 {
     uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList);
     if (!containerTypeMask)
@@ -1815,7 +1816,7 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Pos
     SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, position, range);
 }
 
-void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal)
+void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionContainer* condList, bool isChainHeal)
 {
     // max dist for jump target selection
     float jumpRadius = 0.0f;
@@ -2428,9 +2429,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     {
         m_caster->CombatStart(unit, !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
 
-        if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC))
-            if (!unit->IsStandState())
-                unit->SetStandState(UNIT_STAND_STATE_STAND);
+        if (!unit->IsStandState())
+            unit->SetStandState(UNIT_STAND_STATE_STAND);
     }
 
     if (spellHitTarget)
@@ -2514,8 +2514,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
         {
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            /// @todo This is a hack. But we do not know what types of stealth should be interrupted by CC
-            if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
+
+            if (!m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH))
                 unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
         }
         else if (m_caster->IsFriendlyTo(unit))
@@ -2624,7 +2624,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                     // Haste modifies duration of channeled spells
                     if (m_spellInfo->IsChanneled())
-                        m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+                        m_originalCaster->ModSpellDurationTime(aurSpellInfo, duration, this);
                     // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
                     else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
                         duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
@@ -3258,7 +3258,7 @@ void Spell::handle_immediate()
                 modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
             // Apply haste mods
-            m_caster->ModSpellCastTime(m_spellInfo, duration, this);
+            m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
 
             m_spellState = SPELL_STATE_CASTING;
             m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
@@ -4253,7 +4253,7 @@ void Spell::TakeCastItem()
 
     for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
-        if (proto->Spells[i].SpellId)
+        if (proto->Spells[i].SpellId > 0)
         {
             // item has limited charges
             if (proto->Spells[i].SpellCharges)
@@ -4668,7 +4668,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_READY;
         }
 
-        if (!m_caster->GetSpellHistory()->IsReady(m_spellInfo))
+        if (!m_caster->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry))
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
@@ -4789,10 +4789,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // check spell cast conditions from database
     {
-        ConditionSourceInfo condInfo = ConditionSourceInfo(m_caster);
-        condInfo.mConditionTargets[1] = m_targets.GetObjectTarget();
-        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL, m_spellInfo->Id);
-        if (!conditions.empty() && !sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+        ConditionSourceInfo condInfo = ConditionSourceInfo(m_caster, m_targets.GetObjectTarget());
+        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL, m_spellInfo->Id, condInfo))
         {
             // mLastFailedCondition can be NULL if there was an error processing the condition in Condition::Meets (i.e. wrong data for ConditionTarget or others)
             if (condInfo.mLastFailedCondition && condInfo.mLastFailedCondition->ErrorType)
@@ -6046,7 +6044,7 @@ SpellCastResult Spell::CheckItems()
                 for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
                 {
                     ItemTemplate const* proto = targetItem->GetTemplate();
-                    if (proto->Spells[e].SpellId && (
+                    if (proto->Spells[e].SpellId > 0 && (
                         proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
                         proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
                     {
@@ -7315,7 +7313,7 @@ namespace Trinity
 {
 
 WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
-            SpellTargetCheckTypes selectionType, ConditionList* condList) : _caster(caster), _referer(referer), _spellInfo(spellInfo),
+            SpellTargetCheckTypes selectionType, ConditionContainer* condList) : _caster(caster), _referer(referer), _spellInfo(spellInfo),
     _targetSelectionType(selectionType), _condList(condList)
 {
     if (condList)
@@ -7389,7 +7387,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
 }
 
 WorldObjectSpellNearbyTargetCheck::WorldObjectSpellNearbyTargetCheck(float range, Unit* caster, SpellInfo const* spellInfo,
-    SpellTargetCheckTypes selectionType, ConditionList* condList)
+    SpellTargetCheckTypes selectionType, ConditionContainer* condList)
     : WorldObjectSpellTargetCheck(caster, caster, spellInfo, selectionType, condList), _range(range), _position(caster) { }
 
 bool WorldObjectSpellNearbyTargetCheck::operator()(WorldObject* target)
@@ -7404,7 +7402,7 @@ bool WorldObjectSpellNearbyTargetCheck::operator()(WorldObject* target)
 }
 
 WorldObjectSpellAreaTargetCheck::WorldObjectSpellAreaTargetCheck(float range, Position const* position, Unit* caster,
-    Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList)
+    Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList)
     : WorldObjectSpellTargetCheck(caster, referer, spellInfo, selectionType, condList), _range(range), _position(position) { }
 
 bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
@@ -7415,7 +7413,7 @@ bool WorldObjectSpellAreaTargetCheck::operator()(WorldObject* target)
 }
 
 WorldObjectSpellConeTargetCheck::WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
-    SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList)
+    SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList)
     : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList), _coneAngle(coneAngle) { }
 
 bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)

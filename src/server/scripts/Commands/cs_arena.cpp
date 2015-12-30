@@ -34,22 +34,20 @@ class arena_commandscript : public CommandScript
 public:
     arena_commandscript() : CommandScript("arena_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand arenaCommandTable[] =
+        static std::vector<ChatCommand> arenaCommandTable =
         {
-            { "create",         rbac::RBAC_PERM_COMMAND_ARENA_CREATE,   true, &HandleArenaCreateCommand,   "", NULL },
-            { "disband",        rbac::RBAC_PERM_COMMAND_ARENA_DISBAND,  true, &HandleArenaDisbandCommand,  "", NULL },
-            { "rename",         rbac::RBAC_PERM_COMMAND_ARENA_RENAME,   true, &HandleArenaRenameCommand,   "", NULL },
-            { "captain",        rbac::RBAC_PERM_COMMAND_ARENA_CAPTAIN, false, &HandleArenaCaptainCommand,  "", NULL },
-            { "info",           rbac::RBAC_PERM_COMMAND_ARENA_INFO,     true, &HandleArenaInfoCommand,     "", NULL },
-            { "lookup",         rbac::RBAC_PERM_COMMAND_ARENA_LOOKUP,  false, &HandleArenaLookupCommand,   "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "create",         rbac::RBAC_PERM_COMMAND_ARENA_CREATE,   true, &HandleArenaCreateCommand,   "" },
+            { "disband",        rbac::RBAC_PERM_COMMAND_ARENA_DISBAND,  true, &HandleArenaDisbandCommand,  "" },
+            { "rename",         rbac::RBAC_PERM_COMMAND_ARENA_RENAME,   true, &HandleArenaRenameCommand,   "" },
+            { "captain",        rbac::RBAC_PERM_COMMAND_ARENA_CAPTAIN, false, &HandleArenaCaptainCommand,  "" },
+            { "info",           rbac::RBAC_PERM_COMMAND_ARENA_INFO,     true, &HandleArenaInfoCommand,     "" },
+            { "lookup",         rbac::RBAC_PERM_COMMAND_ARENA_LOOKUP,  false, &HandleArenaLookupCommand,   "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "arena",          rbac::RBAC_PERM_COMMAND_ARENA,     false, NULL,                       "", arenaCommandTable },
-            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -275,14 +273,14 @@ public:
 
         arena->SetCaptain(targetGuid);
 
-        CharacterNameData const* oldCaptainNameData = sWorld->GetCharacterNameData(arena->GetCaptain());
+        CharacterInfo const* oldCaptainNameData = sWorld->GetCharacterInfo(arena->GetCaptain());
         if (!oldCaptainNameData)
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        handler->PSendSysMessage(LANG_ARENA_CAPTAIN, arena->GetName().c_str(), arena->GetId(), oldCaptainNameData->m_name.c_str(), target->GetName().c_str());
+        handler->PSendSysMessage(LANG_ARENA_CAPTAIN, arena->GetName().c_str(), arena->GetId(), oldCaptainNameData->Name.c_str(), target->GetName().c_str());
         if (handler->GetSession())
             TC_LOG_DEBUG("bg.arena", "GameMaster: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team \"%s\"[Id: %u]",
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(), target->GetName().c_str(), target->GetGUID().GetCounter(), arena->GetName().c_str(), arena->GetId());

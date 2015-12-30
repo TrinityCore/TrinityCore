@@ -52,7 +52,7 @@ Pet::Pet(Player* owner, PetType type) :
     }
 
     m_name = "Pet";
-    m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+    m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
 }
 
 Pet::~Pet()
@@ -98,7 +98,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    uint32 ownerid = owner->GetGUID().GetCounter();
+    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
 
     PreparedStatement* stmt;
     PreparedQueryResult result;
@@ -174,7 +174,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    uint32 guid = map->GenerateLowGuid<HighGuid::Pet>();
+    ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
 
     if (!Create(guid, map, owner->GetPhaseMask(), petEntry, petId))
         return false;
@@ -415,7 +415,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
     {
-        uint32 ownerLowGUID = GetOwnerGUID().GetCounter();
+        ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
         std::string name = m_name;
         CharacterDatabase.EscapeString(name);
         trans = CharacterDatabase.BeginTransaction();
@@ -485,7 +485,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     }
 }
 
-void Pet::DeleteFromDB(uint32 guidlow)
+void Pet::DeleteFromDB(ObjectGuid::LowType guidlow)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -589,22 +589,22 @@ void Pet::Update(uint32 diff)
             }
 
             //regenerate focus for hunter pets or energy for deathknight's ghoul
-            if (m_regenTimer)
+            if (m_focusRegenTimer)
             {
-                if (m_regenTimer > diff)
-                    m_regenTimer -= diff;
+                if (m_focusRegenTimer > diff)
+                    m_focusRegenTimer -= diff;
                 else
                 {
                     switch (getPowerType())
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
-                            m_regenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
-                            if (!m_regenTimer) ++m_regenTimer;
+                            m_focusRegenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
+                            if (!m_focusRegenTimer) ++m_focusRegenTimer;
 
                             // Reset if large diff (lag) causes focus to get 'stuck'
-                            if (m_regenTimer > PET_FOCUS_REGEN_INTERVAL)
-                                m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+                            if (m_focusRegenTimer > PET_FOCUS_REGEN_INTERVAL)
+                                m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
 
                             break;
 
@@ -615,7 +615,7 @@ void Pet::Update(uint32 diff)
                         //    if (!m_regenTimer) ++m_regenTimer;
                         //    break;
                         default:
-                            m_regenTimer = 0;
+                            m_focusRegenTimer = 0;
                             break;
                     }
                 }
@@ -807,7 +807,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    uint32 guid=map->GenerateLowGuid<HighGuid::Pet>();
+    ObjectGuid::LowType guid=map->GenerateLowGuid<HighGuid::Pet>();
     uint32 petId = sObjectMgr->GeneratePetNumber();
     if (!Create(guid, map, phaseMask, cinfo->Entry, petId))
         return false;
@@ -1835,7 +1835,7 @@ bool Pet::IsPermanentPetFor(Player* owner) const
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 petId)
+bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 petId)
 {
     ASSERT(map);
     SetMap(map);

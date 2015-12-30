@@ -103,6 +103,48 @@ uint32 CreatureTemplate::GetFirstValidModelId() const
     return 0;
 }
 
+uint32 CreatureTemplate::GetFirstInvisibleModel() const
+{
+    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid1);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid1;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid2);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid2;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid3);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid3;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid4);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid4;
+
+    return 11686;
+}
+
+uint32 CreatureTemplate::GetFirstVisibleModel() const
+{
+    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid1);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid1;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid2);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid2;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid3);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid3;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid4);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid4;
+
+    return 17519;
+}
+
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     if (Unit* victim = ObjectAccessor::GetUnit(m_owner, m_victim))
@@ -138,7 +180,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0),
 m_lootRecipient(), m_lootRecipientGroup(0), _skinner(), _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
-m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
+m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(NULL), m_creatureData(NULL), m_waypointID(0), m_path_id(0), m_formation(NULL)
@@ -226,7 +268,7 @@ void Creature::SearchFormation()
     if (IsSummon())
         return;
 
-    uint32 lowguid = GetSpawnId();
+    ObjectGuid::LowType lowguid = GetSpawnId();
     if (!lowguid)
         return;
 
@@ -441,6 +483,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     }
 
     UpdateMovementFlags();
+    LoadCreaturesAddon();
     return true;
 }
 
@@ -539,10 +582,44 @@ void Creature::Update(uint32 diff)
                 LastCharmerGUID.Clear();
             }
 
+            // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
+            if (m_combatPulseDelay > 0 && IsInCombat() && GetMap()->IsDungeon())
+            {
+                if (diff > m_combatPulseTime)
+                    m_combatPulseTime = 0;
+                else
+                    m_combatPulseTime -= diff;
+
+                if (m_combatPulseTime == 0)
+                {
+                    Map::PlayerList const &players = GetMap()->GetPlayers();
+                    if (!players.isEmpty())
+                        for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+                        {
+                            if (Player* player = it->GetSource())
+                            {
+                                if (player->IsGameMaster())
+                                    continue;
+
+                                if (player->IsAlive() && this->IsHostileTo(player))
+                                {
+                                    if (CanHaveThreatList())
+                                        AddThreat(player, 0.0f);
+                                    this->SetInCombatWith(player);
+                                    player->SetInCombatWith(this);
+                                }
+                            }
+                        }
+
+                    m_combatPulseTime = m_combatPulseDelay * IN_MILLISECONDS;
+                }
+            }
+
             if (!IsInEvadeMode() && IsAIEnabled)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
+
                 i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
@@ -741,7 +818,7 @@ void Creature::Motion_Initialize()
         GetMotionMaster()->Initialize();
 }
 
-bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
+bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -785,8 +862,6 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 entry, 
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_NORMAL);
             break;
     }
-
-    LoadCreaturesAddon();
 
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
     if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
@@ -1164,7 +1239,7 @@ float Creature::GetSpellDamageMod(int32 Rank) const
     }
 }
 
-bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
+bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     SetZoneScript();
     if (GetZoneScript() && data)
@@ -1205,7 +1280,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 entry, CreatureData const*
     return true;
 }
 
-bool Creature::LoadCreatureFromDB(uint32 spawnId, Map* map, bool addToMap)
+bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap)
 {
     CreatureData const* data = sObjectMgr->GetCreatureData(spawnId);
 
@@ -1377,11 +1452,11 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         return false;
 
     // This set of checks is should be done only for creatures
-    if ((HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC) && who->GetTypeId() != TYPEID_PLAYER)                                   // flag is valid only for non player characters 
+    if ((HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC) && who->GetTypeId() != TYPEID_PLAYER)                                   // flag is valid only for non player characters
         || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) && who->GetTypeId() == TYPEID_PLAYER)                                 // immune to PC and target is a player, return false
         || (who->GetOwner() && who->GetOwner()->GetTypeId() == TYPEID_PLAYER && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))) // player pets are immune to pc as well
         return false;
-    
+
     // Do not attack non-combat pets
     if (who->GetTypeId() == TYPEID_UNIT && who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
         return false;
@@ -1523,7 +1598,7 @@ void Creature::setDeathState(DeathState s)
         if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
             SetPhaseMask(GetCreatureData()->phaseMask, false);
         Unit::setDeathState(ALIVE);
-        LoadCreaturesAddon(true);
+        LoadCreaturesAddon();
     }
 }
 
@@ -2029,7 +2104,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
 }
 
 //creature_addon table
-bool Creature::LoadCreaturesAddon(bool reload)
+bool Creature::LoadCreaturesAddon()
 {
     CreatureAddon const* cainfo = GetCreatureAddon();
     if (!cainfo)
@@ -2095,12 +2170,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
             // skip already applied aura
             if (HasAura(*itr))
-            {
-                if (!reload)
-                    TC_LOG_ERROR("sql.sql", "Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetSpawnId(), GetEntry(), *itr);
-
                 continue;
-            }
 
             AddAura(*itr, this);
             TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUID().GetCounter(), GetEntry());

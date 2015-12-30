@@ -123,6 +123,14 @@ WrongPass.BanTime = 600
 WrongPass.BanType = 0
 
 #
+#    WrongPass.Logging
+#        Description: Additionally log attempted wrong password logging
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WrongPass.Logging = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -147,14 +155,6 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 #        Default:     1
 
 LoginDatabase.WorkerThreads = 1
-
-#
-#    Wrong.Password.Login.Logging
-#        Description: Additionally log attempted wrong password logging
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-Wrong.Password.Login.Logging = 0
 
 #
 ###################################################################################################

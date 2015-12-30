@@ -306,6 +306,15 @@ inline void Battleground::_ProcessOfflineQueue()
         {
             if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
             {
+                if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS) &&
+                    (GetStatus() == STATUS_IN_PROGRESS || GetStatus() == STATUS_WAIT_JOIN))
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                    stmt->setUInt32(0, itr->first.GetCounter());
+                    stmt->setUInt8(1, BG_DESERTION_TYPE_OFFLINE);
+                    CharacterDatabase.Execute(stmt);
+                }
+
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
                 m_OfflineQueue.pop_front();                 // remove from offline queue
                 //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
@@ -784,19 +793,20 @@ void Battleground::EndBattleground(uint32 winner)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
             BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUID().GetCounter());
 
-            stmt->setUInt32(0, battlegroundId);
-            stmt->setUInt32(1, player->GetGUID().GetCounter());
-            stmt->setUInt32(2, score->second->GetKillingBlows());
-            stmt->setUInt32(3, score->second->GetDeaths());
-            stmt->setUInt32(4, score->second->GetHonorableKills());
-            stmt->setUInt32(5, score->second->GetBonusHonor());
-            stmt->setUInt32(6, score->second->GetDamageDone());
-            stmt->setUInt32(7, score->second->GetHealingDone());
-            stmt->setUInt32(8, score->second->GetAttr1());
-            stmt->setUInt32(9, score->second->GetAttr2());
-            stmt->setUInt32(10, score->second->GetAttr3());
-            stmt->setUInt32(11, score->second->GetAttr4());
-            stmt->setUInt32(12, score->second->GetAttr5());
+            stmt->setUInt32(0,  battlegroundId);
+            stmt->setUInt32(1,  player->GetGUID().GetCounter());
+            stmt->setBool  (2,  team == winner);
+            stmt->setUInt32(3,  score->second->GetKillingBlows());
+            stmt->setUInt32(4,  score->second->GetDeaths());
+            stmt->setUInt32(5,  score->second->GetHonorableKills());
+            stmt->setUInt32(6,  score->second->GetBonusHonor());
+            stmt->setUInt32(7,  score->second->GetDamageDone());
+            stmt->setUInt32(8,  score->second->GetHealingDone());
+            stmt->setUInt32(9,  score->second->GetAttr1());
+            stmt->setUInt32(10, score->second->GetAttr2());
+            stmt->setUInt32(11, score->second->GetAttr3());
+            stmt->setUInt32(12, score->second->GetAttr4());
+            stmt->setUInt32(13, score->second->GetAttr5());
 
             CharacterDatabase.Execute(stmt);
         }
@@ -1165,48 +1175,58 @@ void Battleground::RemoveFromBGFreeSlotQueue()
 // returns the number how many players can join battleground to MaxPlayersPerTeam
 uint32 Battleground::GetFreeSlotsForTeam(uint32 Team) const
 {
-    // if BG is starting ... invite anyone
-    if (GetStatus() == STATUS_WAIT_JOIN)
+    // if BG is starting and CONFIG_BATTLEGROUND_INVITATION_TYPE == BG_QUEUE_INVITATION_TYPE_NO_BALANCE, invite anyone
+    if (GetStatus() == STATUS_WAIT_JOIN && sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_NO_BALANCE)
         return (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
-    // if BG is already started .. do not allow to join too much players of one faction
-    uint32 otherTeam;
-    uint32 otherIn;
+
+    // if BG is already started or CONFIG_BATTLEGROUND_INVITATION_TYPE != BG_QUEUE_INVITATION_TYPE_NO_BALANCE, do not allow to join too much players of one faction
+    uint32 otherTeamInvitedCount;
+    uint32 thisTeamInvitedCount;
+    uint32 otherTeamPlayersCount;
+    uint32 thisTeamPlayersCount;
+
     if (Team == ALLIANCE)
     {
-        otherTeam = GetInvitedCount(HORDE);
-        otherIn = GetPlayersCountByTeam(HORDE);
+        thisTeamInvitedCount  = GetInvitedCount(ALLIANCE);
+        otherTeamInvitedCount = GetInvitedCount(HORDE);
+        thisTeamPlayersCount  = GetPlayersCountByTeam(ALLIANCE);
+        otherTeamPlayersCount = GetPlayersCountByTeam(HORDE);
     }
     else
     {
-        otherTeam = GetInvitedCount(ALLIANCE);
-        otherIn = GetPlayersCountByTeam(ALLIANCE);
+        thisTeamInvitedCount  = GetInvitedCount(HORDE);
+        otherTeamInvitedCount = GetInvitedCount(ALLIANCE);
+        thisTeamPlayersCount  = GetPlayersCountByTeam(HORDE);
+        otherTeamPlayersCount = GetPlayersCountByTeam(ALLIANCE);
     }
-    if (GetStatus() == STATUS_IN_PROGRESS)
+    if (GetStatus() == STATUS_IN_PROGRESS || GetStatus() == STATUS_WAIT_JOIN)
     {
         // difference based on ppl invited (not necessarily entered battle)
         // default: allow 0
         uint32 diff = 0;
-        // allow join one person if the sides are equal (to fill up bg to minplayersperteam)
-        if (otherTeam == GetInvitedCount(Team))
+
+        // allow join one person if the sides are equal (to fill up bg to minPlayerPerTeam)
+        if (otherTeamInvitedCount == thisTeamInvitedCount)
             diff = 1;
         // allow join more ppl if the other side has more players
-        else if (otherTeam > GetInvitedCount(Team))
-            diff = otherTeam - GetInvitedCount(Team);
+        else if (otherTeamInvitedCount > thisTeamInvitedCount)
+            diff = otherTeamInvitedCount - thisTeamInvitedCount;
 
         // difference based on max players per team (don't allow inviting more)
-        uint32 diff2 = (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
+        uint32 diff2 = (thisTeamInvitedCount < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - thisTeamInvitedCount : 0;
+
         // difference based on players who already entered
         // default: allow 0
         uint32 diff3 = 0;
-        // allow join one person if the sides are equal (to fill up bg minplayersperteam)
-        if (otherIn == GetPlayersCountByTeam(Team))
+        // allow join one person if the sides are equal (to fill up bg minPlayerPerTeam)
+        if (otherTeamPlayersCount == thisTeamPlayersCount)
             diff3 = 1;
         // allow join more ppl if the other side has more players
-        else if (otherIn > GetPlayersCountByTeam(Team))
-            diff3 = otherIn - GetPlayersCountByTeam(Team);
+        else if (otherTeamPlayersCount > thisTeamPlayersCount)
+            diff3 = otherTeamPlayersCount - thisTeamPlayersCount;
         // or other side has less than minPlayersPerTeam
-        else if (GetInvitedCount(Team) <= GetMinPlayersPerTeam())
-            diff3 = GetMinPlayersPerTeam() - GetInvitedCount(Team) + 1;
+        else if (thisTeamInvitedCount <= GetMinPlayersPerTeam())
+            diff3 = GetMinPlayersPerTeam() - thisTeamInvitedCount + 1;
 
         // return the minimum of the 3 differences
 

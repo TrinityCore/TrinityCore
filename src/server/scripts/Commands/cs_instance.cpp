@@ -36,23 +36,21 @@ class instance_commandscript : public CommandScript
 public:
     instance_commandscript() : CommandScript("instance_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand instanceCommandTable[] =
+        static std::vector<ChatCommand> instanceCommandTable =
         {
-            { "listbinds",    rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,     false, &HandleInstanceListBindsCommand,    "", NULL },
-            { "unbind",       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,        false, &HandleInstanceUnbindCommand,       "", NULL },
-            { "stats",        rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,          true, &HandleInstanceStatsCommand,        "", NULL },
-            { "savedata",     rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,      false, &HandleInstanceSaveDataCommand,     "", NULL },
-            { "setbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE, true, &HandleInstanceSetBossStateCommand, "", NULL },
-            { "getbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE, true, &HandleInstanceGetBossStateCommand, "", NULL },
-            { NULL,           0,                                              false, NULL,                               "", NULL }
+            { "listbinds",    rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,     false, &HandleInstanceListBindsCommand,    "" },
+            { "unbind",       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,        false, &HandleInstanceUnbindCommand,       "" },
+            { "stats",        rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,          true, &HandleInstanceStatsCommand,        "" },
+            { "savedata",     rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,      false, &HandleInstanceSaveDataCommand,     "" },
+            { "setbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE, true, &HandleInstanceSetBossStateCommand, "" },
+            { "getbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE, true, &HandleInstanceGetBossStateCommand, "" },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "instance", rbac::RBAC_PERM_COMMAND_INSTANCE,  true, NULL, "", instanceCommandTable },
-            { NULL,       0,                          false, NULL, "", NULL }
         };
 
         return commandTable;
@@ -170,22 +168,22 @@ public:
     static bool HandleInstanceSaveDataCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
         {
             handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!((InstanceMap*)map)->GetInstanceScript())
+        if (!map->GetInstanceScript())
         {
             handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        ((InstanceMap*)map)->GetInstanceScript()->SaveToDB();
+        map->GetInstanceScript()->SaveToDB();
 
         return true;
     }
@@ -227,15 +225,15 @@ public:
             return false;
         }
 
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
         {
             handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!map->ToInstanceMap()->GetInstanceScript())
+        if (!map->GetInstanceScript())
         {
             handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
@@ -246,15 +244,16 @@ public:
         state = atoi(param2);
 
         // Reject improper values.
-        if (state > TO_BE_DECIDED || encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
+        if (state > TO_BE_DECIDED || encounterId > map->GetInstanceScript()->GetEncounterCount())
         {
             handler->PSendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        map->ToInstanceMap()->GetInstanceScript()->SetBossState(encounterId, (EncounterState)state);
-        handler->PSendSysMessage(LANG_COMMAND_INST_SET_BOSS_STATE, encounterId, state);
+        map->GetInstanceScript()->SetBossState(encounterId, EncounterState(state));
+        std::string stateName = InstanceScript::GetBossStateName(state);
+        handler->PSendSysMessage(LANG_COMMAND_INST_SET_BOSS_STATE, encounterId, state, stateName);
         return true;
     }
 
@@ -293,15 +292,15 @@ public:
             return false;
         }
 
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
         {
             handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!map->ToInstanceMap()->GetInstanceScript())
+        if (!map->GetInstanceScript())
         {
             handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
@@ -310,15 +309,16 @@ public:
 
         encounterId = atoi(param1);
 
-        if (encounterId > map->ToInstanceMap()->GetInstanceScript()->GetEncounterCount())
+        if (encounterId > map->GetInstanceScript()->GetEncounterCount())
         {
             handler->PSendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint8 state = map->ToInstanceMap()->GetInstanceScript()->GetBossState(encounterId);
-        handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state);
+        uint32 state = map->GetInstanceScript()->GetBossState(encounterId);
+        std::string stateName = InstanceScript::GetBossStateName(state);
+        handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state, stateName);
         return true;
     }
 };

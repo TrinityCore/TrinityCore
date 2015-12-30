@@ -30,27 +30,27 @@ FormationMgr::~FormationMgr()
         delete itr->second;
 }
 
-void FormationMgr::AddCreatureToGroup(uint32 groupId, Creature* member)
+void FormationMgr::AddCreatureToGroup(uint32 leaderGuid, Creature* creature)
 {
-    Map* map = member->FindMap();
+    Map* map = creature->FindMap();
     if (!map)
         return;
 
-    CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(groupId);
+    CreatureGroupHolderType::iterator itr = map->CreatureGroupHolder.find(leaderGuid);
 
     //Add member to an existing group
     if (itr != map->CreatureGroupHolder.end())
     {
-        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUID().GetCounter(), member->GetInstanceId());
-        itr->second->AddMember(member);
+        TC_LOG_DEBUG("entities.unit", "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", leaderGuid, creature->GetGUID().GetCounter(), creature->GetInstanceId());
+        itr->second->AddMember(creature);
     }
     //Create new group
     else
     {
-        TC_LOG_DEBUG("entities.unit", "Group not found: %u. Creating new group.", groupId);
-        CreatureGroup* group = new CreatureGroup(groupId);
-        map->CreatureGroupHolder[groupId] = group;
-        group->AddMember(member);
+        TC_LOG_DEBUG("entities.unit", "Group not found: %u. Creating new group.", leaderGuid);
+        CreatureGroup* group = new CreatureGroup(leaderGuid);
+        map->CreatureGroupHolder[leaderGuid] = group;
+        group->AddMember(creature);
     }
 }
 
@@ -240,7 +240,8 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         Trinity::NormalizeMapCoord(dx);
         Trinity::NormalizeMapCoord(dy);
 
-        member->UpdateGroundPositionZ(dx, dy, dz);
+        if (!member->IsFlying())
+            member->UpdateGroundPositionZ(dx, dy, dz);
 
         if (member->IsWithinDist(m_leader, dist + MAX_DESYNC))
             member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());

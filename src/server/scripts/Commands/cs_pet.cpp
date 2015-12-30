@@ -27,20 +27,18 @@ class pet_commandscript : public CommandScript
 public:
     pet_commandscript() : CommandScript("pet_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand petCommandTable[] =
+        static std::vector<ChatCommand> petCommandTable =
         {
-            { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "", NULL },
-            { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "", NULL },
-            { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "", NULL },
-            { NULL,      0,                             false, NULL,                     "", NULL }
+            { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "" },
+            { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "" },
+            { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "" },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "pet", rbac::RBAC_PERM_COMMAND_PET, false, NULL, "", petCommandTable },
-            { NULL,  0,                     false, NULL, "", NULL }
         };
         return commandTable;
     }

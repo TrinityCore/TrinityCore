@@ -34,23 +34,21 @@ class guild_commandscript : public CommandScript
 public:
     guild_commandscript() : CommandScript("guild_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand guildCommandTable[] =
+        static std::vector<ChatCommand> guildCommandTable =
         {
-            { "create",   rbac::RBAC_PERM_COMMAND_GUILD_CREATE,   true, &HandleGuildCreateCommand,           "", NULL },
-            { "delete",   rbac::RBAC_PERM_COMMAND_GUILD_DELETE,   true, &HandleGuildDeleteCommand,           "", NULL },
-            { "invite",   rbac::RBAC_PERM_COMMAND_GUILD_INVITE,   true, &HandleGuildInviteCommand,           "", NULL },
-            { "uninvite", rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, true, &HandleGuildUninviteCommand,         "", NULL },
-            { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "", NULL },
-            { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "", NULL },
-            { "info",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildInfoCommand,             "", NULL },
-            { NULL,       0,                               false, NULL,                                "", NULL }
+            { "create",   rbac::RBAC_PERM_COMMAND_GUILD_CREATE,   true, &HandleGuildCreateCommand,           "" },
+            { "delete",   rbac::RBAC_PERM_COMMAND_GUILD_DELETE,   true, &HandleGuildDeleteCommand,           "" },
+            { "invite",   rbac::RBAC_PERM_COMMAND_GUILD_INVITE,   true, &HandleGuildInviteCommand,           "" },
+            { "uninvite", rbac::RBAC_PERM_COMMAND_GUILD_UNINVITE, true, &HandleGuildUninviteCommand,         "" },
+            { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "" },
+            { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "" },
+            { "info",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildInfoCommand,             "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "guild", rbac::RBAC_PERM_COMMAND_GUILD,  true, NULL, "", guildCommandTable },
-            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -158,7 +156,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
             return false;
 
-        uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
+        ObjectGuid::LowType guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
         if (!guildId)
             return false;
 
@@ -184,7 +182,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &target_name))
             return false;
 
-        uint32 guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
+        ObjectGuid::LowType guildId = target ? target->GetGuildId() : Player::GetGuildIdFromDB(targetGuid);
         if (!guildId)
             return false;
 

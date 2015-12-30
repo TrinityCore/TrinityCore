@@ -128,12 +128,12 @@ class OPvPCapturePoint
 
         virtual void DeleteSpawns();
 
-        uint32 m_capturePointSpawnId;
+        ObjectGuid::LowType m_capturePointSpawnId;
 
         GameObject* m_capturePoint;
 
-        void AddGO(uint32 type, uint32 guid, uint32 entry = 0);
-        void AddCre(uint32 type, uint32 guid, uint32 entry = 0);
+        void AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
+        void AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
 
         bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o = 0,
             float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
@@ -178,10 +178,10 @@ class OPvPCapturePoint
 
         // map to store the various gameobjects and creatures spawned by the objective
         //        type, guid
-        std::map<uint32, uint32> m_Objects;
-        std::map<uint32, uint32> m_Creatures;
-        std::map<uint32, uint32> m_ObjectTypes;
-        std::map<uint32, uint32> m_CreatureTypes;
+        std::map<uint32, ObjectGuid::LowType> m_Objects;
+        std::map<uint32, ObjectGuid::LowType> m_Creatures;
+        std::map<ObjectGuid::LowType, uint32> m_ObjectTypes;
+        std::map<ObjectGuid::LowType, uint32> m_CreatureTypes;
 };
 
 // base class for specific outdoor pvp handlers
@@ -200,7 +200,7 @@ class OutdoorPvP : public ZoneScript
         // deletes all gos/creatures spawned by the pvp
         void DeleteSpawns();
 
-        typedef std::map<uint32/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
         typedef std::pair<ObjectGuid::LowType, GameObject*> GoScriptPair;
         typedef std::pair<ObjectGuid::LowType, Creature*> CreatureScriptPair;
 
@@ -292,7 +292,7 @@ class OutdoorPvP : public ZoneScript
             m_capturePoints[cp->m_capturePointSpawnId] = cp;
         }
 
-        OPvPCapturePoint * GetCapturePoint(uint32 guid) const
+        OPvPCapturePoint * GetCapturePoint(ObjectGuid::LowType guid) const
         {
             OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(guid);
             if (itr != m_capturePoints.end())
@@ -308,12 +308,12 @@ class OutdoorPvP : public ZoneScript
 
         template<class Worker>
         void BroadcastWorker(Worker& _worker, uint32 zoneId);
-        
+
         // Hack to store map because this code is just shit
         void SetMapFromZone(uint32 zone);
         std::map<ObjectGuid::LowType, GameObject*> m_GoScriptStore;
         std::map<ObjectGuid::LowType, Creature*> m_CreatureScriptStore;
-        
+
         Map* m_map;
 };
 

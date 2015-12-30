@@ -499,28 +499,28 @@ class Map : public GridRefManager<NGridType>
             RESPAWN TIMES
         */
         time_t GetLinkedRespawnTime(ObjectGuid guid) const;
-        time_t GetCreatureRespawnTime(uint32 dbGuid) const
+        time_t GetCreatureRespawnTime(ObjectGuid::LowType dbGuid) const
         {
-            std::unordered_map<uint32 /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
+            std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
             if (itr != _creatureRespawnTimes.end())
                 return itr->second;
 
             return time_t(0);
         }
 
-        time_t GetGORespawnTime(uint32 dbGuid) const
+        time_t GetGORespawnTime(ObjectGuid::LowType dbGuid) const
         {
-            std::unordered_map<uint32 /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
+            std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
             if (itr != _goRespawnTimes.end())
                 return itr->second;
 
             return time_t(0);
         }
 
-        void SaveCreatureRespawnTime(uint32 dbGuid, time_t respawnTime);
-        void RemoveCreatureRespawnTime(uint32 dbGuid);
-        void SaveGORespawnTime(uint32 dbGuid, time_t respawnTime);
-        void RemoveGORespawnTime(uint32 dbGuid);
+        void SaveCreatureRespawnTime(ObjectGuid::LowType dbGuid, time_t respawnTime);
+        void RemoveCreatureRespawnTime(ObjectGuid::LowType dbGuid);
+        void SaveGORespawnTime(ObjectGuid::LowType dbGuid, time_t respawnTime);
+        void RemoveGORespawnTime(ObjectGuid::LowType dbGuid);
         void LoadRespawnTimes();
         void DeleteRespawnTimes();
 
@@ -561,7 +561,7 @@ class Map : public GridRefManager<NGridType>
         {
             _updateObjects.insert(obj);
         }
-        
+
         void RemoveUpdateObject(Object* obj)
         {
             _updateObjects.erase(obj);
@@ -659,7 +659,7 @@ class Map : public GridRefManager<NGridType>
         Creature* _GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
         WorldObject* _GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
         void _ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const;
-        GameObject* _FindGameObject(WorldObject* pWorldObject, uint32 guid) const;
+        GameObject* _FindGameObject(WorldObject* pWorldObject, ObjectGuid::LowType guid) const;
 
         time_t i_gridExpiry;
 
@@ -711,8 +711,8 @@ class Map : public GridRefManager<NGridType>
                 m_activeNonPlayers.erase(obj);
         }
 
-        std::unordered_map<uint32 /*dbGUID*/, time_t> _creatureRespawnTimes;
-        std::unordered_map<uint32 /*dbGUID*/, time_t> _goRespawnTimes;
+        std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _creatureRespawnTimes;
+        std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _goRespawnTimes;
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
         uint32 _defaultLight;
@@ -733,6 +733,7 @@ class Map : public GridRefManager<NGridType>
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
         std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
+        std::unordered_set<Corpse*> _corpseBones;
 
         std::unordered_set<Object*> _updateObjects;
 };

@@ -1218,7 +1218,7 @@ public:
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiLichKingGUID)) // Lich king disappears here
                             {
                                 temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN17);
-                                temp->Kill(temp);
+                                temp->KillSelf();
                             }
                             JumpToNextStep(10000);
                             break;
@@ -1293,8 +1293,8 @@ public:
                             //if (GameObject* go = me->GetMap()->GetGameObject(uiDawnofLightGUID)) // Turn off dawn of light
                             //    go->SetPhaseMask(0, true);
                             {
-                                Map* map = me->GetMap(); // search players with in 50 yards for quest credit
-                                Map::PlayerList const &PlayerList = map->GetPlayers();
+                                // search players with in 50 yards for quest credit
+                                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                                 if (!PlayerList.isEmpty())
                                 {
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -1633,7 +1633,7 @@ public:
                 if (temp->IsAlive())
                 {
                     temp->SetVisible(false);
-                    temp->Kill(temp);
+                    temp->KillSelf();
                 }
         }
     };

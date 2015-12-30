@@ -497,24 +497,51 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, BattlegroundBracketId 
 {
     int32 hordeFree = bg->GetFreeSlotsForTeam(HORDE);
     int32 aliFree   = bg->GetFreeSlotsForTeam(ALLIANCE);
+    uint32 aliCount   = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size();
+    uint32 hordeCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size();
+
+    // try to get even teams
+    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_EVEN)
+    {
+        // check if the teams are even
+        if (hordeFree == 1 && aliFree == 1)
+        {
+            // if we are here, the teams have the same amount of players
+            // then we have to allow to join the same amount of players
+            int32 hordeExtra = hordeCount - aliCount;
+            int32 aliExtra   = aliCount - hordeCount;
+
+            hordeExtra = std::max(hordeExtra, 0);
+            aliExtra   = std::max(aliExtra, 0);
+
+            if (aliCount != hordeCount)
+            {
+                aliFree   -= aliExtra;
+                hordeFree -= hordeExtra;
+
+                aliFree   = std::max(aliFree, 0);
+                hordeFree = std::max(hordeFree, 0);
+            }
+        }
+    }
 
     //iterator for iterating through bg queue
     GroupsQueueType::const_iterator Ali_itr = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].begin();
     //count of groups in queue - used to stop cycles
-    uint32 aliCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size();
+
     //index to queue which group is current
     uint32 aliIndex = 0;
     for (; aliIndex < aliCount && m_SelectionPools[TEAM_ALLIANCE].AddGroup((*Ali_itr), aliFree); aliIndex++)
         ++Ali_itr;
     //the same thing for horde
     GroupsQueueType::const_iterator Horde_itr = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].begin();
-    uint32 hordeCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size();
+
     uint32 hordeIndex = 0;
     for (; hordeIndex < hordeCount && m_SelectionPools[TEAM_HORDE].AddGroup((*Horde_itr), hordeFree); hordeIndex++)
         ++Horde_itr;
 
     //if ofc like BG queue invitation is set in config, then we are happy
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == 0)
+    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_NO_BALANCE)
         return;
 
     /*
@@ -649,7 +676,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     uint32 j = TEAM_ALLIANCE;
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() < m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())
         j = TEAM_HORDE;
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
+    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != BG_QUEUE_INVITATION_TYPE_NO_BALANCE
         && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j
@@ -1041,6 +1068,16 @@ bool BGQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
         BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(m_BgQueueTypeId);
         if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
         {
+            // track if player leaves the BG by not clicking enter button
+            if (bg && bg->isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS) &&
+                (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
+            {
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                stmt->setUInt32(0, player->GetGUID().GetCounter());
+                stmt->setUInt8(1, BG_DESERTION_TYPE_NO_ENTER_BUTTON);
+                CharacterDatabase.Execute(stmt);
+            }
+
             TC_LOG_DEBUG("bg.battleground", "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", player->GetGUID().GetCounter(), m_BgInstanceGUID);
 
             player->RemoveBattlegroundQueueId(m_BgQueueTypeId);

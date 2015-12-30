@@ -35,45 +35,40 @@ class ban_commandscript : public CommandScript
 public:
     ban_commandscript() : CommandScript("ban_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand unbanCommandTable[] =
+        static std::vector<ChatCommand> unbanCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       true,  &HandleUnBanAccountCommand,          "", NULL },
-            { "character",      rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     true,  &HandleUnBanCharacterCommand,        "", NULL },
-            { "playeraccount",  rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, true,  &HandleUnBanAccountByCharCommand,    "", NULL },
-            { "ip",             rbac::RBAC_PERM_COMMAND_UNBAN_IP,            true,  &HandleUnBanIPCommand,               "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       true,  &HandleUnBanAccountCommand,          "" },
+            { "character",      rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     true,  &HandleUnBanCharacterCommand,        "" },
+            { "playeraccount",  rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, true,  &HandleUnBanAccountByCharCommand,    "" },
+            { "ip",             rbac::RBAC_PERM_COMMAND_UNBAN_IP,            true,  &HandleUnBanIPCommand,               "" },
         };
-        static ChatCommand banlistCommandTable[] =
+        static std::vector<ChatCommand> banlistCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,   true,  &HandleBanListAccountCommand,        "", NULL },
-            { "character",      rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER, true,  &HandleBanListCharacterCommand,      "", NULL },
-            { "ip",             rbac::RBAC_PERM_COMMAND_BANLIST_IP,        true,  &HandleBanListIPCommand,             "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,   true,  &HandleBanListAccountCommand,        "" },
+            { "character",      rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER, true,  &HandleBanListCharacterCommand,      "" },
+            { "ip",             rbac::RBAC_PERM_COMMAND_BANLIST_IP,        true,  &HandleBanListIPCommand,             "" },
         };
-        static ChatCommand baninfoCommandTable[] =
+        static std::vector<ChatCommand> baninfoCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,   true,  &HandleBanInfoAccountCommand,        "", NULL },
-            { "character",      rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER, true,  &HandleBanInfoCharacterCommand,      "", NULL },
-            { "ip",             rbac::RBAC_PERM_COMMAND_BANINFO_IP,        true,  &HandleBanInfoIPCommand,             "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,   true,  &HandleBanInfoAccountCommand,        "" },
+            { "character",      rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER, true,  &HandleBanInfoCharacterCommand,      "" },
+            { "ip",             rbac::RBAC_PERM_COMMAND_BANINFO_IP,        true,  &HandleBanInfoIPCommand,             "" },
         };
-        static ChatCommand banCommandTable[] =
+        static std::vector<ChatCommand> banCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,       true,  &HandleBanAccountCommand,            "", NULL },
-            { "character",      rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,     true,  &HandleBanCharacterCommand,          "", NULL },
-            { "playeraccount",  rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT, true,  &HandleBanAccountByCharCommand,      "", NULL },
-            { "ip",             rbac::RBAC_PERM_COMMAND_BAN_IP,            true,  &HandleBanIPCommand,                 "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "account",        rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,       true,  &HandleBanAccountCommand,            "" },
+            { "character",      rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,     true,  &HandleBanCharacterCommand,          "" },
+            { "playeraccount",  rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT, true,  &HandleBanAccountByCharCommand,      "" },
+            { "ip",             rbac::RBAC_PERM_COMMAND_BAN_IP,            true,  &HandleBanIPCommand,                 "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "ban",            rbac::RBAC_PERM_COMMAND_BAN,     true,  NULL,                                "", banCommandTable },
             { "baninfo",        rbac::RBAC_PERM_COMMAND_BANINFO, true,  NULL,                                "", baninfoCommandTable },
             { "banlist",        rbac::RBAC_PERM_COMMAND_BANLIST, true,  NULL,                                "", banlistCommandTable },
             { "unban",          rbac::RBAC_PERM_COMMAND_UNBAN,   true,  NULL,                                "", unbanCommandTable },
-            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -300,7 +295,7 @@ public:
             return false;
 
         Player* target = ObjectAccessor::FindPlayerByName(args);
-        uint32 targetGuid = 0;
+        ObjectGuid::LowType targetGuid = 0;
         std::string name(args);
 
         if (!target)

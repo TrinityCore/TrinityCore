@@ -175,7 +175,7 @@ class SmartScript
             return 0;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
             if (bounds.first == bounds.second)
@@ -184,7 +184,7 @@ class SmartScript
             return bounds.first->second;
         }
 
-        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
             if (bounds.first == bounds.second)
@@ -246,10 +246,10 @@ class SmartScript
                 DecPhase(abs(p));
         }
 
-        void DecPhase(int32 p = 1) 
-        { 
-            if(mEventPhase > (uint32)p)
-                mEventPhase -= (uint32)p; 
+        void DecPhase(int32 p = 1)
+        {
+            if (mEventPhase > (uint32)p)
+                mEventPhase -= (uint32)p;
             else
                 mEventPhase = 0;
         }

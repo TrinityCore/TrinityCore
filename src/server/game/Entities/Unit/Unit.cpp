@@ -3908,20 +3908,27 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
 void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 {
     // single target auras from other casters
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    // Iterate m_ownedAuras - aura is marked as single target in Unit::AddAura (and pushed to m_ownedAuras).
+    // m_appliedAuras will NOT contain the aura before first Unit::Update after adding it to m_ownedAuras.
+    // Quickly removing such an aura will lead to it not being unregistered from caster's single cast auras container
+    // leading to assertion failures if the aura was cast on a player that can
+    // (and is changing map at the point where this function is called).
+    // Such situation occurs when player is logging in inside an instance and fails the entry check for any reason.
+    // The aura that was loaded from db (indirectly, via linked casts) gets removed before it has a chance
+    // to register in m_appliedAuras
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
-        AuraApplication const* aurApp = iter->second;
-        Aura const* aura = aurApp->GetBase();
+        Aura const* aura = iter->second;
 
-        if (aura->GetCasterGUID() != GetGUID() && aura->GetSpellInfo()->IsSingleTarget())
+        if (aura->GetCasterGUID() != GetGUID() && aura->IsSingleTarget())
         {
             if (!newPhase)
-                RemoveAura(iter);
+                RemoveOwnedAura(iter);
             else
             {
                 Unit* caster = aura->GetCaster();
                 if (!caster || !caster->InSamePhase(newPhase))
-                    RemoveAura(iter);
+                    RemoveOwnedAura(iter);
                 else
                     ++iter;
             }
@@ -7468,8 +7475,8 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     uint32 stack = triggeredByAura->GetStackAmount();
                     int32 const mod = (GetMap()->GetSpawnMode() & 1) ? 1500 : 1250;
                     int32 dmg = 0;
-                    for (uint8 i = 1; i < stack; ++i)
-                        dmg += mod * stack;
+                    for (uint8 i = 1; i <= stack; ++i)
+                        dmg += mod * i;
                     if (Unit* caster = triggeredByAura->GetCaster())
                         caster->CastCustomSpell(70701, SPELLVALUE_BASE_POINT0, dmg);
                     break;
@@ -8284,6 +8291,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 15337: // Improved Spirit Tap (Rank 1)
         case 15338: // Improved Spirit Tap (Rank 2)
         {
+            ASSERT(procSpell);
             if (procSpell->SpellFamilyFlags[0] & 0x800000)
                 if ((procSpell->Id != 58381) || !roll_chance_i(50))
                     return false;
@@ -8545,7 +8553,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
     // try detect target manually if not set
     if (target == NULL)
-        target = !(procFlags & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)) && triggerEntry && triggerEntry->IsPositive() ? this : victim;
+        target = !(procFlags & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)) && triggerEntry->IsPositive() ? this : victim;
 
     if (basepoints0)
         CastCustomSpell(target, trigger_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
@@ -9641,7 +9649,7 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && _IsValidAttackTarget(magnet, spellInfo))
             {
                 /// @todo handle this charge drop by proc in cast phase on explicit target
-                if (victim && spellInfo->Speed > 0.0f)
+                if (spellInfo->Speed > 0.0f)
                 {
                     // Set up missile speed based delay
                     uint32 delay = uint32(std::floor(std::max<float>(victim->GetDistance(this), 5.0f) / spellInfo->Speed * 1000.0f));
@@ -12980,9 +12988,6 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
     if (!spellInfo || castTime < 0)
         return;
 
-    if (spellInfo->IsChanneled() && !spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-        return;
-
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, castTime, spell);
@@ -12994,6 +12999,25 @@ void Unit::ModSpellCastTime(SpellInfo const* spellInfo, int32 & castTime, Spell*
         castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
     else if (spellInfo->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
+}
+
+void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32 & duration, Spell* spell)
+{
+    if (!spellInfo || duration < 0)
+        return;
+
+    if (spellInfo->IsChanneled() && !spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
+        return;
+
+    // called from caster
+    if (Player* modOwner = GetSpellModOwner())
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, duration, spell);
+
+    if (!(spellInfo->HasAttribute(SPELL_ATTR0_ABILITY) || spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) || spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS)) &&
+        ((GetTypeId() == TYPEID_PLAYER && spellInfo->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
+        duration = int32(float(duration) * GetFloatValue(UNIT_MOD_CAST_SPEED));
+    else if (spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && !spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG))
+        duration = int32(float(duration) * m_modAttackSpeedPct[RANGED_ATTACK]);
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
@@ -13422,7 +13446,7 @@ void Unit::SetLevel(uint8 lvl)
         if (player->GetGroup())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
 
-        sWorld->UpdateCharacterNameDataLevel(GetGUID(), lvl);
+        sWorld->UpdateCharacterInfoLevel(GetGUID(), lvl);
     }
 }
 
@@ -13765,16 +13789,16 @@ void CharmInfo::InitPossessCreateSpells()
                 break;
         }
 
-        for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         {
             uint32 spellId = _unit->ToCreature()->m_spells[i];
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-            if (spellInfo && !spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD))
+            if (spellInfo)
             {
                 if (spellInfo->IsPassive())
                     _unit->CastSpell(_unit, spellInfo, true);
                 else
-                    AddSpellToActionBar(spellInfo, ACT_PASSIVE);
+                    AddSpellToActionBar(spellInfo, ACT_PASSIVE, i % MAX_UNIT_ACTION_BAR_INDEX);
             }
         }
     }
@@ -13797,7 +13821,7 @@ void CharmInfo::InitCharmCreateSpells()
         uint32 spellId = _unit->ToCreature()->m_spells[x];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
 
-        if (!spellInfo || spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD))
+        if (!spellInfo)
         {
             _charmspells[x].SetActionAndType(spellId, ACT_DISABLED);
             continue;
@@ -13832,11 +13856,12 @@ void CharmInfo::InitCharmCreateSpells()
     }
 }
 
-bool CharmInfo::AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate)
+bool CharmInfo::AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate, uint8 preferredSlot)
 {
     uint32 spell_id = spellInfo->Id;
     uint32 first_id = spellInfo->GetFirstRankSpell()->Id;
 
+    ASSERT(preferredSlot < MAX_UNIT_ACTION_BAR_INDEX);
     // new spell rank can be already listed
     for (uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
@@ -13853,9 +13878,10 @@ bool CharmInfo::AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates new
     // or use empty slot in other case
     for (uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
-        if (!PetActionBar[i].GetAction() && PetActionBar[i].IsActionBarForSpell())
+        uint8 j = (preferredSlot + i) % MAX_UNIT_ACTION_BAR_INDEX;
+        if (!PetActionBar[j].GetAction() && PetActionBar[j].IsActionBarForSpell())
         {
-            SetActionBar(i, spell_id, newstate == ACT_DECIDE ? spellInfo->IsAutocastable() ? ACT_DISABLED : ACT_PASSIVE : newstate);
+            SetActionBar(j, spell_id, newstate == ACT_DECIDE ? spellInfo->IsAutocastable() ? ACT_DISABLED : ACT_PASSIVE : newstate);
             return true;
         }
     }
@@ -14174,9 +14200,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
 
         // do checks using conditions table
-        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id);
-        ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
-        if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id, eventInfo.GetActor(), eventInfo.GetActionTarget()))
             continue;
 
         // AuraScript Hook
@@ -14645,6 +14669,9 @@ bool Unit::IsPolymorphed() const
 void Unit::SetDisplayId(uint32 modelId)
 {
     SetUInt32Value(UNIT_FIELD_DISPLAYID, modelId);
+    // Set Gender by modelId
+    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
+        SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
 }
 
 void Unit::RestoreDisplayId()
@@ -15794,7 +15821,7 @@ void Unit::SetFeared(bool apply)
     }
 
     if (Player* player = ToPlayer())
-        if(!player->HasUnitState(UNIT_STATE_POSSESSED))
+        if (!player->HasUnitState(UNIT_STATE_POSSESSED))
             player->SetClientControl(this, !apply);
 }
 
@@ -16015,7 +16042,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
         // Vehicle should not attack its passenger after he exists the seat
         if (type != CHARM_TYPE_VEHICLE)
-            LastCharmerGUID = charmer->GetGUID();
+            LastCharmerGUID = ASSERT_NOTNULL(charmer)->GetGUID();
     }
 
     // If charmer still exists
@@ -16877,9 +16904,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             continue;
 
         //! Check database conditions
-        ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(spellClickEntry, itr->second.spellId);
-        ConditionSourceInfo info = ConditionSourceInfo(clicker, this);
-        if (!sConditionMgr->IsObjectMeetToConditions(info, conds))
+        if (!sConditionMgr->IsObjectMeetingSpellClickConditions(spellClickEntry, itr->second.spellId, clicker, this))
             continue;
 
         Unit* caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
@@ -17766,22 +17791,8 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                                 }
 
                     if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
-                    {
                         if (target->IsGameMaster())
-                        {
-                            if (cinfo->Modelid1)
-                                displayId = cinfo->Modelid1;    // Modelid1 is a visible model for gms
-                            else
-                                displayId = 17519;              // world visible trigger's model
-                        }
-                        else
-                        {
-                            if (cinfo->Modelid2)
-                                displayId = cinfo->Modelid2;    // Modelid2 is an invisible model for players
-                            else
-                                displayId = 11686;              // world invisible trigger's model
-                        }
-                    }
+                            displayId = cinfo->GetFirstVisibleModel();
                 }
 
                 fieldBuffer << uint32(displayId);

@@ -176,7 +176,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
-    SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
+    SPELL_ATTR0_CU_DONT_BREAK_STEALTH            = 0x00000040,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
@@ -249,7 +249,7 @@ public:
     uint32    ItemType;
     uint32    TriggerSpell;
     flag96    SpellClassMask;
-    std::list<Condition*>* ImplicitTargetConditions;
+    std::vector<Condition*>* ImplicitTargetConditions;
 
     SpellEffectInfo() : _spellInfo(NULL), _effIndex(0), Effect(0), ApplyAuraName(0), Amplitude(0), DieSides(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerComboPoint(0), ValueMultiplier(0), DamageMultiplier(0),
@@ -306,8 +306,8 @@ public:
     uint32 AttributesEx6;
     uint32 AttributesEx7;
     uint32 AttributesCu;
-    uint32 Stances;
-    uint32 StancesNot;
+    uint64 Stances;
+    uint64 StancesNot;
     uint32 Targets;
     uint32 TargetCreatureType;
     uint32 RequiresSpellFocus;

@@ -33,17 +33,15 @@ class achievement_commandscript : public CommandScript
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand achievementCommandTable[] =
+        static std::vector<ChatCommand> achievementCommandTable =
         {
-            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, NULL, "", achievementCommandTable },
-            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }

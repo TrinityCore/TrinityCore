@@ -1571,6 +1571,22 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     if (num_to_add > pProto->GetMaxStackSize())
         num_to_add = pProto->GetMaxStackSize();
 
+    /* == gem perfection handling == */
+
+    // the chance of getting a perfect result
+    float perfectCreateChance = 0.0f;
+    // the resulting perfect item if successful
+    uint32 perfectItemType = itemtype;
+    // get perfection capability and chance
+    if (CanCreatePerfectItem(player, m_spellInfo->Id, perfectCreateChance, perfectItemType))
+        if (roll_chance_f(perfectCreateChance)) // if the roll succeeds...
+            newitemid = perfectItemType;        // the perfect item replaces the regular one
+
+    /* == gem perfection handling over == */
+
+
+    /* == profession specialization handling == */
+
     // init items_count to 1, since 1 item will be created regardless of specialization
     int items_count=1;
     // the chance to create additional items
@@ -1579,14 +1595,15 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     uint8 additionalMaxNum=0;
     // get the chance and maximum number for creating extra items
     if (CanCreateExtraItems(player, m_spellInfo->Id, additionalCreateChance, additionalMaxNum))
-    {
         // roll with this chance till we roll not to create or we create the max num
         while (roll_chance_f(additionalCreateChance) && items_count <= additionalMaxNum)
             ++items_count;
-    }
 
     // really will be created more items
     num_to_add *= items_count;
+
+    /* == profession specialization handling over == */
+
 
     // can the player store the new item?
     ItemPosCountVec dest;
@@ -4356,11 +4373,14 @@ void Spell::EffectEnchantHeldItem(SpellEffIndex effIndex)
     if (m_spellInfo->Effects[effIndex].MiscValue)
     {
         uint32 enchant_id = m_spellInfo->Effects[effIndex].MiscValue;
-        int32 duration = m_spellInfo->GetDuration();          //Try duration index first ..
+        int32 duration = m_spellInfo->GetDuration();  // Try duration index first ..
         if (!duration)
-            duration = damage;//+1;            //Base points after ..
+            duration = damage;//+1;                   // Base points after ..
         if (!duration)
-            duration = 10;                                  //10 seconds for enchants which don't have listed duration
+            duration = 10 * IN_MILLISECONDS;          // 10 seconds for enchants which don't have listed duration
+
+        if (m_spellInfo->Id == 14792) // Venomhide Poison
+            duration = 5 * MINUTE * IN_MILLISECONDS;
 
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
@@ -4374,7 +4394,7 @@ void Spell::EffectEnchantHeldItem(SpellEffIndex effIndex)
             return;
 
         // Apply the temporary enchantment
-        item->SetEnchantment(slot, enchant_id, duration*IN_MILLISECONDS, 0, m_caster->GetGUID());
+        item->SetEnchantment(slot, enchant_id, duration, 0, m_caster->GetGUID());
         item_owner->ApplyEnchantment(item, slot, true);
     }
 }
@@ -5618,7 +5638,7 @@ void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
     FactionTemplateEntry const* casterFaction = caster->GetFactionTemplateEntry();
     FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
-    if ((casterFaction && targetFaction && !casterFaction->IsFriendlyTo(*targetFaction)) || !targetFaction)
+    if (!targetFaction || (casterFaction && targetFaction && !casterFaction->IsFriendlyTo(*targetFaction)))
         gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
 }
 

@@ -97,7 +97,6 @@ bool SummonList::HasEntry(uint32 entry) const
 }
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
-    me(creature),
     IsFleeing(false),
     _evadeCheckCooldown(2500),
     _isCombatMovementAllowed(true)
@@ -470,6 +469,7 @@ void BossAI::_Reset()
     if (!me->IsAlive())
         return;
 
+    me->SetCombatPulseDelay(0);
     me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
@@ -500,6 +500,7 @@ void BossAI::_EnterCombat()
         instance->SetBossState(_bossId, IN_PROGRESS);
     }
 
+    me->SetCombatPulseDelay(5);
     me->setActive(true);
     DoZoneInCombat();
     ScheduleTasks();

@@ -162,11 +162,6 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         // he dropped it further, summon mound
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
-                        if (!map)
-                        {
-                            delete go;
-                            return true;
-                        }
 
                         if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
                         {
@@ -196,11 +191,6 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         // he dropped it further, summon mound
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
-                        if (!map)
-                        {
-                            delete go;
-                            return true;
-                        }
 
                         if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
                         {

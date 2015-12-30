@@ -36,21 +36,19 @@ class list_commandscript : public CommandScript
 public:
     list_commandscript() : CommandScript("list_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand listCommandTable[] =
+        static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature", rbac::RBAC_PERM_COMMAND_LIST_CREATURE, true, &HandleListCreatureCommand, "", NULL },
-            { "item",     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     true, &HandleListItemCommand,     "", NULL },
-            { "object",   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "", NULL },
-            { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "", NULL },
-            { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "", NULL },
-            { NULL,       0,                              false, NULL,                       "", NULL }
+            { "creature", rbac::RBAC_PERM_COMMAND_LIST_CREATURE, true, &HandleListCreatureCommand, "" },
+            { "item",     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     true, &HandleListItemCommand,     "" },
+            { "object",   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "" },
+            { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "" },
+            { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "list", rbac::RBAC_PERM_COMMAND_LIST,true, NULL, "", listCommandTable },
-            { NULL,   0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -109,7 +107,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -235,8 +233,8 @@ public:
             do
             {
                 Field* fields                   = result->Fetch();
-                uint32 itemGuid                 = fields[0].GetUInt32();
-                uint32 itemSender               = fields[1].GetUInt32();
+                ObjectGuid::LowType itemGuid                 = fields[0].GetUInt32();
+                ObjectGuid::LowType itemSender               = fields[1].GetUInt32();
                 uint32 itemReceiver             = fields[2].GetUInt32();
                 uint32 itemSenderAccountId      = fields[3].GetUInt32();
                 std::string itemSenderName      = fields[4].GetString();
@@ -398,7 +396,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -534,7 +532,7 @@ public:
                         {
                             do
                             {
-                                uint32 item_guid = (*result2)[0].GetUInt32();
+                                ObjectGuid::LowType item_guid = (*result2)[0].GetUInt32();
                                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
                                 stmt->setUInt32(0, item_guid);
                                 PreparedQueryResult result3 = CharacterDatabase.Query(stmt);

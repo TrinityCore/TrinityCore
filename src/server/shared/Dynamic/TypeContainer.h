@@ -47,7 +47,7 @@ template<>
 struct ContainerMapList<TypeNull>                /* nothing is in type null */
 {
 };
-template<class H, class T> 
+template<class H, class T>
 struct ContainerMapList<TypeList<H, T> >
 {
     ContainerMapList<H> _elements;
@@ -105,7 +105,7 @@ class TypeMapContainer
         template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)NULL); }
 
         /// inserts a specific object into the container
-        template<class SPECIFIC_TYPE> 
+        template<class SPECIFIC_TYPE>
         bool insert(SPECIFIC_TYPE *obj)
         {
             SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj);
@@ -113,7 +113,7 @@ class TypeMapContainer
         }
 
         ///  Removes the object from the container, and returns the removed object
-        //template<class SPECIFIC_TYPE> 
+        //template<class SPECIFIC_TYPE>
         //bool remove(SPECIFIC_TYPE* obj)
         //{
         //    SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);

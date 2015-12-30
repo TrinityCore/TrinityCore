@@ -211,7 +211,7 @@ class Item : public Object
 
         Item();
 
-        virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, ObjectGuid::LowType itemid, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
 
@@ -225,10 +225,10 @@ class Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(uint32 guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
-        static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
+        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
+        static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
-        static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
+        static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
 
         // Lootable items and their contents
         void ItemContainerSaveLootToDB();
@@ -262,7 +262,7 @@ class Item : public Object
         bool GemsFitSockets() const;
 
         uint32 GetCount() const { return GetUInt32Value(ITEM_FIELD_STACK_COUNT); }
-        void SetCount(uint32 value) { SetUInt32Value(ITEM_FIELD_STACK_COUNT, value); }
+        void SetCount(uint32 value);
         uint32 GetMaxStackCount() const { return GetTemplate()->GetMaxStackSize(); }
         uint8 GetGemCountWithID(uint32 GemID) const;
         uint8 GetGemCountWithLimitCategory(uint32 limitCategory) const;
@@ -331,7 +331,7 @@ class Item : public Object
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
-        void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
+        void SetRefundRecipient(ObjectGuid::LowType pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
 
@@ -362,7 +362,7 @@ class Item : public Object
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
         time_t m_lastPlayedTimeUpdate;
-        uint32 m_refundRecipient;
+        ObjectGuid::LowType m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         AllowedLooterSet allowedGUIDs;

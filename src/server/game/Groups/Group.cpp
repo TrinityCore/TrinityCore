@@ -91,7 +91,7 @@ Group::~Group()
 bool Group::Create(Player* leader)
 {
     ObjectGuid leaderGuid = leader->GetGUID();
-    uint32 lowguid = sGroupMgr->GenerateGroupId();
+    ObjectGuid::LowType lowguid = sGroupMgr->GenerateGroupId();
 
     m_guid = ObjectGuid(HighGuid::Group, lowguid);
     m_leaderGuid = leaderGuid;
@@ -198,7 +198,7 @@ void Group::LoadGroupFromDB(Field* fields)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
 }
 
-void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
+void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
 {
     MemberSlot member;
     member.guid = ObjectGuid(HighGuid::Player, guidLow);
@@ -539,7 +539,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         }
 
         // Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
-        if ((player && player->GetSkillValue(SKILL_ENCHANTING)) || !player)
+        if (!player || player->GetSkillValue(SKILL_ENCHANTING))
             ResetMaxEnchantingLevel();
 
         // Remove player from loot rolls
@@ -2224,7 +2224,7 @@ ObjectGuid Group::GetGUID() const
     return m_guid;
 }
 
-uint32 Group::GetLowGUID() const
+ObjectGuid::LowType Group::GetLowGUID() const
 {
     return m_guid.GetCounter();
 }

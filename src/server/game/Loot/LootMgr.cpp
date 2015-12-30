@@ -95,7 +95,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         LootStoreItemList* GetExplicitlyChancedItemList() { return &ExplicitlyChanced; }
         LootStoreItemList* GetEqualChancedItemList() { return &EqualChanced; }
-        void CopyConditions(ConditionList conditions);
+        void CopyConditions(ConditionContainer conditions);
     private:
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
@@ -218,7 +218,7 @@ void LootStore::ResetConditions()
 {
     for (LootTemplateMap::iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
     {
-        ConditionList empty;
+        ConditionContainer empty;
         itr->second->CopyConditions(empty);
     }
 }
@@ -481,7 +481,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
 void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 {
-    uint32 plguid = player->GetGUID().GetCounter();
+    ObjectGuid::LowType plguid = player->GetGUID().GetCounter();
 
     QuestItemMap::const_iterator qmapitr = PlayerQuestItems.find(plguid);
     if (qmapitr == PlayerQuestItems.end())
@@ -1155,7 +1155,7 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
     return false;
 }
 
-void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
+void LootTemplate::LootGroup::CopyConditions(ConditionContainer /*conditions*/)
 {
     for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
         (*i)->conditions.clear();
@@ -1260,7 +1260,7 @@ void LootTemplate::AddEntry(LootStoreItem* item)
         Entries.push_back(item);
 }
 
-void LootTemplate::CopyConditions(const ConditionList& conditions)
+void LootTemplate::CopyConditions(const ConditionContainer& conditions)
 {
     for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
         (*i)->conditions.clear();

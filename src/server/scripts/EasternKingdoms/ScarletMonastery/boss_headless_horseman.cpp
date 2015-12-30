@@ -359,8 +359,8 @@ public:
                     {
                         die = false;
                         if (Unit* body = ObjectAccessor::GetUnit(*me, bodyGUID))
-                            body->Kill(body);
-                        me->Kill(me);
+                            body->KillSelf();
+                        me->KillSelf();
                     }
                     else wait -= diff;
                 }
@@ -538,11 +538,7 @@ public:
 
         Player* SelectRandomPlayer(float range = 0.0f, bool checkLoS = true)
         {
-            Map* map = me->GetMap();
-            if (!map->IsDungeon())
-                return NULL;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
+            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
             if (PlayerList.isEmpty())
                 return NULL;
 
