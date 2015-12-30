@@ -117,7 +117,7 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     CharSectionsEntry const* facialHair = GetRandomCharSection(race, SECTION_TYPE_FACIAL_HAIR, gender, hair->Color);
     uint8 outfitId = 0;
 
-    WorldSession* session = new WorldSession(accountId, NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
+    WorldSession* session = new WorldSession(accountId, "rndbot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
     if (!session)
     {
         sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Couldn't create session for random bot account %d", accountId);
