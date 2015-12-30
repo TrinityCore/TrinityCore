@@ -144,6 +144,10 @@ namespace ai
         {
             return CastMeleeSpellAction::isUseful() && !ai->HasAura(spell, GetTarget());
         }
+        virtual NextAction** getPrerequisites()
+        {
+            return NULL;
+        }
     };
 
     class CastSerpentStingOnAttackerAction : public CastDebuffSpellOnAttackerAction
