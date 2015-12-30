@@ -526,8 +526,9 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     bool nonBotFound = false;
     for (GuidList::const_iterator it = check.begin(); it != check.end(); ++it)
     {
-        Player *player = sObjectMgr->GetPlayerByLowGUID(*it);
-        if (player && !player->GetPlayerbotAI())
+        ObjectGuid guid = *it;
+        Player *player = sObjectMgr->GetPlayerByLowGUID(guid);
+        if (guid.IsGroup() || (player && !player->GetPlayerbotAI()))
         {
             nonBotFound = true;
             break;

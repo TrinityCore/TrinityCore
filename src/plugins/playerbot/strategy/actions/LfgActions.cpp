@@ -37,6 +37,15 @@ bool LfgJoinAction::Execute(Event event)
 
 uint8 LfgJoinAction::GetRoles()
 {
+    if (!sRandomPlayerbotMgr.IsRandomBot(bot))
+    {
+        if (ai->IsTank(bot))
+            return PLAYER_ROLE_TANK;
+        if (ai->IsHeal(bot))
+            return PLAYER_ROLE_HEALER;
+        else return PLAYER_ROLE_DAMAGE;
+    }
+
     int spec = AiFactory::GetPlayerSpecTab(bot);
     switch (bot->getClass())
     {
@@ -167,7 +176,11 @@ bool LfgRoleCheckAction::Execute(Event event)
     Group* group = bot->GetGroup();
     if (group)
     {
-        sLFGMgr->UpdateRoleCheck(group->GetGUID(), bot->GetGUID(), GetRoles());
+        uint8 currentRoles = sLFGMgr->GetRoles(bot->GetGUID());
+        uint8 newRoles = GetRoles();
+        if (currentRoles == newRoles) return false;
+
+        sLFGMgr->UpdateRoleCheck(group->GetGUID(), bot->GetGUID(), newRoles);
         return true;
     }
 
