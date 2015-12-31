@@ -110,12 +110,12 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
+Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, uint32 loginInstanceId)
 {
     if (GetId() != mapId || !player)
-        return NULL;
+        return nullptr;
 
-    Map* map = NULL;
+    Map* map = nullptr;
     uint32 newInstanceId = 0;                       // instanceId of the resulting map
 
     if (IsBattlegroundOrArena())
@@ -124,7 +124,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         // the instance id is set in battlegroundid
         newInstanceId = player->GetBattlegroundId();
         if (!newInstanceId)
-            return NULL;
+            return nullptr;
 
         map = sMapMgr->FindMap(mapId, newInstanceId);
         if (!map)
@@ -134,20 +134,29 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             else
             {
                 player->TeleportToBGEntryPoint();
-                return NULL;
+                return nullptr;
             }
         }
     }
     else
     {
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
-        InstanceSave* pSave = pBind ? pBind->save : NULL;
+        InstanceSave* pSave = pBind ? pBind->save : nullptr;
 
-        // the player's permanent player bind is taken into consideration first
-        // then the player's group bind and finally the solo bind.
+        // priority:
+        // 1. player's permanent bind
+        // 2. player's current instance id if this is at login
+        // 3. group's current bind
+        // 4. player's current bind
         if (!pBind || !pBind->perm)
         {
-            InstanceGroupBind* groupBind = NULL;
+            if (loginInstanceId) // if the player has a saved instance id on login, we either use this instance or relocate him out (return null)
+            {
+                map = FindInstanceMap(loginInstanceId);
+                return (map && map->GetId() == GetId()) ? map : nullptr; // is this check necessary? or does MapInstanced only find instances of itself?
+            }
+
+            InstanceGroupBind* groupBind = nullptr;
             Group* group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
             if (group)
@@ -278,8 +287,8 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     return true;
 }
 
-bool MapInstanced::CanEnter(Player* /*player*/)
+Map::EnterState MapInstanced::CannotEnter(Player* /*player*/)
 {
     //ABORT();
-    return true;
+    return CAN_ENTER;
 }
