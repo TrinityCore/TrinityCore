@@ -103,12 +103,12 @@ Map* MapManager::FindBaseNonInstanceMap(uint32 mapId) const
     return map;
 }
 
-Map* MapManager::CreateMap(uint32 id, Player* player)
+Map* MapManager::CreateMap(uint32 id, Player* player, uint32 loginInstanceId)
 {
     Map* m = CreateBaseMap(id);
 
     if (m && m->Instanceable())
-        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player);
+        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player, loginInstanceId);
 
     return m;
 }
@@ -125,47 +125,36 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
     return ((MapInstanced*)map)->FindInstanceMap(instanceId);
 }
 
-bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
+Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
     if (!entry)
-        return false;
+        return Map::CANNOT_ENTER_NO_ENTRY;
 
     if (!entry->IsDungeon())
-        return true;
+        return Map::CAN_ENTER;
 
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
     if (!instance)
-        return false;
+        return Map::CANNOT_ENTER_UNINSTANCED_DUNGEON;
 
     Difficulty targetDifficulty, requestedDifficulty;
     targetDifficulty = requestedDifficulty = player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
     MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
-    {
-        player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, requestedDifficulty);
-        return false;
-    }
+        return Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
 
     //Bypass checks for GMs
     if (player->IsGameMaster())
-        return true;
+        return Map::CAN_ENTER;
 
     char const* mapName = entry->MapName_lang;
 
     Group* group = player->GetGroup();
-    if (entry->IsRaid())
-    {
-        // can only enter in a raid group
+    if (entry->IsRaid()) // can only enter in a raid group
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
-        {
-            /// @todo this is not a good place to send the message
-            player->SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
-            TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName().c_str(), mapName);
-            return false;
-        }
-    }
+            return Map::CANNOT_ENTER_NOT_IN_RAID;
 
     if (!player->IsAlive())
     {
@@ -183,12 +172,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             } while (corpseMap);
 
             if (!corpseMap)
-            {
-                WorldPackets::Misc::AreaTriggerNoCorpse packet;
-                player->GetSession()->SendPacket(packet.Write());
-                TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName().c_str(), mapName);
-                return false;
-            }
+                return Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE;
 
             TC_LOG_DEBUG("maps", "MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName().c_str(), mapName);
         }
@@ -197,23 +181,13 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     }
 
     //Get instance where player's group is bound & its map
-    if (group)
+    if (!loginCheck && group)
     {
         InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
         if (boundInstance && boundInstance->save)
             if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
-                if (!loginCheck && !boundMap->CanEnter(player))
-                    return false;
-            /*
-                This check has to be moved to InstanceMap::CanEnter()
-                // Player permanently bounded to different instance than groups one
-                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficultyID(entry));
-                if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
-                    boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
-                {
-                    /// @todo send some kind of error message to the player
-                    return false;
-                }*/
+                if (Map::EnterState denyReason = boundMap->CannotEnter(player))
+                    return denyReason;
     }
 
     // players are only allowed to enter 5 instances per hour
@@ -225,14 +199,14 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 
         // instanceId can never be 0 - will not be found
         if (!player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
-        {
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_TOO_MANY_INSTANCES);
-            return false;
-        }
+            return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
     }
 
     //Other requirements
-    return player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true);
+    if (player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
+        return Map::CAN_ENTER;
+    else
+        return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
 }
 
 void MapManager::Update(uint32 diff)
