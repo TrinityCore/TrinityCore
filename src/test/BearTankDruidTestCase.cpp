@@ -21,6 +21,7 @@ class BearTankDruidTestCase : public EngineTestBase
         CPPUNIT_TEST( incompatibles );
         CPPUNIT_TEST( interrupt_enemy_healer );
         CPPUNIT_TEST( stress );
+        CPPUNIT_TEST( say );
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -217,6 +218,16 @@ protected:
     {
         addAura("dire bear form");
         runStressTest();
+    }
+
+    void say()
+    {
+        addAura("dire bear form");
+        engine->addStrategy("say");
+        set<Unit*>("tank target", MockedTargets::GetCurrentTarget());
+        tickWithLowHealth(5);
+
+        assertActions(">S:say::critical health");
     }
 
 };

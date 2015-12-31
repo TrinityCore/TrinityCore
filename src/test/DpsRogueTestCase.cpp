@@ -14,6 +14,7 @@ class DpsRogueTestCase : public EngineTestBase
 		CPPUNIT_TEST( interruptSpells );
 		CPPUNIT_TEST( interrupt_enemy_healer );
 		CPPUNIT_TEST( stress );
+		CPPUNIT_TEST( say );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -76,6 +77,14 @@ protected:
         runStressTest();
     }
 
+    void say()
+    {
+        engine->addStrategy("say");
+        set<Unit*>("tank target", MockedTargets::GetCurrentTarget());
+        tickWithLowHealth(39);
+
+        assertActions(">S:say::low health");
+    }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( DpsRogueTestCase );

@@ -55,6 +55,7 @@
 #include "EnemyHealerTargetValue.h"
 #include "Formations.h"
 #include "ItemUsageValue.h"
+#include "LastSaidValue.h"
 
 namespace ai
 {
@@ -142,6 +143,7 @@ namespace ai
             creators["formation"] = &ValueContext::formation;
             creators["item usage"] = &ValueContext::item_usage;
             creators["speed"] = &ValueContext::speed;
+            creators["last said"] = &ValueContext::last_said;
         }
 
     private:
@@ -223,5 +225,6 @@ namespace ai
         static UntypedValue* bag_space(PlayerbotAI* ai) { return new BagSpaceValue(ai); }
         static UntypedValue* enemy_healer_target(PlayerbotAI* ai) { return new EnemyHealerTargetValue(ai); }
         static UntypedValue* speed(PlayerbotAI* ai) { return new SpeedValue(ai); }
+        static UntypedValue* last_said(PlayerbotAI* ai) { return new LastSaidValue(ai); }
     };
 };

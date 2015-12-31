@@ -31,6 +31,7 @@
 #include "generic/TellTargetStrategy.h"
 #include "generic/AttackEnemyPlayersStrategy.h"
 #include "generic/MoveRandomStrategy.h"
+#include "generic/SayStrategy.h"
 
 namespace ai
 {
@@ -60,6 +61,7 @@ namespace ai
             creators["pvp"] = &StrategyContext::pvp;
             creators["move random"] = &StrategyContext::move_random;
             creators["lfg"] = &StrategyContext::lfg;
+            creators["say"] = &StrategyContext::say;
         }
 
     private:
@@ -84,6 +86,7 @@ namespace ai
         static Strategy* pvp(PlayerbotAI* ai) { return new AttackEnemyPlayersStrategy(ai); }
         static Strategy* move_random(PlayerbotAI* ai) { return new MoveRandomStrategy(ai); }
         static Strategy* lfg(PlayerbotAI* ai) { return new LfgStrategy(ai); }
+        static Strategy* say(PlayerbotAI* ai) { return new SayStrategy(ai); }
     };
 
     class MovementStrategyContext : public NamedObjectContext<Strategy>

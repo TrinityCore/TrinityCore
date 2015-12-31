@@ -18,6 +18,7 @@ class DpsHunterEngineTestCase : public EngineTestBase
   CPPUNIT_TEST( incompatibles );
   CPPUNIT_TEST( feign_death );
   CPPUNIT_TEST( stress );
+  CPPUNIT_TEST( say );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -160,6 +161,15 @@ protected:
     void stress()
     {
         runStressTest();
+    }
+
+    void say()
+    {
+        engine->addStrategy("say");
+        set<Unit*>("tank target", MockedTargets::GetCurrentTarget());
+        tickWithAttackerCount(7);
+
+        assertActions(">S:say::aoe");
     }
 };
 
