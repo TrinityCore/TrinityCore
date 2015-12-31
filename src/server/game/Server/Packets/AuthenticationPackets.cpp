@@ -77,17 +77,17 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
 
-        for (auto& realm : SuccessInfo->VirtualRealms)
+        for (auto& virtualRealm : SuccessInfo->VirtualRealms)
         {
-            _worldPacket << uint32(realm.RealmAddress);
-            _worldPacket.WriteBit(realm.IsLocal);
-            _worldPacket.WriteBit(realm.IsInternalRealm);
-            _worldPacket.WriteBits(realm.RealmNameActual.length(), 8);
-            _worldPacket.WriteBits(realm.RealmNameNormalized.length(), 8);
+            _worldPacket << uint32(virtualRealm.RealmAddress);
+            _worldPacket.WriteBit(virtualRealm.IsLocal);
+            _worldPacket.WriteBit(virtualRealm.IsInternalRealm);
+            _worldPacket.WriteBits(virtualRealm.RealmNameActual.length(), 8);
+            _worldPacket.WriteBits(virtualRealm.RealmNameNormalized.length(), 8);
             _worldPacket.FlushBits();
 
-            _worldPacket.WriteString(realm.RealmNameActual);
-            _worldPacket.WriteString(realm.RealmNameNormalized);
+            _worldPacket.WriteString(virtualRealm.RealmNameActual);
+            _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
         }
 
         for (auto& race : *SuccessInfo->AvailableRaces)
