@@ -4,72 +4,96 @@
 
 using namespace ai;
 
-map<string, vector<string> > SayAction::sayTable;
-map<string, vector<string> > SayAction::yellTable;
+map<string, vector<string> > SayAction::stringTable;
+map<string, uint32 > SayAction::probabilityTable;
 
 SayAction::SayAction(PlayerbotAI* ai) : Action(ai, "say"), Qualified()
 {
-    if (yellTable.empty())
-    {
-        yellTable["critical health"].push_back("Heal me! Quick!");
-        yellTable["critical health"].push_back("Almost dead! Heal me!");
-        yellTable["critical health"].push_back("Help! Heal me!");
-    }
+}
 
-    if (sayTable.empty())
-    {
-        sayTable["low health"].push_back("Heal me");
-        sayTable["low health"].push_back("Low health");
-        sayTable["low health"].push_back("Need heal");
-
-        sayTable["low mana"].push_back("OOM");
-        sayTable["low mana"].push_back("Low mana");
-        sayTable["low mana"].push_back("Need more mana");
-
-        sayTable["taunt"].push_back("Attack me not them, you lunatic!");
-        sayTable["taunt"].push_back("Charge!");
-        sayTable["taunt"].push_back("I am going, I am going!");
-        sayTable["taunt"].push_back("Aaaaargh!");
-        sayTable["taunt"].push_back("For the honor!");
-        sayTable["taunt"].push_back("Wait, I'll get him");
-        sayTable["taunt"].push_back("I am the tank!");
-
-        sayTable["aoe"].push_back("Holy shit!");
-        sayTable["aoe"].push_back("This ends now");
-        sayTable["aoe"].push_back("We're done for");
-
-        sayTable["loot"].push_back("This is interesting");
-        sayTable["loot"].push_back("This is valuable");
-        sayTable["loot"].push_back("This is useless");
-        sayTable["loot"].push_back("I can use this");
-        sayTable["loot"].push_back("I can sell this later");
-        sayTable["loot"].push_back("I hope there will be some money there");
-        sayTable["loot"].push_back("Shit, crap again");
+void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
     }
 }
 
 bool SayAction::Execute(Event event)
 {
-    if (urand(0, 10) < 5) return false;
+	if (stringTable.empty())
+	{
+		QueryResult results = CharacterDatabase.PQuery("SELECT name, text, type FROM ai_playerbot_speech");
+		if (results)
+		{
+            do
+            {
+                Field* fields = results->Fetch();
+                string name = fields[0].GetCString();
+                string text = fields[1].GetCString();
+                string type = fields[2].GetCString();
 
-    bool yell = false;
-    vector<string> &strings = yellTable[qualifier];
-    if (strings.empty())
-    {
-        strings = sayTable[qualifier];
-        yell = true;
-    }
+                if (type == "yell") text = "/y " + text;
+                stringTable[name].push_back(text);
+            } while (results->NextRow());
+		}
+	}
+	if (probabilityTable.empty())
+	{
+        QueryResult results = CharacterDatabase.PQuery("SELECT name, probability FROM ai_playerbot_speech_probability");
+        if (results)
+        {
+            do
+            {
+                Field* fields = results->Fetch();
+                string name = fields[0].GetCString();
+                uint32 probability = fields[1].GetUInt32();
+
+                probabilityTable[name] = probability;
+            } while (results->NextRow());
+        }
+	}
+
+    vector<string> &strings = stringTable[qualifier];
     if (strings.empty()) return false;
+
+    time_t lastSaid = AI_VALUE2(time_t, "last said", qualifier);
+    ai->GetAiObjectContext()->GetValue<time_t>("last said", qualifier)->Set(time(0) + urand(1, 60));
+
+    if (!lastSaid || (time(0) - lastSaid) > 90) return false;
+
+    uint32 probability = probabilityTable[name];
+    if (!probability) probability = 100;
+    if (urand(0, 100) >= probability) return false;
 
     uint32 idx = urand(0, strings.size() - 1);
     string text = strings[idx];
 
-    if (yell)
-        bot->Yell(text, LANG_UNIVERSAL);
+    Unit* target = AI_VALUE(Unit*, "tank target");
+    if (!target) target = AI_VALUE(Unit*, "current target");
+    if (target) replaceAll(text, "<target>", target->GetName());
+
+    replaceAll(text, "<randomfaction>", IsAlliance(bot->getRace()) ? "Alliance" : "Horde");
+
+    if (bot->GetMap())
+    {
+        uint32 areaId = bot->GetMap()->GetAreaId(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
+        if (areaId)
+        {
+            AreaTableEntry const* area = sAreaStore.LookupEntry(areaId);
+            if (area)
+            {
+                replaceAll(text, "<subzone>", area->area_name[0]);
+            }
+        }
+    }
+
+    if (text.find("/y ") == 0)
+        bot->Yell(text.substr(3), LANG_UNIVERSAL);
     else
         bot->Say(text, LANG_UNIVERSAL);
-
-    ai->GetAiObjectContext()->GetValue<time_t>("last said", qualifier)->Set(time(0));
 }
 
 

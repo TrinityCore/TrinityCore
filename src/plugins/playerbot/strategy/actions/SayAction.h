@@ -14,7 +14,7 @@ namespace ai
         virtual string getName() { return "say::" + qualifier; }
 
     private:
-        static map<string, vector<string> > sayTable;
-        static map<string, vector<string> > yellTable;
+        static map<string, vector<string> > stringTable;
+        static map<string, uint32 > probabilityTable;
     };
 }

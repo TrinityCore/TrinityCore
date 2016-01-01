@@ -10,7 +10,7 @@ namespace ai
         Qualified() {};
 
     public:
-        void Qualify(string qualifier) { this->qualifier = qualifier; }
+        virtual void Qualify(string qualifier) { this->qualifier = qualifier; }
 
     protected:
         string qualifier;

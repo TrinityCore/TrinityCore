@@ -13,7 +13,6 @@ class DpsPriestTestCase : public EngineTestBase
     CPPUNIT_TEST( low_mana );
     CPPUNIT_TEST( aoe );
     CPPUNIT_TEST( stress );
-    CPPUNIT_TEST( say );
     CPPUNIT_TEST_SUITE_END();
 
 
@@ -90,15 +89,6 @@ protected:
     void stress()
     {
         runStressTest();
-    }
-
-    void say()
-    {
-        engine->addStrategy("say");
-        set<Unit*>("tank target", MockedTargets::GetCurrentTarget());
-        tickWithLowMana(1);
-
-        assertActions(">S:say::low mana");
     }
 };
 
