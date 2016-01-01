@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1208,7 +1208,8 @@ enum TrinityStrings
 
     LANG_NPCINFO_INHABIT_TYPE                     = 11008,
     LANG_NPCINFO_FLAGS_EXTRA                      = 11009,
-    LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION      = 11010
+    LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION      = 11010,
 
+    LANG_INSTANCE_BIND_MISMATCH                   = 11014
 };
 #endif
