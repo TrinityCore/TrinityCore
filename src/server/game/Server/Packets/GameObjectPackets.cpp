@@ -48,3 +48,14 @@ WorldPacket const* WorldPackets::GameObject::GameObjectActivateAnimKit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const * WorldPackets::GameObject::DestructibleBuildingDamage::Write()
+{
+    _worldPacket << Target;
+    _worldPacket << Owner;
+    _worldPacket << Caster;
+    _worldPacket << int32(Damage);
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
