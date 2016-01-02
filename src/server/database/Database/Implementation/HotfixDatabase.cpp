@@ -346,6 +346,24 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // PhaseXPhaseGroup.db2
     PrepareStatement(HOTFIX_SEL_PHASE_X_PHASE_GROUP, "SELECT ID, PhaseID, PhaseGroupID FROM phase_group ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // PlayerCondition.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, Flags, MinLevel, MaxLevel, RaceMask, ClassMask, Gender, NativeGender, SkillID1, "
+        "SkillID2, SkillID3, SkillID4, MinSkill1, MinSkill2, MinSkill3, MinSkill4, MaxSkill1, MaxSkill2, MaxSkill3, MaxSkill4, SkillLogic, "
+        "LanguageID, MinLanguage, MaxLanguage, MinFactionID1, MinFactionID2, MinFactionID3, MaxFactionID, MinReputation1, MinReputation2, "
+        "MinReputation3, MaxReputation, ReputationLogic, Unknown1, MinPVPRank, MaxPVPRank, PvpMedal, PrevQuestLogic, PrevQuestID1, PrevQuestID2, "
+        "PrevQuestID3, PrevQuestID4, CurrQuestLogic, CurrQuestID1, CurrQuestID2, CurrQuestID3, CurrQuestID4, CurrentCompletedQuestLogic, "
+        "CurrentCompletedQuestID1, CurrentCompletedQuestID2, CurrentCompletedQuestID3, CurrentCompletedQuestID4, SpellLogic, SpellID1, SpellID2, "
+        "SpellID3, SpellID4, ItemLogic, ItemID1, ItemID2, ItemID3, ItemID4, ItemCount1, ItemCount2, ItemCount3, ItemCount4, ItemFlags, Explored1, "
+        "Explored2, Time1, Time2, AuraSpellLogic, AuraSpellID1, AuraSpellID2, AuraSpellID3, AuraSpellID4, WorldStateExpressionID, WeatherID, "
+        "PartyStatus, LifetimeMaxPVPRank, AchievementLogic, Achievement1, Achievement2, Achievement3, Achievement4, LfgLogic, LfgStatus1, LfgStatus2, "
+        "LfgStatus3, LfgStatus4, LfgCompare1, LfgCompare2, LfgCompare3, LfgCompare4, LfgValue1, LfgValue2, LfgValue3, LfgValue4, AreaLogic, AreaID1, "
+        "AreaID2, AreaID3, AreaID4, CurrencyLogic, CurrencyID1, CurrencyID2, CurrencyID3, CurrencyID4, CurrencyCount1, CurrencyCount2, "
+        "CurrencyCount3, CurrencyCount4, QuestKillID, QuestKillLogic, QuestKillMonster1, QuestKillMonster2, QuestKillMonster3, QuestKillMonster4, "
+        "MinExpansionLevel, MaxExpansionLevel, MinExpansionTier, MaxExpansionTier, MinGuildLevel, MaxGuildLevel, PhaseUseFlags, PhaseID, "
+        "PhaseGroupID, MinAvgItemLevel, MaxAvgItemLevel, MinAvgEquippedItemLevel, MaxAvgEquippedItemLevel, ChrSpecializationIndex, "
+        "ChrSpecializationRole, FailureDescription, PowerType, PowerTypeComp, PowerTypeValue FROM player_condition ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, FailureDescription_lang FROM player_condition_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // QuestMoneyReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_MONEY_REWARD, "SELECT Level, Money1, Money2, Money3, Money4, Money5, Money6, Money7, Money8, Money9, Money10"
         " FROM quest_money_reward ORDER BY Level DESC", CONNECTION_SYNCH);
