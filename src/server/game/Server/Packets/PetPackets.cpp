@@ -163,3 +163,17 @@ void WorldPackets::Pets::PetSetAction::Read()
     _worldPacket >> Index;
     _worldPacket >> Action;
 }
+
+void WorldPackets::Pets::PetAbandon::Read()
+{
+    _worldPacket >> PetGUID;
+}
+
+void WorldPackets::Pets::PetSpellAutocast::Read()
+{
+    _worldPacket >> PetGUID;
+    AutocastEnabled = _worldPacket.ReadBit();
+    _worldPacket.FlushBits();
+
+    _worldPacket >> SpellID;
+}

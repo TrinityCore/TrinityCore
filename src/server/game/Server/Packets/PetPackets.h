@@ -45,7 +45,7 @@ namespace WorldPackets
         class PetSpells final : public ServerPacket
         {
         public:
-            PetSpells() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 0) { }
+            PetSpells() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 100) { }
 
             WorldPacket const* Write() override;
 
@@ -89,7 +89,7 @@ namespace WorldPackets
         class PetLearnedSpells final : public ServerPacket
         {
         public:
-            PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELLS, 0) { }
+            PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELLS, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -99,7 +99,7 @@ namespace WorldPackets
         class PetUnlearnedSpells final : public ServerPacket
         {
         public:
-            PetUnlearnedSpells() : ServerPacket(SMSG_PET_UNLEARNED_SPELLS, 0) { }
+            PetUnlearnedSpells() : ServerPacket(SMSG_PET_UNLEARNED_SPELLS, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -173,6 +173,28 @@ namespace WorldPackets
 
             uint32 Index = 0;
             uint32 Action = 0;
+        };
+
+        class PetAbandon final : public ClientPacket
+        {
+        public:
+            PetAbandon(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+        };
+
+        class PetSpellAutocast final : public ClientPacket
+        {
+        public:
+            PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            bool AutocastEnabled = false;
+            int32 SpellID = 0;
         };
 
     }

@@ -591,10 +591,9 @@ void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPacket& recvData)
+void WorldSession::HandlePetAbandon(WorldPackets::Pets::PetAbandon& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;                                      //pet guid
+    ObjectGuid guid = packet.PetGUID;                                    //pet guid
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_ABANDON %s", guid.ToString().c_str());
 
     if (!_player->IsInWorld())
@@ -611,12 +610,11 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pets::PetSpellAutocast& packet)
 {
-    ObjectGuid guid;
-    uint32 spellid;
-    uint8  state;                                           //1 for on, 0 for off
-    recvPacket >> guid >> spellid >> state;
+    ObjectGuid guid = packet.PetGUID;
+    uint32 spellid = packet.SpellID;                                          //1 for on, 0 for off
+    bool autocast = packet.AutocastEnabled;
 
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
@@ -651,11 +649,11 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     }
 
     if (pet->IsPet())
-        ((Pet*)pet)->ToggleAutocast(spellInfo, state != 0);
+        ((Pet*)pet)->ToggleAutocast(spellInfo, autocast);
     else
-        pet->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, state != 0);
+        pet->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, autocast);
 
-    charmInfo->SetSpellAutocast(spellInfo, state != 0);
+    charmInfo->SetSpellAutocast(spellInfo, autocast);
 }
 
 void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell)
