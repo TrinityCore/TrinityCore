@@ -19,6 +19,7 @@
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
 #include "GameEventMgr.h"
+#include "Group.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -2299,4 +2300,420 @@ void ConditionMgr::Clean()
         delete *itr;
 
     AllocatedMemoryStore.clear();
+}
+
+inline bool PlayerConditionCompare(int32 comparisonType, int32 value1, int32 value2)
+{
+    switch (comparisonType)
+    {
+        case 1:
+            return value1 == value2;
+        case 2:
+            return value1 != value2;
+        case 3:
+            return value1 > value2;
+        case 4:
+            return value1 >= value2;
+        case 5:
+            return value1 < value2;
+        case 6:
+            return value1 <= value2;
+        default:
+            break;
+    }
+    return false;
+}
+
+template<std::size_t N>
+inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
+{
+    static_assert(N < 16, "Logic array size must be equal to or less than 16");
+
+    for (std::size_t i = 0; i < results.size(); ++i)
+        if ((logic >> (16 + i)) & 1)
+            results[i] ^= true;
+
+    bool result = results[0];
+    for (std::size_t i = 1; i < results.size(); ++i)
+    {
+        switch ((logic >> (2 * (i - 1))) & 3)
+        {
+            case 1:
+                result = result && results[i];
+                break;
+            case 2:
+                result = result || results[i];
+                break;
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
+bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry const* condition)
+{
+    if (condition->MinLevel && player->getLevel() < condition->MinLevel)
+        return false;
+
+    if (condition->MaxLevel && player->getLevel() > condition->MaxLevel)
+        return false;
+
+    if (condition->RaceMask && !(player->getRaceMask() & condition->RaceMask))
+        return false;
+
+    if (condition->ClassMask && !(player->getClassMask() & condition->ClassMask))
+        return false;
+
+    if (condition->Gender >= 0 && player->getGender() != condition->Gender)
+        return false;
+
+    if (condition->NativeGender >= 0 && player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER) != condition->NativeGender)
+        return false;
+
+    if (condition->PowerType != -1 && condition->PowerTypeComp)
+    {
+        int32 requiredPowerValue = condition->Flags & 4 ? player->GetMaxPower(Powers(condition->PowerType)) : condition->PowerTypeValue;
+        if (!PlayerConditionCompare(condition->PowerTypeComp, player->GetPower(Powers(condition->PowerType)), requiredPowerValue))
+            return false;
+    }
+
+    if (condition->ChrSpecializationIndex >= 0 || condition->ChrSpecializationRole >= 0)
+    {
+        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetSpecId(player->GetActiveTalentGroup())))
+        {
+            if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != condition->ChrSpecializationIndex)
+                return false;
+
+            if (condition->ChrSpecializationRole >= 0 && spec->Role != condition->ChrSpecializationRole)
+                return false;
+        }
+    }
+
+    if (condition->SkillID[0] || condition->SkillID[1] || condition->SkillID[2] || condition->SkillID[3])
+    {
+        using SkillCount = std::extent<decltype(condition->SkillID)>;
+
+        std::array<bool, SkillCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < SkillCount::value; ++i)
+        {
+            if (condition->SkillID[i])
+            {
+                uint16 skillValue = player->GetSkillValue(condition->SkillID[i]);
+                results[i] = skillValue != 0 && skillValue > condition->MinSkill[i] && skillValue < condition->MaxSkill[i];
+            }
+        }
+
+        if (!PlayerConditionLogic(condition->SkillLogic, results))
+            return false;
+    }
+
+    if (condition->LanguageID)
+    {
+        if (LanguageDesc const* lang = GetLanguageDescByID(condition->LanguageID))
+        {
+            uint32 languageSkill = player->GetSkillValue(lang->skill_id);
+            if (!languageSkill && player->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, condition->LanguageID))
+                languageSkill = 300;
+
+            if (condition->MinLanguage && languageSkill < condition->MinLanguage)
+                return false;
+
+            if (condition->MaxLanguage && languageSkill > condition->MaxLanguage)
+                return false;
+        }
+    }
+
+    if (condition->MinFactionID[0] && condition->MinFactionID[1] && condition->MinFactionID[2] && condition->MaxFactionID)
+    {
+        if (!condition->MinFactionID[0] && !condition->MinFactionID[1] && !condition->MinFactionID[2])
+        {
+            if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
+            {
+                if (*forcedRank > condition->MaxReputation)
+                    return false;
+            }
+            else if (player->GetReputationRank(condition->MaxFactionID) > condition->MaxReputation)
+                return false;
+        }
+        else
+        {
+            using FactionCount = std::extent<decltype(condition->MinFactionID)>;
+
+            std::array<bool, FactionCount::value + 1> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < FactionCount::value; ++i)
+            {
+                if (condition->MinFactionID[i])
+                {
+                    if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MinFactionID[i]))
+                        results[i] = *forcedRank >= condition->MinReputation[i];
+                    else
+                        results[i] = player->GetReputationRank(condition->MinFactionID[i]) >= condition->MinReputation[i];
+                }
+            }
+
+            if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
+                results[3] = *forcedRank <= condition->MaxReputation;
+            else
+                results[3] = player->GetReputationRank(condition->MaxFactionID) <= condition->MaxReputation;
+
+            if (!PlayerConditionLogic(condition->ReputationLogic, results))
+                return false;
+        }
+    }
+
+    if (condition->PvpMedal && !((1 << (condition->PvpMedal - 1)) & player->GetUInt32Value(PLAYER_FIELD_PVP_MEDALS)))
+        return false;
+
+    if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
+        return false;
+
+    if (condition->PartyStatus)
+    {
+        Group* group = player->GetGroup();
+        switch (condition->PartyStatus)
+        {
+            case 1:
+                if (group)
+                    return false;
+                break;
+            case 2:
+                if (!group)
+                    return false;
+                break;
+            case 3:
+                if (!group || group->isRaidGroup())
+                    return false;
+                break;
+            case 4:
+                if (!group || !group->isRaidGroup())
+                    return false;
+                break;
+            case 5:
+                if (group && group->isRaidGroup())
+                    return false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (condition->PrevQuestID[0])
+    {
+        using PrevQuestCount = std::extent<decltype(condition->PrevQuestID)>;
+
+        std::array<bool, PrevQuestCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < PrevQuestCount::value; ++i)
+            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
+                results[i] = (player->GetUInt32Value(PLAYER_FIELD_QUEST_COMPLETED + (questBit - 1) >> 5) & (1 << ((questBit - 1) & 31))) != 0;
+
+        if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
+            return false;
+    }
+
+    if (condition->CurrQuestID[0])
+    {
+        using CurrQuestCount = std::extent<decltype(condition->CurrQuestID)>;
+
+        std::array<bool, CurrQuestCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < CurrQuestCount::value; ++i)
+            if (condition->CurrQuestID[i])
+                results[i] = player->FindQuestSlot(condition->CurrQuestID[i]) != MAX_QUEST_LOG_SIZE;
+
+        if (!PlayerConditionLogic(condition->CurrQuestLogic, results))
+            return false;
+    }
+
+    if (condition->CurrentCompletedQuestID[0])
+    {
+        using CurrentCompletedQuestCount = std::extent<decltype(condition->CurrentCompletedQuestID)>;
+
+        std::array<bool, CurrentCompletedQuestCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < CurrentCompletedQuestCount::value; ++i)
+            if (condition->CurrentCompletedQuestID[i])
+                results[i] = player->GetQuestStatus(condition->CurrentCompletedQuestID[i]) == QUEST_STATUS_COMPLETE;
+
+        if (!PlayerConditionLogic(condition->CurrentCompletedQuestLogic, results))
+            return false;
+    }
+
+
+    if (condition->SpellID[0])
+    {
+        using SpellCount = std::extent<decltype(condition->SpellID)>;
+
+        std::array<bool, SpellCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < SpellCount::value; ++i)
+            if (condition->SpellID[i])
+                results[i] = player->HasSpell(condition->SpellID[i]);
+
+        if (!PlayerConditionLogic(condition->SpellLogic, results))
+            return false;
+    }
+
+    if (condition->ItemID[0])
+    {
+        using ItemCount = std::extent<decltype(condition->ItemID)>;
+
+        std::array<bool, ItemCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < ItemCount::value; ++i)
+            if (condition->ItemID[i])
+                results[i] = player->GetItemCount(condition->ItemID[i], condition->ItemFlags != 0) >= condition->ItemCount[i];
+
+        if (!PlayerConditionLogic(condition->ItemLogic, results))
+            return false;
+    }
+
+    if (condition->CurrencyID[0])
+    {
+        using CurrencyCount = std::extent<decltype(condition->CurrencyID)>;
+
+        std::array<bool, CurrencyCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < CurrencyCount::value; ++i)
+            if (condition->CurrencyID[i])
+                results[i] = player->GetCurrency(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
+
+        if (!PlayerConditionLogic(condition->CurrencyLogic, results))
+            return false;
+    }
+
+    if (condition->Explored[0] || condition->Explored[1])
+    {
+        using ExploredCount = std::extent<decltype(condition->Explored)>;
+
+        for (std::size_t i = 0; i < ExploredCount::value; ++i)
+        {
+            if (condition->Explored[i])
+            {
+                int32 exploreFlag = GetAreaFlagByAreaID(condition->Explored[i]);
+                if (exploreFlag != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + exploreFlag / 32) & (1 << (uint32(exploreFlag) % 32))))
+                    return false;
+            }
+        }
+    }
+
+    if (condition->AuraSpellID[0])
+    {
+        using AuraCount = std::extent<decltype(condition->AuraSpellID)>;
+
+        std::array<bool, AuraCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < AuraCount::value; ++i)
+            if (condition->AuraSpellID[i])
+                results[i] = player->HasAura(condition->AuraSpellID[i]);
+
+        if (!PlayerConditionLogic(condition->AuraSpellLogic, results))
+            return false;
+    }
+
+    // TODO: time condition
+    // TODO (or not): world state expression condition
+    // TODO: weather condition
+
+    if (condition->Achievement[0])
+    {
+        using AchievementCount = std::extent<decltype(condition->Achievement)>;
+
+        std::array<bool, AchievementCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < AchievementCount::value; ++i)
+        {
+            if (condition->Achievement[i])
+            {
+                // if (condition->Flags & 2) { any character on account completed it } else { current character only }
+                // TODO: part of accountwide achievements
+                results[i] = player->HasAchieved(condition->Achievement[i]);
+            }
+        }
+
+        if (!PlayerConditionLogic(condition->AchievementLogic, results))
+            return false;
+    }
+
+    // TODO: research lfg status for player conditions
+
+    if (condition->AreaID[0])
+    {
+        using AreaCount = std::extent<decltype(condition->AreaID)>;
+
+        std::array<bool, AreaCount::value> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < AreaCount::value; ++i)
+            if (condition->AreaID[i])
+                results[i] = player->GetAreaId() == condition->AreaID[i] || player->GetZoneId() == condition->AreaID[i];
+
+        if (!PlayerConditionLogic(condition->AreaLogic, results))
+            return false;
+    }
+
+    if (condition->MinExpansionLevel != -1 && player->GetSession()->GetExpansion() < condition->MinExpansionLevel)
+        return false;
+
+    if (condition->MaxExpansionLevel != -1 && player->GetSession()->GetExpansion() > condition->MaxExpansionLevel)
+        return false;
+
+    if (condition->MinExpansionLevel != -1 && condition->MinExpansionTier != -1 && !player->IsGameMaster()
+        && (condition->MinExpansionLevel == sWorld->getIntConfig(CONFIG_EXPANSION) && condition->MinExpansionTier > 0 /*TODO: implement tier*/
+        || condition->MinExpansionLevel > sWorld->getIntConfig(CONFIG_EXPANSION)))
+        return false;
+
+    if (condition->PhaseID && !player->IsInPhase(condition->PhaseID))
+        return false;
+
+    if (condition->PhaseGroupID)
+    {
+        std::set<uint32> phases = sDB2Manager.GetPhasesForGroup(condition->PhaseGroupID);
+        if (!Trinity::Containers::Intersects(phases.begin(), phases.end(), player->GetPhases().begin(), player->GetPhases().end()))
+            return false;
+    }
+
+    if (condition->QuestKillID)
+    {
+        Quest const* quest = sObjectMgr->GetQuestTemplate(condition->QuestKillID);
+        if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE)
+        {
+            using QuestKillCount = std::extent<decltype(condition->QuestKillMonster)>;
+
+            std::array<bool, QuestKillCount::value> results;
+            results.fill(true);
+            for (std::size_t i = 0; i < QuestKillCount::value; ++i)
+            {
+                if (condition->QuestKillMonster[i])
+                {
+                    auto objectiveItr = std::find_if(quest->GetObjectives().begin(), quest->GetObjectives().end(), [condition, i](QuestObjective const& objective) -> bool
+                    {
+                        return objective.Type == QUEST_OBJECTIVE_MONSTER && uint32(objective.ObjectID) == condition->QuestKillMonster[i];
+                    });
+                    if (objectiveItr != quest->GetObjectives().end())
+                        results[i] = player->GetQuestObjectiveData(quest, objectiveItr->StorageIndex) >= objectiveItr->Amount;
+                }
+            }
+
+            if (!PlayerConditionLogic(condition->QuestKillLogic, results))
+                return false;
+        }
+    }
+
+    if (condition->MinAvgItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL))) < condition->MinAvgItemLevel)
+        return false;
+
+    if (condition->MaxAvgItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL))) > condition->MaxAvgItemLevel)
+        return false;
+
+    if (condition->MinAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) < condition->MinAvgEquippedItemLevel)
+        return false;
+
+    if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) > condition->MaxAvgEquippedItemLevel)
+        return false;
+
+    return true;
 }

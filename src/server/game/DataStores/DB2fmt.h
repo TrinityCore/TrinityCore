@@ -91,6 +91,7 @@ char const NamesReservedFormat[] = "nS";
 char const NamesReservedLocaleFormat[] = "nSi";
 char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
 char const PhaseXPhaseGroupFormat[] = "nii";
+char const PlayerConditionFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 char const QuestMoneyRewardFormat[] = "niiiiiiiiii";
 char const QuestPackageItemfmt[] = "niiii";
 char const QuestSortFormat[] = "ns";

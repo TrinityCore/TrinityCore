@@ -80,6 +80,7 @@ extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
 extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
+extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
 extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 extern DB2Storage<QuestXPEntry>                         sQuestXPStore;

@@ -994,6 +994,87 @@ struct PhaseXPhaseGroupEntry
     uint32 PhaseGroupID;
 };
 
+struct PlayerConditionEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Flags;                                                   // 1
+    uint32 MinLevel;                                                // 2
+    uint32 MaxLevel;                                                // 3
+    uint32 RaceMask;                                                // 4
+    uint32 ClassMask;                                               // 5
+    int32 Gender;                                                   // 6
+    int32 NativeGender;                                             // 7
+    uint32 SkillID[4];                                              // 8-11
+    int32 MinSkill[4];                                              // 12-15
+    int32 MaxSkill[4];                                              // 16-19
+    uint32 SkillLogic;                                              // 20
+    uint32 LanguageID;                                              // 21
+    uint32 MinLanguage;                                             // 22
+    uint32 MaxLanguage;                                             // 23
+    uint32 MinFactionID[3];                                         // 24-26
+    uint32 MaxFactionID;                                            // 27
+    uint32 MinReputation[3];                                        // 28-30
+    uint32 MaxReputation;                                           // 31
+    uint32 ReputationLogic;                                         // 32
+    uint32 Unknown1;                                                // 33
+    uint32 MinPVPRank;                                              // 34
+    uint32 MaxPVPRank;                                              // 35
+    uint32 PvpMedal;                                                // 36
+    uint32 PrevQuestLogic;                                          // 37
+    uint32 PrevQuestID[4];                                          // 38-41
+    uint32 CurrQuestLogic;                                          // 42
+    uint32 CurrQuestID[4];                                          // 43-46
+    uint32 CurrentCompletedQuestLogic;                              // 47
+    uint32 CurrentCompletedQuestID[4];                              // 48-51
+    uint32 SpellLogic;                                              // 52
+    uint32 SpellID[4];                                              // 53-56
+    uint32 ItemLogic;                                               // 57
+    uint32 ItemID[4];                                               // 58-61
+    uint32 ItemCount[4];                                            // 62-65
+    uint32 ItemFlags;                                               // 66
+    uint32 Explored[2];                                             // 67-68
+    uint32 Time[2];                                                 // 69-70
+    uint32 AuraSpellLogic;                                          // 71
+    uint32 AuraSpellID[4];                                          // 72-75
+    uint32 WorldStateExpressionID;                                  // 76
+    uint32 WeatherID;                                               // 77
+    uint32 PartyStatus;                                             // 78
+    uint32 LifetimeMaxPVPRank;                                      // 79
+    uint32 AchievementLogic;                                        // 80
+    uint32 Achievement[4];                                          // 81-84
+    uint32 LfgLogic;                                                // 85
+    uint32 LfgStatus[4];                                            // 86-89
+    uint32 LfgCompare[4];                                           // 90-93
+    uint32 LfgValue[4];                                             // 94-97
+    uint32 AreaLogic;                                               // 98
+    uint32 AreaID[4];                                               // 99-102
+    uint32 CurrencyLogic;                                           // 103
+    uint32 CurrencyID[4];                                           // 104-107
+    uint32 CurrencyCount[4];                                        // 108-111
+    uint32 QuestKillID;                                             // 112
+    uint32 QuestKillLogic;                                          // 113
+    uint32 QuestKillMonster[4];                                     // 114-117
+    int32 MinExpansionLevel;                                        // 118
+    int32 MaxExpansionLevel;                                        // 119
+    int32 MinExpansionTier;                                         // 120
+    int32 MaxExpansionTier;                                         // 121
+    uint32 MinGuildLevel;                                           // 122
+    uint32 MaxGuildLevel;                                           // 123
+    uint32 PhaseUseFlags;                                           // 124
+    uint32 PhaseID;                                                 // 125
+    uint32 PhaseGroupID;                                            // 126
+    uint32 MinAvgItemLevel;                                         // 127
+    uint32 MaxAvgItemLevel;                                         // 128
+    uint32 MinAvgEquippedItemLevel;                                 // 129
+    uint32 MaxAvgEquippedItemLevel;                                 // 130
+    int32 ChrSpecializationIndex;                                   // 131
+    int32 ChrSpecializationRole;                                    // 132
+    LocalizedString* FailureDescription_lang;                       // 133
+    int32 PowerType;                                                // 134
+    int32 PowerTypeComp;                                            // 135
+    int32 PowerTypeValue;                                           // 136
+};
+
 struct QuestMoneyRewardEntry
 {
     uint32 Level;                                                   // 0
