@@ -97,7 +97,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template <class C>
-        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::function<double(typename C::value_type const&)> weightExtractor)
+        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::function<double(typename C::value_type const&)> const& weightExtractor)
         {
             std::vector<double> weights;
             weights.reserve(container.size());
