@@ -47,12 +47,6 @@ EndScriptData
 #define GOSSIP_DRAGONHAWK       "<Ride the dragonhawk to Sun's Reach>"
 #define GOSSIP_VERONIA          "Fly me to Manaforge Coruu please"
 #define GOSSIP_DEESAK           "Fly me to Ogri'la please"
-#define GOSSIP_AFRASASTRASZ1    "I would like to take a flight to the ground, Lord Of Afrasastrasz."
-#define GOSSIP_AFRASASTRASZ2    "My Lord, I must go to the upper floor of the temple."
-#define GOSSIP_TARIOLSTRASZ1    "My Lord, I must go to the upper floor of the temple."
-#define GOSSIP_TARIOLSTRASZ2    "Can you spare a drake to travel to Lord Of Afrasastrasz, in the middle of the temple?"
-#define GOSSIP_TORASTRASZA1     "I would like to see Lord Of Afrasastrasz, in the middle of the temple."
-#define GOSSIP_TORASTRASZA2     "Yes, Please. I would like to return to the ground floor of the temple."
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
 
 class npc_taxi : public CreatureScript
@@ -135,24 +129,6 @@ public:
         case 23415: // Terokkar Forest - Skyguard Handler Deesak
             if (player->GetReputationRank(1031) >= REP_HONORED)
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEESAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
-            break;
-        case 27575: // Dragonblight - Lord Afrasastrasz
-            // middle -> ground
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AFRASASTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 17);
-            // middle -> top
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AFRASASTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 18);
-            break;
-        case 26443: // Dragonblight - Tariolstrasz //need to check if quests are required before gossip available (12123, 12124)
-            // ground -> top
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TARIOLSTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 19);
-            // ground -> middle
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TARIOLSTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
-            break;
-        case 26949: // Dragonblight - Torastrasza
-            // top -> middle
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
-            // top -> ground
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
             break;
         case 23704: // Dustwallow Marsh - Cassa Crimsonwing
             if (player->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
@@ -242,30 +218,6 @@ public:
         case GOSSIP_ACTION_INFO_DEF + 16:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 41279, true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 17:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(882);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 18:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(881);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 19:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(878);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 20:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(883);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 21:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(880);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 22:
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(879);
             break;
         case GOSSIP_ACTION_INFO_DEF + 23:
             player->CLOSE_GOSSIP_MENU();
