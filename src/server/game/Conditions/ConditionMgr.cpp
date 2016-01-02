@@ -2509,7 +2509,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         results.fill(true);
         for (std::size_t i = 0; i < PrevQuestCount::value; ++i)
             if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
-                results[i] = (player->GetUInt32Value(PLAYER_FIELD_QUEST_COMPLETED + (questBit - 1) >> 5) & (1 << ((questBit - 1) & 31))) != 0;
+                results[i] = (player->GetUInt32Value(PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5)) & (1 << ((questBit - 1) & 31))) != 0;
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
             return false;
