@@ -31,6 +31,7 @@
 #include "Util.h"
 #include "Group.h"
 #include "WorldSession.h"
+#include "PetDefines.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -948,8 +949,20 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             //damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //damage is increased afterwards as strength and pet scaling modify attack power
-            break;
+            if (GetAura(SPELL_WILD_HUNT_R2))
+            {
+                SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.4f);
+                SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.3f));
+            }
+            else if (GetAura(SPELL_WILD_HUNT_R1))
+            {
+                SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.2f);
+                SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.15f));
+            }
         }
+    }
+    break;
+}
         default:
         {
             switch (GetEntry())

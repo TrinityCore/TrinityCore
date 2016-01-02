@@ -74,6 +74,12 @@ enum PetTalk
     PET_TALK_ATTACK         = 1
 };
 
+enum HunterPetTalents
+{
+    SPELL_WILD_HUNT_R1   = 62758,
+    SPELL_WILD_HUNT_R2   = 62762
+};
+
 #define PET_FOLLOW_DIST  1.0f
 #define PET_FOLLOW_ANGLE float(M_PI/2)
 
