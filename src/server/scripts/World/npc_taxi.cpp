@@ -275,15 +275,6 @@ public:
             player->CLOSE_GOSSIP_MENU();
             player->ActivateTaxiPathTo(879);
             break;
-        case GOSSIP_ACTION_INFO_DEF + 23:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 43074, true);               //TaxiPath 736
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 24:
-            player->CLOSE_GOSSIP_MENU();
-            //player->ActivateTaxiPathTo(738);
-            player->CastSpell(player, 43136, false);
-            break;
         case GOSSIP_ACTION_INFO_DEF + 25:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 42295, true);
