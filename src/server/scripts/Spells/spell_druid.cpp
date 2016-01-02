@@ -40,6 +40,7 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
+    SPELL_DRUID_ENRAGED_DEFENSE             = 70725,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
@@ -49,6 +50,7 @@ enum DruidSpells
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
+    SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS     = 70726,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
@@ -251,33 +253,47 @@ class spell_dru_enrage : public SpellScriptLoader
     public:
         spell_dru_enrage() : SpellScriptLoader("spell_dru_enrage") { }
 
-        class spell_dru_enrage_SpellScript : public SpellScript
+        class spell_dru_enrage_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dru_enrage_SpellScript);
+            PrepareAuraScript(spell_dru_enrage_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_KING_OF_THE_JUNGLE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ENRAGE_MOD_DAMAGE))
+                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ENRAGE_MOD_DAMAGE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ENRAGED_DEFENSE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS))
                     return false;
                 return true;
             }
 
-            void OnHit()
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffectOfRankedSpell(SPELL_DRUID_KING_OF_THE_JUNGLE, EFFECT_0))
-                    GetHitUnit()->CastCustomSpell(SPELL_DRUID_ENRAGE_MOD_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetHitUnit(), true);
+                Unit* target = GetTarget();
+                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_DRUID_KING_OF_THE_JUNGLE, EFFECT_0))
+                    target->CastCustomSpell(SPELL_DRUID_ENRAGE_MOD_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
+
+                // Item - Druid T10 Feral 4P Bonus
+                if (target->HasAura(SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS))
+                    target->CastSpell(target, SPELL_DRUID_ENRAGED_DEFENSE, true);
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_ENRAGE_MOD_DAMAGE);
+                GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_ENRAGED_DEFENSE);
             }
 
             void Register() override
             {
-                AfterHit += SpellHitFn(spell_dru_enrage_SpellScript::OnHit);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_enrage_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_enrage_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        AuraScript* GetAuraScript() const override
         {
-            return new spell_dru_enrage_SpellScript();
+            return new spell_dru_enrage_AuraScript();
         }
 };
 
