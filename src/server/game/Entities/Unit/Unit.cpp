@@ -14996,6 +14996,20 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 if (getRace() == RACE_TROLL)
                     return 37730;
                 return 21244;
+                case FORM_TREE:
+                switch (getRace())
+                {
+                    case RACE_NIGHTELF:
+                        return 37165;
+                    case RACE_TAUREN:
+                        return 37163;
+                    case RACE_WORGEN:
+                        return 37164;
+                    case RACE_TROLL:
+                        return 37176;
+                    default:
+                        break;
+                }
             case FORM_MOONKIN:
                 switch (getRace())
                 {
