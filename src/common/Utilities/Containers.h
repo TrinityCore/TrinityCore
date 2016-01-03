@@ -92,12 +92,12 @@ namespace Trinity
          * Select a random element from a container where each element has a different chance to be selected.
          *
          * @param container Container to select an element from
-         * @param weightExtractor Function retrieving chance of each element in container
+         * @param weightExtractor Function retrieving chance of each element in container, expected to take an element of the container and returning a double
          *
          * Note: container cannot be empty
          */
-        template <class C>
-        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::function<double(typename C::value_type const&)> const& weightExtractor)
+        template <class C, class Fn>
+        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor)
         {
             std::vector<double> weights;
             weights.reserve(container.size());
