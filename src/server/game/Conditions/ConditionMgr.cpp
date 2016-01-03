@@ -2383,10 +2383,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
     {
         if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetSpecId(player->GetActiveTalentGroup())))
         {
-            if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != condition->ChrSpecializationIndex)
+            if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != uint32(condition->ChrSpecializationIndex))
                 return false;
 
-            if (condition->ChrSpecializationRole >= 0 && spec->Role != condition->ChrSpecializationRole)
+            if (condition->ChrSpecializationRole >= 0 && spec->Role != uint32(condition->ChrSpecializationRole))
                 return false;
         }
     }
@@ -2432,10 +2432,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         {
             if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
             {
-                if (*forcedRank > condition->MaxReputation)
+                if (*forcedRank > ReputationRank(condition->MaxReputation))
                     return false;
             }
-            else if (player->GetReputationRank(condition->MaxFactionID) > condition->MaxReputation)
+            else if (player->GetReputationRank(condition->MaxFactionID) > ReputationRank(condition->MaxReputation))
                 return false;
         }
         else
@@ -2449,16 +2449,16 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
                 if (condition->MinFactionID[i])
                 {
                     if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MinFactionID[i]))
-                        results[i] = *forcedRank >= condition->MinReputation[i];
+                        results[i] = *forcedRank >= ReputationRank(condition->MinReputation[i]);
                     else
-                        results[i] = player->GetReputationRank(condition->MinFactionID[i]) >= condition->MinReputation[i];
+                        results[i] = player->GetReputationRank(condition->MinFactionID[i]) >= ReputationRank(condition->MinReputation[i]);
                 }
             }
 
             if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
-                results[3] = *forcedRank <= condition->MaxReputation;
+                results[3] = *forcedRank <= ReputationRank(condition->MaxReputation);
             else
-                results[3] = player->GetReputationRank(condition->MaxFactionID) <= condition->MaxReputation;
+                results[3] = player->GetReputationRank(condition->MaxFactionID) <= ReputationRank(condition->MaxReputation);
 
             if (!PlayerConditionLogic(condition->ReputationLogic, results))
                 return false;
@@ -2662,8 +2662,8 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         return false;
 
     if (condition->MinExpansionLevel != -1 && condition->MinExpansionTier != -1 && !player->IsGameMaster()
-        && ((condition->MinExpansionLevel == sWorld->getIntConfig(CONFIG_EXPANSION) && condition->MinExpansionTier > 0) /*TODO: implement tier*/
-        || condition->MinExpansionLevel > sWorld->getIntConfig(CONFIG_EXPANSION)))
+        && ((condition->MinExpansionLevel == int32(sWorld->getIntConfig(CONFIG_EXPANSION)) && condition->MinExpansionTier > 0) /*TODO: implement tier*/
+        || condition->MinExpansionLevel > int32(sWorld->getIntConfig(CONFIG_EXPANSION))))
         return false;
 
     if (condition->PhaseID && !player->IsInPhase(condition->PhaseID))
