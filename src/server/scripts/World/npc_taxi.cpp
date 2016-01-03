@@ -36,8 +36,6 @@ EndScriptData
 #define GOSSIP_IRONWING         "I'd like to take a flight around Stormwind Harbor."
 #define GOSSIP_DABIREE1         "Fly me to Murketh and Shaadraz Gateways"
 #define GOSSIP_DABIREE2         "Fly me to Shatter Point"
-#define GOSSIP_WINDBELLOW1      "Fly me to The Abyssal Shelf"
-#define GOSSIP_WINDBELLOW2      "Fly me to Honor Point"
 #define GOSSIP_BRACK1           "Fly me to Murketh and Shaadraz Gateways"
 #define GOSSIP_BRACK2           "Fly me to The Abyssal Shelf"
 #define GOSSIP_BRACK3           "Fly me to Spinebreaker Post"
@@ -83,15 +81,6 @@ public:
             //Shatter Point
             if (!player->GetQuestRewardStatus(10340))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-            break;
-        case 20235: // Hellfire Peninsula - Gryphoneer Windbellow
-            //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
-            if (player->GetQuestStatus(10163) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10346) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-
-            //Go to the Front
-            if (player->GetQuestStatus(10382) != QUEST_STATUS_NONE && !player->GetQuestRewardStatus(10382))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
             break;
         case 19401: // Hellfire Peninsula - Wing Commander Brack
             //Mission: The Murketh and Shaadraz Gateways
@@ -174,14 +163,6 @@ public:
         case GOSSIP_ACTION_INFO_DEF + 5:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33899, true);               //TaxiPath 589 (Aerial Assault Flight (Alliance))
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 7:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 35065, true);               //TaxiPath 607 (Taxi - Hellfire Peninsula - Shatter Point to Beach Head)
             break;
         case GOSSIP_ACTION_INFO_DEF + 8:
             player->CLOSE_GOSSIP_MENU();
