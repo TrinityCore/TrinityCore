@@ -18594,31 +18594,6 @@ void Player::SendSavedInstances()
     }
 }
 
-/// convert the player's binds to the group
-void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader)
-{
-    // copy all binds to the group, when changing leader it's assumed the character
-    // will not have any solo binds
-
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-    {
-        for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
-        {
-            if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficulty(), itr->first))
-                group->BindToInstance(itr->second.save, itr->second.perm, false);
-
-            // permanent binds are not removed
-            if (switchLeader && !itr->second.perm)
-            {
-                // increments itr in call
-                player->UnbindInstance(itr, Difficulty(i), false);
-            }
-            else
-                ++itr;
-        }
-    }
-}
-
 bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report)
 {
     if (!IsGameMaster() && ar)
