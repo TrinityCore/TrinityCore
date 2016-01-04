@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npc_bunthen_plainswind
-npc_great_bear_spirit
 npc_silva_filnaveth
 npc_clintar_spirit
 npc_clintar_dreamwalker
