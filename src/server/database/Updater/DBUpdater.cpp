@@ -343,7 +343,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             }
             case LOCATION_DOWNLOAD:
             {
-                TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"http://www.trinitycore.org/f/files/category/1-database/\"" \
+                TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
                     " and place it in your server directory.", base.filename().generic_string().c_str());
                 break;
             }
