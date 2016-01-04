@@ -1042,6 +1042,12 @@ std::vector<ChatCommand> ScriptMgr::GetChatCommands()
         table.insert(table.end(), cmds.begin(), cmds.end());
     }
 
+    // Sort commands in alphabetical order
+    std::sort(table.begin(), table.end(), [](const ChatCommand& a, const ChatCommand&b)
+    {
+        return strcmp(a.Name, b.Name) < 0;
+    });
+
     return table;
 }
 
