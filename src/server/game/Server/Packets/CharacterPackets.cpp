@@ -22,35 +22,37 @@
 
 WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
 {
-    //         0                1                2                3                 4                  5                       6                        7
-    // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-    //  8                9               10                     11                     12                     13                    14
-    // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-    //  15                   16                   17                     18                   19               20                     21               22
-    // "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.data, character_banned.guid, characters.slot, character_declinedname.genitive"
+    //         0                1                2                3                 4                  5                6                7
+    // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.skin, characters.face, characters.hairStyle, "
+    //  8                     9                       10                11               12              13                     14                     15
+    // "characters.hairColor, characters.facialStyle, characters.level, characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
+    //  16                    17                      18                   19                   20                     21                   22
+    // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
+    //  23                     24               25
+    // "character_banned.guid, characters.slot, character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     Name              = fields[1].GetString();
     Race              = fields[2].GetUInt8();
     Class             = fields[3].GetUInt8();
     Sex               = fields[4].GetUInt8();
-    Skin              = uint8(fields[5].GetUInt32() & 0xFF);
-    Face              = uint8((fields[5].GetUInt32() >> 8) & 0xFF);
-    HairStyle         = uint8((fields[5].GetUInt32() >> 16) & 0xFF);
-    HairColor         = uint8((fields[5].GetUInt32() >> 24) & 0xFF);
-    FacialHair        = uint8(fields[6].GetUInt32() & 0xFF);
-    Level             = fields[7].GetUInt8();
-    ZoneId            = int32(fields[8].GetUInt16());
-    MapId             = int32(fields[9].GetUInt16());
-    PreLoadPosition.x = fields[10].GetFloat();
-    PreLoadPosition.y = fields[11].GetFloat();
-    PreLoadPosition.z = fields[12].GetFloat();
+    Skin              = fields[5].GetUInt8();
+    Face              = fields[6].GetUInt8();
+    HairStyle         = fields[7].GetUInt8();
+    HairColor         = fields[8].GetUInt8();
+    FacialHair        = fields[9].GetUInt8();
+    Level             = fields[10].GetUInt8();
+    ZoneId            = int32(fields[11].GetUInt16());
+    MapId             = int32(fields[12].GetUInt16());
+    PreLoadPosition.x = fields[13].GetFloat();
+    PreLoadPosition.y = fields[14].GetFloat();
+    PreLoadPosition.z = fields[15].GetFloat();
 
-    if (ObjectGuid::LowType guildId = fields[13].GetUInt64())
+    if (ObjectGuid::LowType guildId = fields[16].GetUInt64())
         GuildGuid = ObjectGuid::Create<HighGuid::Guild>(guildId);
 
-    uint32 playerFlags  = fields[14].GetUInt32();
-    uint32 atLoginFlags = fields[15].GetUInt16();
+    uint32 playerFlags  = fields[17].GetUInt32();
+    uint32 atLoginFlags = fields[18].GetUInt16();
 
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
@@ -67,10 +69,10 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (atLoginFlags & AT_LOGIN_RENAME)
         Flags |= CHARACTER_FLAG_RENAME;
 
-    if (fields[20].GetUInt32())
+    if (fields[23].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[22].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[25].GetString().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -86,10 +88,10 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     // show pet at selection character in character list only for non-ghost character
     if (!(playerFlags & PLAYER_FLAGS_GHOST) && (Class == CLASS_WARLOCK || Class == CLASS_HUNTER || Class == CLASS_DEATH_KNIGHT))
     {
-        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[16].GetUInt32()))
+        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[19].GetUInt32()))
         {
-            Pet.CreatureDisplayId = fields[17].GetUInt32();
-            Pet.Level = fields[18].GetUInt16();
+            Pet.CreatureDisplayId = fields[20].GetUInt32();
+            Pet.Level = fields[21].GetUInt16();
             Pet.CreatureFamily = creatureInfo->family;
         }
     }
@@ -98,8 +100,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     ProfessionIds[0] = 0;
     ProfessionIds[1] = 0;
 
-    Tokenizer equipment(fields[19].GetString(), ' ');
-    ListPosition = fields[21].GetUInt8();
+    Tokenizer equipment(fields[22].GetString(), ' ');
+    ListPosition = fields[24].GetUInt8();
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {

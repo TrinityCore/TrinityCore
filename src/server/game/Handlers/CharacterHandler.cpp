@@ -1550,7 +1550,6 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
     uint8 plrClass = fields[2].GetUInt8();
     uint8 plrGender = fields[3].GetUInt8();
     uint16 atLoginFlags = fields[4].GetUInt16();
-    uint32 playerBytes2 = fields[5].GetUInt32();
 
     if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo->HairStyleID, customizeInfo->HairColorID, customizeInfo->FaceID, customizeInfo->FacialHairStyleID, customizeInfo->SkinID, true))
     {
@@ -1606,15 +1605,15 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
 
     /// Customize
     {
-        playerBytes2 &= ~0xFF;
-        playerBytes2 |= customizeInfo->FacialHairStyleID;
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
 
         stmt->setUInt8(0, customizeInfo->SexID);
-        stmt->setUInt32(1, customizeInfo->SkinID | (uint32(customizeInfo->FaceID) << 8) | (uint32(customizeInfo->HairStyleID) << 16) | (uint32(customizeInfo->HairColorID) << 24));
-        stmt->setUInt32(2, playerBytes2);
-        stmt->setUInt64(3, lowGuid);
+        stmt->setUInt8(1, customizeInfo->SkinID);
+        stmt->setUInt8(2, customizeInfo->FaceID);
+        stmt->setUInt8(3, customizeInfo->HairStyleID);
+        stmt->setUInt8(4, customizeInfo->HairColorID);
+        stmt->setUInt8(5, customizeInfo->FacialHairStyleID);
+        stmt->setUInt64(6, lowGuid);
 
         trans->Append(stmt);
     }
@@ -1777,8 +1776,6 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
     Field* fields              = result->Fetch();
     uint16 atLoginFlags        = fields[0].GetUInt16();
     std::string knownTitlesStr = fields[1].GetString();
-    uint32 playerBytes         = fields[2].GetUInt32();
-    uint32 playerBytes2        = fields[3].GetUInt32();
 
     uint16 usedLoginFlag = (factionChangeInfo->FactionChange ? AT_LOGIN_CHANGE_FACTION : AT_LOGIN_CHANGE_RACE);
     if (!(atLoginFlags & usedLoginFlag))
@@ -1876,51 +1873,29 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
 
     // Customize
     {
-        if (factionChangeInfo->SkinID)
-        {
-            playerBytes &= ~uint32(0xFF);
-            playerBytes |= *factionChangeInfo->SkinID;
-        }
-        else
-            factionChangeInfo->SkinID = uint8(playerBytes & 0xFF);
+        if (!factionChangeInfo->SkinID)
+            factionChangeInfo->SkinID = fields[2].GetUInt8();
 
-        if (factionChangeInfo->FaceID)
-        {
-            playerBytes &= ~(uint32(0xFF) << 8);
-            playerBytes |= uint32(*factionChangeInfo->FaceID) << 8;
-        }
-        else
-            factionChangeInfo->FaceID = uint8((playerBytes2 >> 8) & 0xFF);
+        if (!factionChangeInfo->FaceID)
+            factionChangeInfo->FaceID = fields[3].GetUInt8();
 
-        if (factionChangeInfo->HairStyleID)
-        {
-            playerBytes &= ~(uint32(0xFF) << 16);
-            playerBytes |= uint32(*factionChangeInfo->HairStyleID) << 16;
-        }
-        else
-            factionChangeInfo->HairStyleID = uint8((playerBytes2 >> 16) & 0xFF);
+        if (!factionChangeInfo->HairStyleID)
+            factionChangeInfo->HairStyleID = fields[4].GetUInt8();
 
-        if (factionChangeInfo->HairColorID)
-        {
-            playerBytes &= ~(uint32(0xFF) << 24);
-            playerBytes |= uint32(*factionChangeInfo->HairColorID) << 24;
-        }
-        else
-            factionChangeInfo->HairColorID = uint8((playerBytes2 >> 24) & 0xFF);
+        if (!factionChangeInfo->HairColorID)
+            factionChangeInfo->HairColorID = fields[5].GetUInt8();
 
-        if (factionChangeInfo->FacialHairStyleID)
-        {
-            playerBytes2 &= ~0xFF;
-            playerBytes2 |= *factionChangeInfo->FacialHairStyleID;
-        }
-        else
-            factionChangeInfo->FacialHairStyleID = int8(playerBytes2 & 0xFF);
+        if (!factionChangeInfo->FacialHairStyleID)
+            factionChangeInfo->FacialHairStyleID = fields[6].GetUInt8();
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_PLAYERBYTES);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
         stmt->setUInt8(0, factionChangeInfo->SexID);
-        stmt->setUInt32(1, playerBytes);
-        stmt->setUInt32(2, playerBytes2);
-        stmt->setUInt64(3, lowGuid);
+        stmt->setUInt8(1, *factionChangeInfo->SkinID);
+        stmt->setUInt8(2, *factionChangeInfo->FaceID);
+        stmt->setUInt8(3, *factionChangeInfo->HairStyleID);
+        stmt->setUInt8(4, *factionChangeInfo->HairColorID);
+        stmt->setUInt8(5, *factionChangeInfo->FacialHairStyleID);
+        stmt->setUInt64(6, lowGuid);
 
         trans->Append(stmt);
     }
