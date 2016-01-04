@@ -33,16 +33,9 @@ EndScriptData
 #define GOSSIP_SUSURRUS         "I am ready."
 #define GOSSIP_NETHER_DRAKE     "I'm ready to fly! Take me up, dragon!"
 #define GOSSIP_BRAZEN           "I am ready to go to Durnholde Keep."
-#define GOSSIP_IRONWING         "I'd like to take a flight around Stormwind Harbor."
 #define GOSSIP_DABIREE1         "Fly me to Murketh and Shaadraz Gateways"
 #define GOSSIP_DABIREE2         "Fly me to Shatter Point"
-#define GOSSIP_BRACK1           "Fly me to Murketh and Shaadraz Gateways"
-#define GOSSIP_BRACK2           "Fly me to The Abyssal Shelf"
-#define GOSSIP_BRACK3           "Fly me to Spinebreaker Post"
 #define GOSSIP_IRENA            "Fly me to Skettis please"
-#define GOSSIP_CLOUDBREAKER1    "Speaking of action, I've been ordered to undertake an air strike."
-#define GOSSIP_CLOUDBREAKER2    "I need to intercept the Dawnblade reinforcements."
-#define GOSSIP_DRAGONHAWK       "<Ride the dragonhawk to Sun's Reach>"
 #define GOSSIP_VERONIA          "Fly me to Manaforge Coruu please"
 #define GOSSIP_DEESAK           "Fly me to Ogri'la please"
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
@@ -70,9 +63,6 @@ public:
         case 18725: // Old Hillsbrad Foothills - Brazen
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRAZEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             break;
-        case 29154: // Stormwind City - Thargold Ironwing
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRONWING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            break;
         case 19409: // Hellfire Peninsula - Wing Commander Dabir'ee
             //Mission: The Murketh and Shaadraz Gateways
             if (player->GetQuestStatus(10146) == QUEST_STATUS_INCOMPLETE)
@@ -82,33 +72,9 @@ public:
             if (!player->GetQuestRewardStatus(10340))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
             break;
-        case 19401: // Hellfire Peninsula - Wing Commander Brack
-            //Mission: The Murketh and Shaadraz Gateways
-            if (player->GetQuestStatus(10129) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-
-            //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
-            if (player->GetQuestStatus(10162) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10347) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
-
-            //Spinebreaker Post
-            if (player->GetQuestStatus(10242) == QUEST_STATUS_COMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
-            break;
         case 23413: // Blade's Edge Mountains - Skyguard Handler Irena
             if (player->GetReputationRank(1031) >= REP_HONORED)
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRENA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-            break;
-        case 25059: // Isle of Quel'Danas - Ayren Cloudbreaker
-            if (player->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-
-            if (player->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-            break;
-        case 25236: // Isle of Quel'Danas - Unrestrained Dragonhawk
-            if (player->GetQuestStatus(11542) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(11543) == QUEST_STATUS_COMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DRAGONHAWK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
             break;
         case 20162: // Netherstorm - Veronia
             //Behind Enemy Lines
@@ -152,10 +118,6 @@ public:
                 player->ActivateTaxiPathTo(534);              //TaxiPath 534
             }
             break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 53335, true);               //TaxiPath 1041 (Stormwind Harbor)
-            break;
         case GOSSIP_ACTION_INFO_DEF + 4:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 33768, true);               //TaxiPath 585 (Gateways Murket and Shaadraz)
@@ -164,33 +126,9 @@ public:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
             break;
-        case GOSSIP_ACTION_INFO_DEF + 8:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33659, true);               //TaxiPath 584 (Gateways Murket and Shaadraz)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 9:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33825, true);               //TaxiPath 587 (Aerial Assault Flight (Horde))
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 10:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 34578, true);               //TaxiPath 604 (Taxi - Reaver's Fall to Spinebreaker Ridge)
-            break;
         case GOSSIP_ACTION_INFO_DEF + 11:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 41278, true);               //TaxiPath 706
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 12:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 45071, true);               //TaxiPath 779
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 13:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 45113, true);               //TaxiPath 784
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 14:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 45353, true);               //TaxiPath 788
             break;
         case GOSSIP_ACTION_INFO_DEF + 15:
             player->CLOSE_GOSSIP_MENU();
