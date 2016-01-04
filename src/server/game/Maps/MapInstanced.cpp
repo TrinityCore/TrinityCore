@@ -164,7 +164,11 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
             {
                 groupBind = group->GetBoundInstance(this);
                 if (groupBind)
+                {
+                    // solo saves should be reset when entering a group's instance
+                    player->UnbindInstance(GetId(), player->GetDifficultyID(GetEntry()));
                     pSave = groupBind->save;
+                }
             }
         }
         if (pSave)
