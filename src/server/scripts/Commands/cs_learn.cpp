@@ -72,7 +72,7 @@ public:
 
     static bool HandleLearnCommand(ChatHandler* handler, char const* args)
     {
-        Player* targetPlayer = handler->getSelectedPlayer();
+        Player* targetPlayer = handler->getSelectedPlayerOrSelf();
 
         if (!targetPlayer)
         {
