@@ -22637,61 +22637,16 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
     if (!effect)
         return;
 
-    // prevent learn non first rank unknown profession and second specialization for same profession)
     uint32 learned_0 = effect->TriggerSpell;
-    if (sSpellMgr->GetSpellRank(learned_0) > 1 && !HasSpell(learned_0))
+    if (!HasSpell(learned_0))
     {
         SpellInfo const* learnedInfo = sSpellMgr->GetSpellInfo(learned_0);
         if (!learnedInfo)
             return;
 
-        // not have first rank learned (unlearned prof?)
-        if (!HasSpell(learnedInfo->GetFirstRankSpell()->Id))
+        // profession specialization can be re-learned from npc
+        if (learnedInfo->GetEffect(EFFECT_0)->Effect == SPELL_EFFECT_TRADE_SKILL && learnedInfo->GetEffect(EFFECT_1)->Effect == 0 && !learnedInfo->SpellLevel)
             return;
-
-        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(learned_0);
-        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second; ++itr2)
-        {
-            uint32 profSpell = itr2->second;
-
-            SpellEffectInfo const* effect0 = learnedInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0);
-            if (!effect0)
-                continue;
-            SpellEffectInfo const* effect1 = learnedInfo->GetEffect(DIFFICULTY_NONE, EFFECT_1);
-            if (!effect1)
-                continue;
-
-            // specialization
-            if (effect0->Effect == SPELL_EFFECT_TRADE_SKILL && effect1->Effect == 0 && profSpell)
-            {
-                // search other specialization for same prof
-                for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
-                {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->first == learned_0)
-                        continue;
-
-                    SpellInfo const* itrInfo = sSpellMgr->GetSpellInfo(itr->first);
-                    if (!itrInfo)
-                        return;
-
-
-                    SpellEffectInfo const* itrEffect0 = itrInfo->GetEffect(DIFFICULTY_NONE, EFFECT_0);
-                    if (!itrEffect0)
-                        continue;
-                    SpellEffectInfo const* itrEffect1 = itrInfo->GetEffect(DIFFICULTY_NONE, EFFECT_1);
-                    if (!itrEffect1)
-                        continue;
-
-                    // compare only specializations
-                    if (itrEffect0->Effect != SPELL_EFFECT_TRADE_SKILL || itrEffect1->Effect != 0)
-                        continue;
-
-                    // compare same chain spells
-                    if (sSpellMgr->IsSpellRequiringSpell(itr->first, profSpell))
-                        return;
-                }
-            }
-        }
     }
 
     CastSpell(this, spell_id, true);
