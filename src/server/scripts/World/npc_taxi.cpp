@@ -35,7 +35,6 @@ EndScriptData
 #define GOSSIP_BRAZEN           "I am ready to go to Durnholde Keep."
 #define GOSSIP_DABIREE1         "Fly me to Murketh and Shaadraz Gateways"
 #define GOSSIP_DABIREE2         "Fly me to Shatter Point"
-#define GOSSIP_IRENA            "Fly me to Skettis please"
 #define GOSSIP_VERONIA          "Fly me to Manaforge Coruu please"
 #define GOSSIP_DEESAK           "Fly me to Ogri'la please"
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
@@ -71,10 +70,6 @@ public:
             //Shatter Point
             if (!player->GetQuestRewardStatus(10340))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-            break;
-        case 23413: // Blade's Edge Mountains - Skyguard Handler Irena
-            if (player->GetReputationRank(1031) >= REP_HONORED)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_IRENA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
             break;
         case 20162: // Netherstorm - Veronia
             //Behind Enemy Lines
@@ -125,10 +120,6 @@ public:
         case GOSSIP_ACTION_INFO_DEF + 5:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 11:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 41278, true);               //TaxiPath 706
             break;
         case GOSSIP_ACTION_INFO_DEF + 15:
             player->CLOSE_GOSSIP_MENU();
