@@ -48,6 +48,7 @@ namespace WorldPackets
             uint8 HairStyle       = 0;
             uint8 HairColor       = 0;
             uint8 FacialHairStyle = 0;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
             uint8 OutfitId        = 0;
             Optional<int32> TemplateSet;
             std::string Name;
@@ -72,20 +73,22 @@ namespace WorldPackets
             uint8 HairColorID       = 0;
             uint8 FacialHairStyleID = 0;
             uint8 SkinID            = 0;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
         };
 
         struct CharRaceOrFactionChangeInfo
         {
-            Optional<uint8> HairColorID;
+            uint8 HairColorID       = 0;
             uint8 RaceID            = RACE_NONE;
             uint8 SexID             = GENDER_NONE;
-            Optional<uint8> SkinID;
-            Optional<uint8> FacialHairStyleID;
+            uint8 SkinID            = 0;
+            uint8 FacialHairStyleID = 0;
             ObjectGuid Guid;
             bool FactionChange      = false;
             std::string Name;
-            Optional<uint8> FaceID;
-            Optional<uint8> HairStyleID;
+            uint8 FaceID            = 0;
+            uint8 HairStyleID       = 0;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
         };
 
         struct CharacterUndeleteInfo
@@ -123,6 +126,7 @@ namespace WorldPackets
                 uint8 HairStyle          = 0;
                 uint8 HairColor          = 0;
                 uint8 FacialHair         = 0;
+                std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
                 uint8 Level              = 0;
                 int32 ZoneId             = 0;
                 int32 MapId              = 0;
@@ -170,9 +174,15 @@ namespace WorldPackets
 
             bool Success                = false; ///<
             bool IsDeletedCharacters    = false; ///< used for character undelete list
+            bool IsDemonHunterCreationAllowed = false;
+            bool HasDemonHunterOnRealm  = false;
+            bool HasLevel70OnAccount    = false;
+            bool Unknown7x              = false;
 
-            std::list<CharacterInfo> Characters; ///< all characters on the list
-            std::list<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
+            Optional<uint32> DisabledClassesMask;
+
+            std::vector<CharacterInfo> Characters; ///< all characters on the list
+            std::vector<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
         };
 
         class CreateCharacter final : public ClientPacket
@@ -311,6 +321,7 @@ namespace WorldPackets
                 uint8 FacialHairStyleID = 0;
                 uint8 FaceID            = 0;
                 uint8 RaceID            = RACE_NONE;
+                std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
             };
 
             CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE_RESULT, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
@@ -705,6 +716,7 @@ namespace WorldPackets
             uint8 HairStyleID = 0;
             uint8 FacialHairStyleID = 0;
             uint8 FaceID = 0;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
         };
 
         class CharCustomizeFailed final : public ServerPacket

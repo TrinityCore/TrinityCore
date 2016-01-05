@@ -581,6 +581,8 @@ enum PlayerBytes2Offsets
     PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
 };
 
+#define PLAYER_CUSTOM_DISPLAY_SIZE 3
+
 enum PlayerBytes3Offsets
 {
     PLAYER_BYTES_3_OFFSET_GENDER        = 0,

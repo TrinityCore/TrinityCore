@@ -267,6 +267,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
+    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     _legitCharacters.clear();
 
@@ -333,6 +334,7 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = true;
+    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     if (result)
     {
@@ -1594,7 +1596,10 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         stmt->setUInt8(3, customizeInfo->HairStyleID);
         stmt->setUInt8(4, customizeInfo->HairColorID);
         stmt->setUInt8(5, customizeInfo->FacialHairStyleID);
-        stmt->setUInt64(6, lowGuid);
+        stmt->setUInt8(6, customizeInfo->CustomDisplay[0]);
+        stmt->setUInt8(7, customizeInfo->CustomDisplay[1]);
+        stmt->setUInt8(8, customizeInfo->CustomDisplay[2]);
+        stmt->setUInt64(9, lowGuid);
 
         trans->Append(stmt);
     }
@@ -1854,29 +1859,17 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
 
     // Customize
     {
-        if (!factionChangeInfo->SkinID)
-            factionChangeInfo->SkinID = fields[2].GetUInt8();
-
-        if (!factionChangeInfo->FaceID)
-            factionChangeInfo->FaceID = fields[3].GetUInt8();
-
-        if (!factionChangeInfo->HairStyleID)
-            factionChangeInfo->HairStyleID = fields[4].GetUInt8();
-
-        if (!factionChangeInfo->HairColorID)
-            factionChangeInfo->HairColorID = fields[5].GetUInt8();
-
-        if (!factionChangeInfo->FacialHairStyleID)
-            factionChangeInfo->FacialHairStyleID = fields[6].GetUInt8();
-
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
         stmt->setUInt8(0, factionChangeInfo->SexID);
-        stmt->setUInt8(1, *factionChangeInfo->SkinID);
-        stmt->setUInt8(2, *factionChangeInfo->FaceID);
-        stmt->setUInt8(3, *factionChangeInfo->HairStyleID);
-        stmt->setUInt8(4, *factionChangeInfo->HairColorID);
-        stmt->setUInt8(5, *factionChangeInfo->FacialHairStyleID);
-        stmt->setUInt64(6, lowGuid);
+        stmt->setUInt8(1, factionChangeInfo->SkinID);
+        stmt->setUInt8(2, factionChangeInfo->FaceID);
+        stmt->setUInt8(3, factionChangeInfo->HairStyleID);
+        stmt->setUInt8(4, factionChangeInfo->HairColorID);
+        stmt->setUInt8(5, factionChangeInfo->FacialHairStyleID);
+        stmt->setUInt8(6, factionChangeInfo->CustomDisplay[0]);
+        stmt->setUInt8(7, factionChangeInfo->CustomDisplay[1]);
+        stmt->setUInt8(8, factionChangeInfo->CustomDisplay[2]);
+        stmt->setUInt64(9, lowGuid);
 
         trans->Append(stmt);
     }
@@ -2532,12 +2525,13 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
         packet.Display = boost::in_place();
         packet.Display->Name = factionChangeInfo->Name;
         packet.Display->SexID = factionChangeInfo->SexID;
-        packet.Display->SkinID = *factionChangeInfo->SkinID;
-        packet.Display->HairColorID = *factionChangeInfo->HairColorID;
-        packet.Display->HairStyleID = *factionChangeInfo->HairStyleID;
-        packet.Display->FacialHairStyleID = *factionChangeInfo->FacialHairStyleID;
-        packet.Display->FaceID = *factionChangeInfo->FaceID;
+        packet.Display->SkinID = factionChangeInfo->SkinID;
+        packet.Display->HairColorID = factionChangeInfo->HairColorID;
+        packet.Display->HairStyleID = factionChangeInfo->HairStyleID;
+        packet.Display->FacialHairStyleID = factionChangeInfo->FacialHairStyleID;
+        packet.Display->FaceID = factionChangeInfo->FaceID;
         packet.Display->RaceID = factionChangeInfo->RaceID;
+        packet.Display->CustomDisplay = factionChangeInfo->CustomDisplay;
     }
 
     SendPacket(packet.Write());

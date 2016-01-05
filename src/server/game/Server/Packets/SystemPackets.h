@@ -84,7 +84,7 @@ namespace WorldPackets
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
-            bool UnkBit61                            = false;
+            bool KioskModeEnabled                    = false;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -102,6 +102,7 @@ namespace WorldPackets
             bool Unk14                               = false; // NYI
             bool WillKickFromWorld                   = false; // NYI
             bool IsExpansionPreorderInStore          = false;
+            bool KioskModeEnabled                    = false;
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
         };
