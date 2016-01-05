@@ -595,3 +595,12 @@ WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
     _worldPacket << UnitGUID;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << int32(Threshold);
+    _worldPacket << int32(ItemID);
+
+    return &_worldPacket;
+}
