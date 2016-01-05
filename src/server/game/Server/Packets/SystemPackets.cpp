@@ -48,7 +48,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
-    _worldPacket.WriteBit(UnkBit61);
+    _worldPacket.WriteBit(KioskModeEnabled);
 
     _worldPacket.FlushBits();
 
@@ -72,15 +72,6 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
-    /*if (bit61)
-    {
-        var int88 = packet.ReadInt32("int88");
-        for (int i = 0; i < int88; i++)
-            packet.ReadByte("byte23", i);
-    }*/
-
-    _worldPacket.FlushBits();
-
     return &_worldPacket;
 }
 
@@ -94,6 +85,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(IsExpansionPreorderInStore);
+    _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);
