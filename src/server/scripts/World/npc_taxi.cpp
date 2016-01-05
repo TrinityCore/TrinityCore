@@ -36,7 +36,6 @@ EndScriptData
 #define GOSSIP_DABIREE1         "Fly me to Murketh and Shaadraz Gateways"
 #define GOSSIP_DABIREE2         "Fly me to Shatter Point"
 #define GOSSIP_VERONIA          "Fly me to Manaforge Coruu please"
-#define GOSSIP_DEESAK           "Fly me to Ogri'la please"
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
 
 class npc_taxi : public CreatureScript
@@ -75,10 +74,6 @@ public:
             //Behind Enemy Lines
             if (player->GetQuestStatus(10652) != QUEST_STATUS_REWARDED)
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_VERONIA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
-            break;
-        case 23415: // Terokkar Forest - Skyguard Handler Deesak
-            if (player->GetReputationRank(1031) >= REP_HONORED)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEESAK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 16);
             break;
         case 23704: // Dustwallow Marsh - Cassa Crimsonwing
             if (player->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
@@ -124,10 +119,6 @@ public:
         case GOSSIP_ACTION_INFO_DEF + 15:
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, 34905, true);               //TaxiPath 606
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 16:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 41279, true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
             break;
         case GOSSIP_ACTION_INFO_DEF + 25:
             player->CLOSE_GOSSIP_MENU();
