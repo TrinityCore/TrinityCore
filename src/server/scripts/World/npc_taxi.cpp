@@ -33,8 +33,6 @@ EndScriptData
 #define GOSSIP_SUSURRUS         "I am ready."
 #define GOSSIP_NETHER_DRAKE     "I'm ready to fly! Take me up, dragon!"
 #define GOSSIP_BRAZEN           "I am ready to go to Durnholde Keep."
-#define GOSSIP_DABIREE1         "Fly me to Murketh and Shaadraz Gateways"
-#define GOSSIP_DABIREE2         "Fly me to Shatter Point"
 #define GOSSIP_VERONIA          "Fly me to Manaforge Coruu please"
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
 
@@ -60,15 +58,6 @@ public:
             break;
         case 18725: // Old Hillsbrad Foothills - Brazen
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRAZEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            break;
-        case 19409: // Hellfire Peninsula - Wing Commander Dabir'ee
-            //Mission: The Murketh and Shaadraz Gateways
-            if (player->GetQuestStatus(10146) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-
-            //Shatter Point
-            if (!player->GetQuestRewardStatus(10340))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
             break;
         case 20162: // Netherstorm - Veronia
             //Behind Enemy Lines
@@ -107,14 +96,6 @@ public:
                 player->CLOSE_GOSSIP_MENU();
                 player->ActivateTaxiPathTo(534);              //TaxiPath 534
             }
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 33768, true);               //TaxiPath 585 (Gateways Murket and Shaadraz)
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, 35069, true);               //TaxiPath 612 (Taxi - Hellfire Peninsula - Expedition Point to Shatter Point)
             break;
         case GOSSIP_ACTION_INFO_DEF + 15:
             player->CLOSE_GOSSIP_MENU();
