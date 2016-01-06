@@ -1151,8 +1151,8 @@ void WorldSession::SendFeatureSystemStatus()
     features.ComplaintStatus = 2;
     features.ScrollOfResurrectionRequestsRemaining = 1;
     features.ScrollOfResurrectionMaxRequestsPerDay = 1;
-    features.UnkInt27 = 60;
-    features.TwitterMsTillCanPost = 20;
+    features.TwitterPostThrottleLimit = 60;
+    features.TwitterPostThrottleCooldown = 20;
     features.CfgRealmID = 2;
     features.CfgRealmRecID = 0;
     features.TokenPollTimeSeconds = 300;

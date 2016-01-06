@@ -69,8 +69,8 @@ namespace WorldPackets
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
-            int32 UnkInt27                               = 0;
-            int32 TwitterMsTillCanPost                   = 0;
+            int32 TwitterPostThrottleLimit               = 0; ///< Number of twitter posts the client can send before they start being throttled
+            int32 TwitterPostThrottleCooldown            = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
             int32 TokenPollTimeSeconds                   = 0;
             int32 TokenRedeemIndex                       = 0;
             bool ItemRestorationButtonEnabled        = false;
