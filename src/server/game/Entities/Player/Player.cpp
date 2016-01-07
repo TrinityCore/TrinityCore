@@ -1242,6 +1242,9 @@ void Player::Update(uint32 p_time)
             if (charmer->GetTypeId() == TYPEID_UNIT && charmer->IsAlive())
                 UpdateCharmedAI();
 
+    if (GetAI() && IsAIEnabled)
+        GetAI()->UpdateAI(p_time);
+
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
         UpdateItemDuration(uint32(now - m_Last_tick));
@@ -1476,8 +1479,8 @@ void Player::Update(uint32 p_time)
             _pendingBindTimer -= p_time;
     }
 
-    // not auto-free ghost from body in instances
-    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+    // not auto-free ghost from body in instances or if its affected by risen ally
+    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !IsGhouled())
     {
         if (p_time >= m_deathTimer)
         {
@@ -4728,6 +4731,44 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
                 aur->SetDuration(delta*IN_MILLISECONDS);
             }
         }
+    }
+}
+
+void Player::SendGhoulResurrectRequest(Player* target)
+{
+    target->m_ghoulResurrectPlayerGUID = GetGUID();
+
+    WorldPacket data(SMSG_RESURRECT_REQUEST, (8 + 4 + 1 + 1 + 1 + 4));
+    data << uint64(GetGUID());
+    data << uint32(0);
+    data << 0;
+    data << uint8(0);
+    data << uint8(0);
+    data << uint32(0);
+    target->GetSession()->SendPacket(&data);
+}
+
+bool Player::IsValidGhoulResurrectRequest(ObjectGuid guid)
+{
+    if (!m_ghoulResurrectPlayerGUID.IsEmpty() && m_ghoulResurrectPlayerGUID == guid)
+        return true;
+
+    return false;
+}
+
+void Player::GhoulResurrect()
+{
+    CastSpell(this, 46619 /*SPELL_DK_RAISE_ALLY*/, true, nullptr, nullptr, m_ghoulResurrectPlayerGUID);
+
+    m_ghoulResurrectPlayerGUID = ObjectGuid::Empty;
+}
+
+void Player::RemoveGhoul()
+{
+    if (IsGhouled())
+    {    // Raise Ally aura will handle unauras
+        if (Creature* ghoul = ObjectAccessor::GetCreature(*this, m_ghoulResurrectGhoulGUID))
+            ghoul->DisappearAndDie();
     }
 }
 
@@ -20156,6 +20197,12 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
 void Player::StopCastingCharm()
 {
+    if (IsGhouled())
+    {
+        RemoveGhoul();
+        return;
+    }
+
     Unit* charm = GetCharm();
     if (!charm)
         return;
@@ -21507,6 +21554,14 @@ void Player::setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, flo
     m_resurrectZ = Z;
     m_resurrectHealth = health;
     m_resurrectMana = mana;
+}
+
+void Player::clearResurrectRequestData()
+{
+    setResurrectRequestData(ObjectGuid::Empty, 0, 0.0f, 0.0f, 0.0f, 0, 0);
+
+    m_ghoulResurrectPlayerGUID = ObjectGuid::Empty;
+    m_ghoulResurrectGhoulGUID = ObjectGuid::Empty;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -23410,6 +23465,8 @@ uint32 Player::GetBaseWeaponSkillValue(WeaponAttackType attType) const
 
 void Player::ResurrectUsingRequestData()
 {
+    RemoveGhoul();
+
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
     TeleportTo(m_resurrectMap, m_resurrectX, m_resurrectY, m_resurrectZ, GetOrientation());
 
