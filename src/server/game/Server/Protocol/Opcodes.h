@@ -1769,8 +1769,6 @@ extern OpcodeTable opcodeTable;
 
 #pragma pack(pop)
 
-void InitOpcodes();
-
 /// Lookup opcode name for human understandable logging (T = OpcodeClient|OpcodeServer)
 template<typename T>
 inline std::string GetOpcodeNameForLogging(T id)
