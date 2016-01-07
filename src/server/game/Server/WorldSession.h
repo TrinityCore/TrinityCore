@@ -1483,7 +1483,6 @@ class WorldSession
         void HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet);
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
         void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
-        void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet);
         void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);

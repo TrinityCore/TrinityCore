@@ -985,15 +985,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
     }
 }
 
-void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& /*recvData*/)
-{
-    // fly mode on/off
-    MovementInfo movementInfo;
-    _player->ValidateMovementInfo(&movementInfo);
-
-    _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
-}
-
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 {
     /*
