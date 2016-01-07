@@ -338,6 +338,7 @@ class Map : public GridRefManager<NGridType>
         float GetWaterLevel(float x, float y) const;
         bool IsInWater(float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
+        bool IsSwimmable(float x, float y, float z, LiquidData* data = nullptr) const;
 
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
         static uint32 GetZoneIdByAreaFlag(uint16 areaflag, uint32 map_id);
