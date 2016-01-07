@@ -151,6 +151,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100000, 593),    # Command: npcinfo
 (100000, 796),    # Command: instance getbossstate
 (100000, 517),    # Command: pinfo
+(100000, 556),    # Command: modify phase
 
 # [100001] TIER 1: Supporter
 (100001, 100000), # inheriting from TIER 0
@@ -164,7 +165,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100001, 453),    # Command: lookup player account
 (100001, 454),    # Command: lookup player email
 (100001, 455),    # Command: lookup skill ( can inspect other players skills )
-(100001, 556),    # Command: modify phase
 (100001, 417),    # Command: learn
 (100001, 418),    # Command: learn all
 (100001, 419),    # Command: learn all my
