@@ -560,6 +560,7 @@ public:
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 } else PoisonTimer -= diff;
             }
+            DoMeleeAttackIfReady();
         }
     };
 };
