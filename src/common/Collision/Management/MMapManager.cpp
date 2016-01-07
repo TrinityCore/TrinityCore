@@ -297,7 +297,7 @@ namespace MMAP
             if (dataItr != phasedTileItr->second.end())
             {
                 TC_LOG_DEBUG("phase", "MMAP:UnloadPhaseTile: Unloaded phased %04u%02i%02i.mmtile for root phase map %u", phaseMapId, x, y, phasedMapData->first);
-                delete dataItr->second->data;
+                dtFree(dataItr->second->data);
                 delete dataItr->second;
                 phasedTileItr->second.erase(dataItr);
             }
