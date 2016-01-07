@@ -249,6 +249,10 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (100010, 480),    # Command: pet create
 (100010, 578),    # Command: npc follow
 (100010, 579),    # Command: npc follow stop
+(100010, 488),    # Command: additem
+(100010, 489),    # Command: additemset
+(100010, 542),    # Command: morph
+(100010, 543),    # Command: demorph
 
 # [100006] Master Story Teller
 (100006, 100010), # inheriting Story Teller
