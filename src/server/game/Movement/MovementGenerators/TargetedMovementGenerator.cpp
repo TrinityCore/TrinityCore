@@ -44,36 +44,16 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (updateDestination || !i_path)
     {
         if (!i_offset)
-        {
-            // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
-        }
         else
         {
-            float dist;
-            float size;
-
-            // Pets need special handling.
-            // We need to subtract GetObjectSize() because it gets added back further down the chain
-            //  and that makes pets too far away. Subtracting it allows pets to properly
-            //  be (GetCombatReach() + i_offset) away.
-            // Only applies when i_target is pet's owner otherwise pets and mobs end up
-            //   doing a "dance" while fighting
-            if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
+            float size = DEFAULT_WORLD_OBJECT_SIZE;
+            if (!owner->HasUnitState(UNIT_STATE_FOLLOW))
             {
-                dist = i_target->GetCombatReach();
-                size = i_target->GetCombatReach() - i_target->GetObjectSize();
-            }
-            else
-            {
-                dist = i_offset + 1.0f;
                 size = owner->GetObjectSize();
+                if (i_target->IsWithinDistInMap(owner, i_offset + size))
+                    return;
             }
-
-            if (i_target->IsWithinDistInMap(owner, dist))
-                return;
-
-            // to at i_offset distance from target and i_angle from target facing
             i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
         }
     }
@@ -90,8 +70,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
         i_path = new PathGenerator(owner);
 
     // allow pets to use shortcut if no path found when following their master
-    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet()
-        && owner->HasUnitState(UNIT_STATE_FOLLOW));
+    bool forceDest = owner->GetTypeId() == TYPEID_UNIT && owner->HasUnitTypeMask(UNIT_MASK_MINION) &&
+        owner->HasUnitState(UNIT_STATE_FOLLOW);
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
     if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
@@ -108,7 +88,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
-    init.SetWalk(((D*)this)->EnableWalking());
+    init.SetWalk(static_cast<D*>(this)->EnableWalking(owner));
+    static_cast<D*>(this)->_updateSpeed(owner);
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly
     if (i_angle == 0.f)
@@ -152,8 +133,10 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (i_recheckDistance.Passed())
     {
         i_recheckDistance.Reset(100);
-        //More distance let have better performance, less distance let have more sensitive reaction at target move.
+        // More distance gives better performance, less distance gives more sensitive reaction at target move.
         float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        if (owner->HasUnitState(UNIT_STATE_FOLLOW))
+            allowed_dist = owner->GetMeleeReach();
         G3D::Vector3 dest = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)
             if (TransportBase* transport = owner->GetDirectTransport())
@@ -237,13 +220,14 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature* unit)
 
 //-----------------------------------------------//
 template<>
-bool FollowMovementGenerator<Creature>::EnableWalking() const
+bool FollowMovementGenerator<Creature>::EnableWalking(Creature* owner) const
 {
-    return i_target.isValid() && i_target->IsWalking();
+    return i_target.isValid() && i_target->IsWalking() &&
+        i_target->IsWithinMeleeRange(owner, MELEE_RANGE + PET_FOLLOW_DIST);
 }
 
 template<>
-bool FollowMovementGenerator<Player>::EnableWalking() const
+bool FollowMovementGenerator<Player>::EnableWalking(Player* /*owner*/) const
 {
     return false;
 }
@@ -259,12 +243,23 @@ void FollowMovementGenerator<Creature>::_updateSpeed(Creature* owner)
 {
     // pet only sync speed with owner
     /// Make sure we are not in the process of a map change (IsInWorld)
-    if (!owner->IsPet() || !owner->IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner->GetOwnerGUID())
+    if (!owner->HasUnitTypeMask(UNIT_MASK_MINION) || !owner->IsInWorld() ||
+        !i_target.isValid() || i_target->GetGUID() != owner->GetOwnerGUID())
         return;
 
     owner->UpdateSpeed(MOVE_RUN, true);
-    owner->UpdateSpeed(MOVE_WALK, true);
     owner->UpdateSpeed(MOVE_SWIM, true);
+    owner->UpdateSpeed(MOVE_FLIGHT, true);
+}
+
+template<>
+void FollowMovementGenerator<Player>::_reachTarget(Player* /*owner*/) { }
+
+template<>
+void FollowMovementGenerator<Creature>::_reachTarget(Creature* owner)
+{
+    if (i_target->GetTypeId() == TYPEID_PLAYER && i_target->IsWithinMeleeRange(owner))
+        owner->SetFacingTo(i_target->GetOrientation());
 }
 
 template<>

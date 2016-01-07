@@ -11820,7 +11820,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
                 creature->GetFormation()->MemberAttackStart(creature, enemy);
         }
 
-        if (IsPet())
+        if (creature->HasUnitTypeMask(UNIT_MASK_MINION))
         {
             UpdateSpeed(MOVE_RUN, true);
             UpdateSpeed(MOVE_SWIM, true);
@@ -12336,28 +12336,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         case MOVE_SWIM:
         case MOVE_FLIGHT:
         {
-            // Set creature speed rate
-            if (GetTypeId() == TYPEID_UNIT)
-            {
-                Unit* pOwner = GetCharmerOrOwner();
-                if ((IsPet() || IsGuardian()) && !IsInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
-                {
-                    // For every yard over 5, increase speed by 0.01
-                    //  to help prevent pet from lagging behind and despawning
-                    float dist = GetDistance(pOwner);
-                    float base_rate = 1.00f; // base speed is 100% of owner speed
-
-                    if (dist < 5)
-                        dist = 5;
-
-                    float mult = base_rate + ((dist - 5) * 0.01f);
-
-                    speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
-                }
-                else
-                    speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
-            }
-
             // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
             /// @todo possible affect only on MOVE_RUN
             if (int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
@@ -12397,6 +12375,28 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         float min_speed = minSpeedMod / 100.0f;
         if (speed < min_speed)
             speed = min_speed;
+    }
+
+    if (GetTypeId() == TYPEID_UNIT)
+    {
+        if (mtype == MOVE_RUN)
+            speed *= ToCreature()->GetCreatureTemplate()->speed_run;
+
+        if (Unit* owner = GetCharmerOrOwner())
+        {
+            if (ToCreature()->HasUnitTypeMask(UNIT_MASK_MINION) &&
+                ToCreature()->HasUnitState(UNIT_STATE_FOLLOW) && !ToCreature()->IsInCombat())
+            {
+                // Sync speed with owner when near or slower
+                float owner_speed = owner->GetSpeedRate(mtype);
+                if (ToCreature()->IsWithinMeleeRange(owner) || speed < owner_speed)
+                    speed = owner_speed;
+
+                // Decrease speed when near to help prevent stop-and-go movement
+                // and increase speed when away to help prevent falling behind
+                speed *= std::min(0.6f + (GetDistance(owner) / 10.0f), 1.1f);
+            }
+        }
     }
 
     SetSpeed(mtype, speed, forced);
