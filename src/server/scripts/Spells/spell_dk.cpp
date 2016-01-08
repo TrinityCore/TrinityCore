@@ -1744,11 +1744,14 @@ public:
         {
             // Raise Ally cannot be casted on alive players
             Unit* target = GetExplTargetUnit();
-            if (target && target->IsAlive())
+            if (!target)
+                return SPELL_FAILED_NO_VALID_TARGETS;
+            if (target->IsAlive())
                 return SPELL_FAILED_TARGET_NOT_DEAD;
-            else if (GetCaster()->ToPlayer()->InArena())
-                return SPELL_FAILED_NOT_IN_ARENA;
-            else if (target->IsGhouled())
+            if (Player* playerCaster = GetCaster()->ToPlayer())
+                if (playerCaster->InArena())
+                    return SPELL_FAILED_NOT_IN_ARENA;
+            if (target->IsGhouled())
                 return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
             return SPELL_CAST_OK;
