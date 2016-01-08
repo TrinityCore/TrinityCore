@@ -514,8 +514,6 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
-
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
             if (!caster)
