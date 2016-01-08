@@ -10,7 +10,7 @@ INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `au
 (24029, 0, 0x0, 0x1, 12544); -- Wyrmcaller Vile - Frost Armor
 
 DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+5);
-INSERT INTO `creature_Addon` (`guid`, `mount`, `bytes1`, `bytes2`, `auras`) VALUES
+INSERT INTO `creature_addon` (`guid`, `mount`, `bytes1`, `bytes2`, `auras`) VALUES
 (@CGUID+5, 0, 0x0, 0x1, 43570); -- Invisible Stalker (Floating) - Frost State
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN(43568,43569);
