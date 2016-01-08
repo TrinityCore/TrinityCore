@@ -540,7 +540,7 @@ bool AuthSession::HandleLogonProof()
                 packet << uint8(3);
                 packet << uint8(0);
                 SendPacket(packet);
-                return false;
+                return true;
             }
         }
 

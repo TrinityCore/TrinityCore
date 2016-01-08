@@ -1582,7 +1582,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePotionCooldown(Spell* spell = NULL);
 
         void setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana);
-        void clearResurrectRequestData() { setResurrectRequestData(ObjectGuid::Empty, 0, 0.0f, 0.0f, 0.0f, 0, 0); }
+        void clearResurrectRequestData();
         bool isResurrectRequestedBy(ObjectGuid guid) const { return !m_resurrectGUID.IsEmpty() && m_resurrectGUID == guid; }
         bool isResurrectRequested() const { return !m_resurrectGUID.IsEmpty(); }
         void ResurrectUsingRequestData();
@@ -1776,6 +1776,15 @@ class Player : public Unit, public GridObject<Player>
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
+        void SendGhoulResurrectRequest(Player* target);
+        bool IsValidGhoulResurrectRequest(ObjectGuid guid)
+        {
+            return !m_ghoulResurrectPlayerGUID.IsEmpty() && m_ghoulResurrectPlayerGUID == guid;
+        }
+        void GhoulResurrect();
+        void SetGhoulResurrectGhoulGUID(ObjectGuid guid) { m_ghoulResurrectGhoulGUID = guid; }
+        ObjectGuid GetGhoulResurrectGhoulGUID() { return m_ghoulResurrectGhoulGUID; }
+        void RemoveGhoul();
 
         void DurabilityLossAll(double percent, bool inventory);
         void DurabilityLoss(Item* item, double percent);
@@ -2122,7 +2131,6 @@ class Player : public Unit, public GridObject<Player>
         bool HasPendingBind() const { return _pendingBindId > 0; }
         void SendRaidInfo();
         void SendSavedInstances();
-        static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceValidity(bool /*isLogin*/);
         bool CheckInstanceCount(uint32 instanceId) const;
@@ -2410,6 +2418,9 @@ class Player : public Unit, public GridObject<Player>
         float m_resurrectX, m_resurrectY, m_resurrectZ;
         uint32 m_resurrectHealth, m_resurrectMana;
 
+        ObjectGuid m_ghoulResurrectPlayerGUID;
+        ObjectGuid m_ghoulResurrectGhoulGUID;
+
         WorldSession* m_session;
 
         typedef std::list<Channel*> JoinedChannelsList;
@@ -2509,7 +2520,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
         void ScheduleDelayedOperation(uint32 operation) { if (operation < DELAYED_END) m_DelayedOperations |= operation; }
-        
+
         bool IsInstanceLoginGameMasterException() const;
 
         MapReference m_mapRef;

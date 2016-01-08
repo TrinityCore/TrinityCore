@@ -1598,6 +1598,7 @@ class Unit : public WorldObject
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }
         bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); }
+        bool IsGhouled() const { return HasAura(46619 /*SPELL_DK_RAISE_ALLY*/); }
         DeathState getDeathState() const { return m_deathState; }
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 

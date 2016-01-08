@@ -194,6 +194,7 @@ class Group
         bool   AddMember(Player* player);
         bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
         void   ChangeLeader(ObjectGuid guid);
+ static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void   SetLootMethod(LootMethod method);
         void   SetLooterGuid(ObjectGuid guid);
         void   SetMasterLooterGuid(ObjectGuid guid);
