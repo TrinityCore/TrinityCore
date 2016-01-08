@@ -22,11 +22,11 @@ SDComment:
 SDCategory: Trial of the Champion
 EndScriptData */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "trial_of_the_champion.h"
-#include "ScriptedEscortAI.h"
 
 enum Yells
 {
@@ -169,36 +169,24 @@ enum PointMovement
     POINT_DESPAWN
 };
 
-class OrientationCheck : public std::unary_function<Unit*, bool>
-{
-    public:
-        explicit OrientationCheck(Unit* _caster) : caster(_caster) { }
-        bool operator()(WorldObject* object)
-        {
-            return !object->isInFront(caster, 2.5f) || !object->IsWithinDist(caster, 40.0f);
-        }
-
-    private:
-        Unit* caster;
-};
-
 class spell_eadric_radiance : public SpellScriptLoader
 {
     public:
         spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
+
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(OrientationCheck(GetCaster()));
+                Unit* caster = GetCaster();
+                targets.remove_if([caster](WorldObject* target) { return !target->isInFront(caster, 2.5f); });
             }
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
@@ -212,6 +200,7 @@ class boss_eadric : public CreatureScript
 {
 public:
     boss_eadric() : CreatureScript("boss_eadric") { }
+
     struct boss_eadricAI : public BossAI
     {
         boss_eadricAI(Creature* creature) : BossAI(creature, DATA_EADRIC_THE_PURE)
@@ -248,7 +237,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             if (instance->GetBossState(DATA_EADRIC_THE_PURE) == SPECIAL)
                 events.ScheduleEvent(EVENT_EADRIC_DONE, 4000);
@@ -290,7 +279,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* who)
+        void KilledUnit(Unit* who) override
         {
             Talk(SAY_KILL_UNIT_E, who);
         }
@@ -338,8 +327,8 @@ public:
                         me->SetFullHealth();
                         me->RestoreFaction();
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_ACH, 0, me);
-                        if (Player* plr = ObjectAccessor::GetPlayer(*me, faceRollerGUID))
-                            plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_FACEROLLER, 0, me);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, faceRollerGUID))
+                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_FACEROLLER, 0, me);
                         _JustDied();
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
@@ -433,7 +422,7 @@ public:
             }
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == SPECIAL)
                 events.ScheduleEvent(EVENT_PALETRESS_DONE, 4000);
@@ -597,7 +586,7 @@ public:
             Initialize();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (damage >= me->GetHealth())
             {
@@ -623,7 +612,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
@@ -705,7 +694,7 @@ public:
 
         ObjectGuid fountainGuid;
 
-        void Reset()
+        void Reset() override
         {
             events.Reset();
             Initialize();
@@ -716,9 +705,9 @@ public:
             }
         }
 
-        Position const GenerateFinalPosition()
+        Position GenerateFinalPosition() const
         {
-            Position finalPos = NULL;
+            Position finalPos;
             switch (me->GetEntry())
             {
                 case NPC_ARGENT_LIGHWIELDER:
@@ -769,7 +758,7 @@ public:
             return finalPos;
         }
 
-        void JustReachedHome()
+        void JustReachedHome() override
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
         }
@@ -813,7 +802,7 @@ public:
                 fountainGuid = summon->GetGUID();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& dmg)
+        void DamageTaken(Unit* /*attacker*/, uint32& dmg) override
         {
             if (me->GetEntry() == NPC_ARGENT_MONK && dmg >= me->GetHealth() && !shielded)
             {
@@ -850,7 +839,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             switch (me->GetEntry())
             {
@@ -923,10 +912,10 @@ public:
                         Map::PlayerList const &pList = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
                         {
-                            Player* plr = itr->GetSource();
-                            if (plr && me->IsWithinDist(plr, 5.0f) && plr->IsNonMeleeSpellCast(true))
+                            Player* player = itr->GetSource();
+                            if (me->IsWithinDist(player, 5.0f) && player->IsNonMeleeSpellCast(true))
                             {
-                                DoCast(plr, SPELL_PUMMEL);
+                                DoCast(player, SPELL_PUMMEL);
                                 break;
                             }
                         }
@@ -1000,7 +989,7 @@ class npc_fountain_of_light : public CreatureScript
                 Initialize();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon();
             }
@@ -1091,7 +1080,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], true, NULL, NULL, GetCaster()->GetGUID());
+                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], true, nullptr, nullptr, GetCaster()->GetGUID());
             }
 
             void Register() override
@@ -1129,7 +1118,7 @@ class spell_paletress_reflective_shield : public SpellScriptLoader
                 if (dmgInfo.GetAttacker() == GetTarget())
                     return;
                 int32 bp = absorbAmount / 4;
-                GetTarget()->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_SHIELD_REFLECT, &bp, NULL, NULL, true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_SHIELD_REFLECT, &bp, nullptr, nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1199,7 +1188,7 @@ class spell_eadric_hammer_of_righteous_faceroller : public SpellScriptLoader
 
             void CheckHealth(SpellEffIndex /*effIndex*/)
             {
-                if (!GetCaster()->ToPlayer() || !GetCaster()->ToPlayer()->GetMap()->IsHeroic())
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER || !GetCaster()->GetMap()->IsHeroic())
                     return;
 
                 if (!GetHitUnit() || !GetHitUnit()->ToCreature() || GetHitUnit()->ToCreature()->GetEntry() != NPC_EADRIC)

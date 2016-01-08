@@ -256,7 +256,7 @@ SET @CRITERIA_ROGUE_H := 12545;
 SET @CRITERIA_SHAMAN_H := 12547;
 
 -- These criterias are missing creature checks
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_JACOB,@CRITERIA_LANA,@CRITERIA_COLOSOS,@CRITERIA_AMBROSE,@CRITERIA_JAELYNE,@CRITERIA_MOKRA,@CRITERIA_VISCERI,@CRITERIA_RUNOK,@CRITERIA_ERESSEA,@CRITERIA_ZULTORE,@CRITERIA_JACOB_H,@CRITERIA_LANA_H,@CRITERIA_COLOSOS_H,@CRITERIA_AMBROSE_H,@CRITERIA_JAELYNE_H,@CRITERIA_MOKRA_H,@CRITERIA_VISCERI_H,@CRITERIA_RUNOK_H,@CRITERIA_ERESSEA_H,@CRITERIA_ZULTORE_H) AND type=1;
+DELETE FROM `achievement_criteria_data` WHERE `type`=1 AND `criteria_id` IN (@CRITERIA_JACOB,@CRITERIA_LANA,@CRITERIA_COLOSOS,@CRITERIA_AMBROSE,@CRITERIA_JAELYNE,@CRITERIA_MOKRA,@CRITERIA_VISCERI,@CRITERIA_RUNOK,@CRITERIA_ERESSEA,@CRITERIA_ZULTORE,@CRITERIA_JACOB_H,@CRITERIA_LANA_H,@CRITERIA_COLOSOS_H,@CRITERIA_AMBROSE_H,@CRITERIA_JAELYNE_H,@CRITERIA_MOKRA_H,@CRITERIA_VISCERI_H,@CRITERIA_RUNOK_H,@CRITERIA_ERESSEA_H,@CRITERIA_ZULTORE_H);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`) VALUES
 (@CRITERIA_JACOB,1,@JACOB),
 (@CRITERIA_LANA,1,@LANA),
@@ -284,7 +284,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`) VALUES
 -- and we can only check for one creature entry,
 -- we must use core script to check for two entries
 -- Also we remove heroic checks from database, they are handled in the script
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_WARRIOR,@CRITERIA_HUNTER,@CRITERIA_MAGE,@CRITERIA_ROGUE,@CRITERIA_SHAMAN,@CRITERIA_WARRIOR_H,@CRITERIA_HUNTER_H,@CRITERIA_MAGE_H,@CRITERIA_ROGUE_H,@CRITERIA_SHAMAN_H);
+DELETE FROM `achievement_criteria_data` WHERE `type`=11 AND `criteria_id` IN (@CRITERIA_WARRIOR,@CRITERIA_HUNTER,@CRITERIA_MAGE,@CRITERIA_ROGUE,@CRITERIA_SHAMAN,@CRITERIA_WARRIOR_H,@CRITERIA_HUNTER_H,@CRITERIA_MAGE_H,@CRITERIA_ROGUE_H,@CRITERIA_SHAMAN_H);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
 (@CRITERIA_WARRIOR,11,'achievement_victories_over_war_champion'),
 (@CRITERIA_HUNTER,11,'achievement_victories_over_hun_champion'),
@@ -443,8 +443,9 @@ UPDATE `creature_template` SET `mingold`=4921,`maxgold`=10294 WHERE `entry`=@KNI
 UPDATE `creature_template` SET `mingold`=14691,`maxgold`=21952 WHERE `entry`=@KNIGHT_H;
 
 -- Achievement criteria script for achievement id 3804
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=11789;
-INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES (11789,11,'achievement_ive_had_worse');
+DELETE FROM `achievement_criteria_data` WHERE `type` IN (11, 18) `criteria_id`=11789;
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
+(11789,11,'achievement_ive_had_worse');
 
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (66905, 66798, 67751);

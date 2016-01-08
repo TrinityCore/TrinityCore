@@ -86,10 +86,15 @@ enum DataTypes
     DATA_GARROSH,
     DATA_THRALL,
 
+    DATA_CHAMPION_S_CACHE,
+    DATA_EADRIC_S_CACHE,
+    DATA_CONFESSOR_S_CACHE,
+
+    DATA_TEAM_IN_INSTANCE,
+
     DATA_LESSER_CHAMPIONS_PREPARE,
     DATA_LESSER_CHAMPIONS_DEFEATED,
     DATA_START,
-    DATA_PLAYERS_TEAM,
     DATA_REMOVE_VEHICLES,
     DATA_GRAND_CHAMPIONS_DONE,
     DATA_ARGENT_CHAMPION_PREPARE,
@@ -170,14 +175,14 @@ enum GameObjects
 {
     GO_MAIN_GATE                                    = 195647,
 
-    GO_CHAMPIONS_LOOT                               = 195709,
-    GO_CHAMPIONS_LOOT_H                             = 195710,
+    GO_CHAMPION_S_CACHE                             = 195709,
+    GO_CHAMPION_S_CACHE_H                           = 195710,
 
-    GO_EADRIC_LOOT                                  = 195374,
-    GO_EADRIC_LOOT_H                                = 195375,
+    GO_EADRIC_S_CACHE                               = 195374,
+    GO_EADRIC_S_CACHE_H                             = 195375,
 
-    GO_PALETRESS_LOOT                               = 195323,
-    GO_PALETRESS_LOOT_H                             = 195324
+    GO_CONFESSOR_S_CACHE                            = 195323,
+    GO_CONFESSOR_S_CACHE_H                          = 195324
 };
 
 enum Vehicles

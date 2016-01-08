@@ -202,7 +202,21 @@ enum PointMovement
 
 const Position SpawnPosition = {746.261f, 687.0f, 412.374f, 4.65f};
 uint32 const IntroducePlrTxt[5] = { SAY_INTRODUCE_PLR_0, SAY_INTRODUCE_PLR_1, SAY_INTRODUCE_PLR_2, SAY_INTRODUCE_PLR_3, SAY_INTRODUCE_PLR_4 };
-uint32 const SpectatorData[11] = { NPC_SPECTATOR_HUMAN, NPC_SPECTATOR_ORC, NPC_SPECTATOR_DWARF, NPC_SPECTATOR_NELF, NPC_SPECTATOR_UNDEAD, NPC_SPECTATOR_TAUREN, NPC_SPECTATOR_GNOME, NPC_SPECTATOR_TROLL, NULL, NPC_SPECTATOR_BELF, NPC_SPECTATOR_DRAENEI };
+uint32 const SpectatorData[12] =
+{
+    0,
+    NPC_SPECTATOR_HUMAN,
+    NPC_SPECTATOR_ORC,
+    NPC_SPECTATOR_DWARF,
+    NPC_SPECTATOR_NELF,
+    NPC_SPECTATOR_UNDEAD,
+    NPC_SPECTATOR_TAUREN,
+    NPC_SPECTATOR_GNOME,
+    NPC_SPECTATOR_TROLL,
+    0,
+    NPC_SPECTATOR_BELF,
+    NPC_SPECTATOR_DRAENEI
+};
 
 // Bases mostly on Joshiwald's work (big thanks)
 struct GrandChampionInfo
@@ -218,38 +232,38 @@ GrandChampionInfo const GrandChampionData[5] =
 {
     {
         { VEHICLE_MOKRA_SKILLCRUSHER_MOUNT,     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT },
-        { VEHICLE_ORGRIMMAR_CHAMPION,           VEHICLE_STORMWIND_CHAMPION },
-        { SAY_INTRO_WARR_H,                     SAY_INTRO_WARR_A },
-        { NPC_MOKRA,                            NPC_JACOB },
-        { SpectatorData[RACE_ORC-1],            SpectatorData[RACE_HUMAN-1] },
+        { VEHICLE_ORGRIMMAR_CHAMPION,           VEHICLE_STORMWIND_CHAMPION          },
+        { SAY_INTRO_WARR_H,                     SAY_INTRO_WARR_A                    },
+        { NPC_MOKRA,                            NPC_JACOB                           },
+        { SpectatorData[RACE_ORC],              SpectatorData[RACE_HUMAN]           },
     },
     {
-        { VEHICLE_ERESSEA_DAWNSINGER_MOUNT,     VEHICLE_AMBROSE_BOLTSPARK_MOUNT },
-        { VEHICLE_SILVERMOON_CHAMPION,          VEHICLE_GNOMEREGAN_CHAMPION },
-        { SAY_INTRO_MAGE_H,                     SAY_INTRO_MAGE_A },
-        { NPC_ERESSEA,                          NPC_AMBROSE },
-        { SpectatorData[RACE_BLOODELF-1],       SpectatorData[RACE_GNOME-1] },
+        { VEHICLE_ERESSEA_DAWNSINGER_MOUNT,     VEHICLE_AMBROSE_BOLTSPARK_MOUNT     },
+        { VEHICLE_SILVERMOON_CHAMPION,          VEHICLE_GNOMEREGAN_CHAMPION         },
+        { SAY_INTRO_MAGE_H,                     SAY_INTRO_MAGE_A                    },
+        { NPC_ERESSEA,                          NPC_AMBROSE                         },
+        { SpectatorData[RACE_BLOODELF],         SpectatorData[RACE_GNOME]           },
     },
     {
-        { VEHICLE_RUNOK_WILDMANE_MOUNT,         VEHICLE_COLOSOS_MOUNT },
-        { VEHICLE_THUNDER_BLUFF_CHAMPION,       VEHICLE_EXODAR_CHAMPION },
-        { SAY_INTRO_SHAM_H,                     SAY_INTRO_SHAM_A },
-        { NPC_RUNOK,                            NPC_COLOSOS },
-        { SpectatorData[RACE_TAUREN-1],         SpectatorData[RACE_DRAENEI-1] },
+        { VEHICLE_RUNOK_WILDMANE_MOUNT,         VEHICLE_COLOSOS_MOUNT               },
+        { VEHICLE_THUNDER_BLUFF_CHAMPION,       VEHICLE_EXODAR_CHAMPION             },
+        { SAY_INTRO_SHAM_H,                     SAY_INTRO_SHAM_A                    },
+        { NPC_RUNOK,                            NPC_COLOSOS                         },
+        { SpectatorData[RACE_TAUREN],           SpectatorData[RACE_DRAENEI]         },
     },
     {
-        { VEHICLE_ZUL_TORE_MOUNT,               VEHICLE_EVENSONG_MOUNT },
-        { VEHICLE_SENJIN_CHAMPION,              VEHICLE_DARNASSUS_CHAMPION },
-        { SAY_INTRO_HUN,                        SAY_INTRO_HUN },
-        { NPC_ZULTORE,                          NPC_JAELYNE },
-        { SpectatorData[RACE_TROLL-1],          SpectatorData[RACE_NIGHTELF-1] },
+        { VEHICLE_ZUL_TORE_MOUNT,               VEHICLE_EVENSONG_MOUNT              },
+        { VEHICLE_SENJIN_CHAMPION,              VEHICLE_DARNASSUS_CHAMPION          },
+        { SAY_INTRO_HUN,                        SAY_INTRO_HUN                       },
+        { NPC_ZULTORE,                          NPC_JAELYNE                         },
+        { SpectatorData[RACE_TROLL],            SpectatorData[RACE_NIGHTELF]        },
     },
     {
-        { VEHICLE_DEATHSTALKER_VESCERI_MOUNT,   VEHICLE_LANA_STOUTHAMMER_MOUNT },
-        { VEHICLE_UNDERCITY_CHAMPION,           VEHICLE_IRONFORGE_CHAMPION },
-        { SAY_INTRO_ROG_H,                      SAY_INTRO_ROG_A },
-        { NPC_VISCERI,                          NPC_LANA },
-        { SpectatorData[RACE_UNDEAD_PLAYER-1],  SpectatorData[RACE_DWARF-1] },
+        { VEHICLE_DEATHSTALKER_VESCERI_MOUNT,   VEHICLE_LANA_STOUTHAMMER_MOUNT      },
+        { VEHICLE_UNDERCITY_CHAMPION,           VEHICLE_IRONFORGE_CHAMPION          },
+        { SAY_INTRO_ROG_H,                      SAY_INTRO_ROG_A                     },
+        { NPC_VISCERI,                          NPC_LANA                            },
+        { SpectatorData[RACE_UNDEAD_PLAYER],    SpectatorData[RACE_DWARF]           },
     }
 };
 
@@ -330,27 +344,27 @@ public:
                 case DATA_LESSER_CHAMPIONS_PREPARE:
                 {
                     // Moving lesser champions to right position
-                    uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
-                    GuidList TempList;
+                    uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
+                    GuidList* TempList = nullptr;
                     uint8 x = 0;
                     switch (uiData)
                     {
                         case WAYPOINT_MAP_BOSS_1:
-                            TempList = Champion1List;
+                            TempList = &Champion1List;
                             if (TeamInInstance == HORDE)
                                 x = 9;
                             else
                                 x = 0;
                             break;
                         case WAYPOINT_MAP_BOSS_2:
-                            TempList = Champion2List;
+                            TempList = &Champion2List;
                             if (TeamInInstance == HORDE)
                                 x = 12;
                             else
                                 x = 3;
                             break;
                         case WAYPOINT_MAP_BOSS_3:
-                            TempList = Champion3List;
+                            TempList = &Champion3List;
                             if (TeamInInstance == HORDE)
                                 x = 15;
                             else
@@ -360,9 +374,9 @@ public:
                             break;
                     }
 
-                    for (GuidList::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
+                    for (ObjectGuid const& guid : *TempList)
                     {
-                        if (Creature* add = ObjectAccessor::GetCreature(*me, *itr))
+                        if (Creature* add = ObjectAccessor::GetCreature(*me, guid))
                             add->AI()->SetData(DATA_GENERATE_WAYPOINTS_FOR_ADDS, x);
                         x++;
                     }
@@ -481,7 +495,7 @@ public:
                 return;
 
             GrandChampionInfo const* info = &GrandChampionData[bossId];
-            uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
+            uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
             uint32 teamIndex = TeamInInstance == HORDE ? 1 : 0;
 
             // Calculating spawn position for grand champion if event is skipped
@@ -569,7 +583,7 @@ public:
             // Removing vehicles (if not already been removed)
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
             // Cleaning chest from arena
-            if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_CHAMPIONS_LOOT)))
+            if (GameObject* cache = instance->GetGameObject(DATA_CHAMPION_S_CACHE))
                 cache->Delete();
             NextStep(1000, 0, false, EVENT_MOVE_MIDDLE);
         }
@@ -581,12 +595,12 @@ public:
             // Cleaning chest from arena
             if (instance->GetBossState(DATA_EADRIC_THE_PURE) == DONE)
             {
-                if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_EADRIC_LOOT)))
+                if (GameObject* cache = instance->GetGameObject(DATA_EADRIC_S_CACHE))
                     cache->Delete();
             }
             else if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == DONE)
             {
-                if (GameObject* cache = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_PALETRESS_LOOT)))
+                if (GameObject* cache = instance->GetGameObject(DATA_CONFESSOR_S_CACHE))
                     cache->Delete();
             }
             NextStep(1000, 0, false, EVENT_STEP_FORWARD);
@@ -604,8 +618,7 @@ public:
 
         void SetArgentChampion()
         {
-           uint8 uiTempBoss = urand(BOSS_EADRIC, BOSS_PALETRESS);
-           switch (uiTempBoss)
+           switch (RAND(BOSS_EADRIC, BOSS_PALETRESS))
            {
                 case BOSS_EADRIC:
                     uiArgentChampion = NPC_EADRIC;
@@ -673,7 +686,7 @@ public:
                 return;
 
             GrandChampionInfo const* info = &GrandChampionData[bossId];
-            uint32 teamIndex = instance->GetData(DATA_PLAYERS_TEAM) == HORDE ? 1 : 0;
+            uint32 teamIndex = instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? 1 : 0;
 
             // Introduces champion
             Talk(info->AnnounceText[teamIndex]);
@@ -711,7 +724,7 @@ public:
             }
             if (riderAlso)
             {
-                if (temp->GetVehicleKit() && temp->GetVehicleKit()->GetPassenger(SEAT_ID_0) && temp->GetVehicleKit()->GetPassenger(0)->ToCreature())
+                if (temp->GetVehicleKit() && temp->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                 {
                     if (Creature* rider = temp->GetVehicleKit()->GetPassenger(SEAT_ID_0)->ToCreature())
                     {
@@ -760,7 +773,7 @@ public:
                                         if (plr && !plr->IsGameMaster() && plr->IsAlive())
                                         {
                                             // 50% chance for race cheering at you or faction cheering at you
-                                            uint32 spectatorEntry = RAND(SpectatorData[plr->getRace() - 1], uint32(instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? NPC_SPECTATOR_ALLIANCE : NPC_SPECTATOR_HORDE));
+                                            uint32 spectatorEntry = RAND(SpectatorData[plr->getRace()], uint32(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_SPECTATOR_ALLIANCE : NPC_SPECTATOR_HORDE));
 
                                             if (Creature* spectator = me->FindNearestCreature(spectatorEntry, 200.0f))
                                                 spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
@@ -781,33 +794,32 @@ public:
                     {
                         // Introducing players to spectators
                         bool foundPlr = false;
-                        Map::PlayerList const &pList = me->GetMap()->GetPlayers();
-                        for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
-                            if (Player* plr = itr->GetSource())
-                            {
-                                if (plr->IsGameMaster() || !plr->IsAlive())
-                                    continue;
+                            Player* player = itr->GetSource();
 
-                                std::list<ObjectGuid>::iterator i = std::find(PlayerEventList.begin(), PlayerEventList.end(), plr->GetGUID());
-                                if (i != PlayerEventList.end())
-                                    continue;
+                            if (player->IsGameMaster() || !player->IsAlive())
+                                continue;
 
-                                // player has not been yet introduced
-                                uint32 x = PlayerEventList.size();
-                                if (IntroducePlrTxt[x])
-                                    Talk(IntroducePlrTxt[x], plr);
-                                else
-                                    continue; // no text found, too many players?
+                            GuidList::iterator i = std::find(PlayerEventList.begin(), PlayerEventList.end(), player->GetGUID());
+                            if (i != PlayerEventList.end())
+                                continue;
 
-                                if (Creature* spectator = me->FindNearestCreature(SpectatorData[plr->getRace() - 1], 200.0f))
-                                    spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
+                            // player has not been yet introduced
+                            uint32 x = PlayerEventList.size();
+                            if (IntroducePlrTxt[x])
+                                Talk(IntroducePlrTxt[x], player);
+                            else
+                                continue; // no text found, too many players?
 
-                                foundPlr = true;
-                                PlayerEventList.push_back(plr->GetGUID());
-                                NextStep(7000, 0, false, EVENT_INTRODUCE);
-                                break;
-                            }
+                            if (Creature* spectator = me->FindNearestCreature(SpectatorData[player->getRace()], 200.0f))
+                                spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, player);
+
+                            foundPlr = true;
+                            PlayerEventList.push_back(player->GetGUID());
+                            NextStep(7000, 0, false, EVENT_INTRODUCE);
+                            break;
                         }
                         // All players introduced, moving on
                         if (!foundPlr)
@@ -821,7 +833,7 @@ public:
                         break;
                     case EVENT_CHAT_2:
                         // Tirion gets interrupted by Varian Wrynn or Garrosh Hellscream
-                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         {
                             if (Creature* varian = instance->GetCreature(DATA_VARIAN))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_1);
@@ -834,7 +846,7 @@ public:
                         NextStep(6000, eventId);
                         break;
                     case EVENT_CHAT_3:
-                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         {
                             if (Creature* jaina = instance->GetCreature(DATA_JAINA))
                                 jaina->AI()->Talk(SAY_JAINA_INTRO_1);
@@ -847,7 +859,7 @@ public:
                         NextStep(5000, eventId);
                         break;
                     case EVENT_CHAT_4:
-                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         {
                             if (Creature* garrosh = instance->GetCreature(DATA_GARROSH))
                                 garrosh->AI()->Talk(SAY_GARROSH_INTRO_2);
@@ -860,7 +872,7 @@ public:
                         NextStep(8000, eventId);
                         break;
                     case EVENT_CHAT_5:
-                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         {
                             if (Creature* thrall = instance->GetCreature(DATA_THRALL))
                                 thrall->AI()->Talk(SAY_THRALL_INTRO_2);
@@ -1196,7 +1208,7 @@ public:
                         break;
                     case EVENT_CHAT_19:
                         // Varian or Garrosh tells players to kill him
-                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         {
                             if (Creature* varian = instance->GetCreature(DATA_VARIAN))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_3, me);
@@ -1220,7 +1232,7 @@ public:
                         NextStep(7000, eventId);
                         break;
                     case EVENT_CHAT_22:
-                        if (instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE)
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                         {
                             if (Creature* varian = instance->GetCreature(DATA_VARIAN))
                                 varian->AI()->Talk(SAY_VARIAN_OUTRO_1, me);

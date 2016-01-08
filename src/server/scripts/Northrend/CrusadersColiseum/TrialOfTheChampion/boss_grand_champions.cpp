@@ -186,7 +186,7 @@ Creature* FindMyMount(Creature* me, bool newMount = false)
     {
         // Summoning a new vehicle if all others are used
         // can but should not occur
-        uint32 tmpEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
+        uint32 tmpEntry = instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
         if (Creature* mount = me->SummonCreature(tmpEntry, bossExitPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
         {
             if (instance->GetGuidData(DATA_GRAND_CHAMPION_1) == me->GetGUID())
@@ -285,7 +285,7 @@ struct boss_grand_championAI : BossAI
         {
             if (Creature* pGrandChampion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAND_CHAMPION_1 + i)))
             {
-                if (pGrandChampion->HasAura(SPELL_KNEEL))
+                if (!pGrandChampion->HasAura(SPELL_KNEEL))
                     return false;
             }
         }
@@ -453,7 +453,7 @@ struct boss_grand_championAI : BossAI
                 mount->SetReactState(REACT_PASSIVE);
                 mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 
-                uint32 newMountEntry = instance->GetData(DATA_PLAYERS_TEAM) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
+                uint32 newMountEntry = instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
                 Creature* newMount = nullptr;
                 float dist = 0.0f;
                 std::list<Creature*> tempList;
@@ -499,7 +499,7 @@ struct boss_grand_championAI : BossAI
                 else
                 {
                     // Summoning a new mount for Grand Champion if every other mount have been used
-                    if (FindMyMount(me, true)) { }
+                    (void)FindMyMount(me, true);
                 }
 
                 // Defeated mount runs towards the center of arena and disappears
@@ -736,17 +736,20 @@ public:
 
         bool IsLesserChampion()
         {
-            if (me->GetEntry() == VEHICLE_DARNASSUS_CHAMPION ||
-                me->GetEntry() == VEHICLE_EXODAR_CHAMPION ||
-                me->GetEntry() == VEHICLE_STORMWIND_CHAMPION ||
-                me->GetEntry() == VEHICLE_GNOMEREGAN_CHAMPION ||
-                me->GetEntry() == VEHICLE_IRONFORGE_CHAMPION ||
-                me->GetEntry() == VEHICLE_UNDERCITY_CHAMPION ||
-                me->GetEntry() == VEHICLE_THUNDER_BLUFF_CHAMPION ||
-                me->GetEntry() == VEHICLE_ORGRIMMAR_CHAMPION ||
-                me->GetEntry() == VEHICLE_SILVERMOON_CHAMPION ||
-                me->GetEntry() == VEHICLE_SENJIN_CHAMPION)
-                return true;
+            switch (me->GetEntry())
+            {
+                case VEHICLE_DARNASSUS_CHAMPION:
+                case VEHICLE_EXODAR_CHAMPION:
+                case VEHICLE_STORMWIND_CHAMPION:
+                case VEHICLE_GNOMEREGAN_CHAMPION:
+                case VEHICLE_IRONFORGE_CHAMPION:
+                case VEHICLE_UNDERCITY_CHAMPION:
+                case VEHICLE_THUNDER_BLUFF_CHAMPION:
+                case VEHICLE_ORGRIMMAR_CHAMPION:
+                case VEHICLE_SILVERMOON_CHAMPION:
+                case VEHICLE_SENJIN_CHAMPION:
+                    return true;
+            }
             return false;
         }
 
@@ -827,7 +830,7 @@ public:
 
         void WaypointReached(uint32 waypointId) override 
         {
-            uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
+            uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
             // Grand Champions reached their final positions in the jousting event
             // and Lesser Champions begin to correct their positions
             if ((uiWaypointPath == WAYPOINT_MAP_BOSS_1 && waypointId == 3) || ((uiWaypointPath == WAYPOINT_MAP_BOSS_2 || uiWaypointPath == WAYPOINT_MAP_BOSS_3) && waypointId == 2))
@@ -859,7 +862,7 @@ public:
             // Lesser Champions correct their orientation
             if (pointId == 1 && uiWaypointPath == WAYPOINT_MAP_ADDS)
             {
-                uint32 TeamInInstance = instance->GetData(DATA_PLAYERS_TEAM);
+                uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
                 if (TeamInInstance == ALLIANCE)
                     me->SetFacingTo(hordeOrientation);
                 else
@@ -917,7 +920,7 @@ public:
         {
             if (IsGrandChampionVehicle())
             {
-                if (!me->GetVehicleKit() && me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
+                if (!me->GetVehicleKit())
                     return false;
 
                 Unit* rider = me->GetVehicleKit()->GetPassenger(SEAT_ID_0);
@@ -1043,16 +1046,16 @@ public:
                     }
                     case EVENT_SHIELD_BREAKER:
                         // Lesser Champions don't use Shield Breaker
-                        if (IsGrandChampionVehicle())
+                        if (IsGrandChampionVehicle() && me->GetVehicleKit())
                         {
                             if (CheckCombat())
                             {
-                                if (me->GetVehicleKit())
+                                if (Unit* rider = me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
                                 {
-                                    if (Unit* rider = me->GetVehicleKit()->GetPassenger(SEAT_ID_0))
+                                    if (Unit* victim = rider->GetVictim())
                                     {
-                                        if (rider->IsInRange(rider->GetVictim(), 5.0f, 30.0f, false))
-                                            rider->CastSpell(rider->GetVictim(), SPELL_SHIELD_BREAKER);
+                                        if (rider->IsInRange(victim, 5.0f, 30.0f, false))
+                                            rider->CastSpell(victim, SPELL_SHIELD_BREAKER);
                                     }
                                 }
                             }
@@ -1073,7 +1076,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<generic_vehicleAI_toc5AI>(creature);
+        return GetTrialOfChampionAI<generic_vehicleAI_toc5AI>(creature);
     }
 };
 
@@ -1178,7 +1181,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_warrior_toc5AI>(creature);
+        return GetTrialOfChampionAI<boss_warrior_toc5AI>(creature);
     }
 };
 
@@ -1274,7 +1277,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_mage_toc5AI>(creature);
+        return GetTrialOfChampionAI<boss_mage_toc5AI>(creature);
     }
 };
 
@@ -1463,7 +1466,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_shaman_toc5AI>(creature);
+        return GetTrialOfChampionAI<boss_shaman_toc5AI>(creature);
     }
 };
 
@@ -1552,7 +1555,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_hunter_toc5AI>(creature);
+        return GetTrialOfChampionAI<boss_hunter_toc5AI>(creature);
     }
 };
 
@@ -1629,7 +1632,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_rogue_toc5AI>(creature);
+        return GetTrialOfChampionAI<boss_rogue_toc5AI>(creature);
     }
 };
 
@@ -1642,13 +1645,6 @@ class spell_toc5_trample_aura : public SpellScriptLoader
         {
             PrepareSpellScript(spell_toc5_trample_aura_SpellScript);
 
-        public:
-            spell_toc5_trample_aura_SpellScript()
-            {
-                _removed = false;
-            }
-
-        private:
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 // The aura should not be applied if there is already a trample aura on target
@@ -1683,7 +1679,7 @@ class spell_toc5_trample_aura : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_toc5_trample_aura_SpellScript::RemoveAura);
             }
 
-            bool _removed;
+            bool _removed = false;
         };
 
         SpellScript* GetSpellScript() const override
@@ -1748,27 +1744,30 @@ class achievement_victories_over_champion : public AchievementCriteriaScript
         {
         }
 
-        bool OnCheck(Player* plr, Unit* target) override
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
-            if (target && target->ToCreature())
+            if (target)
             {
-                bool isHeroic = plr->GetMap()->IsHeroic();
-
-                if ((_criteriaId == CRITERIA_WARRIOR || (isHeroic && _criteriaId == CRITERIA_WARRIOR_H))
-                    && (target->ToCreature()->GetEntry() == NPC_JACOB || target->ToCreature()->GetEntry() == NPC_MOKRA))
-                    return true;
-                else if ((_criteriaId == CRITERIA_HUNTER || (isHeroic && _criteriaId == CRITERIA_HUNTER_H))
-                    && (target->ToCreature()->GetEntry() == NPC_JAELYNE || target->ToCreature()->GetEntry() == NPC_ZULTORE))
-                    return true;
-                else if ((_criteriaId == CRITERIA_MAGE || (isHeroic && _criteriaId == CRITERIA_MAGE_H))
-                    && (target->ToCreature()->GetEntry() == NPC_AMBROSE || target->ToCreature()->GetEntry() == NPC_ERESSEA))
-                    return true;
-                else if ((_criteriaId == CRITERIA_ROGUE || (isHeroic && _criteriaId == CRITERIA_ROGUE_H))
-                    && (target->ToCreature()->GetEntry() == NPC_LANA || target->ToCreature()->GetEntry() == NPC_VISCERI))
-                    return true;
-                else if ((_criteriaId == CRITERIA_SHAMAN || (isHeroic && _criteriaId == CRITERIA_SHAMAN_H))
-                    && (target->ToCreature()->GetEntry() == NPC_COLOSOS || target->ToCreature()->GetEntry() == NPC_RUNOK))
-                    return true;
+                switch (_criteriaId)
+                {
+                    case CRITERIA_WARRIOR:
+                    case CRITERIA_WARRIOR_H:
+                        return target->GetEntry() == NPC_JACOB || target->GetEntry() == NPC_MOKRA;
+                    case CRITERIA_HUNTER:
+                    case CRITERIA_HUNTER_H:
+                        return target->GetEntry() == NPC_JAELYNE || target->GetEntry() == NPC_ZULTORE;
+                    case CRITERIA_MAGE:
+                    case CRITERIA_MAGE_H:
+                        return target->GetEntry() == NPC_AMBROSE || target->GetEntry() == NPC_ERESSEA;
+                    case CRITERIA_ROGUE:
+                    case CRITERIA_ROGUE_H:
+                        return target->GetEntry() == NPC_LANA || target->GetEntry() == NPC_VISCERI;
+                    case CRITERIA_SHAMAN:
+                    case CRITERIA_SHAMAN_H:
+                        return target->GetEntry() == NPC_COLOSOS || target->GetEntry() == NPC_RUNOK;
+                    default:
+                        break;
+                }
             }
             return false;
         }

@@ -741,10 +741,8 @@ class achievement_ive_had_worse : public AchievementCriteriaScript
     public:
         achievement_ive_had_worse() : AchievementCriteriaScript("achievement_ive_had_worse") { }
 
-        bool OnCheck(Player* player, Unit* target) override
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
-            if (!player->GetMap()->IsHeroic())
-                return false;
             if (target->GetEntry() != NPC_BLACK_KNIGHT)
                 return false;
             if (!ENSURE_AI(boss_black_knight::boss_black_knightAI, target->GetAI())->achievementCredit)
