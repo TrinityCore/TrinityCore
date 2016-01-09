@@ -39,6 +39,9 @@ typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES]
 // CreatureFamilty
 TC_GAME_API char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);
 
+// EmotesText
+TC_GAME_API EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender);
+
 // Faction
 TC_GAME_API std::vector<uint32> const* GetFactionTeamList(uint32 faction);
 
