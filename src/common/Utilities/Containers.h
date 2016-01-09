@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Random.h"
+#include <algorithm>
 #include <functional>
 #include <list>
 #include <vector>
