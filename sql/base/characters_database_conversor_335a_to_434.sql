@@ -92,7 +92,7 @@ CREATE TABLE `guild_achievement` (
   `guildId` int(10) unsigned NOT NULL,
   `achievement` smallint(5) unsigned NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT '0',
-  `guids` text NOT NULL DEFAULT '',
+  `guids` text,
   PRIMARY KEY (`guildId`,`achievement`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -239,6 +239,3 @@ CREATE TABLE `corpse_phases` (
 TRUNCATE `character_aura`;
 TRUNCATE `character_talent`;
 TRUNCATE `pet_aura`;
-
-UPDATE `auctionhouse` SET `auctioneerguid`=286481 WHERE `auctioneerguid`=4656;
-UPDATE `auctionhouse` SET `auctioneerguid`=314060 WHERE `auctioneerguid`=79707;
