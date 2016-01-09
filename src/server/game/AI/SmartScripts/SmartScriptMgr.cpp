@@ -1129,6 +1129,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_SET_INHABIT_TYPE:
+        {
+            uint32 type = e.action.inhabitType.type;
+            if (type < INHABIT_GROUND || type > INHABIT_ANYWHERE)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INHABIT_TYPE uses non-existent inhabittype id %u for creature %u, skipped.", type, e.entryOrGuid);
+                return false;
+            }
+            break;
+        }
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:

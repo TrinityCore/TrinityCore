@@ -450,9 +450,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
-        bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
-        bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
+        bool CanWalk() const { return (GetInhabitType() & INHABIT_GROUND) != 0; }
+        bool CanSwim() const { return (GetInhabitType() & INHABIT_WATER) != 0 || IsPet(); }
+        bool CanFly()  const override { return (GetInhabitType() & INHABIT_AIR) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() const { return m_reactState; }
@@ -678,6 +678,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
 
+        uint32 GetInhabitType() const { return InhabitType; }
+        void SetInhabitType(uint32 v) { InhabitType = v; }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -746,6 +749,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
 
         CreatureTextRepeatGroup m_textRepeat;
+
+        uint32 InhabitType;
 };
 
 class AssistDelayEvent : public BasicEvent

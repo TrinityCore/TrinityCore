@@ -540,8 +540,9 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
     SMART_ACTION_RISE_UP                            = 114,    // distance
+    SMART_ACTION_SET_INHABIT_TYPE                   = 115,    // 1-7
 
-    SMART_ACTION_END                                = 115
+    SMART_ACTION_END                                = 116
 };
 
 struct SmartAction
@@ -753,6 +754,11 @@ struct SmartAction
         {
             uint32 distance;
         } moveRandom;
+
+        struct
+        {
+            uint32 type;
+        } inhabitType;
 
         struct
         {

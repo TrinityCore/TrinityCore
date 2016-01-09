@@ -1144,6 +1144,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + (float)e.action.moveRandom.distance);
             break;
         }
+        case SMART_ACTION_SET_INHABIT_TYPE:
+        {
+            if (!me)
+                break;
+
+            me->SetInhabitType(e.action.inhabitType.type);
+            break;
+        }
         case SMART_ACTION_SET_VISIBILITY:
         {
             if (me)
