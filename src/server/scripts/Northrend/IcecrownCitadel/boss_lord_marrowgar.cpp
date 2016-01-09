@@ -135,6 +135,7 @@ class boss_lord_marrowgar : public CreatureScript
                 _boneStormDuration = RAID_MODE<uint32>(20000, 30000, 20000, 30000);
                 _baseSpeed = creature->GetSpeedRate(MOVE_RUN);
                 _coldflameLastPos.Relocate(creature);
+                _introDone = false;
                 _boneSlice = false;
             }
 
