@@ -25443,9 +25443,9 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32 bonusId)
         ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
         return false;
     }
-	+std::vector<int> bonusList;
-	+bonusList.push_back(bonusId);
-	+Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId), GuidSet(), bonusList);
+	std::vector<int> bonusList;
+	bonusList.push_back(bonusId);
+	Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId), GuidSet(), bonusList);
     if (item)
         SendNewItem(item, count, true, false);
     else
