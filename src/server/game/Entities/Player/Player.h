@@ -1455,7 +1455,7 @@ class Player : public Unit, public GridObject<Player>
         void LoadCorpse(PreparedQueryResult result);
         void LoadPet();
 
-        bool AddItem(uint32 itemId, uint32 count);
+        bool AddItem(uint32 itemId, uint32 count, uint32 bonusId = 0);
 
         uint32 m_stableSlots;
 

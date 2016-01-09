@@ -25429,7 +25429,7 @@ void Player::SendRefundInfo(Item* item)
     GetSession()->SendPacket(setItemPurchaseData.Write());
 }
 
-bool Player::AddItem(uint32 itemId, uint32 count)
+bool Player::AddItem(uint32 itemId, uint32 count, uint32 bonusId)
 {
     uint32 noSpaceForCount = 0;
     ItemPosCountVec dest;
@@ -25443,8 +25443,9 @@ bool Player::AddItem(uint32 itemId, uint32 count)
         ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
         return false;
     }
-
-    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+	+std::vector<int> bonusList;
+	+bonusList.push_back(bonusId);
+	+Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId), GuidSet(), bonusList);
     if (item)
         SendNewItem(item, count, true, false);
     else
