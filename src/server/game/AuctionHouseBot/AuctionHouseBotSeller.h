@@ -33,12 +33,13 @@ typedef std::vector<std::vector<uint32>> AllItemsArray;
 
 struct SellerItemClassInfo
 {
-    SellerItemClassInfo(): AmountOfItems(0), MissItems(0), Quantity(0), PriceRatio(0) {}
+    SellerItemClassInfo(): AmountOfItems(0), MissItems(0), Quantity(0), PriceRatio(0), RandomStackRatio(100) {}
 
     uint32 AmountOfItems;
     uint32 MissItems;
     uint32 Quantity;
     uint32 PriceRatio;
+    uint32 RandomStackRatio;
 };
 
 struct SellerItemInfo
@@ -102,6 +103,8 @@ public:
     uint32 GetPriceRatioPerQuality(AuctionQuality quality) const { return _ItemInfo[quality].PriceRatio; }
     void SetPriceRatioPerClass(ItemClass item, uint32 value) { _ItemInfo[0].ItemClassInfos[item].PriceRatio = value; }
     uint32 GetPriceRatioPerClass(ItemClass item) const { return _ItemInfo[0].ItemClassInfos[item].PriceRatio; }
+    void SetRandomStackRatioPerClass(ItemClass item, uint32 value) { _ItemInfo[0].ItemClassInfos[item].RandomStackRatio = value; }
+    uint32 GetRandomStackRatioPerClass(ItemClass item) const { return _ItemInfo[0].ItemClassInfos[item].RandomStackRatio; }
 
 private:
     AuctionHouseType _houseType;
@@ -139,6 +142,7 @@ private:
     uint32 SetStat(SellerConfiguration& config);
     bool GetItemsToSell(SellerConfiguration& config, ItemsToSellArray& itemsToSellArray, AllItemsArray const& addedItem);
     void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt);
+    uint32 GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const;
     void LoadItemsQuantity(SellerConfiguration& config);
     static uint32 GetBuyModifier(ItemTemplate const* prototype);
     static uint32 GetSellModifier(ItemTemplate const* itemProto);
