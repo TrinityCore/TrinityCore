@@ -464,9 +464,11 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, createInfo->HairStyle);
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, createInfo->HairColor);
     SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
-    SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
+    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, createInfo->CustomDisplay[i]);
+    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, createInfo->Sex);
-    SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, 0);
+    SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, 0);
 
     SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
     SetUInt32Value(PLAYER_GUILDRANK, 0);
@@ -2619,8 +2621,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE, 0.0f);
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
-    for (uint8 i = 0; i < 7; ++i)
-        SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1+i, 0.0f);
+    SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1, 0.0f);
 
     SetFloatValue(PLAYER_PARRY_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_BLOCK_PERCENTAGE, 0.0f);
@@ -16340,8 +16341,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, fields[11].GetUInt8());
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, fields[12].GetUInt8());
     SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, fields[13].GetUInt8());
-    SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, fields[17].GetUInt8());
-    SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, fields[18].GetUInt8());
+    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, fields[14 + i].GetUInt8());
+    SetBankBagSlotCount(fields[17].GetUInt8());
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, gender);
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION, fields[53].GetUInt8());
     SetUInt32Value(PLAYER_FLAGS, fields[19].GetUInt32());
@@ -16773,6 +16775,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     InitRunes();
 
     // rest bonus can only be calculated after InitStatsForLevel()
+    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, fields[18].GetUInt8());
     m_rest_bonus = fields[29].GetFloat();
 
     if (time_diff > 0)
@@ -18552,11 +18555,10 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID));
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID));
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));
-        stmt->setUInt8(index++, 0);
-        stmt->setUInt8(index++, 0);
-        stmt->setUInt8(index++, 0);
-        stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS));
-        stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE));
+        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+            stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i));
+        stmt->setUInt8(index++, GetBankBagSlotCount());
+        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt16(index++, (uint16)GetMapId());
         stmt->setUInt32(index++, (uint32)GetInstanceId());
@@ -18682,11 +18684,10 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID));
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID));
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));
-        stmt->setUInt8(index++, 0);
-        stmt->setUInt8(index++, 0);
-        stmt->setUInt8(index++, 0);
-        stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS));
-        stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE));
+        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+            stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i));
+        stmt->setUInt8(index++, GetBankBagSlotCount());
+        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
 
         if (!IsBeingTeleported())
@@ -20601,17 +20602,17 @@ void Player::SetRestBonus(float rest_bonus_new)
 
     // update data for client
     if ((GetsRecruitAFriendBonus(true) && (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0)))
-        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, REST_STATE_RAF_LINKED);
+        SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, REST_STATE_RAF_LINKED);
     else
     {
         if (m_rest_bonus > 10)
-            SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, REST_STATE_RESTED);
+            SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, REST_STATE_RESTED);
         else if (m_rest_bonus <= 1)
-            SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, REST_STATE_NOT_RAF_LINKED);
+            SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, REST_STATE_NOT_RAF_LINKED);
     }
 
     //RestTickUpdate
-    SetUInt32Value(PLAYER_REST_STATE_EXPERIENCE, uint32(m_rest_bonus));
+    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_RESTED_XP, uint32(m_rest_bonus));
 }
 
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/)
@@ -21747,7 +21748,7 @@ void Player::SetBattlegroundEntryPoint()
 void Player::SetBGTeam(uint32 team)
 {
     m_bgData.bgTeam = team;
-    SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0));
+    SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0));
 }
 
 uint32 Player::GetBGTeam() const
@@ -24014,14 +24015,11 @@ void Player::InitGlyphsForLevel()
 
         SetGlyphSlot(slot++, gs->ID);
     }
-
-    SetUInt32Value(PLAYER_GLYPHS_ENABLED, slotMask);
 }
 
 void Player::SetGlyph(uint8 slot, uint32 glyph)
 {
     _talentMgr->GroupInfo[GetActiveTalentGroup()].Glyphs[slot] = glyph;
-    SetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot, glyph);
 }
 
 bool Player::isTotalImmune() const
@@ -24097,18 +24095,17 @@ bool Player::isTotalImmunity() const
     return false;
 }
 
-uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
+uint32 Player::GetRuneTypeBaseCooldown() const
 {
     float cooldown = RUNE_BASE_COOLDOWN;
-    float hastePct;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == runeType)
+        if ((*i)->GetMiscValue() == POWER_RUNES)
             cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
 
     // Runes cooldown are now affected by player's haste from equipment ...
-    hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
+    float hastePct = GetRatingBonusValue(CR_HASTE_MELEE);
 
     // ... and some auras.
     hastePct += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
@@ -24227,6 +24224,10 @@ void Player::InitRunes()
     if (getClass() != CLASS_DEATH_KNIGHT)
         return;
 
+    uint32 runeIndex = GetPowerIndex(POWER_RUNES);
+    if (runeIndex == MAX_POWERS)
+        return;
+
     m_runes = new Runes;
 
     m_runes->runeState = 0;
@@ -24243,8 +24244,9 @@ void Player::InitRunes()
         m_runes->SetRuneState(i);
     }
 
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
-        SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);                  // set a base regen timer equal to 10 sec
+    // set a base regen timer equal to 10 sec
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, 0.1f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.1f);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const

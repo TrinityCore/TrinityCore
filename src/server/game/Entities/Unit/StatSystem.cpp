@@ -752,6 +752,10 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
+    uint32 manaIndex = GetPowerIndex(POWER_MANA);
+    if (manaIndex == MAX_POWERS)
+        return;
+
     // Mana regen from spirit
     float spirit_regen = OCTRegenMPPerSpirit();
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
@@ -763,36 +767,22 @@ void Player::UpdateManaRegen()
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.001f + spirit_regen + base_regen);
-}
-
-void Player::UpdateRuneRegen(RuneType rune)
-{
-    if (rune >= NUM_RUNE_TYPES)
-        return;
-
-    uint32 cooldown = 0;
-
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == rune)
-        {
-            cooldown = GetRuneBaseCooldown(i);
-            break;
-        }
-
-    if (cooldown <= 0)
-        return;
-
-    float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
-    SetFloatValue(PLAYER_RUNE_REGEN_1 + uint8(rune), regen);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, 0.001f + spirit_regen + base_regen);
 }
 
 void Player::UpdateAllRunesRegen()
 {
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
-        if (uint32 cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
-            SetFloatValue(PLAYER_RUNE_REGEN_1 + i, float(1 * IN_MILLISECONDS) / float(cooldown));
+    if (getClass() != CLASS_DEATH_KNIGHT)
+        return;
+
+    uint32 runeIndex = GetPowerIndex(POWER_RUNES);
+    if (runeIndex == MAX_POWERS)
+        return;
+
+    uint32 cooldown = GetRuneTypeBaseCooldown();
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, float(1 * IN_MILLISECONDS) / float(cooldown));
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, float(1 * IN_MILLISECONDS) / float(cooldown));
 }
 
 void Player::_ApplyAllStatBonuses()

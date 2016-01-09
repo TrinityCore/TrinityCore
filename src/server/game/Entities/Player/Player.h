@@ -575,28 +575,32 @@ enum PlayerBytesOffsets
 
 enum PlayerBytes2Offsets
 {
-    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE      = 0,
-    PLAYER_BYTES_2_OFFSET_PARTY_TYPE        = 1,
-    PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS    = 2,
-    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
+    PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION = 0, // 3 bytes
+    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE          = 3,
 };
 
 #define PLAYER_CUSTOM_DISPLAY_SIZE 3
 
 enum PlayerBytes3Offsets
 {
-    PLAYER_BYTES_3_OFFSET_GENDER        = 0,
-    PLAYER_BYTES_3_OFFSET_INEBRIATION   = 1,
-    PLAYER_BYTES_3_OFFSET_PVP_TITLE     = 2,
-    PLAYER_BYTES_3_OFFSET_ARENA_FACTION = 3
+    PLAYER_BYTES_3_OFFSET_PARTY_TYPE        = 0,
+    PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS    = 1,
+    PLAYER_BYTES_3_OFFSET_GENDER            = 2,
+    PLAYER_BYTES_3_OFFSET_INEBRIATION       = 3,
+};
+
+enum PlayerBytes4Offsets
+{
+    PLAYER_BYTES_4_OFFSET_PVP_TITLE     = 0,
+    PLAYER_BYTES_4_OFFSET_ARENA_FACTION = 1
 };
 
 enum PlayerFieldBytesOffsets
 {
-    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL   = 0,
-    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES    = 1,
-    PLAYER_FIELD_BYTES_OFFSET_PVP_RANK              = 2,
-    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK = 3
+    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL       = 0,
+    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES        = 1,
+    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK     = 2,
+    PLAYER_FIELD_BYTES_OFFSET_MAX_ARTIFACT_POWER_RANKS  = 3,
 };
 
 enum PlayerFieldBytes2Offsets
@@ -625,6 +629,16 @@ enum PlayerFieldKillsOffsets
 {
     PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS     = 0,
     PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS = 1
+};
+
+enum PlayerRestInfoOffsets
+{
+    REST_STATE_XP       = 0,
+    REST_RESTED_XP      = 1,
+    REST_STATE_HONOR    = 2,
+    REST_RESTED_HONOR   = 3,
+
+    MAX_REST_INFO
 };
 
 enum MirrorTimerType
@@ -1161,6 +1175,8 @@ struct TC_GAME_API PlayerTalentInfo
             memset(GroupInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
             GroupInfo[i].SpecId = 0;
         }
+
+        GlyphSlots.fill(0);
     }
 
     ~PlayerTalentInfo()
@@ -1180,6 +1196,8 @@ struct TC_GAME_API PlayerTalentInfo
     time_t ResetTalentsTime;
     uint8 ActiveGroup;
     uint8 GroupsCount;
+
+    std::array<uint32, MAX_GLYPH_SLOT_INDEX> GlyphSlots;
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
@@ -1347,8 +1365,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
-        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
-        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
+        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS); }
+        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -1789,9 +1807,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ActivateTalentGroup(uint8 group);
 
         void InitGlyphsForLevel();
-        void SetGlyphSlot(uint8 slot, uint32 slottype) { SetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot, slottype); }
+        void SetGlyphSlot(uint8 slot, uint32 slottype) { _talentMgr->GlyphSlots[slot] = slottype; }
 
-        uint32 GetGlyphSlot(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
+        uint32 GetGlyphSlot(uint8 slot) const { return _talentMgr->GlyphSlots[slot]; }
         void SetGlyph(uint8 slot, uint32 glyph);
         uint32 GetGlyph(uint8 group, uint8 slot) const { return _talentMgr->GroupInfo[group].Glyphs[slot]; }
 
@@ -1971,7 +1989,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
-        void UpdateRuneRegen(RuneType rune);
         uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
         void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
         uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
@@ -2411,8 +2428,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
-        uint32 GetRuneTypeBaseCooldown(RuneType runeType) const;
+        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(); }
+        uint32 GetRuneTypeBaseCooldown() const;
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         RuneType GetLastUsedRune() const { return m_runes->lastUsedRune; }
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
