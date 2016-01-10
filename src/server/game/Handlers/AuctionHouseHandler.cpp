@@ -179,7 +179,6 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         return;
     }
 
-
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
@@ -284,9 +283,26 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     AuctionEntry* AH = new AuctionEntry();
 
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
-        AH->auctioneer = 23442;     ///@TODO - HARDCODED DB GUID, BAD BAD BAD
+        AH->houseId = AUCTIONHOUSE_NEUTRAL;
     else
-        AH->auctioneer = auctioneer.GetCounter();
+    {
+        CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(creature->GetDBTableGUIDLow());
+        if (!auctioneerData)
+        {
+            TC_LOG_ERROR("misc", "Data for auctioneer not found (%s)", auctioneer.ToString().c_str());
+            return;
+        }
+
+        CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
+        if (!auctioneerInfo)
+        {
+            TC_LOG_ERROR("misc", "Non existing auctioneer (%s)", auctioneer.ToString().c_str());
+            return;
+        }
+
+        AuctionHouseEntry const* AHEntry = sAuctionMgr->GetAuctionHouseEntry(auctioneerInfo->faction);
+        AH->houseId = AHEntry->houseId;
+    }
 
     // Required stack size of auction matches to current item stack size, just move item to auctionhouse
     if (itemsCount == 1 && item->GetCount() == count[0])
@@ -310,8 +326,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->deposit = deposit;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
-            _player->GetName().c_str(), _player->GetGUIDLow(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUIDLow(), AH->auctioneer, item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+            _player->GetName().c_str(), _player->GetGUIDLow(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUIDLow(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
         sAuctionMgr->AddAItem(item);
         auctionHouse->AddAuction(AH);
 
@@ -358,8 +374,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->deposit = deposit;
         AH->auctionHouseEntry = auctionHouseEntry;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
-            _player->GetName().c_str(), _player->GetGUIDLow(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUIDLow(), AH->auctioneer, newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+            _player->GetName().c_str(), _player->GetGUIDLow(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUIDLow(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
         sAuctionMgr->AddAItem(newItem);
         auctionHouse->AddAuction(AH);
 
