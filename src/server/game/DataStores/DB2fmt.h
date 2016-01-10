@@ -19,7 +19,6 @@
 #define TRINITY_DB2SFRM_H
 
 char const AchievementFormat[] = "niiissiiiiisiii";
-char const AreaGroupFormat[] = "n";
 char const AreaGroupMemberFormat[] = "nii";
 char const AuctionHouseFormat[] = "niiis";
 char const BarberShopStyleFormat[] = "nissfiii";

@@ -32,9 +32,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Reward, MinimumCriteria, SharesCriteria, CriteriaTree FROM achievement ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT ID, Title_lang, Description_lang, Reward_lang FROM achievement_locale WHERE locale = ?", CONNECTION_SYNCH);
 
-    // AreaGroup.db2
-    PrepareStatement(HOTFIX_SEL_AREA_GROUP, "SELECT ID FROM area_group ORDER BY ID DESC", CONNECTION_SYNCH);
-
     // AreaGroupMember.db2
     PrepareStatement(HOTFIX_SEL_AREA_GROUP_MEMBER, "SELECT ID, AreaGroupID, AreaID FROM area_group_member ORDER BY ID DESC", CONNECTION_SYNCH);
 
