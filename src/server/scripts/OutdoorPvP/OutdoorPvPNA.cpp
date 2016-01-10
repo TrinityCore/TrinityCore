@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapManager.h"
 #include "ScriptMgr.h"
 #include "OutdoorPvPNA.h"
 #include "Player.h"
@@ -43,31 +44,34 @@ void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
 uint32 OPvPCapturePointNA::GetAliveGuardsCount()
 {
     uint32 cnt = 0;
-    for (std::map<uint32, ObjectGuid>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
+    for (std::map<uint32, ObjectGuid::LowType>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
     {
         switch (itr->first)
         {
-        case NA_NPC_GUARD_01:
-        case NA_NPC_GUARD_02:
-        case NA_NPC_GUARD_03:
-        case NA_NPC_GUARD_04:
-        case NA_NPC_GUARD_05:
-        case NA_NPC_GUARD_06:
-        case NA_NPC_GUARD_07:
-        case NA_NPC_GUARD_08:
-        case NA_NPC_GUARD_09:
-        case NA_NPC_GUARD_10:
-        case NA_NPC_GUARD_11:
-        case NA_NPC_GUARD_12:
-        case NA_NPC_GUARD_13:
-        case NA_NPC_GUARD_14:
-        case NA_NPC_GUARD_15:
-            if (Creature const* const cr = HashMapHolder<Creature>::Find(itr->second))
-                if (cr->IsAlive())
-                    ++cnt;
-            break;
-        default:
-            break;
+            case NA_NPC_GUARD_01:
+            case NA_NPC_GUARD_02:
+            case NA_NPC_GUARD_03:
+            case NA_NPC_GUARD_04:
+            case NA_NPC_GUARD_05:
+            case NA_NPC_GUARD_06:
+            case NA_NPC_GUARD_07:
+            case NA_NPC_GUARD_08:
+            case NA_NPC_GUARD_09:
+            case NA_NPC_GUARD_10:
+            case NA_NPC_GUARD_11:
+            case NA_NPC_GUARD_12:
+            case NA_NPC_GUARD_13:
+            case NA_NPC_GUARD_14:
+            case NA_NPC_GUARD_15:
+            {
+                auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(itr->second);
+                for (auto it = bounds.first; it != bounds.second; ++it)
+                    if (it->second->IsAlive())
+                        ++cnt;
+                break;
+            }
+            default:
+                break;
         }
     }
     return cnt;
@@ -372,9 +376,9 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
     return false;
 }
 
-int32 OPvPCapturePointNA::HandleOpenGo(Player* player, ObjectGuid guid)
+int32 OPvPCapturePointNA::HandleOpenGo(Player* player, GameObject* go)
 {
-    int32 retval = OPvPCapturePoint::HandleOpenGo(player, guid);
+    int32 retval = OPvPCapturePoint::HandleOpenGo(player, go);
     if (retval >= 0)
     {
         const go_type * gos = NULL;
@@ -567,11 +571,9 @@ void OPvPCapturePointNA::ChangeState()
         break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
-    if (flag)
-    {
-        flag->SetGoArtKit(artkit);
-    }
+    auto bounds = sMapMgr->FindMap(530, 0)->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        itr->second->SetGoArtKit(artkit);
 
     UpdateHalaaWorldState();
 }

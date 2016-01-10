@@ -736,7 +736,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             ca.date = time_t(fields[1].GetUInt32());
             Tokenizer guids(fields[2].GetString(), ' ');
             for (uint32 i = 0; i < guids.size(); ++i)
-                ca.guids.insert(ObjectGuid(HIGHGUID_PLAYER, uint32(atol(guids[i]))));
+                ca.guids.insert(ObjectGuid(HighGuid::Player, uint32(atol(guids[i]))));
 
             ca.changed = false;
 
@@ -774,7 +774,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             CriteriaProgress& progress = m_criteriaProgress[id];
             progress.counter = counter;
             progress.date    = date;
-            progress.CompletedGUID = ObjectGuid(HIGHGUID_PLAYER, guid);
+            progress.CompletedGUID = ObjectGuid(HighGuid::Player, guid);
             progress.changed = false;
         } while (criteriaResult->NextRow());
     }
@@ -1927,7 +1927,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
         SendAchievementEarned(achievement);
 
     TC_LOG_INFO("achievement", "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
-        achievement->ID, GetOwner()->GetName().c_str(), GetOwner()->GetGUIDLow());
+        achievement->ID, GetOwner()->GetName().c_str(), GetOwner()->GetGUID().GetCounter());
 
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
     ca.date = time(NULL);

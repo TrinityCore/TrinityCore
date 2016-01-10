@@ -102,7 +102,7 @@ void GuildFinderMgr::LoadMembershipRequests()
         std::string comment = fields[5].GetString();
         uint32 submitTime   = fields[6].GetUInt32();
 
-        MembershipRequest request(ObjectGuid(HIGHGUID_PLAYER, playerId), guildId, availability, classRoles, interests, comment, time_t(submitTime));
+        MembershipRequest request(ObjectGuid(HighGuid::Player, playerId), guildId, availability, classRoles, interests, comment, time_t(submitTime));
 
         _membershipRequests[guildId].push_back(request);
 

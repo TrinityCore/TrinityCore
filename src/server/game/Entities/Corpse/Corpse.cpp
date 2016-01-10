@@ -44,7 +44,7 @@ void Corpse::AddToWorld()
 {
     ///- Register the corpse for guid lookup
     if (!IsInWorld())
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<Corpse>(GetGUID(), this);
 
     Object::AddToWorld();
 }
@@ -53,15 +53,15 @@ void Corpse::RemoveFromWorld()
 {
     ///- Remove the corpse from the accessor
     if (IsInWorld())
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<Corpse>(GetGUID());
 
-    Object::RemoveFromWorld();
+    WorldObject::RemoveFromWorld();
 }
 
 bool Corpse::Create(uint32 guidlow, Map* map)
 {
     SetMap(map);
-    Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
+    Object::_Create(guidlow, 0, HighGuid::Corpse);
     return true;
 }
 
@@ -82,9 +82,9 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
     //in other way we will get a crash in Corpse::SaveToDB()
     SetMap(owner->GetMap());
 
-    WorldObject::_Create(guidlow, HIGHGUID_CORPSE, owner->GetPhaseMask());
+    WorldObject::_Create(guidlow, HighGuid::Corpse, owner->GetPhaseMask());
 
-    SetObjectScale(1);
+    SetObjectScale(1.0f);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
 
     _gridCoord = Trinity::ComputeGridCoord(GetPositionX(), GetPositionY());
@@ -102,7 +102,6 @@ void Corpse::SaveToDB()
 
     uint16 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
-    stmt->setUInt32(index++, GetGUIDLow());                                           // corpseGuid
     stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                            // guid
     stmt->setFloat (index++, GetPositionX());                                         // posX
     stmt->setFloat (index++, GetPositionY());                                         // posY
@@ -124,11 +123,8 @@ void Corpse::SaveToDB()
     {
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
-        stmt->setUInt32(index++, GetGUIDLow());                                       // Guid (corpse's)
-        stmt->setUInt32(index++, phaseId);                                            // PhaseId
         stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
-        stmt->setUInt32(index++, uint32(m_time));                                     // Time
-        stmt->setUInt8(index++, GetType());                                           // CorpseType
+        stmt->setUInt32(index++, phaseId);                                            // PhaseId
         trans->Append(stmt);
     }
 
@@ -142,7 +138,7 @@ void Corpse::DeleteBonesFromWorld()
 
     if (!corpse)
     {
-        TC_LOG_ERROR("entities.player", "Bones %u not found in world.", GetGUIDLow());
+        TC_LOG_ERROR("entities.player", "Bones %u not found in world.", GetGUID().GetCounter());
         return;
     }
 
@@ -151,46 +147,27 @@ void Corpse::DeleteBonesFromWorld()
 
 void Corpse::DeleteFromDB(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = NULL;
-    if (GetType() == CORPSE_BONES)
-    {
-        // Only specific bones
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
-        stmt->setUInt32(0, GetGUIDLow());
-        trans->Append(stmt);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
+    stmt->setUInt32(0, GetOwnerGUID().GetCounter());
+    trans->Append(stmt);
 
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
-        stmt->setUInt32(0, GetGUIDLow());
-        trans->Append(stmt);
-    }
-    else
-    {
-        // all corpses (not bones)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_CORPSES);
-        stmt->setUInt32(0, GetOwnerGUID().GetCounter());
-        trans->Append(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_CORPSES_PHASES);
-        stmt->setUInt32(0, GetOwnerGUID().GetCounter());
-        trans->Append(stmt);
-    }
-    
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
+    stmt->setUInt32(0, GetOwnerGUID().GetCounter());
+    trans->Append(stmt);
 }
 
 bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 {
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, corpseGuid, guid FROM corpse WHERE corpseType <> 0
+    //        0,    1,    2,    3,           4,     5,         6,         7,      8,      9,     10,       11,   12,         13,         14
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse
 
-    uint32 ownerGuid = fields[15].GetUInt32();
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();
     float o      = fields[3].GetFloat();
     uint32 mapId = fields[4].GetUInt16();
 
-    Object::_Create(guid, 0, HIGHGUID_CORPSE);
+    Object::_Create(guid, 0, HighGuid::Corpse);
 
     SetObjectScale(1.0f);
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
@@ -199,7 +176,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
-    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid(HIGHGUID_PLAYER, ownerGuid));
+    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Create<HighGuid::Player>(fields[14].GetUInt32()));
 
     m_time = time_t(fields[11].GetUInt32());
 

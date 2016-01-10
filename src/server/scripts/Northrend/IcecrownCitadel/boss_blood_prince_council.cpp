@@ -376,7 +376,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -591,7 +591,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -815,7 +815,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 

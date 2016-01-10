@@ -769,7 +769,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
     }
 
     Creature* creature = new Creature();
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, x, y, z, o))
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
         delete creature;
@@ -801,7 +801,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z
 
     // Create gameobject
     GameObject* go = new GameObject;
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
+    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u not found in database! Battlefield not created!", entry);
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Cannot create gameobject template %u! Battlefield not created!", entry);
@@ -834,7 +834,7 @@ GameObject* Battlefield::GetGameObject(ObjectGuid guid)
 // ******************* CapturePoint **********************
 // *******************************************************
 
-BfCapturePoint::BfCapturePoint(Battlefield* battlefield) : m_Bf(battlefield), m_capturePointGUID()
+BfCapturePoint::BfCapturePoint(Battlefield* battlefield) : m_Bf(battlefield), m_capturePointSpawnId()
 {
     m_team = TEAM_NEUTRAL;
     m_value = 0;
@@ -849,9 +849,9 @@ BfCapturePoint::BfCapturePoint(Battlefield* battlefield) : m_Bf(battlefield), m_
 
 bool BfCapturePoint::HandlePlayerEnter(Player* player)
 {
-    if (m_capturePointGUID)
+    if (m_capturePointSpawnId)
     {
-        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointSpawnId))
         {
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, uint32(ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f)));
@@ -864,8 +864,8 @@ bool BfCapturePoint::HandlePlayerEnter(Player* player)
 
 GuidSet::iterator BfCapturePoint::HandlePlayerLeave(Player* player)
 {
-    if (m_capturePointGUID)
-        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+    if (m_capturePointSpawnId)
+        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointSpawnId))
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
 
     GuidSet::iterator current = m_activePlayers[player->GetTeamId()].find(player->GetGUID());
@@ -879,10 +879,10 @@ GuidSet::iterator BfCapturePoint::HandlePlayerLeave(Player* player)
 
 void BfCapturePoint::SendChangePhase()
 {
-    if (!m_capturePointGUID)
+    if (!m_capturePointSpawnId)
         return;
 
-    if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+    if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointSpawnId))
     {
         // send this too, sometimes the slider disappears, dunno why :(
         SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
@@ -899,7 +899,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 
     TC_LOG_DEBUG("bg.battlefield", "Creating capture point %u", capturePoint->GetEntry());
 
-    m_capturePointGUID = ObjectGuid(HIGHGUID_GAMEOBJECT, capturePoint->GetEntry(), capturePoint->GetGUIDLow());
+    m_capturePointSpawnId = ObjectGuid(HighGuid::GameObject, capturePoint->GetEntry(), capturePoint->GetGUID().GetCounter());
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
@@ -931,20 +931,20 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 
 GameObject* BfCapturePoint::GetCapturePointGo()
 {
-    return m_Bf->GetGameObject(m_capturePointGUID);
+    return m_Bf->GetGameObject(m_capturePointSpawnId);
 }
 
 bool BfCapturePoint::DelCapturePoint()
 {
-    if (m_capturePointGUID)
+    if (m_capturePointSpawnId)
     {
-        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointSpawnId))
         {
             capturePoint->SetRespawnTime(0);                  // not save respawn time
             capturePoint->Delete();
             capturePoint = NULL;
         }
-        m_capturePointGUID.Clear();
+        m_capturePointSpawnId.Clear();
     }
 
     return true;
@@ -952,10 +952,10 @@ bool BfCapturePoint::DelCapturePoint()
 
 bool BfCapturePoint::Update(uint32 diff)
 {
-    if (!m_capturePointGUID)
+    if (!m_capturePointSpawnId)
         return false;
 
-    if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+    if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointSpawnId))
     {
         float radius = capturePoint->GetGOInfo()->capturePoint.radius;
 

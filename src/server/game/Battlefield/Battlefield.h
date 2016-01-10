@@ -133,7 +133,7 @@ class BfCapturePoint
         uint32 m_capturePointEntry;
 
         // Gameobject related to that capture point
-        ObjectGuid m_capturePointGUID;
+        ObjectGuid m_capturePointSpawnId;
 };
 
 class BfGraveyard
