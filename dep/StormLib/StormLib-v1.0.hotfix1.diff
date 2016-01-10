@@ -1,0 +1,22 @@
+ dep/StormLib/src/SFileFindFile.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/dep/StormLib/src/SFileFindFile.cpp b/dep/StormLib/src/SFileFindFile.cpp
+index 337be7d..ca745b9 100644
+--- a/dep/StormLib/src/SFileFindFile.cpp
++++ b/dep/StormLib/src/SFileFindFile.cpp
+@@ -225,8 +225,12 @@ static TFileEntry * FindPatchEntry(TMPQArchive * ha, TFileEntry * pFileEntry)
+         ha = ha->haPatch;
+ 
+         // Prepare the prefix for the file name
++        char* fileName = pFileEntry->szFileName;
++        if (fileName == NULL)
++            continue;
++
+         strcpy(szFileName, ha->szPatchPrefix);
+-        strcat(szFileName, pFileEntry->szFileName);
++        strcat(szFileName, fileName);
+ 
+         // Try to find the file there
+         pTempEntry = GetFileEntryExact(ha, szFileName, lcLocale);
+

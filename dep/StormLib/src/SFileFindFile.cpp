@@ -225,8 +225,12 @@ static TFileEntry * FindPatchEntry(TMPQArchive * ha, TFileEntry * pFileEntry)
         ha = ha->haPatch;
 
         // Prepare the prefix for the file name
+        char* fileName = pFileEntry->szFileName;
+        if (fileName == NULL)
+            continue;
+
         strcpy(szFileName, ha->szPatchPrefix);
-        strcat(szFileName, pFileEntry->szFileName);
+        strcat(szFileName, fileName);
 
         // Try to find the file there
         pTempEntry = GetFileEntryExact(ha, szFileName, lcLocale);
