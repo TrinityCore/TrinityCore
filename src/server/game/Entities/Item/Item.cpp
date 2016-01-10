@@ -1410,30 +1410,52 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
 
 bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto1 = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
+    ItemTemplate const* source = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
+    ItemTemplate const* target = transmogrified->GetTemplate(); // dest
 
-    if (sDB2Manager.GetItemDisplayId(proto1->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
+    if (!source || !target)
+        return false;
+
+    if (sDB2Manager.GetItemDisplayId(source->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
         return false;
 
     if (!transmogrified->CanTransmogrify() || !CanBeTransmogrified(transmogrifier, bonus))
         return false;
 
-    if (proto1->GetInventoryType() == INVTYPE_BAG ||
-        proto1->GetInventoryType() == INVTYPE_RELIC ||
-        proto1->GetInventoryType() == INVTYPE_BODY ||
-        proto1->GetInventoryType() == INVTYPE_FINGER ||
-        proto1->GetInventoryType() == INVTYPE_TRINKET ||
-        proto1->GetInventoryType() == INVTYPE_AMMO ||
-        proto1->GetInventoryType() == INVTYPE_QUIVER)
+    if (source->GetInventoryType() == INVTYPE_BAG ||
+        source->GetInventoryType() == INVTYPE_RELIC ||
+        source->GetInventoryType() == INVTYPE_BODY ||
+        source->GetInventoryType() == INVTYPE_FINGER ||
+        source->GetInventoryType() == INVTYPE_TRINKET ||
+        source->GetInventoryType() == INVTYPE_AMMO ||
+        source->GetInventoryType() == INVTYPE_QUIVER)
         return false;
 
-    if (proto1->GetSubClass() != proto2->GetSubClass() && (proto1->GetClass() != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (source->IsRangedWeapon() != target->IsRangedWeapon())
         return false;
 
-    if (proto1->GetInventoryType() != proto2->GetInventoryType() &&
-        (proto1->GetClass() != ITEM_CLASS_WEAPON || (proto2->GetInventoryType() != INVTYPE_WEAPONMAINHAND && proto2->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->GetClass() != ITEM_CLASS_ARMOR || (proto1->GetInventoryType() != INVTYPE_CHEST && proto2->GetInventoryType() != INVTYPE_ROBE && proto1->GetInventoryType() != INVTYPE_ROBE && proto2->GetInventoryType() != INVTYPE_CHEST)))
+    if (source->GetClass() != target->GetClass())
+        return false;
+
+    if (source->GetSubClass() != target->GetSubClass() && !source->IsRangedWeapon() && !(source->GetClass() == ITEM_CLASS_WEAPON &&
+        (
+            ((source->GetSubClass() == ITEM_SUBCLASS_WEAPON_SWORD || source->GetSubClass() == ITEM_SUBCLASS_WEAPON_AXE || source->GetSubClass() == ITEM_SUBCLASS_WEAPON_MACE) &&
+                (target->GetSubClass() == ITEM_SUBCLASS_WEAPON_SWORD || target->GetSubClass() == ITEM_SUBCLASS_WEAPON_AXE || target->GetSubClass() == ITEM_SUBCLASS_WEAPON_MACE)) ||
+            ((source->GetSubClass() == ITEM_SUBCLASS_WEAPON_SWORD2 || source->GetSubClass() == ITEM_SUBCLASS_WEAPON_AXE2 || source->GetSubClass() == ITEM_SUBCLASS_WEAPON_MACE2) &&
+                (target->GetSubClass() == ITEM_SUBCLASS_WEAPON_SWORD2 || target->GetSubClass() == ITEM_SUBCLASS_WEAPON_AXE2 || target->GetSubClass() == ITEM_SUBCLASS_WEAPON_MACE2)) ||
+            ((source->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || source->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF) &&
+                (target->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || target->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF))
+            )
+        ))
+        return false;
+
+    if (!(source->GetInventoryType() == target->GetInventoryType() || target->IsRangedWeapon() ||
+        (source->GetClass() == ITEM_CLASS_WEAPON &&
+            (target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND) &&
+                source->GetInventoryType() == INVTYPE_WEAPON) ||
+        (source->GetClass() == ITEM_CLASS_ARMOR &&
+            (source->GetInventoryType() == INVTYPE_CHEST || source->GetInventoryType() == INVTYPE_ROBE) &&
+                (target->GetInventoryType() == INVTYPE_CHEST || target->GetInventoryType() == INVTYPE_ROBE))))
         return false;
 
     return true;
