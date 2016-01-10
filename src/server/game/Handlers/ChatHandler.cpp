@@ -639,7 +639,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         {
             if (!normalizePlayerName(targetName))
                 break;
-            Player* receiver = sObjectAccessor->FindPlayerByName(targetName);
+            Player* receiver = ObjectAccessor::FindPlayerByName(targetName);
             if (!receiver)
                 break;
 

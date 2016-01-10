@@ -100,7 +100,7 @@ public:
     // Triggering corpses expire check in world
     static bool HandleServerCorpsesCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
-        sObjectAccessor->RemoveOldCorpses();
+        sWorld->RemoveOldCorpses();
         return true;
     }
 

@@ -217,7 +217,7 @@ public:
         {
             playerName = param3;
             if (normalizePlayerName(playerName))
-                player = sObjectAccessor->FindPlayerByName(playerName);
+                player = ObjectAccessor::FindPlayerByName(playerName);
         }
 
         if (!player)
@@ -283,7 +283,7 @@ public:
         {
             playerName = param2;
             if (normalizePlayerName(playerName))
-                player = sObjectAccessor->FindPlayerByName(playerName);
+                player = ObjectAccessor::FindPlayerByName(playerName);
         }
 
         if (!player)

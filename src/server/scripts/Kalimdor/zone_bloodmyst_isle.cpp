@@ -541,7 +541,7 @@ public:
                         case PHASE_PLANT_FIRST_DETONATE: // first explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
+                                if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();
@@ -638,7 +638,7 @@ public:
                         case PHASE_PLANT_SECOND_DETONATE: // second explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
+                                if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();

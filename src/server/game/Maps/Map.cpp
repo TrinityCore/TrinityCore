@@ -50,9 +50,9 @@ GridState* si_GridStates[MAX_GRID_STATE];
 
 Map::~Map()
 {
-    sScriptMgr->OnDestroyMap(this);
+    // UnloadAll must be called before deleting the map
 
-    UnloadAll();
+    sScriptMgr->OnDestroyMap(this);
 
     while (!i_worldObjects.empty())
     {
@@ -400,7 +400,7 @@ void Map::DeleteFromWorld(T* obj)
 template<>
 void Map::DeleteFromWorld(Player* player)
 {
-    sObjectAccessor->RemoveObject(player);
+    ObjectAccessor::RemoveObject(player);
     RemoveUpdateObject(player); /// @todo I do not know why we need this, it should be removed in ~Object anyway
     delete player;
 }
@@ -468,8 +468,6 @@ bool Map::EnsureGridLoaded(const Cell &cell)
         ObjectGridLoader loader(*grid, this, cell);
         loader.LoadN();
 
-        // Add resurrectable corpses to world object list in grid
-        sObjectAccessor->AddCorpsesToGrid(GridCoord(cell.GridX(), cell.GridY()), grid->GetGridType(cell.CellX(), cell.CellY()), this);
         Balance();
         return true;
     }
@@ -508,6 +506,9 @@ bool Map::AddPlayerToMap(Player* player)
     player->UpdateObjectVisibility(false);
 
     player->SendUpdatePhasing();
+
+    if (player->IsAlive())
+        ConvertCorpseToBones(player->GetGUID());
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
@@ -3534,7 +3535,7 @@ time_t Map::GetLinkedRespawnTime(ObjectGuid guid) const
 
 void Map::LoadCorpseData()
 {
-    std::unordered_map<uint32, std::unordered_set<uint32>> phases;
+    std::unordered_map<ObjectGuid::LowType, std::unordered_set<uint32>> phases;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES);
     stmt->setUInt32(0, GetId());
@@ -3547,7 +3548,7 @@ void Map::LoadCorpseData()
         do
         {
             Field* fields = phaseResult->Fetch();
-            uint32 guid = fields[0].GetUInt32();
+            ObjectGuid::LowType guid = fields[0].GetUInt32();
             uint32 phaseId = fields[1].GetUInt32();
 
             phases[guid].insert(phaseId);
@@ -3563,7 +3564,6 @@ void Map::LoadCorpseData()
     if (!result)
         return;
 
-    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
@@ -3585,8 +3585,7 @@ void Map::LoadCorpseData()
         for (auto phaseId : phases[guid])
             corpse->SetInPhase(phaseId, false, true);
 
-        sObjectAccessor->AddCorpse(corpse);
-        ++count;
+        AddCorpse(corpse);
     } while (result->NextRow());
 }
 
@@ -3595,6 +3594,99 @@ void Map::DeleteCorpseData()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSES_FROM_MAP);
     stmt->setUInt32(0, GetId());
     CharacterDatabase.Execute(stmt);
+}
+
+void Map::AddCorpse(Corpse* corpse)
+{
+    corpse->SetMap(this);
+
+    CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
+    _corpsesByCell[cellCoord.GetId()].insert(corpse);
+    _corpsesByPlayer[corpse->GetOwnerGUID()] = corpse;
+}
+
+void Map::RemoveCorpse(Corpse* corpse)
+{
+    ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
+
+    corpse->DestroyForNearbyPlayers();
+    if (corpse->IsInGrid())
+        RemoveFromMap(corpse, false);
+    else
+    {
+        corpse->RemoveFromWorld();
+        corpse->ResetMap();
+    }
+
+    CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
+    _corpsesByCell[cellCoord.GetId()].erase(corpse);
+    _corpsesByPlayer.erase(corpse->GetOwnerGUID());
+}
+
+Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*= false*/)
+{
+    Corpse* corpse = GetCorpseByPlayer(ownerGuid);
+    if (!corpse)
+        return nullptr;
+
+    RemoveCorpse(corpse);
+
+    // remove corpse from DB
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    corpse->DeleteFromDB(trans);
+    CharacterDatabase.CommitTransaction(trans);
+
+    Corpse* bones = NULL;
+
+    // create the bones only if the map and the grid is loaded at the corpse's location
+    // ignore bones creating option in case insignia
+    if ((insignia ||
+        (IsBattlegroundOrArena() ? sWorld->getBoolConfig(CONFIG_DEATH_BONES_BG_OR_ARENA) : sWorld->getBoolConfig(CONFIG_DEATH_BONES_WORLD))) &&
+        !IsRemovalGrid(corpse->GetPositionX(), corpse->GetPositionY()))
+    {
+        // Create bones, don't change Corpse
+        bones = new Corpse();
+        bones->Create(corpse->GetGUID().GetCounter(), this);
+
+        for (uint8 i = OBJECT_FIELD_GUID + 4; i < CORPSE_END; ++i)                    // don't overwrite guid
+            bones->SetUInt32Value(i, corpse->GetUInt32Value(i));
+
+        bones->SetGridCoord(corpse->GetGridCoord());
+        bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
+
+        bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);
+        bones->SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Empty);
+        bones->SetGuidValue(OBJECT_FIELD_DATA, corpse->GetGuidValue(OBJECT_FIELD_DATA));
+
+        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+            if (corpse->GetUInt32Value(CORPSE_FIELD_ITEM + i))
+                bones->SetUInt32Value(CORPSE_FIELD_ITEM + i, 0);
+
+        bones->CopyPhaseFrom(corpse);
+
+        // add bones in grid store if grid loaded where corpse placed
+        AddToMap(bones);
+    }
+
+    // all references to the corpse should be removed at this point
+    delete corpse;
+
+    return bones;
+}
+
+void Map::RemoveOldCorpses()
+{
+    time_t now = time(nullptr);
+
+    std::vector<ObjectGuid> corpses;
+    corpses.reserve(_corpsesByPlayer.size());
+
+    for (auto const& p : _corpsesByPlayer)
+        if (p.second->IsExpired(now))
+            corpses.push_back(p.first);
+
+    for (ObjectGuid const& ownerGuid : corpses)
+        ConvertCorpseToBones(ownerGuid);
 }
 
 void Map::SendZoneDynamicInfo(Player* player)

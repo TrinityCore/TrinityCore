@@ -585,15 +585,16 @@ enum PlayerExtraFlags
 // 2^n values
 enum AtLoginFlags
 {
-    AT_LOGIN_NONE              = 0x00,
-    AT_LOGIN_RENAME            = 0x01,
-    AT_LOGIN_RESET_SPELLS      = 0x02,
-    AT_LOGIN_RESET_TALENTS     = 0x04,
-    AT_LOGIN_CUSTOMIZE         = 0x08,
-    AT_LOGIN_RESET_PET_TALENTS = 0x10,
-    AT_LOGIN_FIRST             = 0x20,
-    AT_LOGIN_CHANGE_FACTION    = 0x40,
-    AT_LOGIN_CHANGE_RACE       = 0x80
+    AT_LOGIN_NONE              = 0x000,
+    AT_LOGIN_RENAME            = 0x001,
+    AT_LOGIN_RESET_SPELLS      = 0x002,
+    AT_LOGIN_RESET_TALENTS     = 0x004,
+    AT_LOGIN_CUSTOMIZE         = 0x008,
+    AT_LOGIN_RESET_PET_TALENTS = 0x010,
+    AT_LOGIN_FIRST             = 0x020,
+    AT_LOGIN_CHANGE_FACTION    = 0x040,
+    AT_LOGIN_CHANGE_RACE       = 0x080,
+    AT_LOGIN_RESURRECT         = 0x100
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -896,6 +897,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE            = 33,
     PLAYER_LOGIN_QUERY_LOAD_CURRENCY                = 34,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 35,
+    PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION         = 36,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1515,7 +1517,7 @@ class Player : public Unit, public GridObject<Player>
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();
-        void LoadCorpse();
+        void LoadCorpse(PreparedQueryResult result);
         void LoadPet();
 
         bool AddItem(uint32 itemId, uint32 count);
@@ -2048,15 +2050,18 @@ class Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override {SendMessageToSetInRange(data, GetVisibilityRange(), self); }// overwrite Object::SendMessageToSet
-        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self) override;// overwrite Object::SendMessageToSetInRange
+        void SendMessageToSet(WorldPacket* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        void SendMessageToSetInRange(WorldPacket* data, float fist, bool self) override;
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;
 
         Corpse* GetCorpse() const;
-        void SpawnCorpseBones();
-        void CreateCorpse();
+        void SpawnCorpseBones(bool triggerSave = true);
+        Corpse* CreateCorpse();
         void KillPlayer();
+        static void OfflineResurrect(ObjectGuid const& guid, SQLTransaction& trans);
+        bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
+        WorldLocation GetCorpseLocation() const { return _corpseLocation; }
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
@@ -2874,6 +2879,8 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
+
+        WorldLocation _corpseLocation;
 };
 
 void AddItemsSetItem(Player* player, Item* item);

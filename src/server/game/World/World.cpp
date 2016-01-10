@@ -2201,7 +2201,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_CORPSES].Passed())
     {
         m_timers[WUPDATE_CORPSES].Reset();
-        sObjectAccessor->RemoveOldCorpses();
+        sMapMgr->DoForAllMaps([](Map* map) { map->RemoveOldCorpses(); });
     }
 
     ///- Process Game events when necessary
@@ -3361,11 +3361,6 @@ CharacterNameData const* World::GetCharacterNameData(ObjectGuid guid) const
         return NULL;
 }
 
-void World::UpdatePhaseDefinitions()
-{
-
-}
-
 void World::ReloadRBAC()
 {
     // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
@@ -3373,4 +3368,9 @@ void World::ReloadRBAC()
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
             session->InvalidateRBACData();
+}
+
+void World::RemoveOldCorpses()
+{
+    m_timers[WUPDATE_CORPSES].SetCurrent(m_timers[WUPDATE_CORPSES].GetInterval());
 }

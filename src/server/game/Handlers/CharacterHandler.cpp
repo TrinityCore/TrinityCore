@@ -217,6 +217,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CURRENCY, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_LOCATION);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
+
     return res;
 }
 
@@ -968,13 +972,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar) || !pCurrChar->CheckInstanceLoginValid())
     {
         AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
-        if (at)
+        if (at)l
             pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
         else
             pCurrChar->TeleportTo(pCurrChar->m_homebindMapId, pCurrChar->m_homebindX, pCurrChar->m_homebindY, pCurrChar->m_homebindZ, pCurrChar->GetOrientation());
     }
 
-    sObjectAccessor->AddObject(pCurrChar);
+    ObjectAccessor::AddObject(pCurrChar);
     //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
 
     if (pCurrChar->GetGuildId() != 0)
@@ -1013,7 +1017,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID().GetCounter(), true);
 
     // Place character in world (and load zone) before some object loading
-    pCurrChar->LoadCorpse();
+    pCurrChar->LoadCorpse(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));
 
     // setting Ghost+speed if dead
     if (pCurrChar->m_deathState != ALIVE)
@@ -1771,11 +1775,11 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             return;
         }
     }
+    
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // resurrect the character in case he's dead
-    sObjectAccessor->ConvertCorpseForPlayer(factionChangeInfo.Guid);
-
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    Player::OfflineResurrect(factionChangeInfo.Guid, trans);
 
     CharacterDatabase.EscapeString(factionChangeInfo.Name);
     Player::Customize(&factionChangeInfo, trans);

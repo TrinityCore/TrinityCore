@@ -460,6 +460,24 @@ class Map : public GridRefManager<NGridType>
         typedef std::unordered_multimap<ObjectGuid::LowType, GameObject*> GameObjectBySpawnIdContainer;
         GameObjectBySpawnIdContainer& GetGameObjectBySpawnIdStore() { return _gameObjectBySpawnIdStore; }
 
+        std::unordered_set<Corpse*> const* GetCorpsesInCell(uint32 cellId) const
+        {
+            auto itr = _corpsesByCell.find(cellId);
+            if (itr != _corpsesByCell.end())
+                return &itr->second;
+
+            return nullptr;
+        }
+
+        Corpse* GetCorpseByPlayer(ObjectGuid const& ownerGuid) const
+        {
+            auto itr = _corpsesByPlayer.find(ownerGuid);
+            if (itr != _corpsesByPlayer.end())
+                return itr->second;
+
+            return nullptr;
+        }
+
         MapInstanced* ToMapInstanced() { if (Instanceable()) return reinterpret_cast<MapInstanced*>(this); return NULL; }
         MapInstanced const* ToMapInstanced() const { if (Instanceable()) return reinterpret_cast<MapInstanced const*>(this); return NULL; }
 
@@ -509,6 +527,10 @@ class Map : public GridRefManager<NGridType>
         void DeleteRespawnTimes();
         void LoadCorpseData();
         void DeleteCorpseData();
+        void AddCorpse(Corpse* corpse);
+        void RemoveCorpse(Corpse* corpse);
+        Corpse* ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia = false);
+        void RemoveOldCorpses();
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
@@ -703,6 +725,8 @@ class Map : public GridRefManager<NGridType>
         MapStoredObjectTypesContainer _objectsStore;
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;
         GameObjectBySpawnIdContainer _gameObjectBySpawnIdStore;
+        std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
+        std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
 
         std::unordered_set<Object*> _updateObjects;
 };
