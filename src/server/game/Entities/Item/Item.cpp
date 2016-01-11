@@ -1329,9 +1329,9 @@ bool Item::CheckSoulboundTradeExpire()
     return false;
 }
 
-bool Item::CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
+bool Item::IsValidTransmogrificationTarget() const
 {
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
+    ItemTemplate const* proto = GetTemplate();
     if (!proto)
         return false;
 
@@ -1348,15 +1348,15 @@ bool Item::CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogr
     if (proto->GetFlags2() & ITEM_FLAG2_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats(transmogrifier, bonus))
+    if (!HasStats())
         return false;
 
     return true;
 }
 
-bool Item::CanTransmogrify() const
+bool Item::IsValidTransmogrificationSource(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto = GetTemplate();
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
     if (!proto)
         return false;
 
@@ -1376,7 +1376,7 @@ bool Item::CanTransmogrify() const
     if (proto->GetFlags2() & ITEM_FLAG2_CAN_TRANSMOG)
         return true;
 
-    if (!HasStats())
+    if (!HasStats(transmogrifier, bonus))
         return false;
 
     return true;
@@ -1408,35 +1408,109 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
     return false;
 }
 
+enum class ItemTransmogrificationWeaponCategory : uint8
+{
+    // Two-handed
+    AXE_MACE_SWORD_2H,
+    STAFF_POLEARM,
+    RANGED,
+
+    // One-handed
+    AXE_MACE_SWORD_1H,
+    DAGGER,
+    FIST,
+
+    INVALID
+};
+
+static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate const* proto)
+{
+    if (proto->GetClass() == ITEM_CLASS_WEAPON)
+    {
+        switch (proto->GetSubClass())
+        {
+            case ITEM_SUBCLASS_WEAPON_AXE2:
+            case ITEM_SUBCLASS_WEAPON_MACE2:
+            case ITEM_SUBCLASS_WEAPON_SWORD2:
+                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_2H;
+            case ITEM_SUBCLASS_WEAPON_STAFF:
+            case ITEM_SUBCLASS_WEAPON_POLEARM:
+                return ItemTransmogrificationWeaponCategory::STAFF_POLEARM;
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                return ItemTransmogrificationWeaponCategory::RANGED;
+            case ITEM_SUBCLASS_WEAPON_AXE:
+            case ITEM_SUBCLASS_WEAPON_MACE:
+            case ITEM_SUBCLASS_WEAPON_SWORD:
+                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
+            case ITEM_SUBCLASS_WEAPON_DAGGER:
+                return ItemTransmogrificationWeaponCategory::DAGGER;
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                return ItemTransmogrificationWeaponCategory::FIST;
+            default:
+                break;
+        }
+    }
+
+    return ItemTransmogrificationWeaponCategory::INVALID;
+}
+
+InventoryType GetTransmogrificationInventoryType(ItemTemplate const* proto)
+{
+    InventoryType inventoryType = proto->GetInventoryType();
+    switch (proto->GetClass())
+    {
+        case ITEM_CLASS_WEAPON:
+            if (inventoryType == INVTYPE_WEAPONMAINHAND || inventoryType == INVTYPE_WEAPONOFFHAND)
+                inventoryType = INVTYPE_WEAPON;
+            break;
+        case ITEM_CLASS_ARMOR:
+            if (inventoryType == INVTYPE_ROBE)
+                inventoryType = INVTYPE_CHEST;
+        default:
+            break;
+    }
+    return inventoryType;
+}
+
 bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto1 = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
+    ItemTemplate const* source = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
+    ItemTemplate const* target = transmogrified->GetTemplate(); // dest
 
-    if (sDB2Manager.GetItemDisplayId(proto1->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
+    if (!source || !target)
         return false;
 
-    if (!transmogrified->CanTransmogrify() || !CanBeTransmogrified(transmogrifier, bonus))
+    if (sDB2Manager.GetItemDisplayId(source->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
         return false;
 
-    if (proto1->GetInventoryType() == INVTYPE_BAG ||
-        proto1->GetInventoryType() == INVTYPE_RELIC ||
-        proto1->GetInventoryType() == INVTYPE_BODY ||
-        proto1->GetInventoryType() == INVTYPE_FINGER ||
-        proto1->GetInventoryType() == INVTYPE_TRINKET ||
-        proto1->GetInventoryType() == INVTYPE_AMMO ||
-        proto1->GetInventoryType() == INVTYPE_QUIVER)
+    if (!IsValidTransmogrificationSource(transmogrifier, bonus) || !transmogrified->IsValidTransmogrificationTarget())
         return false;
 
-    if (proto1->GetSubClass() != proto2->GetSubClass() && (proto1->GetClass() != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (source->GetClass() != target->GetClass())
         return false;
 
-    if (proto1->GetInventoryType() != proto2->GetInventoryType() &&
-        (proto1->GetClass() != ITEM_CLASS_WEAPON || (proto2->GetInventoryType() != INVTYPE_WEAPONMAINHAND && proto2->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->GetClass() != ITEM_CLASS_ARMOR || (proto1->GetInventoryType() != INVTYPE_CHEST && proto2->GetInventoryType() != INVTYPE_ROBE && proto1->GetInventoryType() != INVTYPE_ROBE && proto2->GetInventoryType() != INVTYPE_CHEST)))
+    if (source->GetInventoryType() == INVTYPE_TABARD ||
+        source->GetInventoryType() == INVTYPE_BAG ||
+        source->GetInventoryType() == INVTYPE_RELIC ||
+        source->GetInventoryType() == INVTYPE_BODY ||
+        source->GetInventoryType() == INVTYPE_FINGER ||
+        source->GetInventoryType() == INVTYPE_TRINKET ||
+        source->GetInventoryType() == INVTYPE_AMMO ||
+        source->GetInventoryType() == INVTYPE_QUIVER)
         return false;
 
-    return true;
+    if (source->GetSubClass() != target->GetSubClass())
+    {
+        if (source->GetClass() != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
+            return false;
+    }
+
+    return GetTransmogrificationInventoryType(source) == GetTransmogrificationInventoryType(target);
 }
 
 // used by mail items, transmog cost, stationeryinfo and others
