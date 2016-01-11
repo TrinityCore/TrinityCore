@@ -424,8 +424,8 @@ class Item : public Object
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
-        static bool CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
-        bool CanTransmogrify() const;
+        bool IsValidTransmogrificationTarget() const;
+        static bool IsValidTransmogrificationSource(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
         bool HasStats() const;
         static bool HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus);
         static bool CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
