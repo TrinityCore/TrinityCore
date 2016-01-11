@@ -27,6 +27,7 @@
 #include "PetDefines.h"
 #include "QuestDef.h"
 #include "SpellMgr.h"
+#include "SpellHistory.h"
 #include "Unit.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
@@ -2147,6 +2148,12 @@ class Player : public Unit, public GridObject<Player>
         bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
 
+        // duel health and mana reset methods
+        void SaveHealthBeforeDuel() { healthBeforeDuel = GetHealth(); }
+        void SaveManaBeforeDuel() { manaBeforeDuel = GetPower(POWER_MANA); }
+        void RestoreHealthAfterDuel() { SetHealth(healthBeforeDuel); }
+        void RestoreManaAfterDuel() { SetPower(POWER_MANA, manaBeforeDuel); }
+
         //End of PvP System
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
@@ -2881,6 +2888,10 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
+
+        // variables to save health and mana before duel and restore them after duel
+        uint32 healthBeforeDuel;
+        uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
 };

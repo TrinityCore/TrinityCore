@@ -2574,6 +2574,21 @@ PlayerStart.MapsExplored = 0
 HonorPointsAfterDuel = 0
 
 #
+#    ResetDuelCooldowns
+#        Description: Reset all cooldowns before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelCooldowns = 0
+
+#    ResetDuelHealthMana
+#        Description: Reset health and mana before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelHealthMana = 0
+
+#
 #    AlwaysMaxWeaponSkill
 #        Description: Players will automatically gain max weapon/defense skill when logging in,
 #                     or leveling.

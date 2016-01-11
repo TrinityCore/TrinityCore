@@ -23258,7 +23258,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(spellData.SpellId) > 30 * IN_MILLISECONDS)
+        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->EnsureSpellInfo(spellData.SpellId)) > 30 * IN_MILLISECONDS)
             continue;
 
         GetSpellHistory()->AddCooldown(spellData.SpellId, pItem->GetEntry(), std::chrono::seconds(30));
