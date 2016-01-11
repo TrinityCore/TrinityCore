@@ -2630,6 +2630,113 @@ public:
     }
 };
 
+enum MindControlCap
+{
+    SPELL_GNOMISH_MIND_CONTROL_CAP  = 13181,
+    SPELL_DULLARD                   = 67809,
+};
+
+class spell_item_mind_control_cap : public SpellScriptLoader
+{
+    public:
+        spell_item_mind_control_cap() : SpellScriptLoader("spell_item_mind_control_cap") { }
+
+        class spell_item_mind_control_cap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_mind_control_cap_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_MIND_CONTROL_CAP) || !sSpellMgr->GetSpellInfo(SPELL_DULLARD))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (roll_chance_i(95))
+                        caster->CastSpell(target, roll_chance_i(30) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, true, GetCastItem());
+                    else
+                        target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_mind_control_cap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_mind_control_cap_SpellScript();
+        }
+};
+
+enum UniversalRemote
+{
+    SPELL_CONTROL_MACHINE           = 8345,
+    SPELL_MOBILITY_MALFUNCTION      = 8346,
+    SPELL_TARGET_LOCK               = 8347,
+};
+
+class spell_item_universal_remote : public SpellScriptLoader
+{
+    public:
+        spell_item_universal_remote() : SpellScriptLoader("spell_item_universal_remote") { }
+
+        class spell_item_universal_remote_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_universal_remote_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONTROL_MACHINE) || !sSpellMgr->GetSpellInfo(SPELL_MOBILITY_MALFUNCTION)  || !sSpellMgr->GetSpellInfo(SPELL_TARGET_LOCK))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (roll_chance_i(85))
+                        caster->CastSpell(target, roll_chance_i(30) ? SPELL_MOBILITY_MALFUNCTION : SPELL_CONTROL_MACHINE, true, GetCastItem()); // root - 25% chance
+                    else
+                        caster->CastSpell(target, SPELL_TARGET_LOCK, true); // threat - 15% chance
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_universal_remote_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_universal_remote_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2698,4 +2805,6 @@ void AddSC_item_spell_scripts()
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
+    new spell_item_mind_control_cap();
+    new spell_item_universal_remote();
 }
