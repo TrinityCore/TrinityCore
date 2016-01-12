@@ -114,12 +114,11 @@ public:
 
 enum Myranda
 {
+    ILLUSION_GOSSIP         = 4773,
     QUEST_SUBTERFUGE        = 5862,
     QUEST_IN_DREAMS         = 5944,
     SPELL_SCARLET_ILLUSION  = 17961
 };
-
-#define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
 
 class npc_myranda_the_hag : public CreatureScript
 {
@@ -146,8 +145,8 @@ public:
             player->GetQuestStatus(QUEST_IN_DREAMS) != QUEST_STATUS_COMPLETE &&
             !player->HasAura(SPELL_SCARLET_ILLUSION))
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ILLUSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(4773, creature->GetGUID());
+            player->ADD_GOSSIP_ITEM_DB(Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(ILLUSION_GOSSIP, creature->GetGUID());
             return true;
         }
         else
