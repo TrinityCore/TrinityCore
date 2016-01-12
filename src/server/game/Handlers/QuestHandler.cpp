@@ -102,12 +102,16 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint32 questId;
-    uint32 unk1;
-    recvData >> guid >> questId >> unk1;
+    uint32 startCheat;
+    recvData >> guid >> questId >> startCheat;
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST %s, quest = %u, unk1 = %u", guid.ToString().c_str(), questId, unk1);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST %s, quest = %u, startCheat = %u", guid.ToString().c_str(), questId, startCheat);
 
-    Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
+    Object* object;
+    if (!guid.IsPlayer())
+        object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
+    else
+        object = ObjectAccessor::FindPlayer(guid);
 
 #define CLOSE_GOSSIP_CLEAR_DIVIDER() \
     do { \
@@ -129,6 +133,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             CLOSE_GOSSIP_CLEAR_DIVIDER();
             return;
         }
+        if (_player->GetGroup() != playerQuestObject->GetGroup() || (_player != playerQuestObject && !playerQuestObject->GetGroup()))
+        {
+            CLOSE_GOSSIP_CLEAR_DIVIDER();
+            return;
+        }
     }
     else
     {
@@ -141,7 +150,10 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     // some kind of WPE protection
     if (!_player->CanInteractWithQuestGiver(object))
+    {
+        CLOSE_GOSSIP_CLEAR_DIVIDER();
         return;
+    }
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
@@ -199,7 +211,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         }
     }
 
-    _player->PlayerTalkClass->SendCloseGossip();
+    CLOSE_GOSSIP_CLEAR_DIVIDER();
 
 #undef CLOSE_GOSSIP_CLEAR_DIVIDER
 }
@@ -588,7 +600,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
         else
         {
             receiver->SetDivider(sender->GetGUID());
-            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, sender->GetGUID(), true);
+            receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
         }
     }
 }
@@ -602,17 +614,20 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("network", "WORLD: Received MSG_QUEST_PUSH_RESULT");
 
-    if (_player->GetDivider() && _player->GetDivider() == guid)
+    if (_player->GetDivider())
     {
-        Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
-        if (player)
+        if (_player->GetDivider() == guid)
         {
-            WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 4 + 1);
-            data << uint64(_player->GetGUID());
-            data << uint8(msg);                             // valid values: 0-8
-            player->SendDirectMessage(&data);
-            _player->SetDivider(ObjectGuid::Empty);
+            Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
+            if (player)
+            {
+                WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 4 + 1);
+                data << uint64(_player->GetGUID());
+                data << uint8(msg);                             // valid values: 0-8
+                player->SendDirectMessage(&data);
+            }
         }
+        _player->SetDivider(ObjectGuid::Empty);
     }
 }
 
