@@ -334,7 +334,7 @@ void ObjectMgr::LoadCreatureLocales()
 
         CreatureLocale& data = _creatureLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
@@ -371,7 +371,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[2 + 2 * (i - 1)].GetString(), locale, data.OptionText);
@@ -402,7 +402,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.IconName);
     } while (result->NextRow());
 
@@ -4704,7 +4704,7 @@ void ObjectMgr::LoadQuestLocales()
 
         QuestLocale& data = _questLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
 
@@ -5331,7 +5331,7 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Text);
     } while (result->NextRow());
 
@@ -5594,7 +5594,7 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = _npcTextLocaleStore[entry];
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
@@ -7815,7 +7815,7 @@ bool ObjectMgr::LoadTrinityStrings()
 
         data.Content.resize(DEFAULT_LOCALE + 1);
 
-        for (int8 i = TOTAL_LOCALES - 1; i >= 0; --i)
+        for (int8 i = OLD_TOTAL_LOCALES - 1; i >= 0; --i)
             AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     }
     while (result->NextRow());
@@ -8813,7 +8813,7 @@ void ObjectMgr::LoadBroadcastTextLocales()
             continue;
         }
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
+        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = LocaleConstant(i);
             AddLocaleString(fields[1 + (i - 1)].GetString(), locale, bct->second.MaleText);

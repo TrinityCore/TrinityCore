@@ -125,9 +125,10 @@ enum LocaleConstant
     TOTAL_LOCALES
 };
 
+const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 #define DEFAULT_LOCALE LOCALE_enUS
 
-#define MAX_LOCALES 8
+#define MAX_LOCALES 10
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 extern char const* localeNames[TOTAL_LOCALES];
