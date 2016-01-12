@@ -1411,8 +1411,7 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
 enum class ItemTransmogrificationWeaponCategory : uint8
 {
     // Two-handed
-    AXE_MACE_SWORD_2H,
-    STAFF_POLEARM,
+    MELEE_2H,
     RANGED,
 
     // One-handed
@@ -1432,10 +1431,9 @@ static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(
             case ITEM_SUBCLASS_WEAPON_AXE2:
             case ITEM_SUBCLASS_WEAPON_MACE2:
             case ITEM_SUBCLASS_WEAPON_SWORD2:
-                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_2H;
             case ITEM_SUBCLASS_WEAPON_STAFF:
             case ITEM_SUBCLASS_WEAPON_POLEARM:
-                return ItemTransmogrificationWeaponCategory::STAFF_POLEARM;
+                return ItemTransmogrificationWeaponCategory::MELEE_2H;
             case ITEM_SUBCLASS_WEAPON_BOW:
             case ITEM_SUBCLASS_WEAPON_GUN:
             case ITEM_SUBCLASS_WEAPON_CROSSBOW:
@@ -1456,23 +1454,38 @@ static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(
     return ItemTransmogrificationWeaponCategory::INVALID;
 }
 
-InventoryType GetTransmogrificationInventoryType(ItemTemplate const* proto)
+int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
 {
-    InventoryType inventoryType = proto->GetInventoryType();
-    switch (proto->GetClass())
-    {
-        case ITEM_CLASS_WEAPON:
-            if (inventoryType == INVTYPE_WEAPONMAINHAND || inventoryType == INVTYPE_WEAPONOFFHAND)
-                inventoryType = INVTYPE_WEAPON;
-            break;
-        case ITEM_CLASS_ARMOR:
-            if (inventoryType == INVTYPE_ROBE)
-                inventoryType = INVTYPE_CHEST;
-        default:
-            break;
-    }
-    return inventoryType;
-}
+    -1,                                                     // INVTYPE_NON_EQUIP
+    EQUIPMENT_SLOT_HEAD,                                    // INVTYPE_HEAD
+    EQUIPMENT_SLOT_NECK,                                    // INVTYPE_NECK
+    EQUIPMENT_SLOT_SHOULDERS,                               // INVTYPE_SHOULDERS
+    EQUIPMENT_SLOT_BODY,                                    // INVTYPE_BODY
+    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_CHEST
+    EQUIPMENT_SLOT_WAIST,                                   // INVTYPE_WAIST
+    EQUIPMENT_SLOT_LEGS,                                    // INVTYPE_LEGS
+    EQUIPMENT_SLOT_FEET,                                    // INVTYPE_FEET
+    EQUIPMENT_SLOT_WRISTS,                                  // INVTYPE_WRISTS
+    EQUIPMENT_SLOT_HANDS,                                   // INVTYPE_HANDS
+    -1,                                                     // INVTYPE_FINGER
+    -1,                                                     // INVTYPE_TRINKET
+    -1,                                                     // INVTYPE_WEAPON
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_SHIELD
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGED
+    EQUIPMENT_SLOT_BACK,                                    // INVTYPE_CLOAK
+    -1,                                                     // INVTYPE_2HWEAPON
+    -1,                                                     // INVTYPE_BAG
+    EQUIPMENT_SLOT_TABARD,                                  // INVTYPE_TABARD
+    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_ROBE
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPONMAINHAND
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_WEAPONOFFHAND
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_HOLDABLE
+    -1,                                                     // INVTYPE_AMMO
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_THROWN
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
+    -1,                                                     // INVTYPE_QUIVER
+    -1                                                      // INVTYPE_RELIC
+};
 
 bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
@@ -1510,7 +1523,17 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets:
             return false;
     }
 
-    return GetTransmogrificationInventoryType(source) == GetTransmogrificationInventoryType(target);
+    if (source->GetInventoryType() != target->GetInventoryType())
+    {
+        int32 sourceSlot = ItemTransmogrificationSlots[source->GetInventoryType()];
+        if (sourceSlot == -1 && source->GetInventoryType() == INVTYPE_WEAPON && (target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND))
+            sourceSlot = ItemTransmogrificationSlots[target->GetInventoryType()];
+
+        if (sourceSlot != ItemTransmogrificationSlots[target->GetInventoryType()])
+            return false;
+    }
+
+    return true;
 }
 
 // used by mail items, transmog cost, stationeryinfo and others
