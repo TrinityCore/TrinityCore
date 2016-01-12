@@ -2427,10 +2427,7 @@ void WorldObject::DestroyForNearbyPlayers()
             continue;
 
         if (GetTypeId() == TYPEID_UNIT)
-        {
-            // at remove from world (destroy) show kill animation
-            DestroyForPlayer(player, ToUnit()->IsDuringRemoveFromWorld() && ToCreature()->isDead());
-        }
+            DestroyForPlayer(player, ToUnit()->IsDuringRemoveFromWorld() && ToCreature()->isDead()); // at remove from world (destroy) show kill animation
         else
             DestroyForPlayer(player);
 
