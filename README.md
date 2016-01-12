@@ -22,7 +22,7 @@ mechanics and functionality.
 It is completely open source; community involvement is highly encouraged.
 
 If you wish to contribute ideas or code please visit our site linked below or
-make pull requests to our [Github repository](https://gitlab.com/trinitycore/TrinityCore_434/).
+make pull requests to our [Gitlab repository](https://gitlab.com/trinitycore/TrinityCore_434/).
 
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](http://www.trinitycore.org).
@@ -43,11 +43,12 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 
 Detailed installation guides are available in the [wiki](http://collab.kpsn.org/display/tc/Installation+Guide) for
 Windows, Linux and Mac OSX.
+You can get database from https://github.com/TrinityCoreLegacy/TrinityCore/releases
 
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](https://gitlab.com/trinitycore/TrinityCore_434/issues).
+Issues can be reported via the [Gitlab issue tracker](https://gitlab.com/trinitycore/TrinityCore_434/issues).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
@@ -61,6 +62,7 @@ reports are wasteful and are subject to deletion.
 
 Fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](http://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
+NOTE: if a fix is valid also for 3.3.5a/6.x branches submit them also to [Github](https://github.com/TrinityCore/TrinityCore)
 
 
 ## Copyright
