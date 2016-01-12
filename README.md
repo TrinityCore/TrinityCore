@@ -22,7 +22,7 @@ mechanics and functionality.
 It is completely open source; community involvement is highly encouraged.
 
 If you wish to contribute ideas or code please visit our site linked below or
-make pull requests to our [Github repository](https://github.com/TrinityCore/TrinityCore).
+make pull requests to our [Github repository](https://gitlab.com/trinitycore/TrinityCore_434/).
 
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](http://www.trinitycore.org).
@@ -47,7 +47,7 @@ Windows, Linux and Mac OSX.
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/issues?labels=Branch-3.3.5a).
+Issues can be reported via the [Github issue tracker](https://gitlab.com/trinitycore/TrinityCore_434/issues).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
