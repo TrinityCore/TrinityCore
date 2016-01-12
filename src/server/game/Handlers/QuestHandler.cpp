@@ -133,7 +133,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             CLOSE_GOSSIP_CLEAR_DIVIDER();
             return;
         }
-        if (_player->GetGroup() != playerQuestObject->GetGroup() || (_player != playerQuestObject && !playerQuestObject->GetGroup()))
+        if (!_player->IsInSameRaidWith(playerQuestObject))
         {
             CLOSE_GOSSIP_CLEAR_DIVIDER();
             return;
@@ -468,17 +468,22 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
         if (!_player->IsInSameRaidWith(originalPlayer))
             return;
 
-        if (!originalPlayer->CanShareQuest(questId))
+        if (!originalPlayer->IsActiveQuest(questId))
             return;
 
         if (!_player->CanTakeQuest(quest, true))
             return;
 
         if (_player->CanAddQuest(quest, true))
+        {
             _player->AddQuestAndCheckCompletion(quest, NULL); // NULL, this prevent DB script from duplicate running
 
-        _player->SetDivider(ObjectGuid::Empty);
+            if (quest->GetSrcSpell() > 0)
+                _player->CastSpell(_player, quest->GetSrcSpell(), true);
+        }
     }
+
+    _player->SetDivider(ObjectGuid::Empty);
 }
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
