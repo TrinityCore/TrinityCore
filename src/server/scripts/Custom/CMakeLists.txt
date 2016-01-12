@@ -13,6 +13,11 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
 #  ${sources_Custom}
+Custom/Riding_Teacher.cpp
+
+Custom/Tier_18_Vendor.cpp
+
+Custom/All_Mounts_Npc.cpp
 )
 
 message("  -> Prepared: Custom")

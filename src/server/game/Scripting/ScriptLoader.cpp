@@ -707,6 +707,10 @@ void AddSC_outdoorpvp_zm();
 void AddSC_chat_log();
 void AddSC_action_ip_logger();
 
+// Custome
+void AddSC_Riding_Teacher();
+void AddSC_Tier_18_Vendor();
+void AddSC_All_Mounts_Npc();
 #endif
 
 void AddScripts()
@@ -1469,6 +1473,8 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+	AddSC_Riding_Teacher();
+	AddSC_Tier_18_Vendor();
+	AddSC_All_Mounts_Npc();
 #endif
 }
