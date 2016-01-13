@@ -129,10 +129,10 @@ class boss_ayamiss : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 me->ClearUnitState(UNIT_STATE_ROOT);
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
             }
 
             void EnterCombat(Unit* attacker) override

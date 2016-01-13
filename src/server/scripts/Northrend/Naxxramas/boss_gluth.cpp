@@ -100,7 +100,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictimWithGaze() || !CheckInRoom())
+            if (!UpdateVictimWithGaze())
                 return;
 
             events.Update(diff);

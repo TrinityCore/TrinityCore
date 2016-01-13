@@ -456,6 +456,7 @@ public:
             {
                 Initialize();
                 instance = creature->GetInstanceScript();
+                SetBoundary(instance->GetBossBoundary(BOSS_THADDIUS));
             }
 
             void Initialize()
@@ -723,6 +724,7 @@ public:
             {
                 Initialize();
                 instance = creature->GetInstanceScript();
+                SetBoundary(instance->GetBossBoundary(BOSS_THADDIUS));
             }
 
             void Initialize()
@@ -990,7 +992,7 @@ public:
     {
         npc_teslaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterEvadeMode() override { } // never stop casting due to evade
+        void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
         void EnterCombat(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
