@@ -288,7 +288,7 @@ Position const MalygosPositions[MAX_MALYGOS_POS] =
 };
 
 Position const AlexstraszaSpawnPos  = { 854.551f, 1225.31f, 300.901f, 0.0f }; // Alexstrasza's spawn position
-Position const HeartOfMagicSpawnPos = { 755.351f, 1298.31f, 223.909f, 0.0f }; // Heart of Magic spawn position
+Position const HeartOfMagicSpawnPos = { 764.825f, 1293.73f, 270.f, 0.0f }; // Heart of Magic spawn position
 
 #define TEN_MINUTES         (10*MINUTE*IN_MILLISECONDS)
 
@@ -2437,9 +2437,11 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     if (target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
+                        HeartOfMagicSpawnPos.GetPositionZ()-4.f, HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
                     else if (target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
+                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
+                        HeartOfMagicSpawnPos.GetPositionZ()-4.f, HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
                 }
             }
 
