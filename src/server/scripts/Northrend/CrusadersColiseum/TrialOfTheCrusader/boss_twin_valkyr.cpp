@@ -416,10 +416,10 @@ class boss_fjola : public CreatureScript
                 boss_twin_baseAI::EnterCombat(who);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                boss_twin_baseAI::EnterEvadeMode();
+                boss_twin_baseAI::EnterEvadeMode(why);
             }
 
             void JustReachedHome() override

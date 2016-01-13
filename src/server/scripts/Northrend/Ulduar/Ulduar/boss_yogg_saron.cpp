@@ -447,9 +447,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     me->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
 
                 for (uint8 i = DATA_SARA; i <= DATA_MIMIRON_YS; ++i)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))

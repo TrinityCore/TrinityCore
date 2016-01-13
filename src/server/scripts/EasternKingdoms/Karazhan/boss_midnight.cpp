@@ -91,9 +91,9 @@ public:
             Initialize();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            ScriptedAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode(why);
             ResetTimer = 2000;
         }
 

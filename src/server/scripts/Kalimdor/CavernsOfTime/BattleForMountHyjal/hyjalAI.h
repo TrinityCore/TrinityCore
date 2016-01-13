@@ -123,7 +123,7 @@ struct hyjalAI : public npc_escortAI
 
     void Reset();                                           // Generically used to reset our variables. Do *not* call in EnterEvadeMode as this may make problems if the raid is still in combat
 
-    void EnterEvadeMode();                                  // Send creature back to spawn location and evade.
+    void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER);    // Send creature back to spawn location and evade.
 
     void EnterCombat(Unit* /*who*/);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 

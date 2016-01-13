@@ -624,9 +624,9 @@ public:
             Talk(SAY_KJ_SLAY);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            ScriptedAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode(why);
 
             summons.DespawnAll();
 
