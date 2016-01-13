@@ -52,6 +52,7 @@ void Battlenet::SessionManager::RemoveSession(Session* session)
 
 Battlenet::Session* Battlenet::SessionManager::GetSession(uint32 accountId, uint32 gameAccountId) const
 {
+    boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
     auto itr = _sessions.find({ accountId, gameAccountId });
     if (itr != _sessions.end())
         return itr->second;
@@ -61,6 +62,7 @@ Battlenet::Session* Battlenet::SessionManager::GetSession(uint32 accountId, uint
 
 std::list<Battlenet::Session*> Battlenet::SessionManager::GetSessions(uint32 accountId) const
 {
+    boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
     std::list<Session*> sessions;
     auto itr = _sessionsByAccountId.find(accountId);
     if (itr != _sessionsByAccountId.end())

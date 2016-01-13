@@ -40,7 +40,7 @@
 #ifndef _RBAC_H
 #define _RBAC_H
 
-#include "Define.h"
+#include "DatabaseEnv.h"
 #include <string>
 #include <set>
 #include <map>
@@ -873,6 +873,8 @@ class RBACData
 
         /// Loads all permissions assigned to current account
         void LoadFromDB();
+        PreparedQueryResultFuture LoadFromDBAsync();
+        void LoadFromDBCallback(PreparedQueryResult result);
 
         /// Sets security level
         void SetSecurityLevel(uint8 id)

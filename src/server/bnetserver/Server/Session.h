@@ -52,6 +52,32 @@ namespace Battlenet
         Read = 0x4000
     };
 
+    struct AccountInfo
+    {
+        void LoadResult(Field* fields);
+
+        uint32 Id;
+        std::string Login;
+        bool IsLockedToIP;
+        std::string LockCountry;
+        std::string LastIP;
+        uint32 FailedLogins;
+        bool IsBanned;
+        bool IsPermanentlyBanned;
+    };
+
+    struct GameAccountInfo
+    {
+        void LoadResult(Field* fields);
+
+        uint32 Id;
+        std::string Name;
+        std::string DisplayName;
+        bool IsBanned;
+        bool IsPermanentlyBanned;
+        AccountTypes SecurityLevel;
+    };
+
     class Session : public Socket<Session>
     {
         typedef Socket<Session> BattlenetSocket;
@@ -85,11 +111,12 @@ namespace Battlenet
         void HandleGetStreamItemsRequest(Cache::GetStreamItemsRequest const& getStreamItemsRequest);
 
         void Start() override;
+        bool Update() override;
 
         void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
 
-        uint32 GetAccountId() const { return _accountId; }
-        uint32 GetGameAccountId() const { return _gameAccountId; }
+        uint32 GetAccountId() const { return _accountInfo->Id; }
+        uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }
 
         bool IsSubscribedToRealmListUpdates() const { return _subscribedToRealmListUpdates; }
 
@@ -104,6 +131,11 @@ namespace Battlenet
         typedef bool(Session::*ModuleHandler)(BitStream* dataStream, ServerPacket** response);
         static ModuleHandler const ModuleHandlers[MODULE_COUNT];
 
+        void CheckIpCallback(PreparedQueryResult result);
+        void HandleLogonRequestCallback(PreparedQueryResult result);
+        void HandleResumeRequestCallback(PreparedQueryResult result);
+        void HandleListSubscribeRequestCallback(PreparedQueryResult result);
+
         bool HandlePasswordModule(BitStream* dataStream, ServerPacket** response);
         bool HandleSelectGameAccountModule(BitStream* dataStream, ServerPacket** response);
         bool HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response);
@@ -113,14 +145,15 @@ namespace Battlenet
         WoWRealm::ListUpdate* BuildListUpdate(Realm const* realm) const;
         std::string GetClientInfo() const;
 
-        uint32 _accountId;
-        std::string _accountName;
+        AccountInfo* _accountInfo;
+        GameAccountInfo* _gameAccountInfo;      // Points at selected game account (inside _gameAccounts)
+        std::vector<GameAccountInfo> _gameAccounts;
+
         std::string _locale;
         std::string _os;
         uint32 _build;
-        uint32 _gameAccountId;
-        std::string _gameAccountName;
-        AccountTypes _accountSecurityLevel;
+
+        std::string _ipCountry;
 
         BigNumber N;
         BigNumber g;
@@ -141,6 +174,9 @@ namespace Battlenet
         PacketCrypt _crypt;
         bool _authed;
         bool _subscribedToRealmListUpdates;
+        
+        PreparedQueryResultFuture _queryFuture;
+        std::function<void(PreparedQueryResult)> _queryCallback;
     };
 
 }

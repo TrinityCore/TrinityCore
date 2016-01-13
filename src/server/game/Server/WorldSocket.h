@@ -45,11 +45,15 @@ struct ClientPktHeader
 
 #pragma pack(pop)
 
+struct AuthSession;
+
 class WorldSocket : public Socket<WorldSocket>
 {
     static std::string const ServerConnectionInitialize;
 
     static std::string const ClientConnectionInitialize;
+
+    typedef Socket<WorldSocket> BaseSocket;
 
 public:
     WorldSocket(tcp::socket&& socket);
@@ -58,6 +62,7 @@ public:
     WorldSocket& operator=(WorldSocket const& right) = delete;
 
     void Start() override;
+    bool Update() override;
 
     void SendPacket(WorldPacket& packet);
 
@@ -65,9 +70,19 @@ protected:
     void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
-    bool ReadDataHandler();
+
+    enum class ReadDataHandlerResult
+    {
+        Ok = 0,
+        Error = 1,
+        WaitingForQuery = 2
+    };
+
+    ReadDataHandlerResult ReadDataHandler();
 
 private:
+    void CheckIpCallback(PreparedQueryResult result);
+
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const;
@@ -75,6 +90,8 @@ private:
     void SendPacketAndLogOpcode(WorldPacket& packet);
     void HandleSendAuthSession();
     void HandleAuthSession(WorldPacket& recvPacket);
+    void HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result);
+    void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void SendAuthResponseError(uint8 code);
 
     bool HandlePing(WorldPacket& recvPacket);
@@ -93,6 +110,11 @@ private:
     MessageBuffer _packetBuffer;
 
     bool _initialized;
+
+    std::mutex _queryLock;
+    PreparedQueryResultFuture _queryFuture;
+    std::function<void(PreparedQueryResult&&)> _queryCallback;
+    std::string _ipCountry;
 };
 
 #endif
