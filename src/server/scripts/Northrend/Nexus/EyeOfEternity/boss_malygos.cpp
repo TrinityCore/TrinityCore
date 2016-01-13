@@ -288,7 +288,7 @@ Position const MalygosPositions[MAX_MALYGOS_POS] =
 };
 
 Position const AlexstraszaSpawnPos  = { 854.551f, 1225.31f, 300.901f, 0.0f }; // Alexstrasza's spawn position
-Position const HeartOfMagicSpawnPos = { 764.825f, 1293.73f, 270.f, 0.0f }; // Heart of Magic spawn position
+Position const HeartOfMagicSpawnPos = { 764.825f, 1293.73f, 270.0f, 0.0f }; // Heart of Magic spawn position
 
 #define TEN_MINUTES         (10*MINUTE*IN_MILLISECONDS)
 
