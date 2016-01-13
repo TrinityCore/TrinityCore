@@ -492,10 +492,10 @@ class boss_algalon_the_observer : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 instance->SetBossState(BOSS_ALGALON, FAIL);
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetSheath(SHEATH_STATE_UNARMED);
             }
@@ -545,7 +545,7 @@ class boss_algalon_the_observer : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!(events.IsInPhase(PHASE_ROLE_PLAY) || events.IsInPhase(PHASE_BIG_BANG)) && !UpdateVictim()) || !CheckInRoom())
+                if (!(events.IsInPhase(PHASE_ROLE_PLAY) || events.IsInPhase(PHASE_BIG_BANG)) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -639,7 +639,7 @@ class boss_algalon_the_observer : public CreatureScript
                             events.ScheduleEvent(EVENT_EVADE, 2500);
                             break;
                         case EVENT_EVADE:
-                            EnterEvadeMode();
+                            EnterEvadeMode(EVADE_REASON_OTHER);
                             break;
                         case EVENT_COSMIC_SMASH:
                             Talk(EMOTE_ALGALON_COSMIC_SMASH);

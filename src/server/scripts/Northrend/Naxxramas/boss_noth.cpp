@@ -88,7 +88,7 @@ public:
             events.SetPhase(PHASE_NONE);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             Reset(); // teleport back first
             _EnterEvadeMode();
@@ -205,7 +205,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !CheckInRoom())
+            if (!UpdateVictim())
                 return;
 
             events.Update(diff);

@@ -154,8 +154,6 @@ class boss_void_reaver : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
-
-                EnterEvadeIfOutOfCombatArea(diff);
             }
 
         private:
