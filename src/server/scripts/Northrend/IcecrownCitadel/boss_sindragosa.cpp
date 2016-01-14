@@ -265,7 +265,7 @@ class boss_sindragosa : public CreatureScript
             {
                 if (!instance->CheckRequiredBosses(DATA_SINDRAGOSA, victim->ToPlayer()))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
@@ -274,6 +274,13 @@ class boss_sindragosa : public CreatureScript
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
+            }
+
+            void EnterEvadeMode(EvadeReason why) override
+            {
+                if (_isInAirPhase && why == EVADE_REASON_BOUNDARY)
+                    return;
+                BossAI::EnterEvadeMode(why);
             }
 
             void JustReachedHome() override

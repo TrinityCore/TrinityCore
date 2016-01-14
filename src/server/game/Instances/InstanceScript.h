@@ -78,7 +78,19 @@ struct BossBoundaryEntry
     uint32 const bossId;
     AreaBoundary const* const boundary;
 };
-typedef std::list<BossBoundaryEntry> BossBoundaryData;
+struct BossBoundaryData
+{
+    typedef std::vector<BossBoundaryEntry> StorageType;
+    typedef StorageType::const_iterator const_iterator;
+
+    BossBoundaryData(std::initializer_list<BossBoundaryEntry> data) : _data(data) { }
+    ~BossBoundaryData();
+    const_iterator begin() const { return _data.begin(); }
+    const_iterator end() const { return _data.end(); }
+
+    private:
+        StorageType _data;
+};
 
 struct MinionData
 {

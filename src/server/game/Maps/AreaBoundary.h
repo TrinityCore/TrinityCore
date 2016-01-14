@@ -32,15 +32,16 @@ class AreaBoundary
             BOUNDARY_PARALLELOGRAM,
             BOUNDARY_Z_RANGE,
         };
+        virtual ~AreaBoundary() { }
         BoundaryType GetBoundaryType() const { return m_boundaryType; }
         bool IsWithinBoundary(const Position* pos) const { return (IsWithinBoundaryArea(pos) != m_isInvertedBoundary); }
 
         struct DoublePosition : Position
         {
             double d_positionX, d_positionY, d_positionZ;
-            DoublePosition(double x = 0, double y = 0, double z = 0, float o = 0)
-                : Position((float)x, (float)y, (float)z, o), d_positionX(x), d_positionY(y), d_positionZ(z) { }
-            DoublePosition(float x = 0, float y = 0, float z = 0, float o = 0)
+            DoublePosition(double x = 0.0, double y = 0.0, double z = 0.0, float o = 0.0)
+                : Position(x, y, z, o), d_positionX(x), d_positionY(y), d_positionZ(z) { }
+            DoublePosition(float x, float y = 0.0f, float z = 0.0f, float o = 0.0f)
                 : Position(x, y, z, o), d_positionX(x), d_positionY(y), d_positionZ(z) { }
             DoublePosition(const Position& pos)
                 : DoublePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()) { }

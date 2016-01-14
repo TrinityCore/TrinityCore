@@ -30,6 +30,12 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 
+BossBoundaryData::~BossBoundaryData()
+{
+    for (const_iterator it = begin(); it != end(); ++it)
+        delete it->boundary;
+}
+
 void InstanceScript::SaveToDB()
 {
     std::string data = GetSaveData();
