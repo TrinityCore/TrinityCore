@@ -2,7 +2,7 @@
 
 ####About
 Enables Item and Player gossip for TrinityCore.<br />
-Source: https://rochet2.github.io/?page=Player_and_Item_Gossip
+Source: http://rochet2.github.io/Player%20and%20Item%20Gossip.html
 
 ####Installation
 
