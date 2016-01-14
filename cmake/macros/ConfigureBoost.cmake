@@ -18,7 +18,7 @@ if(WIN32)
   add_definitions(-D_WIN32_WINNT=0x0601)
 endif()
 
-find_package(Boost 1.49 REQUIRED system filesystem thread program_options iostreams regex)
+find_package(Boost 1.51 REQUIRED system filesystem thread program_options iostreams regex)
 add_definitions(-DBOOST_DATE_TIME_NO_LIB)
 add_definitions(-DBOOST_REGEX_NO_LIB)
 add_definitions(-DBOOST_CHRONO_NO_LIB)
@@ -41,11 +41,7 @@ unset(CMAKE_REQUIRED_LIBRARIES CACHE)
 unset(CMAKE_REQUIRED_FLAGS CACHE)
 
 if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-  if (Boost_VERSION LESS 105100) # 1.51
-    add_definitions(-DBOOST_NO_SCOPED_ENUMS)
-  else()
-    add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
-  endif()
+  add_definitions(-DBOOST_NO_CXX11_SCOPED_ENUMS)
 endif()
 
 if(Boost_FOUND)
