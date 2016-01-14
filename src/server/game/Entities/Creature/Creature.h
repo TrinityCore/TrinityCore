@@ -674,8 +674,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
-        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
-        void ReleaseFocus(Spell const* focusSpell);
+        bool FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
+        void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
@@ -701,6 +702,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
         float m_respawnradius;
+        uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
         uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
@@ -747,6 +749,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool TriggerJustRespawned;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
+        uint32 _focusDelay;
 
         int32 outfitId;
         CreatureTextRepeatGroup m_textRepeat;

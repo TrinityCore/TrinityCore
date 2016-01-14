@@ -187,14 +187,14 @@ public:
             instance->SetBossState(DATA_BJARNGRIM, NOT_STARTED);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
                 canBuff = true;
             else
                 canBuff = false;
 
-            ScriptedAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode(why);
         }
 
         void EnterCombat(Unit* /*who*/) override

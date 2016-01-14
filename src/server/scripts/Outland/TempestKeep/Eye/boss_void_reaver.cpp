@@ -159,8 +159,6 @@ class boss_void_reaver : public CreatureScript
                     Berserk_Timer -= diff;
 
                 DoMeleeAttackIfReady();
-
-                EnterEvadeIfOutOfCombatArea(diff);
             }
         };
 

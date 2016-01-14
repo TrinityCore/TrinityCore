@@ -263,8 +263,6 @@ struct ScriptedAI : public CreatureAI
     void SetCombatMovement(bool allowMovement);
     bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
 
-    bool EnterEvadeIfOutOfCombatArea(uint32 const diff);
-
     // return true for heroic mode. i.e.
     //   - for dungeon in mode 10-heroic,
     //   - for raid in mode 10-Heroic
@@ -332,7 +330,6 @@ struct ScriptedAI : public CreatureAI
 
     private:
         Difficulty _difficulty;
-        uint32 _evadeCheckCooldown;
         bool _isCombatMovementAllowed;
         bool _isHeroic;
 };
@@ -344,7 +341,6 @@ class BossAI : public ScriptedAI
         virtual ~BossAI() { }
 
         InstanceScript* const instance;
-        BossBoundaryMap const* GetBoundary() const { return _boundary; }
 
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;
@@ -370,16 +366,6 @@ class BossAI : public ScriptedAI
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
 
-        virtual bool CheckInRoom()
-        {
-            if (CheckBoundary(me))
-                return true;
-
-            EnterEvadeMode();
-            return false;
-        }
-
-        bool CheckBoundary(Unit* who);
         void TeleportCheaters();
 
         EventMap events;
@@ -387,7 +373,6 @@ class BossAI : public ScriptedAI
         TaskScheduler scheduler;
 
     private:
-        BossBoundaryMap const* const _boundary;
         uint32 const _bossId;
 };
 
