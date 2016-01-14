@@ -209,7 +209,7 @@ class SmartScript
 
             if (lookupRoot)
             {
-                if (!meOrigGUID)
+                if (!meOrigGUID.IsEmpty())
                 {
                     if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
                     {
@@ -217,7 +217,8 @@ class SmartScript
                         go = NULL;
                     }
                 }
-                if (!goOrigGUID)
+
+                if (!goOrigGUID.IsEmpty())
                 {
                     if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
                     {
