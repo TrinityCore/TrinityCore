@@ -519,6 +519,67 @@ public:
 };
 
 /*######
+## npc_torch_tossing_target_bunny_controller
+######*/
+
+enum TorchTossingTarget
+{
+    NPC_TORCH_TOSSING_TARGET_BUNNY      = 25535,
+    SPELL_TARGET_INDICATOR              = 45723
+};
+
+class npc_torch_tossing_target_bunny_controller : public CreatureScript
+{
+public:
+    npc_torch_tossing_target_bunny_controller() : CreatureScript("npc_torch_tossing_target_bunny_controller") { }
+
+    struct npc_torch_tossing_target_bunny_controllerAI : public ScriptedAI
+    {
+        npc_torch_tossing_target_bunny_controllerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _targetTimer = 3000;
+        }
+
+        ObjectGuid DoSearchForTargets(ObjectGuid lastTargetGUID)
+        {
+            std::list<Creature*> targets;
+            me->GetCreatureListWithEntryInGrid(targets, NPC_TORCH_TOSSING_TARGET_BUNNY, 60.0f);
+            targets.remove_if([lastTargetGUID](Creature* creature) { return creature->GetGUID() == lastTargetGUID; });
+
+            if (!targets.empty())
+            {
+                _lastTargetGUID = Trinity::Containers::SelectRandomContainerElement(targets)->GetGUID();
+
+                return _lastTargetGUID;
+            }
+            return ObjectGuid::Empty;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (_targetTimer < diff)
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*me, DoSearchForTargets(_lastTargetGUID)))
+                    target->CastSpell(target, SPELL_TARGET_INDICATOR, true);
+
+                _targetTimer = 3000;
+            }
+            else
+                _targetTimer -= diff;
+        }
+
+    private:
+        uint32 _targetTimer;
+        ObjectGuid _lastTargetGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_torch_tossing_target_bunny_controllerAI(creature);
+    }
+};
+
+/*######
 ## Triage quest
 ######*/
 
@@ -2393,6 +2454,7 @@ void AddSC_npcs_special()
     new npc_lunaclaw_spirit();
     new npc_chicken_cluck();
     new npc_dancing_flames();
+    new npc_torch_tossing_target_bunny_controller();
     new npc_doctor();
     new npc_injured_patient();
     new npc_garments_of_quests();
