@@ -25,6 +25,7 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
+  ../game/Maps/AreaBoundary.cpp
 )
 
 if(SCRIPTS)

@@ -1181,7 +1181,7 @@ public:
         void EnterCombat(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void GetIllidanGUID(ObjectGuid guid)
         {
@@ -1439,7 +1439,7 @@ public:
         }
 
         // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             me->RemoveAllAuras();
             me->DeleteThreatList();
@@ -1474,7 +1474,7 @@ public:
             }
             for (std::vector<Unit*>::const_iterator itr = eliteList.begin(); itr != eliteList.end(); ++itr)
                 (*itr)->setDeathState(JUST_DIED);
-            EnterEvadeMode();
+            EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
         void BeginTalk()
@@ -1544,7 +1544,7 @@ public:
                 {
                     if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
                         ENSURE_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->DeleteFromThreatList(me->GetGUID());
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     ++WalkCount;
                 }
