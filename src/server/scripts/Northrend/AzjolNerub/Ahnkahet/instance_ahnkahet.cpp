@@ -22,8 +22,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_PRINCE_TALDARAM_GATE, DATA_PRINCE_TALDARAM, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { 0,                       0,                    DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_PRINCE_TALDARAM_GATE, DATA_PRINCE_TALDARAM, DOOR_TYPE_PASSAGE },
+    { 0,                       0,                    DOOR_TYPE_ROOM } // END
 };
 
 class instance_ahnkahet : public InstanceMapScript

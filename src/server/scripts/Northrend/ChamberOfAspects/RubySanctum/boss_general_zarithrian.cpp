@@ -98,7 +98,7 @@ class boss_general_zarithrian : public CreatureScript
             {
                 _Reset();
                 if (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -144,13 +144,6 @@ class boss_general_zarithrian : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-
-                // Can't use room boundary here, the gameobject is spawned at the same position as the boss. This is just as good anyway.
-                if (me->GetPositionX() > 3058.0f)
-                {
-                    EnterEvadeMode();
-                    return;
-                }
 
                 events.Update(diff);
 
@@ -228,7 +221,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 _events.ScheduleEvent(EVENT_LAVA_GOUT, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 // Prevent EvadeMode
             }
