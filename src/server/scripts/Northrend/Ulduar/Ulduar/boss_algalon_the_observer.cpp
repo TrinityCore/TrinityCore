@@ -242,7 +242,7 @@ class ActivateLivingConstellation : public BasicEvent
         {
         }
 
-        bool Execute(uint64 execTime, uint32 /*diff*/)
+        bool Execute(uint64 execTime, uint32 /*diff*/) override
         {
             if (!_instance || _instance->GetBossState(BOSS_ALGALON) != IN_PROGRESS)
                 return true;    // delete event
@@ -264,7 +264,7 @@ class CosmicSmashDamageEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/)
+        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
             _caster->CastSpell((Unit*)NULL, SPELL_COSMIC_SMASH_TRIGGERED, TRIGGERED_FULL_MASK);
             return true;
@@ -281,7 +281,7 @@ class SummonUnleashedDarkMatter : public BasicEvent
         {
         }
 
-        bool Execute(uint64 execTime, uint32 /*diff*/)
+        bool Execute(uint64 execTime, uint32 /*diff*/) override
         {
             _caster->CastSpell((Unit*)NULL, SPELL_SUMMON_UNLEASHED_DARK_MATTER, TRIGGERED_FULL_MASK);
             _caster->m_Events.AddEvent(this, execTime + 30000);
@@ -322,7 +322,7 @@ class boss_algalon_the_observer : public CreatureScript
 
             void KilledUnit(Unit* victim) override
             {
-                if (victim->GetTypeId() == TYPEID_UNIT)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     _fedOnTears = true;
                     if (!_hasYelled)
@@ -492,10 +492,10 @@ class boss_algalon_the_observer : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 instance->SetBossState(BOSS_ALGALON, FAIL);
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetSheath(SHEATH_STATE_UNARMED);
             }
@@ -545,7 +545,7 @@ class boss_algalon_the_observer : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!(events.IsInPhase(PHASE_ROLE_PLAY) || events.IsInPhase(PHASE_BIG_BANG)) && !UpdateVictim()) || !CheckInRoom())
+                if (!(events.IsInPhase(PHASE_ROLE_PLAY) || events.IsInPhase(PHASE_BIG_BANG)) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -639,7 +639,7 @@ class boss_algalon_the_observer : public CreatureScript
                             events.ScheduleEvent(EVENT_EVADE, 2500);
                             break;
                         case EVENT_EVADE:
-                            EnterEvadeMode();
+                            EnterEvadeMode(EVADE_REASON_OTHER);
                             break;
                         case EVENT_COSMIC_SMASH:
                             Talk(EMOTE_ALGALON_COSMIC_SMASH);

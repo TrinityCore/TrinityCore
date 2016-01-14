@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.26, for Win64 (x86_64)
 --
 -- Host: localhost    Database: characters_4x
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.6.26-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -237,6 +237,29 @@ CREATE TABLE `banned_addons` (
 LOCK TABLES `banned_addons` WRITE;
 /*!40000 ALTER TABLE `banned_addons` DISABLE KEYS */;
 /*!40000 ALTER TABLE `banned_addons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `battleground_deserters`
+--
+
+DROP TABLE IF EXISTS `battleground_deserters`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `battleground_deserters` (
+  `guid` int(10) unsigned NOT NULL COMMENT 'characters.guid',
+  `type` tinyint(3) unsigned NOT NULL COMMENT 'type of the desertion',
+  `datetime` datetime NOT NULL COMMENT 'datetime of the desertion'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battleground_deserters`
+--
+
+LOCK TABLES `battleground_deserters` WRITE;
+/*!40000 ALTER TABLE `battleground_deserters` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battleground_deserters` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1631,6 +1654,7 @@ DROP TABLE IF EXISTS `gm_ticket`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_ticket` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '0 open, 1 closed, 2 character deleted',
   `playerGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier of ticket creator',
   `name` varchar(12) NOT NULL COMMENT 'Name of ticket creator',
   `description` text NOT NULL,
@@ -1648,6 +1672,7 @@ CREATE TABLE `gm_ticket` (
   `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `needMoreHelp` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `resolvedBy` int(10) NOT NULL DEFAULT '0' COMMENT 'GUID of GM who resolved the ticket',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2487,7 +2512,7 @@ CREATE TABLE `pet_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spell`,`effectMask`)
+  PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2663,6 +2688,7 @@ DROP TABLE IF EXISTS `pvpstats_players`;
 CREATE TABLE `pvpstats_players` (
   `battleground_id` bigint(20) unsigned NOT NULL,
   `character_guid` int(10) unsigned NOT NULL,
+  `winner` bit(1) NOT NULL,
   `score_killing_blows` mediumint(8) unsigned NOT NULL,
   `score_deaths` mediumint(8) unsigned NOT NULL,
   `score_honorable_kills` mediumint(8) unsigned NOT NULL,

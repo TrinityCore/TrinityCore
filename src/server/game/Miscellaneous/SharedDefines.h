@@ -188,7 +188,7 @@ enum Powers
     POWER_FOCUS                         = 2,
     POWER_ENERGY                        = 3,
     POWER_UNUSED                        = 4,
-    POWER_RUNES                         = 5,
+    POWER_RUNE                          = 5,
     POWER_RUNIC_POWER                   = 6,
     POWER_SOUL_SHARDS                   = 7,
     POWER_ECLIPSE                       = 8,

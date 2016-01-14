@@ -136,6 +136,7 @@ class ObjectGuid
         template<HighGuid type>
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint32 entry, LowType counter) { return MapSpecific(type, entry, counter); }
 
+
         ObjectGuid() { _data._guid = UI64LIT(0); }
         explicit ObjectGuid(uint64 guid) { _data._guid = guid; }
         ObjectGuid(HighGuid hi, uint32 entry, uint32 counter) { _data._guid = counter ? uint64(counter) | (uint64(entry) << 32) | (uint64(hi) << ((hi == HighGuid::Corpse || hi == HighGuid::AreaTrigger) ? 48 : 52)) : 0; }

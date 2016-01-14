@@ -314,6 +314,7 @@ bool OPvPCapturePointZM_GraveYard::CanTalkTo(Player* player, Creature* c, Gossip
 bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player* player, Creature* creature, uint32 /*gossipid*/)
 {
     std::map<ObjectGuid::LowType, uint32>::iterator itr = m_CreatureTypes.find(creature->GetSpawnId());
+
     if (itr != m_CreatureTypes.end())
     {
         // if the flag is already taken, then return

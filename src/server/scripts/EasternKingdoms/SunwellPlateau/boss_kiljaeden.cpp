@@ -624,9 +624,9 @@ public:
             Talk(SAY_KJ_SLAY);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            ScriptedAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode(why);
 
             summons.DespawnAll();
 
@@ -1112,7 +1112,7 @@ public:
             else if (me->IsWithinDistInMap(me->GetVictim(), 3)) // Explode if it's close enough to it's target
             {
                 DoCastVictim(SPELL_FELFIRE_FISSION);
-                me->Kill(me);
+                me->KillSelf();
             }
         }
     };
@@ -1172,7 +1172,7 @@ public:
                         uiTimer = 5000;
                         break;
                     case 3:
-                        me->Kill(me);
+                        me->KillSelf();
                         me->RemoveCorpse();
                         break;
                 }

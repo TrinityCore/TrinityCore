@@ -293,7 +293,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
 
-    if (isEqualChanced || (!isEqualChanced && totalChance == 100.0f))
+    if (isEqualChanced || totalChance == 100.0f)
         SetRepeatId(source, textGroup, iter->id);
 
     return iter->duration;

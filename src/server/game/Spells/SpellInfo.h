@@ -179,7 +179,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
-    SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
+    SPELL_ATTR0_CU_DONT_BREAK_STEALTH            = 0x00000040,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
@@ -318,8 +318,8 @@ public:
     uint32 AttributesEx9;
     uint32 AttributesEx10;
     uint32 AttributesCu;
-    uint32 Stances;
-    uint32 StancesNot;
+    uint64 Stances;
+    uint64 StancesNot;
     uint32 Targets;
     uint32 TargetCreatureType;
     uint32 RequiresSpellFocus;
@@ -428,14 +428,17 @@ public:
     bool HasAura(AuraType aura) const;
     bool HasAreaAuraEffect() const;
 
-    inline bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
-    inline bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
-    inline bool HasAttribute(SpellAttr2 attribute) const { return !!(AttributesEx2 & attribute); }
-    inline bool HasAttribute(SpellAttr3 attribute) const { return !!(AttributesEx3 & attribute); }
-    inline bool HasAttribute(SpellAttr4 attribute) const { return !!(AttributesEx4 & attribute); }
-    inline bool HasAttribute(SpellAttr5 attribute) const { return !!(AttributesEx5 & attribute); }
-    inline bool HasAttribute(SpellAttr6 attribute) const { return !!(AttributesEx6 & attribute); }
-    inline bool HasAttribute(SpellAttr7 attribute) const { return !!(AttributesEx7 & attribute); }
+    inline bool HasAttribute(SpellAttr0 attribute)  const { return !!(Attributes & attribute);     }
+    inline bool HasAttribute(SpellAttr1 attribute)  const { return !!(AttributesEx & attribute);   }
+    inline bool HasAttribute(SpellAttr2 attribute)  const { return !!(AttributesEx2 & attribute);  }
+    inline bool HasAttribute(SpellAttr3 attribute)  const { return !!(AttributesEx3 & attribute);  }
+    inline bool HasAttribute(SpellAttr4 attribute)  const { return !!(AttributesEx4 & attribute);  }
+    inline bool HasAttribute(SpellAttr5 attribute)  const { return !!(AttributesEx5 & attribute);  }
+    inline bool HasAttribute(SpellAttr6 attribute)  const { return !!(AttributesEx6 & attribute);  }
+    inline bool HasAttribute(SpellAttr7 attribute)  const { return !!(AttributesEx7 & attribute);  }
+    inline bool HasAttribute(SpellAttr8 attribute)  const { return !!(AttributesEx8 & attribute);  }
+    inline bool HasAttribute(SpellAttr9 attribute)  const { return !!(AttributesEx9 & attribute);  }
+    inline bool HasAttribute(SpellAttr10 attribute) const { return !!(AttributesEx10 & attribute); }
     inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
     bool IsExplicitDiscovery() const;

@@ -89,9 +89,13 @@ enum MiscInfo
     //DATA_SPIKE_IMMUNE_1,          = 2, // Reserved & used
     //DATA_SPIKE_IMMUNE_2,          = 3, // Reserved & used
 
-    ACTION_CLEAR_SPIKE_IMMUNITIES   = 1,
-
     MAX_BONE_SPIKE_IMMUNE           = 3,
+};
+
+enum Actions
+{
+    ACTION_CLEAR_SPIKE_IMMUNITIES = 1,
+    ACTION_TALK_ENTER_ZONE        = 2
 };
 
 class BoneSpikeTargetSelector : public std::unary_function<Unit*, bool>
@@ -146,6 +150,7 @@ class boss_lord_marrowgar : public CreatureScript
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                _introDone = false;
                 _boneSlice = false;
                 _boneSpikeImmune.clear();
             }
@@ -179,19 +184,9 @@ class boss_lord_marrowgar : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void MoveInLineOfSight(Unit* who) override
-
-            {
-                if (!_introDone && me->IsWithinDistInMap(who, 70.0f))
-                {
-                    Talk(SAY_ENTER_ZONE);
-                    _introDone = true;
-                }
-            }
-
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -324,10 +319,21 @@ class boss_lord_marrowgar : public CreatureScript
 
             void DoAction(int32 action) override
             {
-                if (action != ACTION_CLEAR_SPIKE_IMMUNITIES)
-                    return;
-
-                _boneSpikeImmune.clear();
+                switch (action)
+                {
+                    case ACTION_CLEAR_SPIKE_IMMUNITIES:
+                        _boneSpikeImmune.clear();
+                        break;
+                    case ACTION_TALK_ENTER_ZONE:
+                        if (!_introDone)
+                        {
+                            Talk(SAY_ENTER_ZONE);
+                            _introDone = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
 
         private:
@@ -742,6 +748,22 @@ class spell_marrowgar_bone_slice : public SpellScriptLoader
         }
 };
 
+class at_lord_marrowgar_entrance : public AreaTriggerScript
+{
+    public:
+        at_lord_marrowgar_entrance() : AreaTriggerScript("at_lord_marrowgar_entrance") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* lordMarrowgar = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LORD_MARROWGAR)))
+                    lordMarrowgar->AI()->DoAction(ACTION_TALK_ENTER_ZONE);
+
+            return true;
+        }
+
+};
+
 void AddSC_boss_lord_marrowgar()
 {
     new boss_lord_marrowgar();
@@ -753,4 +775,5 @@ void AddSC_boss_lord_marrowgar()
     new spell_marrowgar_bone_spike_graveyard();
     new spell_marrowgar_bone_storm();
     new spell_marrowgar_bone_slice();
+    new at_lord_marrowgar_entrance();
 }

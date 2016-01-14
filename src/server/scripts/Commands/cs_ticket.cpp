@@ -113,7 +113,7 @@ public:
 
         // If assigned to different player other than current, leave
         //! Console can override though
-        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
         if (player && ticket->IsAssignedNotTo(player->GetGUID()))
         {
             handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId(), target.c_str());
@@ -146,14 +146,14 @@ public:
 
         // Ticket should be assigned to the player who tries to close it.
         // Console can override though
-        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
         if (player && ticket->IsAssignedNotTo(player->GetGUID()))
         {
             handler->PSendSysMessage(LANG_COMMAND_TICKETCANNOTCLOSE, ticket->GetId());
             return true;
         }
 
-        sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : ObjectGuid(uint64(-1)));
+        sTicketMgr->ResolveAndCloseTicket(ticket->GetId(), player ? player->GetGUID() : ObjectGuid(uint64(0)));
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL, NULL);
@@ -190,7 +190,7 @@ public:
 
         // Cannot comment ticket assigned to someone else
         //! Console excluded
-        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
         if (player && ticket->IsAssignedNotTo(player->GetGUID()))
         {
             handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());
@@ -220,7 +220,9 @@ public:
         if (!*args)
             return false;
 
-        uint32 ticketId = atoi(args);
+        char* ticketIdStr = strtok((char*)args, " ");
+        uint32 ticketId = atoi(ticketIdStr);
+
         GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
         if (!ticket || ticket->IsClosed() || ticket->IsCompleted())
         {
@@ -228,10 +230,28 @@ public:
             return true;
         }
 
+        char* response = strtok(NULL, "\n");
+        if (response)
+        {
+            // Cannot add response to ticket, assigned to someone else
+            //! Console excluded
+            Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
+            if (player && ticket->IsAssignedNotTo(player->GetGUID()))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());
+                return true;
+            }
+
+            ticket->AppendResponse(response);
+        }
+
         if (Player* player = ticket->GetPlayer())
             ticket->SendResponse(player->GetSession());
 
+        Player* gm = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
+
         SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetResolvedBy(gm ? gm->GetGUID() : ObjectGuid(uint64(0)));
         ticket->SetCompleted();
         ticket->SaveToDB(trans);
 
@@ -476,7 +496,7 @@ public:
 
         // Cannot add response to ticket, assigned to someone else
         //! Console excluded
-        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : NULL;
+        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
         if (player && ticket->IsAssignedNotTo(player->GetGUID()))
         {
             handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());

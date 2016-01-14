@@ -15,22 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name:     Black_Temple
-Complete: 100%
-Comment:  Spirit of Olum: Player Teleporter to Seer Kanai Teleport after defeating Naj'entus and Supremus.
-*/
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "black_temple.h"
-#include "Player.h"
 
 enum Spells
 {
-    // Spirit of Olum
-    SPELL_TELEPORT                   = 41566,
     // Wrathbone Flayer
     SPELL_CLEAVE                     = 15496,
     SPELL_IGNORED                    = 39544,
@@ -50,36 +40,6 @@ enum Events
     EVENT_SET_CHANNELERS             = 2,
     EVENT_CLEAVE                     = 3,
     EVENT_IGNORED                    = 4,
-};
-
-// ########################################################
-// Spirit of Olum
-// ########################################################
-
-class npc_spirit_of_olum : public CreatureScript
-{
-public:
-    npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
-
-    struct npc_spirit_of_olumAI : public ScriptedAI
-    {
-        npc_spirit_of_olumAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
-        {
-            if (action == 1)
-            {
-                player->CLOSE_GOSSIP_MENU();
-                player->InterruptNonMeleeSpells(false);
-                player->CastSpell(player, SPELL_TELEPORT, false);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_spirit_of_olumAI(creature);
-    }
 };
 
 // ########################################################
@@ -123,7 +83,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-
             if (!_enteredCombat)
             {
                 _events.Update(diff);
@@ -215,12 +174,11 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_wrathbone_flayerAI>(creature);
+        return GetBlackTempleAI<npc_wrathbone_flayerAI>(creature);
     }
 };
 
 void AddSC_black_temple()
 {
-    new npc_spirit_of_olum();
     new npc_wrathbone_flayer();
 }

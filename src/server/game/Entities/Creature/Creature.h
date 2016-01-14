@@ -84,7 +84,7 @@ struct CreatureTemplate
     uint32  Modelid4;
     std::string  Name;
     std::string FemaleName;
-    std::string  SubName;
+    std::string  Title;
     std::string  IconName;
     uint32  GossipMenuId;
     uint8   minlevel;
@@ -141,6 +141,8 @@ struct CreatureTemplate
     uint32  ScriptID;
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
+    uint32  GetFirstInvisibleModel() const;
+    uint32  GetFirstVisibleModel() const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
@@ -223,7 +225,7 @@ struct CreatureLocale
 {
     StringVector Name;
     StringVector FemaleName;
-    StringVector SubName;
+    StringVector Title;
 };
 
 struct GossipMenuItemsLocale
@@ -285,6 +287,7 @@ struct CreatureModelInfo
     float combat_reach;
     uint8 gender;
     uint32 modelid_other_gender;
+    bool is_trigger;
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -325,6 +328,7 @@ struct CreatureAddon
 };
 
 typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
+typedef std::unordered_map<uint32, CreatureAddon> CreatureAddonTemplateContainer;
 
 // Vendors
 struct VendorItem
@@ -439,7 +443,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void DisappearAndDie();
 
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
-        bool LoadCreaturesAddon(bool reload = false);
+        bool LoadCreaturesAddon();
         void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
 
@@ -599,6 +603,14 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         float GetRespawnRadius() const { return m_respawnradius; }
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
 
+        uint32 GetCombatPulseDelay() const { return m_combatPulseDelay; }
+        void SetCombatPulseDelay(uint32 delay) // (secs) interval at which the creature pulses the entire zone into combat (only works in dungeons)
+        {
+            m_combatPulseDelay = delay;
+            if (m_combatPulseTime == 0 || m_combatPulseTime > delay)
+                m_combatPulseTime = delay;
+        }
+
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting corpse
 
@@ -657,8 +669,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
-        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
-        void ReleaseFocus(Spell const* focusSpell);
+        bool FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
+        void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
@@ -684,6 +697,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
         float m_respawnradius;
+        uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
+        uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
+        uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
@@ -728,6 +744,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool TriggerJustRespawned;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
+        uint32 _focusDelay;
 
         CreatureTextRepeatGroup m_textRepeat;
 };

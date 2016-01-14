@@ -476,7 +476,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // default amount calculation
     int32 amount = 0;
 
-    if (!(m_spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION) || G3D::fuzzyEq(m_spellInfo->Effects[m_effIndex].BonusMultiplier, 0.0f))
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION) || G3D::fuzzyEq(m_spellInfo->Effects[m_effIndex].BonusMultiplier, 0.0f))
         amount = m_spellInfo->Effects[m_effIndex].CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit());
     else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
         amount = int32(caster->GetFloatValue(PLAYER_MASTERY) * m_spellInfo->Effects[m_effIndex].BonusMultiplier);
@@ -640,10 +640,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
         {
             // Haste modifies periodic time of channeled spells
             if (m_spellInfo->IsChanneled())
-            {
-                if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-                    caster->ModSpellCastTime(m_spellInfo, m_amplitude);
-            }
+                caster->ModSpellDurationTime(m_spellInfo, m_amplitude);
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
                 m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
@@ -1225,10 +1222,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (!spellInfo || !(spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
-                if ((spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION) && !plrTarget->IsCurrentSpecMasterySpell(spellInfo))
+                if (spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION) && !plrTarget->IsCurrentSpecMasterySpell(spellInfo))
                     continue;
 
-                if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
+                if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
             }
 
@@ -1243,7 +1240,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         if (!spellInfo || !(spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                             continue;
 
-                        if (spellInfo->Stances & (1 << (GetMiscValue() - 1)))
+                        if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                             target->CastSpell(target, glyph->SpellId, true, NULL, this);
                     }
                 }
@@ -1253,7 +1250,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             if (plrTarget->HasSpell(17007))
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (1 << (GetMiscValue() -1)))
+                if (spellInfo && spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, 24932, true, NULL, this);
             }
 
@@ -1359,14 +1356,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
             // Use the new aura to see on what stance the target will be
-            uint32 newStance = 0;
-            if (newAura)
-            {
-                if (newAura->GetMiscValue() > 0 && newAura->GetMiscValue() <= 32) //Not null and GetMiscValue is not == FORM_NONE
-                    newStance = 1 << (newAura->GetMiscValue() - 1);
-                else
-                    TC_LOG_ERROR("spell.aura", "newAura->GetMiscValue() returned value %i for SpellID: %u when it was expecting a value in range [0..31] for a bitshift", newAura->GetMiscValue(), newAura->GetId());
-            }
+            uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
+
             // If the stances are not compatible with the spell, remove it
             if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
                 target->RemoveAura(itr);
@@ -1936,43 +1927,43 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         {
                             // Blood Elf
                             case RACE_BLOODELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17829 : 17830);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 17830 : 17829);
                                 break;
                             // Orc
                             case RACE_ORC:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10139 : 10140);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10140 : 10139);
                                 break;
                             // Troll
                             case RACE_TROLL:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10135 : 10134);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10134 : 10135);
                                 break;
                             // Tauren
                             case RACE_TAUREN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10136 : 10147);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10147 : 10136);
                                 break;
                             // Undead
                             case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10146 : 10145);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10145 : 10146);
                                 break;
                             // Draenei
                             case RACE_DRAENEI:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 17827 : 17828);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 17828 : 17827);
                                 break;
                             // Dwarf
                             case RACE_DWARF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10141 : 10142);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10142 : 10141);
                                 break;
                             // Gnome
                             case RACE_GNOME:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10148 : 10149);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10149 : 10148);
                                 break;
                             // Human
                             case RACE_HUMAN:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10137 : 10138);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10138 : 10137);
                                 break;
                             // Night Elf
                             case RACE_NIGHTELF:
-                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 10143 : 10144);
+                                target->SetDisplayId(target->getGender() == GENDER_FEMALE ? 10144 : 10143);
                                 break;
                             default:
                                 break;
@@ -3890,7 +3881,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
     // Update manaregen value
     if (GetMiscValue() == POWER_MANA)
         target->ToPlayer()->UpdateManaRegen();
-    else if (GetMiscValue() == POWER_RUNES)
+    else if (GetMiscValue() == POWER_RUNE)
         target->ToPlayer()->UpdateRuneRegen(RuneType(GetMiscValueB()));
     // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
 }
@@ -4691,17 +4682,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 {
                     if (caster)
                     {
-                        switch (caster->getGender())
-                        {
-                            case GENDER_FEMALE:
-                                caster->CastSpell(target, 37095, true, NULL, this); // Blood Elf Disguise
-                                break;
-                            case GENDER_MALE:
-                                caster->CastSpell(target, 37093, true, NULL, this);
-                                break;
-                            default:
-                                break;
-                        }
+                        if (caster->getGender() == GENDER_FEMALE)
+                            caster->CastSpell(target, 37095, true, NULL, this); // Blood Elf Disguise
+                        else
+                            caster->CastSpell(target, 37093, true, NULL, this);
                     }
                     break;
                 }
@@ -4715,15 +4699,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 46354:                                     // Blood Elf Illusion
                     if (caster)
                     {
-                        switch (caster->getGender())
-                        {
-                            case GENDER_FEMALE:
-                                caster->CastSpell(target, 46356, true, NULL, this);
-                                break;
-                            case GENDER_MALE:
-                                caster->CastSpell(target, 46355, true, NULL, this);
-                                break;
-                        }
+                        if (caster->getGender() == GENDER_FEMALE)
+                            caster->CastSpell(target, 46356, true, NULL, this);
+                        else
+                            caster->CastSpell(target, 46355, true, NULL, this);
                     }
                     break;
                 case 46361:                                     // Reinforced Net
@@ -5590,7 +5569,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                     case 31347:
                     {
                         target->CastSpell(target, 31350, true, NULL, this);
-                        target->Kill(target);
+                        target->KillSelf();
                         return;
                     }
                     // Spellcloth

@@ -75,6 +75,7 @@ void DynamicObject::RemoveFromWorld()
         UnbindFromCaster();
         WorldObject::RemoveFromWorld();
         GetMap()->GetObjectsStore().Remove<DynamicObject>(GetGUID());
+
     }
 }
 

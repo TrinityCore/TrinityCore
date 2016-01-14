@@ -478,7 +478,7 @@ class boss_mimiron : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!UpdateVictim() || !CheckInRoom()) && instance->GetBossState(BOSS_MIMIRON) != DONE)
+                if (!UpdateVictim() && instance->GetBossState(BOSS_MIMIRON) != DONE)
                     return;
 
                 events.Update(diff);
@@ -701,7 +701,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                     {
                         me->CastStop();
                         if (Unit* turret = me->GetVehicleKit()->GetPassenger(3))
-                            turret->Kill(turret);
+                            turret->KillSelf();
 
                         me->SetSpeed(MOVE_RUN, 1.5f, true);
                         me->GetMotionMaster()->MovePoint(WP_MKII_P1_IDLE, VehicleRelocation[WP_MKII_P1_IDLE]);
@@ -846,7 +846,7 @@ class boss_leviathan_mk_ii : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -999,7 +999,7 @@ class boss_vx_001 : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 summons.DespawnAll();
             }
@@ -1174,7 +1174,7 @@ class boss_aerial_command_unit : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 summons.DespawnAll();
             }

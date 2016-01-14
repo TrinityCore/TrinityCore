@@ -789,7 +789,7 @@ BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
     if (object == BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE)
         return BG_AV_NODES_SNOWFALL_GRAVE;
     TC_LOG_ERROR("bg.battleground", "BattlegroundAV: ERROR! GetPlace got a wrong object :(");
-    ASSERT(false);
+    ABORT();
     return BG_AV_Nodes(0);
 }
 
@@ -827,7 +827,7 @@ uint32 BattlegroundAV::GetObjectThroughNode(BG_AV_Nodes node)
     else if (m_Nodes[node].Owner == AV_NEUTRAL_TEAM)
         return BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE;
     TC_LOG_ERROR("bg.battleground", "BattlegroundAV: Error! GetPlaceNode couldn't resolve node %i", node);
-    ASSERT(false);
+    ABORT();
     return 0;
 }
 
@@ -1402,22 +1402,22 @@ void BattlegroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
     if (m_Nodes[node].TotalOwner == team)
     {
         TC_LOG_FATAL("bg.battleground", "Assaulting team is TotalOwner of node");
-        ASSERT(false);
+        ABORT();
     }
     if (m_Nodes[node].Owner == team)
     {
         TC_LOG_FATAL("bg.battleground", "Assaulting team is owner of node");
-        ASSERT(false);
+        ABORT();
     }
     if (m_Nodes[node].State == POINT_DESTROYED)
     {
         TC_LOG_FATAL("bg.battleground", "Destroyed node is being assaulted");
-        ASSERT(false);
+        ABORT();
     }
     if (m_Nodes[node].State == POINT_ASSAULTED && m_Nodes[node].TotalOwner) //only assault an assaulted node if no totalowner exists
     {
         TC_LOG_FATAL("bg.battleground", "Assault on an not assaulted node with total owner");
-        ASSERT(false);
+        ABORT();
     }
     //the timer gets another time, if the previous owner was 0 == Neutral
     m_Nodes[node].Timer      = (m_Nodes[node].PrevOwner)? BG_AV_CAPTIME : BG_AV_SNOWFALL_FIRSTCAP;

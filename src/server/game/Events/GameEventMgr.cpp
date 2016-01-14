@@ -1143,7 +1143,6 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
                     //cr->ResetGossipOptions();
                 }
             }
-
         });
     }
 }

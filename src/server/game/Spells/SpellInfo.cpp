@@ -998,9 +998,16 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
         ReagentCount[i] = _reagents ? _reagents->ReagentCount[i] : 0;
 
     // SpellShapeshiftEntry
-    SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
-    Stances = _shapeshift ? _shapeshift->Stances : 0;
-    StancesNot = _shapeshift ? _shapeshift->StancesNot : 0;
+    if (SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift())
+    {
+        Stances = MAKE_PAIR64(_shapeshift->Stances[0], _shapeshift->Stances[1]);
+        StancesNot = MAKE_PAIR64(_shapeshift->StancesNot[0], _shapeshift->StancesNot[1]);
+    }
+    else
+    {
+        Stances = UI64LIT(0);
+        StancesNot = UI64LIT(0);
+    }
 
     // SpellTargetRestrictionsEntry
     SpellTargetRestrictionsEntry const* _target = GetSpellTargetRestrictions();
@@ -1471,7 +1478,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
-    uint32 stanceMask = (form ? 1 << (form - 1) : 0);
+    uint64 stanceMask = (form ? UI64LIT(1) << (form - 1) : 0);
 
     if (stanceMask & StancesNot)                 // can explicitly not be cast in this stance
         return SPELL_FAILED_NOT_SHAPESHIFT;
@@ -1496,7 +1503,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
     {
         if (HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT)) // not while shapeshifted
             return SPELL_FAILED_NOT_SHAPESHIFT;
-        else if (Stances != 0)                   // needs other shapeshift
+        else if (Stances != UI64LIT(0))               // needs other shapeshift
             return SPELL_FAILED_ONLY_SHAPESHIFT;
     }
     else
@@ -2300,7 +2307,7 @@ uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= NULL*/) const
     if (spell)
         spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
 
-    if (Attributes & SPELL_ATTR0_REQ_AMMO && (!IsAutoRepeatRangedSpell()) && !(AttributesEx9 & SPELL_ATTR9_AIMED_SHOT))
+    if (HasAttribute(SPELL_ATTR0_REQ_AMMO) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_AIMED_SHOT))
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
@@ -2372,7 +2379,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
             case POWER_ENERGY:
                 powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(PowerType)), ManaCostPercentage));
                 break;
-            case POWER_RUNES:
+            case POWER_RUNE:
             case POWER_RUNIC_POWER:
                 TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
                 break;

@@ -149,18 +149,18 @@ class Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        uint32  m_regenTimer;
+        uint32  m_focusRegenTimer;
 
         DeclinedName *m_declinedname;
 
     private:
         void SaveToDB(uint32, uint8, uint32) override                // override of Creature::SaveToDB     - must not be called
         {
-            ASSERT(false);
+            ABORT();
         }
         void DeleteFromDB() override                                 // override of Creature::DeleteFromDB - must not be called
         {
-            ASSERT(false);
+            ABORT();
         }
 };
 #endif

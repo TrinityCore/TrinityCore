@@ -914,6 +914,12 @@ public:
     uint32 GetHitMask() const { return _hitMask; }
 
     SpellInfo const* GetSpellInfo() const { return NULL; }
+    SpellInfo const* EnsureSpellInfo() const
+    {
+        SpellInfo const* spellInfo = GetSpellInfo();
+        ASSERT(spellInfo);
+        return spellInfo;
+    }
     SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
 
     DamageInfo* GetDamageInfo() const { return _damageInfo; }
@@ -1136,7 +1142,7 @@ struct CharmInfo
         void InitEmptyActionBar(bool withAttack = true);
 
                                                             //return true if successful
-        bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE);
+        bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE, uint8 preferredSlot = 0);
         bool RemoveSpellFromActionBar(uint32 spell_id);
         void LoadPetActionBar(const std::string& data);
         void BuildActionBar(WorldPacket* data);
@@ -1285,6 +1291,7 @@ class Unit : public WorldObject
         void _removeAttacker(Unit* pAttacker);               // must be called only from Unit::AttackStop()
         Unit* getAttackerForHelper() const;                 // If someone wants to help, who to give them
         bool Attack(Unit* victim, bool meleeAttack);
+        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Unit for forced target reacquisition in the next ::Attack call
         void CastStop(uint32 except_spellid = 0);
         bool AttackStop();
         void RemoveAllAttackers();
@@ -1424,6 +1431,7 @@ class Unit : public WorldObject
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
         void Kill(Unit* victim, bool durabilityLoss = true);
+        void KillSelf(bool durabilityLoss = true) { Kill(this, durabilityLoss); }
         int32 DealHeal(Unit* victim, uint32 addhealth);
 
         void ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVictim, uint32 procEx, uint32 amount, WeaponAttackType attType = BASE_ATTACK, SpellInfo const* procSpell = NULL, SpellInfo const* procAura = NULL);
@@ -1595,7 +1603,7 @@ class Unit : public WorldObject
 
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori);
-        void SetFacingToObject(WorldObject* object);
+        void SetFacingToObject(WorldObject const* object);
 
         void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
@@ -1607,6 +1615,7 @@ class Unit : public WorldObject
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }
         bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); }
+        bool IsGhouled() const { return HasAura(46619 /*SPELL_DK_RAISE_ALLY*/); }
         DeathState getDeathState() const { return m_deathState; }
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
@@ -1996,6 +2005,7 @@ class Unit : public WorldObject
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
+        void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = NULL);
         float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
@@ -2159,6 +2169,7 @@ class Unit : public WorldObject
 
         AttackerSet m_attackers;
         Unit* m_attacking;
+        bool m_shouldReacquireTarget;
 
         DeathState m_deathState;
 

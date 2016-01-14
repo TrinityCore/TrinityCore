@@ -96,10 +96,10 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
     if (creatureInfo)
     {
-        std::string Name, FemaleName, SubName;
+        std::string Name, FemaleName, Title;
         Name = creatureInfo->Name;
         FemaleName = creatureInfo->FemaleName;
-        SubName = creatureInfo->SubName;
+        Title = creatureInfo->Title;
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
         if (locale >= 0)
@@ -108,7 +108,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
             {
                 ObjectMgr::GetLocaleString(creatureLocale->Name, locale, Name);
                 ObjectMgr::GetLocaleString(creatureLocale->FemaleName, locale, FemaleName);
-                ObjectMgr::GetLocaleString(creatureLocale->SubName, locale, SubName);
+                ObjectMgr::GetLocaleString(creatureLocale->Title, locale, Title);
             }
         }
 
@@ -126,7 +126,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         for (uint8 i = 0; i < 3; i++)
             data << uint8(0);                                         // name5, ..., name8
 
-        data << SubName;                                              // SubName
+        data << Title;                                                // Title
         data << creatureInfo->IconName;                               // "Directions" for guard, string for Icons 2.3.0
         data << uint32(creatureInfo->type_flags);                     // flags
         data << uint32(creatureInfo->type_flags2);                    // unknown meaning
@@ -219,8 +219,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_CORPSE_QUERY");
-
     if (!_player->HasCorpse())
     {
         WorldPacket data(MSG_CORPSE_QUERY, 1);

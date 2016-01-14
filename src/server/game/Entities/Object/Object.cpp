@@ -76,7 +76,7 @@ WorldObject::~WorldObject()
         {
             TC_LOG_FATAL("misc", "WorldObject::~WorldObject Corpse Type: %d (%s) deleted but still in map!!",
                 ToCorpse()->GetType(), GetGUID().ToString().c_str());
-            ASSERT(false);
+            ABORT();
         }
         ResetMap();
     }
@@ -89,13 +89,13 @@ Object::~Object()
         TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in world!!", GetGUID().ToString().c_str());
         if (isType(TYPEMASK_ITEM))
             TC_LOG_FATAL("misc", "Item slot %u", ((Item*)this)->GetSlot());
-        ASSERT(false);
+        ABORT();
     }
 
     if (m_objectUpdated)
     {
         TC_LOG_FATAL("misc", "Object::~Object %s deleted but still in update list!!", GetGUID().ToString().c_str());
-        ASSERT(false);
+        ABORT();
     }
 
     delete [] m_uint32Values;
@@ -708,6 +708,7 @@ void Object::ClearUpdateMask(bool remove)
     {
         if (remove)
             RemoveFromObjectUpdate();
+
         m_objectUpdated = false;
     }
 }
@@ -1924,7 +1925,7 @@ void WorldObject::SetMap(Map* map)
     if (m_currMap)
     {
         TC_LOG_FATAL("misc", "WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
-        ASSERT(false);
+        ABORT();
     }
     m_currMap = map;
     m_mapId = map->GetId();
@@ -2750,7 +2751,11 @@ void WorldObject::DestroyForNearbyPlayers()
         if (isType(TYPEMASK_UNIT) && ToUnit()->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
             continue;
 
-        DestroyForPlayer(player);
+        if (GetTypeId() == TYPEID_UNIT)
+            DestroyForPlayer(player, ToUnit()->IsDuringRemoveFromWorld() && ToCreature()->isDead()); // at remove from world (destroy) show kill animation
+        else
+            DestroyForPlayer(player);
+
         player->m_clientGUIDs.erase(GetGUID());
     }
 }

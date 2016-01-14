@@ -297,7 +297,7 @@ const float CAPERNIAN_DISTANCE          = 20.0f;            //she casts away fro
 
 Position const afGravityPos = {795.0f, 0.0f, 70.0f};
 
-Position const TransitionPos[6] = 
+Position const TransitionPos[6] =
 {
     // First two values are not static, they seem to differ on each sniff.
     { 794.0522f, -0.96732f, 48.97848f, 0.0f },
@@ -869,7 +869,7 @@ class boss_thaladred_the_darkener : public CreatureScript
     public:
 
         boss_thaladred_the_darkener() : CreatureScript("boss_thaladred_the_darkener") { }
-        
+
         struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         {
             boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature)
@@ -963,7 +963,7 @@ class boss_lord_sanguinar : public CreatureScript
     public:
 
         boss_lord_sanguinar() : CreatureScript("boss_lord_sanguinar") { }
-        
+
         struct boss_lord_sanguinarAI : public advisorbase_ai
         {
             boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature)
@@ -1027,7 +1027,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
     public:
 
         boss_grand_astromancer_capernian() : CreatureScript("boss_grand_astromancer_capernian") { }
-        
+
         struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         {
             boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature)
@@ -1286,7 +1286,7 @@ class npc_kael_flamestrike : public CreatureScript
                         DoCast(me, SPELL_FLAME_STRIKE_DMG);
                     }
                     else
-                        me->Kill(me);
+                        me->KillSelf();
 
                     KillSelf = true;
                     Timer = 1000;
@@ -1307,7 +1307,7 @@ class npc_phoenix_tk : public CreatureScript
     public:
 
         npc_phoenix_tk() : CreatureScript("npc_phoenix_tk") { }
-        
+
         struct npc_phoenix_tkAI : public ScriptedAI
         {
             npc_phoenix_tkAI(Creature* creature) : ScriptedAI(creature)
@@ -1366,7 +1366,7 @@ class npc_phoenix_egg_tk : public CreatureScript
     public:
 
         npc_phoenix_egg_tk() : CreatureScript("npc_phoenix_egg_tk") { }
-        
+
         struct npc_phoenix_egg_tkAI : public ScriptedAI
         {
             npc_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature)
@@ -1464,7 +1464,7 @@ class spell_kael_gravity_lapse : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_kael_gravity_lapse_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
-            
+
             private:
                  uint8 _targetCount;
         };

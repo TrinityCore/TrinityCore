@@ -424,6 +424,13 @@ void Map::DeleteFromWorld(Player* player)
     delete player;
 }
 
+template<>
+void Map::DeleteFromWorld(Transport* transport)
+{
+    ObjectAccessor::RemoveObject(transport);
+    delete transport;
+}
+
 void Map::EnsureGridCreated(const GridCoord &p)
 {
     std::lock_guard<std::mutex> lock(_gridLock);
@@ -702,6 +709,26 @@ void Map::Update(const uint32 t_diff)
         player->Update(t_diff);
 
         VisitNearbyCellsOf(player, grid_object_update, world_object_update);
+
+        // Handle updates for creatures in combat with player and are more than 60 yards away
+        if (player->IsInCombat())
+        {
+            std::vector<Creature*> updateList;
+            HostileReference* ref = player->getHostileRefManager().getFirst();
+
+            while (ref)
+            {
+                if (Unit* unit = ref->GetSource()->GetOwner())
+                    if (unit->ToCreature() && unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                        updateList.push_back(unit->ToCreature());
+
+                ref = ref->next();
+            }
+
+            // Process deferred update list for player
+            for (Creature* c : updateList)
+                VisitNearbyCellsOf(c, grid_object_update, world_object_update);
+        }
     }
 
     // non-player active objects, increasing iterator in the loop in case of object removal
@@ -2631,7 +2658,7 @@ inline void Map::setNGrid(NGridType *grid, uint32 x, uint32 y)
     if (x >= MAX_NUMBER_OF_GRIDS || y >= MAX_NUMBER_OF_GRIDS)
     {
         TC_LOG_ERROR("maps", "map::setNGrid() Invalid grid coordinates found: %d, %d!", x, y);
-        ASSERT(false);
+        ABORT();
     }
     i_grids[x][y] = grid;
 }
@@ -2644,6 +2671,7 @@ void Map::SendObjectUpdates()
     {
         Object* obj = *_updateObjects.begin();
         ASSERT(obj->IsInWorld());
+
         _updateObjects.erase(_updateObjects.begin());
         obj->BuildUpdate(update_players);
     }
@@ -2711,7 +2739,7 @@ void Map::AddObjectToSwitchList(WorldObject* obj, bool on)
     else if (itr->second != on)
         i_objectsToSwitch.erase(itr);
     else
-        ASSERT(false);
+        ABORT();
 }
 
 void Map::RemoveAllObjectsInRemoveList()
@@ -2953,7 +2981,7 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
     if (player->GetMapRef().getTarget() == this)
     {
         TC_LOG_ERROR("maps", "InstanceMap::CannotEnter - player %s(%u) already in map %d, %d, %d!", player->GetName().c_str(), player->GetGUID().GetCounter(), GetId(), GetInstanceId(), GetSpawnMode());
-        ASSERT(false);
+        ABORT();
         return CANNOT_ENTER_ALREADY_IN_MAP;
     }
 
@@ -3038,7 +3066,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                         TC_LOG_ERROR("maps", "InstanceMap::Add: player %s(%d) is being put into instance %s %d, %d, %d, %d, %d, %d but he is in group %s and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName().c_str(), player->GetGUID().GetCounter(), GetMapName(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), group->GetLeaderGUID().ToString().c_str(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
                         if (groupBind)
                             TC_LOG_ERROR("maps", "InstanceMap::Add: the group is bound to the instance %s %d, %d, %d, %d, %d, %d", GetMapName(), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficulty(), groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
-                        //ASSERT(false);
+                        //ABORT();
                         return false;
                     }
                     // bind to the group or keep using the group save
@@ -3155,7 +3183,7 @@ void InstanceMap::CreateInstanceData(bool load)
             i_data->SetCompletedEncountersMask(fields[1].GetUInt32());
             if (!data.empty())
             {
-                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id), i_InstanceId);
+                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id).c_str(), i_InstanceId);
                 i_data->Load(data.c_str());
             }
         }
@@ -3322,7 +3350,7 @@ Map::EnterState BattlegroundMap::CannotEnter(Player* player)
     if (player->GetMapRef().getTarget() == this)
     {
         TC_LOG_ERROR("maps", "BGMap::CannotEnter - player %u is already in map!", player->GetGUID().GetCounter());
-        ASSERT(false);
+        ABORT();
         return CANNOT_ENTER_ALREADY_IN_MAP;
     }
 

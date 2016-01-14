@@ -40,7 +40,9 @@
 #include <sstream>
 #include <algorithm>
 #include <memory>
+#include <vector>
 #include <array>
+
 #include <boost/functional/hash.hpp>
 
 #include "Debugging/Errors.h"

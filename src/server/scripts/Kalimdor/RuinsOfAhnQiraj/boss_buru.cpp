@@ -72,9 +72,9 @@ class boss_buru : public CreatureScript
                 _phase = 0;
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
 
                 for (ObjectGuid eggGuid : Eggs)
                     if (Creature* egg = me->GetMap()->GetCreature(eggGuid))

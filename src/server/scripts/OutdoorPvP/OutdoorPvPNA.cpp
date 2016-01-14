@@ -190,6 +190,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
 {
 //    m_TypeId = OUTDOOR_PVP_NA; _MUST_ be set in ctor, because of spawns cleanup
     // add the zones affected by the pvp buff
+    SetMapFromZone(NA_BUFF_ZONE);
     RegisterZone(NA_BUFF_ZONE);
 
     // halaa

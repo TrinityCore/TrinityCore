@@ -45,8 +45,11 @@ void WorldSocket::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    {
+        std::lock_guard<std::mutex> guard(_queryLock);
+        _queryCallback = io_service().wrap(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1));
+        _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    }
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -508,7 +511,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     {
         // We can not log here, as we do not know the account. Thus, no accountId.
         SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account %s).", authSession->Account.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         DelayedCloseSocket();
         return;
     }

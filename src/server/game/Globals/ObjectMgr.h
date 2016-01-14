@@ -55,7 +55,7 @@ struct PlayerLevelInfo;
 struct PageText
 {
     std::string Text;
-    uint16 NextPage;
+    uint32 NextPage;
 };
 
 /// Key for storing temp summon data in TempSummonDataContainer
@@ -443,7 +443,7 @@ struct BroadcastText
 
 typedef std::unordered_map<uint32, BroadcastText> BroadcastTextContainer;
 
-typedef std::set<uint32> CellGuidSet;
+typedef std::set<ObjectGuid::LowType> CellGuidSet;
 struct CellObjectGuids
 {
     CellGuidSet creatures;
@@ -1284,8 +1284,8 @@ class ObjectMgr
         bool IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, Player* player = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
-        char const* GetScriptName(uint32 id) const { return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : ""; }
-        uint32 GetScriptId(char const* name);
+        std::string const& GetScriptName(uint32 id) const;
+        uint32 GetScriptId(std::string const& name);
 
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
@@ -1392,6 +1392,7 @@ class ObjectMgr
         uint32 _mailId;
         uint32 _hiPetNumber;
         uint64 _voidItemId;
+
         uint32 _creatureSpawnId;
         uint32 _gameObjectSpawnId;
 
@@ -1500,7 +1501,7 @@ class ObjectMgr
         CreatureTemplateContainer _creatureTemplateStore;
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
-        CreatureAddonContainer _creatureTemplateAddonStore;
+        CreatureAddonTemplateContainer _creatureTemplateAddonStore;
         GameObjectAddonContainer _gameObjectAddonStore;
         GameObjectQuestItemMap _gameObjectQuestItemStore;
         CreatureQuestItemMap _creatureQuestItemStore;

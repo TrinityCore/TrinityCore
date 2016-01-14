@@ -49,6 +49,7 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "KillRewarder.h"
 #include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
@@ -71,6 +72,7 @@
 #include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "Transport.h"
+#include "TicketMgr.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
 #include "UpdateMask.h"
@@ -295,387 +297,6 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
     for (uint8 i = 0; i < TaxiMaskSize; ++i)
         ss << uint32(taxi.m_taximask[i]) << ' ';
     return ss;
-}
-
-//== TradeData =================================================
-
-TradeData* TradeData::GetTraderData() const
-{
-    return m_trader->GetTradeData();
-}
-
-Item* TradeData::GetItem(TradeSlots slot) const
-{
-    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : NULL;
-}
-
-bool TradeData::HasItem(ObjectGuid itemGuid) const
-{
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-        if (m_items[i] == itemGuid)
-            return true;
-
-    return false;
-}
-
-TradeSlots TradeData::GetTradeSlotForItem(ObjectGuid itemGuid) const
-{
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-        if (m_items[i] == itemGuid)
-            return TradeSlots(i);
-
-    return TRADE_SLOT_INVALID;
-}
-
-Item* TradeData::GetSpellCastItem() const
-{
-    return m_spellCastItem ? m_player->GetItemByGuid(m_spellCastItem) : NULL;
-}
-
-void TradeData::SetItem(TradeSlots slot, Item* item)
-{
-    ObjectGuid itemGuid;
-    if (item)
-        itemGuid = item->GetGUID();
-
-    if (m_items[slot] == itemGuid)
-        return;
-
-    m_items[slot] = itemGuid;
-
-    SetAccepted(false);
-    GetTraderData()->SetAccepted(false);
-
-    Update();
-
-    // need remove possible trader spell applied to changed item
-    if (slot == TRADE_SLOT_NONTRADED)
-        GetTraderData()->SetSpell(0);
-
-    // need remove possible player spell applied (possible move reagent)
-    SetSpell(0);
-}
-
-void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= NULL*/)
-{
-    ObjectGuid itemGuid = castItem ? castItem->GetGUID() : ObjectGuid::Empty;
-
-    if (m_spell == spell_id && m_spellCastItem == itemGuid)
-        return;
-
-    m_spell = spell_id;
-    m_spellCastItem = itemGuid;
-
-    SetAccepted(false);
-    GetTraderData()->SetAccepted(false);
-
-    Update(true);                                           // send spell info to item owner
-    Update(false);                                          // send spell info to caster self
-}
-
-void TradeData::SetMoney(uint64 money)
-{
-    if (m_money == money)
-        return;
-
-    if (!m_player->HasEnoughMoney(money))
-    {
-        TradeStatusInfo info;
-        info.Status = TRADE_STATUS_CLOSE_WINDOW;
-        info.Result = EQUIP_ERR_NOT_ENOUGH_MONEY;
-        m_player->GetSession()->SendTradeStatus(info);
-        return;
-    }
-
-    m_money = money;
-
-    SetAccepted(false);
-    GetTraderData()->SetAccepted(false);
-
-    Update(true);
-}
-
-void TradeData::Update(bool forTarget /*= true*/)
-{
-    if (forTarget)
-        m_trader->GetSession()->SendUpdateTrade(true);      // player state for trader
-    else
-        m_player->GetSession()->SendUpdateTrade(false);     // player state for player
-}
-
-void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
-{
-    m_accepted = state;
-
-    if (!state)
-    {
-        TradeStatusInfo info;
-        info.Status = TRADE_STATUS_BACK_TO_TRADE;
-        if (crosssend)
-            m_trader->GetSession()->SendTradeStatus(info);
-        else
-            m_player->GetSession()->SendTradeStatus(info);
-    }
-}
-
-// == KillRewarder ====================================================
-// KillRewarder incapsulates logic of rewarding player upon kill with:
-// * XP;
-// * honor;
-// * reputation;
-// * kill credit (for quest objectives).
-// Rewarding is initiated in two cases: when player kills unit in Unit::Kill()
-// and on battlegrounds in Battleground::RewardXPAtKill().
-//
-// Rewarding algorithm is:
-// 1. Initialize internal variables to default values.
-// 2. In case when player is in group, initialize variables necessary for group calculations:
-// 2.1. _count - number of alive group members within reward distance;
-// 2.2. _sumLevel - sum of levels of alive group members within reward distance;
-// 2.3. _maxLevel - maximum level of alive group member within reward distance;
-// 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
-//      for whom victim is not gray;
-// 2.5. _isFullXP - flag identifying that for all group members victim is not gray,
-//      so 100% XP will be rewarded (50% otherwise).
-// 3. Reward killer (and group, if necessary).
-// 3.1. If killer is in group, reward group.
-// 3.1.1. Initialize initial XP amount based on maximum level of group member,
-//        for whom victim is not gray.
-// 3.1.2. Alter group rate if group is in raid (not for battlegrounds).
-// 3.1.3. Reward each group member (even dead) within reward distance (see 4. for more details).
-// 3.2. Reward single killer (not group case).
-// 3.2.1. Initialize initial XP amount based on killer's level.
-// 3.2.2. Reward killer (see 4. for more details).
-// 4. Reward player.
-// 4.1. Give honor (player must be alive and not on BG).
-// 4.2. Give XP.
-// 4.2.1. If player is in group, adjust XP:
-//        * set to 0 if player's level is more than maximum level of not gray member;
-//        * cut XP in half if _isFullXP is false.
-// 4.2.2. Apply auras modifying rewarded XP.
-// 4.2.3. Give XP to player.
-// 4.2.4. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-// 4.3. Give reputation (player must not be on BG).
-// 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
-// 5. Credit instance encounter.
-// 6. Update guild achievements.
-KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
-    // 1. Initialize internal variables to default values.
-    _killer(killer), _victim(victim), _group(killer->GetGroup()),
-    _groupRate(1.0f), _maxNotGrayMember(NULL), _count(0), _sumLevel(0), _xp(0),
-    _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
-{
-    // mark the credit as pvp if victim is player
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        _isPvP = true;
-    // or if its owned by player and its not a vehicle
-    else if (victim->GetCharmerOrOwnerGUID().IsPlayer())
-        _isPvP = !victim->IsVehicle();
-
-    _InitGroupData();
-}
-
-inline void KillRewarder::_InitGroupData()
-{
-    if (_group)
-    {
-        // 2. In case when player is in group, initialize variables necessary for group calculations:
-        for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
-            if (Player* member = itr->GetSource())
-                if (member->IsAlive() && member->IsAtGroupRewardDistance(_victim))
-                {
-                    const uint8 lvl = member->getLevel();
-                    // 2.1. _count - number of alive group members within reward distance;
-                    ++_count;
-                    // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
-                    _sumLevel += lvl;
-                    // 2.3. _maxLevel - maximum level of alive group member within reward distance;
-                    if (_maxLevel < lvl)
-                        _maxLevel = lvl;
-                    // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
-                    //      for whom victim is not gray;
-                    uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
-                    if (_victim->getLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
-                        _maxNotGrayMember = member;
-                }
-        // 2.5. _isFullXP - flag identifying that for all group members victim is not gray,
-        //      so 100% XP will be rewarded (50% otherwise).
-        _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->getLevel());
-    }
-    else
-        _count = 1;
-}
-
-inline void KillRewarder::_InitXP(Player* player)
-{
-    // Get initial value of XP for kill.
-    // XP is given:
-    // * on battlegrounds;
-    // * otherwise, not in PvP;
-    // * not if killer is on vehicle.
-    if (_isBattleGround || (!_isPvP && !_killer->GetVehicle()))
-        _xp = Trinity::XP::Gain(player, _victim);
-}
-
-inline void KillRewarder::_RewardHonor(Player* player)
-{
-    // Rewarded player must be alive.
-    if (player->IsAlive())
-        player->RewardHonor(_victim, _count, -1, true);
-}
-
-inline void KillRewarder::_RewardXP(Player* player, float rate)
-{
-    uint32 xp(_xp);
-    if (_group)
-    {
-        // 4.2.1. If player is in group, adjust XP:
-        //        * set to 0 if player's level is more than maximum level of not gray member;
-        //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && player->IsAlive() &&
-            _maxNotGrayMember->getLevel() >= player->getLevel())
-            xp = _isFullXP ?
-                uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
-                uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
-        else
-            xp = 0;
-    }
-    if (xp)
-    {
-        // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
-        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            AddPct(xp, (*i)->GetAmount());
-
-        // 4.2.3. Calculate expansion penalty
-        if (_victim->GetTypeId() == TYPEID_UNIT && player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
-            xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
-
-        // 4.2.4. Give XP to player.
-        player->GiveXP(xp, _victim, _groupRate);
-        if (Pet* pet = player->GetPet())
-            // 4.2.5. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-            pet->GivePetXP(_group ? xp / 2 : xp);
-    }
-}
-
-inline void KillRewarder::_RewardReputation(Player* player, float rate)
-{
-    // 4.3. Give reputation (player must not be on BG).
-    // Even dead players and corpses are rewarded.
-    player->RewardReputation(_victim, rate);
-}
-
-inline void KillRewarder::_RewardKillCredit(Player* player)
-{
-    // 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
-    if (!_group || player->IsAlive() || !player->GetCorpse())
-        if (Creature* target = _victim->ToCreature())
-        {
-            player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, target->GetCreatureType(), 1, 0, target);
-        }
-}
-
-void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
-{
-    // 4. Reward player.
-    if (!_isBattleGround)
-    {
-        // 4.1. Give honor (player must be alive and not on BG).
-        _RewardHonor(player);
-        // 4.1.1 Send player killcredit for quests with PlayerSlain
-        if (_victim->GetTypeId() == TYPEID_PLAYER)
-            player->KilledPlayerCredit();
-    }
-    // Give XP only in PvE or in battlegrounds.
-    // Give reputation and kill credit only in PvE.
-    if (!_isPvP || _isBattleGround)
-    {
-        const float rate = _group ?
-            _groupRate * float(player->getLevel()) / _sumLevel : // Group rate depends on summary level.
-            1.0f;                                                // Personal rate is 100%.
-        if (_xp)
-            // 4.2. Give XP.
-            _RewardXP(player, rate);
-        if (!_isBattleGround)
-        {
-            // If killer is in dungeon then all members receive full reputation at kill.
-            _RewardReputation(player, isDungeon ? 1.0f : rate);
-            _RewardKillCredit(player);
-        }
-    }
-}
-
-void KillRewarder::_RewardGroup()
-{
-    if (_maxLevel)
-    {
-        if (_maxNotGrayMember)
-            // 3.1.1. Initialize initial XP amount based on maximum level of group member,
-            //        for whom victim is not gray.
-            _InitXP(_maxNotGrayMember);
-        // To avoid unnecessary calculations and calls,
-        // proceed only if XP is not ZERO or player is not on battleground
-        // (battleground rewards only XP, that's why).
-        if (!_isBattleGround || _xp)
-        {
-            const bool isDungeon = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsDungeon();
-            if (!_isBattleGround)
-            {
-                // 3.1.2. Alter group rate if group is in raid (not for battlegrounds).
-                const bool isRaid = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsRaid() && _group->isRaidGroup();
-                _groupRate = Trinity::XP::xp_in_group_rate(_count, isRaid);
-            }
-
-            // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
-            for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                if (Player* member = itr->GetSource())
-                {
-                    if (member->IsAtGroupRewardDistance(_victim))
-                    {
-                        _RewardPlayer(member, isDungeon);
-                        member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void KillRewarder::Reward()
-{
-    // 3. Reward killer (and group, if necessary).
-    if (_group)
-        // 3.1. If killer is in group, reward group.
-        _RewardGroup();
-    else
-    {
-        // 3.2. Reward single killer (not group case).
-        // 3.2.1. Initialize initial XP amount based on killer's level.
-        _InitXP(_killer);
-        // To avoid unnecessary calculations and calls,
-        // proceed only if XP is not ZERO or player is not on battleground
-        // (battleground rewards only XP, that's why).
-        if (!_isBattleGround || _xp)
-            // 3.2.2. Reward killer.
-            _RewardPlayer(_killer, false);
-    }
-
-    // 5. Credit instance encounter.
-    // 6. Update guild achievements.
-    if (Creature* victim = _victim->ToCreature())
-    {
-        if (victim->IsDungeonBoss())
-            if (InstanceScript* instance = _victim->GetInstanceScript())
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
-
-        if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
-            if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
-    }
-
 }
 
 Player::Player(WorldSession* session): Unit(true)
@@ -907,6 +528,9 @@ Player::Player(WorldSession* session): Unit(true)
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
+    healthBeforeDuel = 0;
+    manaBeforeDuel = 0;
+
     _maxPersonalArenaRate = 0;
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
@@ -1152,8 +776,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     if (getPowerType() == POWER_RUNIC_POWER)
     {
-        SetPower(POWER_RUNES, 8);
-        SetMaxPower(POWER_RUNES, 8);
+        SetPower(POWER_RUNE, 8);
+        SetMaxPower(POWER_RUNE, 8);
         SetPower(POWER_RUNIC_POWER, 0);
         SetMaxPower(POWER_RUNIC_POWER, 1000);
     }
@@ -1185,7 +809,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
             uint32 count = iProto->BuyCount;
 
             // special amount for food/drink
-            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
+            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD)
             {
                 switch (iProto->Spells[0].SpellCategory)
                 {
@@ -1614,6 +1238,9 @@ void Player::Update(uint32 p_time)
             if (charmer->GetTypeId() == TYPEID_UNIT && charmer->IsAlive())
                 UpdateCharmedAI();
 
+    if (GetAI() && IsAIEnabled)
+        GetAI()->UpdateAI(p_time);
+
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
         UpdateItemDuration(uint32(now - m_Last_tick));
@@ -1737,7 +1364,7 @@ void Player::Update(uint32 p_time)
             if (timeDiff >= 10)                             // freeze update
             {
                 _restTime = currTime;
-                
+
                 float bubble = 0.125f * sWorld->getRate(RATE_REST_INGAME);
                 float extraPerSec = ((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000.0f) * bubble;
 
@@ -2012,6 +1639,8 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
 
 
     uint32 charFlags = 0;
+    if (atLoginFlags & AT_LOGIN_RESURRECT)
+        playerFlags &= ~PLAYER_FLAGS_GHOST;
     if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
         charFlags |= CHARACTER_FLAG_HIDE_HELM;
 
@@ -2543,6 +2172,17 @@ void Player::RemoveFromWorld()
     }
 }
 
+bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
+{
+    // players are immune to taunt (the aura and the spell effect)
+    if (spellInfo->Effects[index].IsAura(SPELL_AURA_MOD_TAUNT))
+        return true;
+    if (spellInfo->Effects[index].IsEffect(SPELL_EFFECT_ATTACK_ME))
+        return true;
+
+    return Unit::IsImmunedToSpellEffect(spellInfo, index);
+}
+
 void Player::RegenerateAll()
 {
     //if (m_regenTimer <= 500)
@@ -2677,7 +2317,7 @@ void Player::Regenerate(Powers power)
                 addvalue += -1.0f;      // remove 1 each 10 sec
         }
         break;
-        case POWER_RUNES:
+        case POWER_RUNE:
             break;
         case POWER_HEALTH:
             return;
@@ -2997,7 +2637,7 @@ void Player::SetGameMaster(bool on)
 
 bool Player::CanBeGameMaster() const
 {
-    return m_session && m_session->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
+    return GetSession()->HasPermission(rbac::RBAC_PERM_COMMAND_GM);
 }
 
 void Player::SetGMVisible(bool on)
@@ -3630,7 +3270,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool fromSkill /*= false*/)
+bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, uint32 fromSkill /*= 0*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -3888,10 +3528,10 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
-    // add dependent skills if this spell is not learned from adding skill already
-    if (!fromSkill)
+    if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
     {
-        if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spellId))
+        // add dependent skills if this spell is not learned from adding skill already
+        if (spellLearnSkill->skill != fromSkill)
         {
             uint32 skill_value = GetPureSkillValue(spellLearnSkill->skill);
             uint32 skill_max_value = GetPureMaxSkillValue(spellLearnSkill->skill);
@@ -3906,20 +3546,23 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
         }
-        else
+    }
+    else
+    {
+        // not ranked skills
+        for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
         {
-            // not ranked skills
-            for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
-            {
-                SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
-                if (!pSkill)
-                    continue;
+            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
+            if (!pSkill)
+                continue;
 
-                ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
-                // Also added for runeforging. It's already confirmed this happens upon learning for Death Knights, not from character creation.
-                if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
-                    LearnDefaultSkill(pSkill->id, 0);
-            }
+            if (pSkill->id == fromSkill)
+                continue;
+
+            ///@todo: confirm if rogues start with lockpicking skill at level 1 but only receive the spell to use it at level 16
+            // Also added for runeforging. It's already confirmed this happens upon learning for Death Knights, not from character creation.
+            if ((_spell_idx->second->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->id)) || ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
+                LearnDefaultSkill(pSkill->id, 0);
         }
     }
 
@@ -3985,10 +3628,10 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
     // talent dependent passives activated at form apply have proper stance data
     ShapeshiftForm form = GetShapeshiftForm();
-    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (1 << (form - 1)))) ||
+    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (UI64LIT(1) << (form - 1)))) ||
         (!form && spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
 
-    if (spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION)
+    if (spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION))
         need_cast &= IsCurrentSpecMasterySpell(spellInfo);
 
     //Check CasterAuraStates
@@ -4003,7 +3646,7 @@ bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
     return false;
 }
 
-void Player::LearnSpell(uint32 spell_id, bool dependent, bool fromSkill /*= false*/)
+void Player::LearnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
@@ -4571,6 +4214,11 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(playerguid, false, false, true);
 
+    // close player ticket if any
+    GmTicket* ticket = sTicketMgr->GetTicketByPlayer(playerguid);
+    if (ticket)
+        ticket->SetClosedBy(playerguid);
+
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
 
@@ -4782,9 +4430,18 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_GM_TICKETS);
-            stmt->setUInt32(0, guid);
-            trans->Append(stmt);
+            if (sWorld->getBoolConfig(CONFIG_DELETE_CHARACTER_TICKET_TRACE))
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_GM_TICKETS_ON_CHAR_DELETION);
+                stmt->setUInt32(0, guid);
+                trans->Append(stmt);
+            }
+            else
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_GM_TICKETS);
+                stmt->setUInt32(0, guid);
+                trans->Append(stmt);
+            }
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_BY_OWNER);
             stmt->setUInt32(0, guid);
@@ -5119,7 +4776,7 @@ Corpse* Player::CreateCorpse()
     // prevent existence 2 corpse for player
     SpawnCorpseBones();
 
-    uint32 _uf, _pb, _pb2, _cfb1, _cfb2;
+    uint32 _pb, _pb2, _cfb1, _cfb2;
 
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
@@ -5132,18 +4789,16 @@ Corpse* Player::CreateCorpse()
 
     _corpseLocation.WorldRelocate(*this);
 
-    _uf = GetUInt32Value(UNIT_FIELD_BYTES_0);
     _pb = GetUInt32Value(PLAYER_BYTES);
     _pb2 = GetUInt32Value(PLAYER_BYTES_2);
 
-    uint8 race       = (uint8)(_uf);
     uint8 skin       = (uint8)(_pb);
     uint8 face       = (uint8)(_pb >> 8);
     uint8 hairstyle  = (uint8)(_pb >> 16);
     uint8 haircolor  = (uint8)(_pb >> 24);
     uint8 facialhair = (uint8)(_pb2);
 
-    _cfb1 = ((0x00) | (race << 8) | (getGender() << 16) | (skin << 24));
+    _cfb1 = ((0x00) | (getRace() << 8) | (GetByteValue(PLAYER_BYTES_3, 0) << 16) | (skin << 24));
     _cfb2 = ((face) | (hairstyle << 8) | (haircolor << 16) | (facialhair << 24));
 
     corpse->SetUInt32Value(CORPSE_FIELD_BYTES_1, _cfb1);
@@ -6861,7 +6516,7 @@ void Player::RewardReputation(Unit* victim, float rate)
     {
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
-        if (map && map->IsNonRaidDungeon())
+        if (map->IsNonRaidDungeon())
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
                 if (dungeon->reclevel == 80)
                     ChampioningFaction = GetChampioningFaction();
@@ -8353,7 +8008,7 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         _Spell const& spellData = proto->Spells[i];
 
         // no spell
-        if (!spellData.SpellId)
+        if (spellData.SpellId <= 0)
             continue;
 
         // wrong triggering type
@@ -8481,7 +8136,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             _Spell const& spellData = proto->Spells[i];
 
             // no spell
-            if (!spellData.SpellId)
+            if (spellData.SpellId <= 0)
                 continue;
 
             // wrong triggering type
@@ -8613,7 +8268,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         _Spell const& spellData = proto->Spells[i];
 
         // no spell
-        if (!spellData.SpellId)
+        if (spellData.SpellId <= 0)
             continue;
 
         // wrong triggering type
@@ -15134,15 +14789,15 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     uint32 qtime = 0;
     if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
     {
-        uint32 limittime = quest->GetLimitTime();
+        uint32 timeAllowed = quest->GetTimeAllowed();
 
         // shared timed quest
         if (questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
-            limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
+            timeAllowed = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
 
         AddTimedQuest(quest_id);
-        questStatusData.Timer = limittime * IN_MILLISECONDS;
-        qtime = static_cast<uint32>(time(NULL)) + limittime;
+        questStatusData.Timer = timeAllowed * IN_MILLISECONDS;
+        qtime = static_cast<uint32>(time(NULL)) + timeAllowed;
     }
     else
         questStatusData.Timer = 0;
@@ -15236,10 +14891,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
     {
-        if (quest->RequiredSourceItemId[i])
+        if (quest->ItemDrop[i])
         {
-            uint32 count = quest->RequiredSourceItemCount[i];
-            DestroyItemCount(quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            uint32 count = quest->ItemDropQuantity[i];
+            DestroyItemCount(quest->ItemDrop[i], count ? count : 9999, true);
         }
     }
 
@@ -15453,9 +15108,9 @@ void Player::FailQuest(uint32 questId)
                 // Destroy items received on starting the quest.
                 DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
         for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-            if (quest->RequiredSourceItemId[i] > 0 && quest->RequiredSourceItemCount[i] > 0)
+            if (quest->ItemDrop[i] > 0 && quest->ItemDropQuantity[i] > 0)
                 // Destroy items received during the quest.
-                DestroyItemCount(quest->RequiredSourceItemId[i], quest->RequiredSourceItemCount[i], true, true);
+                DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
 }
 
@@ -15616,7 +15271,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 
 bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 {
-    uint32 reqClass = qInfo->GetRequiredClasses();
+    uint32 reqClass = qInfo->GetAllowableClasses();
 
     if (reqClass == 0)
         return true;
@@ -15637,7 +15292,7 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg)
 {
-    uint32 reqraces = qInfo->GetRequiredRaces();
+    uint32 reqraces = qInfo->GetAllowableRaces();
     if (reqraces == 0)
         return true;
     if ((reqraces & getRaceMask()) == 0)
@@ -15975,6 +15630,17 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo)
     {
+        if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
+        {
+            uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
+            auto seasonalQuestItr = m_seasonalquests.find(eventId);
+            if (seasonalQuestItr != m_seasonalquests.end())
+                return seasonalQuestItr->second.find(quest_id) != seasonalQuestItr->second.end();
+
+            return false;
+        }
+
+
         // for repeatable quests: rewarded field is set after first reward only to prevent getting XP more than once
         if (!qInfo->IsRepeatable())
             return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
@@ -15993,8 +15659,18 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
             return itr->second.Status;
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
+        {
+            if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
+            {
+                uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
+                auto seasonalQuestItr = m_seasonalquests.find(eventId);
+                if (seasonalQuestItr == m_seasonalquests.end() || seasonalQuestItr->second.find(quest_id) == seasonalQuestItr->second.end())
+                    return QUEST_STATUS_NONE;
+            }
+
             if (!qInfo->IsRepeatable() && m_RewardedQuests.find(quest_id) != m_RewardedQuests.end())
                 return QUEST_STATUS_REWARDED;
+        }
     }
     return QUEST_STATUS_NONE;
 }
@@ -16002,13 +15678,7 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
 bool Player::CanShareQuest(uint32 quest_id) const
 {
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
-    if (qInfo && qInfo->HasFlag(QUEST_FLAGS_SHARABLE))
-    {
-        QuestStatusMap::const_iterator itr = m_QuestStatus.find(quest_id);
-        if (itr != m_QuestStatus.end())
-            return itr->second.Status == QUEST_STATUS_INCOMPLETE;
-    }
-    return false;
+    return qInfo && qInfo->HasFlag(QUEST_FLAGS_SHARABLE) && IsActiveQuest(quest_id);
 }
 
 void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= true*/)
@@ -16762,7 +16432,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
             for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
             {
                 // examined item is a source item
-                if (qinfo->RequiredSourceItemId[j] == itemid)
+                if (qinfo->ItemDrop[j] == itemid)
                 {
                     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
 
@@ -16771,9 +16441,9 @@ bool Player::HasQuestForItem(uint32 itemid) const
                         return true;
 
                     // allows custom amount drop when not 0
-                    if (qinfo->RequiredSourceItemCount[j])
+                    if (qinfo->ItemDropQuantity[j])
                     {
-                        if (GetItemCount(itemid, true) < qinfo->RequiredSourceItemCount[j])
+                        if (GetItemCount(itemid, true) < qinfo->ItemDropQuantity[j])
                             return true;
                     } else if (GetItemCount(itemid, true) < pProto->GetMaxStackSize())
                         return true;
@@ -17278,7 +16948,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
     // init saved position, and fix it later if problematic
-    ObjectGuid::LowType transLowGUID = uint32(fields[31].GetUInt32());
+    ObjectGuid::LowType transLowGUID = fields[31].GetUInt32();
 
     Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
 
@@ -17390,7 +17060,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
         Transport* transport = nullptr;
         if (Transport* go = HashMapHolder<Transport>::Find(transGUID))
-            transport = go->ToTransport();
+            transport = go;
 
         if (transport)
         {
@@ -19241,6 +18911,21 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
                         continue;
                     if (group != otherPlayer->GetGroup())
                         return false;
+
+        Map::PlayerList const& players = map->GetPlayers();
+        if (!players.isEmpty())
+            for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+            {
+                if (Player* otherPlayer = it->GetSource())
+                {
+                    if (otherPlayer->IsGameMaster())
+                        continue;
+                    if (!otherPlayer->m_InstanceValid) // ignore players that currently have a homebind timer active
+                        continue;
+                    if (group != otherPlayer->GetGroup())
+                        return false;
+                }
+            }
                 }
             }
     }
@@ -19370,7 +19055,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, getRace());
         stmt->setUInt8(index++, getClass());
-        stmt->setUInt8(index++, getGender());
+        stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_3, 0));   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, getLevel());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_XP));
         stmt->setUInt64(index++, GetMoney());
@@ -19484,7 +19169,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, getRace());
         stmt->setUInt8(index++, getClass());
-        stmt->setUInt8(index++, getGender());
+        stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_3, 0));   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, getLevel());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_XP));
         stmt->setUInt64(index++, GetMoney());
@@ -20578,7 +20263,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
         // if the map is loaded, reset it
         Map* map = sMapMgr->FindMap(p->GetMapId(), p->GetInstanceId());
         if (map && map->IsDungeon())
-            if (!((InstanceMap*)map)->Reset(method))
+            if (!map->ToInstanceMap()->Reset(method))
             {
                 ++itr;
                 continue;
@@ -20798,7 +20483,7 @@ void Player::StopCastingCharm()
         if (charm->GetCharmerGUID())
         {
             TC_LOG_FATAL("entities.player", "Charmed unit has charmer %s", charm->GetCharmerGUID().ToString().c_str());
-            ASSERT(false);
+            ABORT();
         }
         else
             SetCharm(charm, false);
@@ -21532,6 +21217,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // fill destinations path tail
     uint32 sourcepath = 0;
     uint32 totalcost = 0;
+    uint32 firstcost = 0;
 
     uint32 prevnode = sourcenode;
     uint32 lastnode = 0;
@@ -21550,6 +21236,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         }
 
         totalcost += cost;
+        if (i == 1)
+            firstcost = cost;
 
         if (prevnode == sourcenode)
             sourcepath = path;
@@ -21588,8 +21276,6 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     //Checks and preparations done, DO FLIGHT
-    ModifyMoney(-int64(totalcost));
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
     // prevent stealth flight
@@ -21600,11 +21286,15 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
         ASSERT(lastPathNode);
         m_taxi.ClearTaxiDestinations();
+        ModifyMoney(-(int64)totalcost);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
         TeleportTo(lastPathNode->map_id, lastPathNode->x, lastPathNode->y, lastPathNode->z, GetOrientation());
         return false;
     }
     else
     {
+        ModifyMoney(-(int64)firstcost);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, firstcost);
         GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
         GetSession()->SendDoFlight(mount_display_id, sourcepath);
     }
@@ -21655,30 +21345,30 @@ void Player::ContinueTaxiFlight()
 
     float distPrev = MAP_SIZE*MAP_SIZE;
     float distNext =
-        (nodeList[0].LocX-GetPositionX())*(nodeList[0].LocX-GetPositionX())+
-        (nodeList[0].LocY-GetPositionY())*(nodeList[0].LocY-GetPositionY())+
-        (nodeList[0].LocZ-GetPositionZ())*(nodeList[0].LocZ-GetPositionZ());
+        (nodeList[0]->LocX - GetPositionX())*(nodeList[0]->LocX - GetPositionX()) +
+        (nodeList[0]->LocY - GetPositionY())*(nodeList[0]->LocY - GetPositionY()) +
+        (nodeList[0]->LocZ - GetPositionZ())*(nodeList[0]->LocZ - GetPositionZ());
 
     for (uint32 i = 1; i < nodeList.size(); ++i)
     {
-        TaxiPathNodeEntry const& node = nodeList[i];
-        TaxiPathNodeEntry const& prevNode = nodeList[i-1];
+        TaxiPathNodeEntry const* node = nodeList[i];
+        TaxiPathNodeEntry const* prevNode = nodeList[i-1];
 
         // skip nodes at another map
-        if (node.MapID != GetMapId())
+        if (node->MapID != GetMapId())
             continue;
 
         distPrev = distNext;
 
         distNext =
-            (node.LocX-GetPositionX())*(node.LocX-GetPositionX())+
-            (node.LocY-GetPositionY())*(node.LocY-GetPositionY())+
-            (node.LocZ-GetPositionZ())*(node.LocZ-GetPositionZ());
+            (node->LocX - GetPositionX())*(node->LocX - GetPositionX()) +
+            (node->LocY - GetPositionY())*(node->LocY - GetPositionY()) +
+            (node->LocZ - GetPositionZ())*(node->LocZ - GetPositionZ());
 
         float distNodes =
-            (node.LocX-prevNode.LocX)*(node.LocX-prevNode.LocX)+
-            (node.LocY-prevNode.LocY)*(node.LocY-prevNode.LocY)+
-            (node.LocZ-prevNode.LocZ)*(node.LocZ-prevNode.LocZ);
+            (node->LocX - prevNode->LocX)*(node->LocX - prevNode->LocX) +
+            (node->LocY - prevNode->LocY)*(node->LocY - prevNode->LocY) +
+            (node->LocZ - prevNode->LocZ)*(node->LocZ - prevNode->LocZ);
 
         if (distNext + distPrev < distNodes)
         {
@@ -21741,11 +21431,11 @@ void Player::InitDisplayIds()
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
     {
-        TC_LOG_ERROR("entities.player", "Player %u has incorrect race/class pair. Can't init display ids.", GetGUID().GetCounter());
+        TC_LOG_ERROR("entities.player", "Player %s (%s) has incorrect race/class pair. Can't init display ids.", GetName().c_str(), GetGUID().ToString().c_str());
         return;
     }
 
-    uint8 gender = getGender();
+    uint8 gender = GetByteValue(PLAYER_BYTES_3, 0);
     switch (gender)
     {
         case GENDER_FEMALE:
@@ -21757,8 +21447,7 @@ void Player::InitDisplayIds()
             SetNativeDisplayId(info->displayId_m);
             break;
         default:
-            TC_LOG_ERROR("entities.player", "Invalid gender %u for player", gender);
-            return;
+            TC_LOG_ERROR("entities.player", "Player %s (%s) has invalid gender %u", GetName().c_str(), GetGUID().ToString().c_str(), gender);
     }
 }
 
@@ -22592,6 +22281,16 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                 CastSpell(this, 26013, true);               // Deserter
             }
         }
+
+        // track if player leaves the BG while inside it
+        if (bg->isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS) &&
+                (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+            stmt->setUInt32(0, GetGUID().GetCounter());
+            stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_BG);
+            CharacterDatabase.Execute(stmt);
+        }
     }
 }
 
@@ -23250,7 +22949,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
         _Spell const& spellData = pItem->GetTemplate()->Spells[i];
 
         // no spell
-        if (!spellData.SpellId)
+        if (spellData.SpellId <= 0)
             continue;
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
@@ -23445,46 +23144,16 @@ void Player::LearnQuestRewardedSpells(Quest const* quest)
     if (!found)
         return;
 
-    // prevent learn non first rank unknown profession and second specialization for same profession)
     uint32 learned_0 = spellInfo->Effects[0].TriggerSpell;
-    if (sSpellMgr->GetSpellRank(learned_0) > 1 && !HasSpell(learned_0))
+    if (!HasSpell(learned_0))
     {
         SpellInfo const* learnedInfo = sSpellMgr->GetSpellInfo(learned_0);
         if (!learnedInfo)
             return;
 
-        // not have first rank learned (unlearned prof?)
-        if (!HasSpell(learnedInfo->GetFirstRankSpell()->Id))
-            return;
-
-        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(learned_0);
-        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second; ++itr2)
-        {
-            uint32 profSpell = itr2->second;
-
-            // specialization
-            if (learnedInfo->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effects[1].Effect == 0 && profSpell)
-            {
-                // search other specialization for same prof
-                for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
-                {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->first == learned_0)
-                        continue;
-
-                    SpellInfo const* itrInfo = sSpellMgr->GetSpellInfo(itr->first);
-                    if (!itrInfo)
-                        return;
-
-                    // compare only specializations
-                    if (itrInfo->Effects[0].Effect != SPELL_EFFECT_TRADE_SKILL || itrInfo->Effects[1].Effect != 0)
-                        continue;
-
-                    // compare same chain spells
-                    if (sSpellMgr->IsSpellRequiringSpell(itr->first, profSpell))
-                        return;
-                }
-            }
-        }
+       // profession specialization can be re-learned from npc
+       if (learnedInfo->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effects[1].Effect == 0 && !learnedInfo->SpellLevel)
+           return;
     }
 
     CastSpell(this, spell_id, true);
@@ -23532,9 +23201,9 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             RemoveSpell(ability->spellId);
         // need learn
         else if (!IsInWorld())
-            AddSpell(ability->spellId, true, true, true, false, false, true);
+            AddSpell(ability->spellId, true, true, true, false, false, ability->skillId);
         else
-            LearnSpell(ability->spellId, true, true);
+            LearnSpell(ability->spellId, true, ability->skillId);
     }
 }
 
@@ -24955,7 +24624,7 @@ uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES && (*i)->GetMiscValueB() == runeType)
+        if ((*i)->GetMiscValue() == POWER_RUNE && (*i)->GetMiscValueB() == runeType)
             cooldown *= 1.0f - (*i)->GetAmount() / 100.0f;
 
     // Runes cooldown are now affected by player's haste from equipment ...

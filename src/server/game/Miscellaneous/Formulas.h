@@ -161,7 +161,7 @@ namespace Trinity
             return baseGain;
         }
 
-        inline uint32 Gain(Player* player, Unit* u)
+        inline uint32 Gain(Player* player, Unit* u, bool isBattleGround = false)
         {
             Creature* creature = u->ToCreature();
             uint32 gain = 0;
@@ -178,7 +178,7 @@ namespace Trinity
                     if (creature->isElite())
                     {
                         // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
-                        if (u->GetMap() && u->GetMap()->IsDungeon())
+                        if (u->GetMap()->IsDungeon())
                             xpMod *= 2.75f;
                         else
                             xpMod *= 2.0f;
@@ -187,7 +187,7 @@ namespace Trinity
                     xpMod *= creature->GetCreatureTemplate()->ModExperience;
                 }
 
-                xpMod *= sWorld->getRate(RATE_XP_KILL);
+                xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL);
                 gain = uint32(gain * xpMod);
             }
 

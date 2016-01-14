@@ -545,7 +545,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                         case EVENT_MURADIN_RUN:
                         case EVENT_SAURFANG_RUN:
                             if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId()*10, false);
+                                factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId() * 10, false);
                             me->setActive(false);
                             _damnedKills = 3;
                             break;
@@ -1283,16 +1283,16 @@ struct npc_argent_captainAI : public ScriptedAI
             return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             // not yet following
             if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
                 return;
             }
 
-            if (!_EnterEvadeMode())
+            if (!_EnterEvadeMode(why))
                 return;
 
             if (!me->GetVehicle())

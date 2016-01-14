@@ -622,17 +622,17 @@ public:
 
 enum MiscLifewarden
 {
-    NPC_PRESENCE = 28563, // Freya's Presence
-    NPC_SABOTEUR = 28538, // Cultist Saboteur
-    NPC_SERVANT = 28320, // Servant of Freya
+    NPC_PRESENCE                 = 28563, // Freya's Presence
+    NPC_SABOTEUR                 = 28538, // Cultist Saboteur
+    NPC_SERVANT                  = 28320, // Servant of Freya
 
-    WHISPER_ACTIVATE = 0,
+    WHISPER_ACTIVATE             = 0,
 
-    SPELL_FREYA_DUMMY = 51318,
-    SPELL_LIFEFORCE = 51395,
-    SPELL_FREYA_DUMMY_TRIGGER = 51335,
-    SPELL_LASHER_EMERGE = 48195,
-    SPELL_WILD_GROWTH = 52948,
+    SPELL_FREYA_DUMMY            = 51318,
+    SPELL_LIFEFORCE              = 51395,
+    SPELL_FREYA_DUMMY_TRIGGER    = 51335,
+    SPELL_LASHER_EMERGE          = 48195,
+    SPELL_WILD_GROWTH            = 52948,
 };
 
 class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
@@ -702,25 +702,25 @@ public:
 
 enum KickWhatKick
 {
-    NPC_LUCKY_WILHELM = 28054,
-    NPC_APPLE = 28053,
-    NPC_DROSTAN = 28328,
-    NPC_CRUNCHY = 28346,
-    NPC_THICKBIRD = 28093,
+    NPC_LUCKY_WILHELM         = 28054,
+    NPC_APPLE                 = 28053,
+    NPC_DROSTAN               = 28328,
+    NPC_CRUNCHY               = 28346,
+    NPC_THICKBIRD             = 28093,
 
-    SPELL_HIT_APPLE = 51331,
-    SPELL_MISS_APPLE = 51332,
-    SPELL_MISS_BIRD_APPLE = 51366,
-    SPELL_APPLE_FALL = 51371,
-    SPELL_BIRD_FALL = 51369,
+    SPELL_HIT_APPLE           = 51331,
+    SPELL_MISS_APPLE          = 51332,
+    SPELL_MISS_BIRD_APPLE     = 51366,
+    SPELL_APPLE_FALL          = 51371,
+    SPELL_BIRD_FALL           = 51369,
 
-    EVENT_MISS = 0,
-    EVENT_HIT = 1,
-    EVENT_MISS_BIRD = 2,
+    EVENT_MISS                = 0,
+    EVENT_HIT                 = 1,
+    EVENT_MISS_BIRD           = 2,
 
-    SAY_WILHELM_MISS = 0,
-    SAY_WILHELM_HIT = 1,
-    SAY_DROSTAN_REPLY_MISS = 0,
+    SAY_WILHELM_MISS          = 0,
+    SAY_WILHELM_HIT           = 1,
+    SAY_DROSTAN_REPLY_MISS    = 0,
 };
 
 class spell_q12589_shoot_rjr : public SpellScriptLoader
@@ -778,7 +778,7 @@ public:
                         wilhelm->AI()->Talk(SAY_WILHELM_MISS);
                         drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
 
-                        bird->Kill(bird);
+                        bird->KillSelf();
                         crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
                             bird->GetMap()->GetWaterOrGroundLevel(bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                         /// @todo Make crunchy perform emote eat when he reaches the bird
@@ -800,8 +800,6 @@ public:
                     wilhelm->AI()->Talk(SAY_WILHELM_HIT);
                     if (Player* player = shooter->ToPlayer())
                         player->KilledMonsterCredit(NPC_APPLE);
-                    apple->DespawnOrUnsummon();
-
                     break;
                 }
             }
@@ -828,11 +826,11 @@ may be easily converted to SAI when they get.*/
 enum SongOfWindAndWater
 {
     // Spells
-    SPELL_DEVOUR_WIND = 52862,
-    SPELL_DEVOUR_WATER = 52864,
+    SPELL_DEVOUR_WIND     = 52862,
+    SPELL_DEVOUR_WATER    = 52864,
     // NPCs
-    NPC_HAIPHOON_WATER = 28999,
-    NPC_HAIPHOON_AIR = 28985
+    NPC_HAIPHOON_WATER    = 28999,
+    NPC_HAIPHOON_AIR      = 28985
 };
 
 class npc_haiphoon : public CreatureScript
@@ -883,7 +881,7 @@ enum ReconnaissanceFlight
     VIC_SAY_6       = 6,
     PLANE_EMOTE     = 0,
 
-    SPELL_ENGINE     = 52255, // Engine on Fire
+    SPELL_ENGINE    = 52255, // Engine on Fire
 
     SPELL_LAND      = 52226, // Land Flying Machine
     SPELL_CREDIT    = 53328 // Land Flying Machine Credit

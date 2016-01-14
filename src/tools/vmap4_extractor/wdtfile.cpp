@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "vmapexport.h"
 #include "wdtfile.h"
 #include "adtfile.h"
+
 #include <cstdio>
 
 char * wdtGetPlainName(char * FileName)
@@ -79,7 +80,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 WDT.read(buf, size);
                 char *p=buf;
                 int q = 0;
-                gWmoInstansName = new string[size];
+                gWmoInstansName = new std::string[size];
                 while (p < buf + size)
                 {
                     char* s=wdtGetPlainName(p);

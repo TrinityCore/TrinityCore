@@ -106,7 +106,8 @@ public:
         void AttackStart(Unit* who) override
         {
             //can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
-            instance->SetData(TYPE_BARON, IN_PROGRESS);
+            if (instance->GetData(TYPE_BARON) == NOT_STARTED)
+                instance->SetData(TYPE_BARON, IN_PROGRESS);
             ScriptedAI::AttackStart(who);
         }
 

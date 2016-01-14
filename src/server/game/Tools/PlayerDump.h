@@ -22,6 +22,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include "ObjectGuid.h"
 
 enum DumpTableType
 {
@@ -64,6 +65,10 @@ enum DumpReturn
 
 class PlayerDump
 {
+    public:
+        typedef std::set<ObjectGuid::LowType> DumpGuidSet;
+        typedef std::map<ObjectGuid::LowType, ObjectGuid::LowType> DumpGuidMap;
+
     protected:
         PlayerDump() { }
 };
@@ -75,16 +80,15 @@ class PlayerDumpWriter : public PlayerDump
 
         bool GetDump(ObjectGuid::LowType guid, std::string& dump);
         DumpReturn WriteDump(std::string const& file, ObjectGuid::LowType guid);
-    private:
-        typedef std::set<ObjectGuid::LowType> GUIDs;
 
-        bool DumpTable(std::string& dump, ObjectGuid::LowType guid, char const*tableFrom, char const*tableTo, DumpTableType type);
-        std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
+    private:
+        bool DumpTable(std::string& dump, ObjectGuid::LowType guid, char const* tableFrom, char const* tableTo, DumpTableType type);
+        std::string GenerateWhereStr(char const* field, DumpGuidSet const& guids, DumpGuidSet::const_iterator& itr);
         std::string GenerateWhereStr(char const* field, ObjectGuid::LowType guid);
 
-        GUIDs pets;
-        GUIDs mails;
-        GUIDs items;
+        DumpGuidSet pets;
+        DumpGuidSet mails;
+        DumpGuidSet items;
 };
 
 class PlayerDumpReader : public PlayerDump

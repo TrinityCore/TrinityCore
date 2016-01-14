@@ -309,7 +309,7 @@ int32 BattlegroundAB::_GetNodeNameId(uint8 node)
         case BG_AB_NODE_LUMBER_MILL:return LANG_BG_AB_NODE_LUMBER_MILL;
         case BG_AB_NODE_GOLD_MINE:  return LANG_BG_AB_NODE_GOLD_MINE;
         default:
-            ASSERT(false);
+            ABORT();
     }
     return 0;
 }

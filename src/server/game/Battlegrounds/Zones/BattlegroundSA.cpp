@@ -744,7 +744,7 @@ bool BattlegroundSA::CanInteractWithObject(uint32 objectId)
                 return false;
             break;
         default:
-            ASSERT(false);
+            ABORT();
             break;
     }
 
@@ -877,7 +877,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
 
             break;
         default:
-            ASSERT(false);
+            ABORT();
             break;
     };
 }

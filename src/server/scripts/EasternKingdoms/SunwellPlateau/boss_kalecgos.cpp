@@ -169,12 +169,12 @@ public:
             me->SetFullHealth(); //dunno why it does not resets health at evade..
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             bJustReset = true;
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-            ScriptedAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode(why);
         }
 
         void DoAction(int32 param) override
@@ -237,7 +237,7 @@ public:
                 {
                     if (me->GetDistance(CENTER_X, CENTER_Y, DRAGON_REALM_Z) >= 75)
                     {
-                        EnterEvadeMode();
+                        EnterEvadeMode(EVADE_REASON_BOUNDARY);
                         return;
                     }
                     if (HealthBelowPct(10) && !isEnraged)
@@ -261,7 +261,7 @@ public:
                         else
                         {
                             TC_LOG_ERROR("scripts", "Didn't find Shathrowar. Kalecgos event reseted.");
-                            EnterEvadeMode();
+                            EnterEvadeMode(EVADE_REASON_OTHER);
                             return;
                         }
                     }
@@ -423,7 +423,7 @@ public:
                     TalkTimer = 15000;
                     break;
                 case 3:
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     break;
                 default:
                     break;
@@ -551,13 +551,9 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go) override
     {
-        Map* map = go->GetMap();
-        if (!map->IsDungeon())
-            return true;
-
 #if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
         uint8 SpectralPlayers = 0;
-        Map::PlayerList const &PlayerList = map->GetPlayers();
+        Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
             if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
@@ -569,6 +565,8 @@ public:
             player->GetSession()->SendNotification(GO_FAILED);
             return true;
         }
+#else
+        (void)go;
 #endif
 
         player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
@@ -688,12 +686,8 @@ public:
 
         void TeleportAllPlayersBack()
         {
-            Map* map = me->GetMap();
-            if (!map->IsDungeon())
-                return;
-
-            Map::PlayerList const &playerList = map->GetPlayers();
-            Position homePos = me->GetHomePosition();
+            Map::PlayerList const &playerList = me->GetMap()->GetPlayers();
+            Position const& homePos = me->GetHomePosition();
             for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
             {
                 Player* player = itr->GetSource();

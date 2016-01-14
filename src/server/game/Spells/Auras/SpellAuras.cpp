@@ -150,7 +150,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT)
+    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT))
         _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
 }
 
@@ -332,7 +332,7 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owne
             aura = new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             break;
         default:
-            ASSERT(false);
+            ABORT();
             return NULL;
     }
     // aura can be removed in Unit::_AddAura call
@@ -446,7 +446,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     {
         TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
         target->GetGUID().GetCounter(), caster ? caster->GetGUID().GetCounter() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
-        ASSERT(false);
+        ABORT();
     }
 
     // aura has to be already applied
@@ -537,7 +537,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             else
             {
                 // ok, we have one unit twice in target map (impossible, but...)
-                ASSERT(false);
+                ABORT();
             }
         }
 
@@ -595,7 +595,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
                 TC_LOG_FATAL("spells", "Aura %u: Owner %s (map %u) is not in the same map as target %s (map %u).", GetSpellInfo()->Id,
                     GetOwner()->GetName().c_str(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
                     itr->first->GetName().c_str(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
-                ASSERT(false);
+                ABORT();
             }
             itr->first->_CreateAuraApplication(this, itr->second);
             ++itr;
@@ -778,7 +778,7 @@ void Aura::RefreshTimers()
 {
     m_maxDuration = CalcMaxDuration();
     bool resetPeriodic = true;
-    if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER)
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
     {
         int32 minAmplitude = m_maxDuration;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1460,16 +1460,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     // mods at aura apply or remove
     switch (GetSpellInfo()->SpellFamilyName)
     {
-        case SPELLFAMILY_DRUID:
-            // Enrage
-            if ((GetSpellInfo()->SpellFamilyFlags[0] & 0x80000) && GetSpellInfo()->SpellIconID == 961)
-            {
-                if (target->HasAura(70726)) // Item - Druid T10 Feral 4P Bonus
-                    if (apply)
-                        target->CastSpell(target, 70725, true);
-                break;
-            }
-            break;
         case SPELLFAMILY_HUNTER:
             switch (GetId())
             {

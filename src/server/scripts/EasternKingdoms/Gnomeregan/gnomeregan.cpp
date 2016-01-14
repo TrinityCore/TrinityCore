@@ -203,10 +203,6 @@ public:
         void AggroAllPlayers(Creature* temp)
         {
             Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-
-            if (PlList.isEmpty())
-                return;
-
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
                 if (Player* player = i->GetSource())

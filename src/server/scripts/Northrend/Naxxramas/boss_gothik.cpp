@@ -317,37 +317,30 @@ class boss_gothik : public CreatureScript
 
             bool CheckGroupSplitted()
             {
-                Map* map = me->GetMap();
-                if (map && map->IsDungeon())
+                bool checklife = false;
+                bool checkdead = false;
+                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
-                    if (!PlayerList.isEmpty())
+                    if (i->GetSource() && i->GetSource()->IsAlive() &&
+                        i->GetSource()->GetPositionX() <= POS_X_NORTH &&
+                        i->GetSource()->GetPositionX() >= POS_X_SOUTH &&
+                        i->GetSource()->GetPositionY() <= POS_Y_GATE &&
+                        i->GetSource()->GetPositionY() >= POS_Y_EAST)
                     {
-                        bool checklife = false;
-                        bool checkdead = false;
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        {
-                            if (i->GetSource() && i->GetSource()->IsAlive() &&
-                                i->GetSource()->GetPositionX() <= POS_X_NORTH &&
-                                i->GetSource()->GetPositionX() >= POS_X_SOUTH &&
-                                i->GetSource()->GetPositionY() <= POS_Y_GATE &&
-                                i->GetSource()->GetPositionY() >= POS_Y_EAST)
-                            {
-                                checklife = true;
-                            }
-                            else if (i->GetSource() && i->GetSource()->IsAlive() &&
-                                i->GetSource()->GetPositionX() <= POS_X_NORTH &&
-                                i->GetSource()->GetPositionX() >= POS_X_SOUTH &&
-                                i->GetSource()->GetPositionY() >= POS_Y_GATE &&
-                                i->GetSource()->GetPositionY() <= POS_Y_WEST)
-                            {
-                                checkdead = true;
-                            }
-
-                            if (checklife && checkdead)
-                                return true;
-                        }
+                        checklife = true;
                     }
+                    else if (i->GetSource() && i->GetSource()->IsAlive() &&
+                        i->GetSource()->GetPositionX() <= POS_X_NORTH &&
+                        i->GetSource()->GetPositionX() >= POS_X_SOUTH &&
+                        i->GetSource()->GetPositionY() >= POS_Y_GATE &&
+                        i->GetSource()->GetPositionY() <= POS_Y_WEST)
+                    {
+                        checkdead = true;
+                    }
+
+                    if (checklife && checkdead)
+                        return true;
                 }
 
                 return false;
@@ -398,7 +391,7 @@ class boss_gothik : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -544,31 +537,24 @@ class npc_gothik_minion : public CreatureScript
                         CombatAI::JustDied(owner);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 if (!gateClose)
                 {
-                    CombatAI::EnterEvadeMode();
+                    CombatAI::EnterEvadeMode(why);
                     return;
                 }
 
                 if (!_EnterEvadeMode())
                     return;
 
-                Map* map = me->GetMap();
-                if (map->IsDungeon())
+                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
-                    if (!PlayerList.isEmpty())
+                    if (i->GetSource() && i->GetSource()->IsAlive() && isOnSameSide(i->GetSource()))
                     {
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        {
-                            if (i->GetSource() && i->GetSource()->IsAlive() && isOnSameSide(i->GetSource()))
-                            {
-                                AttackStart(i->GetSource());
-                                return;
-                            }
-                        }
+                        AttackStart(i->GetSource());
+                        return;
                     }
                 }
 
@@ -580,7 +566,7 @@ class npc_gothik_minion : public CreatureScript
             {
                 if (gateClose && (!isOnSameSide(me) || (me->GetVictim() && !isOnSameSide(me->GetVictim()))))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return;
                 }
 

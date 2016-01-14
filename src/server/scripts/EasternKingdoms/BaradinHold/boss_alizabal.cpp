@@ -114,7 +114,7 @@ class boss_alizabal : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 me->GetMotionMaster()->MoveTargetedHome();

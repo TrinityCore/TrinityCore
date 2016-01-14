@@ -162,6 +162,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
         obj = GetBgMap()->GetGameObject(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+
         if (obj)
         {
             uint8 j = 0;
@@ -202,6 +203,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
         obj = GetBgMap()->GetGameObject(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
+
         if (obj)
         {
             uint8 j = 0;
@@ -589,6 +591,7 @@ void BattlegroundEY::RespawnFlagAfterDrop()
     RespawnFlag(true);
 
     GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID());
+
     if (obj)
         obj->Delete();
     else

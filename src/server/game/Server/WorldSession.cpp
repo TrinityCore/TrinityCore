@@ -384,7 +384,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
                     else if (_player->IsInWorld())
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
-                        else if(AntiDOS.EvaluateOpcode(*packet, currentTime))
+                        else if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->Handler)(*packet);
@@ -527,6 +527,15 @@ void WorldSession::LogoutPlayer(bool save)
         {
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
+                // track if player logs out after invited to join BG
+                if (_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId) && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                    stmt->setUInt32(0, _player->GetGUID().GetCounter());
+                    stmt->setUInt8(1, BG_DESERTION_TYPE_INVITE_LOGOUT);
+                    CharacterDatabase.Execute(stmt);
+                }
+
                 _player->RemoveBattlegroundQueueId(bgQueueTypeId);
                 BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
                 queue.RemovePlayer(_player->GetGUID(), true);
@@ -760,14 +769,12 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
 void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string const& data)
 {
+    uint32 id = 0;
+    CharacterDatabaseStatements index;
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_ACCOUNT_DATA);
-        stmt->setUInt32(0, GetAccountId());
-        stmt->setUInt8(1, type);
-        stmt->setUInt32(2, uint32(tm));
-        stmt->setString(3, data);
-        CharacterDatabase.Execute(stmt);
+        id = GetAccountId();
+        index = CHAR_REP_ACCOUNT_DATA;
     }
     else
     {
@@ -775,13 +782,16 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
         if (!m_GUIDLow)
             return;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ACCOUNT_DATA);
-        stmt->setUInt32(0, m_GUIDLow);
-        stmt->setUInt8(1, type);
-        stmt->setUInt32(2, uint32(tm));
-        stmt->setString(3, data);
-        CharacterDatabase.Execute(stmt);
+        id = m_GUIDLow;
+        index = CHAR_REP_PLAYER_ACCOUNT_DATA;
     }
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
+    stmt->setUInt32(0, id);
+    stmt->setUInt8 (1, type);
+    stmt->setUInt32(2, uint32(tm));
+    stmt->setString(3, data);
+    CharacterDatabase.Execute(stmt);
 
     m_accountData[type].Time = tm;
     m_accountData[type].Data = data;
@@ -1046,9 +1056,8 @@ void WorldSession::ProcessQueryCallbacks()
 {
     PreparedQueryResult result;
 
-    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready &&
-        _accountLoginCallback.valid() && _accountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        InitializeSessionCallback(_realmAccountLoginCallback.get(), _accountLoginCallback.get());
+    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+        InitializeSessionCallback(_realmAccountLoginCallback.get());
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
@@ -1151,9 +1160,6 @@ void WorldSession::LoadPermissions()
     uint32 id = GetAccountId();
     uint8 secLevel = GetSecurity();
 
-    TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
-        id, _accountName.c_str(), realmHandle.Index, secLevel);
-
     _RBACData = new rbac::RBACData(id, _accountName, realmHandle.Index, secLevel);
     _RBACData->LoadFromDB();
 }
@@ -1162,6 +1168,7 @@ PreparedQueryResultFuture WorldSession::LoadPermissionsAsync()
 {
     uint32 id = GetAccountId();
     uint8 secLevel = GetSecurity();
+
     TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
         id, _accountName.c_str(), realmHandle.Index, secLevel);
 
@@ -1198,24 +1205,6 @@ public:
     }
 };
 
-class AccountInfoQueryHolder : public SQLQueryHolder
-{
-public:
-    enum
-    {
-        MAX_QUERIES
-    };
-
-    AccountInfoQueryHolder() { SetSize(MAX_QUERIES); }
-
-    bool Initialize(uint32 /*accountId*/, uint32 /*battlenetAccountId*/)
-    {
-        bool ok = true;
-
-        return ok;
-    }
-};
-
 void WorldSession::InitializeSession()
 {
     AccountInfoQueryHolderPerRealm* realmHolder = new AccountInfoQueryHolderPerRealm();
@@ -1226,20 +1215,10 @@ void WorldSession::InitializeSession()
         return;
     }
 
-    AccountInfoQueryHolder* holder = new AccountInfoQueryHolder();
-    if (!holder->Initialize(GetAccountId(), GetBattlenetAccountId()))
-    {
-        delete realmHolder;
-        delete holder;
-        SendAuthResponse(AUTH_SYSTEM_ERROR, false);
-        return;
-    }
-
     _realmAccountLoginCallback = CharacterDatabase.DelayQueryHolder(realmHolder);
-    _accountLoginCallback = LoginDatabase.DelayQueryHolder(holder);
 }
 
-void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQueryHolder* holder)
+void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder)
 {
     LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
     LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
@@ -1257,7 +1236,6 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendTutorialsData();
 
     delete realmHolder;
-    delete holder;
 }
 
 rbac::RBACData* WorldSession::GetRBACData()

@@ -82,7 +82,7 @@ class boss_shattered_executioner : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                
+
                 // _Reset() resets the loot mode, so we add them again, if any
                 uint32 prisonersExecuted = instance->GetData(DATA_PRISONERS_EXECUTED);
                 if (prisonersExecuted == 0)

@@ -21,12 +21,7 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Path.h"
 #include "Util.h"
-
-#include <map>
-#include <set>
-#include <vector>
 
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
@@ -856,7 +851,7 @@ struct CreatureModelDataEntry
 {
     uint32 Id;
     uint32 Flags;
-    //char* ModelPath
+    char* ModelPath;
     //uint32 Unk1;
     //float Scale;                                             // Used in calculation of unit collision data
     //int32 Unk2
@@ -2077,10 +2072,8 @@ struct SpellShapeshiftFormEntry
 struct SpellShapeshiftEntry
 {
     uint32    Id;                                           // 0 - m_ID
-    uint32    StancesNot;                                   // 3 - m_shapeshiftExclude
-    // uint32 unk_320_2;                                    // 2 - 3.2.0
-    uint32    Stances;                                      // 1 - m_shapeshiftMask
-    // uint32 unk_320_3;                                    // 4 - 3.2.0
+    uint32    StancesNot[2];                                // 1 - m_shapeshiftExclude
+    uint32    Stances[2];                                   // 3 - m_shapeshiftMask
     // uint32    StanceBarOrder;                            // 5 - m_stanceBarOrder not used
 };
 
@@ -2544,15 +2537,7 @@ struct TaxiPathBySourceAndDestination
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
-struct TaxiPathNodePtr
-{
-    TaxiPathNodePtr() : i_ptr(NULL) { }
-    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) { }
-    TaxiPathNodeEntry const* i_ptr;
-    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
-};
-
-typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 114

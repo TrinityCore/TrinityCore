@@ -473,7 +473,7 @@ public:
             if (FlameStrikeTimer <= diff)
             {
                 DoCast(me, SPELL_FLAMESTRIKE1_NORMAL, true);
-                me->Kill(me);
+                me->KillSelf();
             } else FlameStrikeTimer -= diff;
         }
     };
@@ -636,7 +636,7 @@ public:
             if (HatchTimer <= diff)
             {
                 me->SummonCreature(CREATURE_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-                me->Kill(me);
+                me->KillSelf();
             } else HatchTimer -= diff;
         }
     };
@@ -675,7 +675,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (DespawnTimer <= diff)
-                me->Kill(me);
+                me->KillSelf();
             else
                 DespawnTimer -= diff;
 

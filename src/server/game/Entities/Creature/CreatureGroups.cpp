@@ -227,12 +227,8 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
             continue;
 
         if (itr->second->point_1)
-        {
-            if (m_leader->GetCurrentWaypointID() == itr->second->point_1)
-                itr->second->follow_angle = (2 * float(M_PI)) - itr->second->follow_angle;
-            if (m_leader->GetCurrentWaypointID() == itr->second->point_2)
-                itr->second->follow_angle = (2 * float(M_PI)) + itr->second->follow_angle;
-        }
+            if (m_leader->GetCurrentWaypointID() == itr->second->point_1 - 1 || m_leader->GetCurrentWaypointID() == itr->second->point_2 - 1)
+                itr->second->follow_angle = float(M_PI) * 2 - itr->second->follow_angle;
 
         float angle = itr->second->follow_angle;
         float dist = itr->second->follow_dist;
@@ -244,7 +240,8 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         Trinity::NormalizeMapCoord(dx);
         Trinity::NormalizeMapCoord(dy);
 
-        member->UpdateGroundPositionZ(dx, dy, dz);
+        if (!member->IsFlying())
+            member->UpdateGroundPositionZ(dx, dy, dz);
 
         if (member->IsWithinDist(m_leader, dist + MAX_DESYNC))
             member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());

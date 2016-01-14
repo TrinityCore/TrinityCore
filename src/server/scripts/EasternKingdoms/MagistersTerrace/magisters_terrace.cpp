@@ -145,39 +145,13 @@ public:
                 m_uiTransformTimer = MINUTE*IN_MILLISECONDS;
         }
 
-        // some targeting issues with the spell, so use this workaround as temporary solution
-        void DoWorkaroundForQuestCredit()
-        {
-            Map* map = me->GetMap();
-
-            if (!map || map->IsHeroic())
-                return;
-
-            Map::PlayerList const &lList = map->GetPlayers();
-
-            if (lList.isEmpty())
-                return;
-
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
-
-            for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
-            {
-                if (Player* player = i->GetSource())
-                {
-                    if (spell && spell->Effects[0].MiscValue)
-                        player->KilledMonsterCredit(spell->Effects[0].MiscValue);
-                }
-            }
-        }
-
         void UpdateAI(uint32 uiDiff) override
         {
             if (m_uiTransformTimer)
             {
                 if (m_uiTransformTimer <= uiDiff)
                 {
-                    DoCast(me, SPELL_ORB_KILL_CREDIT, false);
-                    DoWorkaroundForQuestCredit();
+                    DoCast(me, SPELL_ORB_KILL_CREDIT, true);
 
                     // Transform and update entry, now ready for quest/read gossip
                     DoCast(me, SPELL_TRANSFORM_TO_KAEL, false);

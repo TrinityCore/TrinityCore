@@ -290,6 +290,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (!auctioneerData)
         {
             TC_LOG_ERROR("misc", "Data for auctioneer not found (%s)", auctioneer.ToString().c_str());
+            SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+            delete AH;
             return;
         }
 
@@ -297,10 +299,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (!auctioneerInfo)
         {
             TC_LOG_ERROR("misc", "Non existing auctioneer (%s)", auctioneer.ToString().c_str());
+            SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+            delete AH;
             return;
         }
 
-        AuctionHouseEntry const* AHEntry = sAuctionMgr->GetAuctionHouseEntry(auctioneerInfo->faction);
+        const AuctionHouseEntry* AHEntry = sAuctionMgr->GetAuctionHouseEntry(auctioneerInfo->faction);
         AH->houseId = AHEntry->houseId;
     }
 
@@ -610,7 +614,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     {
         SendAuctionCommandResult(NULL, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        TC_LOG_ERROR("network", "CHEATER: %u tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().GetCounter(), auctionId);
+        TC_LOG_ERROR("network", "CHEATER : %u, he tried to cancel auction (id: %u) of another player, or auction is NULL", player->GetGUID().GetCounter(), auctionId);
         return;
     }
 

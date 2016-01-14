@@ -50,8 +50,8 @@ public:
 
     void ResetReputationCaps();
 
-    uint32 GenerateGuildId();
-    void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
+    ObjectGuid::LowType GenerateGuildId();
+    void SetNextGuildId(ObjectGuid::LowType Id) { NextGuildId = Id; }
 
     uint32 GetXPForGuildLevel(uint8 level) const;
     std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }

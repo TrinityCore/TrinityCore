@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.26, for Win64 (x86_64)
 --
 -- Host: localhost    Database: world434
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.6.26-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -472,6 +472,7 @@ CREATE TABLE `creature_questitem` (
   `CreatureEntry` int(10) unsigned NOT NULL DEFAULT '0',
   `Idx` int(10) unsigned NOT NULL DEFAULT '0',
   `ItemId` int(10) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
   PRIMARY KEY (`CreatureEntry`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -620,6 +621,24 @@ CREATE TABLE `creature_template_addon` (
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `auras` text,
   PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_template_locale`
+--
+
+DROP TABLE IF EXISTS `creature_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_template_locale` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Name` text,
+  `FemaleName` text,
+  `Title` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`,`locale`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1136,6 +1155,7 @@ CREATE TABLE `gameobject_questitem` (
   `GameObjectEntry` int(10) unsigned NOT NULL DEFAULT '0',
   `Idx` int(10) unsigned NOT NULL DEFAULT '0',
   `ItemId` int(10) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
   PRIMARY KEY (`GameObjectEntry`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1211,6 +1231,23 @@ CREATE TABLE `gameobject_template` (
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gameobject_template_locale`
+--
+
+DROP TABLE IF EXISTS `gameobject_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_template_locale` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `name` text,
+  `castBarCaption` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1721,44 +1758,6 @@ CREATE TABLE `locales_broadcast_text` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `locales_creature`
---
-
-DROP TABLE IF EXISTS `locales_creature`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_creature` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc1` char(100) NOT NULL,
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc2` char(100) NOT NULL,
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc3` char(100) NOT NULL,
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc4` char(100) NOT NULL,
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc5` char(100) NOT NULL,
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc6` char(100) NOT NULL,
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc7` char(100) NOT NULL,
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc8` char(100) NOT NULL,
-  `subname_loc1` varchar(100) DEFAULT NULL,
-  `subname_loc2` varchar(100) DEFAULT NULL,
-  `subname_loc3` varchar(100) DEFAULT NULL,
-  `subname_loc4` varchar(100) DEFAULT NULL,
-  `subname_loc5` varchar(100) DEFAULT NULL,
-  `subname_loc6` varchar(100) DEFAULT NULL,
-  `subname_loc7` varchar(100) DEFAULT NULL,
-  `subname_loc8` varchar(100) DEFAULT NULL,
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `locales_creature_text`
 --
 
@@ -1778,36 +1777,6 @@ CREATE TABLE `locales_creature_text` (
   `text_loc7` text,
   `text_loc8` text,
   PRIMARY KEY (`entry`,`groupid`,`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_gameobject`
---
-
-DROP TABLE IF EXISTS `locales_gameobject`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_gameobject` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc1` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc2` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc3` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc4` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc5` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc6` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc7` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc8` varchar(100) NOT NULL DEFAULT '',
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2917,6 +2886,51 @@ CREATE TABLE `prospecting_loot_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_details`
+--
+
+DROP TABLE IF EXISTS `quest_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_details` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Emote1` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `Emote2` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `Emote3` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `Emote4` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay1` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay2` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay3` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay4` int(10) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `quest_offer_reward`
+--
+
+DROP TABLE IF EXISTS `quest_offer_reward`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_offer_reward` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Emote1` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `Emote2` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `Emote3` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `Emote4` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay1` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay2` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay3` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmoteDelay4` int(10) unsigned NOT NULL DEFAULT '0',
+  `RewardText` text,
+  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quest_poi`
 --
 
@@ -2958,6 +2972,23 @@ CREATE TABLE `quest_poi_points` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_request_items`
+--
+
+DROP TABLE IF EXISTS `quest_request_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_request_items` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `EmoteOnComplete` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `EmoteOnIncomplete` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `CompletionText` text,
+  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quest_template`
 --
 
@@ -2966,99 +2997,86 @@ DROP TABLE IF EXISTS `quest_template`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `quest_template` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Method` tinyint(3) unsigned NOT NULL DEFAULT '2',
+  `QuestType` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `QuestLevel` smallint(3) NOT NULL DEFAULT '1',
   `MinLevel` smallint(6) NOT NULL DEFAULT '0',
   `MaxLevel` smallint(6) NOT NULL DEFAULT '0',
   `QuestSortID` smallint(6) NOT NULL DEFAULT '0',
-  `QuestType` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `QuestInfoID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `SuggestedGroupNum` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `LimitTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `RequiredClasses` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredRaces` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredSkillId` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredSkillPoints` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredFactionId1` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredFactionId2` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredFactionValue1` mediumint(8) NOT NULL DEFAULT '0',
   `RequiredFactionValue2` mediumint(8) NOT NULL DEFAULT '0',
-  `RequiredMinRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredMaxRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredMinRepValue` mediumint(8) NOT NULL DEFAULT '0',
-  `RequiredMaxRepValue` mediumint(8) NOT NULL DEFAULT '0',
-  `PrevQuestId` mediumint(8) NOT NULL DEFAULT '0',
-  `NextQuestId` mediumint(8) NOT NULL DEFAULT '0',
+  `RewardNextQuest` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `RewardXPDifficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `RewardMoney` int(11) NOT NULL DEFAULT '0',
+  `RewardBonusMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `RewardDisplaySpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `RewardSpell` int(11) NOT NULL DEFAULT '0',
   `ExclusiveGroup` mediumint(8) NOT NULL DEFAULT '0',
-  `NextQuestIdChain` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardXPId` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `RewardOrRequiredMoney` int(11) NOT NULL DEFAULT '0',
-  `RewardMoneyMaxLevel` int(10) unsigned NOT NULL DEFAULT '0',
-  `RewardSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardSpellCast` int(11) NOT NULL DEFAULT '0',
   `RewardHonor` int(11) NOT NULL DEFAULT '0',
   `RewardHonorMultiplier` float NOT NULL DEFAULT '0',
   `RewardMailTemplateId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardMailDelay` int(11) unsigned NOT NULL DEFAULT '0',
-  `SourceItemId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `SourceItemCount` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `SourceSpellId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Flags` int(10) unsigned NOT NULL DEFAULT '0',
   `SpecialFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `MinimapTargetMark` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `RewardTitle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `RequiredPlayerKills` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `RewardTalents` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `RewardArenaPoints` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RewardSkillId` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RewardSkillPoints` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `RewardReputationMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `QuestGiverPortrait` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `QuestTurnInPortrait` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardItem1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardItem2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardItem3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardItem4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardAmount1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RewardAmount2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RewardAmount3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RewardAmount4` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ItemDrop1` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemDropQuantity1` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ItemDrop2` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemDropQuantity2` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ItemDrop3` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemDropQuantity3` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ItemDrop4` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `ItemDropQuantity4` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemID1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardChoiceItemID2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardChoiceItemID3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardChoiceItemID4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardChoiceItemID5` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RewardChoiceItemID6` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemQuantity1` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RewardChoiceItemID2` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemQuantity2` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RewardChoiceItemID3` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemQuantity3` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RewardChoiceItemID4` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemQuantity4` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RewardChoiceItemID5` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemQuantity5` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RewardChoiceItemID6` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardChoiceItemQuantity6` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `POIContinent` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `POIx` float NOT NULL DEFAULT '0',
+  `POIy` float NOT NULL DEFAULT '0',
+  `POIPriority` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `RewardTitle` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `RewardTalents` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `RewardArenaPoints` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RewardFactionID1` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
-  `RewardFactionID2` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
-  `RewardFactionID3` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
-  `RewardFactionID4` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
-  `RewardFactionID5` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
   `RewardFactionValue1` mediumint(8) NOT NULL DEFAULT '0',
-  `RewardFactionValue2` mediumint(8) NOT NULL DEFAULT '0',
-  `RewardFactionValue3` mediumint(8) NOT NULL DEFAULT '0',
-  `RewardFactionValue4` mediumint(8) NOT NULL DEFAULT '0',
-  `RewardFactionValue5` mediumint(8) NOT NULL DEFAULT '0',
   `RewardFactionOverride1` mediumint(8) NOT NULL DEFAULT '0',
+  `RewardFactionID2` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
+  `RewardFactionValue2` mediumint(8) NOT NULL DEFAULT '0',
   `RewardFactionOverride2` mediumint(8) NOT NULL DEFAULT '0',
+  `RewardFactionID3` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
+  `RewardFactionValue3` mediumint(8) NOT NULL DEFAULT '0',
   `RewardFactionOverride3` mediumint(8) NOT NULL DEFAULT '0',
+  `RewardFactionID4` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
+  `RewardFactionValue4` mediumint(8) NOT NULL DEFAULT '0',
   `RewardFactionOverride4` mediumint(8) NOT NULL DEFAULT '0',
+  `RewardFactionID5` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction id from Faction.dbc in this case',
+  `RewardFactionValue5` mediumint(8) NOT NULL DEFAULT '0',
   `RewardFactionOverride5` mediumint(8) NOT NULL DEFAULT '0',
-  `PointMapId` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `PointX` float NOT NULL DEFAULT '0',
-  `PointY` float NOT NULL DEFAULT '0',
-  `PointOption` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `TimeAllowed` int(10) unsigned NOT NULL DEFAULT '0',
   `LogTitle` text,
   `LogDescription` text,
   `QuestDescription` text,
-  `EndText` text,
-  `OfferRewardText` text,
-  `RequestItemsText` text,
+  `AreaDescription` text,
   `QuestCompletionLog` text,
   `RequiredNpcOrGo1` mediumint(8) NOT NULL DEFAULT '0',
   `RequiredNpcOrGo2` mediumint(8) NOT NULL DEFAULT '0',
@@ -3068,14 +3086,6 @@ CREATE TABLE `quest_template` (
   `RequiredNpcOrGoCount2` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredNpcOrGoCount3` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredNpcOrGoCount4` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemId1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemId2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemId3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemId4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemCount1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemCount2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemCount3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredSourceItemCount4` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredItemId1` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RequiredItemId2` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RequiredItemId3` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3115,24 +3125,6 @@ CREATE TABLE `quest_template` (
   `QuestTurnTargetName` text,
   `SoundAccept` smallint(5) unsigned NOT NULL DEFAULT '890',
   `SoundTurnIn` smallint(5) unsigned NOT NULL DEFAULT '878',
-  `DetailsEmote1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmote2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmote3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmote4` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmoteDelay1` int(10) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmoteDelay2` int(10) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmoteDelay3` int(10) unsigned NOT NULL DEFAULT '0',
-  `DetailsEmoteDelay4` int(10) unsigned NOT NULL DEFAULT '0',
-  `EmoteOnIncomplete` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `EmoteOnComplete` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmote1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmote2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmote3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmote4` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmoteDelay1` int(10) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmoteDelay2` int(10) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmoteDelay3` int(10) unsigned NOT NULL DEFAULT '0',
-  `OfferRewardEmoteDelay4` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Quest System';
@@ -3149,6 +3141,7 @@ CREATE TABLE `quest_template_addon` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `MaxLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `AllowableClasses` int(10) unsigned NOT NULL DEFAULT '0',
+  `AllowableRaces` smallint(5) unsigned NOT NULL DEFAULT '0',  
   `SourceSpellID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `PrevQuestID` mediumint(8) NOT NULL DEFAULT '0',
   `NextQuestID` mediumint(8) NOT NULL DEFAULT '0',
@@ -3300,6 +3293,22 @@ CREATE TABLE `skill_fishing_base_level` (
   `skill` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Base skill level requirement',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Fishing system';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `skill_perfect_item_template`
+--
+
+DROP TABLE IF EXISTS `skill_perfect_item_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `skill_perfect_item_template` (
+  `spellId` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellId of the item creation spell',
+  `requiredSpecialization` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Specialization spell id',
+  `perfectCreateChance` float NOT NULL DEFAULT '0' COMMENT 'chance to create the perfect item instead',
+  `perfectItemType` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'perfect item type to create instead',
+  PRIMARY KEY (`spellId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Crafting Perfection System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3993,4 +4002,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-10-30 13:45:31
+-- Dump completed on 2015-11-07 14:42:45

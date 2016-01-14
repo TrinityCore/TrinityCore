@@ -281,7 +281,7 @@ class WorldSession
         void SendClientCacheVersion(uint32 version);
 
         void InitializeSession();
-        void InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQueryHolder* holder);
+        void InitializeSessionCallback(SQLQueryHolder* realmHolder);
 
         rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);
@@ -1039,7 +1039,6 @@ class WorldSession
         void ProcessQueryCallbacks();
 
         QueryResultHolderFuture _realmAccountLoginCallback;
-        QueryResultHolderFuture _accountLoginCallback;
         PreparedQueryResultFuture _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
         PreparedQueryResultFuture _stablePetCallback;

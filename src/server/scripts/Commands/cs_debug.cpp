@@ -1434,11 +1434,39 @@ public:
         if (!map)
             map = player->GetMap();
 
+        handler->PSendSysMessage("Loading all cells (mapId: %u). Current next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
         for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
             for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
                 map->LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
 
-        handler->PSendSysMessage("Cells loaded (mapId: %u)", map->GetId());
+        handler->PSendSysMessage("Cells loaded (mapId: %u) After load - Next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
+        return true;
+    }
+
+    static bool HandleDebugBoundaryCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+        Creature* target = handler->getSelectedCreature();
+        if (!target || !target->IsAIEnabled || !target->AI())
+        {
+            return false;
+        }
+
+        char* fill_str = args ? strtok((char*)args, " ") : nullptr;
+        char* duration_str = args ? strtok(nullptr, " ") : nullptr;
+
+        int duration = duration_str ? atoi(duration_str) : -1;
+        if (duration <= 0 || duration >= 30 * MINUTE) // arbitary upper limit
+            duration = 3 * MINUTE;
+
+        bool doFill = fill_str ? (stricmp(fill_str, "FILL") == 0) : false;
+        
+        int32 errMsg = target->AI()->VisualizeBoundary(duration, player, doFill);
+        if (errMsg > 0)
+            handler->PSendSysMessage(errMsg);
+
         return true;
     }
 };

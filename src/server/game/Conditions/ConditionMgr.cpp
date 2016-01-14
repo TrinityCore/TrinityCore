@@ -90,7 +90,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "PhaseMask",            true, false, false },
     { "Level",                true, true,  false },
     { "Quest Completed",      true, false, false },
-    { "Near Creature",        true, true,  false },
+    { "Near Creature",        true, true,  true  },
     { "Near GameObject",      true, true,  false },
     { "Object Entry or Guid", true, true,  true  },
     { "Object TypeMask",      true, false, false },
@@ -233,7 +233,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_INSTANCE_INFO:
         {
             Map* map = object->GetMap();
-            if (map && map->IsDungeon())
+            if (map->IsDungeon())
             {
                 if (InstanceScript const* instance = ((InstanceMap*)map)->GetInstanceScript())
                 {
@@ -282,7 +282,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_NEAR_CREATURE:
         {
-            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
+            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) ? true : false;
             break;
         }
         case CONDITION_NEAR_GAMEOBJECT:
@@ -326,7 +326,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 Unit* unit = object->ToUnit();
                 if (toUnit && unit)
                 {
-                    switch (ConditionValue2)
+                    switch (static_cast<RelationType>(ConditionValue2))
                     {
                         case RELATION_SELF:
                             condMeets = unit == toUnit;
@@ -345,6 +345,8 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                             break;
                         case RELATION_CREATED_BY:
                             condMeets = unit->GetCreatorGUID() == toUnit->GetGUID();
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -996,7 +998,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond->NegativeCondition         = fields[10].GetBool();
         cond->ErrorType                 = fields[11].GetUInt32();
         cond->ErrorTextId               = fields[12].GetUInt32();
-        cond->ScriptId                  = sObjectMgr->GetScriptId(fields[13].GetCString());
+        cond->ScriptId                  = sObjectMgr->GetScriptId(fields[13].GetString());
 
         if (iConditionTypeOrReference >= 0)
             cond->ConditionType = ConditionTypes(iConditionTypeOrReference);
@@ -1276,9 +1278,9 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             continue;
 
         // build new shared mask with found effect
-        uint32 sharedMask = (1 << i);
+        uint32 sharedMask = 1 << i;
         ConditionContainer* cmp = spellInfo->Effects[i].ImplicitTargetConditions;
-        for (uint8 effIndex = i+1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+        for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
             if (spellInfo->Effects[effIndex].ImplicitTargetConditions == cmp)
                 sharedMask |= 1 << effIndex;
@@ -2243,9 +2245,9 @@ void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32
 
 void ConditionMgr::Clean()
 {
-    for (ConditionReferenceContainer::iterator itr = ConditionReferenceStore.begin(); itr != ConditionReferenceStore.end(); ++itr)
-        for (ConditionContainer::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            delete *it;
+    for (ConditionReferenceContainer::iterator it = ConditionReferenceStore.begin(); it != ConditionReferenceStore.end(); ++it)
+        for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+            delete *i;
 
     ConditionReferenceStore.clear();
 

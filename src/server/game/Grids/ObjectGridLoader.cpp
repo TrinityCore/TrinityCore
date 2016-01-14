@@ -145,7 +145,7 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
-void ObjectWorldLoader::Visit(CorpseMapType &m)
+void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
     if (std::unordered_set<Corpse*> const* corpses = i_map->GetCorpsesInCell(cellCoord.GetId()))
@@ -153,7 +153,12 @@ void ObjectWorldLoader::Visit(CorpseMapType &m)
         for (Corpse* corpse : *corpses)
         {
             corpse->AddToWorld();
-            i_grid.GetGridType(i_cell.CellX(), i_cell.CellY()).AddWorldObject(corpse);
+            GridType& cell = i_grid.GetGridType(i_cell.CellX(), i_cell.CellY());
+            if (corpse->IsWorldObject())
+                cell.AddWorldObject(corpse);
+            else
+                cell.AddGridObject(corpse);
+
             ++i_corpses;
         }
     }
@@ -231,7 +236,7 @@ void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 template void ObjectGridUnloader::Visit(CreatureMapType &);
 template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
-template void ObjectGridUnloader::Visit(CorpseMapType &);
+
 template void ObjectGridUnloader::Visit(AreaTriggerMapType &);
 template void ObjectGridCleaner::Visit(CreatureMapType &);
 template void ObjectGridCleaner::Visit<GameObject>(GameObjectMapType &);

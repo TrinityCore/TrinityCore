@@ -529,6 +529,7 @@ class Spell
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
+        bool m_isDelayedInstantCast;                        // whether this is a creature's delayed instant cast
         uint8 m_runesState;
 
         uint8 m_delayAtDamageCount;
@@ -588,6 +589,8 @@ class Spell
         // Targets store structures and data
         struct TargetInfo
         {
+            // a bug in gcc-4.7 needs a destructor to call move operator instead of copy operator in std::vector remove
+            ~TargetInfo() { }
             ObjectGuid targetGUID;
             uint64 timeDelay;
             SpellMissInfo missCondition:8;

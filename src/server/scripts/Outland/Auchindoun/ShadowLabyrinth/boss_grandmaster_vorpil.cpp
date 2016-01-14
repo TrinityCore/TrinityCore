@@ -182,8 +182,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                             break;
                         case EVENT_DRAW_SHADOWS:
                             {
-                                Map* map = me->GetMap();
-                                Map::PlayerList const &PlayerList = map->GetPlayers();
+                                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                     if (Player* i_pl = i->GetSource())
                                         if (i_pl->IsAlive() && !i_pl->HasAura(SPELL_BANISH))
@@ -258,7 +257,7 @@ class npc_voidtraveler : public CreatureScript
                     {
                         DoCastAOE(SPELL_EMPOWERING_SHADOWS, true);
                         DoCast(me, SPELL_SHADOW_NOVA, true);
-                        me->Kill(me);
+                        me->KillSelf();
                         return;
                     }
                     me->GetMotionMaster()->MoveFollow(Vorpil, 0, 0);

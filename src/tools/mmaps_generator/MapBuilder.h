@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,19 +19,17 @@
 #ifndef _MAP_BUILDER_H
 #define _MAP_BUILDER_H
 
-#include <vector>
-#include <set>
-#include <map>
-#include <list>
-#include <atomic>
-#include <thread>
-
 #include "TerrainBuilder.h"
-#include "IntermediateValues.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "ProducerConsumerQueue.h"
+
+#include <vector>
+#include <set>
+#include <list>
+#include <atomic>
+#include <thread>
 
 using namespace VMAP;
 
@@ -120,7 +118,7 @@ namespace MMAP
             void getTileBounds(uint32 tileX, uint32 tileY,
                 float* verts, int vertCount,
                 float* bmin, float* bmax);
-            void getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY);
+            void getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY) const;
 
             bool shouldSkipMap(uint32 mapID);
             bool isTransportMap(uint32 mapID);

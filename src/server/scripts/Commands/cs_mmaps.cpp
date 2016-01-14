@@ -55,7 +55,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable  },
+            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable },
         };
         return commandTable;
     }

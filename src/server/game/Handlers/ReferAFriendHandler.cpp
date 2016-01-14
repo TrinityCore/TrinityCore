@@ -71,6 +71,7 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
     recvData >> guid.ReadAsPacked();
 
     Player* other = ObjectAccessor::GetPlayer(*_player, guid);
+
     if (!(other && other->GetSession()))
         return;
 

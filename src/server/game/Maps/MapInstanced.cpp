@@ -207,13 +207,13 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     if (!entry)
     {
         TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", GetId());
-        ASSERT(false);
+        ABORT();
     }
     const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
         TC_LOG_ERROR("maps", "CreateInstance: no instance template for map %d", GetId());
-        ASSERT(false);
+        ABORT();
     }
 
     // some instances only have one difficulty
@@ -225,6 +225,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     ASSERT(map->IsDungeon());
 
     map->LoadRespawnTimes();
+    map->LoadCorpseData();
 
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);
@@ -292,6 +293,6 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 
 Map::EnterState MapInstanced::CannotEnter(Player* /*player*/)
 {
-    //ASSERT(false);
+    //ABORT();
     return CAN_ENTER;
 }

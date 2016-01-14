@@ -309,7 +309,7 @@ class boss_valithria_dreamwalker : public CreatureScript
             {
                 me->SetHealth(_spawnHealth);
                 me->SetReactState(REACT_PASSIVE);
-                me->LoadCreaturesAddon(true);
+                me->LoadCreaturesAddon();
                 // immune to percent heals
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_OBS_MOD_HEALTH, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
@@ -556,6 +556,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
                 if (!me->IsInCombat())
                     return;
+
+                // @TODO check out of bounds on all encounter creatures, evade if matched
 
                 std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
                 if (threatList.empty())
@@ -1072,7 +1074,7 @@ class npc_dream_cloud : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
                 me->SetCorpseDelay(0);  // remove corpse immediately
-                me->LoadCreaturesAddon(true);
+                me->LoadCreaturesAddon();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1336,7 +1338,7 @@ class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                uint32 spellId = RAND<uint32>(71301, 72220, 72223, 72225);
+                uint32 spellId = RAND(71301, 72220, 72223, 72225);
                 GetHitUnit()->CastSpell(GetHitUnit(), spellId, true);
             }
 
@@ -1367,7 +1369,7 @@ class spell_dreamwalker_summon_nightmare_portal : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                uint32 spellId = RAND<uint32>(71977, 72481, 72482, 72483);
+                uint32 spellId = RAND(71977, 72481, 72482, 72483);
                 GetHitUnit()->CastSpell(GetHitUnit(), spellId, true);
             }
 

@@ -277,6 +277,86 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
         }
 };
 
+// Hallowed wands
+enum HallowendData
+{
+    //wand spells
+    SPELL_HALLOWED_WAND_PIRATE             = 24717,
+    SPELL_HALLOWED_WAND_NINJA              = 24718,
+    SPELL_HALLOWED_WAND_LEPER_GNOME        = 24719,
+    SPELL_HALLOWED_WAND_RANDOM             = 24720,
+    SPELL_HALLOWED_WAND_SKELETON           = 24724,
+    SPELL_HALLOWED_WAND_WISP               = 24733,
+    SPELL_HALLOWED_WAND_GHOST              = 24737,
+    SPELL_HALLOWED_WAND_BAT                = 24741
+};
+
+class spell_hallow_end_wand : public SpellScriptLoader
+{
+public:
+    spell_hallow_end_wand() : SpellScriptLoader("spell_hallow_end_wand") {}
+
+    class spell_hallow_end_wand_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hallow_end_wand_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellEntry*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_MALE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_FEMALE))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect()
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+
+            uint32 spellId = 0;
+            uint8 gender = target->getGender();
+
+            switch (GetSpellInfo()->Id)
+            {
+                case SPELL_HALLOWED_WAND_LEPER_GNOME:
+                    spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_PIRATE:
+                    spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_GHOST:
+                    spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_NINJA:
+                    spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
+                    break;
+                case SPELL_HALLOWED_WAND_RANDOM:
+                    spellId = RAND(SPELL_HALLOWED_WAND_PIRATE, SPELL_HALLOWED_WAND_NINJA, SPELL_HALLOWED_WAND_LEPER_GNOME, SPELL_HALLOWED_WAND_SKELETON, SPELL_HALLOWED_WAND_WISP, SPELL_HALLOWED_WAND_GHOST, SPELL_HALLOWED_WAND_BAT);
+                    break;
+                default:
+                    return;
+            }
+            caster->CastSpell(target, spellId, true);
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_hallow_end_wand_SpellScript::HandleScriptEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hallow_end_wand_SpellScript();
+    }
+};
+
 enum PilgrimsBountyBuffFood
 {
     // Pilgrims Bounty Buff Food
@@ -327,6 +407,80 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
+        }
+};
+
+enum TheTurkinator
+{
+    SPELL_KILL_COUNTER_VISUAL       = 62015,
+    SPELL_KILL_COUNTER_VISUAL_MAX   = 62021,
+    EMOTE_TURKEY_HUNTER             = 0,
+    EMOTE_TURKEY_DOMINATION         = 1,
+    EMOTE_TURKEY_SLAUGHTER          = 2,
+    EMOTE_TURKEY_TRIUMPH            = 3
+};
+
+class spell_pilgrims_bounty_turkey_tracker : public SpellScriptLoader
+{
+    public:
+        spell_pilgrims_bounty_turkey_tracker() : SpellScriptLoader("spell_pilgrims_bounty_turkey_tracker") { }
+
+        class spell_pilgrims_bounty_turkey_tracker_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pilgrims_bounty_turkey_tracker_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL) || !sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL_MAX))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                Unit* target = GetHitUnit();
+
+                if (!target || !caster)
+                    return;
+
+                if (target->HasAura(SPELL_KILL_COUNTER_VISUAL_MAX))
+                    return;
+
+                if (Aura const* aura = target->GetAura(GetSpellInfo()->Id))
+                {
+                    switch (aura->GetStackAmount())
+                    {
+                        case 10:
+                            caster->AI()->Talk(EMOTE_TURKEY_HUNTER, target);
+                            break;
+                        case 20:
+                            caster->AI()->Talk(EMOTE_TURKEY_DOMINATION, target);
+                            break;
+                        case 30:
+                            caster->AI()->Talk(EMOTE_TURKEY_SLAUGHTER, target);
+                            break;
+                        case 40:
+                            caster->AI()->Talk(EMOTE_TURKEY_TRIUMPH, target);
+                            target->CastSpell(target, SPELL_KILL_COUNTER_VISUAL_MAX, true);
+                            target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                            break;
+                        default:
+                            return;
+                    }
+                    target->CastSpell(target, SPELL_KILL_COUNTER_VISUAL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pilgrims_bounty_turkey_tracker_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pilgrims_bounty_turkey_tracker_SpellScript();
         }
 };
 
@@ -886,12 +1040,14 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
+    new spell_hallow_end_wand();
     // Pilgrims Bounty
     new spell_pilgrims_bounty_buff_food("spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
+    new spell_pilgrims_bounty_turkey_tracker();
     // Winter Veil
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_px_238_winter_wondervolt();

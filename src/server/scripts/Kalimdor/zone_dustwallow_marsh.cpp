@@ -352,7 +352,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 if (Player* player = GetCaster()->ToPlayer())
                     player->CastSpell(player, SPELL_OOZE_CHANNEL_CREDIT, true);
-                GetHitUnit()->Kill(GetHitUnit());
+                GetHitUnit()->KillSelf();
             }
 
             void Register() override

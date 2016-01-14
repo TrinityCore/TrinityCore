@@ -109,8 +109,7 @@ public:
             if (Inhibitmagic_Timer <= diff)
             {
                 float dist;
-                Map* map = me->GetMap();
-                Map::PlayerList const &PlayerList = map->GetPlayers();
+                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* i_pl = i->GetSource())
                         if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)

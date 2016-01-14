@@ -119,7 +119,7 @@ class boss_rotface : public CreatureScript
             {
                 if (!instance->CheckRequiredBosses(DATA_ROTFACE, who->ToPlayer()))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
@@ -155,9 +155,9 @@ class boss_rotface : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->EnterEvadeMode();
             }
@@ -166,11 +166,6 @@ class boss_rotface : public CreatureScript
             {
                 if (spell->Id == SPELL_SLIME_SPRAY)
                     Talk(SAY_SLIME_SPRAY);
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/) override
-            {
-                // don't enter combat
             }
 
             void JustSummoned(Creature* summon) override
@@ -184,7 +179,7 @@ class boss_rotface : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -892,21 +887,11 @@ class spell_rotface_slime_spray : public SpellScriptLoader
                 if (target->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
                     return;
 
-                if (target->GetMap() && !target->GetMap()->Is25ManRaid())
-                {
-                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_10) != QUEST_STATUS_INCOMPLETE)
-                        return;
+                uint32 questId = target->GetMap()->Is25ManRaid() ? QUEST_RESIDUE_RENDEZVOUS_25 : QUEST_RESIDUE_RENDEZVOUS_10;
+                if (target->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE)
+                    return;
 
-                    target->CastSpell(target, SPELL_GREEN_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-                }
-
-                if (target->GetMap() && target->GetMap()->Is25ManRaid())
-                {
-                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_25) != QUEST_STATUS_INCOMPLETE)
-                        return;
-
-                    target->CastSpell(target, SPELL_GREEN_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-                }
+                target->CastSpell(target, SPELL_GREEN_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
             }
 
             void Register() override

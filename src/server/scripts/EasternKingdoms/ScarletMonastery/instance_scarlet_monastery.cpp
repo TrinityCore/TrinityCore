@@ -21,8 +21,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { 0,                        0,                             DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
+    { 0,                        0,                             DOOR_TYPE_ROOM } // END
 };
 
 class instance_scarlet_monastery : public InstanceMapScript
@@ -121,7 +121,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                             {
                                 Creature* add = instance->GetCreature(guid);
                                 if (add && add->IsAlive())
-                                    add->Kill(add);
+                                    add->KillSelf();
                             }
                             HorsemanAdds.clear();
                             HandleGameObject(PumpkinShrineGUID, false);

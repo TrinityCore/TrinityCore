@@ -408,7 +408,7 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
     MovepointReached(Data);
 }
 
-void SmartAI::EnterEvadeMode()
+void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     if (!me->IsAlive() || me->IsInEvadeMode())
         return;
@@ -453,45 +453,15 @@ void SmartAI::MoveInLineOfSight(Unit* who)
 
     GetScript()->OnMoveInLineOfSight(who);
 
-    if (me->HasReactState(REACT_PASSIVE) || AssistPlayerInCombat(who))
+    if (AssistPlayerInCombat(who))
         return;
 
-    if (!CanAIAttack(who))
-        return;
-
-    if (!me->CanStartAttack(who, false))
-        return;
-
-    if (me->IsHostileTo(who))
-    {
-        float fAttackRadius = me->GetAttackDistance(who);
-        if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
-        {
-            if (!me->GetVictim())
-            {
-                // Clear distracted state on combat
-                if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-                {
-                   me->ClearUnitState(UNIT_STATE_DISTRACTED);
-                   me->GetMotionMaster()->Clear();
-                }
-
-                AttackStart(who);
-            }
-            else/* if (me->GetMap()->IsDungeon())*/
-            {
-                who->SetInCombatWith(me);
-                me->AddThreat(who, 0.0f);
-            }
-        }
-    }
+    CreatureAI::MoveInLineOfSight(who);
 }
 
 bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 {
-    if (me->GetReactState() == REACT_PASSIVE)
-        return false;
-    return true;
+    return !(me->HasReactState(REACT_PASSIVE));
 }
 
 bool SmartAI::AssistPlayerInCombat(Unit* who)
@@ -728,12 +698,12 @@ void SmartAI::sGossipHello(Player* player)
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player);
 }
 
-void SmartAI::sGossipSelect(Player* player, uint32 sender, uint32 action)
+void SmartAI::sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, sender, action);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, menuId, gossipListId);
 }
 
-void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
+void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/) { }
 
 void SmartAI::sQuestAccept(Player* player, Quest const* quest)
 {

@@ -541,6 +541,7 @@ class Map : public GridRefManager<NGridType>
         void RemoveGORespawnTime(ObjectGuid::LowType dbGuid);
         void LoadRespawnTimes();
         void DeleteRespawnTimes();
+
         void LoadCorpseData();
         void DeleteCorpseData();
         void AddCorpse(Corpse* corpse);
@@ -568,6 +569,13 @@ class Map : public GridRefManager<NGridType>
             return GetGuidSequenceGenerator<high>().Generate();
         }
 
+        template<HighGuid high>
+        inline ObjectGuid::LowType GetMaxLowGuid()
+        {
+            static_assert(ObjectGuidTraits<high>::MapSpecific, "Only map specific guid can be retrieved in Map context");
+            return GetGuidSequenceGenerator<high>().GetNextAfterMaxUsed();
+        }
+
         void AddUpdateObject(Object* obj)
         {
             _updateObjects.insert(obj);
@@ -579,6 +587,7 @@ class Map : public GridRefManager<NGridType>
         }
 
     private:
+
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);

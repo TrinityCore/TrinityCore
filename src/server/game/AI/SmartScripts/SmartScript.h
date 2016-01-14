@@ -190,6 +190,7 @@ class SmartScript
             if (bounds.first == bounds.second)
                 return nullptr;
 
+
             auto creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair) -> bool { return pair.second->IsAlive(); });
             return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
         }
@@ -243,10 +244,10 @@ class SmartScript
                 DecPhase(abs(p));
         }
 
-        void DecPhase(int32 p = 1) 
-        { 
-            if(mEventPhase > (uint32)p)
-                mEventPhase -= (uint32)p; 
+        void DecPhase(int32 p = 1)
+        {
+            if (mEventPhase > (uint32)p)
+                mEventPhase -= (uint32)p;
             else
                 mEventPhase = 0;
         }

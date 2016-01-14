@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,16 +19,15 @@
 #include "vmapexport.h"
 #include "wmo.h"
 #include "vec3d.h"
+#include "mpq_libmpq04.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
-#include <map>
-#include <fstream>
 #undef min
 #undef max
 #include "mpqfile.h"
 
-using namespace std;
 extern uint16 *LiqType;
 
 WMORoot::WMORoot(std::string &filename)

@@ -112,7 +112,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
     for (size_t i = 0; i < path.size(); ++i)
-        allPoints.push_back(G3D::Vector3(path[i].LocX, path[i].LocY, path[i].LocZ));
+        allPoints.push_back(G3D::Vector3(path[i]->LocX, path[i]->LocY, path[i]->LocZ));
 
     // Add extra points to allow derivative calculations for all path nodes
     allPoints.insert(allPoints.begin(), allPoints.front().lerp(allPoints[1], -0.2f));
@@ -128,8 +128,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     {
         if (!mapChange)
         {
-            TaxiPathNodeEntry const& node_i = path[i];
-            if (i != path.size() - 1 && (node_i.Flags & 1 || node_i.MapID != path[i + 1].MapID))
+            TaxiPathNodeEntry const* node_i = path[i];
+            if (i != path.size() - 1 && (node_i->Flags & 1 || node_i->MapID != path[i + 1]->MapID))
             {
                 keyFrames.back().Teleport = true;
                 mapChange = true;
@@ -142,7 +142,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
                 k.InitialOrientation = Position::NormalizeOrientation(std::atan2(h.y, h.x) + float(M_PI));
 
                 keyFrames.push_back(k);
-                splinePath.push_back(G3D::Vector3(node_i.LocX, node_i.LocY, node_i.LocZ));
+                splinePath.push_back(G3D::Vector3(node_i->LocX, node_i->LocY, node_i->LocZ));
                 transport->mapsUsed.insert(k.Node->MapID);
             }
         }
@@ -382,6 +382,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
 
     // initialize the gameobject base
     ObjectGuid::LowType guidLow = guid ? guid : sObjectMgr->GetGenerator<HighGuid::Mo_Transport>().Generate();
+
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
@@ -411,7 +412,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
         trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
     // Passengers will be loaded once a player is near
-
+    HashMapHolder<Transport>::Insert(trans);
     HashMapHolder<Transport>::Insert(trans);
     trans->GetMap()->AddToMap<Transport>(trans);
     return trans;

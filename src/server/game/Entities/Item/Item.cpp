@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "TradeData.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -1051,7 +1052,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
             delete item;
     }
     else
-        ASSERT(false);
+        ABORT();
     return NULL;
 }
 
@@ -1714,4 +1715,20 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
     // Deletes money and items associated with an openable item from the DB
     ItemContainerDeleteLootMoneyFromDB();
     ItemContainerDeleteLootItemsFromDB();
+}
+
+void Item::SetCount(uint32 value)
+{
+    SetUInt32Value(ITEM_FIELD_STACK_COUNT, value);
+
+    if (Player* player = GetOwner())
+    {
+        if (TradeData* tradeData = player->GetTradeData())
+        {
+            TradeSlots slot = tradeData->GetTradeSlotForItem(GetGUID());
+
+            if (slot != TRADE_SLOT_INVALID)
+                tradeData->SetItem(slot, this, true);
+        }
+    }
 }

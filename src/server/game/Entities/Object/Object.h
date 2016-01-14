@@ -219,10 +219,6 @@ class Object
 
         uint16 m_objectType;
 
-        virtual void AddToObjectUpdate() = 0;
-        virtual void RemoveFromObjectUpdate() = 0;
-        void AddToObjectUpdateIfNeeded();
-
         TypeID m_objectTypeId;
         uint16 m_updateFlag;
 
@@ -238,6 +234,10 @@ class Object
         uint16 m_valuesCount;
 
         uint16 _fieldNotifyFlags;
+
+        virtual void AddToObjectUpdate() = 0;
+        virtual void RemoveFromObjectUpdate() = 0;
+        void AddToObjectUpdateIfNeeded();
 
         bool m_objectUpdated;
 

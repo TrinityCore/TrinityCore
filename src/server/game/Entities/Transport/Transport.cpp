@@ -356,6 +356,7 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
+    go->RelocateStationaryPosition(x, y, z, o);
 
     if (!go->IsPositionValid())
     {
@@ -712,6 +713,7 @@ void Transport::UpdatePassengerPositions(PassengerSet& passengers)
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
+                passenger->ToGameObject()->RelocateStationaryPosition(x, y, z, o);
                 break;
             case TYPEID_DYNAMICOBJECT:
                 GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);

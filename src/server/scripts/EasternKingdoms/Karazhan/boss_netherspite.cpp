@@ -181,23 +181,21 @@ public:
                     // temporary store for the best suitable beam reciever
                     Unit* target = me;
 
-                    if (Map* map = me->GetMap())
-                    {
-                        Map::PlayerList const& players = map->GetPlayers();
+                    Map::PlayerList const& players = me->GetMap()->GetPlayers();
 
-                        // get the best suitable target
-                        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                        {
-                            Player* p = i->GetSource();
-                            if (p && p->IsAlive() // alive
-                                && (!target || target->GetDistance2d(portal)>p->GetDistance2d(portal)) // closer than current best
-                                && !p->HasAura(PlayerDebuff[j]) // not exhausted
-                                && !p->HasAura(PlayerBuff[(j + 1) % 3]) // not on another beam
-                                && !p->HasAura(PlayerBuff[(j + 2) % 3])
-                                && IsBetween(me, p, portal)) // on the beam
-                                target = p;
-                        }
+                    // get the best suitable target
+                    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                    {
+                        Player* p = i->GetSource();
+                        if (p && p->IsAlive() // alive
+                            && (!target || target->GetDistance2d(portal)>p->GetDistance2d(portal)) // closer than current best
+                            && !p->HasAura(PlayerDebuff[j]) // not exhausted
+                            && !p->HasAura(PlayerBuff[(j + 1) % 3]) // not on another beam
+                            && !p->HasAura(PlayerBuff[(j + 2) % 3])
+                            && IsBetween(me, p, portal)) // on the beam
+                            target = p;
                     }
+
                     // buff the target
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         target->AddAura(PlayerBuff[j], target);

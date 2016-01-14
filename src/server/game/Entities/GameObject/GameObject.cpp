@@ -160,6 +160,7 @@ void GameObject::RemoveFromWorld()
         if (m_model)
             if (GetMap()->ContainsGameObjectModel(*m_model))
                 GetMap()->RemoveGameObjectModel(*m_model);
+
         WorldObject::RemoveFromWorld();
 
         if (m_spawnId)
@@ -790,7 +791,8 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         return;
 
     if (!m_spawnId)
-        m_spawnId = GetGUID().GetCounter();
+        m_spawnId = sObjectMgr->GenerateGameObjectSpawnId();
+
     // update in loaded data (changing data only in this place)
     GameObjectData& data = sObjectMgr->NewGOData(m_spawnId);
 
@@ -870,10 +872,7 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     uint32 artKit = data->artKit;
 
     m_spawnId = spawnId;
-    if (map->GetInstanceId() != 0)
-        spawnId = map->GenerateLowGuid<HighGuid::GameObject>();
-
-    if (!Create(spawnId, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
+    if (!Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
 
     if (data->phaseid)
@@ -1843,6 +1842,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
     if (Unit* owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
+        if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
+            trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         // needed for GO casts for proper target validation checks
         trigger->SetOwnerGUID(owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, triggered, nullptr, nullptr, owner->GetGUID());
