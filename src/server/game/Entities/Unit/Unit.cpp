@@ -6382,8 +6382,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 else
                 {    // Check Party/Raid Group
-                    if (Group* group = IsPet() ? GetOwner()->ToPlayer()->GetGroup() : ToPlayer()->GetGroup())
+                    if (Group* group = ToPlayer()->GetGroup())
+                    {
                         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        {
                             if (Player* member = itr->GetSource())
                             {
                                 // check if it was heal by paladin which cast this beacon of light
@@ -6404,6 +6406,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                                     break;
                                 }
                             }
+                        }
+                    }
                 }
 
                 if (triggered_spell_id && beaconTarget)
