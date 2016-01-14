@@ -116,7 +116,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !CheckInRoom())
+            if (!UpdateVictim())
                 return;
 
             if (HealthBelowPct(30) && !me->HasAura(SPELL_FRENZY_HELPER))

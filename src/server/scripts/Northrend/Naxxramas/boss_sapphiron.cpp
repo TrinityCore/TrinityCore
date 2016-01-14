@@ -231,7 +231,7 @@ class boss_sapphiron : public CreatureScript
 
                 events.Update(diff);
 
-                if ((_phase != PHASE_BIRTH && !UpdateVictim()) || !CheckInRoom())
+                if (_phase != PHASE_BIRTH && !UpdateVictim())
                     return;
 
                 if (_phase == PHASE_GROUND)

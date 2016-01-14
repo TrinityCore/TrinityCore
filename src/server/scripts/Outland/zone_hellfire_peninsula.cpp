@@ -168,9 +168,9 @@ public:
         }
 
         // Override Evade Mode event, recast buff that was removed by standard handler
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            npc_escortAI::EnterEvadeMode();
+            npc_escortAI::EnterEvadeMode(why);
             DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
         }
 

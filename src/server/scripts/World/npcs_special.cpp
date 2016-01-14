@@ -1432,9 +1432,9 @@ public:
                 _events.ScheduleEvent(EVENT_TD_DESPAWN, 15000);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            if (!_EnterEvadeMode())
+            if (!_EnterEvadeMode(why))
                 return;
 
             Reset();

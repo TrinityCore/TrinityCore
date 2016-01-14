@@ -421,7 +421,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)) || !CheckInRoom())
+                if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)))
                     return;
 
                 events.Update(diff);
@@ -1043,8 +1043,9 @@ class at_lady_deathwhisper_entrance : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
-                    ladyDeathwhisper->AI()->DoAction(ACTION_START_INTRO);
+                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
+                    if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
+                        ladyDeathwhisper->AI()->DoAction(ACTION_START_INTRO);
 
             return true;
         }

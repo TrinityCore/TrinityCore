@@ -316,20 +316,9 @@ public:
             MovePoint = iTemp;
         }
 
-        bool CheckInRoom() override
-        {
-            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 95.0f)
-            {
-                EnterEvadeMode();
-                return false;
-            }
-
-            return true;
-        }
-
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !CheckInRoom())
+            if (!UpdateVictim())
                 return;
 
             //Common to PHASE_START && PHASE_END
