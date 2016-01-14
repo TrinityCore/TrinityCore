@@ -2,7 +2,7 @@
 
 ####About
 Allows you to show gossip options that show different vendors from npc_vendor.<br />
-Source: https://rochet2.github.io/?page=Multivendor
+Source: http://rochet2.github.io/Multivendor.html
 
 ####Installation
 
