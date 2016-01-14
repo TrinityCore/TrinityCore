@@ -28,12 +28,12 @@
 
 DoorData const doorData[] =
 {
-    { GO_SELIN_DOOR,           DATA_SELIN,    DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_SELIN_ENCOUNTER_DOOR, DATA_SELIN,    DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GO_VEXALLUS_DOOR,        DATA_VEXALLUS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_DELRISSA_DOOR,        DATA_DELRISSA, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_KAEL_DOOR,            DATA_KAELTHAS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { 0,                       0,             DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_SELIN_DOOR,           DATA_SELIN,    DOOR_TYPE_PASSAGE },
+    { GO_SELIN_ENCOUNTER_DOOR, DATA_SELIN,    DOOR_TYPE_ROOM },
+    { GO_VEXALLUS_DOOR,        DATA_VEXALLUS, DOOR_TYPE_PASSAGE },
+    { GO_DELRISSA_DOOR,        DATA_DELRISSA, DOOR_TYPE_PASSAGE },
+    { GO_KAEL_DOOR,            DATA_KAELTHAS, DOOR_TYPE_ROOM },
+    { 0,                       0,             DOOR_TYPE_ROOM } // END
 };
 
 class instance_magisters_terrace : public InstanceMapScript

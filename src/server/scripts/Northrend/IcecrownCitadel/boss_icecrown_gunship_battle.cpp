@@ -572,7 +572,7 @@ struct gunship_npc_AI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (!me->IsAlive() || !me->IsInCombat())
             return;
@@ -621,7 +621,7 @@ protected:
     {
         if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
         {
-            EnterEvadeMode();
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return false;
         }
 
@@ -634,7 +634,7 @@ protected:
         }
         else if (me->getThreatManager().isThreatListEmpty())
         {
-            EnterEvadeMode();
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return false;
         }
 
@@ -875,7 +875,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (!me->IsAlive())
                     return;
@@ -1143,7 +1143,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (!me->IsAlive())
                     return;
@@ -1721,9 +1721,9 @@ class npc_gunship_mage : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override

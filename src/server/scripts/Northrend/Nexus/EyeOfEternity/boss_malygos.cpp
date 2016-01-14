@@ -574,7 +574,7 @@ public:
             me->setActive(true);
             if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
             {
-                EnterEvadeMode();
+                EnterEvadeMode(EVADE_REASON_OTHER);
                 return;
             }
 
@@ -585,7 +585,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
 
@@ -1282,7 +1282,7 @@ public:
             VehicleAI::Reset();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
         }
 
@@ -1341,7 +1341,7 @@ class npc_nexus_lord : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
             }
 
@@ -1430,7 +1430,7 @@ class npc_scion_of_eternity : public CreatureScript
             {
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
             }
 

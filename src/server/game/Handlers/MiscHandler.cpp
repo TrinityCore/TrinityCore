@@ -78,6 +78,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 #endif
 
     //this is spirit release confirm?
+    GetPlayer()->RemoveGhoul();
     GetPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
@@ -822,6 +823,12 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     if (status == 0)
     {
         GetPlayer()->clearResurrectRequestData();           // reject
+        return;
+    }
+
+    if (GetPlayer()->IsValidGhoulResurrectRequest(guid))
+    {
+        GetPlayer()->GhoulResurrect();
         return;
     }
 
