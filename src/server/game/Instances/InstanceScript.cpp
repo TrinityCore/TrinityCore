@@ -98,7 +98,7 @@ void InstanceScript::SetHeaders(std::string const& dataHeaders)
 
 void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
 {
-    for (BossBoundaryEntry entry : data)
+    for (BossBoundaryEntry const& entry : data)
         if (entry.bossId < bosses.size())
             bosses[entry.bossId].boundary.insert(entry.boundary);
 }
