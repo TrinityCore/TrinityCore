@@ -142,6 +142,10 @@ void Totem::UnSummon(uint32 msTime)
         }
     }
 
+    // any totem unsummon look like as totem kill, req. for proper animation
+    if (IsAlive())
+        setDeathState(DEAD);
+
     AddObjectToRemoveList();
 }
 

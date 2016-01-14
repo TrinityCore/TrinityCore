@@ -256,7 +256,7 @@ public:
             Initialize();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             me->DisappearAndDie();
 
@@ -417,7 +417,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             me->DisappearAndDie();
 
