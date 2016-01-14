@@ -6390,7 +6390,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             {
                                 // check if it was heal by paladin which cast this beacon of light
                                 if (member->GetAura(53563, victim->GetGUID()))
-
                                     beaconTarget = member;
                                 else if (Pet* pet = member->GetPet())
                                     if (pet->GetAura(53563, victim->GetGUID()))
