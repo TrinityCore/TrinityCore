@@ -1756,6 +1756,44 @@ CREATE TABLE `locales_broadcast_text` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `locales_creature`
+--
+
+DROP TABLE IF EXISTS `locales_creature`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `locales_creature` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `name_loc1` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc1` char(100) NOT NULL,
+  `name_loc2` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc2` char(100) NOT NULL,
+  `name_loc3` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc3` char(100) NOT NULL,
+  `name_loc4` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc4` char(100) NOT NULL,
+  `name_loc5` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc5` char(100) NOT NULL,
+  `name_loc6` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc6` char(100) NOT NULL,
+  `name_loc7` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc7` char(100) NOT NULL,
+  `name_loc8` varchar(100) NOT NULL DEFAULT '',
+  `femaleName_loc8` char(100) NOT NULL,
+  `subname_loc1` varchar(100) DEFAULT NULL,
+  `subname_loc2` varchar(100) DEFAULT NULL,
+  `subname_loc3` varchar(100) DEFAULT NULL,
+  `subname_loc4` varchar(100) DEFAULT NULL,
+  `subname_loc5` varchar(100) DEFAULT NULL,
+  `subname_loc6` varchar(100) DEFAULT NULL,
+  `subname_loc7` varchar(100) DEFAULT NULL,
+  `subname_loc8` varchar(100) DEFAULT NULL,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `locales_creature_text`
 --
 
@@ -1775,6 +1813,36 @@ CREATE TABLE `locales_creature_text` (
   `text_loc7` text,
   `text_loc8` text,
   PRIMARY KEY (`entry`,`groupid`,`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `locales_gameobject`
+--
+
+DROP TABLE IF EXISTS `locales_gameobject`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `locales_gameobject` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `name_loc1` varchar(100) NOT NULL DEFAULT '',
+  `name_loc2` varchar(100) NOT NULL DEFAULT '',
+  `name_loc3` varchar(100) NOT NULL DEFAULT '',
+  `name_loc4` varchar(100) NOT NULL DEFAULT '',
+  `name_loc5` varchar(100) NOT NULL DEFAULT '',
+  `name_loc6` varchar(100) NOT NULL DEFAULT '',
+  `name_loc7` varchar(100) NOT NULL DEFAULT '',
+  `name_loc8` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc1` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc2` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc3` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc4` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc5` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc6` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc7` varchar(100) NOT NULL DEFAULT '',
+  `castbarcaption_loc8` varchar(100) NOT NULL DEFAULT '',
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
