@@ -488,8 +488,6 @@ public:
             }
         }
 
-        Map* map = object->GetMap();
-
         object->Relocate(x, y, z, object->GetOrientation());
         object->SaveToDB();
 
