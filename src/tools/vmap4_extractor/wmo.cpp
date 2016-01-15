@@ -19,7 +19,6 @@
 #include "vmapexport.h"
 #include "wmo.h"
 #include "vec3d.h"
-#include "mpq_libmpq04.h"
 
 #include <cstdio>
 #include <cstdlib>

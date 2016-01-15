@@ -104,7 +104,6 @@ private:
 
     std::mutex _worldSessionLock;
     WorldSession* _worldSession;
-    bool _authed;
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;

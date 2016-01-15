@@ -25,7 +25,6 @@
 namespace MMAP
 {
 
-    static char const* const MAP_FILE_NAME_FORMAT = "%smmaps/%04i.mmap";
     static char const* const TILE_FILE_NAME_FORMAT = "%smmaps/%03i%02i%02i.mmtile";
 
     // ######################## MMapManager ########################

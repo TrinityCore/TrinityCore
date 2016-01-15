@@ -427,8 +427,6 @@ public:
             o = player->GetOrientation();
         }
 
-        Map* map = object->GetMap();
-
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
         object->UpdateRotationFields();
         object->SaveToDB();
