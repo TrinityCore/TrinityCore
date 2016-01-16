@@ -443,7 +443,7 @@ enum BannersTypes
 enum BG_IC_MaxSpawns
 {
     MAX_NORMAL_GAMEOBJECTS_SPAWNS                       = BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR03+1,
-    MAX_NORMAL_NPCS_SPAWNS                              = BG_IC_NPC_KEEP_CANNON_25+1,
+    MAX_NORMAL_NPCS_SPAWNS                              = BG_IC_NPC_KEEP_CANNON_24+1,
     MAX_WORKSHOP_SPAWNS                                 = 10,
     MAX_DOCKS_SPAWNS                                    = 12,
     MAX_SPIRIT_GUIDES_SPAWNS                            = 7,
