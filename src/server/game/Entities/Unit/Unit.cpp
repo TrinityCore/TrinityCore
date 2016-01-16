@@ -1422,6 +1422,17 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->CastItemCombatSpell(victim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
 
+    if (!m_Controlled.empty())
+    {
+        for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
+        {
+            Unit* unit = *itr;
+            ++itr;
+            if (unit->IsAIEnabled && unit->GetAI())
+                unit->GetAI()->OwnerMeleeDamageDealt(this, damageInfo);
+        }
+    }
+
     // Do effect if any damage done to target
     if (damageInfo->damage)
     {
@@ -1963,7 +1974,7 @@ void Unit::CalcHealAbsorb(Unit* victim, SpellInfo const* healSpell, uint32 &heal
     healAmount = RemainingHeal;
 }
 
-void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool extra)
+void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extra)
 {
     if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
         return;
@@ -7160,19 +7171,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (effIndex != 1)
                     return false;
 
-                Unit* pPet = NULL;
-                for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr) // Find Rune Weapon
-                    if ((*itr)->GetEntry() == 27893)
+                Unit* runeWeapon = nullptr;
+                for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end() && !runeWeapon; itr++)
+                    if ((*itr)->GetEntry() == 27893 /*Dancing Rune Weapon*/)
                     {
-                        pPet = *itr;
-                        break;
+                        runeWeapon = *itr;
                     }
 
-                if (pPet && pPet->GetVictim() && damage && procSpell)
+                if (runeWeapon && runeWeapon->GetVictim() && damage && procSpell)
                 {
-                    uint32 procDmg = damage / 2;
+                    /*uint32 procDmg = damage / 2;
                     pPet->SendSpellNonMeleeDamageLog(pPet->GetVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
-                    pPet->DealDamage(pPet->GetVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
+                    pPet->DealDamage(pPet->GetVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);*/
+
+                    // ToDo: use spell cast
                     break;
                 }
                 else

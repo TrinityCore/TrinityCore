@@ -222,6 +222,9 @@ class UnitAI
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
 
+        // Called at any damage dealt by owner
+        virtual void OwnerMeleeDamageDealt(Unit* /*owner*/, CalcDamageInfo* /*damageInfo*/) { }
+
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also

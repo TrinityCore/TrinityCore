@@ -30,10 +30,28 @@
 
 enum DeathKnightSpells
 {
+    // Ebon Gargoyle
     SPELL_DK_SUMMON_GARGOYLE_1      = 49206,
     SPELL_DK_SUMMON_GARGOYLE_2      = 50514,
     SPELL_DK_DISMISS_GARGOYLE       = 50515,
-    SPELL_DK_SANCTUARY              = 54661
+    SPELL_DK_SANCTUARY              = 54661,
+
+    // Dancing Rune Weapon
+    SPELL_DK_DANCING_RUNE_WEAPON    = 49028,
+    SPELL_COPY_WEAPON = 63416,
+    SPELL_UNKOWN_1 = 50474,
+    SPELL_DANCING_RUNE_WEAPON_VISUAL = 53160,
+    SPELL_UNKOWN_2 = 49812,
+    SPELL_UNKOWN_3 = 51905,
+    SPELL_UNKOWN_4 = 51906,
+    SPELL_UNKOWN_5 = 67561,
+    SPELL_DK_PET_SCALING_03 = 61697,
+    SPELL_UNKOWN_6 = 49813,
+    // Main Spells
+    SPELL_BLOOD_STRIKE = 49926,
+    SPELL_PLAGUE_STRIKE = 49917,
+    
+    SPELL_DISMISS_RUNEBLADE = 50707 // Right now despawn is done by its duration
 };
 
 class npc_pet_dk_ebon_gargoyle : public CreatureScript
@@ -139,7 +157,136 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         }
 };
 
+class npc_pet_dk_rune_weapon : public CreatureScript
+{
+    public:
+        npc_pet_dk_rune_weapon() : CreatureScript("npc_pet_dk_rune_weapon") { }
+
+        struct npc_pet_dk_rune_weaponAI : ScriptedAI
+        {
+            npc_pet_dk_rune_weaponAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+
+                // Prevent early victim engage
+                creature->SetReactState(REACT_DEFENSIVE);
+            }
+
+            void Initialize()
+            {
+                _spellCooldown = 0;
+                _secondSpellCooldown = 0;
+            }
+
+            void IsSummonedBy(Unit* summoner) override
+            {
+                // Set second creature_template model, invisible
+                me->SetDisplayId(2);
+
+                DoCast(summoner, SPELL_COPY_WEAPON, true);
+                DoCast(summoner, SPELL_UNKOWN_1, true);
+                DoCast(me, SPELL_DANCING_RUNE_WEAPON_VISUAL, true);
+                DoCast(me, SPELL_UNKOWN_2, true);
+                DoCast(me, SPELL_UNKOWN_3, true);
+                DoCast(me, SPELL_UNKOWN_4, true);
+                DoCast(me, SPELL_UNKOWN_5, true);
+                DoCast(me, SPELL_DK_PET_SCALING_03, true);
+
+                // Find victim of SPELL_DK_DANCING_RUNE_WEAPON
+                std::list<Unit*> targets;
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, summoner, 50.0f);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                me->VisitNearbyObject(50.0f, searcher);
+
+                for (auto itr = targets.begin(); itr != targets.end() && _victimGUID.IsEmpty(); itr++)
+                {
+                    if (Unit* target = *itr)
+                    {
+                        if (target->HasAura(SPELL_DK_DANCING_RUNE_WEAPON, summoner->GetGUID()))
+                        {
+                            AttackStart(target);
+                            _victimGUID = target->GetGUID();
+                            DoCast(target, SPELL_UNKOWN_6, true);
+                            _spellCooldown = 1 * IN_MILLISECONDS;
+                        }
+                    }
+                }
+
+                _secondSpellCooldown = 6 * IN_MILLISECONDS;
+            }
+
+            void MoveInLineOfSight(Unit* /*who*/) override { }
+
+            void AttackStart(Unit* who) override
+            {
+                if (who && me->Attack(who, true))
+                {
+                    me->GetMotionMaster()->MoveChase(who);
+                }
+            }
+
+            void OwnerMeleeDamageDealt(Unit* owner, CalcDamageInfo* damageInfo) override
+            {
+                if (Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID))
+                {
+                    damageInfo->damage /= 2;
+                    damageInfo->cleanDamage /= 2;
+
+                    // Even if its a DK, HITINFO_RAGE_GAIN is sent on rune autoattacks
+                    CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, damageInfo->attackType, damageInfo->hitOutCome);
+                    me->DealDamage(victim, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr);
+                }
+            }
+
+            void SpellHit(Unit* /*source*/, SpellInfo const* /*spell*/) override
+            {
+
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                /*
+                    Investigate further if these casts are done by
+                    any owned aura, eitherway SMSG_SPELL_GO
+                    is sent every X seconds.
+                */
+                if (_spellCooldown)
+                {
+                    if (_spellCooldown <= diff)
+                    {
+                        // Cast every second
+                        if (Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID))
+                            DoCast(victim, SPELL_UNKOWN_6, true);
+                        _spellCooldown = 1 * IN_MILLISECONDS;
+                    }
+                    else
+                        _spellCooldown -= diff;
+
+                    if (_secondSpellCooldown <= diff)
+                    {
+                        // Cast every 6 seconds
+                        DoCast(me, SPELL_DANCING_RUNE_WEAPON_VISUAL, true);
+                        _secondSpellCooldown = 6 * IN_MILLISECONDS;
+                    }
+                    else
+                        _secondSpellCooldown -= diff;
+                }
+            }
+
+            private:
+                ObjectGuid _victimGUID;
+                uint32 _spellCooldown;
+                uint32 _secondSpellCooldown;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_pet_dk_rune_weaponAI(creature);
+        }
+};
+
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
+    new npc_pet_dk_rune_weapon();
 }
