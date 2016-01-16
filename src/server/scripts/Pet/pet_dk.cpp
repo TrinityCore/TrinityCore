@@ -157,6 +157,11 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         }
 };
 
+enum DancingRuneWeapon
+{
+    DATA_INITIAL_TARGET_GUID = 1
+};
+
 class npc_pet_dk_rune_weapon : public CreatureScript
 {
     public:
@@ -192,30 +197,28 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 DoCast(me, SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
                 DoCast(me, SPELL_DK_PET_SCALING_03, true);
 
-                // Find victim of SPELL_DK_DANCING_RUNE_WEAPON
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, summoner, 50.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(50.0f, searcher);
-
-                for (auto itr = targets.begin(); itr != targets.end() && _victimGUID.IsEmpty(); itr++)
-                {
-                    if (Unit* target = *itr)
-                    {
-                        if (target->HasAura(SPELL_DK_DANCING_RUNE_WEAPON, summoner->GetGUID()))
-                        {
-                            AttackStart(target);
-                            _victimGUID = target->GetGUID();
-                            DoCast(target, SPELL_AGGRO_8_YD_PBAE, true);
-                            _spellCooldown = 1 * IN_MILLISECONDS;
-                        }
-                    }
-                }
-
                 _secondSpellCooldown = 6 * IN_MILLISECONDS;
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
+
+            void SetGUID(ObjectGuid guid, int32 type) override
+            {
+                switch (type)
+                {
+                    case DATA_INITIAL_TARGET_GUID:
+                        _targetGUID = guid;
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
+                        {
+                            AttackStart(target);
+                            DoCast(target, SPELL_AGGRO_8_YD_PBAE, true);
+                            _spellCooldown = 1 * IN_MILLISECONDS;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             void AttackStart(Unit* who) override
             {
@@ -227,14 +230,14 @@ class npc_pet_dk_rune_weapon : public CreatureScript
 
             void OwnerMeleeDamageDealt(Unit* /*owner*/, CalcDamageInfo* damageInfo) override
             {
-                if (Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                 {
                     damageInfo->damage /= 2;
                     damageInfo->cleanDamage /= 2;
 
                     // Even if its a DK, HITINFO_RAGE_GAIN is sent on rune autoattacks
                     CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, damageInfo->attackType, damageInfo->hitOutCome);
-                    me->DealDamage(victim, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr);
+                    me->DealDamage(target, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr);
                 }
             }
 
@@ -255,7 +258,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     if (_spellCooldown <= diff)
                     {
                         // Cast every second
-                        if (Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID))
+                        if (Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID))
                             DoCast(victim, SPELL_AGGRO_8_YD_PBAE, true);
                         _spellCooldown = 1 * IN_MILLISECONDS;
                     }
@@ -274,7 +277,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
             }
 
             private:
-                ObjectGuid _victimGUID;
+                ObjectGuid _targetGUID;
                 uint32 _spellCooldown;
                 uint32 _secondSpellCooldown;
         };

@@ -27,6 +27,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 
 enum DeathKnightSpells
 {
@@ -67,7 +68,8 @@ enum DeathKnightSpells
     SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
     SPELL_DK_RAISE_ALLY_INITIAL                 = 61999,
     SPELL_DK_RAISE_ALLY                         = 46619,
-    SPELL_DK_GHOUL_THRASH                       = 47480
+    SPELL_DK_GHOUL_THRASH                       = 47480,
+    SPELL_DK_DANCING_RUNE_WEAPON                = 49028
 };
 
 enum DeathKnightSpellIcons
@@ -2000,6 +2002,48 @@ public:
     }
 };
 
+enum DancingRuneWeapon
+{
+    NPC_DANCING_RUNE_WEAPON = 27893,
+
+    DATA_INITIAL_TARGET_GUID = 1
+};
+
+// 49028 - SPELL_DK_DANCING_RUNE_WEAPON
+class spell_dk_dancing_rune_weapon : public SpellScriptLoader
+{
+public:
+    spell_dk_dancing_rune_weapon() : SpellScriptLoader("spell_dk_dancing_rune_weapon") { }
+
+    class spell_dk_dancing_rune_weapon_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_dancing_rune_weapon_AuraScript);
+
+        void HandleTarget(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (!target)
+                return;
+
+            std::list<Creature*> runeWeapons;
+            GetCaster()->GetAllMinionsByEntry(runeWeapons, NPC_DANCING_RUNE_WEAPON);
+            if (!runeWeapons.empty())
+                for (Creature* temp : runeWeapons)
+                    temp->AI()->SetGUID(target->GetGUID(), DATA_INITIAL_TARGET_GUID);
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dk_dancing_rune_weapon_AuraScript::HandleTarget, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_dancing_rune_weapon_AuraScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -2033,4 +2077,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_raise_ally_initial();
     new spell_dk_raise_ally();
     new spell_dk_ghoul_thrash();
+    new spell_dk_dancing_rune_weapon();
 }
