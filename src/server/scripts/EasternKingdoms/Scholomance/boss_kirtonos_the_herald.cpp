@@ -108,7 +108,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _JustDied();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);

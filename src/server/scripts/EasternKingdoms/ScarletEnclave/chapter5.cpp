@@ -596,10 +596,10 @@ public:
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             if (!bIsBattle)//do not reset self if we are in battle
-                npc_escortAI::EnterEvadeMode();
+                npc_escortAI::EnterEvadeMode(why);
         }
 
         void UpdateAI(uint32 diff) override

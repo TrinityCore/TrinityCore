@@ -239,7 +239,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
