@@ -39,14 +39,14 @@ enum DeathKnightSpells
     // Dancing Rune Weapon
     SPELL_DK_DANCING_RUNE_WEAPON    = 49028,
     SPELL_COPY_WEAPON = 63416,
-    SPELL_UNKOWN_1 = 50474,
-    SPELL_DANCING_RUNE_WEAPON_VISUAL = 53160,
-    SPELL_UNKOWN_2 = 49812,
-    SPELL_UNKOWN_3 = 51905,
-    SPELL_UNKOWN_4 = 51906,
-    SPELL_UNKOWN_5 = 67561,
+    SPELL_DK_RUNE_WEAPON_MARK = 50474,
+    SPELL_DK_DANCING_RUNE_WEAPON_VISUAL = 53160,
+    SPELL_FAKE_AGGRO_RADIUS_8_YARD = 49812,
+    SPELL_DK_RUNE_WEAPON_SCALING_01 = 51905,
+    SPELL_DK_RUNE_WEAPON_SCALING = 51906,
+    SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION = 67561,
     SPELL_DK_PET_SCALING_03 = 61697,
-    SPELL_UNKOWN_6 = 49813,
+    SPELL_AGGRO_8_YD_PBAE = 49813,
     // Main Spells
     SPELL_BLOOD_STRIKE = 49926,
     SPELL_PLAGUE_STRIKE = 49917,
@@ -181,15 +181,15 @@ class npc_pet_dk_rune_weapon : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 // Set second creature_template model, invisible
-                me->SetDisplayId(2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
 
                 DoCast(summoner, SPELL_COPY_WEAPON, true);
-                DoCast(summoner, SPELL_UNKOWN_1, true);
-                DoCast(me, SPELL_DANCING_RUNE_WEAPON_VISUAL, true);
-                DoCast(me, SPELL_UNKOWN_2, true);
-                DoCast(me, SPELL_UNKOWN_3, true);
-                DoCast(me, SPELL_UNKOWN_4, true);
-                DoCast(me, SPELL_UNKOWN_5, true);
+                DoCast(summoner, SPELL_DK_RUNE_WEAPON_MARK, true);
+                DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+                DoCast(me, SPELL_FAKE_AGGRO_RADIUS_8_YARD, true);
+                DoCast(me, SPELL_DK_RUNE_WEAPON_SCALING_01, true);
+                DoCast(me, SPELL_DK_RUNE_WEAPON_SCALING, true);
+                DoCast(me, SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
                 DoCast(me, SPELL_DK_PET_SCALING_03, true);
 
                 // Find victim of SPELL_DK_DANCING_RUNE_WEAPON
@@ -206,7 +206,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                         {
                             AttackStart(target);
                             _victimGUID = target->GetGUID();
-                            DoCast(target, SPELL_UNKOWN_6, true);
+                            DoCast(target, SPELL_AGGRO_8_YD_PBAE, true);
                             _spellCooldown = 1 * IN_MILLISECONDS;
                         }
                     }
@@ -225,7 +225,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 }
             }
 
-            void OwnerMeleeDamageDealt(Unit* owner, CalcDamageInfo* damageInfo) override
+            void OwnerMeleeDamageDealt(Unit* /*owner*/, CalcDamageInfo* damageInfo) override
             {
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID))
                 {
@@ -256,7 +256,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     {
                         // Cast every second
                         if (Unit* victim = ObjectAccessor::GetUnit(*me, _victimGUID))
-                            DoCast(victim, SPELL_UNKOWN_6, true);
+                            DoCast(victim, SPELL_AGGRO_8_YD_PBAE, true);
                         _spellCooldown = 1 * IN_MILLISECONDS;
                     }
                     else
@@ -265,7 +265,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     if (_secondSpellCooldown <= diff)
                     {
                         // Cast every 6 seconds
-                        DoCast(me, SPELL_DANCING_RUNE_WEAPON_VISUAL, true);
+                        DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
                         _secondSpellCooldown = 6 * IN_MILLISECONDS;
                     }
                     else
