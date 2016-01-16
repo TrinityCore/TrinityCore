@@ -6390,12 +6390,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             {
                                 // check if it was heal by paladin which cast this beacon of light
                                 if (member->GetAura(53563, victim->GetGUID()))
-                                {
-                                    // do not proc when target of beacon of light is healed
-                                    if (member == this)
-                                        return false;
-
                                     beaconTarget = member;
+                                else if (Pet* pet = member->GetPet())
+                                    if (pet->GetAura(53563, victim->GetGUID()))
+                                        beaconTarget = pet;
+                                // do not proc when target of beacon of light is healed
+                                if (beaconTarget == this)
+                                    return false;
+
+                                if (beaconTarget)
+                                {
                                     basepoints0 = int32(damage);
                                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
                                     break;
