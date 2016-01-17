@@ -18,7 +18,9 @@
 #include "ObjectGuid.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 #include "stonecore.h"
 
 enum Texts
