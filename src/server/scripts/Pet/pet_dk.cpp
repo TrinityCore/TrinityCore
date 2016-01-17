@@ -197,6 +197,8 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 DoCast(me, SPELL_DK_PET_SCALING_03, true);
 
                 _events.ScheduleEvent(EVENT_SPELL_CAST_2, 6 * IN_MILLISECONDS);
+
+                me->SetRedirectThreat(summoner->GetGUID(), 100);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
@@ -227,7 +229,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 {
                     damageInfo->attacker = me;
                     damageInfo->damage /= 2;
-                    me->DealDamage(target, damageInfo->damage, nullptr, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr);
+                    me->DealDamage(target, damageInfo->damage, nullptr, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask));
                     me->SendAttackStateUpdate(damageInfo);
                     me->ProcDamageAndSpell(damageInfo->target, damageInfo->procAttacker, damageInfo->procVictim, damageInfo->procEx, damageInfo->damage, damageInfo->attackType);
                 }

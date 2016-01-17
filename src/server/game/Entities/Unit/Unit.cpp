@@ -7174,17 +7174,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 Unit* runeWeapon = nullptr;
                 for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end() && !runeWeapon; itr++)
                     if ((*itr)->GetEntry() == 27893 /*Dancing Rune Weapon*/)
-                    {
                         runeWeapon = *itr;
-                    }
 
                 if (runeWeapon && runeWeapon->GetVictim() && damage && procSpell)
                 {
-                    /*uint32 procDmg = damage / 2;
-                    pPet->SendSpellNonMeleeDamageLog(pPet->GetVictim(), procSpell->Id, procDmg, procSpell->GetSchoolMask(), 0, 0, false, 0, false);
-                    pPet->DealDamage(pPet->GetVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);*/
-
-                    // ToDo: use spell cast
+                    uint32 procDamage = damage / 2;
+                    runeWeapon->DealDamage(victim, procDamage, nullptr, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell);
+                    runeWeapon->SendSpellNonMeleeDamageLog(victim, procSpell->Id, procDamage, procSpell->GetSchoolMask(), 0, 0, false, 0, false);                   
                     break;
                 }
                 else
