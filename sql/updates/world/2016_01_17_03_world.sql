@@ -34,7 +34,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 (@OGUID+26, 187235, 530, 1, 1, 9987.122, -7093.597, 47.70498, 5.253442, 0, 0, 0, 1, 120, 255, 1); -- 187235 (Area: 3487)
 
 DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+26 AND `eventEntry`=@Event;
-INSERT INTO game_event_gameobject SELECT @Event, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+26;
+INSERT INTO `game_event_gameobject` SELECT @Event, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+26;
 
 -- Add spawns Pat's Snowcloud Guy
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
@@ -43,4 +43,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `positi
 (@CGUID+1, 15730, 530, 9347.098, -7267.961, 20.6914, 3.263766, 120, 0); -- 15730 (Area: 0) (Auras: 26000 - 26000)
 
 DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1 AND `eventEntry`=@Event;
-INSERT INTO game_event_creature SELECT @Event, creature.guid FROM `creature` WHERE creature.guid BETWEEN @CGUID+0 AND @CGUID+1;
+INSERT INTO `game_event_creature` SELECT @Event, creature.guid FROM `creature` WHERE creature.guid BETWEEN @CGUID+0 AND @CGUID+1;
