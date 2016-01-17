@@ -7159,28 +7159,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 target = this;
                 break;
             }
-            // Dancing Rune Weapon
-            if (dummySpell->Id == 49028)
-            {
-                // 1 dummy aura for dismiss rune blade
-                if (effIndex != 1)
-                    return false;
-
-                Unit* runeWeapon = nullptr;
-                for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end() && !runeWeapon; itr++)
-                    if ((*itr)->GetEntry() == 27893 /*Dancing Rune Weapon*/)
-                        runeWeapon = *itr;
-
-                if (runeWeapon && runeWeapon->GetVictim() && damage && procSpell)
-                {
-                    uint32 procDamage = damage / 2;
-                    runeWeapon->DealDamage(victim, procDamage, nullptr, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell);
-                    runeWeapon->SendSpellNonMeleeDamageLog(victim, procSpell->Id, procDamage, procSpell->GetSchoolMask(), 0, 0, false, 0, false);                   
-                    break;
-                }
-                else
-                    return false;
-            }
             // Mark of Blood
             if (dummySpell->Id == 49005)
             {

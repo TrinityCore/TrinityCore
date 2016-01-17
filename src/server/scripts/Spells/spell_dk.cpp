@@ -2004,9 +2004,13 @@ public:
 
 enum DancingRuneWeapon
 {
-    NPC_DANCING_RUNE_WEAPON = 27893,
+    NPC_DANCING_RUNE_WEAPON  = 27893,
 
-    DATA_INITIAL_TARGET_GUID = 1
+    DATA_INITIAL_TARGET_GUID = 1,
+
+    SPELL_DK_BLOOD_STRIKE    = 45902,
+    SPELL_DK_ICY_TOUCH       = 45477,
+    SPELL_DK_PLAGUE_STRIKE   = 45462
 };
 
 // 49028 - SPELL_DK_DANCING_RUNE_WEAPON
@@ -2031,9 +2035,42 @@ public:
                 temp->AI()->SetGUID(GetTarget()->GetGUID(), DATA_INITIAL_TARGET_GUID);
         }
 
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (SpellInfo const* procSpell = eventInfo.GetSpellInfo())
+                if (procSpell->IsRankOf(sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_STRIKE)) ||
+                    procSpell->IsRankOf(sSpellMgr->GetSpellInfo(SPELL_DK_ICY_TOUCH)) ||
+                    procSpell->IsRankOf(sSpellMgr->GetSpellInfo(SPELL_DK_PLAGUE_STRIKE)))
+                    return true;
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            SpellInfo const* procSpell = eventInfo.GetSpellInfo();
+            if (!procSpell)
+                return;
+
+            Unit* runeWeapon = nullptr;
+            for (auto itr = GetTarget()->m_Controlled.begin(); itr != GetTarget()->m_Controlled.end() && !runeWeapon; itr++)
+                if ((*itr)->GetEntry() == NPC_DANCING_RUNE_WEAPON)
+                    runeWeapon = *itr;
+
+            if (!runeWeapon)
+                return;
+
+            uint32 procDamage = eventInfo.GetDamageInfo()->GetDamage() / 2;
+            runeWeapon->CastCustomSpell(procSpell->Id, SPELLVALUE_BASE_POINT0, int32(procDamage), runeWeapon->GetVictim(), false, nullptr, aurEff, runeWeapon->GetGUID());
+        }
+
         void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(spell_dk_dancing_rune_weapon_AuraScript::HandleTarget, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            DoCheckProc += AuraCheckProcFn(spell_dk_dancing_rune_weapon_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_dk_dancing_rune_weapon_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
         }
     };
 
