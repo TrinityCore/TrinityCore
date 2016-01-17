@@ -159,7 +159,10 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
 
 enum DancingRuneWeapon
 {
-    DATA_INITIAL_TARGET_GUID = 1
+    DATA_INITIAL_TARGET_GUID = 1,
+
+    EVENT_SPELL_CAST_1 = 1,
+    EVENT_SPELL_CAST_2 = 2
 };
 
 class npc_pet_dk_rune_weapon : public CreatureScript
@@ -179,8 +182,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
 
             void Initialize()
             {
-                _spellCooldown = 0;
-                _secondSpellCooldown = 0;
+                _events.Reset();
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -197,10 +199,11 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 DoCast(me, SPELL_PET_SCALING__MASTER_SPELL_06__SPELL_HIT_EXPERTISE_SPELL_PENETRATION, true);
                 DoCast(me, SPELL_DK_PET_SCALING_03, true);
 
-                _secondSpellCooldown = 6 * IN_MILLISECONDS;
+                _events.ScheduleEvent(EVENT_SPELL_CAST_2, 6 * IN_MILLISECONDS);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
+            void AttackStart(Unit* /*who*/) override { }
 
             void SetGUID(ObjectGuid guid, int32 type) override
             {
@@ -210,21 +213,14 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                         _targetGUID = guid;
                         if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                         {
-                            AttackStart(target);
+                            if (me->Attack(target, true))
+                                me->GetMotionMaster()->MoveChase(target);
                             DoCast(target, SPELL_AGGRO_8_YD_PBAE, true);
-                            _spellCooldown = 1 * IN_MILLISECONDS;
+                            _events.ScheduleEvent(EVENT_SPELL_CAST_1, 1 * IN_MILLISECONDS);
                         }
                         break;
                     default:
                         break;
-                }
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (who && me->Attack(who, true))
-                {
-                    me->GetMotionMaster()->MoveChase(who);
                 }
             }
 
@@ -241,11 +237,6 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*source*/, SpellInfo const* /*spell*/) override
-            {
-
-            }
-
             void UpdateAI(uint32 diff) override
             {
                 /*
@@ -253,33 +244,32 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     any owned aura, eitherway SMSG_SPELL_GO
                     is sent every X seconds.
                 */
-                if (_spellCooldown)
-                {
-                    if (_spellCooldown <= diff)
-                    {
-                        // Cast every second
-                        if (Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID))
-                            DoCast(victim, SPELL_AGGRO_8_YD_PBAE, true);
-                        _spellCooldown = 1 * IN_MILLISECONDS;
-                    }
-                    else
-                        _spellCooldown -= diff;
+                _events.Update(diff);
 
-                    if (_secondSpellCooldown <= diff)
+                while (uint32 _eventId = _events.ExecuteEvent())
+                {
+                    switch (_eventId)
                     {
-                        // Cast every 6 seconds
-                        DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
-                        _secondSpellCooldown = 6 * IN_MILLISECONDS;
+                        case EVENT_SPELL_CAST_1:
+                            // Cast every second
+                            if (Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID))
+                                DoCast(victim, SPELL_AGGRO_8_YD_PBAE, true);
+                            _events.ScheduleEvent(EVENT_SPELL_CAST_1, 1 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_SPELL_CAST_2:
+                            // Cast every 6 seconds
+                            DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+                            _events.ScheduleEvent(EVENT_SPELL_CAST_2, 6 * IN_MILLISECONDS);
+                            break;
+                        default:
+                            break;
                     }
-                    else
-                        _secondSpellCooldown -= diff;
                 }
             }
 
             private:
                 ObjectGuid _targetGUID;
-                uint32 _spellCooldown;
-                uint32 _secondSpellCooldown;
+                EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
