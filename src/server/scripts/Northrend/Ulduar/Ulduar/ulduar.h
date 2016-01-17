@@ -312,6 +312,7 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_25    = 10416,
     CRITERIA_ALONE_IN_THE_DARKNESS_10        = 10412,
     CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
+    CRITERIA_DEATHS_DEMISE                   = 10279,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
     // Champion of Ulduar

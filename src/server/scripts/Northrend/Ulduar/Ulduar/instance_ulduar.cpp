@@ -1058,6 +1058,7 @@ class instance_ulduar : public InstanceMapScript
                         return keepersCount <= 1;
                     case CRITERIA_ALONE_IN_THE_DARKNESS_10:
                     case CRITERIA_ALONE_IN_THE_DARKNESS_25:
+                    case CRITERIA_DEATHS_DEMISE:
                         return keepersCount == 0;
                     case CRITERIA_C_O_U_LEVIATHAN_10:
                     case CRITERIA_C_O_U_LEVIATHAN_25:
