@@ -1422,15 +1422,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->CastItemCombatSpell(victim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
 
-    if (!m_Controlled.empty())
+    for (Unit* unit : m_Controlled)
     {
-        for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
-        {
-            Unit* unit = *itr;
-            ++itr;
-            if (unit->IsAIEnabled && unit->GetAI())
-                unit->GetAI()->OwnerMeleeDamageDealt(this, damageInfo);
-        }
+        if (unit->IsAIEnabled && unit->GetAI())
+            unit->GetAI()->OwnerMeleeDamageDealt(this, damageInfo);
     }
 
     // Do effect if any damage done to target
