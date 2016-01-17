@@ -187,9 +187,6 @@ class npc_pet_dk_rune_weapon : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-                // Set second creature_template model, invisible
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-
                 DoCast(summoner, SPELL_COPY_WEAPON, true);
                 DoCast(summoner, SPELL_DK_RUNE_WEAPON_MARK, true);
                 DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
@@ -228,12 +225,11 @@ class npc_pet_dk_rune_weapon : public CreatureScript
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                 {
+                    damageInfo->attacker = me;
                     damageInfo->damage /= 2;
-                    damageInfo->cleanDamage /= 2;
-
-                    // Even if its a DK, HITINFO_RAGE_GAIN is sent on rune autoattacks
-                    CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, damageInfo->attackType, damageInfo->hitOutCome);
-                    me->DealDamage(target, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr);
+                    me->DealDamage(target, damageInfo->damage, nullptr, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), nullptr);
+                    me->SendAttackStateUpdate(damageInfo);
+                    me->ProcDamageAndSpell(damageInfo->target, damageInfo->procAttacker, damageInfo->procVictim, damageInfo->procEx, damageInfo->damage, damageInfo->attackType);
                 }
             }
 
