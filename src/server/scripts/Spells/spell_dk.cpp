@@ -2021,15 +2021,14 @@ public:
 
         void HandleTarget(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* target = GetTarget();
-            if (!target)
+            Unit* caster = GetCaster();
+            if (!caster)
                 return;
 
             std::list<Creature*> runeWeapons;
-            GetCaster()->GetAllMinionsByEntry(runeWeapons, NPC_DANCING_RUNE_WEAPON);
-            if (!runeWeapons.empty())
-                for (Creature* temp : runeWeapons)
-                    temp->AI()->SetGUID(target->GetGUID(), DATA_INITIAL_TARGET_GUID);
+            caster->GetAllMinionsByEntry(runeWeapons, NPC_DANCING_RUNE_WEAPON);
+            for (Creature* temp : runeWeapons)
+                temp->AI()->SetGUID(GetTarget()->GetGUID(), DATA_INITIAL_TARGET_GUID);
         }
 
         void Register() override
