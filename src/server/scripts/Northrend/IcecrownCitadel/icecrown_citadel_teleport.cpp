@@ -24,6 +24,18 @@
 
 #define GOSSIP_SENDER_ICC_PORT 631
 
+enum GossipTeleport
+{
+    MENU_ID = 11017,
+    
+    GOSSIP_TELEPORT_LIGHT_S_HAMMER          = 0,
+    GOSSIP_TELEPORT_ORATORY_OF_THE_DAMNED   = 1,
+    GOSSIP_TELEPORT_RAMPART_OF_SKULLS       = 2,
+    GOSSIP_TELEPORT_DEATHBRINGER_S_RISE     = 3,
+    GOSSIP_TELEPORT_UPPER_SPIRE             = 4,
+    GOSSIP_TELEPORT_SINDRAGOSA_S_LAIR       = 5
+};
+
 class icecrown_citadel_teleport : public GameObjectScript
 {
     public:
@@ -36,19 +48,19 @@ class icecrown_citadel_teleport : public GameObjectScript
                 if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
                 {
                     if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
+                        player->ADD_GOSSIP_ITEM_DB(MENU_ID, GOSSIP_TELEPORT_LIGHT_S_HAMMER, GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
                     if (go->GetEntry() != GO_SCOURGE_TRANSPORTER_ORATORY)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
+                        player->ADD_GOSSIP_ITEM_DB(MENU_ID, GOSSIP_TELEPORT_ORATORY_OF_THE_DAMNED, GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
                 }
                 if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_RAMPART)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID, GOSSIP_TELEPORT_RAMPART_OF_SKULLS, GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
                 if (instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_DEATHBRINGER)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID, GOSSIP_TELEPORT_DEATHBRINGER_S_RISE, GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
                 if (instance->GetData(DATA_UPPERSPIRE_TELE_ACT) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_UPPERSPIRE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID, GOSSIP_TELEPORT_UPPER_SPIRE, GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
                 /// @todo Gauntlet event before Sindragosa
                 if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE && go->GetEntry() != GO_SCOURGE_TRANSPORTER_SINDRAGOSA)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID, GOSSIP_TELEPORT_SINDRAGOSA_S_LAIR, GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
             }
 
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
