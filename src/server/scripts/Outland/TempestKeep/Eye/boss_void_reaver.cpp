@@ -94,6 +94,8 @@ class boss_void_reaver : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
