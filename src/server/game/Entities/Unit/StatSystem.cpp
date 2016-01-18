@@ -370,7 +370,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         if (getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
 
-        if (pet && (pet->IsPetGhoul() || pet->IsRisenAlly())) // At melee attack power change for DK pet
+        if (pet && pet->IsPetGhoul()) // At melee attack power change for DK pet
             pet->UpdateAttackPowerAndDamage();
 
         if (guardian && guardian->IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
@@ -989,7 +989,7 @@ bool Guardian::UpdateStats(Stats stat)
     Unit* owner = GetOwner();
     // Handle Death Knight Glyphs and Talents
     float mod = 0.75f;
-    if ((IsPetGhoul() || IsRisenAlly()) && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
+    if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
     {
         if (stat == STAT_STAMINA)
             mod = 0.3f; // Default Owner's Stamina scale
@@ -1172,7 +1172,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
         }
-        else if (IsPetGhoul() || IsRisenAlly()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
+        else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
         {
             bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));

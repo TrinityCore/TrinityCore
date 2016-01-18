@@ -2653,7 +2653,6 @@ class Player : public Unit, public GridObject<Player>
         void SendTimeSync();
 
         ResurrectionData* _resurrectionData;
-
         WorldSession* m_session;
 
         typedef std::list<Channel*> JoinedChannelsList;

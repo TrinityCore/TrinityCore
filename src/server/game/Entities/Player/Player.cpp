@@ -1238,9 +1238,6 @@ void Player::Update(uint32 p_time)
             if (charmer->GetTypeId() == TYPEID_UNIT && charmer->IsAlive())
                 UpdateCharmedAI();
 
-    if (GetAI() && IsAIEnabled)
-        GetAI()->UpdateAI(p_time);
-
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
         UpdateItemDuration(uint32(now - m_Last_tick));

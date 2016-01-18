@@ -7977,7 +7977,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
 
         // Ghoul pets have energy instead of mana (is anywhere better place for this code?)
-        if (minion->IsPetGhoul() || minion->IsRisenAlly())
+        if (minion->IsPetGhoul())
             minion->setPowerType(POWER_ENERGY);
 
         // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
@@ -12010,9 +12010,6 @@ void Unit::RemoveFromWorld()
         RemoveAllControlled();
 
         RemoveAreaAurasDueToLeaveWorld();
-
-        if (IsCharmed())
-            RemoveCharmedBy(nullptr);
 
         if (GetCharmerGUID())
         {
