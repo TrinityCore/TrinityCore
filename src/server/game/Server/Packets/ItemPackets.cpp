@@ -523,3 +523,19 @@ void WorldPackets::Item::UseCritterItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
+
+void WorldPackets::Item::SocketGems::Read()
+{
+    _worldPacket >> ItemGuid;
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        _worldPacket >> GemItem[i];
+}
+
+WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
+{
+    _worldPacket << Item;
+    _worldPacket.append(Sockets, MAX_GEM_SOCKETS);
+    _worldPacket << int32(SocketMatch);
+
+    return &_worldPacket;
+}
