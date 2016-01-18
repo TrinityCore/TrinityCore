@@ -605,6 +605,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         float GetRespawnRadius() const { return m_respawnradius; }
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
 
+        void DoImmediateBoundaryCheck() { m_boundaryCheckTime = 0; }
         uint32 GetCombatPulseDelay() const { return m_combatPulseDelay; }
         void SetCombatPulseDelay(uint32 delay) // (secs) interval at which the creature pulses the entire zone into combat (only works in dungeons)
         {
