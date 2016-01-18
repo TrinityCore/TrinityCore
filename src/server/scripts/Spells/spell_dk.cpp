@@ -51,7 +51,6 @@ enum DeathKnightSpells
     SPELL_DK_FROST_PRESENCE                     = 48266,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
-    SPELL_DK_GLYPH_OF_DISEASE                   = 63334,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
     SPELL_DK_IMPROVED_DEATH_STRIKE              = 62905,
     SPELL_DK_IMPROVED_FROST_PRESENCE_R1         = 50384,
@@ -67,6 +66,8 @@ enum DeathKnightSpells
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
     SPELL_DK_UNHOLY_PRESENCE                    = 48265,
+    SPELL_DK_PESTILENCE_REDUCED_DOTS            = 76243,
+    SPELL_DK_PESTILENCE_VISUAL                  = 91939,
     SPELL_DK_WILL_OF_THE_NECROPOLIS             = 96171
 };
 
@@ -1014,10 +1015,17 @@ class spell_dk_pestilence : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DK_GLYPH_OF_DISEASE)
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_PESTILENCE_REDUCED_DOTS)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DK_PESTILENCE_VISUAL)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PLAGUE)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_FROST_FEVER))
                     return false;
+                return true;
+            }
+
+            bool Load() override
+            {
+                _prevTarget = nullptr;
                 return true;
             }
 
@@ -1030,7 +1038,12 @@ class spell_dk_pestilence : public SpellScriptLoader
                 if (!victim)
                     return;
 
-                if (victim != hitUnit || caster->HasAura(SPELL_DK_GLYPH_OF_DISEASE))
+                if (_prevTarget)
+                    _prevTarget->CastSpell(hitUnit, SPELL_DK_PESTILENCE_VISUAL, true);
+
+                _prevTarget = hitUnit;
+
+                if (victim != hitUnit)
                 {
                     if (Aura* aurOld = victim->GetAura(SPELL_DK_BLOOD_PLAGUE, caster->GetGUID())) // Check Blood Plague application on victim.
                     {
@@ -1074,10 +1087,26 @@ class spell_dk_pestilence : public SpellScriptLoader
                 }
             }
 
+            void HandleAuraApply()
+            {
+                Unit* caster = GetCaster();
+                caster->CastSpell(caster, SPELL_DK_PESTILENCE_REDUCED_DOTS, true);
+            }
+
+            void HandleAuraRemoval()
+            {
+                GetCaster()->RemoveAura(SPELL_DK_PESTILENCE_REDUCED_DOTS);
+            }
+
             void Register() override
             {
+                BeforeCast += SpellCastFn(spell_dk_pestilence_SpellScript::HandleAuraApply);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_pestilence_SpellScript::OnHit, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                AfterCast += SpellCastFn(spell_dk_pestilence_SpellScript::HandleAuraRemoval);
             }
+
+        private:
+            Unit* _prevTarget;
         };
 
         SpellScript* GetSpellScript() const override
