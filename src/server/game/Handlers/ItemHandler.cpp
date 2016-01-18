@@ -851,24 +851,17 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     _player->DestroyItemCount(gift, count, true);
 }
 
-void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
+void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 {
-    ObjectGuid item_guid;
-    ObjectGuid gem_guids[MAX_GEM_SOCKETS];
-
-    recvData >> item_guid;
-    if (!item_guid)
+    if (!socketGems.ItemGuid)
         return;
-
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData >> gem_guids[i];
 
     //cheat -> tried to socket same gem multiple times
-    if ((!gem_guids[0].IsEmpty() && (gem_guids[0] == gem_guids[1] || gem_guids[0] == gem_guids[2])) ||
-        (!gem_guids[1].IsEmpty() && (gem_guids[1] == gem_guids[2])))
+    if ((!socketGems.GemItem[0].IsEmpty() && (socketGems.GemItem[0] == socketGems.GemItem[1] || socketGems.GemItem[0] == socketGems.GemItem[2])) ||
+        (!socketGems.GemItem[1].IsEmpty() && (socketGems.GemItem[1] == socketGems.GemItem[2])))
         return;
 
-    Item* itemTarget = _player->GetItemByGuid(item_guid);
+    Item* itemTarget = _player->GetItemByGuid(socketGems.ItemGuid);
     if (!itemTarget)                                         //missing item to socket
         return;
 
@@ -881,7 +874,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     Item* Gems[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        Gems[i] = !gem_guids[i].IsEmpty() ? _player->GetItemByGuid(gem_guids[i]) : NULL;
+        Gems[i] = !socketGems.GemItem[i].IsEmpty() ? _player->GetItemByGuid(socketGems.GemItem[i]) : NULL;
 
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
@@ -889,7 +882,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     // Find first prismatic socket
     int32 firstPrismatic = 0;
-    while (firstPrismatic < MAX_GEM_SOCKETS && itemProto->ExtendedData->SocketColor[firstPrismatic])
+    while (firstPrismatic < MAX_GEM_SOCKETS && itemTarget->GetSocketColor(firstPrismatic))
         ++firstPrismatic;
 
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
@@ -898,7 +891,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
             continue;
 
         // tried to put gem in socket where no socket exists (take care about prismatic sockets)
-        if (!itemProto->ExtendedData->SocketColor[i])
+        if (!itemTarget->GetSocketColor(i))
         {
             // no prismatic socket
             if (!itemTarget->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
@@ -1030,7 +1023,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         if (GemEnchants[i])
         {
             itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0, _player->GetGUID());
-            if (Item* guidItem = _player->GetItemByGuid(gem_guids[i]))
+            if (Item* guidItem = _player->GetItemByGuid(socketGems.GemItem[i]))
             {
                 uint32 gemCount = 1;
                 _player->DestroyItemCount(guidItem, gemCount, true);

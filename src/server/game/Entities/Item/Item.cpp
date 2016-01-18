@@ -1040,12 +1040,14 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
 
 void Item::SendUpdateSockets()
 {
-    WorldPacket data(SMSG_SOCKET_GEMS, 8+4+4+4+4);
-    data << GetGUID();
-    for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
-        data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
+    WorldPackets::Item::SocketGemsResult socketGems;
+    socketGems.Item = GetGUID();
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        socketGems.Sockets[i] = int32(GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i)));
 
-    GetOwner()->GetSession()->SendPacket(&data);
+    socketGems.SocketMatch = int32(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
+
+    GetOwner()->GetSession()->SendPacket(socketGems.Write());
 }
 
 // Though the client has the information in the item's data field,

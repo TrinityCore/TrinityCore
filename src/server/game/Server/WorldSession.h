@@ -355,6 +355,7 @@ namespace WorldPackets
         class CancelTempEnchantment;
         class TransmogrifyItems;
         class UseCritterItem;
+        class SocketGems;
     }
 
     namespace Loot
@@ -1522,7 +1523,7 @@ class WorldSession
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
 
         // Socket gem
-        void HandleSocketOpcode(WorldPacket& recvData);
+        void HandleSocketGems(WorldPackets::Item::SocketGems& socketGems);
 
         void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 
