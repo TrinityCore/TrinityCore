@@ -11938,9 +11938,16 @@ uint32 Unit::GetPowerIndex(uint32 powerType) const
     /// With the current implementation, the core only gives them
     /// POWER_RAGE, so we enforce the class to hunter so that they
     /// effectively get focus power.
+    /// Also, Death Knight ghouls are of Mage class.
+    /// this is necessary so they get energy
     uint32 classId = getClass();
-    if (ToPet() && ToPet()->getPetType() == HUNTER_PET)
-        classId = CLASS_HUNTER;
+    if (Pet const* pet = ToPet())
+    {
+        if (pet->getPetType() == HUNTER_PET)
+            classId = CLASS_HUNTER;
+        else if (pet->IsPetGhoul())
+            classId = CLASS_ROGUE;
+    }
 
     return GetPowerIndexByClass(powerType, classId);
 }
