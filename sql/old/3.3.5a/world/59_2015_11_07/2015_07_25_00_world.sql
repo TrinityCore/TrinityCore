@@ -78,7 +78,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,9,22,0,0,0,100,0,6000,6000,0,0,12,22912,3,120000,0,0,0,8,0,0,0,3542.2,5608.06,-3.37805,0.15708,"The Soulgrinder - On Script - Summon Creature 'Sundered Spirit'"),
 (@ENTRY,9,23,0,0,0,100,0,6000,6000,0,0,12,22912,3,120000,0,0,0,8,0,0,0,3542.22,5573.4,-2.64414,4.27606,"The Soulgrinder - On Script - Summon Creature 'Sundered Spirit'"),
 (@ENTRY,9,24,0,0,0,100,0,6000,6000,0,0,12,22912,3,120000,0,0,0,8,0,0,0,3542.22,5573.4,-2.64414,4.27606,"The Soulgrinder - On Script - Summon Creature 'Sundered Spirit'"),
-(@ENTRY,9,25,0,0,0,100,0,7000,7000,0,0,12,23037,3,500000,0,0,0,8,0,0,0,3468.82,5581.41,17.5205,0.0174533,"The Soulgrinder - On Script - Summon Creature 'Soulgrinder Ritual Bunny'"), -- X: 
+(@ENTRY,9,25,0,0,0,100,0,7000,7000,0,0,12,23037,3,500000,0,0,0,8,0,0,0,3468.82,5581.41,17.5205,0.0174533,"The Soulgrinder - On Script - Summon Creature 'Soulgrinder Ritual Bunny'"), -- X:
 (@ENTRY,9,26,0,0,0,100,0,6000,6000,0,0,12,22912,3,120000,0,0,0,8,0,0,0,3542.22,5573.4,-2.64414,4.27606,"The Soulgrinder - On Script - Summon Creature 'Sundered Spirit'"),
 (@ENTRY,9,27,0,0,0,100,0,6000,6000,0,0,12,22912,3,120000,0,0,0,8,0,0,0,3542.2,5608.06,-3.37805,0.15708,"The Soulgrinder - On Script - Summon Creature 'Sundered Spirit'"),
 (@ENTRY,9,28,0,0,0,100,0,6000,6000,0,0,12,22912,3,120000,0,0,0,8,0,0,0,3542.22,5573.4,-2.64414,4.27606,"The Soulgrinder - On Script - Summon Creature 'Sundered Spirit'"),
@@ -112,12 +112,12 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,1,0,38,0,100,0,1,1,0,0,41,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Soulgrinder Ritual Bunny - On Data Set 1 1 - Despawn Instant");
 
 SET @GUID=12481;
-DELETE FROM `creature` WHERE `guid`=@GUID; 
+DELETE FROM `creature` WHERE `guid`=@GUID;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`, `spawndist`, `MovementType`) VALUES
 (@GUID, 23037, 530, 1, 1, 3535.15, 5590.769,  0.177, 3.89, 180, 42, 0, 0);
 
 DELETE FROM `creature_addon` WHERE `guid` IN (@GUID);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@GUID,0,0,0,1,0,'');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=-@GUID AND `source_type`=0;

@@ -292,6 +292,9 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
 
 Player::Player(WorldSession* session): Unit(true)
 {
+    //[AZTH] initialization
+    azthPlayer = new AzthPlayer();
+    
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -6505,6 +6508,8 @@ void Player::setFactionForRace(uint8 race)
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
     setFaction(rEntry ? rEntry->FactionID : 0);
+    // [AZTH] fix for instances?
+    //setFaction(theLeaderFactionHere);
 }
 
 ReputationRank Player::GetReputationRank(uint32 faction) const
@@ -14907,7 +14912,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
+    // [AZTH]
+    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST) * azthPlayer->getCustomQuestRate());
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);

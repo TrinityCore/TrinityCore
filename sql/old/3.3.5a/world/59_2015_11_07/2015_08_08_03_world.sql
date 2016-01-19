@@ -1,4 +1,4 @@
--- 
+--
 -- Skettis Eviscerator
 SET @ENTRY := 21985;
 UPDATE `creature_template` SET `faction`= 1862, `AIName`= "SmartAI" WHERE `entry`=@ENTRY;

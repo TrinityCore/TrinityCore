@@ -1,4 +1,4 @@
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127640;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2556.952,`position_y`=-3294.904,`position_z`=267.5933 WHERE `guid`=@NPC;
@@ -37,7 +37,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127640,127656,3,320,2,8,17),
 (127640,127657,3,260,2,8,17);
 
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127641;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2540.547,`position_y`=-3209.821,`position_z`=240.5256 WHERE `guid`=@NPC;
@@ -84,7 +84,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127641,127658,3,320,2,0,0),
 (127641,127659,3,260,2,0,0);
 
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127642;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2781.675,`position_y`=-2973.126,`position_z`=240.5271 WHERE `guid`=@NPC;
@@ -130,7 +130,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127642,127660,3,320,2,0,0),
 (127642,127661,3,260,2,0,0);
 
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127645;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2584.613,`position_y`=-3100.685,`position_z`=240.5253 WHERE `guid`=@NPC;
@@ -167,7 +167,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127645,127664,3,320,2,7,15),
 (127645,127665,3,260,2,7,15);
 
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127649;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2871.322,`position_y`=-2985.748,`position_z`=267.593 WHERE `guid`=@NPC;

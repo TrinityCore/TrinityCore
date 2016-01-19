@@ -1,4 +1,4 @@
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56666;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=679.1953,`position_y`=-847.3836,`position_z`=-208.2482 WHERE `guid`=@NPC;

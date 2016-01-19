@@ -989,6 +989,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
     m_playerLoading = false;
+    
+    // [AZTH]
+    // hack for instant80 ( we're forcing all change faction and race )
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) || pCurrChar->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE)) {
+        KickPlayer();                                      
+    }
+    // [/AZTH]
 
     // Handle Login-Achievements (should be handled after loading)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);

@@ -238,7 +238,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+150, 15300, 531, 1, 1, -8170.387, 1639.527, -37.48939, 1.884956, 7200, 5, 1),
 (@CGUID+151, 15300, 531, 1, 1, -8170.757, 1613.131, -37.4205, 3.926991, 7200, 5, 1);
 
--- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT' 
+-- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT'
 SET @NPC := 87901;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8015.134,`position_y`=1258.724,`position_z`=-79.72564 WHERE `guid`=@NPC;
@@ -251,7 +251,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,-7954.62,1323.919,-90.7532,0,0,1,0,100,0),
 (@PATH,4,-7970.993,1280.664,-73.33447,0,0,1,0,100,0);
 
--- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT' 
+-- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT'
 SET @NPC := 87902;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8043.788,`position_y`=1645.192,`position_z`=-59.28296 WHERE `guid`=@NPC;
@@ -268,7 +268,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,-8111.89,1663.297,-47.55686,0,0,1,0,100,0),
 (@PATH,8,-8073.597,1660.363,-54.66129,0,0,1,0,100,0);
 
--- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT' 
+-- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT'
 SET @NPC := 87903;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-7902.709,`position_y`=1410.921,`position_z`=-66.08652 WHERE `guid`=@NPC;
@@ -281,7 +281,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,-7938.981,1323.41,-92.47753,0,0,1,0,100,0),
 (@PATH,4,-7927.595,1369.56,-78.29517,0,0,1,0,100,0);
 
--- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT' 
+-- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT'
 SET @NPC := 87904;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-7938.296,`position_y`=1489.504,`position_z`=-64.33451 WHERE `guid`=@NPC;
@@ -294,7 +294,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,-7915.813,1414.564,-66.10455,0,0,1,0,100,0),
 (@PATH,4,-7902.476,1455.991,-65.56479,0,0,1,0,100,0);
 
--- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT' 
+-- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT'
 SET @NPC := 87905;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8164.897,`position_y`=1624.758,`position_z`=-40.04349 WHERE `guid`=@NPC;
@@ -311,7 +311,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,-8087.561,1611.887,-56.31141,0,0,1,0,100,0),
 (@PATH,8,-8130.617,1623.805,-47.28335,0,0,1,0,100,0);
 
--- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT' 
+-- Pathing for Vekniss Soldier Entry: 15229 'TDB FORMAT'
 SET @NPC := 87906;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-7925.455,`position_y`=1500.005,`position_z`=-63.07186 WHERE `guid`=@NPC;
@@ -329,7 +329,7 @@ DELETE FROM `creature` WHERE `guid`=87907;
 DELETE FROM `creature_template_addon` WHERE `entry` IN (15233,15247);
 INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (15233,0,1,0, '18950'),(15247,0,1,0, '18950');
 
--- Pathing for Obsidian Eradicator Entry: 15262 'TDB FORMAT' 
+-- Pathing for Obsidian Eradicator Entry: 15262 'TDB FORMAT'
 SET @NPC := 88074;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8181.452,`position_y`=2105.019,`position_z`=129.1963 WHERE `guid`=@NPC;
@@ -350,7 +350,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,-8202.72,2136.731,129.3353,0,0,0,0,100,0),
 (@PATH,12,-8185.167,2123.686,129.1963,0,0,0,0,100,0);
 
--- Pathing for Obsidian Eradicator Entry: 15262 'TDB FORMAT' 
+-- Pathing for Obsidian Eradicator Entry: 15262 'TDB FORMAT'
 SET @NPC := 87652;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8282.951,`position_y`=2093.236,`position_z`=118.3001 WHERE `guid`=@NPC;
@@ -369,7 +369,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,-8282.951,2093.236,118.3001,0,0,0,0,100,0),
 (@PATH,10,-8277.297,2070.659,118.3001,0,0,0,0,100,0);
 
--- Pathing for Obsidian Eradicator Entry: 15262 'TDB FORMAT' 
+-- Pathing for Obsidian Eradicator Entry: 15262 'TDB FORMAT'
 SET @NPC := 87653;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8325.952,`position_y`=2055.939,`position_z`=133.0548 WHERE `guid`=@NPC;
@@ -405,14 +405,14 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,26,-8326.164,2076.209,126.8105,0,0,0,0,100,0),
 (@PATH,27,-8321.34,2065.851,133.0319,0,0,0,0,100,0);
 
--- Pathing for Vekniss Warrior Entry: 15230 'TDB FORMAT' 
+-- Pathing for Vekniss Warrior Entry: 15230 'TDB FORMAT'
 SET @NPC := 87672;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8578.048,`position_y`=1940.539,`position_z`=-0.06545047 WHERE `guid`=@NPC;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8581.048,`position_y`=1940.539,`position_z`=-0.06545047 WHERE `guid`=@NPC+1;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8586.048,`position_y`=1940.539,`position_z`=-0.06545047 WHERE `guid`=@NPC+2;
 DELETE FROM `creature_addon` WHERE `guid` IN (@NPC,@NPC+1,@NPC+2);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@NPC,@PATH,0,0,1,0, ''),(@NPC+1,@PATH,0,0,1,0, ''),(@NPC+2,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
@@ -452,14 +452,14 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+1,4,360,2,0,0),
 (@NPC,@NPC+2,8,360,2,0,0);
 
--- Pathing for Vekniss Warrior Entry: 15230 'TDB FORMAT' 
+-- Pathing for Vekniss Warrior Entry: 15230 'TDB FORMAT'
 SET @NPC := 87675;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8406.916,`position_y`=1940.698,`position_z`=3.540012 WHERE `guid`=@NPC;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8406.916,`position_y`=1940.698,`position_z`=3.540012 WHERE `guid`=@NPC+1;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8406.916,`position_y`=1940.698,`position_z`=3.540012 WHERE `guid`=@NPC+2;
 DELETE FROM `creature_addon` WHERE `guid` IN (@NPC,@NPC+1,@NPC+2);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@NPC,@PATH,0,0,1,0, ''),(@NPC+1,@PATH,0,0,1,0, ''),(@NPC+2,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
@@ -553,7 +553,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+1,4,360,2,0,0),
 (@NPC,@NPC+2,8,360,2,0,0);
 
--- Pathing for Vem Entry: 15544 'TDB FORMAT' 
+-- Pathing for Vem Entry: 15544 'TDB FORMAT'
 SET @NPC := 87603;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8598.536,`position_y`=2165.304,`position_z`=-4.016909 WHERE `guid`=@NPC;
@@ -584,7 +584,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,21,-8577.118,2156.268,-7.330427,0,0,1,0,100,0),
 (@PATH,22,-8590.432,2156.978,-6.771957,0,0,1,0,100,0);
 
--- Pathing for Battleguard Sartura Entry: 15516 'TDB FORMAT' 
+-- Pathing for Battleguard Sartura Entry: 15516 'TDB FORMAT'
 SET @NPC := 87648;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8302.484,`position_y`=1657.664,`position_z`=-29.81326 WHERE `guid`=@NPC;
@@ -592,7 +592,7 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8302.484,`pos
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8302.484,`position_y`=1657.664,`position_z`=-29.81326 WHERE `guid`=@NPC+2;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8302.484,`position_y`=1657.664,`position_z`=-29.81326 WHERE `guid`=@NPC+3;
 DELETE FROM `creature_addon` WHERE `guid` IN (@NPC,@NPC+1,@NPC+2,@NPC+3);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@NPC,@PATH,0,0,1,0, ''),(@NPC+1,@PATH,0,0,1,0, ''),(@NPC+2,@PATH,0,0,1,0, ''),(@NPC+3,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
@@ -623,7 +623,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+2,3,60,2,0,0),
 (@NPC,@NPC+3,3,300,2,0,0);
 
--- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT' 
+-- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT'
 SET @NPC := 88015;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8824.772,`position_y`=1504.369,`position_z`=-94.81835 WHERE `guid`=@NPC;
@@ -648,7 +648,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,15,-8852.853,1467.848,-91.95611,0,0,0,0,100,0),
 (@PATH,16,-8836.742,1489.87,-93.61978,0,0,0,0,100,0);
 
--- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT' 
+-- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT'
 SET @NPC := 88016;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8775.906,`position_y`=1617.338,`position_z`=-87.98548 WHERE `guid`=@NPC;
@@ -677,7 +677,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,-8830.067,1567.62,-95.89575,0,0,0,0,100,0),
 (@PATH,20,-8805.615,1592.723,-93.64745,0,0,0,0,100,0);
 
--- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT' 
+-- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT'
 SET @NPC := 88017;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8850.698,`position_y`=1524.024,`position_z`=-95.07934 WHERE `guid`=@NPC;
@@ -703,7 +703,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,-8889.152,1531.822,-94.14017,0,0,0,0,100,0),
 (@PATH,17,-8870.22,1529.641,-95.36583,0,0,0,0,100,0);
 
--- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT' 
+-- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT'
 SET @NPC := 88018;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8887.567,`position_y`=1503.212,`position_z`=-94.07798 WHERE `guid`=@NPC;
@@ -718,7 +718,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,-8904.106,1462.815,-92.10182,0,0,0,0,100,0),
 (@PATH,6,-8894.092,1484.492,-92.96038,0,0,0,0,100,0);
 
--- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT' 
+-- Pathing for Anubisath Defender Entry: 15277 'TDB FORMAT'
 SET @NPC := 88019;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8909.747,`position_y`=1378.045,`position_z`=-101.7986 WHERE `guid`=@NPC;
@@ -737,7 +737,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 DELETE FROM `creature` WHERE `guid`=88063;
 
--- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT' 
+-- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT'
 SET @NPC := 87782;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8047.272,`position_y`=1647.506,`position_z`=-58.86852 WHERE `guid`=@NPC;
@@ -770,7 +770,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,-8004.919,1589.924,-60.78511,0,0,1,0,100,0),
 (@PATH,24,-8019.708,1624.168,-58.74899,0,0,1,0,100,0);
 
--- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT' 
+-- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT'
 SET @NPC := 87717;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-7959.943,`position_y`=1511.205,`position_z`=-61.94479 WHERE `guid`=@NPC;
@@ -795,7 +795,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,15,-7928.649,1495.495,-64.09904,0,0,1,0,100,0),
 (@PATH,16,-7946.518,1496.745,-63.51249,0,0,1,0,100,0);
 
--- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT' 
+-- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT'
 SET @NPC := 87688;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-7917.924,`position_y`=1443.211,`position_z`=-67.16397 WHERE `guid`=@NPC;
@@ -824,7 +824,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,-7901.919,1463.738,-64.63509,0,0,1,0,100,0),
 (@PATH,20,-7927.112,1444.966,-66.48512,0,0,1,0,100,0);
 
--- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT' 
+-- Pathing for Vekniss Drone Entry: 15300 'TDB FORMAT'
 SET @NPC := 87810;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8182.791,`position_y`=1672.963,`position_z`=-31.65287 WHERE `guid`=@NPC;
@@ -860,7 +860,7 @@ UPDATE `creature` SET `spawndist`=10,`MovementType`=1 WHERE `guid`=87911;
 -- Remove Vekniss Hive Crawler overspawn
 DELETE FROM `creature` WHERE `guid` BETWEEN 87945 AND 87961;
 
--- Pathing for Vekniss Hive Crawler Entry: 15240 'TDB FORMAT' 
+-- Pathing for Vekniss Hive Crawler Entry: 15240 'TDB FORMAT'
 SET @NPC := 87939;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8290.739,`position_y`=1337.271,`position_z`=-79.84545 WHERE `guid`=@NPC;
@@ -886,7 +886,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC,0,0,2,0,0),
 (@NPC,@NPC+1,7,90,2,1,6);
 
--- Pathing for Vekniss Hive Crawler Entry: 15240 'TDB FORMAT' 
+-- Pathing for Vekniss Hive Crawler Entry: 15240 'TDB FORMAT'
 SET @NPC := 87941;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8255.963,`position_y`=1349.651,`position_z`=-84.4174 WHERE `guid`=@NPC;
@@ -916,7 +916,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC,0,0,2,0,0),
 (@NPC,@NPC+1,7,90,2,4,11);
 
--- Pathing for Vekniss Hive Crawler Entry: 15240 'TDB FORMAT' 
+-- Pathing for Vekniss Hive Crawler Entry: 15240 'TDB FORMAT'
 SET @NPC := 87943;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8526.7,`position_y`=1385.158,`position_z`=-58.87769 WHERE `guid`=@NPC;
@@ -945,7 +945,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC,0,0,2,0,0),
 (@NPC,@NPC+1,7,90,2,0,0);
 
--- Pathing for Princess Huhuran Entry: 15509 'TDB FORMAT' 
+-- Pathing for Princess Huhuran Entry: 15509 'TDB FORMAT'
 SET @NPC := 88014;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8515.803,`position_y`=1693.652,`position_z`=-90.48472 WHERE `guid`=@NPC;

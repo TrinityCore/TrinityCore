@@ -1,4 +1,4 @@
--- 
+--
 UPDATE `creature_text` SET `sound`=14211 WHERE `BroadcastTextID`=25357;
 UPDATE `creature_text` SET `sound`=14212 WHERE `BroadcastTextID`=25358;
 UPDATE `creature_text` SET `sound`=14756 WHERE `BroadcastTextID`=25362;

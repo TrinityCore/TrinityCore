@@ -136,6 +136,13 @@ class BattlegroundQueue
 
         // Event handler
         EventProcessor m_events;
+
+        // [AZTH]
+
+        // QueueAnnouncer
+        bool hasBeenAnnounced[MAX_BATTLEGROUND_BRACKETS][BG_QUEUE_GROUP_TYPES_COUNT];
+
+        // [/AZTH]
 };
 
 /*

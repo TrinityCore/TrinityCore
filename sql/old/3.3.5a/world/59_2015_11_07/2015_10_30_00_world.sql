@@ -7,9 +7,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (27292,0,2,3,54,0,100,0,0,0,0,0,83,1,0,0,0,0,0,1,0,0,0,0,0,0,0,'Flamebringer - On summon - Remove npcflag'),
 (27292,0,3,4,61,0,100,0,0,0,0,0,85,46598,0,0,0,0,0,1,0,0,0,0,0,0,0,'Flamebringer - On summon - Spellcast'),
 (27292,0,4,0,61,0,100,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Flamebringer - Linked with previous Event -Set Passive'),
-(27292,0,5,0,28,0,100,0,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Flamebringer - On passenger removed - Despawn'); 
+(27292,0,5,0,28,0,100,0,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Flamebringer - On passenger removed - Despawn');
 DELETE FROM `creature_template_addon` WHERE `entry`=27292;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (27292, 0, 0, 33554432, 0, 0, '55971');
 DELETE FROM `creature_addon` WHERE `guid`=110538;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES

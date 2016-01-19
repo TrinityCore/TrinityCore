@@ -3,7 +3,7 @@
 
 DELETE FROM `creature_text` WHERE `entry` IN (68,1756,1976,3296) AND `groupid`>1;
 DELETE FROM `creature_text` WHERE `entry` IN (14304);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (68, 2, 0, '%s throws a rotten apple at $n.', 16, 0, 100, 0, 0, 0, 31671, 'Stormwind City Guard'),
 (68, 3, 0, '%s throws rotten banana on $n.', 16, 0, 100, 0, 0, 0, 31672, 'Stormwind City Guard'),
 (68, 4, 0, '%s spits on $n.', 16, 0, 100, 0, 0, 0, 31673, 'Stormwind City Guard'),
@@ -14,7 +14,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (68, 5, 4, 'You disgust me.', 12, 0, 100, 0, 0, 0, 31680, 'Stormwind City Guard'),
 (68, 5, 5, 'Looks like we''re going to have ourselves an execution.', 12, 0, 100, 0, 0, 0, 31682, 'Stormwind City Guard'),
 (68, 5, 6, 'Traitorous dog.', 12, 0, 100, 0, 0, 0, 31665, 'Stormwind City Guard'),
-(68, 5, 7, 'My family was wiped out by the Scourge! MONSTER!', 12, 0, 100, 0, 0, 0, 31667, 'Stormwind City Guard'), 
+(68, 5, 7, 'My family was wiped out by the Scourge! MONSTER!', 12, 0, 100, 0, 0, 0, 31667, 'Stormwind City Guard'),
 (14304, 2, 0, '%s throws a rotten apple at $n.', 16, 0, 100, 0, 0, 0, 31671, 'Kor''kron Elite'),
 (14304, 3, 0, '%s throws rotten banana on $n.', 16, 0, 100, 0, 0, 0, 31672, 'Kor''kron Elite'),
 (14304, 4, 0, '%s spits on $n.', 16, 0, 100, 0, 0, 0, 31673, 'Kor''kron Elite'),
@@ -157,7 +157,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (58509, 58513, 58520);
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES 
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (58509, 58511, 0, 'Rotten Apple - Rotten Apple'),
 (58513, 58514, 0, 'Rotten Banana - Rotten Banana'),
 (58520, 58519, 0, 'Spit - Spit');

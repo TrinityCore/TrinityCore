@@ -1,0 +1,78 @@
+# ignore file
+#
+
+!.gitignore
+
+#
+# OS specific
+#
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+
+
+#
+# Editors / debuggers / other output files
+#
+*~
+*.bak
+*.orig
+*.patch
+*.diff
+callgrind.out.*
+
+#
+# Git stuff
+#
+# stgit directories
+patches-*
+.git/
+*.rej
+
+
+#
+# IDE & other softwares
+#
+/.settings/
+/.externalToolBuilders/*
+# exclude in all levels
+nbproject/
+.sync.ffs_db
+
+#
+# Eclipse
+#
+*.pydevproject
+.metadata
+.gradle
+tmp/
+*.tmp
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+/node_modules
+/npm-debug.*
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+# TeXlipse plugin
+.texlipse
+
+/bin/config.sh
+
+/usr/

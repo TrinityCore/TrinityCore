@@ -1,4 +1,4 @@
--- 
+--
 SET @ENTRY := 37230;
 SET @CGUID := 45827;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3;
@@ -22,7 +22,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,2,0,61,0,100,31,0,0,0,0,49,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"Spire Frostwyrm - OOC_LOS - Start Attack"),
 (@ENTRY,0,3,0,4,0,100,30,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Spire Frostwyrm - On aggro - Say text"),
 (@ENTRY,0,4,0,33,0,100,31,100,30000,0,0,91,2,3,0,0,0,0,1,0,0,0,0,0,0,0,"Spire Frostwyrm - On target damaged - Remove Flag Hover"),
-(@ENTRY,0,5,0,0,0,100,30,10000,13000,13000,16000,11,70362,0,0,0,0,0,5,0,0,0,0,0,0,0,"Spire Frostwyrm - IC - Cast Blizzard"), 
+(@ENTRY,0,5,0,0,0,100,30,10000,13000,13000,16000,11,70362,0,0,0,0,0,5,0,0,0,0,0,0,0,"Spire Frostwyrm - IC - Cast Blizzard"),
 (@ENTRY,0,6,0,0,0,100,30,8000,10000,3000,6000,11,70361,0,0,0,0,0,2,0,0,0,0,0,0,0,"Spire Frostwyrm - IC - Cast Cleave"),
 (@ENTRY,0,7,0,0,0,100,30,13000,15000,6000,9000,11,70116,0,0,0,0,0,2,0,0,0,0,0,0,0,"Spire Frostwyrm - IC - Cast Frost Breath");
 

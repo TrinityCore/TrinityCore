@@ -160,7 +160,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,45,2527.47,-3486.557,183.9918,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=113274;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (113274, 113274, 0, 0, 2, 0, 0),
 (113274, 113077, 3, 270, 0, 0, 0);
 
@@ -331,7 +331,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,156,2408.851,-3547.318,169.9237,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=113083;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (113083, 113083, 0, 0, 2, 0, 0),
 (113083, 113273, 3, 270, 0, 0, 0);
 
@@ -453,7 +453,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- emotes
 DELETE FROM `creature_addon` WHERE `guid` IN (113076, 113199, 113079, 113200, 113078, 113202, 113080, 113203, 113084, 113206, 113085, 113082, 113205);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (113076, 0,0,0,1,69, ''),
 (113199, 0,0,0,1,69, ''),
 (113079, 0,0,0,1,69, ''),

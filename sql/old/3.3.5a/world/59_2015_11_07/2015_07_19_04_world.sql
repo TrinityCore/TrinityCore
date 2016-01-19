@@ -51,7 +51,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0 AND `
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,2,0,1,0,100,0,2000,2000,2000,2000,5,28,0,0,0,0,0,1,0,0,0,0,0,0,0,"Onslaught Mason - Out of Combat - Play Emote 28");
 
--- 3. Onslaught Raven Archon 
+-- 3. Onslaught Raven Archon
 UPDATE `smart_scripts` SET `action_param1`=1 WHERE  `entryorguid`=27357 AND `source_type`=0 AND `id`=0 AND `link`=0;
 SET @NPC := 117141;
 SET @PATH := @NPC * 10;
@@ -111,7 +111,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,49,4597.211,-552.0303,155.9548,0,0,0,0,100,0),
 (@PATH,50,4600.461,-549.5303,156.7048,0,0,0,0,100,0);
 
--- 4. Onslaught Raven Archon 
+-- 4. Onslaught Raven Archon
 SET @NPC := 117137;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=4644.006,`position_y`=-489.4915,`position_z`=168.7654 WHERE `guid`=@NPC;
@@ -128,7 +128,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,4643.817,-492.9625,168.5086,0,0,0,0,100,0),
 (@PATH,8,4644.317,-489.2125,168.7586,0,0,0,0,100,0);
 
--- 5. Onslaught Raven Archon 
+-- 5. Onslaught Raven Archon
 SET @NPC := 117142;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=4568.026,`position_y`=-587.3014,`position_z`=151.4318 WHERE `guid`=@NPC;
@@ -268,7 +268,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,36,4645.912,-551.797,169.0076,0,0,0,0,100,0),
 (@PATH,37,4644.598,-554.0845,168.3518,0,0,0,0,100,0);
 
--- 8. Onslaught Raven Archon 
+-- 8. Onslaught Raven Archon
 SET @NPC := 117139;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=4672.427,`position_y`=-432.248,`position_z`=173.8428 WHERE `guid`=@NPC;

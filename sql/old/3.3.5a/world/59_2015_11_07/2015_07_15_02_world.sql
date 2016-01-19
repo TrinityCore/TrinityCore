@@ -297,12 +297,12 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,75,2848.654,1827.117,140.2262,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=113899;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (113899, 113899, 0, 0, 2, 0, 0),
 (113899, 111823, 3, 90, 2, 0, 0);
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (26280, 26344);
-INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (26280,0,0,0,1,27, ''),
 (26344,0,0,0,1,27, '');
 
@@ -803,7 +803,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,134,3251.277,2492.866,41.3643,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=101653;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (101653, 101653, 0, 0, 2, 0, 0),
 (101653, 111808, 3, 90, 2, 0, 0);
 
@@ -812,7 +812,7 @@ UPDATE `creature_template` SET `InhabitType`=4 WHERE  `entry`=26832;
 
 -- kneelemotes
 DELETE FROM `creature_addon` WHERE `guid`=115057;
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (115057,0,0,0x8,1,0, '');
 
 -- 8. Dragonblight Mage Hunter
@@ -904,7 +904,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,78,3310.485,2686.624,37.66938,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=101647;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (101647, 101647, 0, 0, 2, 0, 0),
 (101647, 111799, 3, 90, 2, 0, 0);
 
@@ -1016,7 +1016,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,97,3429.882,2736.969,48.8321,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=101641;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (101641, 101641, 0, 0, 2, 0, 0),
 (101641, 111771, 3, 90, 2, 0, 0);
 
@@ -1094,6 +1094,6 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,63,3401.772,2684.377,39.83588,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111795;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111795, 111795, 0, 0, 2, 0, 0),
 (111795, 101644, 4, 0, 2, 0, 0);

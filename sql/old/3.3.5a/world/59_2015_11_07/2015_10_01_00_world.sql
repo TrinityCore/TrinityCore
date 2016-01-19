@@ -1,4 +1,4 @@
--- Pathing for Azuremyst Peacekeeper Entry: 18038 'TDB FORMAT' 
+-- Pathing for Azuremyst Peacekeeper Entry: 18038 'TDB FORMAT'
 SET @NPC := 63772;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4171.392,`position_y`=-12464.35,`position_z`=44.40071 WHERE `guid`=@NPC;
@@ -18,7 +18,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,-4153.929,-12500.22,44.07134,0,0,0,0,100,0),
 (@PATH,11,-4155.868,-12489.98,44.48027,0,0,0,0,100,0);
 
--- Pathing for Azuremyst Peacekeeper Entry: 18038 'TDB FORMAT' 
+-- Pathing for Azuremyst Peacekeeper Entry: 18038 'TDB FORMAT'
 SET @NPC := 63774;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4200.606,`position_y`=-12494.63,`position_z`=44.62513 WHERE `guid`=@NPC;
@@ -71,7 +71,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,43,-4164.705,-12500.84,44.40313,0,0,0,0,100,0),
 (@PATH,44,-4177.409,-12486.11,44.26247,0,0,0,0,100,0);
 
--- Pathing for Azuremyst Peacekeeper Entry: 18038 'TDB FORMAT' 
+-- Pathing for Azuremyst Peacekeeper Entry: 18038 'TDB FORMAT'
 SET @NPC := 63773;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4134.126,`position_y`=-12506.01,`position_z`=43.88897 WHERE `guid`=@NPC;

@@ -66,6 +66,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 Unit* highestThreatUnit = nullptr;
                 float highestThreat = 0.0f;
                 Unit* nearestPlayer = nullptr;
+
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                 {
                     // Consider only units without CC

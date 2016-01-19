@@ -1,4 +1,4 @@
--- 
+--
 -- Add missing critters to AQ40
 SET @CGUID := 87830;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+62;
@@ -109,7 +109,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+6, 15312, 531, 1, 1, -9122.171, 1809.711, -42.50865, 4.433136, 7200, 0, 0),
 (@CGUID+7, 15312, 531, 1, 1, -9140.379, 1802.046, -42.01139, 5.480334, 7200, 0, 0);
 
--- Pathing for OLDWorld Trigger (DO NOT DELETE) Entry: 15384 'TDB FORMAT' 
+-- Pathing for OLDWorld Trigger (DO NOT DELETE) Entry: 15384 'TDB FORMAT'
 SET @NPC := 87647;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8577.317,`position_y`=1988.112,`position_z`=101.2204 WHERE `guid`=@NPC;
@@ -208,7 +208,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,87963,6,270,2,10,35),
 (@NPC,87994,6,360,2,0,0);
 
--- Pathing for Vekniss Stinger Entry: 15235 'TDB FORMAT' 
+-- Pathing for Vekniss Stinger Entry: 15235 'TDB FORMAT'
 SET @NPC := 87991;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8635.931,`position_y`=1406.936,`position_z`=-69.83319 WHERE `guid`=@NPC;
@@ -279,7 +279,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,87965,6,270,2,12,37),
 (@NPC,87966,6,360,2,0,0);
 
--- Pathing for Vekniss Stinger Entry: 15235 'TDB FORMAT' 
+-- Pathing for Vekniss Stinger Entry: 15235 'TDB FORMAT'
 SET @NPC := 87992;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8623.98,`position_y`=1334.81,`position_z`=-69.86489 WHERE `guid`=@NPC;
@@ -507,7 +507,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,87973,6,270,2,0,0),
 (@NPC,87996,6,360,2,0,0);
 
--- Pathing for Vekniss Stinger Entry: 15235 'TDB FORMAT' 
+-- Pathing for Vekniss Stinger Entry: 15235 'TDB FORMAT'
 SET @NPC := 87998;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8602.222,`position_y`=1420.14,`position_z`=-66.16376 WHERE `guid`=@NPC;

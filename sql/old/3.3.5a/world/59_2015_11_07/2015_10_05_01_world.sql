@@ -1,4 +1,4 @@
--- 
+--
 DELETE FROM `creature_template_addon` WHERE `Entry`=38058;
 INSERT INTO `creature_template_addon` (`entry`, `bytes1`, `bytes2`) VALUES (38058,50331648,1);
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry`=38058;

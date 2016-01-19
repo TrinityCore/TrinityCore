@@ -16,6 +16,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//[AZTH]
+#include "AzthObject.h"
+
 #include "Object.h"
 #include "Common.h"
 #include "SharedDefines.h"
@@ -1145,6 +1148,11 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 {
     if (!IsInMap(obj))
         return false;
+
+    // [AZTH] code injection
+    int res=AzthObject::IsWithinLOSInMap(this, obj);
+    if (res>=0) return res;
+    // [/AZTH]
 
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);

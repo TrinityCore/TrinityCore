@@ -5,7 +5,7 @@ UPDATE `creature` SET `spawndist`=20 WHERE  `guid` IN (106644, 106699, 106698, 1
 
 -- 2. emotes
 DELETE FROM `creature_addon` WHERE `guid` IN (109020, 109041);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (109020,0,0,0,1,51, ''),
 (109041,0,0,0,1,51, '');
 
@@ -34,34 +34,34 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- 4. foxus warlock emotes
 DELETE FROM `creature_addon` WHERE `guid` IN (114036, 114035, 114040, 114039, 114041, 114002, 114005, 114003, 113973, 113995, 114000, 113996, 113998, 114038, 113999);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
-(114036,0,0,0,1,69, ''), 
-(114035,0,0,0,1,69, ''), 
-(114040,0,0,0,1,69, ''), 
-(114039,0,0,0,1,69, ''), 
-(114041,0,0,0,1,69, ''), 
-(114002,0,0,0,1,69, ''), 
-(114005,0,0,0,1,69, ''), 
-(114003,0,0,0,1,69, ''), 
-(113973,0,0,0,1,69, ''), 
-(113995,0,0,0,1,69, ''), 
-(114000,0,0,0,1,69, ''), 
-(113996,0,0,0,1,69, ''), 
-(113998,0,0,0,1,69, ''), 
-(114038,0,0,0,1,69, ''), 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(114036,0,0,0,1,69, ''),
+(114035,0,0,0,1,69, ''),
+(114040,0,0,0,1,69, ''),
+(114039,0,0,0,1,69, ''),
+(114041,0,0,0,1,69, ''),
+(114002,0,0,0,1,69, ''),
+(114005,0,0,0,1,69, ''),
+(114003,0,0,0,1,69, ''),
+(113973,0,0,0,1,69, ''),
+(113995,0,0,0,1,69, ''),
+(114000,0,0,0,1,69, ''),
+(113996,0,0,0,1,69, ''),
+(113998,0,0,0,1,69, ''),
+(114038,0,0,0,1,69, ''),
 (113999,0,0,0,1,69, '');
 
 -- 5. mage hunter emotes
 DELETE FROM `creature_addon` WHERE `guid` IN (111759, 111757, 111756, 111758, 111760, 111761, 111802, 111801, 111800);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
-(111759,0,0,0,1,27, ''), 
-(111757,0,0,0,1,27, ''), 
-(111756,0,0,0,1,27, ''), 
-(111758,0,0,0,1,27, ''), 
-(111760,0,0,0,1,27, ''), 
-(111761,0,0,0,1,27, ''),  
-(111802,0,0,0,1,27, ''), 
-(111801,0,0,0,1,27, ''), 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(111759,0,0,0,1,27, ''),
+(111757,0,0,0,1,27, ''),
+(111756,0,0,0,1,27, ''),
+(111758,0,0,0,1,27, ''),
+(111760,0,0,0,1,27, ''),
+(111761,0,0,0,1,27, ''),
+(111802,0,0,0,1,27, ''),
+(111801,0,0,0,1,27, ''),
 (111800,0,0,0,1,27, '');
 
 -- 6. Beefwps
@@ -143,23 +143,23 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,68,3318.305,479.0531,81.26054,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111043;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111043, 111043, 0, 0, 2, 0, 0),
 (111043, 111211, 7, 0, 0, 0, 0);
 
 -- 7. casting emotes gnomes
 DELETE FROM `creature_addon` WHERE `guid` IN (109040, 109039);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (109040,0,0,0,1,51, ''),
 (109039,0,0,0,1,51, '');
 
 -- 8. Attackemotes for hunter + warlocks (all 3 caves)
 DELETE FROM `creature_addon` WHERE `guid` IN (111789, 111827, 114030, 111796, 111811, 111813, 114029, 111834, 114069, 111812, 114049, 111750, 113966, 111768, 111766, 114010, 111770, 114008, 111769, 111767, 114009, 111734, 111779, 114020, 111776, 111774, 111775, 111747, 111754, 111755, 111753, 113951, 113968, 113969, 113964, 111717, 113967, 111735, 113970, 111728, 113940, 113965, 114006, 111727, 111743, 111763, 111764);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (111789, 0,0,0,1,27, ''),
 (111827, 0,0,0,1,27, ''),
-(114030, 0,0,0,1,27, ''), 
-(111796, 0,0,0,1,27, ''), 
+(114030, 0,0,0,1,27, ''),
+(111796, 0,0,0,1,27, ''),
 (111811, 0,0,0,1,27, ''),
 (111813, 0,0,0,1,27, ''),
 (114029, 0,0,0,1,27, ''),
@@ -324,7 +324,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,109,2953.459,873.7681,38.4597,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=99801;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (99801, 99801, 0, 0, 2, 0, 0),
 (99801, 99802, 3, 90, 2, 0, 0);
 UPDATE `smart_scripts` SET `action_param1`=1 WHERE  `entryorguid`=27178 AND `source_type`=0 AND `id`=0 AND `link`=1;
@@ -394,6 +394,6 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,54,2732.5,915.2117,1.668151,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=99815;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (99815, 99815, 0, 0, 2, 0, 0),
 (99815, 99814, 3, 90, 2, 0, 0);

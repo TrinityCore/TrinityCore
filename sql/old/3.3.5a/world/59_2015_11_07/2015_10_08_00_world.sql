@@ -14,7 +14,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,4,507.5956,755.1626,808.8735,0,0,0,0,100,0),
 (@PATH,5,488.8975,758.9921,818.0986,0,0,0,0,100,0),
 (@PATH,6,507.5956,755.1626,808.8735,0,0,0,0,100,0);
- 
+
 DELETE FROM `creature_formations` WHERE `leaderGUID` IN (@NPC);
 INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`groupAI`,`point_1`,`point_2`) VALUES
 (@NPC,@NPC,0,0,2,0,0),

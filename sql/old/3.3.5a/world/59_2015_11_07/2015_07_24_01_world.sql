@@ -1,6 +1,6 @@
--- 
+--
 DELETE FROM `creature_addon` WHERE `guid` IN (90888,90738,46620,48168,91011,90741,91066);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (90888,0,0,0,4097,10,'14869'),
 (90738,0,0,0,4097,10,'14869'),
 (46620,0,0,0,4097,10,'14869'),
@@ -23,7 +23,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (954500,9,0,0,0,0,100,0,5000,5000,0,0,99,3,0,0,0,0,0,20,165578,10,0,0,0,0,0,"Grim Patron - Action list - Set loot state"),
 (954500,9,1,0,0,0,100,0,0,0,0,0,11,50631,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grim Patron - Action list - Cast Drink Dark Iron Brewer"),
 (954500,9,2,0,0,0,100,0,2000,2000,0,0,11,50651,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grim Patron - Action list - Cast Dark Iron Brewer is Swaggering"),
-(954500,9,3,0,0,0,100,0,5000,5000,0,0,28,50651,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grim Patron - Action list - Remove aura"), 
+(954500,9,3,0,0,0,100,0,5000,5000,0,0,28,50651,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grim Patron - Action list - Remove aura"),
 (9547,0,0,0,0,0,100,0,1000,2000,15000,15000,11,14868,0,0,0,0,0,2,0,0,0,0,0,0,0,"Guzzling Patron - In Combat - Cast 'Curse of Agony'"),
 (9547,0,1,0,0,0,100,0,3000,4000,3000,4000,11,20825,0,0,0,0,0,2,0,0,0,0,0,0,0,"Guzzling Patron - In Combat - Cast 'Shadow Bolt'"),
 (9547,0,2,0,2,0,100,1,0,30,0,0,11,14822,0,0,0,0,0,1,0,0,0,0,0,0,0,"Guzzling Patron - Between 0-30% Health - Cast 'Drunken Rage' (No Repeat)"),
@@ -152,5 +152,5 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (9503,6,0,"I'm getting out of here!",12,0,100,0,0,0, 'Rocknot', 5281);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (15) AND `SourceGroup`=2076;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (15, 2076, 0, 0, 0, 8, 0, 4201, 0, 0, 0, 0, 0, '', 'Show the gossip option for Nagmara if the quest The Love Potion is rewarded');

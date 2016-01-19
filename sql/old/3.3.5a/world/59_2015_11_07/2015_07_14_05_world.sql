@@ -1,4 +1,4 @@
--- 
+--
 -- Bloodpaw Warrior SAI
 SET @ENTRY := 27342;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

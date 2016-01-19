@@ -1,4 +1,4 @@
--- 
+--
 SET @DredgeWorm:=      8925;
 SET @DeepStinger:=     8926;
 SET @DarkScreecher:=   8927;
@@ -68,7 +68,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 UPDATE `creature_template` SET `unit_flags`=131904 WHERE `entry`=10096;
 DELETE FROM `creature_template_addon` WHERE `entry` IN (@DeepStinger);
-INSERT INTO `creature_template_addon` (`entry`, `bytes2`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `bytes2`, `auras`) VALUES
 (@DeepStinger, 1, '8601');
 
 UPDATE `creature_text` SET `groupid`=4, `id`=1 WHERE `BroadcastTextId`=5441 AND `entry`=10096;

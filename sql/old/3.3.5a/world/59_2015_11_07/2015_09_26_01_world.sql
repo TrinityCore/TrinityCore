@@ -1,4 +1,4 @@
--- 
+--
 UPDATE `creature_template` SET `unit_flags`=33555200 WHERE `entry`=28253;
 
 SET @ENTRY := 30736;
@@ -19,7 +19,7 @@ UPDATE `creature_template` SET `unit_flags`=32768 WHERE `entry`=26271;
 UPDATE `creature` SET `unit_flags`=537166592 WHERE `guid` IN (110812, 110813, 110814, 110815, 110816, 110817);
 
 DELETE FROM `creature_addon` WHERE `guid` IN (110812, 110813, 110814, 110815, 110816, 110817);
-INSERT INTO `creature_addon` (`guid`, `bytes2`, `auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`, `bytes2`, `auras`) VALUES
 (110812, 1, "29266"),
 (110813, 1, "29266"),
 (110814, 1, "29266"),
@@ -34,7 +34,7 @@ UPDATE `creature_template` SET `unit_flags`=33536 WHERE `entry`=30501;
 DELETE FROM `creature` WHERE `guid`=120496 AND `id`=28414;
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (28413);
-INSERT INTO `creature_template_addon` (`entry`, `bytes2`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `bytes2`, `auras`) VALUES
 (28413, 0, "54450");
 
 UPDATE `creature_template` SET `flags_extra`=2 WHERE `entry` IN (28413);

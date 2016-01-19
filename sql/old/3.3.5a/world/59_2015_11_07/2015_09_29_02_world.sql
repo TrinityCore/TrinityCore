@@ -1,4 +1,4 @@
--- 
+--
 UPDATE `creature_template` SET `flags_extra`=2 WHERE `entry`=29639;
 UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `guid`=105166;
 UPDATE `creature_addon` SET `auras`=29266 WHERE `guid`=105166;

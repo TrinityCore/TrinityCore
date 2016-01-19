@@ -1,4 +1,4 @@
--- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT' 
+-- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT'
 SET @NPC := 12475;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=404.3267,`position_y`=51.04832,`position_z`=20.42939 WHERE `guid`=@NPC;
@@ -25,7 +25,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,17,386.9718,70.78688,20.28395,0,0,1,0,100,0), -- 15:53:45
 (@PATH,18,404.4698,51.14609,20.42939,0,0,1,0,100,0); -- 15:53:48
 
--- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT' 
+-- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT'
 SET @NPC := 12434;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=332.7476,`position_y`=-90.41917,`position_z`=20.51123 WHERE `guid`=@NPC;
@@ -68,10 +68,10 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 SET @ENTRY := 20039;
 SET @GUID := 554;
 DELETE FROM `creature` WHERE `guid`=@GUID;
-INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`) VALUES
 (@GUID, @ENTRY, 550, 246.4875, -37.49984, 20.42661, 5.58522, 10800, 366765);
 
--- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT' 
+-- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT'
 SET @NPC := 554;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=246.4875,`position_y`=-37.49984,`position_z`=20.42661 WHERE `guid`=@NPC;
@@ -99,7 +99,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,18,276.5398,-74.81604,20.42981,0,0,1,0,100,0), -- 15:54:05
 (@PATH,19,257.961,-57.62645,20.42985,0,0,1,0,100,0); -- 15:54:07
 
--- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT' 
+-- Pathing for Phoenix-Hawk Entry: 20039 'TDB FORMAT'
 SET @NPC := 12433;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=332.517,`position_y`=-90.67094,`position_z`=20.45976 WHERE `guid`=@NPC;
@@ -134,7 +134,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,25,315.9437,-89.75371,20.45979,0,0,1,0,100,0), -- 15:54:48
 (@PATH,26,324.4437,-90.25371,20.45979,0,0,1,0,100,0); -- 15:54:48
 
--- Pathing for Crystalcore Devastator Entry: 20040 'TDB FORMAT' 
+-- Pathing for Crystalcore Devastator Entry: 20040 'TDB FORMAT'
 SET @NPC := 12549;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=478.9474,`position_y`=89.4745,`position_z`=20.52121 WHERE `guid`=@NPC;
@@ -180,7 +180,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (12467, 12431, 3, 270, 2),
 (12467, 12432, 3, 90, 2);
 
--- Pathing for Astromancer Lord Entry: 20046 'TDB FORMAT' 
+-- Pathing for Astromancer Lord Entry: 20046 'TDB FORMAT'
 SET @NPC := 12467;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=513.6304,`position_y`=-224.7386,`position_z`=20.56552 WHERE `guid`=@NPC;
@@ -235,7 +235,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (12540, 12542, 3, 270, 2),
 (12540, 12541, 3, 90, 2);
 
--- Pathing for Nether Scryer Entry: 20045 'TDB FORMAT' 
+-- Pathing for Nether Scryer Entry: 20045 'TDB FORMAT'
 SET @NPC := 12540;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=423.7304,`position_y`=-297.2403,`position_z`=19.25663 WHERE `guid`=@NPC;
@@ -288,7 +288,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (12538, 12537, 3, 270, 2),
 (12538, 12539, 3, 90, 2);
 
--- Pathing for Nether Scryer Entry: 20045 'TDB FORMAT' 
+-- Pathing for Nether Scryer Entry: 20045 'TDB FORMAT'
 SET @NPC := 12538;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=491.6343,`position_y`=-348.8971,`position_z`=17.45782 WHERE `guid`=@NPC;
@@ -353,7 +353,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (12465, 12463, 3, 270, 2),
 (12465, 12464, 3, 90, 2);
 
--- Pathing for Crimson Hand Inquisitor Entry: 20050 'TDB FORMAT' 
+-- Pathing for Crimson Hand Inquisitor Entry: 20050 'TDB FORMAT'
 SET @NPC := 12465;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=655.5598,`position_y`=-74.22478,`position_z`=47.05975 WHERE `guid`=@NPC;
@@ -380,7 +380,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 SET @CGUID := 86939;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+14;
-INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`) VALUES
 (@CGUID+0, 20048, 550, 615.408, 108.1827, 45.53154, 5.798159, 7200), -- 20048 (Area: -1)
 (@CGUID+1, 20050, 550, 621.3588, 107.9806, 46.45268, 5.711797, 7200), -- 20050 (Area: -1)
 (@CGUID+2, 20048, 550, 617.9949, 113.5776, 45.32596, 5.797285, 7200), -- 20048 (Area: -1)
@@ -403,7 +403,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (86940, 86939, 3, 270, 2),
 (86940, 86941, 3, 90, 2);
 
--- Pathing for Crimson Hand Inquisitor Entry: 20050 'TDB FORMAT' 
+-- Pathing for Crimson Hand Inquisitor Entry: 20050 'TDB FORMAT'
 SET @NPC := 86940;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=655.5364,`position_y`=72.95763,`position_z`=47.05836 WHERE `guid`=@NPC;

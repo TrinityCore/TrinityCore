@@ -1,4 +1,4 @@
--- 
+--
 
 DELETE FROM `creature` WHERE `id`=29558;
 UPDATE `creature_template` SET `npcflag`=16777216 WHERE `entry` IN (29351, 29358);

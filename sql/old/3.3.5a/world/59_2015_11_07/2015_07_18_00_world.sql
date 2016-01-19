@@ -1,4 +1,4 @@
--- 
+--
 -- Wastes Digger SAI
 SET @ENTRY := 26492;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

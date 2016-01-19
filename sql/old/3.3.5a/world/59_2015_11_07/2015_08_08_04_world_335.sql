@@ -1,4 +1,4 @@
--- 
+--
 UPDATE `creature_template` SET `AIName`="SmartAI", `ScriptName`='', `Flags_Extra`=0 WHERE `entry` IN (3568);
 DELETE FROM `creature_text` WHERE `entry` IN (3519, 3568);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`,`BroadcastTextId`) VALUES

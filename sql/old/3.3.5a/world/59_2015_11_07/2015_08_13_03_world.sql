@@ -54,7 +54,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,3,0,4,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Undead Postman - On Aggro - Say Line 0");
 
 DELETE FROM `creature_text` WHERE `entry`=11142;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (11142, 0, 0, 'No tampering with the mail!', 12, 0, 100, 0, 0, 0, 6470, 'Undead Postman');
 
 -- enable flying

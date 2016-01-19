@@ -1,4 +1,4 @@
--- 
+--
 -- Deathless Watcher SAI
 SET @ENTRY := 24013;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

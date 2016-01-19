@@ -37,7 +37,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,2848.53,-3180.427,273.787,0,0,0,0,100,0),
 (@PATH,10,2827.984,-3152.95,273.787,0,0,0,0,100,0);
 
--- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT' 
+-- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT'
 SET @NPC := 127746; -- 127747
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2561.589,`position_y`=-3158.63,`position_z`=240.5253 WHERE `guid`=@NPC;
@@ -79,7 +79,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,32,2537.175,-3152.094,240.524,0,0,0,0,100,0), -- 00:59:44
 (@PATH,33,2547.807,-3157.692,240.5253,0,0,0,0,100,0); -- 00:59:49
 
--- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT' 
+-- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT'
 SET @NPC := 127747; -- 127746
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2561.589,`position_y`=-3158.63,`position_z`=240.5253 WHERE `guid`=@NPC;
@@ -121,7 +121,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,32,2537.175,-3152.094,240.524,0,0,0,0,100,0), -- 00:59:44
 (@PATH,33,2547.807,-3157.692,240.5253,0,0,0,0,100,0); -- 00:59:49
 
--- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT' 
+-- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT'
 SET @NPC := 127748;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2529.461,`position_y`=-3350.972,`position_z`=267.5927 WHERE `guid`=@NPC;
@@ -162,7 +162,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,31,2538.893,-3363.072,267.592,0,0,0,0,100,0); -- 00:59:57
 -- 0x1C2F4042A00FC8C0004C5C00017F5587 .go 2529.461 -3350.972 267.5927
 
--- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT' 
+-- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT'
 SET @NPC := 127749;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2529.461,`position_y`=-3350.972,`position_z`=267.5927 WHERE `guid`=@NPC;
@@ -374,7 +374,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127744,127744,0,0,2,0,0),
 (127744,127745,3,270,2,0,0);
 
--- Pathing for Death Knight Entry: 16146 'TDB FORMAT' 
+-- Pathing for Death Knight Entry: 16146 'TDB FORMAT'
 SET @NPC := 127668;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2828.432,`position_y`=-3176.265,`position_z`=298.1476 WHERE `guid`=@NPC;
@@ -397,7 +397,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,13,2790.895,-3179.5,298.1464,0,0,0,0,100,0), -- 00:47:40
 (@PATH,14,2813.296,-3175.835,298.1458,0,0,0,0,100,0); -- 00:47:49
 
--- Pathing for Dark Touched Warrior Entry: 16156 'TDB FORMAT' 
+-- Pathing for Dark Touched Warrior Entry: 16156 'TDB FORMAT'
 SET @NPC := 127699;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2830.432,`position_y`=-3173.265,`position_z`=298.1476 WHERE `guid`=@NPC;
@@ -420,7 +420,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,13,2790.895,-3179.5,298.1464,0,0,0,0,100,0), -- 00:47:40
 (@PATH,14,2813.296,-3175.835,298.1458,0,0,0,0,100,0); -- 00:47:49
 
--- Pathing for Dark Touched Warrior Entry: 16156 'TDB FORMAT' 
+-- Pathing for Dark Touched Warrior Entry: 16156 'TDB FORMAT'
 SET @NPC := 127700;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2827.432,`position_y`=-3178.265,`position_z`=298.1476 WHERE `guid`=@NPC;
@@ -449,7 +449,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127668,127699,3,270,2,5,12),
 (127668,127700,3,90,2,5,12);
 
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127647;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2863.143,`position_y`=-3303.327,`position_z`=298.1498 WHERE `guid`=@NPC;
@@ -466,7 +466,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,2874.288,-3265.404,298.1561,0,0,0,0,100,0), -- 00:47:18
 (@PATH,8,2865.348,-3285.952,298.0973,0,0,0,0,100,0); -- 00:47:27
 
--- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT' 
+-- Pathing for Death Knight Captain Entry: 16145 'TDB FORMAT'
 SET @NPC := 127648;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2867.593,`position_y`=-3304.907,`position_z`=298.1498 WHERE `guid`=@NPC;
@@ -488,7 +488,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127647,127647,0,0,2,0,0),
 (127647,127648,4,270,2,2,6);
 
--- Pathing for Shade of Naxxramas Entry: 16164 'TDB FORMAT' 
+-- Pathing for Shade of Naxxramas Entry: 16164 'TDB FORMAT'
 SET @NPC := 127755;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2915.294,`position_y`=-3343.234,`position_z`=298.1457 WHERE `guid`=@NPC;
@@ -508,7 +508,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 
 UPDATE `creature` SET `modelid`=0 WHERE `id` IN (16145,16146,16156,16163);
 
--- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT' 
+-- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT'
 SET @NPC := 127816;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2724.483,`position_y`=-3142.47,`position_z`=267.6181 WHERE `guid`=@NPC;
@@ -519,7 +519,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,2724.483,-3142.47,267.6181,0,0,0,0,100,0), -- 00:55:47
 (@PATH,2,2740.318,-3170.808,267.576,0,0,0,0,100,0); -- 00:56:00
 
--- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT' 
+-- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT'
 SET @NPC := 127817;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2721.483,`position_y`=-3144.47,`position_z`=267.6181 WHERE `guid`=@NPC;
@@ -530,7 +530,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,2724.483,-3142.47,267.6181,0,0,0,0,100,0), -- 00:55:47
 (@PATH,2,2740.318,-3170.808,267.576,0,0,0,0,100,0); -- 00:56:00
 
--- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT' 
+-- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT'
 SET @NPC := 127819;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2687.124,`position_y`=-3143.13,`position_z`=267.6205 WHERE `guid`=@NPC;
@@ -541,7 +541,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,2687.124,-3143.13,267.6205,0,0,0,0,100,0), -- 00:55:49
 (@PATH,2,2667.474,-3173.004,267.634,0,0,0,0,100,0); -- 00:56:04
 
--- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT' 
+-- Pathing for Unholy Staff Entry: 16215 'TDB FORMAT'
 SET @NPC := 127820;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2684.124,`position_y`=-3142.13,`position_z`=267.6205 WHERE `guid`=@NPC;
@@ -559,7 +559,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127819,127819,0,0,2,0,0),
 (127819,127820,3,270,2,1,2);
 
--- Pathing for Unholy Axe Entry: 16194 'TDB FORMAT' 
+-- Pathing for Unholy Axe Entry: 16194 'TDB FORMAT'
 SET @NPC := 127796;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2690.577,`position_y`=-3156.689,`position_z`=267.6078 WHERE `guid`=@NPC;
@@ -574,7 +574,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,2706.458,-3124.162,267.6098,0,0,0,0,100,0), -- 00:56:13
 (@PATH,6,2688.671,-3133.302,267.6201,0,0,0,0,100,0); -- 00:56:22
 
--- Pathing for Unholy Axe Entry: 16194 'TDB FORMAT' 
+-- Pathing for Unholy Axe Entry: 16194 'TDB FORMAT'
 SET @NPC := 127797;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2693.577,`position_y`=-3154.689,`position_z`=267.6078 WHERE `guid`=@NPC;
@@ -594,7 +594,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127796,127796,0,0,2,0,0),
 (127796,127797,3,270,2,0,0);
 
--- Pathing for Unholy Swords Entry: 16216 'TDB FORMAT' 
+-- Pathing for Unholy Swords Entry: 16216 'TDB FORMAT'
 SET @NPC := 127822;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2740.497,`position_y`=-3216.551,`position_z`=267.6155 WHERE `guid`=@NPC;
@@ -611,7 +611,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,2717.949,-3253.626,267.6629,0,0,0,0,100,0), -- 00:56:40
 (@PATH,8,2734.737,-3239.713,267.602,0,0,0,0,100,0); -- 00:56:50
 
--- Pathing for Unholy Swords Entry: 16216 'TDB FORMAT' 
+-- Pathing for Unholy Swords Entry: 16216 'TDB FORMAT'
 SET @NPC := 127823;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2743.497,`position_y`=-3216.551,`position_z`=267.6155 WHERE `guid`=@NPC;
@@ -633,7 +633,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127822,127822,0,0,2,0,0),
 (127822,127823,4,90,2,3,7);
 
--- Pathing for Instructor Razuvious Entry: 16061 'TDB FORMAT' 
+-- Pathing for Instructor Razuvious Entry: 16061 'TDB FORMAT'
 SET @NPC := 128312;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2758.932,`position_y`=-3107.118,`position_z`=267.6845 WHERE `guid`=@NPC;

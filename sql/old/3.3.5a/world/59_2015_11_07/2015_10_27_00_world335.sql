@@ -27,5 +27,5 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (1433800, 9, 4, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 500.42, 540.966, -25.3194, 2.72271, 'Knot - Script - Move Point');
 
 DELETE FROM `creature_text` WHERE `entry`=14338;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (14338, 0, 0, '$n, I\'ll make sure all my friends in the Cartel know that you\'ve saved my life today.  Here - I\'m going to need to be able to travel light, so please help yourself to my cache of tailoring and leatherworking supplies!  Thanks again - see ya!', 12, 0, 0, 0, 0, 0, 9346, 0, 'Knot');

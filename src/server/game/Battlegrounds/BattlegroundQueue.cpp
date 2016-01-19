@@ -223,6 +223,27 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
                     sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bg->GetName().c_str(), q_min_level, q_max_level,
                         qAlliance, (MinPlayers > qAlliance) ? MinPlayers - qAlliance : (uint32)0, qHorde, (MinPlayers > qHorde) ? MinPlayers - qHorde : (uint32)0);
                 }
+
+                // [AZTH]
+                if (bg->isBattleground())
+                {
+                    if (m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].size() == MinPlayers && !hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_ALLIANCE])
+                    {
+                        sWorld->SendWorldText(LANG_BG_ANNOUNCE_TEAM_READY, q_min_level, q_max_level, "Alliance", bg->GetName().c_str());
+                        hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_ALLIANCE] = true;
+                    }
+                    else if (m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_ALLIANCE].size() == 1) // set booleans when the first player queues
+                        hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_ALLIANCE] = false;
+
+                    if (m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_HORDE].size() == MinPlayers && !hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_HORDE])
+                    {
+                        sWorld->SendWorldText(LANG_BG_ANNOUNCE_TEAM_READY, q_min_level, q_max_level, "Horde", bg->GetName().c_str());
+                        hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_HORDE] = true;
+                    }
+                    else if (m_QueuedGroups[bracketId][BG_QUEUE_NORMAL_HORDE].size() == 1) // set booleans when the first player queues
+                        hasBeenAnnounced[bracketId][BG_QUEUE_NORMAL_HORDE] = false;
+                }
+                // [/AZTH]
             }
         }
         //release mutex

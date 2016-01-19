@@ -1,4 +1,4 @@
--- 
+--
 -- Defias Conjurer SAI "Comments and event_flags fix"
 SET @ENTRY := 619;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

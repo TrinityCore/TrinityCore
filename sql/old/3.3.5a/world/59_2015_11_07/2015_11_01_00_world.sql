@@ -26,7 +26,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` in(20102,18927,19177,19169,19175,19171,19172,19176,19178,19173,19148) AND `SourceGroup`=7;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` in(20102,18927,19177,19169,19175,19171,19172,19176,19178,19173,19148) AND `SourceGroup`=12;
 
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 7, 19148, 0, 0, 12, 1, 12, 0, 0, 0, 0, 0, '', 'Commoner - Hallows End must be active'),
 (22, 7, 20102, 0, 0, 12, 1, 12, 0, 0, 0, 0, 0, '', 'Commoner - Hallows End must be active'),
 (22, 7, 18927, 0, 0, 12, 1, 12, 0, 0, 0, 0, 0, '', 'Commoner - Hallows End must be active'),
@@ -50,16 +50,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 12, 19169, 0, 0, 12, 1, 12, 0, 0, 0, 0, 0, '', 'Commoner - Hallows End must be active');
 
 DELETE FROM `gossip_menu` WHERE `entry` IN(8936,8939,8938,8941,8940,8942,8943,8944,8945,8935);
-INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES 
-(8936,11957), 
-(8939,11960), 
-(8938,11959), 
-(8941,11962), 
-(8940,11961), 
-(8942,11963), 
-(8943,11964), 
-(8944,11965), 
-(8945,11966), 
+INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
+(8936,11957),
+(8939,11960),
+(8938,11959),
+(8941,11962),
+(8940,11961),
+(8942,11963),
+(8943,11964),
+(8944,11965),
+(8945,11966),
 (8935,11956);
 
 DELETE FROM `creature_text` WHERE `entry` IN(20102,18927,19177,19169,19175,19171,19176,19178,19173,19148) AND `groupid`=6;

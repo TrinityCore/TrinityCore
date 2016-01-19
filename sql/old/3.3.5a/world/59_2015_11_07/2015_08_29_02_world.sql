@@ -84,11 +84,11 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+79, 30504, 571, 1, 2, 7325.687, -899.111, 920.3403, 2.758484, 0, 0, 0);
 
 DELETE FROM `creature_template_addon` WHERE `entry`=30493;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (30493, 0, 0, 0, 0, 0, '29266');
 
 DELETE FROM `creature_addon` WHERE `guid`=@CGUID+78;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (@CGUID+78, 0, 0, 0, 0, 0, '54503'); -- quest invisibility
 
 DELETE FROM `spell_area` WHERE `spell`=55782 AND `area`=4432;
@@ -99,11 +99,11 @@ DELETE FROM `spell_area` WHERE `spell`=54504 AND `area`=4428;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
 (54504, 4428, 12973, 0, 0, 0, 2, 1, 10, 0);
 
-SET @Brann          := 30107; 
+SET @Brann          := 30107;
 SET @Brann1         := 30382; -- Brann   60888 cosmetic movement
 SET @Brann2         := 30405;
 SET @Machine        := 30134; -- Machine
-SET @Soldier        := 30136; -- Stormforged Soldier  
+SET @Soldier        := 30136; -- Stormforged Soldier
 Set @Yorg           := 30408; -- Yorg Stormheart spell to summon=56676
 Set @Magni          := 30411; -- Magni Bronzebeard spell to summon=56697
 SET @SPELL1         := 56603;
@@ -137,7 +137,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@Machine, 0, 0, 0, 27, 0, 100, 0, 0, 0, 0, 0, 80, @Machine*100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On passeger boarded - action list'),
 (@Machine*100, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 1, @Machine, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - action list - start wp'),
 (@Machine*100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 19, @Brann, 10, 0, 0, 0, 0, 0, 'Brann - On Script - Set React Passive'),
-(@Machine*100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On Script - Set React Passive'), 
+(@Machine*100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On Script - Set React Passive'),
 (@Machine*100, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 18, 131072, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On Script - set PACIFIED'),
 (@Soldier, 0, 0, 0, 0, 0, 100, 0, 3000, 3000, 4000, 4000, 11, 56621, 1, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0,0,'Stormforged Soldier - In Combat - Cast Thunder Orb'),
 (@Machine, 0, 1, 0, 40, 0, 100, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 19, @brann, 10, 0, 0, 0, 0, 0, 'Machine - On waypoint - talk'),
@@ -191,7 +191,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@brann2*100, 9, 32, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 1, 13, 0, 0, 0, 0, 0, 19, @Yorg, 10, 0, 0, 0, 0, 0, 'brann - ActionList - talk'),
 (@brann2*100, 9, 33, 0, 0, 0, 100, 0, 0, 0, 0, 0, 75, 71385, 0, 0, 0, 0, 0, 11, @Yorg, 20, 0, 0, 0, 0, 0, 'brann - ActionList - add aura'),
 (@brann2*100, 9, 34, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 8, 0, 0, 0, 0, 0, 19, @Magni, 10, 0, 0, 0, 0, 0, 'brann - ActionList - talk'),
-(@brann2*100, 9, 35, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 75, 71385, 0, 0, 0, 0, 0, 11, @Magni, 20, 0, 0, 0, 0, 0, 'brann - ActionList - add aura'),  
+(@brann2*100, 9, 35, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 75, 71385, 0, 0, 0, 0, 0, 11, @Magni, 20, 0, 0, 0, 0, 0, 'brann - ActionList - add aura'),
 (@brann2*100, 9, 36, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 56742, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'brann - ActionList - Cast credit spell'),
 (@brann2*100, 9, 37, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 6740.549316, -293.961212, 993.427979, 3.559861, 'brann - ActionList - move to pos'),
 (@brann2*100, 9, 38, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Brann  - On ActionList - despawn'),
@@ -244,15 +244,15 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (18,@Machine,@SPELL1,0,0,9,0,12973,0,0,0,0,'','Required quest active for spellclick'),
 (18,@Machine,43671,0,0,31,0,3,0,0,0,0,'','Only npc for spellclick');
 
-DELETE FROM `spell_target_position` WHERE `id`=56558; 
+DELETE FROM `spell_target_position` WHERE `id`=56558;
 INSERT INTO `spell_target_position` (`id`,`mapid`,`positionx`,`positiony`,`positionz`,`orientation`) VALUES
 (56558, 571, 7515.810059, -975.283997, 478.508027, 3.883507);
 DELETE FROM `spell_target_position` WHERE `id`=56676;
 INSERT INTO `spell_target_position` (`id`,`mapid`,`positionx`,`positiony`,`positionz`,`orientation`) VALUES
-(56676, 571, 6668.243164, -300.716309, 989.048035, 0.049131);  
+(56676, 571, 6668.243164, -300.716309, 989.048035, 0.049131);
 DELETE FROM `spell_target_position` WHERE `id`=56697;
 INSERT INTO `spell_target_position` (`id`,`mapid`,`positionx`,`positiony`,`positionz`,`orientation`) VALUES
-(56697, 571, 6646.655762, -292.56268, 982.318909, 6.077349); 
+(56697, 571, 6646.655762, -292.56268, 982.318909, 6.077349);
 
 DELETE FROM `waypoints` WHERE entry=@Machine;
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
@@ -297,7 +297,7 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@Machine,39,7051.731, -506.0969, 984.3438,'Brann flying machine'),
 (@Machine,40,6928.087, -372.7923, 1013.677,'Brann flying machine'),
 (@Machine,41,6820.645, -310.3642, 1017.538,'Brann flying machine'),
-(@Machine,42,6741.966, -291.7396, 996.2623,'Brann flying machine'); 
+(@Machine,42,6741.966, -291.7396, 996.2623,'Brann flying machine');
 
 DELETE FROM `creature_text` WHERE `entry` IN (@Brann, @Yorg, @Magni, @Brann2) ;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextID`) VALUES

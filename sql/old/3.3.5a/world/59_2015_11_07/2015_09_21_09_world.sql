@@ -21,7 +21,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (14, 11971, 16789, 0, 15, 4, 0, 0, 0, '', 'Show gossip text if player is not a hunter', 1);
 
 DELETE FROM `npc_text` WHERE id=16788;
-INSERT INTO `npc_text` (`ID`, `text0_0`, `BroadcastTextID0`, `Probability0`) VALUES 
+INSERT INTO `npc_text` (`ID`, `text0_0`, `BroadcastTextID0`, `Probability0`) VALUES
 (16788, "Hey der, mon.$B$BDid ya want ta be stablin' yer pets, or were ya lookin' for a lost companion?", 45395, 1);
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id` = 11971;
@@ -81,7 +81,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15, 9820, 4, 0, 25, 16450, 0, 0, 0, '', 'Show the gossip option if the player Didn''t lear the spell', 1),
 (15, 9820, 5, 0, 8, 3861, 0, 0, 0, '', 'Show the gossip option if the player rewarded the quest', 0),
 (15, 9820, 5, 0, 2, 11110, 1, 1, 0, '', 'Show the gossip option if the player Didn''t have the item', 1),
-(15, 9820, 5, 0, 25, 13548, 0, 0, 0, '', 'Show the gossip option if the player Didn''t lear the spell', 1),   
+(15, 9820, 5, 0, 25, 13548, 0, 0, 0, '', 'Show the gossip option if the player Didn''t lear the spell', 1),
 (15, 9820, 5, 1, 8, 13840, 0, 0, 0, '', 'Show the gossip option if the player rewarded the quest', 0),
 (15, 9820, 5, 1, 2, 11110, 1, 1, 0, '', 'Show the gossip option if the player Didn''t have the item', 1),
 (15, 9820, 5, 1, 25, 13548, 0, 0, 0, '', 'Show the gossip option if the player Didn''t lear the spell', 1),

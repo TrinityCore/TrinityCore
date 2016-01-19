@@ -1,4 +1,4 @@
--- 
+--
 -- Anub'ar Cultist SAI
 SET @ENTRY := 26319;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

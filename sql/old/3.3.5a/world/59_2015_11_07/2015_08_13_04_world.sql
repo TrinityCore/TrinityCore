@@ -1,4 +1,4 @@
--- 
+--
 SET @QUEST              := 13343; -- Mystery of the Infinite 2 (13343)
 SET @NPC_HoE            := 32327; -- Hourglass of Eternity
 SET @NPC_PU             := 32331; -- Past You
@@ -34,31 +34,31 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@NPC_HoE,0,6,0,61,0,100,0,0,0,0,0,11,@AURA_VISUAL,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On link - Cast Spell'),
 (@NPC_HoE,0,7,0,54,0,100,0,0,0,0,0,64,1,0,0,0,0,0,7,0,0,0,0,0,0,0,'Hourglass of Eternity - On spawn - Store target'),
 
--- Wave 1 
+-- Wave 1
 (@NPC_HoE*100,9,0,0,0,0,100,1,3000,3000,0,0,45,1,1,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,1,0,0,0,100,1,5000,5000,0,0,45,1,2,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,2,0,0,0,100,1,5000,5000,0,0,11,@SPELL_MAGUS,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
 (@NPC_HoE*100,9,3,0,0,0,100,1,0,0,0,0,11,@SPELL_ASSAILANT,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
--- Wave 2 
+-- Wave 2
 (@NPC_HoE*100,9,4,0,0,0,100,1,5000,5000,0,0,45,1,3,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,5,0,0,0,100,1,6000,6000,0,0,45,1,4,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,6,0,0,0,100,1,19000,19000,0,0,11,@SPELL_MAGUS,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
 (@NPC_HoE*100,9,7,0,0,0,100,1,0,0,0,0,11,@SPELL_MAGUS,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
--- Wave 3 
+-- Wave 3
 (@NPC_HoE*100,9,8,0,0,0,100,1,5000,5000,0,0,45,1,5,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,9,0,0,0,100,1,6000,6000,0,0,45,1,6,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,10,0,0,0,100,1,5000,5000,0,0,45,1,7,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,11,0,0,0,100,1,14000,14000,0,0,11,@SPELL_MAGUS,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
 (@NPC_HoE*100,9,12,0,0,0,100,1,0,0,0,0,11,@SPELL_ASSAILANT,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
 (@NPC_HoE*100,9,13,0,0,0,100,1,0,0,0,0,11,@SPELL_DESTROYER,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
--- Wave 4 
+-- Wave 4
 (@NPC_HoE*100,9,14,0,0,0,100,1,5000,5000,0,0,45,1,8,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,15,0,0,0,100,1,9000,9000,0,0,45,1,9,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,16,0,0,0,100,1,7000,7000,0,0,45,1,10,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,17,0,0,0,100,1,9000,9000,0,0,11,@SPELL_MAGUS,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
 (@NPC_HoE*100,9,18,0,0,0,100,1,0,0,0,0,11,@SPELL_ASSAILANT,0,0,0,0,0,1,0,0,0,0,0,0,0,'OHourglass of Eternity - On update - Cast Spell on self'),
 (@NPC_HoE*100,9,19,0,0,0,100,1,0,0,0,0,11,@SPELL_DESTROYER,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
--- Wave 5 final 
+-- Wave 5 final
 (@NPC_HoE*100,9,20,0,0,0,100,1,23000,23000,0,0,11,@SPELL_TIMERENDER,0,0,0,0,0,1,0,0,0,0,0,0,0,'Hourglass of Eternity - On update - Cast Spell on self'),
 -- End Text Script
 (@NPC_HoE*100+1,9,0,0,0,0,100,1,4000,4000,0,0,45,2,1,0,0,0,0,19,@NPC_PU,20,0,0,0,0,0,'Hourglass of Eternity - On update - Set Data on Past You'),
@@ -99,15 +99,15 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`auras`
 -- Past You's text
 DELETE FROM `creature_text` WHERE `entry`=@NPC_PU;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`, `BroadcastTextId`) VALUES
-(@NPC_PU,1,0,'Whoa! You''re me, but from the future! Hey, my equipment got an upgrade! Cool!',15,0,100,396,0,0,'Past You', 32764), 
-(@NPC_PU,2,0,'Here come the Infinites! I''ve got to keep the hourglass safe. Can you help?',15,0,100,396,0,0,'Past You', 32769), 
-(@NPC_PU,3,0,'This equipment looks cool and all, but couldn''t we have done a little better? Are you even raiding?',15,0,100,396,0,0,'Past You', 32770), 
+(@NPC_PU,1,0,'Whoa! You''re me, but from the future! Hey, my equipment got an upgrade! Cool!',15,0,100,396,0,0,'Past You', 32764),
+(@NPC_PU,2,0,'Here come the Infinites! I''ve got to keep the hourglass safe. Can you help?',15,0,100,396,0,0,'Past You', 32769),
+(@NPC_PU,3,0,'This equipment looks cool and all, but couldn''t we have done a little better? Are you even raiding?',15,0,100,396,0,0,'Past You', 32770),
 (@NPC_PU,4,0,'So, how does it all turn out in Icecrown?',15,0,100,396,0,0,'Past You', 32771),
 (@NPC_PU,5,0,'It might help if you could tell me how many of these guys we''re going to fight.  You can remember that, right, grandpa?',15,0,100,396,0,0,'Past You', 32775),
-(@NPC_PU,6,0,'Chromie said that if I don''t do this just right, I might wink out of existence. If I go, then you go!',15,0,100,396,0,0,'Past You', 32772), 
-(@NPC_PU,7,0,'I just want you to know that if we get through this alive, I''m making sure that we turn out better than you. No offense.',15,0,100,396,0,0,'Past You', 32776), 
-(@NPC_PU,8,0,'Looks like I''m an underachiever.',15,0,100,396,0,0,'Past You', 32773), 
-(@NPC_PU,9,0,'Wait a minute! If you''re here, then that means that in the not-so-distant future I''m going to be you helping me? Are we stuck in a time loop?!',15,0,100,396,0,0,'Past You', 32777), 
-(@NPC_PU,10,0,'I think I''m going to turn to drinking after this.',15,0,100,396,0,0,'Past You', 32774), 
-(@NPC_PU,11,0,'What the heck? Nozdormu is up there!',15,0,100,396,0,0,'Past You', 32781), 
+(@NPC_PU,6,0,'Chromie said that if I don''t do this just right, I might wink out of existence. If I go, then you go!',15,0,100,396,0,0,'Past You', 32772),
+(@NPC_PU,7,0,'I just want you to know that if we get through this alive, I''m making sure that we turn out better than you. No offense.',15,0,100,396,0,0,'Past You', 32776),
+(@NPC_PU,8,0,'Looks like I''m an underachiever.',15,0,100,396,0,0,'Past You', 32773),
+(@NPC_PU,9,0,'Wait a minute! If you''re here, then that means that in the not-so-distant future I''m going to be you helping me? Are we stuck in a time loop?!',15,0,100,396,0,0,'Past You', 32777),
+(@NPC_PU,10,0,'I think I''m going to turn to drinking after this.',15,0,100,396,0,0,'Past You', 32774),
+(@NPC_PU,11,0,'What the heck? Nozdormu is up there!',15,0,100,396,0,0,'Past You', 32781),
 (@NPC_PU,12,0,'I feel like I''m being pulled away through time. Thanks for the help....',15,0,100,396,0,0,'Past You', 32782);

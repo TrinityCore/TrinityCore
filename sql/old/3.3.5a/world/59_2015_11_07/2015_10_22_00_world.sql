@@ -1,4 +1,4 @@
--- 
+--
 -- Orbaz Bloodbane (NPC 28914) condition for gossip option 9769 to be visible only for quest 12757, Scarlet Armies Approach...
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9769 AND `ConditionValue1`=39654;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES

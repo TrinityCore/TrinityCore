@@ -1,0 +1,19 @@
+###############################################
+# Trinity Core Auth Server configuration file #
+###############################################
+[webserver]
+
+###################################################################################################
+# MYSQL SETTINGS
+#
+#    LoginDatabaseInfo
+#        Description: Database connection settings for the realm server.
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                                                                 "enable-named-pipe" to [mysqld]
+#                                                                 section my.ini)
+#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
+#                                                                           Unix/Linux)
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+
+LoginDatabaseInfo = "127.0.0.1;3306;root;root;emu_trinity_auth_hw2"

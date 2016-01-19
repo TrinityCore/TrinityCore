@@ -1,4 +1,4 @@
--- 
+--
 SET @Guid=144801;
 DELETE FROM `creature` WHERE `guid` BETWEEN @Guid+0 and @Guid+41;
 DELETE FROM `creature` WHERE `id`=22175;

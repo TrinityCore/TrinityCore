@@ -1,4 +1,4 @@
--- Patchwork Horror 
+-- Patchwork Horror
 -- Pathing for Entry: 53943 'TDB FORMAT'
 SET @NPC := 53953;
 SET @PATH := @NPC * 10;

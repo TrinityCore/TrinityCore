@@ -16,9 +16,9 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (88077, 15276, 531, 1, 1, -8868.309, 1205.966, -104.2311, 2.70526, 7200, 0, 0), -- Emperor Vek'lor
 (88072, 15963, 531, 1, 1, -8953.297, 1233.641, -99.71796, 5.305801, 7200, 0, 0); -- The Master's Eye
 -- Ouro Spawner should spawn Ouro "BOSS" on aggro and despawn self.
- 
+
 DELETE FROM `creature_template_addon` WHERE `entry` IN (15589,15957,15963);
 INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (15589,0,1,0, '18950'),(15957,0,1,0, '26092'),(15963,0,1,0, '18430');
- 
+
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (15963);

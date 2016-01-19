@@ -1,4 +1,4 @@
--- 
+--
 -- A Flawless Plan
 UPDATE `event_scripts` SET `x`=6447.573, `y`=-1728.755, `z`=480.7186, `o`=5.66264 WHERE `id`=19455;
 
@@ -46,7 +46,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,36,0,61,0,100,0,0,0,0,0,11,59383,2,0,0,0,0,1,0,0,0,0,0,0,0,"Tormar Frostgut - On Just Died - Cast 'Falling Rocks'");
 
 DELETE FROM `creature_text` WHERE `entry`=29626;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextID`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextID`) VALUES
 (29626, 0, 0, 'Delicious morsels have come to visit! Shall I use your bombs to cook you?', 14, 0, 0, 0, 0, 0, 'Tormar Frostgut', 30593);
 
 -- Cave Explosion Bunny SAI
@@ -57,7 +57,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,1,0,100,0,3000,3000,3000,3000,28,55486,0,0,0,0,0,21,20,0,0,0,0,0,0,"Cave Explosion Bunny - Out of Combat - Remove Aura 'Collapsing Cave'");
 
 DELETE FROM `waypoints` WHERE `entry`=29626;
-INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
+INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (29626, 1, 6450.068, -1730.539, 481.0719, 'Tormar Frostgut'),
 (29626, 2, 6454.975, -1734.046, 481.8981, 'Tormar Frostgut'),
 (29626, 3, 6459.588, -1737.343, 484.043, 'Tormar Frostgut'),
@@ -67,7 +67,7 @@ UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry`=29999;
 
 SET @GUID := 48245; -- needs 6
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID +0 AND @GUID +8;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@GUID +0, 29999, 571, 0, 0, 1, 1, 0, 0, 6355.28, -1590.16, 427.92, 4.2237, 300, 0, 0, 484, 0, 0, 0, 0, 0, 0),
 (@GUID +1, 29999, 571, 0, 0, 1, 1, 0, 0, 6507.73, -1742.65, 490.971, 5.96903, 300, 0, 0, 484, 0, 0, 0, 0, 0, 0),
 (@GUID +2, 29999, 571, 0, 0, 1, 1, 0, 0, 6514.17, -1752.01, 498.858, 4.90438, 300, 0, 0, 484, 0, 0, 0, 0, 0, 0),

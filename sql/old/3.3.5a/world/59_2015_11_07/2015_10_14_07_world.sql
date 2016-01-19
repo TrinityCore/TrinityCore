@@ -390,11 +390,11 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+383, 15590, 509, 1, 1, -9506.192, 1865.572, 85.63909, 4.276057, 7200, 0, 0); -- Ossirian Crystal Trigger
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (15324,15335,15387,15505,15339,15341,15385,15428);
-INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (15324,0,1,0, '18950'),(15335,0,1,0, '18950'),(15387,0,1,0, '18950'),(15505,0,1,0, '18943'),
 (15339,0,1,0, '25176'),(15341,0,1,0, '18943'),(15385,0,1,0, '25462'),(15428,0,1,0, '25160');
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+216;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9248.026,`position_y`=1888.945,`position_z`=85.68073 WHERE `guid`=@NPC;
@@ -425,7 +425,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,21,-9259.192,1938.78,85.68074,0,0,0,0,100,0),
 (@PATH,22,-9234.046,1921.629,85.68074,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+217;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9184.5,`position_y`=1854.158,`position_z`=85.68073 WHERE `guid`=@NPC;
@@ -469,7 +469,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,34,-9158.877,1920.914,86.81694,0,0,0,0,100,0),
 (@PATH,35,-9163.66,1874.253,86.90241,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+218;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9266.736,`position_y`=1785.315,`position_z`=85.67978 WHERE `guid`=@NPC;
@@ -503,7 +503,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,24,-9323.364,1773.62,85.55771,0,0,0,0,100,0),
 (@PATH,25,-9293.272,1760.073,85.68074,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+219;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9252.741,`position_y`=1943.686,`position_z`=85.68074 WHERE `guid`=@NPC;
@@ -543,7 +543,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,30,-9309.036,1982.96,85.68074,0,0,0,0,100,0),
 (@PATH,31,-9290.975,1947.814,85.68074,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+220;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9338.638,`position_y`=1812.094,`position_z`=85.67978 WHERE `guid`=@NPC;
@@ -577,7 +577,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,24,-9343.007,1881.461,85.68073,0,0,0,0,100,0),
 (@PATH,25,-9341.981,1844.112,85.15749,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+221;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9373.941,`position_y`=2005.845,`position_z`=85.68073 WHERE `guid`=@NPC;
@@ -609,7 +609,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,22,-9406.939,1970.748,86.69244,0,0,0,0,100,0),
 (@PATH,23,-9385.19,1986.798,85.68073,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+222;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9166.672,`position_y`=1901.352,`position_z`=85.68071 WHERE `guid`=@NPC;
@@ -642,7 +642,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,-9217.478,1932.629,85.68074,0,0,0,0,100,0),
 (@PATH,24,-9177.326,1935.63,85.68071,0,0,0,0,100,0);
 
--- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT' 
+-- Pathing for Anubisath Guardian Entry: 15355 'TDB FORMAT'
 SET @NPC := @CGUID+223;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9172.666,`position_y`=1878.279,`position_z`=85.68073 WHERE `guid`=@NPC;
@@ -701,7 +701,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,49,-9224.213,1883.244,85.68073,0,0,0,0,100,0),
 (@PATH,50,-9199.386,1867.022,85.68073,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+175;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9033.357,`position_y`=1700.726,`position_z`=21.50263 WHERE `guid`=@NPC;
@@ -728,7 +728,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,17,-9080.542,1740.715,21.51128,0,0,0,0,100,0),
 (@PATH,18,-9063.872,1726.509,21.50263,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+176;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9042.727,`position_y`=1737.669,`position_z`=21.51128 WHERE `guid`=@NPC;
@@ -743,7 +743,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,-8996.683,1694.021,21.88633,0,0,0,0,100,0),
 (@PATH,6,-9016.15,1713.575,21.44322,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+177;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8912.597,`position_y`=1750.176,`position_z`=21.51128 WHERE `guid`=@NPC;
@@ -760,7 +760,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,-8912.597,1750.176,21.51128,0,0,0,0,100,0),
 (@PATH,8,-8939.655,1710.923,21.51128,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+178;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9042.861,`position_y`=1841.39,`position_z`=21.51129 WHERE `guid`=@NPC;
@@ -777,7 +777,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,-9010.076,1901.59,21.51132,0,0,0,0,100,0),
 (@PATH,8,-9027.129,1875.23,21.73922,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+179;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8783.435,`position_y`=2068.937,`position_z`=21.51132 WHERE `guid`=@NPC;
@@ -796,7 +796,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,-8790.493,2121.913,21.39743,0,0,0,0,100,0),
 (@PATH,10,-8783.41,2098.071,21.99277,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+180;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8973.863,`position_y`=2090.781,`position_z`=21.51132 WHERE `guid`=@NPC;
@@ -817,7 +817,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,-9038.394,2142.94,21.51132,0,0,0,0,100,0),
 (@PATH,12,-8997.472,2114.756,21.51132,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+181;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8816.171,`position_y`=1898.789,`position_z`=21.44084 WHERE `guid`=@NPC;
@@ -838,7 +838,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,-8793.903,1947.559,21.41075,0,0,0,0,100,0),
 (@PATH,12,-8802.058,1921.186,21.51134,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+182;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8969.802,`position_y`=2023.487,`position_z`=22.20616 WHERE `guid`=@NPC;
@@ -860,7 +860,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,12,-8921.641,2023.073,22.70727,0,0,0,0,100,0),
 (@PATH,13,-8944.742,2022.87,21.63633,0,0,0,0,100,0);
 
--- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT' 
+-- Pathing for Obsidian Destroyer Entry: 15338 'TDB FORMAT'
 SET @NPC := @CGUID+183;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8892.271,`position_y`=1893.26,`position_z`=21.65431 WHERE `guid`=@NPC;
@@ -879,7 +879,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,-8832.841,1852.986,21.54105,0,0,0,0,100,0),
 (@PATH,10,-8868.629,1877.659,21.87304,0,0,0,0,100,0);
 
--- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT' 
+-- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT'
 SET @NPC := @CGUID+164;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9043.481,`position_y`=2118.309,`position_z`=21.77282 WHERE `guid`=@NPC;
@@ -921,7 +921,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,32,-9102.656,2157.033,21.51134,0,0,0,0,100,0),
 (@PATH,33,-9075.009,2145.98,23.58446,0,0,0,0,100,0);
 
--- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT' 
+-- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT'
 SET @NPC := @CGUID+165;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8937.627,`position_y`=1698.941,`position_z`=21.93345 WHERE `guid`=@NPC;
@@ -988,7 +988,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,57,-8964.914,1648.625,24.69013,0,0,0,0,100,0),
 (@PATH,58,-8944.825,1659.208,24.58833,0,0,0,0,100,0);
 
--- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT' 
+-- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT'
 SET @NPC := @CGUID+166;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9290.099,`position_y`=1380.387,`position_z`=21.38616 WHERE `guid`=@NPC;
@@ -1021,7 +1021,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,-9290.099,1380.387,21.48297,0,10000,0,0,100,0),
 (@PATH,24,-9305.492,1403.459,25.60786,0,15000,0,0,100,0);
 
--- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT' 
+-- Pathing for Flesh Hunter Entry: 15335 'TDB FORMAT'
 SET @NPC := @CGUID+167;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9452.126,`position_y`=1337.869,`position_z`=21.42187 WHERE `guid`=@NPC;
@@ -1074,7 +1074,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,43,-9451.692,1280.025,21.41385,0,0,0,0,100,0),
 (@PATH,44,-9460.447,1307.998,21.44484,0,0,0,0,100,0);
 
--- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT' 
+-- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT'
 SET @NPC := @CGUID+187;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8715.07,`position_y`=1514.421,`position_z`=32.02237 WHERE `guid`=@NPC;
@@ -1117,7 +1117,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,33,-8652.897,1459.573,32.03194,0,0,0,0,100,0),
 (@PATH,34,-8683.518,1489.15,32.03194,0,0,0,0,100,0);
 
--- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT' 
+-- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT'
 SET @NPC := @CGUID+188;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8626.872,`position_y`=1393.024,`position_z`=32.11965 WHERE `guid`=@NPC;
@@ -1136,7 +1136,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,-8651.211,1414.462,32.32424,0,0,0,0,100,0),
 (@PATH,10,-8639.497,1397.023,32.03201,0,0,0,0,100,0);
 
--- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT' 
+-- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT'
 SET @NPC := @CGUID+189;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8698.72,`position_y`=1557.427,`position_z`=31.96736 WHERE `guid`=@NPC;
@@ -1160,7 +1160,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,-8652.031,1526.245,32.03201,0,0,0,0,100,0),
 (@PATH,15,-8677.868,1540.741,31.96736,0,0,0,0,100,0);
 
--- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT' 
+-- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT'
 SET @NPC := @CGUID+190;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8596.261,`position_y`=1445.324,`position_z`=32.03201 WHERE `guid`=@NPC;
@@ -1235,7 +1235,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,65,-8624.747,1453.474,32.03201,0,0,0,0,100,0),
 (@PATH,66,-8609.186,1444.716,32.03201,0,0,0,0,100,0);
 
--- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT' 
+-- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT'
 SET @NPC := @CGUID+191;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8554.364,`position_y`=1453.022,`position_z`=32.44558 WHERE `guid`=@NPC;
@@ -1264,7 +1264,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,-8605.817,1458.296,32.03201,0,0,0,0,100,0),
 (@PATH,20,-8585.673,1436.706,32.06472,0,0,0,0,100,0);
 
--- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT' 
+-- Pathing for Qiraji Swarmguard Entry: 15343 'TDB FORMAT'
 SET @NPC := @CGUID+192;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8601.664,`position_y`=1390.749,`position_z`=32.03201 WHERE `guid`=@NPC;
@@ -1287,7 +1287,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,13,-8639.636,1390.926,32.03201,0,0,0,0,100,0),
 (@PATH,14,-8622.461,1385.466,32.03201,0,0,0,0,100,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+104;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8529.958,`position_y`=1364.049,`position_z`=36.8613 WHERE `guid`=@NPC;
@@ -1368,7 +1368,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+73,8,315,2,0,0),
 (@NPC,@CGUID+74,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+105;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8548.863,`position_y`=1386.292,`position_z`=32.03201 WHERE `guid`=@NPC;
@@ -1403,7 +1403,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+75,8,315,2,0,0),
 (@NPC,@CGUID+76,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+106;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8597.936,`position_y`=1369.124,`position_z`=32.03201 WHERE `guid`=@NPC;
@@ -1432,7 +1432,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+77,8,315,2,0,0),
 (@NPC,@CGUID+78,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+107;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8676.303,`position_y`=1523.413,`position_z`=32.03201 WHERE `guid`=@NPC;
@@ -1480,7 +1480,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+79,8,315,2,0,0),
 (@NPC,@CGUID+80,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+108;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8658.216,`position_y`=1452.975,`position_z`=32.03194 WHERE `guid`=@NPC;
@@ -1513,7 +1513,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+81,8,315,2,0,0),
 (@NPC,@CGUID+82,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+109;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8729.304,`position_y`=1429.319,`position_z`=37.32424 WHERE `guid`=@NPC;
@@ -1554,7 +1554,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+83,8,315,2,0,0),
 (@NPC,@CGUID+84,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+110;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8764.116,`position_y`=1581.645,`position_z`=22.68807 WHERE `guid`=@NPC;
@@ -1595,7 +1595,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+85,8,315,2,0,0),
 (@NPC,@CGUID+86,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+111;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8767.31,`position_y`=1593.834,`position_z`=21.49979 WHERE `guid`=@NPC;
@@ -1630,7 +1630,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+87,8,315,2,0,0),
 (@NPC,@CGUID+88,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+112;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8812.028,`position_y`=1669.479,`position_z`=21.51077 WHERE `guid`=@NPC;
@@ -1666,7 +1666,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+89,8,315,2,0,0),
 (@NPC,@CGUID+90,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+113;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-8853.164,`position_y`=1601.762,`position_z`=21.43074 WHERE `guid`=@NPC;
@@ -1701,7 +1701,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+91,8,315,2,0,0),
 (@NPC,@CGUID+92,8,405,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+116;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9616.939,`position_y`=1598.47,`position_z`=21.51131 WHERE `guid`=@NPC;
@@ -1734,7 +1734,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+96,7,345,2,4,9),
 (@NPC,@CGUID+98,7,305,2,4,9);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+119;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9616.939,`position_y`=1598.47,`position_z`=21.51131 WHERE `guid`=@NPC;
@@ -1768,7 +1768,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+94,7,345,2,0,0),
 (@NPC,@CGUID+115,7,305,2,0,0);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+120;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9631.854,`position_y`=1575.044,`position_z`=21.51131 WHERE `guid`=@NPC;
@@ -1805,7 +1805,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@CGUID+99,7,345,2,6,13),
 (@NPC,@CGUID+100,7,305,2,6,13);
 
--- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT' 
+-- Pathing for Hive'Zara Stinger Entry: 15327 'TDB FORMAT'
 SET @NPC := @CGUID+121;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-9641.111,`position_y`=1606.591,`position_z`=21.51152 WHERE `guid`=@NPC;

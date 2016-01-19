@@ -1,4 +1,4 @@
--- 
+--
 -- Frigid Necromancer SAI
 SET @ENTRY := 27539;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

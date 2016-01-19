@@ -15,7 +15,7 @@ UPDATE creature SET position_x = -4072.798828, position_y = -13457.387695, posit
 -- Megelon
 -- should kneel
 DELETE FROM `creature_template_addon` WHERE `entry`=16475;
-INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (16475,0,0,8,1,0, '');
 
 -- Red Crystal Bunny
@@ -139,7 +139,7 @@ DELETE FROM creature WHERE guid IN (
 75966,
 75967);
 
-INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, curhealth, curmana, MovementType) VALUES 
+INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, curhealth, curmana, MovementType) VALUES
 (75958,16537,530,1,1,0,0,-4434.66,-13759.4,56.6934,6.16494,300,0,71,0,2),
 (75959,16537,530,1,1,0,0,-4447.7,-13871.1,100.039,0.550673,300,0,71,0,2),
 (75960,16537,530,1,1,0,0,-4589.24,-13965.9,82.7032,3.97444,300,0,71,0,2),

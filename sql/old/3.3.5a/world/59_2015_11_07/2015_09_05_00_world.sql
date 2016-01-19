@@ -1,6 +1,6 @@
--- 
+--
 SET @GUID := 52011;  -- 11 FREE CGUID SET BY TC
-DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID + 10; 
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID + 10;
 INSERT INTO `creature` (`guid`, `id`, `map`, `modelid`, `position_x`, `position_y`, `position_z`, `orientation`, `curhealth`) VALUES
 (@GUID + 0, 24833, 584, 22659, 26.68381, 5.156456, 11.14973, 1.562181, 1474), -- Captain "Stash" Torgoley <The Lady Mehley> - 75958
 (@GUID + 1, 24834, 584, 22660, 17.73618, -7.963644, 6.181007, 1.658063, 1474), -- Galley Chief Grace <The Lady Mehley> - 75959
@@ -14,7 +14,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `modelid`, `position_x`, `position_
 (@GUID + 9, 24842, 584, 22666, 14.44629, 0.1442871, 12.0214, 3.309605, 10236), -- Marine Anderson - 75967
 (@GUID + 10, 24843, 584, 22667, 6.350558, 8.718207, 6.180843, 5.427974, 928); -- Engineer Combs <The Lady Mehley> - 75968
 
--- Pathing for  Entry: 24833 'TDB FORMAT' 
+-- Pathing for  Entry: 24833 'TDB FORMAT'
 SET @NPC := @GUID;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=37.03026,`position_y`=4.622362,`position_z`=6.176411, `orientation`=1.00 WHERE `guid`=@NPC;
@@ -54,7 +54,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,30,-3.086762,-5.140701,6.562281,0,0,0,0,100,0);
 -- 0x1C15A0002018404000004000006049B5 .go 37.03026 4.622362 6.176411
 
--- Pathing for  Entry: 24835 'TDB FORMAT' 
+-- Pathing for  Entry: 24835 'TDB FORMAT'
 SET @NPC := @GUID + 2;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=24.61543,`position_y`=5.468647,`position_z`=16.12396 WHERE `guid`=@NPC;
@@ -91,7 +91,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,27,24.61548,5.46875,16.04771,3.176499,80000,0,0,100,0);
 -- 0x1C15A000201840C000004000006048CF .go 24.61543 5.468647 16.12396
 
--- Pathing for  Entry: 24836 'TDB FORMAT' 
+-- Pathing for  Entry: 24836 'TDB FORMAT'
 SET @NPC := @GUID + 3;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-2.233398,`position_y`=2.553833,`position_z`=6.099016 WHERE `guid`=@NPC;
@@ -140,7 +140,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,39,-2.233643,2.553955,6.099016,0,0,0,0,100,0);
 -- 0x1C15A0000018410000002F0000604858 .go -2.233398 2.553833 6.099016
 
--- Pathing for  Entry: 24837 'TDB FORMAT' 
+-- Pathing for  Entry: 24837 'TDB FORMAT'
 SET @NPC := @GUID + 4;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=21.28821,`position_y`=-6.498474,`position_z`=6.346781 WHERE `guid`=@NPC;
@@ -179,7 +179,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,29,33.81982,0.05114746,18.28621,0,80000,0,0,100,0);
 -- 0x1C15A0000018414000002F0000604858 .go 21.28821 -6.498474 6.346781
 
--- Pathing for  Entry: 24838 'TDB FORMAT' 
+-- Pathing for  Entry: 24838 'TDB FORMAT'
 SET @NPC := @GUID + 5;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-27.21704,`position_y`=-0.001220703,`position_z`=21.58302 WHERE `guid`=@NPC;
@@ -195,7 +195,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,6,-23.06238,-6.165868,20.58522,0,0,0,0,100,0);
 -- 0x1C15A0000018418000002F0000604859 .go -27.21704 -0.001220703 21.58302
 
--- Pathing for  Entry: 24839 'TDB FORMAT' 
+-- Pathing for  Entry: 24839 'TDB FORMAT'
 SET @NPC := @GUID + 6;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=9.595876,`position_y`=-1.214922,`position_z`=11.80095 WHERE `guid`=@NPC;
@@ -225,7 +225,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,20,11.03296,4.417067,11.99682,0,10000,0,0,100,0);
 -- 0x1C15A000201841C000004000006049B5 .go 9.595876 -1.214922 11.80095
 
--- Pathing for  Entry: 24840 'TDB FORMAT' 
+-- Pathing for  Entry: 24840 'TDB FORMAT'
 SET @NPC := @GUID + 7;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-12.18092,`position_y`=5.488965,`position_z`=6.140242 WHERE `guid`=@NPC;
@@ -260,7 +260,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,25,23.91321,5.632813,6.347836,0,0,0,0,100,0);
 -- 0x1C15A0002018420000004000006049B5 .go -12.18092 5.488965 6.140242
 
--- Pathing for  Entry: 24842 'TDB FORMAT' 
+-- Pathing for  Entry: 24842 'TDB FORMAT'
 SET @NPC := @GUID + 9;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=20.11769,`position_y`=-6.318613,`position_z`=6.388871 WHERE `guid`=@NPC;

@@ -1155,6 +1155,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
             {
+                /* [AZTH]
                 if (_SkipCheckRequiredBosses(player))
                     return true;
 
@@ -1190,6 +1191,8 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (!CheckLowerSpire(bossId))
                     return false;
+
+                // [/AZTH] */
 
                 return true;
             }

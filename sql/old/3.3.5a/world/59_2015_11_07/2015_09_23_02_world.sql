@@ -1,4 +1,4 @@
--- 
+--
 SET @GUID1 := -78496;
 SET @GUID2 := -52330;
 UPDATE `creature` SET `position_x`= -4236.136230, `position_y`= 313.865417, `position_z`= 160.389038, `orientation`= 3.5595 WHERE `guid`= 78496;
@@ -74,7 +74,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (@PATH,26,-4921.727,36.11827,73.94312, 'Dragonmaw Transporter'), -- 07:14:59
 (@PATH,27,-4924.737,36.20354,61.87088, 'Dragonmaw Transporter'); -- 07:14:59
 -- 0x1C09FC424016A500000019000022323C .go -4234.259 316.7951 194.5695
- 
+
 -- Pathing for Dragonmaw Transporter Entry: 23188 'TDB FORMAT'
 SET @PATH := 231881;
 DELETE FROM `waypoints` WHERE `entry`=@PATH;
@@ -111,7 +111,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (@PATH,30,-4920.873,41.16504,69.30544, 'Dragonmaw Transporter'), -- 07:15:20
 (@PATH,31,-4924.737,36.20354,61.87088, 'Dragonmaw Transporter'); -- 07:15:20
 -- 0x1C09FC424016A5000000190000223259 .go -4235.772 310.6806 195.9172
- 
+
 -- Pathing for Dragonmaw Transporter Entry: 23188 'TDB FORMAT'
 SET @PATH := 231882;
 DELETE FROM `waypoints` WHERE `entry`=@PATH;
@@ -142,7 +142,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (@PATH,24,-4922.806,35.50499,72.91895, 'Dragonmaw Transporter'), -- 07:18:37
 (@PATH,25,-4924.737,36.20354,61.87088, 'Dragonmaw Transporter'); -- 07:18:37
 -- 0x1C09FC424016A50000001900002232FF .go -4235.186 312.622 195.6112
- 
+
 -- Pathing for Dragonmaw Transporter Entry: 23188 'TDB FORMAT'
 SET @PATH := 231883;
 DELETE FROM `waypoints` WHERE `entry`=@PATH;

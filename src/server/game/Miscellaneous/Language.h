@@ -28,6 +28,11 @@ enum BroadcastTextIds
 
 enum TrinityStrings
 {
+    
+    // [AZTH]
+    LANG_BG_ANNOUNCE_TEAM_READY         = 90000,
+    // [/AZTH]
+
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
     LANG_SELECT_CREATURE                = 2,

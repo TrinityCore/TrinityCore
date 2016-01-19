@@ -83,7 +83,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 UPDATE `smart_scripts` SET `action_param1`=1 WHERE  `entryorguid`=26448 AND `source_type`=0 AND `id`=0 AND `link`=1;
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=103062;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (103062, 103062, 0, 0, 2, 0, 0),
 (103062, 103029, 3, 90, 2, 0, 0);
 
@@ -152,7 +152,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 54, 3548.73, 1966.06, 68.0759, 0, 0, 0, 0, 100, 0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=103032;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (103032, 103032, 0, 0, 2, 0, 0),
 (103032, 103031, 3, 90, 2, 0, 0);
 

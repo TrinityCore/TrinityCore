@@ -1,4 +1,4 @@
--- 
+--
 -- Darthalia Ebonscorch SAI
 SET @ENTRY := 32679;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

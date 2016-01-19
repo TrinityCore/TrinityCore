@@ -1,6 +1,6 @@
 DELETE FROM `creature` WHERE `guid` IN (86098, 86097, 86092, 86091, 86090, 86088, 86089, 86087, 86086, 86085);
 
--- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT' 
+-- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT'
 SET @NPC := 75806;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4178.686,`position_y`=490.5659,`position_z`=30.16439 WHERE `guid`=@NPC;
@@ -24,7 +24,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,-4147.163,444.2449,34.1104,0,0,0,0,100,0), -- 10:23:38
 (@PATH,15,-4157.673,454.7521,31.41072,0,0,0,0,100,0); -- 10:23:57
 
--- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT' 
+-- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT'
 SET @NPC := 75803;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4294.086,`position_y`=400.621,`position_z`=81.62926 WHERE `guid`=@NPC;
@@ -35,7 +35,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,-4294.086,400.621,81.62926,0,25000,0,0,100,0), -- 10:13:30
 (@PATH,2,-4292.586,399.621,81.62926,0,25000,0,0,100,0); -- 10:13:50
 
--- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT' 
+-- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT'
 SET @NPC := 75798;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4244.082,`position_y`=315.9884,`position_z`=134.664 WHERE `guid`=@NPC;
@@ -73,7 +73,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,28,-4255.519,318.5628,134.6098,0,0,0,0,100,0), -- 10:16:54
 (@PATH,29,-4249.62,317.301,134.6521,0,0,0,0,100,0); -- 10:17:00
 
--- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT' 
+-- Pathing for Dragonmaw Shaman Entry: 21720 'TDB FORMAT'
 SET @NPC := 75801;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4263.521,`position_y`=408.381,`position_z`=79.67068 WHERE `guid`=@NPC;
@@ -120,7 +120,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,12,0,61,0,100,0,0,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Dragonmaw Subjugator - Between 0-15% Health - Flee For Assist (No Repeat)"),
 (@ENTRY,0,13,0,6,0,100,1,0,0,0,0,33,22197,0,0,0,0,0,7,0,0,0,0,0,0,0,"Dragonmaw Subjugator - On Just Died - Quest Credit 'Infiltrating Dragonmaw Fortress' (No Repeat)");
 
--- Pathing for Dragonmaw Subjugator Entry: 21718 'TDB FORMAT' 
+-- Pathing for Dragonmaw Subjugator Entry: 21718 'TDB FORMAT'
 SET @NPC := 75774;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4102.015,`position_y`=377.2606,`position_z`=30.89463 WHERE `guid`=@NPC;
@@ -143,7 +143,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,13,-4089.03,381.2375,31.16474,0,0,0,0,100,0), -- 10:21:31
 (@PATH,14,-4091.608,379.7381,30.97511,0,0,0,0,100,0); -- 10:21:33
 
--- Pathing for Dragonmaw Subjugator Entry: 21718 'TDB FORMAT' 
+-- Pathing for Dragonmaw Subjugator Entry: 21718 'TDB FORMAT'
 SET @NPC := 75780;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-4192.549,`position_y`=463.3147,`position_z`=30.76653 WHERE `guid`=@NPC;

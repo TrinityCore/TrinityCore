@@ -1,10 +1,10 @@
--- 
+--
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (7143, 8172);
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (7139) AND `id`=3;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`, `OptionBroadcastTextID`, `option_id`,`npc_option_npcflag`,`action_menu_id`) VALUES
 (7143,0,0,"Help you with what situation?",18420,1,1,8172),
 (8172,0,0,"Big ones?",18421,1,1,8171),
-(7139,3,0,"Please transport me to the Guardian's Library.",20519,1,1,0); 
+(7139,3,0,"Please transport me to the Guardian's Library.",20519,1,1,0);
 
 UPDATE `gossip_menu_option` SET `action_menu_id`=8167 WHERE `menu_id`=7139 AND `id`=0;
 UPDATE `gossip_menu_option` SET `action_menu_id`=8168 WHERE `menu_id`=7139 AND `id`=1;

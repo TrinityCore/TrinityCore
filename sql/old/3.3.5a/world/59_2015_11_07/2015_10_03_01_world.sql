@@ -1,4 +1,4 @@
--- 
+--
 DELETE FROM `creature` WHERE `guid`=71981 AND `id`=20251;
 
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (15241, 21719, 24933, 21497, 20127);

@@ -1,7 +1,7 @@
 DELETE FROM `creature_text` WHERE `entry` =23257 and `groupid`=0 and `id` in(7,8,9);
 DELETE FROM `creature_text` WHERE `entry` =22982 and `groupid`=0 and `id` in(5,6);
 
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 
 (23257, 0, 7, 'Well one thing''s for sure, $n''s not a nugget any more!', 12, 0, 100, 0, 0, 0, 21896, 0, 'Skyguard Windcharger'),
 (23257, 0, 8, 'Buzz the landing pad lately, $n?', 12, 0, 100, 0, 0, 0, 21889, 0, 'Skyguard Windcharger'),

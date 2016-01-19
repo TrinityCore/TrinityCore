@@ -1,4 +1,4 @@
--- 
+--
 DELETE FROM `gameobject_template` WHERE `entry` IN (188459);
 INSERT INTO `gameobject_template` (`entry`, `type`, `displayid`, `name`, `size`, `data0`, `data1`, `data2`, `data3`,`data6`, `VerifiedBuild`) VALUES
 (188459, 6, 0, 'Thor Modan Mole Machine Trap', 0.75, 0, 0, 0, 47387, -1, 0); -- From 6.x DB
@@ -26,7 +26,7 @@ DELETE FROM `creature` WHERE `id` =26786;
 DELETE FROM `gameobject` WHERE `id`=188460;
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND  `SourceGroup`=1 AND `ElseGroup`=1 AND `SourceEntry`=46815;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 46815, 0, 1, 31, 0, 3, 26417, 0, 0, 0, 0, '', 'Toss Boulder - only targets Dummy');
 
 DELETE FROM `creature_text` WHERE `entry` IN (26786, 26417);

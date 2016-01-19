@@ -1,4 +1,4 @@
--- 
+--
 -- Sandfury Cretin SAI
 SET @ENTRY := 7789;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

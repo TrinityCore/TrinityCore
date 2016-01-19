@@ -1,4 +1,4 @@
--- 
+--
 -- Anub'ar Ambusher SAI
 SET @ENTRY := 26402;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

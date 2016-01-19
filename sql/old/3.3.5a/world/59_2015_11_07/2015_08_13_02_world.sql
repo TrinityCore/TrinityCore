@@ -44,7 +44,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,34,3636.778,-3083.557,134.366,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=54085;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (54085, 54085, 0, 0, 2, 0, 0),
 (54085, 54071, 3, 0, 2, 0, 0);
 
@@ -100,7 +100,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,41,3532.499,-3054.48,134.997,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=52141;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (52141, 52141, 0, 0, 2, 0, 0),
 (52141, 54169, 3, 0, 2, 0, 0);
 
@@ -156,7 +156,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,41,3445.289,-3083.674,135.0022,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=52144;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (52144, 52144, 0, 0, 2, 0, 0),
 (52144, 54170, 3, 0, 2, 0, 0);
 

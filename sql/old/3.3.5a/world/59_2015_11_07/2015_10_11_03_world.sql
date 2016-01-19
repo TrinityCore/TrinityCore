@@ -18,7 +18,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (56609,56628,10,315,2,0,0),
 (56609,@CGUID,10,360,2,0,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56742;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=619.3152,`position_y`=-1131.169,`position_z`=-201.6246 WHERE `guid`=@NPC;
@@ -33,7 +33,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,619.3152,-1131.169,-201.6246,0,0,0,0,100,0),
 (@PATH,6,610.0372,-1155.73,-198.8285,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56743;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1039.667,`position_y`=-791.0968,`position_z`=-151.0096 WHERE `guid`=@NPC;
@@ -52,7 +52,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,1040.764,-815.1115,-152.1656,0,0,0,0,100,0),
 (@PATH,10,1051.314,-799.6896,-151.9713,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56744;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=862.4832,`position_y`=-1025.388,`position_z`=-193.7729 WHERE `guid`=@NPC;
@@ -97,7 +97,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,35,872.7313,-1072.91,-180.5435,0,0,0,0,100,0),
 (@PATH,36,867.8922,-1050.318,-187.0417,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56745;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=820.8864,`position_y`=-1133.536,`position_z`=-153.9561 WHERE `guid`=@NPC;
@@ -132,7 +132,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,25,788.3813,-1136.843,-150.0572,0,0,0,0,100,0),
 (@PATH,26,807.4134,-1143.589,-152.2109,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56746;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=706.5988,`position_y`=-608.756,`position_z`=-209.7862 WHERE `guid`=@NPC;
@@ -151,7 +151,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,691.9941,-667.7454,-209.6549,0,0,0,0,100,0),
 (@PATH,10,694.3823,-643.1285,-209.7859,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56667;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=716.2954,`position_y`=-563.1713,`position_z`=-215.2122 WHERE `guid`=@NPC;
@@ -190,7 +190,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,29,716.2954,-563.1713,-215.2122,0,0,0,0,100,0),
 (@PATH,30,710.9113,-588.9549,-211.3497,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56668;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=746.1315,`position_y`=-1006.086,`position_z`=-177.4375 WHERE `guid`=@NPC;
@@ -205,7 +205,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,695.6022,-1035.41,-182.9091,0,0,0,0,100,0),
 (@PATH,6,733.2838,-1027.083,-177.5541,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56669;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=819.1058,`position_y`=-631.4754,`position_z`=-202.4386 WHERE `guid`=@NPC;
@@ -224,7 +224,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,819.1058,-631.4754,-202.4386,0,0,0,0,100,0),
 (@PATH,10,801.1528,-637.2293,-203.2919,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56670;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=640.3456,`position_y`=-838.7157,`position_z`=-208.4006 WHERE `guid`=@NPC;
@@ -243,7 +243,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,580.7532,-839.1719,-206.0227,0,0,0,0,100,0),
 (@PATH,10,606.3914,-839.9142,-207.404,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56671;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=693.7902,`position_y`=-895.4052,`position_z`=-199.3317 WHERE `guid`=@NPC;
@@ -258,7 +258,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,693.7902,-895.4052,-199.3317,0,0,0,0,100,0),
 (@PATH,6,709.7253,-933.0809,-191.2163,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56672;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=708.7521,`position_y`=-494.4869,`position_z`=-213.9441 WHERE `guid`=@NPC;
@@ -275,7 +275,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,708.7521,-494.4869,-213.9441,0,0,0,0,100,0),
 (@PATH,8,706.4074,-474.3789,-211.1673,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56673;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=723.8314,`position_y`=-518.3099,`position_z`=-217.6104 WHERE `guid`=@NPC;
@@ -292,7 +292,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,723.8314,-518.3099,-217.6104,0,0,0,0,100,0),
 (@PATH,8,728.2719,-487.4919,-212.95,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56674;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=831.386,`position_y`=-627.8932,`position_z`=-203.1487 WHERE `guid`=@NPC;
@@ -337,7 +337,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,35,831.386,-627.8932,-203.1487,0,0,0,0,100,0),
 (@PATH,36,816.5816,-641.0675,-203.8891,0,0,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56675;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1144.05,`position_y`=-662.6844,`position_z`=-131.4626 WHERE `guid`=@NPC;
@@ -410,7 +410,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,63,1142.684,-647.411,-131.9233,0,0,0,0,100,0),
 (@PATH,64,1142.684,-647.411,-131.9233,1.53589,60000,0,0,100,0);
 
--- Pathing for Core Hound Entry: 11673 'TDB FORMAT' 
+-- Pathing for Core Hound Entry: 11673 'TDB FORMAT'
 SET @NPC := 56676;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=820.1378,`position_y`=-991.096,`position_z`=-207.1345 WHERE `guid`=@NPC;
@@ -427,7 +427,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,875.2714,-1009.17,-195.7951,0,0,0,0,100,0),
 (@PATH,8,837.5117,-1001.866,-203.9284,0,0,0,0,100,0);
 
--- Pathing for Baron Geddon Entry: 12056 'TDB FORMAT' 
+-- Pathing for Baron Geddon Entry: 12056 'TDB FORMAT'
 SET @NPC := 56655;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=747.5466,`position_y`=-981.676,`position_z`=-178.401 WHERE `guid`=@NPC;
@@ -453,7 +453,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,740.3997,-949.3792,-186.3494,0,0,1,0,100,0),
 (@PATH,17,746.6027,-966.5585,-181.5636,0,0,1,0,100,0);
 
--- Pathing for Shazzrah Entry: 12264 'TDB FORMAT' 
+-- Pathing for Shazzrah Entry: 12264 'TDB FORMAT'
 SET @NPC := 56608;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=587.3033,`position_y`=-801.9748,`position_z`=-205.1575 WHERE `guid`=@NPC;
@@ -470,7 +470,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,580.0167,-800.6034,-205.4058,0,0,0,0,100,0),
 (@PATH,8,583.49,-799.7552,-205.3562,0,0,0,0,100,0);
 
--- Pathing for Lucifron Entry: 12118 'TDB FORMAT' 
+-- Pathing for Lucifron Entry: 12118 'TDB FORMAT'
 SET @NPC := 56605;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1037.022,`position_y`=-986.3419,`position_z`=-181.5163 WHERE `guid`=@NPC;
@@ -498,7 +498,7 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1035.672,`posi
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1038.512,`position_y`=-982.9519,`position_z`=-181.2578 WHERE `guid`=56607;
 DELETE FROM `waypoint_data` WHERE `id` IN (566060,566070);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56656;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1028.491,`position_y`=-908.0417,`position_z`=-161.3687 WHERE `guid`=@NPC;
@@ -519,7 +519,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,980.3823,-904.361,-171.1376,0,0,1,0,100,0),
 (@PATH,12,1008.565,-890.0919,-165.3463,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56657;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=748.5151,`position_y`=-725.4263,`position_z`=-211.9395 WHERE `guid`=@NPC;
@@ -536,7 +536,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,748.5151,-725.4263,-211.9395,0,0,1,0,100,0),
 (@PATH,8,764.8676,-686.4996,-212.5972,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56658;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=975.5094,`position_y`=-589.3787,`position_z`=-203.781 WHERE `guid`=@NPC;
@@ -553,7 +553,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,998.6928,-609.5692,-202.0619,0,0,1,0,100,0),
 (@PATH,8,989.8893,-595.9269,-203.2261,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56659;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=864.6398,`position_y`=-983.1211,`position_z`=-199.6699 WHERE `guid`=@NPC;
@@ -601,7 +601,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,38,875.8871,-1014.841,-194.9043,0,0,1,0,100,0),
 (@PATH,39,864.6398,-983.1211,-199.6699,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56660;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=912.38,`position_y`=-812.9961,`position_z`=-227.3731 WHERE `guid`=@NPC;
@@ -634,7 +634,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,895.7159,-764.4568,-224.3548,0,0,1,0,100,0),
 (@PATH,24,909.2687,-788.947,-226.9377,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56661;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1031.916,`position_y`=-889.574,`position_z`=-160.0134 WHERE `guid`=@NPC;
@@ -654,7 +654,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,962.845,-884.6795,-173.6825,0,0,1,0,100,0),
 (@PATH,11,996.8139,-897.9012,-168.1947,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56662;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1068.962,`position_y`=-696.559,`position_z`=-157.781 WHERE `guid`=@NPC;
@@ -687,7 +687,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,1023.84,-646.451,-189.8513,0,0,1,0,100,0),
 (@PATH,24,1046.413,-674.9515,-169.5157,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56664;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=759.9225,`position_y`=-689.7131,`position_z`=-212.5623 WHERE `guid`=@NPC;
@@ -708,7 +708,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,758.8966,-684.4725,-212.381,0,0,1,0,100,0),
 (@PATH,12,753.9745,-704.1632,-211.753,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56665;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1035.173,`position_y`=-854.7958,`position_z`=-158.8589 WHERE `guid`=@NPC;
@@ -720,7 +720,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,2,1057.385,-862.5274,-159.6177,0,0,1,0,100,0),
 (@PATH,3,995.0676,-853.4235,-165.4317,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56740;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=667.9337,`position_y`=-1066.047,`position_z`=-188.3889 WHERE `guid`=@NPC;
@@ -741,7 +741,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,626.806,-1131.724,-200.8709,0,0,1,0,100,0),
 (@PATH,12,645.6395,-1106.676,-196.4797,0,0,1,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56741;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=1055.823,`position_y`=-833.2653,`position_z`=-154.468 WHERE `guid`=@NPC;
@@ -754,7 +754,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,1015.666,-808.7546,-148.7213,0,0,0,0,100,0),
 (@PATH,4,1032.143,-826.1788,-154.2626,0,0,0,0,100,0);
 
--- Pathing for Lava Surger Entry: 12101 'TDB FORMAT' 
+-- Pathing for Lava Surger Entry: 12101 'TDB FORMAT'
 SET @NPC := 56789;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=679.1953,`position_y`=-847.3836,`position_z`=-208.2482 WHERE `guid`=@NPC;

@@ -1,4 +1,4 @@
--- 
+--
 -- North Sea Kraken SAI
 SET @ENTRY := 34925;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;

@@ -1828,7 +1828,10 @@ public:
 ## npc_experience
 ######*/
 
-#define EXP_COST                100000 //10 00 00 copper (10golds)
+// [AZTH]
+//#define EXP_COST                100000 //10 00 00 copper (10golds)
+#define EXP_COST                1000 //10 00 copper (10silvers)
+// [/AZTH]
 #define GOSSIP_TEXT_EXP         14736
 #define GOSSIP_XP_OFF           "I no longer wish to gain experience."
 #define GOSSIP_XP_ON            "I wish to start gaining experience again."

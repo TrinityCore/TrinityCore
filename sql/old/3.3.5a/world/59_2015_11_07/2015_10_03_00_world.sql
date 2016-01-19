@@ -1,4 +1,4 @@
--- 
+--
 -- Razormaw SAI
 SET @ENTRY := 17592;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

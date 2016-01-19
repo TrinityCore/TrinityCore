@@ -134,7 +134,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,122,3113.453,200.026,80.99261,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111051;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111051, 111051, 0, 0, 2, 0, 0),
 (111051, 111169, 7, 0, 2, 0, 0),
 (111051, 111170, 14, 0, 2, 0, 0);
@@ -281,14 +281,14 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,131,3304.02,-122.7957,73.0175,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=110954;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (110954, 110954, 0, 0, 2, 0, 0),
 (110954, 111173, 8, 0, 2, 0, 0);
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid`=111173;
 
 -- 3.
 SET @NPC := 111049;
-SET @PATH := @NPC * 10; 
+SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3204.118,`position_y`=9.464139,`position_z`=75.35005 WHERE `guid`=@NPC;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=3204.118,`position_y`=9.464139,`position_z`=75.35005 WHERE `guid`=111176;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=3204.118,`position_y`=9.464139,`position_z`=75.35005 WHERE `guid`=111177;
@@ -561,7 +561,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,263,3205.146,15.76002,75.59174,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111049;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111049, 111049, 0, 0, 2, 0, 0),
 (111049, 111176, 8, 0, 2, 0, 0),
 (111049, 111177, 8, 70, 2, 0, 0),

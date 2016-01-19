@@ -539,7 +539,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`,  `posit
 
 DELETE FROM `game_event_gameobject` WHERE `eventEntry`=51 AND `guid` BETWEEN @OGUID+0 AND @OGUID+566;
 
-INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES 
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
 (51, @OGUID+0),
 (51, @OGUID+1),
 (51, @OGUID+2),
@@ -1110,7 +1110,7 @@ INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
 
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (34478,34481,35248,35247,35249,34435,35250,46894,46908,34479,35246,34484,35259,35258,35261,35260,35243,34483,35244,34476,34477,35251,35253,46891,46901,34482,35254,35256,34480,35252);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (34435, 0, 0, 65536, 1, 10, '33900 30628'),
 (34476, 0, 0, 65536, 1, 10, '33900 30628'),
 (34477, 0, 0, 65536, 1, 10, '33900 30628'),
@@ -1348,7 +1348,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+198, 34382, 1, 1, 1, -978.0226, -72.64584, 19.29325, 0.4014257, 120, 0, 0); -- 34382 (Area: 5345)
 
 DELETE FROM `game_event_creature` WHERE `eventEntry`=51;
-INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES 
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
 (51, @CGUID+0),
 (51, @CGUID+1),
 (51, @CGUID+2),

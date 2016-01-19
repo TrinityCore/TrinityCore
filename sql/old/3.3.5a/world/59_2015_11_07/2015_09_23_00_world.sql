@@ -1,4 +1,4 @@
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127866;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3454.462,`position_y`=-3562.112,`position_z`=267.593 WHERE `guid`=@NPC;
@@ -43,7 +43,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,35,3454.075,-3614.297,267.5918,0,0,0,0,100,0), -- 18:44:03
 (@PATH,36,3454.152,-3589.311,267.593,0,0,0,0,100,0); -- 18:44:14
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127867;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3454.462,`position_y`=-3569.112,`position_z`=267.593 WHERE `guid`=@NPC;
@@ -88,7 +88,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,35,3454.075,-3614.297,267.5918,0,0,0,0,100,0), -- 18:44:03
 (@PATH,36,3454.152,-3589.311,267.593,0,0,0,0,100,0); -- 18:44:14
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127862;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3234.124,`position_y`=-3743.281,`position_z`=280.9517 WHERE `guid`=@NPC;
@@ -115,7 +115,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,17,3232.144,-3779.076,273.1304,0,0,0,0,100,0), -- 18:47:55
 (@PATH,18,3247.629,-3762.814,277.5423,0,0,0,0,100,0); -- 18:48:06
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127863;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3232.124,`position_y`=-3751.281,`position_z`=280.9517 WHERE `guid`=@NPC;
@@ -142,7 +142,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,17,3232.144,-3779.076,273.1304,0,0,0,0,100,0), -- 18:47:55
 (@PATH,18,3247.629,-3762.814,277.5423,0,0,0,0,100,0); -- 18:48:06
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127872;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3282.724,`position_y`=-3894.288,`position_z`=294.6608 WHERE `guid`=@NPC;
@@ -182,7 +182,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,30,3310.214,-3913.58,294.6595,0,0,0,0,100,0), -- 18:52:08
 (@PATH,31,3292.234,-3906.752,294.6605,0,0,0,0,100,0); -- 18:52:14
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127873;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3286.724,`position_y`=-3902.288,`position_z`=294.6608 WHERE `guid`=@NPC;
@@ -222,7 +222,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,30,3310.214,-3913.58,294.6595,0,0,0,0,100,0), -- 18:52:08
 (@PATH,31,3292.234,-3906.752,294.6605,0,0,0,0,100,0); -- 18:52:14
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127864;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3118.083,`position_y`=-3883.491,`position_z`=267.593 WHERE `guid`=@NPC;
@@ -268,7 +268,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,36,3166.121,-3882.08,267.5934,0,0,0,0,100,0), -- 18:47:54
 (@PATH,37,3142.54,-3882.999,267.593,0,0,0,0,100,0); -- 18:48:06
 
--- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT' 
+-- Pathing for Venom Stalker Entry: 15976 'TDB FORMAT'
 SET @NPC := 127865;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3126.083,`position_y`=-3882.491,`position_z`=267.593 WHERE `guid`=@NPC;
@@ -326,7 +326,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (127864,127864,0,0,2,0,0),
 (127864,127865,8,360,2,0,0);
 
--- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT' 
+-- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT'
 SET @NPC := 127907;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3074.529,`position_y`=-3897.057,`position_z`=267.593 WHERE `guid` IN (@NPC,@NPC+1,@NPC+2,@NPC+3,@NPC+4,@NPC+5,@NPC+6,@NPC+7);
@@ -391,7 +391,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+6,6,240,2,0,0),
 (@NPC,@NPC+7,6,190,2,0,0);
 
--- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT' 
+-- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT'
 SET @NPC := 127963;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3224.441,`position_y`=-3876.754,`position_z`=284.5573 WHERE `guid` IN (@NPC,@NPC+1,@NPC+2,@NPC+3,@NPC+4,@NPC+5,@NPC+6,@NPC+7);
@@ -440,7 +440,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+6,6,240,2,0,0),
 (@NPC,@NPC+7,6,190,2,0,0);
 
--- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT' 
+-- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT'
 SET @NPC := 127915;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3435.956,`position_y`=-3606.878,`position_z`=267.5925 WHERE `guid` IN (@NPC,@NPC+1,@NPC+2,@NPC+3,@NPC+4,@NPC+5,@NPC+6,@NPC+7);
@@ -490,7 +490,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+6,6,240,2,0,0),
 (@NPC,@NPC+7,6,190,2,0,0);
 
--- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT' 
+-- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT'
 SET @NPC := 127971;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3295.49,`position_y`=-3908.793,`position_z`=294.6605 WHERE `guid` IN (@NPC,@NPC+1,@NPC+2,@NPC+3,@NPC+4,@NPC+5,@NPC+6,@NPC+7);
@@ -548,7 +548,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 (@NPC,@NPC+6,6,240,2,0,0),
 (@NPC,@NPC+7,6,190,2,0,0);
 
--- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT' 
+-- Pathing for Poisonous Skitterer Entry: 15977 'TDB FORMAT'
 SET @NPC := 127923;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3445.511,`position_y`=-3562.019,`position_z`=267.5927 WHERE `guid` IN (@NPC,@NPC+1,@NPC+2,@NPC+3,@NPC+4,@NPC+5,@NPC+6,@NPC+7);

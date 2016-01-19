@@ -1,4 +1,4 @@
--- 
+--
 DELETE FROM `creature` WHERE `guid`=126052;
 DELETE FROM `creature_addon` WHERE `guid`=126052;
 DELETE FROM `linked_respawn` WHERE `guid`=126052 AND `linkedGuid`=126103;

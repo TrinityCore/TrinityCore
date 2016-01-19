@@ -19,7 +19,7 @@ INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`emote`) VALUES
 
 UPDATE `gossip_menu_option` SET `action_menu_id`=9648 WHERE `menu_id`=9648 AND `id`=1;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup`=9648;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 9648, 13061, 0, 0, 10, 0, 1, 0, 0, 1, 0, 0, '', 'Show the gossip text for Dark Iron Brewer if the player is Sober'),
 (14, 9648, 13060, 0, 0, 10, 0, 3, 0, 0, 0, 0, 0, '', 'Show the gossip text for Dark Iron Brewer if the player is smashed'),
 (14, 9648, 13063, 0, 0, 10, 0, 2, 0, 0, 0, 0, 0, '', 'Show the gossip text for Dark Iron Brewer if the player is Drunk'),
@@ -43,7 +43,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2806700, 9, 2,0, 0, 0, 100, 0, 0, 0, 0,0,83,1,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Dark Iron Brewer - action_list - Remove npcflag 1'),
 (2806700, 9, 3,0, 0, 0, 100, 0, 0, 0, 0,0,18,256,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Dark Iron Brewer - action_list - Add unitflag immune to pc'),
 (2806700, 9, 4 ,0, 0, 0, 100, 0, 0, 0, 0,0,11,50651,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Dark Iron Brewer - action_list - Cast Dark Iron Brewer is Swaggering'),
-(2806700, 9, 5 ,0, 0, 0, 100, 0, 3000, 3000, 0,0,11,50650,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Dark Iron Brewer - action_list - Cast Dark Iron Brewer is Sleeping'),  
+(2806700, 9, 5 ,0, 0, 0, 100, 0, 3000, 3000, 0,0,11,50650,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Dark Iron Brewer - action_list - Cast Dark Iron Brewer is Sleeping'),
 (2806700, 9, 6 ,0, 0, 0, 100, 0, 0, 0, 0,0,50,190394,180,0,0,0,0,8,0,0,0,891.688, -175.735, -43.925, 1.21, 'Dark Iron Brewer - action_list - Mug of Dire Brew');
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (51010);

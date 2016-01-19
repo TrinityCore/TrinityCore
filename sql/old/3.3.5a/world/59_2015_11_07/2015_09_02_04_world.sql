@@ -1,4 +1,4 @@
--- 
+--
 DELETE FROM `creature` WHERE `guid`=118724 AND `id`=27122;
 UPDATE `creature` SET `equipment_id`=1 WHERE `guid`=52290;
 UPDATE `creature_template_addon` SET `emote`=0 WHERE `entry`=26942;

@@ -29,11 +29,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (7774,0,18,0,61,0,100,0,4,7774,0,0,41,10000,0,0,0,0,0,1,0,0,0,0,0,0,0,'Shay Leafrunner - On Text Over Line 4  - Despawn after 10 seconds');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=11402;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 11402, 0, 0, 31, 0, 3, 7774, 0, 0, 0, 0, '', 'Shays Bell targets Shay Leafrunner');
 
 DELETE FROM `creature_text` WHERE `entry`IN(7774,7765);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (7774, 0, 0, 'Don''t forget to get my bell out of the chest here. And remember, if do happen to wander off, just ring it and i''ll find you again.', 12, 0, 100, 0, 0, 0, 3921, 0, 'Shay Leafrunner'),
 (7774, 1, 0, 'This is quite an adventure!', 12, 0, 100, 0, 0, 0, 3914, 0, 'Shay Leafrunner'),
 (7774, 1, 1, 'Oh, I wandered off again. I''m sorry.', 12, 0, 100, 0, 0, 0, 3913, 0, 'Shay Leafrunner'),

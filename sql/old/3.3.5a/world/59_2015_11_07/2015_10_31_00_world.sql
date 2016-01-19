@@ -1,4 +1,4 @@
-UPDATE `creature_text` SET `text`='It is over, your search is done. Let fate choose now, the righteous one.', `sound`=11961,`BroadcastTextId`=22261 WHERE  `entry`=23682 AND `groupid`=0 AND `id`=0;  -- Summon 
+UPDATE `creature_text` SET `text`='It is over, your search is done. Let fate choose now, the righteous one.', `sound`=11961,`BroadcastTextId`=22261 WHERE  `entry`=23682 AND `groupid`=0 AND `id`=0;  -- Summon
 UPDATE `creature_text` SET `text`='Here\'s my body, fit and pure!  Now, your blackened souls I\'ll cure!', `sound`=12567,`BroadcastTextId`=22271  WHERE  `entry`=23682 AND `groupid`=1 AND `id`=0; -- Agro
 UPDATE `creature_text` SET `text`='Harken, cur! Tis you I spurn! Now feel... the burn!', `type`=12,`BroadcastTextId`=22587 WHERE  `entry`=23682 AND `groupid`=2 AND `id`=0;  -- Conflaguate
 UPDATE `creature_text` SET `text`='Soldiers arise, stand and fight! Bring victory at last to this fallen knight!', `sound`=11963,`BroadcastTextId`=23861 WHERE  `entry`=23682 AND `groupid`=3 AND `id`=0; -- Summon Pumkins

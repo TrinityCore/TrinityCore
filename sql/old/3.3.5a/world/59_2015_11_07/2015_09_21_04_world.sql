@@ -1,7 +1,7 @@
--- 
+--
 UPDATE `gossip_menu_option` SET `action_menu_id`=9753 WHERE `menu_id`=9754;
 
--- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT' 
+-- Pathing for Death Knight Cavalier Entry: 16163 'TDB FORMAT'
 SET @NPC := 127753;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2926.023,`position_y`=-3200.403,`position_z`=273.3712 WHERE `guid`=@NPC;
@@ -23,7 +23,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 DELETE FROM `creature_template_addon` WHERE `entry` =16400;
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127631;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3223.018,`position_y`=-3218.725,`position_z`=316.3705 WHERE `guid`=@NPC;
@@ -34,7 +34,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3223.018,-3218.725,316.3705,0,0,0,0,100,0),
 (@PATH,2,3230.179,-3211.59,316.5933,0,0,0,0,100,0);
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127632;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3208.167,`position_y`=-3234.595,`position_z`=315.4565 WHERE `guid`=@NPC;
@@ -45,7 +45,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3208.167,-3234.595,315.4565,0,0,0,0,100,0),
 (@PATH,2,3200.392,-3242.829,315.141,0,0,0,0,100,0);
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127633;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3178.613,`position_y`=-3263.671,`position_z`=316.4281 WHERE `guid`=@NPC;
@@ -56,7 +56,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3178.613,-3263.671,316.4281,0,0,0,0,100,0),
 (@PATH,2,3174.119,-3267.95,316.7845,0,0,0,0,100,0);
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127634;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3217.316,`position_y`=-3224.753,`position_z`=316.0583 WHERE `guid`=@NPC;
@@ -67,7 +67,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3217.316,-3224.753,316.0583,0,0,0,0,100,0),
 (@PATH,2,3209.847,-3232.841,315.5579,0,0,0,0,100,0);
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127635;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3190.628,`position_y`=-3252.565,`position_z`=315.5675 WHERE `guid`=@NPC;
@@ -78,7 +78,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3190.628,-3252.565,315.5675,0,0,0,0,100,0),
 (@PATH,2,3196.852,-3246.524,315.0298,0,0,0,0,100,0);
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127636;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3244.748,`position_y`=-3198.743,`position_z`=317.3646 WHERE `guid`=@NPC;
@@ -89,7 +89,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3244.748,-3198.743,317.3646,0,0,0,0,100,0),
 (@PATH,2,3236.25,-3205.753,316.6993,0,0,0,0,100,0);
 
--- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT' 
+-- Pathing for Toxic Tunnel Entry: 16400 'TDB FORMAT'
 SET @NPC := 127637;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3246.763,`position_y`=-3193.856,`position_z`=317.3302 WHERE `guid`=@NPC;
@@ -100,7 +100,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,1,3246.763,-3193.856,317.3302,0,0,0,0,100,0),
 (@PATH,2,3252.532,-3188.566,318.1087,0,0,0,0,100,0);
 
--- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT' 
+-- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT'
 SET @NPC := 128058;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3454.427,`position_y`=-3187.954,`position_z`=294.6607 WHERE `guid`=@NPC;
@@ -128,7 +128,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,18,3454.453,-3237.651,272.6341,0,0,0,0,100,0),
 (@PATH,19,3454.135,-3215.837,284.079,0,0,0,0,100,0);
 
--- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT' 
+-- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT'
 SET @NPC := 128057;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3331.301,`position_y`=-3008.488,`position_z`=294.6606 WHERE `guid`=@NPC;
@@ -162,7 +162,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,24,3311.187,-2990.615,294.6598,3.254467,0,0,0,100,0),
 (@PATH,25,3311.187,-2990.615,294.6598,5.113917,0,0,0,100,0);
 
--- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT' 
+-- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT'
 SET @NPC := 128056;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3425.885,`position_y`=-3100.784,`position_z`=294.6607 WHERE `guid`=@NPC;
@@ -196,7 +196,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,24,3455.112,-3131.514,294.6606,4.858006,0,0,0,100,0),
 (@PATH,25,3455.112,-3131.514,294.6606,2.345938,0,0,0,100,0);
 
--- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT' 
+-- Pathing for Stitched Colossus Entry: 30071 'TDB FORMAT'
 SET @NPC := 128054;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3250.639,`position_y`=-2986.463,`position_z`=294.6606 WHERE `guid`=@NPC;
@@ -225,7 +225,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,3198.909,-2986.179,271.1352,0,0,0,0,100,0),
 (@PATH,20,3218.02,-2986.236,281.1633,0,0,0,0,100,0);
 
--- Pathing for Shade of Naxxramas Entry: 16164 'TDB FORMAT' 
+-- Pathing for Shade of Naxxramas Entry: 16164 'TDB FORMAT'
 SET @NPC := 127755;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=2915.294,`position_y`=-3343.234,`position_z`=298.1457 WHERE `guid`=@NPC;

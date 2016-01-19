@@ -1,4 +1,4 @@
--- 
+--
 UPDATE `event_scripts` SET `x`=38.4345, `y`=156.9295, `z`=83.545, `o`=1.407458 WHERE `id`=8438;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry` IN (14500);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (14500) AND `source_type`=0;
@@ -21,16 +21,16 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 DELETE FROM `waypoints` WHERE `entry`=14500;
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
-(14500,1, 38.784, 160.639, 83.545, "J'eevee"), 
+(14500,1, 38.784, 160.639, 83.545, "J'eevee"),
 (14500,2, 36.804, 160.705, 83.545, "J'eevee"),
-(14500,3, 39.287, 160.044, 83.545, "J'eevee"), 
-(14500,4, 41.666, 154.591, 83.545, "J'eevee"), 
-(14500,5, 45.255, 155.014, 83.545, "J'eevee"), 
-(14500,6, 44.930, 161.186, 83.545, "J'eevee"), 
+(14500,3, 39.287, 160.044, 83.545, "J'eevee"),
+(14500,4, 41.666, 154.591, 83.545, "J'eevee"),
+(14500,5, 45.255, 155.014, 83.545, "J'eevee"),
+(14500,6, 44.930, 161.186, 83.545, "J'eevee"),
 (14500,7, 44.347, 161.120, 83.545, "J'eevee"),
 (14500,8, 46.758, 157.877, 83.545, "J'eevee"),
-(14500,9, 44.640, 154.405, 83.545, "J'eevee"), 
-(14500,10, 33.498, 156.046, 83.545, "J'eevee"), 
+(14500,9, 44.640, 154.405, 83.545, "J'eevee"),
+(14500,10, 33.498, 156.046, 83.545, "J'eevee"),
 (14500,11, 28.269, 160.792, 83.545, "J'eevee"),
 (14500,12, 33.294, 160.895, 83.545, "J'eevee");
 

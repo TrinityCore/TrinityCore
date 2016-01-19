@@ -1,0 +1,28 @@
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+  ${CMAKE_SOURCE_DIR}/dep/SFMT
+  ${CMAKE_SOURCE_DIR}/dep/zlib
+  ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
+)
+
+include (${CMAKE_CURRENT_LIST_DIR}/CMakeIncludeHw2Sys.txt)
+
+HEADER_DIRECTORIES(TRINITY_HEADER_DIRS ${CMAKE_SOURCE_DIR}/src/server/shared)
+include_directories(${TRINITY_HEADER_DIRS})
+
+HEADER_DIRECTORIES(TRINITY_HEADER_DIRS ${CMAKE_SOURCE_DIR}/src/server/collision)
+include_directories(${TRINITY_HEADER_DIRS})
+
+HEADER_DIRECTORIES(TRINITY_HEADER_DIRS ${CMAKE_SOURCE_DIR}/src/server/authserver)
+include_directories(${TRINITY_HEADER_DIRS})
+
+HEADER_DIRECTORIES(TRINITY_HEADER_DIRS ${CMAKE_SOURCE_DIR}/src/server/game)
+include_directories(${TRINITY_HEADER_DIRS})
+
+HEADER_DIRECTORIES(TRINITY_HEADER_DIRS ${CMAKE_SOURCE_DIR}/src/server/worldserver)
+include_directories(${TRINITY_HEADER_DIRS})

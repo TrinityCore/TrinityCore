@@ -1,7 +1,7 @@
--- 
+--
 -- Hrothgar Landing Fixups
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry`=34879;
- 
+
 DELETE FROM `creature` WHERE `guid` IN (52041,52042,52043,53107,53767,12483);
 DELETE FROM `creature_addon` WHERE `guid` IN (52041,52042,52043,53107,53767,12483);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
@@ -11,16 +11,16 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (53107, 34852, 571, 1, 1, 10051.8, 1186.913, 69.17319, 0, 120, 0, 0),
 (53767, 34852, 571, 1, 1, 10063.12, 1209.752, 73.48428, 0, 120, 0, 0),
 (12483, 34852, 571, 1, 1, 10115.9, 1189.974, 81.12413, 0, 120, 0, 0);
- 
+
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=10051.27,`position_y`=1216.898,`position_z`=69.68569,`orientation`=2.460914 WHERE `guid`=53109;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=10110.92,`position_y`=1218.408,`position_z`=78.9978,`orientation`=0.6283185 WHERE `guid`=53113;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=10096.75,`position_y`=1190.5,`position_z`=79.6442,`orientation`=6.195919 WHERE `guid`=53041;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=9951.683,`position_y`=1201.502,`position_z`=52.69936,`orientation`=5.585053 WHERE `guid`=53114;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=9928.953,`position_y`=1172.898,`position_z`=51.50733,`orientation`=3.054326 WHERE `guid`=53224;
- 
+
 DELETE FROM `creature_addon` WHERE `guid` IN (53041,53114,53109,53113);
 INSERT INTO `creature_addon` (`guid`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (53041,0,256,0, ''),(53114,1,1,0, ''),(53109,0,1,234, ''),(53113,0,256,0, '');
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 52038;
 SET @PATH := @NPC * 10;
@@ -45,7 +45,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,10395.81,846.125,99.77592,0,0,0,0,100,0),
 (@PATH,15,10383.35,834.6024,92.76371,0,0,0,0,100,0),
 (@PATH,16,10367.6,818.8438,84.29758,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 52039;
 SET @PATH := @NPC * 10;
@@ -66,7 +66,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,10303.06,778.2899,74.40554,0,0,0,0,100,0),
 (@PATH,11,10288.04,780.6441,74.41165,0,0,0,0,100,0),
 (@PATH,12,10263.58,779.5504,72.51409,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 52604;
 SET @PATH := @NPC * 10;
@@ -87,7 +87,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,10192.28,799.4097,57.93019,0,0,0,0,100,0),
 (@PATH,11,10181.2,816.316,52.61528,0,0,0,0,100,0),
 (@PATH,12,10170.49,831.2708,47.18571,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 52045;
 SET @PATH := @NPC * 10;
@@ -104,7 +104,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,6,10177.37,775.2413,63.86098,0,0,0,0,100,0),
 (@PATH,7,10170,758.5295,66.86421,0,0,0,0,100,0),
 (@PATH,8,10160.01,748.9653,66.73127,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 53134;
 SET @PATH := @NPC * 10;
@@ -123,7 +123,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,10160.9,1196.631,81.06026,0,0,0,0,100,0),
 (@PATH,9,10151.32,1200.924,83.26014,0,0,0,0,100,0),
 (@PATH,10,10143.43,1207.156,79.93629,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 53108;
 SET @PATH := @NPC * 10;
@@ -150,7 +150,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,9968.799,1153.069,42.6813,0,0,0,0,100,0),
 (@PATH,17,9977.379,1170.333,47.40315,0,0,0,0,100,0),
 (@PATH,18,9986.482,1177.609,51.15157,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 53099;
 SET @PATH := @NPC * 10;
@@ -169,7 +169,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,10021.29,994.6493,6.951415,0,0,0,0,100,0),
 (@PATH,9,10005.19,1011.068,9.509178,0,0,0,0,100,0),
 (@PATH,10,9988.272,1029.477,13.34639,0,0,0,0,100,0);
- 
+
 -- Pathing for Kvaldir Reaver Entry: 34838 'TDB FORMAT'
 SET @NPC := 53112;
 SET @PATH := @NPC * 10;
@@ -188,14 +188,14 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,10053.45,1195.518,69.44296,0,0,0,0,100,0),
 (@PATH,9,10034.4,1198.321,64.06003,0,0,0,0,100,0),
 (@PATH,10,10019.43,1197.052,61.09853,0,0,0,0,100,0);
- 
+
 -- Kvaldir Reaver SAI
 SET @ENTRY := 34838;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,0,0,100,0,0,0,9000,11000,11,49922,0,0,0,0,0,2,0,0,0,0,0,0,0,"Kvaldir Reaver - In Combat - Cast 'Wave Crash'");
- 
+
 -- Kvaldir Mist Binder SAI
 SET @ENTRY := 34839;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;

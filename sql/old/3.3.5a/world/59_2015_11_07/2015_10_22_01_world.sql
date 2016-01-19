@@ -1,4 +1,4 @@
--- Pathing for Monstrous Underbelly Rat Entry: 32466 'TDB FORMAT' 
+-- Pathing for Monstrous Underbelly Rat Entry: 32466 'TDB FORMAT'
 SET @NPC := 115709;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=5838.242,`position_y`=727.3474,`position_z`=618.8483 WHERE `guid`=@NPC;
@@ -13,7 +13,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,5824.13,723.7587,618.8483,0,0,0,0,100,0), -- 17:25:31
 (@PATH,6,5831.308,726.0686,618.8483,0,0,0,0,100,0); -- 17:25:33
 
--- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT' 
+-- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT'
 SET @NPC := 112319;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=5860.327,`position_y`=704.5416,`position_z`=609.4075 WHERE `guid`=@NPC;
@@ -191,7 +191,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,168,5866.658,703.6503,609.4075,0,0,1,0,100,0), -- 17:43:47
 (@PATH,169,5860.372,704.5635,609.4075,0,0,1,0,100,0); -- 17:43:50
 
--- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT' 
+-- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT'
 SET @NPC := 112318;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=5812.506,`position_y`=725.5436,`position_z`=624.4396 WHERE `guid`=@NPC;
@@ -451,7 +451,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,250,5812.082,724.9027,624.3082,0,0,1,0,100,0), -- 17:47:20
 (@PATH,251,5812.286,725.2038,624.2163,0,0,1,0,100,0); -- 17:47:21
 
--- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT' 
+-- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT'
 SET @NPC := 112316;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=5650.283,`position_y`=859.0229,`position_z`=571.1886 WHERE `guid`=@NPC;
@@ -599,7 +599,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,138,5670.488,841.3165,582.2974,0,0,1,0,100,0), -- 16:17:25
 (@PATH,139,5650.221,859.0325,570.9788,0,0,1,0,100,0); -- 16:17:33
 
--- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT' 
+-- Pathing for Underbelly Rat Entry: 32428 'TDB FORMAT'
 SET @NPC := 112317;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=5932.637,`position_y`=560.9154,`position_z`=609.7726 WHERE `guid`=@NPC;

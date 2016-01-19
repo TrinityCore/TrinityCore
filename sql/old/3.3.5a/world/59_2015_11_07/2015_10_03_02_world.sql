@@ -1,10 +1,10 @@
--- 
+--
 DELETE FROM `gossip_menu` WHERE `entry`=8750 AND `text_id`=11082;
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (8750, 11082);
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (8750) AND `id`=2;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`, `OptionBroadcastTextID`, `option_id`,`npc_option_npcflag`,`action_menu_id`) VALUES
-(8750,2,0,"I'm ready. Take me to the Chamber of Command.",21879,1,1,0); 
+(8750,2,0,"I'm ready. Take me to the Chamber of Command.",21879,1,1,0);
 
 DELETE FROM `spell_target_position` WHERE `id`=41570;
 INSERT INTO `spell_target_position` (`id`,`MapID`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`) VALUES

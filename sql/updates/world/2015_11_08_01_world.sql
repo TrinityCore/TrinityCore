@@ -14,7 +14,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (19178,0,12,0,64,0,100,0,0,0,0,0,98,10513,14544,0,0,0,0,7,0,0,0,0,0,0,0,'Forsaken Commoner - On Gossip Hello - Send Gossip'),
 (19169,0,12,0,64,0,100,0,0,0,0,0,98,10513,14544,0,0,0,0,7,0,0,0,0,0,0,0,'Blood Elf Commoner - On Gossip Hello - Send Gossip');
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` in(20102,18927,19177,19169,19175,19171,19172,19176,19178,19173,19148) AND `SourceGroup`=13;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 13, 19148, 0, 0, 12, 1, 51, 0, 0, 0, 0, 0, '', 'Commoner - DOTD must be active'),
 (22, 13, 20102, 0, 0, 12, 1, 51, 0, 0, 0, 0, 0, '', 'Commoner - DOTD must be active'),
 (22, 13, 18927, 0, 0, 12, 1, 51, 0, 0, 0, 0, 0, '', 'Commoner - DOTD must be active'),
@@ -72,7 +72,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position
 (@CGUID+37, 19148, 0, 1, 1, -4901.802, -958.9554, 501.5429, 1.012291, 120, 0, 0); -- 19148 (Area: 5719) (Auras: 65529 - 65529, 33209 - 33209, 33207 - 33207, 33208 - 33208)
 
 DELETE FROM `game_event_creature` WHERE `eventEntry`=51 AND `guid` BETWEEN @CGUID+0 AND @CGUID+37 ;
-INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES 
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
 (51, @CGUID+0),
 (51, @CGUID+1),
 (51, @CGUID+2),
@@ -113,7 +113,7 @@ INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
 (51, @CGUID+37);
 
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+37;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0x0, 0x1, 0, '65529 33209 33207 33208'),
 (@CGUID+1, 0, 0, 0x0, 0x1, 0, '65529 33209 33207 33208'),
 (@CGUID+2, 0, 0, 0x0, 0x1, 0, '65529 33209 33207 33208'),

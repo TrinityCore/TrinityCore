@@ -1,6 +1,6 @@
 --
 DELETE FROM `creature_template_addon` WHERE `entry` IN (30477, 30487);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (30477, 0, 0, 33554432, 0, 0, '55971'),
 (30487, 0, 0, 33554432, 0, 0, '55971');
 UPDATE `creature_template` SET `vehicleid`=110 WHERE `entry`=28192;

@@ -1,6 +1,6 @@
 -- Dragonblight Pathing - Moonrest Gardens (West) + Dragonblight (Spider Corner) + Westwind Refugee Camp + Icemist Village
 
--- 1. Mage Hunter 
+-- 1. Mage Hunter
 SET @NPC := 111816;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=3398.48,`position_y`=2385.953,`position_z`=36.96791 WHERE `guid`=@NPC;
@@ -60,7 +60,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,49,3416.855,2388.722,39.98199,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111816;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111816, 111816, 0, 0, 2, 0, 0),
 (111816, 101655, 3, 90, 2, 0, 0);
 
@@ -187,7 +187,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,82,3521.85,2693.935,79.17375,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111807;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111807, 111807, 0, 0, 2, 0, 0),
 (111807, 101650, 3, 0, 2, 0, 0);
 
@@ -326,7 +326,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,124,3571.969,2436.802,82.04404,0,0,0,0,100,0);
 
 DELETE FROM `creature_formations` WHERE `leaderGUID`=111848;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (111848, 111848, 0, 0, 2, 0, 0),
 (111848, 101689, 3, 90, 2, 0, 0);
 
@@ -997,4 +997,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,76,3919.324,2268.245,153.492,0,0,0,0,100,0),
 (@PATH,77,3919.074,2271.245,154.492,0,0,0,0,100,0),
 (@PATH,78,3918.574,2274.245,155.492,0,0,0,0,100,0);
--- 
+--

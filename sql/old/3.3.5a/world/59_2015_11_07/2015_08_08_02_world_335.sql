@@ -1,6 +1,6 @@
--- 
+--
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (56000,56001,56002);
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
 (56000,0,0,"Dreadlords? Perhaps you mean Lord Banehollow. He sends his regards, and has a message for you...",9737,1,1,56001,0,0,0,NULL,0),
 (56001,0,0,"No, Ulathek. He knows your secret. He knows you plot with Lord Hel'nurath of Xoroth.",9739,1,1,56002,0,0,0,NULL,0),
 (56002,0,0,"It's no lie, traitor. Banehollow wants your heart, and I'm going to get it for him.",9741,1,1,0,0,0,0,NULL,0);

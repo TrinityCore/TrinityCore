@@ -230,5 +230,5 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,1,0,6,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mangled Cadaver - On Just Died - Say Line 0");
 
 DELETE FROM `creature_text` WHERE `entry`=10382;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (10382, 0, 0, '%s collapses but the broken body rises again!', 16, 0, 100, 0, 0, 0, 5772, 'Mangled Cadaver');

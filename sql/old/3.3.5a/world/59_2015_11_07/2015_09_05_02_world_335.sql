@@ -1,4 +1,4 @@
--- 
+--
 UPDATE `creature` SET `spawntimesecs`=60 WHERE `guid`=50005;
 
 -- Kindal Moonweaver SAI
@@ -43,7 +43,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,9,0,0,0,0,100,0,0,0,0,0,45,1,1,0,0,0,0,11,7997,20,0,0,0,0,0,"On Script - Set Data 1 1");
 
--- Captured Sprite Darter SAI 
+-- Captured Sprite Darter SAI
 SET @ENTRY := 7997;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
@@ -65,7 +65,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 /* Texts for Kindal Moonweaver */
 DELETE FROM `creature_text` WHERE `entry` in (7956);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextId`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`, `BroadcastTextId`) VALUES
 (7956, 0, 0, 'I''m ready when you are, $n. Lead the way!', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4079),
 (7956, 1, 0, 'Die, $n. Elune will not have you harm her creatures any longer!', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4123),
 (7956, 1, 1, 'You dare touch me?!', 12, 0, 100, 0, 0, 0, 'Kindal Moonweaver', 4125),
@@ -76,7 +76,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 
 /* Waypoints for Captured Sprite Darter */
 DELETE FROM `waypoints` WHERE `entry`=7997;
-INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
+INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
 (7997, 1, -4532.19, 807.833, 59.9749, 'Captured Sprite Darter'),
 (7997, 2, -4526.04, 799.328, 59.4271, 'Captured Sprite Darter'),
 (7997, 3, -4518.87, 786.24, 59.9261, 'Captured Sprite Darter'),
