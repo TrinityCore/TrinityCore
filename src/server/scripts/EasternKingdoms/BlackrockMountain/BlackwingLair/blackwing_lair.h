@@ -59,7 +59,7 @@ enum CreatureIds
 enum GameObjectIds
 {
     GO_BLACK_DRAGON_EGG         = 177807,
-    GO_BOSSGATE01               = 175946,
+    GO_PORTCULLIS               = 176965,
     GO_DRAKE_RIDER_PORTCULLIS   = 175185,
     GO_ALTERAC_VALLEY_GATE      = 180424,
     GO_GATE                     = 185483,
