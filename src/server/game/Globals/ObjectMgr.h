@@ -812,12 +812,12 @@ class ObjectMgr
 
         QuestMap const& GetQuestTemplates() const { return _questTemplates; }
 
-        uint32 GetQuestForAreaTrigger(uint32 Trigger_ID) const
+        std::unordered_set<uint32> const* GetQuestsForAreaTrigger(uint32 Trigger_ID) const
         {
-            QuestAreaTriggerContainer::const_iterator itr = _questAreaTriggerStore.find(Trigger_ID);
+            auto itr = _questAreaTriggerStore.find(Trigger_ID);
             if (itr != _questAreaTriggerStore.end())
-                return itr->second;
-            return 0;
+                return &itr->second;
+            return nullptr;
         }
 
         bool IsTavernAreaTrigger(uint32 Trigger_ID) const
@@ -1419,7 +1419,7 @@ class ObjectMgr
         QuestMap _questTemplates;
 
         typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
-        typedef std::unordered_map<uint32, uint32> QuestAreaTriggerContainer;
+        typedef std::unordered_map<uint32, std::unordered_set<uint32>> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
         typedef std::set<uint32> GameObjectForQuestContainer;
 
