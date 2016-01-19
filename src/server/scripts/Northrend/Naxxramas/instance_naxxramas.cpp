@@ -179,6 +179,9 @@ class instance_naxxramas : public InstanceMapScript
                     case NPC_RAZUVIOUS:
                         RazuviousGUID = creature->GetGUID();
                         break;
+                    case NPC_GOTHIK:
+                        GothikGUID = creature->GetGUID();
+                        break;
                     case NPC_THANE:
                         ThaneGUID = creature->GetGUID();
                         break;
@@ -416,6 +419,8 @@ class instance_naxxramas : public InstanceMapScript
                         return FaerlinaGUID;
                     case DATA_RAZUVIOUS:
                         return RazuviousGUID;
+                    case DATA_GOTHIK:
+                        return GothikGUID;
                     case DATA_THANE:
                         return ThaneGUID;
                     case DATA_LADY:
@@ -693,6 +698,7 @@ class instance_naxxramas : public InstanceMapScript
             // Instructor Razuvious
             ObjectGuid RazuviousGUID;
             // Gothik the Harvester
+            ObjectGuid GothikGUID;
             ObjectGuid GothikGateGUID;
             // The Four Horsemen
             ObjectGuid ThaneGUID;
