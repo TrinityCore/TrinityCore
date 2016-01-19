@@ -15800,9 +15800,9 @@ void Player::CurrencyChanged(uint32 currencyId, int32 change)
                 continue;
 
             QuestStatusData& q_status = m_QuestStatus[questid];
-            int64 value = GetCurrency(currencyId);
             if (obj.Type == QUEST_OBJECTIVE_CURRENCY || obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
             {
+                int64 value = GetCurrency(currencyId);
                 if (obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
                     SetQuestObjectiveData(qInfo, obj.StorageIndex, int32(std::min<int64>(value, obj.Amount)));
 
@@ -15820,10 +15820,10 @@ void Player::CurrencyChanged(uint32 currencyId, int32 change)
                         IncompleteQuest(questid);
                 }
             }
-            else if (obj.Type == QUEST_OBJECTIVE_OBTAIN_CURRENCY && value > 0) // currency losses are not accounted for in this objective type
+            else if (obj.Type == QUEST_OBJECTIVE_OBTAIN_CURRENCY && change > 0) // currency losses are not accounted for in this objective type
             {
                 int64 currentProgress = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-                SetQuestObjectiveData(qInfo, obj.StorageIndex, int32(std::max(std::min<int64>(currentProgress + value, obj.Amount), SI64LIT(0))));
+                SetQuestObjectiveData(qInfo, obj.StorageIndex, int32(std::max(std::min<int64>(currentProgress + change, obj.Amount), SI64LIT(0))));
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
             }
