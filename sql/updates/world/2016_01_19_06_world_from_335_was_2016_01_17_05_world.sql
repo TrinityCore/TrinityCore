@@ -1,4 +1,5 @@
-UPDATE`spell_dbc` SET `Effect1`=28, `EffectMiscValueB1`=64 WHERE  `Id`IN(14313,14307,14252);
+-- UPDATE`spell_dbc` SET `Effect1`=28, `EffectMiscValueB1`=64 WHERE  `Id`IN(14313,14307,14252);
+UPDATE `spelleffect_dbc` SET `Effect`=28,`EffectMiscValueB`=64 WHERE `EffectSpellId` IN (14313,14307,14252);
 
 -- Spell 14313 Summon Enraged Gryphon
 -- Spell 14307 Summon Enraged Wyvern
