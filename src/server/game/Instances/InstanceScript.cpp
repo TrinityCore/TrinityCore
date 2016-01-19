@@ -33,7 +33,7 @@
 BossBoundaryData::~BossBoundaryData()
 {
     for (const_iterator it = begin(); it != end(); ++it)
-        delete it->boundary;
+        delete it->Boundary;
 }
 
 void InstanceScript::SaveToDB()
@@ -106,7 +106,7 @@ void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
 {
     for (BossBoundaryEntry const& entry : data)
         if (entry.BossId < bosses.size())
-            bosses[entry.bossId].boundary.insert(entry.Boundary);
+            bosses[entry.BossId].boundary.insert(entry.Boundary);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)

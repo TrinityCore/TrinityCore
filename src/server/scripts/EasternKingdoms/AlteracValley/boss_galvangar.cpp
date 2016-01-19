@@ -78,7 +78,7 @@ public:
                 Talk(SAY_BUFF);
         }
 
-        bool CheckInRoom()
+        bool CheckInRoom() override
         {
             if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
             {
