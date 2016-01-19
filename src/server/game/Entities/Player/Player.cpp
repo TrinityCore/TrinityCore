@@ -6608,6 +6608,8 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         if (count > 0)
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
 
+        CurrencyChanged(id, count);
+
         if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
         {
             // count was changed to week limit, now we can modify original points.
@@ -13860,6 +13862,9 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                     case QUEST_OBJECTIVE_GAMEOBJECT:
                     case QUEST_OBJECTIVE_PLAYERKILLS:
                     case QUEST_OBJECTIVE_TALKTO:
+                    case QUEST_OBJECTIVE_WINPVPPETBATTLES:
+                    case QUEST_OBJECTIVE_HAVE_CURRENCY:
+                    case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
                         if (GetQuestObjectiveData(qInfo, obj.StorageIndex) < obj.Amount)
                             return false;
                         break;
@@ -13881,6 +13886,10 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         break;
                     case QUEST_OBJECTIVE_LEARNSPELL:
                         if (!HasSpell(obj.ObjectID))
+                            return false;
+                        break;
+                    case QUEST_OBJECTIVE_CURRENCY:
+                        if (!HasCurrency(obj.ObjectID, obj.Amount))
                             return false;
                         break;
                     default:
@@ -15685,7 +15694,7 @@ void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
     }
 }
 
-void Player::MoneyChanged(uint32 count)
+void Player::MoneyChanged(uint64 value)
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -15706,7 +15715,7 @@ void Player::MoneyChanged(uint32 count)
 
             if (q_status.Status == QUEST_STATUS_INCOMPLETE)
             {
-                if (int32(count) >= obj.Amount)
+                if (int64(value) >= obj.Amount)
                 {
                     if (CanCompleteQuest(questid))
                         CompleteQuest(questid);
@@ -15714,7 +15723,7 @@ void Player::MoneyChanged(uint32 count)
             }
             else if (q_status.Status == QUEST_STATUS_COMPLETE)
             {
-                if (int32(count) < obj.Amount)
+                if (int64(value) < obj.Amount)
                     IncompleteQuest(questid);
             }
         }
@@ -15765,6 +15774,58 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+void Player::CurrencyChanged(uint32 currencyId, int32 change)
+{
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questid = GetQuestSlotQuestId(i);
+        if (!questid)
+            continue;
+
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
+        if (!qInfo)
+            continue;
+
+        for (QuestObjective const& obj : qInfo->GetObjectives())
+        {
+            if (uint32(obj.ObjectID) != currencyId)
+                continue;
+
+            if (obj.Type != QUEST_OBJECTIVE_HAVE_CURRENCY)
+                continue;
+
+            QuestStatusData& q_status = m_QuestStatus[questid];
+            int64 value = GetCurrency(currencyId);
+            if (obj.Type == QUEST_OBJECTIVE_CURRENCY || obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
+            {
+                if (obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
+                    SetQuestObjectiveData(qInfo, obj.StorageIndex, int32(std::min<int64>(value, obj.Amount)));
+
+                if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+                {
+                    if (value >= obj.Amount)
+                    {
+                        if (CanCompleteQuest(questid))
+                            CompleteQuest(questid);
+                    }
+                }
+                else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                {
+                    if (value < obj.Amount)
+                        IncompleteQuest(questid);
+                }
+            }
+            else if (obj.Type == QUEST_OBJECTIVE_OBTAIN_CURRENCY && value > 0) // currency losses are not accounted for in this objective type
+            {
+                int64 currentProgress = GetQuestObjectiveData(qInfo, obj.StorageIndex);
+                SetQuestObjectiveData(qInfo, obj.StorageIndex, int32(std::max(std::min<int64>(currentProgress + value, obj.Amount), SI64LIT(0))));
+                if (CanCompleteQuest(questid))
+                    CompleteQuest(questid);
             }
         }
     }
