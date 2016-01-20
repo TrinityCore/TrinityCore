@@ -212,6 +212,16 @@ namespace WorldPackets
             int32 BlacklistMap[2] = { };
         };
 
+        class BattlemasterJoinArena final : public ClientPacket
+        {
+        public:
+            BattlemasterJoinArena(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_ARENA, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 TeamSizeIndex = 0;
+        };
+
         class BattlefieldLeave final : public ClientPacket
         {
         public:

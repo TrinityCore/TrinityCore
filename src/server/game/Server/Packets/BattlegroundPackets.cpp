@@ -120,6 +120,11 @@ void WorldPackets::Battleground::BattlemasterJoin::Read()
     JoinAsGroup = _worldPacket.ReadBit();
 }
 
+void WorldPackets::Battleground::BattlemasterJoinArena::Read()
+{
+    _worldPacket >> TeamSizeIndex;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
 {
     data << header.Ticket;
