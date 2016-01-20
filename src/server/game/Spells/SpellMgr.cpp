@@ -3092,6 +3092,14 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
+            case 43265: // Death and Decay
+                // We need access to the targets of the dynaura to correctly apply the damage spell
+                // Currently EFFECT_1 has PERIODIC_DUMMY aura but TARGET_UNIT_CASTER set
+                // This will leave the spell in the same state as it was in 335 DBC
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
+                spellInfo->Effects[EFFECT_0].Amplitude = spellInfo->Effects[EFFECT_1].Amplitude;
+                spellInfo->Effects[EFFECT_1].Effect = 0; // might as well save a few cpu cycles
+                break;
             case 31347: // Doom
             case 36327: // Shoot Arcane Explosion Arrow
             case 39365: // Thundering Storm
