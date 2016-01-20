@@ -1212,6 +1212,8 @@ enum TrinityStrings
     LANG_CREATURE_NO_INTERIOR_POINT_FOUND         = 11011,
     LANG_CREATURE_MOVEMENT_NOT_BOUNDED            = 11012,
     LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED        = 11013,
-    LANG_INSTANCE_BIND_MISMATCH                   = 11014
+    LANG_INSTANCE_BIND_MISMATCH                   = 11014,
+    LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
+    LANG_SELECT_PLAYER_OR_PET                     = 11016,
 };
 #endif

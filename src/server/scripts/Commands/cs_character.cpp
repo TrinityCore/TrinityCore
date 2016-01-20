@@ -436,7 +436,7 @@ public:
         if (isalpha(levelStr[0]))
         {
             nameStr = levelStr;
-            levelStr = NULL;                                    // current level will used
+            levelStr = nullptr;                                    // current level will used
         }
 
         Player* target;
