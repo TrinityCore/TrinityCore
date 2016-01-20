@@ -71,7 +71,7 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    std::string fileName = Trinity::StringFormat("maps/%03u%02u%02u.map", mapid, gx, gy);
+    std::string fileName = Trinity::StringFormat("%smaps/%03u%02u%02u.map", sWorld->GetDataPath().c_str(), mapid, gx, gy);
 
     bool ret = false;
     FILE* file = fopen(fileName.c_str(), "rb");
