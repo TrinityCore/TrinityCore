@@ -167,6 +167,12 @@ if( WIN32 )
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
+	if ( ZMQ_LIBRARY_DLL )
+       add_custom_command(TARGET worldserver
+         POST_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy ${ZMQ_LIBRARY_DLL} ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+       )
+    endif()
   elseif ( MINGW )
     add_custom_command(TARGET worldserver
       POST_BUILD
