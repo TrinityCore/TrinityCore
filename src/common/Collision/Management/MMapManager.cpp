@@ -24,7 +24,7 @@
 
 namespace MMAP
 {
-
+    static char const* const MAP_FILE_NAME_FORMAT = "%smmaps/%03i.mmap";
     static char const* const TILE_FILE_NAME_FORMAT = "%smmaps/%03i%02i%02i.mmtile";
 
     // ######################## MMapManager ########################
@@ -50,6 +50,8 @@ namespace MMAP
                     _phaseTiles.insert(PhaseTileMap::value_type(phasedMapId, PhaseTileContainer()));
             }
         }
+
+        thread_safe_environment = false;
     }
 
     MMapDataSet::const_iterator MMapManager::GetMMapData(uint32 mapId) const
@@ -80,26 +82,20 @@ namespace MMAP
         }
 
         // load and init dtNavMesh - read parameters from file
-        std::string dataDir = sConfigMgr->GetStringDefault("DataDir", "./");
-        uint32 pathLen = dataDir.length() + strlen("/mmaps/%03i.mmap") + 1;
-        char *fileName = new char[pathLen];
-        snprintf(fileName, pathLen, (dataDir + "/mmaps/%03i.mmap").c_str(), mapId);
-
-        FILE* file = fopen(fileName, "rb");
+        std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "./").c_str(), mapId);
+        FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
-            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName);
-            delete[] fileName;
+            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not open mmap file '%s'", fileName.c_str());
             return false;
         }
 
         dtNavMeshParams params;
-        int count = fread(&params, sizeof(dtNavMeshParams), 1, file);
+        uint32 count = uint32(fread(&params, sizeof(dtNavMeshParams), 1, file));
         fclose(file);
         if (count != 1)
         {
-            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName);
-            delete[] fileName;
+            TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName.c_str());
             return false;
         }
 
@@ -108,12 +104,9 @@ namespace MMAP
         if (dtStatusFailed(mesh->init(&params)))
         {
             dtFreeNavMesh(mesh);
-            TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap %03u from file %s", mapId, fileName);
-            delete[] fileName;
+            TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap %03u from file %s", mapId, fileName.c_str());
             return false;
         }
-
-        delete[] fileName;
 
         TC_LOG_DEBUG("maps", "MMAP:loadMapData: Loaded %03i.mmap", mapId);
 
@@ -129,7 +122,7 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y)
+    bool MMapManager::loadMap(const std::string& /*basePath*/, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
@@ -145,19 +138,13 @@ namespace MMAP
             return false;
 
         // load this tile :: mmaps/MMMXXYY.mmtile
-        uint32 pathLen = basePath.length() + strlen("/%03i%02i%02i.mmtile") + 1;
-        char *fileName = new char[pathLen];
-
-        snprintf(fileName, pathLen, (basePath + "/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
-
-        FILE* file = fopen(fileName, "rb");
+        std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetStringDefault("DataDir", "./"), mapId, x, y);
+        FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
-            TC_LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '%s'", fileName);
-            delete[] fileName;
+            TC_LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '%s'", fileName.c_str());
             return false;
         }
-        delete[] fileName;
 
         // read header
         MmapTileHeader fileHeader;
@@ -205,12 +192,10 @@ namespace MMAP
 
             return true;
         }
-        else
-        {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
-            dtFree(data);
-            return false;
-        }
+
+        TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load %03u%02i%02i.mmtile into navmesh", mapId, x, y);
+        dtFree(data);
+        return false;
     }
 
     PhasedTile* MMapManager::LoadTile(uint32 mapId, int32 x, int32 y)
@@ -413,13 +398,13 @@ namespace MMAP
         return true;
     }
 
-    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId, TerrainSet /*swaps*/)
+    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId, TerrainSet swaps)
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
             return NULL;
 
-        return itr->second->navMesh;
+        return itr->second->GetNavMesh(swaps);
     }
 
     dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId, uint32 instanceId, TerrainSet swaps)
@@ -533,12 +518,9 @@ namespace MMAP
             return;
         }
 
-        uint32 old_x = oldTile->header->x;
-        uint32 old_y = oldTile->header->y;
-
         // header xy is based on the swap map's tile set, wich doesn't have all the same tiles as root map, so copy the xy from the orignal header
-        memcpy(ptile->data + 8, (char*)&old_x, 4);
-        memcpy(ptile->data + 12, (char*)&old_y, 4);
+        header->x = oldTile->header->x;
+        header->y = oldTile->header->y;
 
         // the removed tile's data
         PhasedTile* pt = new PhasedTile();
@@ -571,7 +553,8 @@ namespace MMAP
 
     dtNavMesh* MMapData::GetNavMesh(TerrainSet swaps)
     {
-        for (uint32 swap : _activeSwaps)
+        std::set<uint32> activeSwaps = _activeSwaps;    // _activeSwaps is modified inside RemoveSwap
+        for (uint32 swap : activeSwaps)
         {
             if (!swaps.count(swap)) // swap not active
             {
@@ -580,11 +563,11 @@ namespace MMAP
                         RemoveSwap(itr->second, swap, itr->first); // remove swap
             }
         }
-        
-        if (!swaps.empty())
+
+        // for each of the calling unit's terrain swaps
+        for (uint32 swap : swaps)
         {
-            // for each of the calling unit's terrain swaps
-            for (uint32 swap : swaps)
+            if (!_activeSwaps.count(swap)) // swap not active
             {
                 // for each of the terrain swap's xy tiles
                 if (PhaseTileContainer const* ptc = MMAP::MMapFactory::createOrGetMMapManager()->GetPhaseTileContainer(swap))
@@ -592,6 +575,7 @@ namespace MMAP
                         AddSwap(itr->second, swap, itr->first); // add swap
             }
         }
+
         return navMesh;
     }
 }

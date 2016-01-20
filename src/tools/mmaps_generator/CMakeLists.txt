@@ -12,7 +12,7 @@ file(GLOB_RECURSE mmap_gen_sources *.cpp *.h)
 
 set(mmap_gen_Includes
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/libmpq
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/zlib
   ${CMAKE_SOURCE_DIR}/dep/bzip2
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
@@ -20,24 +20,15 @@ set(mmap_gen_Includes
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/Include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
   ${CMAKE_SOURCE_DIR}/src/common
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/common/Threading
+  ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
   ${CMAKE_SOURCE_DIR}/src/common/Collision
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Management
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Maps
   ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Threading
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
 )
-
-if( WIN32 )
-  set(mmap_gen_Includes
-    ${mmap_gen_Includes}
-    ${CMAKE_SOURCE_DIR}/dep/libmpq/win
-    )
-endif()
 
 include_directories(${mmap_gen_Includes})
 
@@ -48,6 +39,7 @@ target_link_libraries(mmaps_generator
   g3dlib
   Recast
   Detour
+  format
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
