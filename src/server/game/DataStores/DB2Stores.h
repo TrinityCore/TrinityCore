@@ -143,6 +143,7 @@ public:
     typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
     typedef std::set<GlyphSlotEntry const*, GlyphSlotEntryComparator> GlyphSlotContainer;
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
+    typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
     typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
@@ -159,8 +160,7 @@ public:
     typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
     typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
-    typedef std::vector<uint32> ToyItemIdsContainer;
-    typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
+    typedef std::unordered_set<uint32> ToyItemIdsContainer;
 
     static DB2Manager& Instance()
     {
@@ -181,6 +181,7 @@ public:
     uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId) const;
     GlyphSlotContainer const& GetGlyphSlots() const { return _glyphSlots; }
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
+    HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
@@ -195,8 +196,7 @@ public:
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
-    bool GetToyItemIdMatch(uint32 toy) const;
-    HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
+    bool IsToyItem(uint32 toy) const;
 
 private:
     StorageMap _stores;
@@ -206,6 +206,7 @@ private:
     CharStartOutfitContainer _charStartOutfits;
     uint32 _powersByClass[MAX_CLASSES][MAX_POWERS];
     GlyphSlotContainer _glyphSlots;
+    HeirloomItemsContainer _heirlooms;
     HeirloomCurvesContainer _heirloomCurvePoints;
     ItemBonusListContainer _itemBonusLists;
     ItemBonusTreeContainer _itemBonusTrees;
@@ -222,7 +223,6 @@ private:
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
     ToyItemIdsContainer _toys;
-    HeirloomItemsContainer _heirlooms;
 };
 
 #define sDB2Manager DB2Manager::Instance()

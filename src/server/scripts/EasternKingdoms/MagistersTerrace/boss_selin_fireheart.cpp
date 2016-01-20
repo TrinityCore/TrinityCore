@@ -139,7 +139,7 @@ class boss_selin_fireheart : public CreatureScript
                 for (Creature* crystal : Crystals)
                 {
                     if (crystal && crystal->IsAlive())
-                        crystal->Kill(crystal);
+                        crystal->KillSelf();
                 }
             }
 
@@ -218,7 +218,7 @@ class boss_selin_fireheart : public CreatureScript
 
                             Creature* CrystalChosen = ObjectAccessor::GetCreature(*me, CrystalGUID);
                             if (CrystalChosen && CrystalChosen->IsAlive())
-                                CrystalChosen->Kill(CrystalChosen);
+                                CrystalChosen->KillSelf();
 
                             CrystalGUID.Clear();
 

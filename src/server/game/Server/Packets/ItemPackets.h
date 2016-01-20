@@ -492,6 +492,29 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
         };
 
+        class SocketGems final : public ClientPacket
+        {
+        public:
+            SocketGems(WorldPacket&& packet) : ClientPacket(CMSG_SOCKET_GEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+            ObjectGuid GemItem[MAX_GEM_SOCKETS];
+        };
+
+        class SocketGemsResult final : public ServerPacket
+        {
+        public:
+            SocketGemsResult() : ServerPacket(SMSG_SOCKET_GEMS, 16 + 4 * 3 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Item;
+            int32 Sockets[MAX_GEM_SOCKETS] = {};
+            int32 SocketMatch = 0;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
     }
 }

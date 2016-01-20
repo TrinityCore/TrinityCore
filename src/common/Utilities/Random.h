@@ -19,6 +19,7 @@
 #define Random_h__
 
 #include "Define.h"
+#include <limits>
 #include <random>
 
 /* Return a random number in the range min..max. */
@@ -62,8 +63,8 @@ class SFMTEngine
 public:
     typedef uint32 result_type;
 
-    result_type min() const { return std::numeric_limits<result_type>::min(); }
-    result_type max() const { return std::numeric_limits<result_type>::max(); }
+    static TRINITY_CONSTEXPR result_type min() { return std::numeric_limits<result_type>::min(); }
+    static TRINITY_CONSTEXPR result_type max() { return std::numeric_limits<result_type>::max(); }
     result_type operator()() const { return rand32(); }
 
     static SFMTEngine& Instance();

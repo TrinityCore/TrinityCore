@@ -60,7 +60,6 @@ DoorData const doorData[] =
 
 MinionData const minionData[] =
 {
-    { NPC_DK_UNDERSTUDY,        BOSS_RAZUVIOUS  },
     { NPC_SIR,                  BOSS_HORSEMEN   },
     { NPC_THANE,                BOSS_HORSEMEN   },
     { NPC_LADY,                 BOSS_HORSEMEN   },
@@ -127,6 +126,7 @@ class instance_naxxramas : public InstanceMapScript
                 AbominationCount        = 0;
                 hadAnubRekhanGreet      = false;
                 hadFaerlinaGreet        = false;
+                hadThaddiusGreet        = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
                 playerDied              = 0;
@@ -142,6 +142,9 @@ class instance_naxxramas : public InstanceMapScript
                     case NPC_FAERLINA:
                         FaerlinaGUID = creature->GetGUID();
                         break;
+                    case NPC_RAZUVIOUS:
+                        RazuviousGUID = creature->GetGUID();
+                        break;
                     case NPC_THANE:
                         ThaneGUID = creature->GetGUID();
                         break;
@@ -154,11 +157,11 @@ class instance_naxxramas : public InstanceMapScript
                     case NPC_SIR:
                         SirGUID = creature->GetGUID();
                         break;
-                    case NPC_THADDIUS:
-                        ThaddiusGUID = creature->GetGUID();
-                        break;
                     case NPC_HEIGAN:
                         HeiganGUID = creature->GetGUID();
+                        break;
+                    case NPC_THADDIUS:
+                        ThaddiusGUID = creature->GetGUID();
                         break;
                     case NPC_FEUGEN:
                         FeugenGUID = creature->GetGUID();
@@ -185,6 +188,19 @@ class instance_naxxramas : public InstanceMapScript
             void OnCreatureRemove(Creature* creature) override
             {
                 AddMinion(creature, false);
+            }
+
+            void ProcessEvent(WorldObject* /*source*/, uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_THADDIUS_BEGIN_RESET:
+                        if (GetBossState(BOSS_THADDIUS) == SPECIAL) // this is the initial spawn, we want a shorter spawn time
+                            events.ScheduleEvent(EVENT_THADDIUS_RESET, 5 * IN_MILLISECONDS);
+                        else
+                            events.ScheduleEvent(EVENT_THADDIUS_RESET, 30 * IN_MILLISECONDS);
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -329,6 +345,9 @@ class instance_naxxramas : public InstanceMapScript
                     case DATA_HAD_FAERLINA_GREET:
                         hadFaerlinaGreet = (value == 1u);
                         break;
+                    case DATA_HAD_THADDIUS_GREET:
+                        hadThaddiusGreet = (value == 1u);
+                        break;
                     default:
                         break;
                 }
@@ -341,9 +360,11 @@ class instance_naxxramas : public InstanceMapScript
                     case DATA_ABOMINATION_KILLED:
                         return AbominationCount;
                     case DATA_HAD_ANUBREKHAN_GREET:
-                        return (uint32)hadAnubRekhanGreet;
+                        return hadAnubRekhanGreet ? 1u : 0u;
                     case DATA_HAD_FAERLINA_GREET:
-                        return (uint32)hadFaerlinaGreet;
+                        return hadFaerlinaGreet ? 1u : 0u;
+                    case DATA_HAD_THADDIUS_GREET:
+                        return hadThaddiusGreet ? 1u : 0u;
                     default:
                         break;
                 }
@@ -359,6 +380,8 @@ class instance_naxxramas : public InstanceMapScript
                         return AnubRekhanGUID;
                     case DATA_FAERLINA:
                         return FaerlinaGUID;
+                    case DATA_RAZUVIOUS:
+                        return RazuviousGUID;
                     case DATA_THANE:
                         return ThaneGUID;
                     case DATA_LADY:
@@ -367,14 +390,14 @@ class instance_naxxramas : public InstanceMapScript
                         return BaronGUID;
                     case DATA_SIR:
                         return SirGUID;
-                    case DATA_THADDIUS:
-                        return ThaddiusGUID;
                     case DATA_HEIGAN:
                         return HeiganGUID;
                     case DATA_FEUGEN:
                         return FeugenGUID;
                     case DATA_STALAGG:
                         return StalaggGUID;
+                    case DATA_THADDIUS:
+                        return ThaddiusGUID;
                     case DATA_KELTHUZAD:
                         return KelthuzadGUID;
                     case DATA_KELTHUZAD_PORTAL01:
@@ -543,6 +566,11 @@ class instance_naxxramas : public InstanceMapScript
                                 kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD4);
                             HandleGameObject(KelthuzadDoorGUID, true);
                             break;
+                        case EVENT_THADDIUS_RESET:
+                            if (GetBossState(BOSS_THADDIUS) != DONE)
+                                if (Creature* thaddius = instance->GetCreature(ThaddiusGUID))
+                                    thaddius->AI()->DoAction(-1);
+                            break;
                         default:
                             break;
                     }
@@ -628,6 +656,8 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid HeiganGUID;
 
             /* The Military Quarter */
+            // Instructor Razuvious
+            ObjectGuid RazuviousGUID;
             // Gothik the Harvester
             ObjectGuid GothikGateGUID;
             // The Four Horsemen
@@ -657,6 +687,7 @@ class instance_naxxramas : public InstanceMapScript
             uint8 AbominationCount;
             bool hadAnubRekhanGreet;
             bool hadFaerlinaGreet;
+            bool hadThaddiusGreet;
             uint8 CurrentWingTaunt;
 
             /* The Immortal / The Undying */

@@ -43,11 +43,6 @@ struct AchievementEntry
     uint32 CriteriaTree;                                            // 14
 };
 
-struct AreaGroupEntry
-{
-    uint32 ID;                                                      // 0
-};
-
 struct AreaGroupMemberEntry
 {
     uint32 ID;                                                      // 0

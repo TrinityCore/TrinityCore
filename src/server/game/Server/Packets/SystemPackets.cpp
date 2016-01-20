@@ -25,8 +25,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
     _worldPacket << uint32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
-    _worldPacket << uint32(UnkInt27);
-    _worldPacket << uint32(TwitterMsTillCanPost);
+    _worldPacket << uint32(TwitterPostThrottleLimit);
+    _worldPacket << uint32(TwitterPostThrottleCooldown);
     _worldPacket << uint32(TokenPollTimeSeconds);
     _worldPacket << uint32(TokenRedeemIndex);
 

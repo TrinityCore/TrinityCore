@@ -1040,12 +1040,14 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
 
 void Item::SendUpdateSockets()
 {
-    WorldPacket data(SMSG_SOCKET_GEMS, 8+4+4+4+4);
-    data << GetGUID();
-    for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
-        data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
+    WorldPackets::Item::SocketGemsResult socketGems;
+    socketGems.Item = GetGUID();
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        socketGems.Sockets[i] = int32(GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i)));
 
-    GetOwner()->GetSession()->SendPacket(&data);
+    socketGems.SocketMatch = int32(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
+
+    GetOwner()->GetSession()->SendPacket(socketGems.Write());
 }
 
 // Though the client has the information in the item's data field,
@@ -1329,9 +1331,9 @@ bool Item::CheckSoulboundTradeExpire()
     return false;
 }
 
-bool Item::CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
+bool Item::IsValidTransmogrificationTarget() const
 {
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
+    ItemTemplate const* proto = GetTemplate();
     if (!proto)
         return false;
 
@@ -1348,15 +1350,15 @@ bool Item::CanBeTransmogrified(WorldPackets::Item::ItemInstance const& transmogr
     if (proto->GetFlags2() & ITEM_FLAG2_CANNOT_BE_TRANSMOG)
         return false;
 
-    if (!HasStats(transmogrifier, bonus))
+    if (!HasStats())
         return false;
 
     return true;
 }
 
-bool Item::CanTransmogrify() const
+bool Item::IsValidTransmogrificationSource(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto = GetTemplate();
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
     if (!proto)
         return false;
 
@@ -1376,7 +1378,7 @@ bool Item::CanTransmogrify() const
     if (proto->GetFlags2() & ITEM_FLAG2_CAN_TRANSMOG)
         return true;
 
-    if (!HasStats())
+    if (!HasStats(transmogrifier, bonus))
         return false;
 
     return true;
@@ -1408,33 +1410,130 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
     return false;
 }
 
+enum class ItemTransmogrificationWeaponCategory : uint8
+{
+    // Two-handed
+    MELEE_2H,
+    RANGED,
+
+    // One-handed
+    AXE_MACE_SWORD_1H,
+    DAGGER,
+    FIST,
+
+    INVALID
+};
+
+static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate const* proto)
+{
+    if (proto->GetClass() == ITEM_CLASS_WEAPON)
+    {
+        switch (proto->GetSubClass())
+        {
+            case ITEM_SUBCLASS_WEAPON_AXE2:
+            case ITEM_SUBCLASS_WEAPON_MACE2:
+            case ITEM_SUBCLASS_WEAPON_SWORD2:
+            case ITEM_SUBCLASS_WEAPON_STAFF:
+            case ITEM_SUBCLASS_WEAPON_POLEARM:
+                return ItemTransmogrificationWeaponCategory::MELEE_2H;
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                return ItemTransmogrificationWeaponCategory::RANGED;
+            case ITEM_SUBCLASS_WEAPON_AXE:
+            case ITEM_SUBCLASS_WEAPON_MACE:
+            case ITEM_SUBCLASS_WEAPON_SWORD:
+                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
+            case ITEM_SUBCLASS_WEAPON_DAGGER:
+                return ItemTransmogrificationWeaponCategory::DAGGER;
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                return ItemTransmogrificationWeaponCategory::FIST;
+            default:
+                break;
+        }
+    }
+
+    return ItemTransmogrificationWeaponCategory::INVALID;
+}
+
+int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
+{
+    -1,                                                     // INVTYPE_NON_EQUIP
+    EQUIPMENT_SLOT_HEAD,                                    // INVTYPE_HEAD
+    EQUIPMENT_SLOT_NECK,                                    // INVTYPE_NECK
+    EQUIPMENT_SLOT_SHOULDERS,                               // INVTYPE_SHOULDERS
+    EQUIPMENT_SLOT_BODY,                                    // INVTYPE_BODY
+    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_CHEST
+    EQUIPMENT_SLOT_WAIST,                                   // INVTYPE_WAIST
+    EQUIPMENT_SLOT_LEGS,                                    // INVTYPE_LEGS
+    EQUIPMENT_SLOT_FEET,                                    // INVTYPE_FEET
+    EQUIPMENT_SLOT_WRISTS,                                  // INVTYPE_WRISTS
+    EQUIPMENT_SLOT_HANDS,                                   // INVTYPE_HANDS
+    -1,                                                     // INVTYPE_FINGER
+    -1,                                                     // INVTYPE_TRINKET
+    -1,                                                     // INVTYPE_WEAPON
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_SHIELD
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGED
+    EQUIPMENT_SLOT_BACK,                                    // INVTYPE_CLOAK
+    -1,                                                     // INVTYPE_2HWEAPON
+    -1,                                                     // INVTYPE_BAG
+    EQUIPMENT_SLOT_TABARD,                                  // INVTYPE_TABARD
+    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_ROBE
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPONMAINHAND
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_WEAPONOFFHAND
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_HOLDABLE
+    -1,                                                     // INVTYPE_AMMO
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_THROWN
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
+    -1,                                                     // INVTYPE_QUIVER
+    -1                                                      // INVTYPE_RELIC
+};
+
 bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto1 = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
+    ItemTemplate const* source = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
+    ItemTemplate const* target = transmogrified->GetTemplate(); // dest
 
-    if (sDB2Manager.GetItemDisplayId(proto1->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
+    if (!source || !target)
         return false;
 
-    if (!transmogrified->CanTransmogrify() || !CanBeTransmogrified(transmogrifier, bonus))
+    if (sDB2Manager.GetItemDisplayId(source->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
         return false;
 
-    if (proto1->GetInventoryType() == INVTYPE_BAG ||
-        proto1->GetInventoryType() == INVTYPE_RELIC ||
-        proto1->GetInventoryType() == INVTYPE_BODY ||
-        proto1->GetInventoryType() == INVTYPE_FINGER ||
-        proto1->GetInventoryType() == INVTYPE_TRINKET ||
-        proto1->GetInventoryType() == INVTYPE_AMMO ||
-        proto1->GetInventoryType() == INVTYPE_QUIVER)
+    if (!IsValidTransmogrificationSource(transmogrifier, bonus) || !transmogrified->IsValidTransmogrificationTarget())
         return false;
 
-    if (proto1->GetSubClass() != proto2->GetSubClass() && (proto1->GetClass() != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
+    if (source->GetClass() != target->GetClass())
         return false;
 
-    if (proto1->GetInventoryType() != proto2->GetInventoryType() &&
-        (proto1->GetClass() != ITEM_CLASS_WEAPON || (proto2->GetInventoryType() != INVTYPE_WEAPONMAINHAND && proto2->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->GetClass() != ITEM_CLASS_ARMOR || (proto1->GetInventoryType() != INVTYPE_CHEST && proto2->GetInventoryType() != INVTYPE_ROBE && proto1->GetInventoryType() != INVTYPE_ROBE && proto2->GetInventoryType() != INVTYPE_CHEST)))
+    if (source->GetInventoryType() == INVTYPE_TABARD ||
+        source->GetInventoryType() == INVTYPE_BAG ||
+        source->GetInventoryType() == INVTYPE_RELIC ||
+        source->GetInventoryType() == INVTYPE_BODY ||
+        source->GetInventoryType() == INVTYPE_FINGER ||
+        source->GetInventoryType() == INVTYPE_TRINKET ||
+        source->GetInventoryType() == INVTYPE_AMMO ||
+        source->GetInventoryType() == INVTYPE_QUIVER)
         return false;
+
+    if (source->GetSubClass() != target->GetSubClass())
+    {
+        if (source->GetClass() != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
+            return false;
+    }
+
+    if (source->GetInventoryType() != target->GetInventoryType())
+    {
+        int32 sourceSlot = ItemTransmogrificationSlots[source->GetInventoryType()];
+        if (sourceSlot == -1 && source->GetInventoryType() == INVTYPE_WEAPON && (target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND))
+            sourceSlot = ItemTransmogrificationSlots[target->GetInventoryType()];
+
+        if (sourceSlot != ItemTransmogrificationSlots[target->GetInventoryType()])
+            return false;
+    }
 
     return true;
 }

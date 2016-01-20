@@ -917,7 +917,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override
@@ -943,7 +943,7 @@ public:
             //KillSelfTimer
             if (KillSelfTimer <= diff)
             {
-                me->Kill(me);
+                me->KillSelf();
                 return;
             } else KillSelfTimer -= diff;
 
@@ -997,7 +997,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override
@@ -1025,7 +1025,7 @@ public:
                 if (EvadeTimer <= diff)
                 {
                     if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                        p->Kill(p);
+                        p->KillSelf();
 
                     //Dissapear and reappear at new position
                     me->SetVisible(false);
@@ -1033,7 +1033,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (!target)
                     {
-                        me->Kill(me);
+                        me->KillSelf();
                         return;
                     }
 
@@ -1113,7 +1113,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override
@@ -1142,7 +1142,7 @@ public:
                 if (EvadeTimer <= diff)
                 {
                     if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                        p->Kill(p);
+                        p->KillSelf();
 
                     //Dissapear and reappear at new position
                     me->SetVisible(false);
@@ -1150,7 +1150,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (!target)
                     {
-                        me->Kill(me);
+                        me->KillSelf();
                         return;
                     }
 
@@ -1231,7 +1231,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Unit* p = ObjectAccessor::GetUnit(*me, Portal))
-                p->Kill(p);
+                p->KillSelf();
         }
 
         void Reset() override

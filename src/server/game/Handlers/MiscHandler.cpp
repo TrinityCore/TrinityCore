@@ -485,22 +485,25 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
 
     if (player->IsAlive())
     {
-        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(packet.AreaTriggerID))
+        if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
         {
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-            if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+            for (uint32 questId : *quests)
             {
-                for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+                if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                    for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
                     {
-                        player->SetQuestObjectiveData(qInfo, j, int32(true));
-                        break;
+                        if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                        {
+                            player->SetQuestObjectiveData(qInfo, j, int32(true));
+                            break;
+                        }
                     }
-                }
 
-                if (player->CanCompleteQuest(questId))
-                    player->CompleteQuest(questId);
+                    if (player->CanCompleteQuest(questId))
+                        player->CompleteQuest(questId);
+                }
             }
         }
     }
@@ -983,15 +986,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
 
         _player->SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
     }
-}
-
-void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& /*recvData*/)
-{
-    // fly mode on/off
-    MovementInfo movementInfo;
-    _player->ValidateMovementInfo(&movementInfo);
-
-    _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)

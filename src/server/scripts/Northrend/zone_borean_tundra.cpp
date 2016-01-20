@@ -1323,7 +1323,7 @@ public:
             arlos->AI()->Talk(SAY_ARLOS_1);
             arlos->AI()->Talk(SAY_ARLOS_2);
             leryssa->AI()->Talk(SAY_LERYSSA_1);
-            arlos->Kill(arlos, false);
+            arlos->KillSelf(false);
             leryssa->RemoveAura(SPELL_STUN);
             leryssa->ClearUnitState(UNIT_STATE_STUNNED);
             leryssa->SetWalk(false);
@@ -1652,13 +1652,13 @@ public:
                         break;
                     case 5:
                         Talk(SAY_IMPRISIONED_BERYL_5);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                     case 6:
                         Talk(SAY_IMPRISIONED_BERYL_6, caster);
                         break;
                     case 7:
                         Talk(SAY_IMPRISIONED_BERYL_7);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                 }
             }

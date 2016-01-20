@@ -148,7 +148,7 @@ class Pet : public Guardian
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         bool    m_loading;
-        uint32  m_regenTimer;
+        uint32  m_focusRegenTimer;
         uint32  m_groupUpdateMask;
 
         DeclinedName *m_declinedname;

@@ -32,7 +32,7 @@ enum PaladinSpells
 {
     SPELL_PALADIN_AVENGERS_SHIELD               = 31935,
     SPELL_PALADIN_AURA_MASTERY_IMMUNE            = 64364,
-    SPELL_PALADIN_BEACON_OF_LIGHT_MARKER         = 53563,
+    SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID   = 37878,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
@@ -283,68 +283,6 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
             return new spell_pal_avenging_wrath_AuraScript();
         }
 };
-
-// 53651 - Beacon of Light
-class spell_pal_beacon_of_light : public SpellScriptLoader
-{
-    public:
-        spell_pal_beacon_of_light() : SpellScriptLoader("spell_pal_beacon_of_light") { }
-
-        class spell_pal_beacon_of_light_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_beacon_of_light_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                if (eventInfo.GetActionTarget()->GetAura(SPELL_PALADIN_BEACON_OF_LIGHT_MARKER, GetCasterGUID()))
-                    return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                int32 heal = eventInfo.GetHealInfo()->GetHeal();
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_PALADIN_HOLY_LIGHT)
-                    heal = int32(CalculatePct(heal, aurEff->GetAmount()));
-
-                Unit::AuraList const& auras = GetCaster()->GetSingleCastAuras();
-                for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                {
-                    if ((*itr)->GetId() == SPELL_PALADIN_BEACON_OF_LIGHT_MARKER)
-                    {
-                        std::list<AuraApplication*> applications;
-                        (*itr)->GetApplicationList(applications);
-                        if (applications.empty())
-                            return;
-
-                        GetCaster()->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, heal, applications.front()->GetTarget(), true, NULL, aurEff);
-                        return;
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_pal_beacon_of_light_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pal_beacon_of_light_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_beacon_of_light_AuraScript();
-        }
-};
-
 
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
@@ -954,6 +892,64 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
         }
 };
 
+// 53651 - Light's Beacon - Beacon of Light
+class spell_pal_light_s_beacon : public SpellScriptLoader
+{
+    public:
+        spell_pal_light_s_beacon() : SpellScriptLoader("spell_pal_light_s_beacon") { }
+
+        class spell_pal_light_s_beacon_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_light_s_beacon_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_BEACON_OF_LIGHT)
+                    || !sSpellMgr->GetSpellInfo(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetActionTarget()->HasAura(SPELL_PALADIN_BEACON_OF_LIGHT, eventInfo.GetActor()->GetGUID()))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 heal = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+
+                Unit::AuraList const& auras = GetCaster()->GetSingleCastAuras();
+                for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    if ((*itr)->GetId() == SPELL_PALADIN_BEACON_OF_LIGHT)
+                    {
+                        std::list<AuraApplication*> applications;
+                        (*itr)->GetApplicationList(applications);
+                        if (!applications.empty())
+                            eventInfo.GetActor()->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, heal, applications.front()->GetTarget(), true);
+                        return;
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pal_light_s_beacon_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_light_s_beacon_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_light_s_beacon_AuraScript();
+        }
+};
+
 // 31789 - Righteous Defense
 class spell_pal_righteous_defense : public SpellScriptLoader
 {
@@ -1222,7 +1218,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
-    new spell_pal_beacon_of_light();
     new spell_pal_blessing_of_faith();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
@@ -1238,6 +1233,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_item_healing_discount();
     new spell_pal_judgement();
     new spell_pal_lay_on_hands();
+    new spell_pal_light_s_beacon();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
     new spell_pal_shield_of_the_righteous();

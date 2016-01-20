@@ -31,7 +31,7 @@ void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)
         return;
     }
 
-    if (!sDB2Manager.GetToyItemIdMatch(item->GetEntry()))
+    if (!sDB2Manager.IsToyItem(item->GetEntry()))
         return;
 
     InventoryResult msg = _player->CanUseItem(item);
