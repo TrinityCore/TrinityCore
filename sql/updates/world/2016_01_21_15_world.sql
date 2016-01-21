@@ -17,9 +17,8 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 UPDATE `gameobject` SET `guid`=380 WHERE `guid`=20;
 
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
-(2568, 188514, 578, 4228, 4228, 3, 1, 1209.71, 1334.59, 192.375, 1.10828, 0, 0, 0.526214, 0.850352, 180, 0, 1, 0)
-(2730, 183043, 530, 3521, 3648, 1, 1, 907.398, 5773.45, 10.7675, -1.58825, 0, 0, 0.71325, -0.700909, 60, 100, 1, 0),
-(4597, 180667, 469, 2677, 2677, 1, 1, -7526.57, -924.776, 458.826, 0.558504, 0, 0, 0.275637, 0.961262, 180, 255, 1, 0);
+(2568, 188514, 578, 4228, 4228, 3, 1, 1209.71, 1334.59, 192.375, 1.10828, 0, 0, 0.526214, 0.850352, 180, 0, 1, 0),
+(2730, 183043, 530, 3521, 3648, 1, 1, 907.398, 5773.45, 10.7675, -1.58825, 0, 0, 0.71325, -0.700909, 60, 100, 1, 0);
 
 UPDATE `gameobject` SET `guid`=3552 WHERE `guid`=290;
 UPDATE `gameobject` SET `guid`=5338 WHERE `guid`=148;
