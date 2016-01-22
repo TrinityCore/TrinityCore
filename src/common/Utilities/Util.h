@@ -27,6 +27,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <ctime>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
