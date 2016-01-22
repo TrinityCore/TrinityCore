@@ -2584,5 +2584,6 @@ void AddSC_quest_spell_scripts()
     new spell_q14100_q14111_make_player_destroy_totems();
     new spell_q10929_fumping();
     new spell_q28813_get_our_boys_back_dummy();
+    new spell_q28813_set_health_random();
     new spell_q13665_q13790_bested_trigger();
 }
