@@ -4787,9 +4787,8 @@ void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint
 
     // combo points was added in SPELL_EFFECT_ADD_COMBO_POINTS handler
     // remove only if aura expire by time (in case combo points amount change aura removed without combo points lost)
-    if (!(apply) && GetBase()->GetDuration() == 0 && !target->ToPlayer()->GetComboTarget().IsEmpty())
-        if (Unit* unit = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
-            target->ToPlayer()->AddComboPoints(unit, -GetAmount());
+    if (!(apply) && GetBase()->GetDuration() == 0)
+            target->ToPlayer()->AddComboPoints(-GetAmount());
 }
 
 /*********************************************************/
@@ -4887,11 +4886,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (caster)
                         target->GetMotionMaster()->MoveFall();
                     break;
-                case 52916: // Honor Among Thieves
+                /*case 52916: // Honor Among Thieves
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
                             target->CastSpell(spellTarget, 51699, true);
-                   break;
+                   break;*/
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);

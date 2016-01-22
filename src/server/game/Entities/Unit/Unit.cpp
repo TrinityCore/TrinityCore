@@ -10590,7 +10590,6 @@ void Unit::setDeathState(DeathState s)
         CombatStop();
         DeleteThreatList();
         getHostileRefManager().deleteReferences();
-        ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
         if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
@@ -11776,7 +11775,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    ClearComboPointHolders();
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
@@ -12263,7 +12261,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 // Overpower on victim dodge
                 if (procExtra & PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
                 {
-                    ToPlayer()->AddComboPoints(target, 1);
+                    ToPlayer()->AddComboPoints(1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
                 }
             }
@@ -12819,20 +12817,6 @@ void Unit::RestoreDisplayId()
     // no auras found - set modelid to default
     else
         SetDisplayId(GetNativeDisplayId());
-}
-
-void Unit::ClearComboPointHolders()
-{
-    while (!m_ComboPointHolders.empty())
-    {
-        ObjectGuid guid = *m_ComboPointHolders.begin();
-
-        Player* player = ObjectAccessor::FindPlayer(guid);
-        if (player && player->GetComboTarget() == GetGUID())         // recheck for safe
-            player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
-        else
-            m_ComboPointHolders.erase(guid);             // or remove manually
-    }
 }
 
 void Unit::ClearAllReactives()
