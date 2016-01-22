@@ -2525,6 +2525,36 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
         }
 };
 
+class spell_q12414_hand_over_reins : public SpellScriptLoader
+{
+    public:
+        spell_q12414_hand_over_reins() : SpellScriptLoader("spell_q12414_hand_over_reins") { }
+
+        class spell_q12414_hand_over_reins_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12414_hand_over_reins_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                GetHitUnit()->ExitVehicle();
+
+                if (caster)
+                    caster->DespawnOrUnsummon();
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12414_hand_over_reins_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12414_hand_over_reins_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2586,4 +2616,5 @@ void AddSC_quest_spell_scripts()
     new spell_q28813_get_our_boys_back_dummy();
     new spell_q28813_set_health_random();
     new spell_q13665_q13790_bested_trigger();
+    new spell_q12414_hand_over_reins();
 }
