@@ -7099,9 +7099,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     float chance = 100.0f / procSpell->Effects[effIndex].ChainTarget;
                     if (!roll_chance_f(chance))
                         return false;
-
-                    // Remove cooldown (Chain Lightning - has Category Recovery time)
-                    GetSpellHistory()->ResetCooldown(spellId);
                 }
 
                 CastSpell(victim, spellId, true, castItem, triggeredByAura);
