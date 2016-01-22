@@ -30,6 +30,7 @@
 #include <map>
 #include <stdarg.h>
 #include <cstring>
+#include <ctime>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
