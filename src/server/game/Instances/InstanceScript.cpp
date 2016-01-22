@@ -181,20 +181,21 @@ void InstanceScript::UpdateDoorState(GameObject* door)
     if (range.first == range.second)
         return;
 
+    // more than one condition can be needed for the door to open
     bool open = true;
-    for (; range.first != range.second && open; ++range.first)
+    for (; range.first != range.second; ++range.first)
     {
         DoorInfo const& info = range.first->second;
         switch (info.type)
         {
             case DOOR_TYPE_ROOM:
-                open = (info.bossInfo->state != IN_PROGRESS);
+                open = open && (info.bossInfo->state != IN_PROGRESS);
                 break;
             case DOOR_TYPE_PASSAGE:
-                open = (info.bossInfo->state == DONE);
+                open = open && (info.bossInfo->state == DONE);
                 break;
             case DOOR_TYPE_SPAWN_HOLE:
-                open = (info.bossInfo->state == IN_PROGRESS);
+                open = open && (info.bossInfo->state == IN_PROGRESS);
                 break;
             default:
                 break;
