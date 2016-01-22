@@ -953,8 +953,7 @@ UPDATE `gameobject` SET `guid`=66473 WHERE `guid`=568;
 --
 SET @OGUID := 20927;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+7;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `Verified
-Build`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 191814, 571, 67, 4439, 1, 1, 7337.65, -3049.82, 841.367, 1.22173, 0, 0, 0, 1, 120, 255, 1, 0),
 (@OGUID+1, 191814, 571, 67, 4439, 1, 1, 7254.24, -3021.71, 846.695, 0.488691, 0, 0, 0, 1, 120, 255, 1, 0),
 (@OGUID+2, 191814, 571, 67, 4439, 1, 1, 7330, -3292.08, 859.143, 5.55015, 0, 0, 0, 1, 120, 255, 1, 0),
@@ -967,8 +966,7 @@ Build`) VALUES
 --
 SET @OGUID := 21622;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+2;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `Verified
-Build`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 202211, 668, 4820, 4820, 3, 1, 5242.83, 1623.45, 784.15, 5.81195, 0, 0, 0, 1, -7200, 255, 1, 15595),
 (@OGUID+1, 202211, 668, 4820, 4820, 3, 1, 5225.2, 1589.1, 808.551, 5.81195, 0, 0, 0, 1, -7200, 255, 1, 15595),
 (@OGUID+2, 202211, 668, 4820, 4820, 3, 1, 5233.98, 1606.31, 796.254, 5.81195, 0, 0, 0, 1, -7200, 255, 1, 15595);
@@ -998,8 +996,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseId`,`position_x`,`
 
 UPDATE `gameobject` SET `guid`=380 WHERE `guid`=20;
 
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `Verified
-Build`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (2568, 188514, 578, 4228, 4228, 3, 1, 1209.71, 1334.59, 192.375, 1.10828, 0, 0, 0.526214, 0.850352, 180, 0, 1, 0),
 (2730, 183043, 530, 3521, 3648, 1, 1, 907.398, 5773.45, 10.7675, -1.58825, 0, 0, 0.71325, -0.700909, 60, 100, 1, 0);
 
@@ -1026,8 +1023,7 @@ INSERT INTO gameobject (guid,id,map,spawnMask,phaseId,position_x,position_y,posi
 (@OGUID+3,186813,571,1,1,1596.3,-3904.79,79.5351,-2.67035,0,0,0,0,5,0,1);
 
 DELETE FROM gameobject WHERE id IN (194241);
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `Verified
-Build`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (6068, 194241, 571, 65, 4256, 1, 1, 4606.72, -1606.91, 156.659, 1.62734, 0, 0, 0.726811, 0.686837, 300, 0, 1, 0),
 (6069, 194241, 571, 65, 4256, 1, 1, 4596.78, -1606.69, 156.659, 1.5488, 0, 0, 0.699286, 0.714842, 300, 0, 1, 0),
 (6070, 194241, 571, 65, 4256, 1, 1, 4597.1, -1594.08, 156.658, 1.53702, 0, 0, 0.695063, 0.718949, 300, 0, 1, 0),
@@ -1047,8 +1043,7 @@ DELETE FROM `gameobject` WHERE `guid`=21080;
 UPDATE `gameobject` SET `guid`=21080 WHERE `guid`=1910;
 
 DELETE FROM `gameobject` WHERE `guid` IN (25020,25042,32360,35793,35829,67867);
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `Verified
-Build`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (25020, 184109, 530, 3523, 3737, 1, 1, 4006.81, 1517.19, -115.933, -1.6057, 0, 0, 0.71934, -0.694658, 181, 100, 1, 0),
 (25042, 184143, 530, 3523, 3723, 1, 1, 2760.88, 3203.82, 153.994, -0.558505, 0, 0, 0.275637, -0.961262, 181, 100, 1, 0),
 (32360, 185324, 532, 3457, 3457, 1, 1, -11080.6, -1876.43, 219.869, -1.79769, 0, 0, 0, 1, 180, 255, 0, 0),
