@@ -580,6 +580,7 @@ SET @GO_GRANITE         := 191815; -- Granite Boulder
 SET @GO_GRANITE2        := 191814; -- Granite Boulder
 SET @GUID_GO            := 21065;  -- 20 required GO
 
+DELETE FROM `gameobject` WHERE guid=21080;
 DELETE FROM `gameobject` WHERE `id` IN (@GO_ANVIL1,@GO_ANVIL2,@GO_SNOWDRIFT,@GO_SPEAR,@GO_ARNGRIM,@GO_HORN,@GO_WARG,@GO_GRANITE,@GO_GRANITE2);
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseId`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 -- Making anvil visible in phase 1 just to be sure it can be seen
