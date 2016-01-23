@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Dustwallow_Marsh
 SD%Complete: 95
-SDComment: Quest support: 558, 11126, 11142, 11174, Vendor Nat Pagle
+SDComment: Quest support: 11126, 11142, 11174
 SDCategory: Dustwallow Marsh
 EndScriptData */
 
@@ -37,125 +37,6 @@ EndContentData */
 #include "SpellScript.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npc_lady_jaina_proudmoore
-######*/
-
-enum LadyJaina
-{
-    QUEST_JAINAS_AUTOGRAPH = 558,
-    SPELL_JAINAS_AUTOGRAPH = 23122
-};
-
-#define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
-
-class npc_lady_jaina_proudmoore : public CreatureScript
-{
-public:
-    npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
-            player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
-## npc_private_hendel
-######*/
-
-enum Hendel
-{
-    SAY_PROGRESS_1_TER          = 0,
-    SAY_PROGRESS_2_HEN          = 1,
-    SAY_PROGRESS_3_TER          = 2,
-    SAY_PROGRESS_4_TER          = 3,
-    EMOTE_SURRENDER             = 4,
-
-    QUEST_MISSING_DIPLO_PT16    = 1324,
-    FACTION_HOSTILE             = 168,                      //guessed, may be different
-
-    NPC_SENTRY                  = 5184,                     //helps hendel
-    NPC_JAINA                   = 4968,                     //appears once hendel gives up
-    NPC_TERVOSH                 = 4967
-};
-
-/// @todo develop this further, end event not created
-class npc_private_hendel : public CreatureScript
-{
-public:
-    npc_private_hendel() : CreatureScript("npc_private_hendel") { }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-            creature->setFaction(FACTION_HOSTILE);
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_private_hendelAI(creature);
-    }
-
-    struct npc_private_hendelAI : public ScriptedAI
-    {
-        npc_private_hendelAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            me->RestoreFaction();
-        }
-
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim())
-                return;
-
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32 &Damage) override
-        {
-            if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
-            {
-                Damage = 0;
-
-                if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
-
-                Talk(EMOTE_SURRENDER);
-                EnterEvadeMode();
-            }
-        }
-    };
-
-};
 
 /*######
 ## npc_zelfrax
@@ -376,8 +257,6 @@ class spell_energize_aoe : public SpellScriptLoader
 
 void AddSC_dustwallow_marsh()
 {
-    new npc_lady_jaina_proudmoore();
-    new npc_private_hendel();
     new npc_zelfrax();
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
