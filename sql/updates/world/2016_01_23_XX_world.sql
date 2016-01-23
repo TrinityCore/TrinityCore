@@ -1,9 +1,13 @@
 /* Sunken Temple - Support for quest 3447: Secret of the Circle */
+SET @GO_GUID := 9999999;
+SET @ALTAR := 148836;
+SET @LIGHT := 148883;
+SET @ATAL_ALARION := 8580;
+SET @ATALAI_IDOL := 148838;
+
 -- Altar of Hakkar
 UPDATE `gossip_menu_option` SET `action_menu_id`=1302 WHERE `menu_id`=1288;
 -- SAI: Add Pattern of lights
-SET @ALTAR := 148836;
-SET @LIGHT := 148883;
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE `entry`=@ALTAR;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ALTAR AND `source_type`=1 AND `id`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ALTAR*100 AND `source_type`=9 AND `id` BETWEEN 0 AND 5;
@@ -17,9 +21,6 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ALTAR*100,9,5,0,1,0,100,0,3000,3000,0,0,50,@LIGHT,3,0,0,0,0,8,0,0,0,-443.4171,53.83124,-148.7401,-1.500983, 'Script - Summon Temp GO');
 
 -- Mini-boss Atal'alarion <Guardian of the Idol> and GameObject Idol of Hakkar
-SET @ATAL_ALARION := 8580;
-SET @ATALAI_IDOL := 148838;
-SET @GO_GUID := XXXXX;
 DELETE FROM `creature` WHERE `guid`=34521 AND `id`=@ATAL_ALARION; -- spawned by script
 
 DELETE FROM `gameobject` WHERE `guid`=@GO_GUID AND `id`=@ATALAI_IDOL; -- spawned but hidden until creature die
