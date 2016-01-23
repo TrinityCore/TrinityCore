@@ -1195,7 +1195,7 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
                 if (!procSpell)
                     return;
 
-                uint32 healSpellId = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_LIGHT)) ? SPELL_PALADIN_BEACON_OF_LIGHT_HEAL_1 : SPELL_PALADIN_BEACON_OF_LIGHT_HEAL_3;
+                uint32 healSpellId = procSpell->IsRankOf(sSpellMgr->EnsureSpellInfo(SPELL_PALADIN_HOLY_LIGHT)) ? SPELL_PALADIN_BEACON_OF_LIGHT_HEAL_1 : SPELL_PALADIN_BEACON_OF_LIGHT_HEAL_3;
                 uint32 heal = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
 
                 Unit* beaconTarget = GetCaster();
