@@ -177,3 +177,8 @@ void WorldPackets::Pets::PetSpellAutocast::Read()
 
     _worldPacket >> SpellID;
 }
+
+void WorldPackets::Pets::DismissCritter::Read()
+{
+    _worldPacket >> CritterGUID;
+}

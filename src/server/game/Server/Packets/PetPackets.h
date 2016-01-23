@@ -197,6 +197,16 @@ namespace WorldPackets
             int32 SpellID = 0;
         };
 
+        class DismissCritter final : public ClientPacket
+        {
+        public:
+            DismissCritter(WorldPacket&& packet) : DismissCritter(CMSG_DISMISS_CRITTER, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid CritterGUID;
+        };
+
     }
 }
 

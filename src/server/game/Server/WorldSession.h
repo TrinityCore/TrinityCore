@@ -475,6 +475,7 @@ namespace WorldPackets
     namespace Pets
     {
         class ClientPetAction;
+        class DismissCritter;
         class PetAbandon;
         class PetSetAction;
         class PetStopAttack;
@@ -1455,7 +1456,7 @@ class WorldSession
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
-        void HandleDismissCritter(WorldPacket& recvData);
+        void HandleDismissCritter(WorldPackets::Pets::DismissCritter& packet);
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello);

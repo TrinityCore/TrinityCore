@@ -37,10 +37,9 @@
 #include "SpellPackets.h"
 #include "QueryPackets.h"
 
-void WorldSession::HandleDismissCritter(WorldPacket& recvData)
+void WorldSession::HandleDismissCritter(WorldPackets::Pets::DismissCritter& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
+    ObjectGuid guid = packet.CritterGUID;
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_DISMISS_CRITTER for %s", guid.ToString().c_str());
 
