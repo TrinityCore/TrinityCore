@@ -182,3 +182,9 @@ void WorldPackets::Pets::DismissCritter::Read()
 {
     _worldPacket >> CritterGUID;
 }
+
+void WorldPackets::Pets::PetCancelAura::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+}

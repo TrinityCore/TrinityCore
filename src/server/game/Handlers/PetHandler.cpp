@@ -612,8 +612,8 @@ void WorldSession::HandlePetAbandon(WorldPackets::Pets::PetAbandon& packet)
 void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pets::PetSpellAutocast& packet)
 {
     ObjectGuid guid = packet.PetGUID;
-    uint32 spellid = packet.SpellID;                                          //1 for on, 0 for off
-    bool autocast = packet.AutocastEnabled;
+    uint32 spellid = packet.SpellID;
+    bool autocast = packet.AutocastEnabled; //1 for on, 0 for off
 
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
