@@ -75,7 +75,8 @@ namespace Trinity
          * Select a random element from a container where each element has a different chance to be selected.
          *
          * @param container Container to select an element from
-         * @param weights Chances of each element to be selected, must be in the same order as elements in container
+         * @param weights Chances of each element to be selected, must be in the same order as elements in container.
+         *                Caller is responsible for checking that sum of all weights is greater than 0.
          *
          * Note: container cannot be empty
          */
@@ -102,7 +103,16 @@ namespace Trinity
         {
             std::vector<double> weights;
             weights.reserve(container.size());
-            std::transform(container.begin(), container.end(), std::back_inserter(weights), weightExtractor);
+            double weightSum = 0.0;
+            for (auto itr = container.begin(); itr != container.end(); ++itr)
+            {
+                double weight = weightExtractor(*itr);
+                weights.push_back(weight);
+                weightSum += weight;
+            }
+            if (weightSum <= 0.0)
+                weights.assign(container.size(), 1.0);
+
             return SelectRandomWeightedContainerElement(container, weights);
         }
 
