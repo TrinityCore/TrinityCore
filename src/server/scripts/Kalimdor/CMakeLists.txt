@@ -106,7 +106,6 @@ set(scripts_STAT_SRCS
   Kalimdor/zone_durotar.cpp
   Kalimdor/zone_felwood.cpp
   Kalimdor/zone_tanaris.cpp
-  Kalimdor/zone_dustwallow_marsh.cpp
   Kalimdor/zone_winterspring.cpp
   Kalimdor/zone_thousand_needles.cpp
   Kalimdor/zone_ashenvale.cpp
