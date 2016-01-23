@@ -35,7 +35,6 @@ enum Gameobject
     GO_ATALAI_STATUE4           = 148833,
     GO_ATALAI_STATUE5           = 148834,
     GO_ATALAI_STATUE6           = 148835,
-    GO_ATALAI_IDOL              = 148836,
     GO_ATALAI_LIGHT1            = 148883,
     GO_ATALAI_LIGHT2            = 148937
 
@@ -43,7 +42,7 @@ enum Gameobject
 
 enum CreatureIds
 {
-    NPC_MALFURION_STORMRAGE     = 15362
+    NPC_ATALALARION             = 8580
 };
 
 class instance_sunken_temple : public InstanceMapScript
@@ -77,7 +76,6 @@ public:
         ObjectGuid GOAtalaiStatue4;
         ObjectGuid GOAtalaiStatue5;
         ObjectGuid GOAtalaiStatue6;
-        ObjectGuid GOAtalaiIdol;
 
         uint32 State;
 
@@ -98,7 +96,6 @@ public:
                 case GO_ATALAI_STATUE4: GOAtalaiStatue4 = go->GetGUID();   break;
                 case GO_ATALAI_STATUE5: GOAtalaiStatue5 = go->GetGUID();   break;
                 case GO_ATALAI_STATUE6: GOAtalaiStatue6 = go->GetGUID();   break;
-                case GO_ATALAI_IDOL:    GOAtalaiIdol = go->GetGUID();      break;
             }
         }
 
@@ -155,7 +152,10 @@ public:
                 if (s1 && s2 && s3 && s4 && s5 && !s6)
                 {
                     if (GameObject* pAtalaiStatue6 = instance->GetGameObject(GOAtalaiStatue6))
+                    {
                         UseStatue(pAtalaiStatue6);
+                        UseLastStatue(pAtalaiStatue6);
+                    }
                     s6 = true;
                     State = 0;
                 }
@@ -169,18 +169,16 @@ public:
             go->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
         }
 
-         /*
          void UseLastStatue(GameObject* go)
          {
-             AtalaiStatue1->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue1->GetPositionX(), AtalaiStatue1->GetPositionY(), AtalaiStatue1->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue2->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue2->GetPositionX(), AtalaiStatue2->GetPositionY(), AtalaiStatue2->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue3->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue3->GetPositionX(), AtalaiStatue3->GetPositionY(), AtalaiStatue3->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue4->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue4->GetPositionX(), AtalaiStatue4->GetPositionY(), AtalaiStatue4->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue5->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue5->GetPositionX(), AtalaiStatue5->GetPositionY(), AtalaiStatue5->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             AtalaiStatue6->SummonGameObject(GO_ATALAI_LIGHT2, AtalaiStatue6->GetPositionX(), AtalaiStatue6->GetPositionY(), AtalaiStatue6->GetPositionZ(), 0, 0, 0, 0, 0, 100);
-             go->SummonGameObject(148838, -488.997, 96.61, -189.019, -1.52, 0, 0, 0, 0, 100);
+             go->SummonGameObject(GO_ATALAI_LIGHT2, -515.553f, 95.25821f, -173.707f, 0, 0, 0, 0, 0, 0);
+             go->SummonGameObject(GO_ATALAI_LIGHT2, -419.8487f, 94.48368f, -173.707f, 0, 0, 0, 0, 0, 0);
+             go->SummonGameObject(GO_ATALAI_LIGHT2, -491.4003f, 135.9698f, -173.707f, 0, 0, 0, 0, 0, 0);
+             go->SummonGameObject(GO_ATALAI_LIGHT2, -491.4909f, 53.48179f, -173.707f, 0, 0, 0, 0, 0, 0);
+             go->SummonGameObject(GO_ATALAI_LIGHT2, -443.8549f, 136.1007f, -173.707f, 0, 0, 0, 0, 0, 0);
+             go->SummonGameObject(GO_ATALAI_LIGHT2, -443.4171f, 53.83124f, -173.707f, 0, 0, 0, 0, 0, 0);
+             go->SummonCreature(NPC_ATALALARION, -466.5134f, 95.19822f, -189.6463f, 0.03490658f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200);
          }
-         */
 
          void SetData(uint32 type, uint32 data) override
          {
