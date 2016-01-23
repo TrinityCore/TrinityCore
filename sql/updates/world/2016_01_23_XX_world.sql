@@ -24,7 +24,7 @@ DELETE FROM `creature` WHERE `guid`=34521 AND `id`=@ATAL_ALARION; -- spawned by 
 
 DELETE FROM `gameobject` WHERE `guid`=@GO_GUID AND `id`=@ATALAI_IDOL; -- spawned but hidden until creature die
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`zoneid`,`areaid`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`,`VerifiedBuild`) VALUES
-(@GO_GUID,@ATALAI_IDOL,109,0,0,3,1,-476.2693,94.41199,-189.7297,1.588249,0,0,0,1,7200,255,1,12340);
+(@GO_GUID,@ATALAI_IDOL,109,0,0,3,1,-476.2693,94.41199,-189.7297,1.588249,0,0,0,1,-1,255,1,12340);
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ATAL_ALARION AND `source_type`=0 AND `id`=7;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
