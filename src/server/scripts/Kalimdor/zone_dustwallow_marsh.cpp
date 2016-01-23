@@ -82,47 +82,6 @@ public:
 };
 
 /*######
-## npc_nat_pagle
-######*/
-
-enum NatPagle
-{
-    QUEST_NATS_MEASURING_TAPE = 8227
-};
-
-class npc_nat_pagle : public CreatureScript
-{
-public:
-    npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(7640, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(7638, creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
 ## npc_private_hendel
 ######*/
 
@@ -418,7 +377,6 @@ class spell_energize_aoe : public SpellScriptLoader
 void AddSC_dustwallow_marsh()
 {
     new npc_lady_jaina_proudmoore();
-    new npc_nat_pagle();
     new npc_private_hendel();
     new npc_zelfrax();
     new spell_ooze_zap();
