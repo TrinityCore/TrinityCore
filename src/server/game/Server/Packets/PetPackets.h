@@ -78,7 +78,7 @@ namespace WorldPackets
         class PetStableList final : public ServerPacket
         {
         public:
-            PetStableList() : ServerPacket(SMSG_PET_STABLE_LIST, 0) { }
+            PetStableList() : ServerPacket(SMSG_PET_STABLE_LIST, 18 + 2) { }
 
             WorldPacket const* Write() override;
 
@@ -119,7 +119,7 @@ namespace WorldPackets
         class PetNameInvalid final : public ServerPacket
         {
         public:
-            PetNameInvalid() : ServerPacket(SMSG_PET_NAME_INVALID, 0) { }
+            PetNameInvalid() : ServerPacket(SMSG_PET_NAME_INVALID, 18 + 4 + 2 + 1 + 5 * 2 + 2) { }
 
             WorldPacket const* Write() override;
 
@@ -200,7 +200,7 @@ namespace WorldPackets
         class DismissCritter final : public ClientPacket
         {
         public:
-            DismissCritter(WorldPacket&& packet) : DismissCritter(CMSG_DISMISS_CRITTER, std::move(packet)) { }
+            DismissCritter(WorldPacket&& packet) : ClientPacket(CMSG_DISMISS_CRITTER, std::move(packet)) { }
 
             void Read() override;
 
