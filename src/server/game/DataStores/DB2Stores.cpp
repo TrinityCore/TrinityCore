@@ -158,7 +158,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (defaultLocale == i)
+            if (defaultLocale == i || i == LOCALE_none)
                 continue;
 
             if (availableDb2Locales & (1 << i))
@@ -380,8 +380,15 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         if (namesProfanity->Language != -1)
             _nameValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
         else
+        {
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
+            {
+                if (i == LOCALE_none)
+                    continue;
+
                 _nameValidators[i].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+            }
+        }
     }
 
     for (NamesReservedEntry const* namesReserved : sNamesReservedStore)
@@ -391,8 +398,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(!(namesReserved->LocaleMask & ~((1 << TOTAL_LOCALES) - 1)));
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            if (i == LOCALE_none)
+                continue;
+
             if (namesReserved->LocaleMask & (1 << i))
                 _nameValidators[i].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+        }
     }
 
     for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)

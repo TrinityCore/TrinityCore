@@ -230,6 +230,9 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
     {
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
+            if (index == LOCALE_none)
+                continue;
+
             if (FormatName(index, suffixStrings) == buffer)
             {
                 res = true;
@@ -412,8 +415,13 @@ bool AchievementChatLink::ValidateName(char* buffer, const char* context)
     ChatLink::ValidateName(buffer, context);
 
     for (uint8 locale = LOCALE_enUS; locale < TOTAL_LOCALES; ++locale)
+    {
+        if (locale == LOCALE_none)
+            continue;
+
         if (strcmp(_achievement->Title->Str[locale], buffer) == 0)
             return true;
+    }
 
     TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked achievement (id: %u) name wasn't found in any localization", context, _achievement->ID);
     return false;
