@@ -463,6 +463,8 @@ class boss_gothik : public CreatureScript
                                         case NPC_LIVE_TRAINEE: // spawns south > center (front) > north
                                             targetDBGuid = (CGUID_TRIGGER + 7) - (i % 3);
                                             break;
+                                        default:
+                                            targetDBGuid = 0;
                                     }
                                 
                                     for (Creature* trigger : triggers)

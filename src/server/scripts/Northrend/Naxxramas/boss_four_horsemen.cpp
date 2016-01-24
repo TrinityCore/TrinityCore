@@ -67,7 +67,8 @@ enum Actions
 
 enum HorsemenData
 {
-    DATA_MOVEMENT_FINISHED = DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT + 1, // make sure we don't conflict with the one from naxxramas.h
+    DATA_HORSEMEN_IS_TIMED_KILL = Data::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
+    DATA_MOVEMENT_FINISHED,
     DATA_DEATH_TIME
 };
 
@@ -130,7 +131,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                     return _myMovementFinished ? 1 : 0;
                 case DATA_DEATH_TIME:
                     return _timeDied;
-                case DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT:
+                case DATA_HORSEMEN_IS_TIMED_KILL:
                 {
                     uint32 minTime = 0, maxTime = 0;
                     for (Horseman boss : horsemen)
