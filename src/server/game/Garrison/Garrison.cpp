@@ -23,7 +23,7 @@
 #include "ObjectMgr.h"
 #include "VehicleDefines.h"
 
-Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
+Garrison::Garrison(Player* owner) : _owner(owner), _siteLevelId(0), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
 }
 
@@ -34,7 +34,8 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         return false;
 
     Field* fields = garrison->Fetch();
-    _siteLevel = sGarrSiteLevelStore.LookupEntry(fields[0].GetUInt32());
+    _siteLevelId = fields[0].GetUInt32();
+    _siteLevel = sGarrSiteLevelStore.LookupEntry(_siteLevelId);
     _followerActivationsRemainingToday = fields[1].GetUInt32();
     if (!_siteLevel)
         return false;
@@ -47,7 +48,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         {
             fields = blueprints->Fetch();
             if (GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(fields[0].GetUInt32()))
-                _knownBuildings.insert(building->ID);
+                _knownBuildings.insert(fields[0].GetUInt32());
 
         } while (blueprints->NextRow());
     }
@@ -141,7 +142,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    stmt->setUInt32(1, _siteLevel->ID);
+    stmt->setUInt32(1, _siteLevelId);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
     trans->Append(stmt);
 
@@ -219,14 +220,17 @@ void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
 
 bool Garrison::Create(uint32 garrSiteId)
 {
-    _siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
-    if (!_siteLevel)
+    DBStorageIterator<GarrSiteLevelEntry> siteLevelItr = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
+    if (siteLevelItr == sGarrSiteLevelStore.end())
         return false;
+
+    _siteLevelId = siteLevelItr.Key();
+    _siteLevel = siteLevelItr.Value();
 
     InitializePlots();
 
     WorldPackets::Garrison::GarrisonCreateResult garrisonCreateResult;
-    garrisonCreateResult.GarrSiteLevelID = _siteLevel->ID;
+    garrisonCreateResult.GarrSiteLevelID = _siteLevelId;
     _owner->SendDirectMessage(garrisonCreateResult.Write());
     _owner->SendUpdatePhasing();
     SendRemoteInfo();
@@ -247,11 +251,11 @@ void Garrison::Delete()
 
 void Garrison::InitializePlots()
 {
-    if (std::vector<GarrSiteLevelPlotInstEntry const*> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevel->ID))
+    if (std::vector<std::pair<uint32, GarrSiteLevelPlotInstEntry const*>> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevelId))
     {
         for (std::size_t i = 0; i < plots->size(); ++i)
         {
-            uint32 garrPlotInstanceId = plots->at(i)->GarrPlotInstanceID;
+            uint32 garrPlotInstanceId = plots->at(i).second->GarrPlotInstanceID;
             GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);
             GameObjectsEntry const* gameObject = sGarrisonMgr.GetPlotGameObject(_siteLevel->MapID, garrPlotInstanceId);
             if (!plotInstance || !gameObject)
@@ -266,7 +270,7 @@ void Garrison::InitializePlots()
             plotInfo.PacketInfo.PlotPos.Relocate(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, 2 * std::acos(gameObject->RotationW));
             plotInfo.PacketInfo.PlotType = plot->PlotType;
             plotInfo.EmptyGameObjectId = gameObject->ID;
-            plotInfo.GarrSiteLevelPlotInstId = plots->at(i)->ID;
+            plotInfo.GarrSiteLevelPlotInstId = plots->at(i).first;
         }
     }
 }
@@ -439,13 +443,13 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
         if (constructing->Level > 1)
         {
             // Restore previous level building
-            GarrBuildingEntry const* restored = sGarrisonMgr.GetPreviousLevelBuilding(constructing->Type, constructing->Level);
+            uint32 restored = sGarrisonMgr.GetPreviousLevelBuildingId(constructing->Type, constructing->Level);
             ASSERT(restored);
 
             WorldPackets::Garrison::GarrisonPlaceBuildingResult placeBuildingResult;
             placeBuildingResult.Result = GARRISON_SUCCESS;
             placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
-            placeBuildingResult.BuildingInfo.GarrBuildingID = restored->ID;
+            placeBuildingResult.BuildingInfo.GarrBuildingID = restored;
             placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
             placeBuildingResult.BuildingInfo.Active = true;
 
@@ -505,7 +509,7 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     follower.PacketInfo.Xp = 0;
     follower.PacketInfo.CurrentBuildingID = 0;
     follower.PacketInfo.CurrentMissionID = 0;
-    follower.PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
+    follower.PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(garrFollowerId, followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
     follower.PacketInfo.FollowerStatus = 0;
 
     addFollowerResult.Follower = follower.PacketInfo;
@@ -527,7 +531,7 @@ void Garrison::SendInfo()
 {
     WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
     garrisonInfo.GarrSiteID = _siteLevel->SiteID;
-    garrisonInfo.GarrSiteLevelID = _siteLevel->ID;
+    garrisonInfo.GarrSiteLevelID = _siteLevelId;
     garrisonInfo.FactionIndex = GetFaction();
     garrisonInfo.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
     for (auto& p : _plots)
@@ -554,7 +558,7 @@ void Garrison::SendRemoteInfo() const
     remoteInfo.Sites.resize(1);
 
     WorldPackets::Garrison::GarrisonRemoteSiteInfo& remoteSiteInfo = remoteInfo.Sites[0];
-    remoteSiteInfo.GarrSiteLevelID = _siteLevel->ID;
+    remoteSiteInfo.GarrSiteLevelID = _siteLevelId;
     for (auto const& p : _plots)
         if (p.second.BuildingInfo.PacketInfo)
             remoteSiteInfo.Buildings.emplace_back(p.first, p.second.BuildingInfo.PacketInfo->GarrBuildingID);

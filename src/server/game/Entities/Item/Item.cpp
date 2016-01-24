@@ -78,28 +78,29 @@ void AddItemsSetItem(Player* player, Item* item)
 
     ++eff->EquippedItemCount;
 
-    ItemSetSpells& spells = sItemSetSpellsStore[setid];
-
-    for (ItemSetSpellEntry const* itemSetSpell : spells)
+    if (std::vector<ItemSetSpellEntry const*> const* itemSetSpells = sDB2Manager.GetItemSetSpells(setid))
     {
-        //not enough for  spell
-        if (itemSetSpell->Threshold > eff->EquippedItemCount)
-            continue;
-
-        if (eff->SetBonuses.count(itemSetSpell))
-            continue;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemSetSpell->SpellID);
-        if (!spellInfo)
+        for (ItemSetSpellEntry const* itemSetSpell : *itemSetSpells)
         {
-            TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", itemSetSpell->SpellID, setid);
-            continue;
-        }
+            //not enough for  spell
+            if (itemSetSpell->Threshold > eff->EquippedItemCount)
+                continue;
 
-        eff->SetBonuses.insert(itemSetSpell);
-        // spell cast only if fit form requirement, in other case will cast at form change
-        if (!itemSetSpell->ChrSpecID || itemSetSpell->ChrSpecID == player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
-            player->ApplyEquipSpell(spellInfo, NULL, true);
+            if (eff->SetBonuses.count(itemSetSpell))
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemSetSpell->SpellID);
+            if (!spellInfo)
+            {
+                TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", itemSetSpell->SpellID, setid);
+                continue;
+            }
+
+            eff->SetBonuses.insert(itemSetSpell);
+            // spell cast only if fit form requirement, in other case will cast at form change
+            if (!itemSetSpell->ChrSpecID || itemSetSpell->ChrSpecID == player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+                player->ApplyEquipSpell(spellInfo, NULL, true);
+        }
     }
 }
 
@@ -132,18 +133,20 @@ void RemoveItemsSetItem(Player* player, ItemTemplate const* proto)
 
     --eff->EquippedItemCount;
 
-    ItemSetSpells const& spells = sItemSetSpellsStore[setid];
-    for (ItemSetSpellEntry const* itemSetSpell : spells)
+    if (std::vector<ItemSetSpellEntry const*> const* itemSetSpells = sDB2Manager.GetItemSetSpells(setid))
     {
-        // enough for spell
-        if (itemSetSpell->Threshold <= eff->EquippedItemCount)
-            continue;
+        for (ItemSetSpellEntry const* itemSetSpell : *itemSetSpells)
+        {
+            // enough for spell
+            if (itemSetSpell->Threshold <= eff->EquippedItemCount)
+                continue;
 
-        if (!eff->SetBonuses.count(itemSetSpell))
-            continue;
+            if (!eff->SetBonuses.count(itemSetSpell))
+                continue;
 
-        player->ApplyEquipSpell(sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID), nullptr, false);
-        eff->SetBonuses.erase(itemSetSpell);
+            player->ApplyEquipSpell(sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID), nullptr, false);
+            eff->SetBonuses.erase(itemSetSpell);
+        }
     }
 
     if (!eff->EquippedItemCount)                                    //all items of a set were removed
@@ -373,11 +376,30 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt64(1, GetGUID().GetCounter());
                 trans->Append(stmt);
             }
+            if (!GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).empty())
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_GEMS);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                trans->Append(stmt);
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                uint32 i = 0;
+                for (; i < MAX_GEM_SOCKETS && i < GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+                    stmt->setUInt32(1 + i, GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i));
+                for (; i < MAX_GEM_SOCKETS; ++i)
+                    stmt->setUInt32(1 + i, 0);
+                trans->Append(stmt);
+            }
             break;
         }
         case ITEM_REMOVED:
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_GEMS);
             stmt->setUInt64(0, GetGUID().GetCounter());
             trans->Append(stmt);
 
@@ -413,7 +435,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     //                                             0          1            2                3      4         5        6      7             8                 9          10          11    12
     //result = CharacterDatabase.PQuery("SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
     //                                                          13         14               15                  16                  17              18                  19            20
-    //                                          transmogrification, upgradeId, enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs FROM item_instance WHERE guid = '%u'", guid);
+    //                                          transmogrification, upgradeId, enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
+    //                                                  21          22          23
+    //                                          gemItemId1, gemItemId2, gemItemId3 FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -492,6 +516,17 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, fields[17].GetUInt32());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[18].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[19].GetUInt32());
+
+    uint32 gemItemIds[3] = { fields[21].GetUInt32(), fields[22].GetUInt32(), fields[23].GetUInt32() };
+    if (gemItemIds[0] || gemItemIds[1] || gemItemIds[2])
+    {
+        // gem slots must be preserved, hence funky logic
+        AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[0]);
+        if (gemItemIds[1] || gemItemIds[2])
+            AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[1]);
+        if (gemItemIds[2])
+            AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[2]);
+    }
 
     Tokenizer bonusListIDs(fields[20].GetString(), ' ');
     for (char const* token : bonusListIDs)
@@ -582,27 +617,25 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     if (itemProto->GetRandomProperty())
     {
         uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomProperty());
-        ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
-        if (!random_id)
+        if (!sItemRandomPropertiesStore.LookupEntry(randomPropId))
         {
             TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
             return 0;
         }
 
-        return random_id->ID;
+        return randomPropId;
     }
     // RandomSuffix case
     else
     {
         uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
-        ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
-        if (!random_id)
+        if (!sItemRandomSuffixStore.LookupEntry(randomPropId))
         {
             TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
             return 0;
         }
 
-        return -int32(random_id->ID);
+        return -int32(randomPropId);
     }
 }
 
@@ -613,12 +646,12 @@ void Item::SetItemRandomProperties(int32 randomPropId)
 
     if (randomPropId > 0)
     {
-        ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId);
-        if (item_rand)
+        ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(-randomPropId);
+        if (sItemRandomPropertiesStore.LookupEntry(randomPropId))
         {
-            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != int32(item_rand->ID))
+            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != randomPropId)
             {
-                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, item_rand->ID);
+                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, randomPropId);
                 SetState(ITEM_CHANGED, GetOwner());
             }
             for (uint32 i = PROP_ENCHANTMENT_SLOT_1; i < PROP_ENCHANTMENT_SLOT_1 + 3; ++i)
@@ -630,10 +663,9 @@ void Item::SetItemRandomProperties(int32 randomPropId)
         ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(-randomPropId);
         if (item_rand)
         {
-            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(item_rand->ID) ||
-                !GetItemSuffixFactor())
+            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != randomPropId || !GetItemSuffixFactor())
             {
-                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(item_rand->ID));
+                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, randomPropId);
                 UpdateItemSuffixFactor();
                 SetState(ITEM_CHANGED, GetOwner());
             }
@@ -924,36 +956,24 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
 
 bool Item::GemsFitSockets() const
 {
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    uint32 gemSlot = 0;
+    for (uint32 gemItemId : GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS))
     {
-        uint8 SocketColor = GetTemplate()->GetSocketColor(enchant_slot - SOCK_ENCHANTMENT_SLOT);
-
+        uint8 SocketColor = GetTemplate()->GetSocketColor(gemSlot);
         if (!SocketColor) // no socket slot
             continue;
 
-        uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
-        if (!enchant_id) // no gems on this socket
-            return false;
+        uint32 GemColor = 0;
 
-        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!enchantEntry) // invalid gem id on this socket
-            return false;
-
-        uint8 GemColor = 0;
-
-        uint32 gemid = enchantEntry->SRCItemID;
-        if (gemid)
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemItemId);
+        if (gemProto)
         {
-            ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
-            if (gemProto)
-            {
-                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
-                if (gemProperty)
-                    GemColor = gemProperty->Type;
-            }
+            GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
+            if (gemProperty)
+                GemColor = gemProperty->Type;
         }
 
-        if (!(GemColor & SocketColor)) // bad gem color on this socket
+        if (!(GemColor & SocketColorToGemTypeMask[SocketColor])) // bad gem color on this socket
             return false;
     }
     return true;
@@ -961,44 +981,22 @@ bool Item::GemsFitSockets() const
 
 uint8 Item::GetGemCountWithID(uint32 GemID) const
 {
-    uint8 count = 0;
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    return std::count_if(GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).begin(), GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).end(), [GemID](uint32 gemItemId)
     {
-        uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
-        if (!enchant_id)
-            continue;
-
-        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!enchantEntry)
-            continue;
-
-        if (GemID == enchantEntry->SRCItemID)
-            ++count;
-    }
-    return count;
+        return gemItemId == GemID;
+    });
 }
 
 uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 {
-    uint8 count = 0;
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    return std::count_if(GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).begin(), GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).end(), [limitCategory](uint32 gemItemId)
     {
-        uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
-        if (!enchant_id)
-            continue;
-
-        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!enchantEntry)
-            continue;
-
-        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID);
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemItemId);
         if (!gemProto)
-            continue;
+            return false;
 
-        if (gemProto->GetItemLimitCategory() == limitCategory)
-            ++count;
-    }
-    return count;
+        return gemProto->GetItemLimitCategory() == limitCategory;
+    });
 }
 
 bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const

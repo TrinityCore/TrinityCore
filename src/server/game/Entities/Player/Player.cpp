@@ -421,7 +421,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         return false;
     }
 
-    if (!ValidateAppearance(createInfo->Race, createInfo->Class, createInfo->Sex, createInfo->HairStyle, createInfo->HairColor, createInfo->Face, createInfo->FacialHairStyle, createInfo->Skin, true))
+    if (!ValidateAppearance(createInfo->Race, createInfo->Class, createInfo->Sex, createInfo->HairStyle, createInfo->HairColor, createInfo->Face, createInfo->FacialHairStyle, createInfo->Skin, createInfo->CustomDisplay, true))
     {
         TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with invalid appearance attributes - refusing to do so",
             GetSession()->GetAccountId(), m_name.c_str());
@@ -1805,20 +1805,21 @@ void Player::RegenerateAll()
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
     {
-        for (uint8 i = 0; i < MAX_RUNES; i += 2)
+        uint32 regeneratedRunes = 0;
+        uint32 regenIndex = 0;
+        while (regeneratedRunes < MAX_RECHARGING_RUNES && !m_runes->CooldownOrder.empty())
         {
-            uint8 runeToRegen = i;
-            uint32 cd = GetRuneCooldown(i);
-            uint32 secondRuneCd = GetRuneCooldown(i + 1);
-            // Regenerate second rune of the same type only after first rune is off the cooldown
-            if (secondRuneCd && (cd > secondRuneCd || !cd))
+            uint8 runeToRegen = m_runes->CooldownOrder[regenIndex++];
+            uint32 runeCooldown = GetRuneCooldown(runeToRegen);
+            if (runeCooldown > m_regenTimer)
             {
-                runeToRegen = i + 1;
-                cd = secondRuneCd;
+                SetRuneCooldown(runeToRegen, runeCooldown - m_regenTimer);
+                ++regenIndex;
             }
+            else
+                SetRuneCooldown(runeCooldown, 0);
 
-            if (cd)
-                SetRuneCooldown(runeToRegen, (cd > m_regenTimer) ? cd - m_regenTimer : 0);
+            ++regeneratedRunes;
         }
     }
 
@@ -2055,8 +2056,8 @@ void Player::ResetAllPowers()
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
             break;
-        case POWER_ECLIPSE:
-            SetPower(POWER_ECLIPSE, 0);
+        case POWER_LUNAR_POWER:
+            SetPower(POWER_LUNAR_POWER, 0);
             break;
         default:
             break;
@@ -3142,12 +3143,12 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             if (!pSkill)
                 continue;
 
-            if (pSkill->ID == fromSkill)
+            if (_spell_idx->second->SkillLine == fromSkill)
                 continue;
 
             // Runeforging special case
-            if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(pSkill->ID)) || ((pSkill->ID == SKILL_RUNEFORGING_2) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
-                if (SkillRaceClassInfoEntry const* rcInfo = GetSkillRaceClassInfo(pSkill->ID, getRace(), getClass()))
+            if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(_spell_idx->second->SkillLine)) || ((_spell_idx->second->SkillLine == SKILL_RUNEFORGING_2) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
+                if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, getRace(), getClass()))
                     LearnDefaultSkill(rcInfo);
         }
     }
@@ -3230,7 +3231,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
 bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
 {
     if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
-        return spellInfo->Id == chrSpec->MasterySpellID[0] || spellInfo->Id == chrSpec->MasterySpellID[1];
+        return spellInfo->Id == chrSpec->MasterySpellID;
 
     return false;
 }
@@ -3968,6 +3969,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_GEMS_BY_OWNER);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_BY_OWNER);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
@@ -4217,7 +4222,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         SetPower(POWER_RAGE, 0);
         SetPower(POWER_ENERGY, uint32(GetMaxPower(POWER_ENERGY)*restore_percent));
         SetPower(POWER_FOCUS, uint32(GetMaxPower(POWER_FOCUS)*restore_percent));
-        SetPower(POWER_ECLIPSE, 0);
+        SetPower(POWER_LUNAR_POWER, 0);
     }
 
     // trigger update zone for alive state zone updates
@@ -5326,7 +5331,7 @@ void Player::UpdateSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, getRace(), getClass());
+        SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(pskill, getRace(), getClass());
         if (!rcEntry)
             continue;
 
@@ -5363,7 +5368,7 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
             continue;
 
         uint32 pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, getRace(), getClass());
+        SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(pskill, getRace(), getClass());
         if (!rcEntry)
             continue;
 
@@ -6129,7 +6134,7 @@ void Player::RewardReputation(Quest const* quest)
         else
         {
             uint32 row = ((quest->RewardFactionValue[i] < 0) ? 1 : 0) + 1;
-            if (QuestFactionRewEntry const* questFactionRewEntry = sQuestFactionRewardStore.LookupEntry(row))
+            if (QuestFactionRewardEntry const* questFactionRewEntry = sQuestFactionRewardStore.LookupEntry(row))
             {
                 uint32 field = abs(quest->RewardFactionValue[i]);
                 rep = questFactionRewEntry->QuestRewFactionValue[field];
@@ -9764,7 +9769,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+        if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
 
@@ -9777,7 +9782,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
             for (uint32 j = 0; j < bag->GetBagSize(); ++j)
             {
                 item = GetUseableItemByPos(i, j);
-                if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+                if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
                     return true;
             }
         }
@@ -12763,20 +12768,23 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
     if (pEnchant->RequiredSkillID > 0 && pEnchant->RequiredSkillRank > GetSkillValue(pEnchant->RequiredSkillID))
         return;
 
-    // Cogwheel gems dont have requirement data set in SpellItemEnchantment.dbc, but they do have it in Item-sparse.db2
-    if (ItemTemplate const* gem = sObjectMgr->GetItemTemplate(pEnchant->SRCItemID))
-        if (gem->GetRequiredSkill() && GetSkillValue(gem->GetRequiredSkill()) < gem->GetRequiredSkillRank())
-            return;
 
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
     // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
-    if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3)
-        && !item->GetSocketColor(slot - SOCK_ENCHANTMENT_SLOT))
+    if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3))
     {
-        // Check if the requirements for the prismatic socket are met before applying the gem stats
-        SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
-        if (!pPrismaticEnchant || (pPrismaticEnchant->RequiredSkillID > 0 && pPrismaticEnchant->RequiredSkillRank > GetSkillValue(pPrismaticEnchant->RequiredSkillID)))
-            return;
+        if (!item->GetSocketColor(slot - SOCK_ENCHANTMENT_SLOT))
+        {
+            // Check if the requirements for the prismatic socket are met before applying the gem stats
+            SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
+            if (!pPrismaticEnchant || (pPrismaticEnchant->RequiredSkillID > 0 && pPrismaticEnchant->RequiredSkillRank > GetSkillValue(pPrismaticEnchant->RequiredSkillID)))
+                return;
+        }
+
+        // Cogwheel gems dont have requirement data set in SpellItemEnchantment.dbc, but they do have it in Item-sparse.db2
+        if (ItemTemplate const* gem = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, uint32(slot - SOCK_ENCHANTMENT_SLOT))))
+            if (gem->GetRequiredSkill() && GetSkillValue(gem->GetRequiredSkill()) < gem->GetRequiredSkillRank())
+                return;
     }
 
     if (!item->IsBroken())
@@ -16357,7 +16365,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID),
         GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
         GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE),
-        GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID)))
+        GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID),
+        std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE>{ fields[14].GetUInt8(), fields[15].GetUInt8(), fields[16].GetUInt8() }))
     {
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has wrong Appearance values (Hair/Skin/Color), can't load.", guid.ToString().c_str());
         return false;
@@ -16922,7 +16931,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     for (; loadedPowers < MAX_POWERS_PER_CLASS; ++loadedPowers)
         SetUInt32Value(UNIT_FIELD_POWER + loadedPowers, 0);
 
-    SetPower(POWER_ECLIPSE, 0);
+    SetPower(POWER_LUNAR_POWER, 0);
 
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: The value of player '%s' after load item and aura is: ", m_name.c_str());
     outDebugValues();
@@ -17265,8 +17274,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
     //              0             1               2                   3         4            5           6         7                8                    9             10             11       12                     13            14
     // SELECT ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomPropertyId, ii.durability, ii.playedTime, ii.text, ii.transmogrification, ii.upgradeId
-    //                        15                  16                  17              18                  19               20   21    22
-    //        ii.enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, ii.bonusListIDs, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
+    //                        15                  16                  17              18                  19               20             21             22             23   24    25
+    //        ii.enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, ii.bonusListIDs, ig.gemItemId1, ig.gemItemId2, ig.gemItemId3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17288,8 +17297,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[21].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[21].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[22].GetUInt8();
+                ObjectGuid bagGuid = fields[21].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[24].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[25].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
 
@@ -21560,23 +21569,11 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
         if (i == slot)
             continue;
         Item* pItem2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (pItem2 && !pItem2->IsBroken() && pItem2->GetTemplate()->GetSocketColor(0))
+        if (pItem2 && !pItem2->IsBroken())
         {
-            for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
+            for (uint32 gemItemId : pItem2->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS))
             {
-                uint32 enchant_id = pItem2->GetEnchantmentId(EnchantmentSlot(enchant_slot));
-                if (!enchant_id)
-                    continue;
-
-                SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-                if (!enchantEntry)
-                    continue;
-
-                uint32 gemid = enchantEntry->SRCItemID;
-                if (!gemid)
-                    continue;
-
-                ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
+                ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemItemId);
                 if (!gemProto)
                     continue;
 
@@ -21584,13 +21581,11 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
                 if (!gemProperty)
                     continue;
 
-                uint8 GemColor = gemProperty->Type;
+                uint32 GemColor = gemProperty->Type;
 
                 for (uint8 b = 0, tmpcolormask = 1; b < 4; b++, tmpcolormask <<= 1)
-                {
                     if (tmpcolormask & GemColor)
                         ++curcount[b];
-                }
             }
         }
     }
@@ -23498,7 +23493,7 @@ void Player::ResurrectUsingRequestDataImpl()
     SetPower(POWER_RAGE, 0);
     SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
     SetPower(POWER_FOCUS, GetMaxPower(POWER_FOCUS));
-    SetPower(POWER_ECLIPSE, 0);
+    SetPower(POWER_LUNAR_POWER, 0);
 
     if (uint32 aura = _resurrectionData->Aura)
         CastSpell(this, aura, true, nullptr, nullptr, _resurrectionData->GUID);
@@ -24005,16 +24000,16 @@ uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8
 
 void Player::InitGlyphsForLevel()
 {
-    uint32 slotMask = 0;
-    uint8 slot = 0;
-    uint8 level = getLevel();
-    for (GlyphSlotEntry const* gs : sDB2Manager.GetGlyphSlots())
-    {
-        if (level >= ((gs->Tooltip + 1) * 25))
-            slotMask |= 1 << slot;
+    //uint32 slotMask = 0;
+    //uint8 slot = 0;
+    //uint8 level = getLevel();
+    //for (GlyphSlotEntry const* gs : sDB2Manager.GetGlyphSlots())
+    //{
+    //    if (level >= ((gs->Tooltip + 1) * 25))
+    //        slotMask |= 1 << slot;
 
-        SetGlyphSlot(slot++, gs->ID);
-    }
+    //    SetGlyphSlot(slot++, gs->ID);
+    //}
 }
 
 void Player::SetGlyph(uint8 slot, uint32 glyph)
@@ -24095,7 +24090,7 @@ bool Player::isTotalImmunity() const
     return false;
 }
 
-uint32 Player::GetRuneTypeBaseCooldown() const
+uint32 Player::GetRuneBaseCooldown() const
 {
     float cooldown = RUNE_BASE_COOLDOWN;
 
@@ -24133,72 +24128,33 @@ void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false
         SetRuneTimer(index, 0);
     }
 
-    m_runes->runes[index].Cooldown = cooldown;
+    m_runes->Cooldown[index] = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
 }
 
-void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura)
+void Runes::SetRuneState(uint8 index, bool set /*= true*/)
 {
-    m_runes->runes[index].ConvertAura = aura;
-}
-
-void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura)
-{
-    SetRuneConvertAura(index, aura); ConvertRune(index, newType);
-}
-
-void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
-{
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    auto itr = std::find(CooldownOrder.begin(), CooldownOrder.end(), index);
+    if (set)
     {
-        if (m_runes->runes[i].ConvertAura == aura)
-        {
-            ConvertRune(i, GetBaseRune(i));
-            SetRuneConvertAura(i, nullptr);
-        }
+        RuneState |= (1 << index);                      // usable
+        if (itr == CooldownOrder.end())
+            CooldownOrder.push_back(index);
+    }
+    else
+    {
+        RuneState &= ~(1 << index);                     // on cooldown
+        if (itr != CooldownOrder.end())
+            CooldownOrder.erase(itr);
     }
 }
 
-void Player::RestoreBaseRune(uint8 index)
+void Player::ResyncRunes() const
 {
-    AuraEffect const* aura = m_runes->runes[index].ConvertAura;
-    // If rune was converted by a non-passive aura that still active we should keep it converted
-    if (aura && !(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_PASSIVE))
-        return;
-    ConvertRune(index, GetBaseRune(index));
-    SetRuneConvertAura(index, nullptr);
-    // Don't drop passive talents providing rune convertion
-    if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
-        return;
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
-        if (aura == m_runes->runes[i].ConvertAura)
-            return;
-    }
-    aura->GetBase()->Remove();
-}
+    WorldPackets::Spells::ResyncRunes data(MAX_RUNES);
+    for (uint32 i = 0; i < MAX_RUNES; ++i)
+        data.Runes.push_back(uint8(255 - (GetRuneCooldown(i) * 51)));
 
-void Player::ConvertRune(uint8 index, RuneType newType)
-{
-    SetCurrentRune(index, newType);
-
-    WorldPackets::Spells::ConvertRune data;
-    data.Index = index;
-    data.Rune = newType;
-    GetSession()->SendPacket(data.Write());
-}
-
-void Player::ResyncRunes(uint8 count) const
-{
-    WorldPackets::Spells::ResyncRunes data(count);
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        WorldPackets::Spells::ResyncRunes::ResyncRune rune;
-        rune.RuneType = GetCurrentRune(i);                         // rune type
-        rune.Cooldown = uint8(255 - (GetRuneCooldown(i) * 51));    // passed cooldown time (0-255)
-        data.Runes.push_back(rune);
-    }
     GetSession()->SendPacket(data.Write());
 }
 
@@ -24209,16 +24165,6 @@ void Player::AddRunePower(uint8 index) const
     GetSession()->SendPacket(&data);
 }
 
-static RuneType runeSlotTypes[MAX_RUNES] =
-{
-    /*0*/ RUNE_BLOOD,
-    /*1*/ RUNE_BLOOD,
-    /*2*/ RUNE_UNHOLY,
-    /*3*/ RUNE_UNHOLY,
-    /*4*/ RUNE_FROST,
-    /*5*/ RUNE_FROST
-};
-
 void Player::InitRunes()
 {
     if (getClass() != CLASS_DEATH_KNIGHT)
@@ -24228,34 +24174,19 @@ void Player::InitRunes()
     if (runeIndex == MAX_POWERS)
         return;
 
-    m_runes = new Runes;
-
-    m_runes->runeState = 0;
-    m_runes->lastUsedRune = RUNE_BLOOD;
+    m_runes = new Runes();
+    m_runes->RuneState = 0;
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
-        SetBaseRune(i, runeSlotTypes[i]);                               // init base types
-        SetCurrentRune(i, runeSlotTypes[i]);                            // init current types
         SetRuneCooldown(i, 0);                                          // reset cooldowns
         SetRuneTimer(i, 0xFFFFFFFF);                                    // Reset rune flags
         SetLastRuneGraceTimer(i, 0);
-        SetRuneConvertAura(i, nullptr);
-        m_runes->SetRuneState(i);
     }
 
     // set a base regen timer equal to 10 sec
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, 0.1f);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, 0.1f);
-}
-
-bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
-{
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == runeType && GetRuneCooldown(i) == 0)
-            return false;
-
-    return true;
 }
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
@@ -24400,7 +24331,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
 
-            SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, getRace(), getClass());
+            SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skill, getRace(), getClass());
             if (!rcEntry)
             {
                 TC_LOG_ERROR("entities.player", "Player::_LoadSkills: Player '%s' (%s, Race: %u, Class: %u) has forbidden skill %u for his race/class combination",
@@ -24512,16 +24443,9 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
         return res;
 
     // check unique-equipped on gems
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
+    for (uint32 gemItemId : pItem->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS))
     {
-        uint32 enchant_id = pItem->GetEnchantmentId(EnchantmentSlot(enchant_slot));
-        if (!enchant_id)
-            continue;
-        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!enchantEntry)
-            continue;
-
-        ItemTemplate const* pGem = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID);
+        ItemTemplate const* pGem = sObjectMgr->GetItemTemplate(gemItemId);
         if (!pGem)
             continue;
 
@@ -24677,6 +24601,11 @@ void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint6
 void Player::CompletedAchievement(AchievementEntry const* entry)
 {
     m_achievementMgr->CompletedAchievement(entry, this);
+}
+
+bool Player::ModifierTreeSatisfied(uint32 modifierTreeId) const
+{
+    return m_achievementMgr->ModifierTreeSatisfied(modifierTreeId);
 }
 
 bool Player::LearnTalent(uint32 talentId)
@@ -25306,9 +25235,8 @@ void Player::ActivateTalentGroup(uint8 spec)
 
     if (CanUseMastery())
         if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
-            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-                if (uint32 mastery = specialization->MasterySpellID[i])
-                    LearnSpell(mastery, false);
+            if (uint32 mastery = specialization->MasterySpellID)
+                LearnSpell(mastery, false);
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
@@ -26088,7 +26016,19 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 
 uint32 Player::CalculateTalentsTiers() const
 {
-    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
+    uint32 const* rowLevels;
+    switch (getClass())
+    {
+        case CLASS_DEATH_KNIGHT:
+            rowLevels = DKTalentRowLevels;
+            break;
+        case CLASS_DEMON_HUNTER:
+            rowLevels = DHTalentRowLevels;
+        default:
+            rowLevels = DefaultTalentRowLevels;
+            break;
+    }
+
     for (uint32 i = MAX_TALENT_TIERS; i; --i)
         if (getLevel() >= rowLevels[i - 1])
             return i;
@@ -26219,9 +26159,8 @@ void Player::RemoveSpecializationSpells()
                 }
             }
 
-            for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
-                if (uint32 mastery = specialization->MasterySpellID[j])
-                    RemoveAurasDueToSpell(mastery);
+            if (uint32 mastery = specialization->MasterySpellID)
+                RemoveAurasDueToSpell(mastery);
         }
     }
 }
@@ -26232,8 +26171,21 @@ void Player::RemoveSocial()
     m_social = nullptr;
 }
 
-// TODO: check demon hunter custom display sections
-bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
+bool IsSectionFlagValid(CharSectionsEntry const* entry, uint8 class_, bool create)
+{
+    if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
+        return false;
+
+    if (class_ != CLASS_DEATH_KNIGHT && (entry->Flags & SECTION_FLAG_DEATH_KNIGHT))
+        return false;
+
+    if (class_ != CLASS_DEMON_HUNTER && (entry->Flags & SECTION_FLAG_DEMON_HUNTER))
+        return false;
+
+    return true;
+}
+
+bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create /*= false*/)
 {
     // Check skin color
     // For Skin type is always 0
@@ -26241,10 +26193,9 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     {   // Skin Color defined as Face color, too, we check skin & face in one pass
         if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
         {
-            // Check DeathKnight exclusive
-            if (((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) || (entry2->Flags & SECTION_FLAG_DEATH_KNIGHT)) && class_ != CLASS_DEATH_KNIGHT)
+            if (!IsSectionFlagValid(entry, class_, create))
                 return false;
-            if (create && !((entry->Flags & SECTION_FLAG_PLAYER) && (entry2->Flags & SECTION_FLAG_PLAYER)))
+            if (!IsSectionFlagValid(entry2, class_, create))
                 return false;
         }
         else
@@ -26259,18 +26210,14 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     // Check Hair
     if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
     {
-        if ((entry->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
-            return false;
-        if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
+        if (!IsSectionFlagValid(entry, class_, create))
             return false;
 
         if (!excludeCheck)
         {
             if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
             {
-                if ((entry2->Flags & SECTION_FLAG_DEATH_KNIGHT) && class_ != CLASS_DEATH_KNIGHT)
-                    return false;
-                if (create && !(entry2->Flags & SECTION_FLAG_PLAYER))
+                if (!IsSectionFlagValid(entry2, class_, create))
                     return false;
             }
             else
@@ -26284,6 +26231,11 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     }
     else
         return false;
+
+    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+        if (CharSectionsEntry const* entry = GetCharSectionEntry(race, CharSectionType(SECTION_TYPE_CUSTOM_DISPLAY_1 + i * 2), gender, customDisplay[i], 0))
+            if (!IsSectionFlagValid(entry, class_, create))
+                return false;
 
     return true;
 }

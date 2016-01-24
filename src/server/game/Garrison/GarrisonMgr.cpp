@@ -32,8 +32,8 @@ GarrisonMgr& GarrisonMgr::Instance()
 
 void GarrisonMgr::Initialize()
 {
-    for (GarrSiteLevelPlotInstEntry const* plotInstance : sGarrSiteLevelPlotInstStore)
-        _garrisonPlotInstBySiteLevel[plotInstance->GarrSiteLevelID].push_back(plotInstance);
+    for (auto itr = sGarrSiteLevelPlotInstStore.begin(); itr != sGarrSiteLevelPlotInstStore.end(); ++itr)
+        _garrisonPlotInstBySiteLevel[itr->GarrSiteLevelID].push_back(std::make_pair(itr.Key(), itr.Value()));
 
     for (GameObjectsEntry const* gameObject : sGameObjectsStore)
         if (gameObject->Type == GAMEOBJECT_TYPE_GARRISON_PLOT)
@@ -45,8 +45,8 @@ void GarrisonMgr::Initialize()
     for (GarrBuildingPlotInstEntry const* buildingPlotInst : sGarrBuildingPlotInstStore)
         _garrisonBuildingPlotInstances[MAKE_PAIR64(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
 
-    for (GarrBuildingEntry const* building : sGarrBuildingStore)
-        _garrisonBuildingsByType[building->Type].push_back(building);
+    for (auto itr = sGarrBuildingStore.begin(); itr != sGarrBuildingStore.end(); ++itr)
+        _garrisonBuildingsByType[itr->Type].push_back(itr.Key());
 
     for (GarrFollowerXAbilityEntry const* followerAbility : sGarrFollowerXAbilityStore)
     {
@@ -73,16 +73,16 @@ void GarrisonMgr::Initialize()
     LoadFollowerClassSpecAbilities();
 }
 
-GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
+DBStorageIterator<GarrSiteLevelEntry> GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
 {
-    for (GarrSiteLevelEntry const* garrSiteLevel : sGarrSiteLevelStore)
-        if (garrSiteLevel->SiteID == garrSiteId && garrSiteLevel->Level == level)
-            return garrSiteLevel;
+    for (auto itr = sGarrSiteLevelStore.begin(); itr != sGarrSiteLevelStore.end(); ++itr)
+        if (itr->SiteID == garrSiteId && itr->Level == level)
+            return itr;
 
-    return nullptr;
+    return sGarrSiteLevelStore.end();
 }
 
-std::vector<GarrSiteLevelPlotInstEntry const*> const* GarrisonMgr::GetGarrPlotInstForSiteLevel(uint32 garrSiteLevelId) const
+std::vector<std::pair<uint32, GarrSiteLevelPlotInstEntry const*>> const* GarrisonMgr::GetGarrPlotInstForSiteLevel(uint32 garrSiteLevelId) const
 {
     auto itr = _garrisonPlotInstBySiteLevel.find(garrSiteLevelId);
     if (itr != _garrisonPlotInstBySiteLevel.end())
@@ -122,15 +122,15 @@ uint32 GarrisonMgr::GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSi
     return 0;
 }
 
-GarrBuildingEntry const* GarrisonMgr::GetPreviousLevelBuilding(uint32 buildingType, uint32 currentLevel) const
+uint32 GarrisonMgr::GetPreviousLevelBuildingId(uint32 buildingType, uint32 currentLevel) const
 {
     auto itr = _garrisonBuildingsByType.find(buildingType);
     if (itr != _garrisonBuildingsByType.end())
-        for (GarrBuildingEntry const* building : itr->second)
-            if (building->Level == currentLevel - 1)
-                return building;
+        for (uint32 buildingId : itr->second)
+            if (sGarrBuildingStore.AssertEntry(buildingId)->Level == currentLevel - 1)
+                return buildingId;
 
-    return nullptr;
+    return 0;
 }
 
 FinalizeGarrisonPlotGOInfo const* GarrisonMgr::GetPlotFinalizeGOInfo(uint32 garrPlotInstanceID) const
@@ -164,7 +164,7 @@ uint32 const AbilitiesForQuality[][2] =
     { 2, 3 }    // Legendary
 };
 
-std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const
+std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(uint32 garrFollowerId, GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const
 {
     ASSERT(faction < 2);
 
@@ -173,7 +173,7 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
     uint32 slots[2] = { AbilitiesForQuality[quality][0], AbilitiesForQuality[quality][1] };
 
     GarrAbilities const* abilities = nullptr;
-    auto itr = _garrisonFollowerAbilities[faction].find(follower->ID);
+    auto itr = _garrisonFollowerAbilities[faction].find(garrFollowerId);
     if (itr != _garrisonFollowerAbilities[faction].end())
         abilities = &itr->second;
 

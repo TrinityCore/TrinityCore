@@ -2621,8 +2621,15 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         std::array<bool, AuraCount::value> results;
         results.fill(true);
         for (std::size_t i = 0; i < AuraCount::value; ++i)
+        {
             if (condition->AuraSpellID[i])
-                results[i] = player->HasAura(condition->AuraSpellID[i]);
+            {
+                if (condition->AuraCount[i])
+                    results[i] = player->GetAuraCount(condition->AuraSpellID[i]) >= condition->AuraCount[i];
+                else
+                    results[i] = player->HasAura(condition->AuraSpellID[i]);
+            }
+        }
 
         if (!PlayerConditionLogic(condition->AuraSpellLogic, results))
             return false;
@@ -2726,6 +2733,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         return false;
 
     if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) > condition->MaxAvgEquippedItemLevel)
+        return false;
+
+    if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
         return false;
 
     return true;

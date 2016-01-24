@@ -317,15 +317,29 @@ enum BAG_FAMILY_MASK
 
 enum SocketColor
 {
-    SOCKET_COLOR_META                           = 1,
-    SOCKET_COLOR_RED                            = 2,
-    SOCKET_COLOR_YELLOW                         = 4,
-    SOCKET_COLOR_BLUE                           = 8,
-    SOCKET_COLOR_HYDRAULIC                      = 16, // not used
-    SOCKET_COLOR_COGWHEEL                       = 32,
+    SOCKET_COLOR_META                           = 0x00001,
+    SOCKET_COLOR_RED                            = 0x00002,
+    SOCKET_COLOR_YELLOW                         = 0x00004,
+    SOCKET_COLOR_BLUE                           = 0x00008,
+    SOCKET_COLOR_HYDRAULIC                      = 0x00010, // not used
+    SOCKET_COLOR_COGWHEEL                       = 0x00020,
+    SOCKET_COLOR_PRISMATIC                      = 0x0000E,
+    SOCKET_COLOR_RELIC_IRON                     = 0x00040,
+    SOCKET_COLOR_RELIC_BLOOD                    = 0x00080,
+    SOCKET_COLOR_RELIC_SHADOW                   = 0x00100,
+    SOCKET_COLOR_RELIC_FEL                      = 0x00200,
+    SOCKET_COLOR_RELIC_ARCANE                   = 0x00400,
+    SOCKET_COLOR_RELIC_FROST                    = 0x00800,
+    SOCKET_COLOR_RELIC_FIRE                     = 0x01000,
+    SOCKET_COLOR_RELIC_WATER                    = 0x02000,
+    SOCKET_COLOR_RELIC_LIFE                     = 0x04000,
+    SOCKET_COLOR_RELIC_WIND                     = 0x08000,
+    SOCKET_COLOR_RELIC_HOLY                     = 0x10000
 };
 
-#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_COGWHEEL)
+extern uint32 const SocketColorToGemTypeMask[19];
+
+#define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
 enum InventoryType
 {
@@ -646,10 +660,11 @@ class Player;
 
 struct TC_GAME_API ItemTemplate
 {
+    uint32 Id;
     ItemEntry const* BasicData;
     ItemSparseEntry const* ExtendedData;
 
-    uint32 GetId() const { return BasicData->ID; }
+    uint32 GetId() const { return Id; }
     uint32 GetClass() const { return BasicData->Class; }
     uint32 GetSubClass() const { return BasicData->SubClass; }
     uint32 GetQuality() const { return ExtendedData->Quality; }
@@ -658,7 +673,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetFlags3() const { return ExtendedData->Flags[2]; }
     float GetUnk1() const { return ExtendedData->Unk1; }
     float GetUnk2() const { return ExtendedData->Unk2; }
-    uint32 GetBuyCount() const { return std::max(ExtendedData->BuyCount, 1u); }
+    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->BuyCount, 1u); }
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }

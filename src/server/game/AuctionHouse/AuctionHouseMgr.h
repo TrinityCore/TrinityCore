@@ -79,11 +79,12 @@ struct TC_GAME_API AuctionEntry
     ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
+    uint32 houseId;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
 
     // helpers
-    uint32 GetHouseId() const { return auctionHouseEntry->ID; }
+    uint32 GetHouseId() const { return houseId; }
     uint32 GetHouseFaction() const { return auctionHouseEntry->FactionID; }
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
@@ -188,7 +189,7 @@ class TC_GAME_API AuctionHouseMgr
         void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
 
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
-        static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
+        static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId, uint32* houseId);
 
     public:
 

@@ -403,8 +403,8 @@ void GuildMgr::LoadGuilds()
 
         //           0          1            2                3      4         5        6      7             8                 9          10          11    12                  13         14               15
         // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion,
-        //                        17                  18              19                  20       21     22      23
-        //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
+        //                        17                  18              19                  20             21             22             23       24     25      26
+        //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, ig.gemItemId1, ig.gemItemId2, ig.gemItemId3, guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
         if (!result)
@@ -417,7 +417,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 guildId = fields[21].GetUInt64();
+                uint64 guildId = fields[24].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

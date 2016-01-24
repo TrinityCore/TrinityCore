@@ -924,6 +924,12 @@ CriteriaList const& GuildAchievementMgr::GetCriteriaByType(CriteriaTypes type) c
     return sCriteriaMgr->GetGuildCriteriaByType(type);
 }
 
+bool PlayerAchievementMgr::ModifierTreeSatisfied(uint32 modifierTreeId) const
+{
+    return AdditionalRequirementsSatisfied(sAchievementMgr->GetModifierTree(modifierTreeId), 0, 0, nullptr, _owner);
+}
+
+
 std::string PlayerAchievementMgr::GetOwnerInfo() const
 {
     return Trinity::StringFormat("%s %s", _owner->GetGUID().ToString().c_str(), _owner->GetName().c_str());

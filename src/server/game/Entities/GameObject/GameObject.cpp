@@ -2052,8 +2052,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->StateDamaged.DisplayID)
-                    modelId = modelData->StateDamaged.DisplayID;
+                if (modelData->StateDamagedDisplayID)
+                    modelId = modelData->StateDamagedDisplayID;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2080,8 +2080,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->StateDestroyed.DisplayID)
-                    modelId = modelData->StateDestroyed.DisplayID;
+                if (modelData->StateDestroyedDisplayID)
+                    modelId = modelData->StateDestroyedDisplayID;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2099,8 +2099,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->StateRebuilding.DisplayID)
-                    modelId = modelData->StateRebuilding.DisplayID;
+                if (modelData->StateRebuildingDisplayID)
+                    modelId = modelData->StateRebuildingDisplayID;
             SetDisplayId(modelId);
 
             // restores to full health

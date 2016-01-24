@@ -539,24 +539,21 @@ void Player::UpdateMastery()
     if (!chrSpec)
         return;
 
-    for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+    if (!chrSpec->MasterySpellID)
+        return;
+
+    if (Aura* aura = GetAura(chrSpec->MasterySpellID))
     {
-        if (!chrSpec->MasterySpellID[i])
-            continue;
-
-        if (Aura* aura = GetAura(chrSpec->MasterySpellID[i]))
+        for (SpellEffectInfo const* effect : aura->GetSpellEffectInfos())
         {
-            for (SpellEffectInfo const* effect : aura->GetSpellEffectInfos())
-            {
-                if (!effect)
-                    continue;
+            if (!effect)
+                continue;
 
-                float mult = effect->BonusCoefficient;
-                if (G3D::fuzzyEq(mult, 0.0f))
-                    continue;
+            float mult = effect->BonusCoefficient;
+            if (G3D::fuzzyEq(mult, 0.0f))
+                continue;
 
-                aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * effect->BonusCoefficient));
-            }
+            aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * effect->BonusCoefficient));
         }
     }
 }
@@ -780,7 +777,7 @@ void Player::UpdateAllRunesRegen()
     if (runeIndex == MAX_POWERS)
         return;
 
-    uint32 cooldown = GetRuneTypeBaseCooldown();
+    uint32 cooldown = GetRuneBaseCooldown();
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + runeIndex, float(1 * IN_MILLISECONDS) / float(cooldown));
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + runeIndex, float(1 * IN_MILLISECONDS) / float(cooldown));
 }

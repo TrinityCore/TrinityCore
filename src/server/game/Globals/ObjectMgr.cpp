@@ -2410,7 +2410,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
         itemTemplate.GetMaxStackSize() > 1 ||
         itemTemplate.GetQuality() < ITEM_QUALITY_UNCOMMON || itemTemplate.GetQuality() > ITEM_QUALITY_EPIC ||
         !(itemTemplate.GetClass() == ITEM_CLASS_ARMOR || itemTemplate.GetClass() == ITEM_CLASS_WEAPON) ||
-        !(Item::GetSpecialPrice(&itemTemplate) || sItemCurrencyCostStore.LookupEntry(itemTemplate.GetId())))
+        !(Item::GetSpecialPrice(&itemTemplate) || sDB2Manager.HasItemCurrencyCost(itemTemplate.GetId())))
         return;
 
     for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
@@ -2424,18 +2424,18 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
             disenchant->MinItemLevel <= itemTemplate.GetBaseItemLevel() &&
             disenchant->MaxItemLevel >= itemTemplate.GetBaseItemLevel())
         {
-            if (disenchant->ID == 60 || disenchant->ID == 61)   // epic item disenchant ilvl range 66-99 (classic)
+            if (i == 60 || i == 61)   // epic item disenchant ilvl range 66-99 (classic)
             {
                 if (itemTemplate.GetBaseRequiredLevel() > 60 || itemTemplate.GetRequiredSkillRank() > 300)
                     continue;                                   // skip to epic item disenchant ilvl range 90-199 (TBC)
             }
-            else if (disenchant->ID == 66 || disenchant->ID == 67)  // epic item disenchant ilvl range 90-199 (TBC)
+            else if (i == 66 || i == 67)  // epic item disenchant ilvl range 90-199 (TBC)
             {
                 if (itemTemplate.GetBaseRequiredLevel() <= 60 || (itemTemplate.GetRequiredSkill() && itemTemplate.GetRequiredSkillRank() <= 300))
                     continue;
             }
 
-            *disenchantID = disenchant->ID;
+            *disenchantID = i;
             *requiredDisenchantSkill = disenchant->RequiredDisenchantSkill;
             return;
         }
@@ -2624,13 +2624,15 @@ void ObjectMgr::LoadItemTemplates()
     uint32 oldMSTime = getMSTime();
     uint32 sparseCount = 0;
 
-    for (ItemSparseEntry const* sparse : sItemSparseStore)
+    for (auto itr = sItemSparseStore.begin(); itr != sItemSparseStore.end(); ++itr)
     {
-        ItemEntry const* db2Data = sItemStore.LookupEntry(sparse->ID);
+        ItemSparseEntry const* sparse = itr->second;
+        ItemEntry const* db2Data = sItemStore.LookupEntry(itr->first);
         if (!db2Data)
             continue;
 
-        ItemTemplate& itemTemplate = _itemTemplateStore[sparse->ID];
+        ItemTemplate& itemTemplate = _itemTemplateStore[itr->first];
+        itemTemplate.Id = itr->first;
 
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
@@ -2644,7 +2646,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.0f;
 
-        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
+        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(itemTemplate.Id))
         {
             for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
                 itemTemplate.Specializations[0].insert(itemSpecOverride->SpecID);
@@ -3446,6 +3448,12 @@ void ObjectMgr::LoadPlayerInfo()
 
                 // skip expansion races if not playing with expansion
                 if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_CATACLYSM && (race == RACE_GOBLIN || race == RACE_WORGEN))
+                    continue;
+
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_MISTS_OF_PANDARIA && (race == RACE_PANDAREN_NEUTRAL || race == RACE_PANDAREN_HORDE || race == RACE_PANDAREN_ALLIANCE))
+                    continue;
+
+                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_LEGION && class_ == CLASS_DEMON_HUNTER)
                     continue;
 
                 // fatal error if no level 1 data
@@ -4388,7 +4396,7 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->SoundAccept)
         {
-            if (!sSoundEntriesStore.LookupEntry(qinfo->SoundAccept))
+            if (!sSoundKitStore.LookupEntry(qinfo->SoundAccept))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `SoundAccept` = %u but sound %u does not exist, set to 0.",
                     qinfo->GetQuestId(), qinfo->SoundAccept, qinfo->SoundAccept);
@@ -4398,7 +4406,7 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->SoundTurnIn)
         {
-            if (!sSoundEntriesStore.LookupEntry(qinfo->SoundTurnIn))
+            if (!sSoundKitStore.LookupEntry(qinfo->SoundTurnIn))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `SoundTurnIn` = %u but sound %u does not exist, set to 0.",
                     qinfo->GetQuestId(), qinfo->SoundTurnIn, qinfo->SoundTurnIn);
@@ -8703,25 +8711,12 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             TC_LOG_ERROR("sql.sql", "Creature base stats for level %u has invalid class %u", Level, Class);
 
-        GtNpcTotalHpEntry const* HpExp0 = sGtNpcTotalHpStore.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp1Entry const* HpExp1 = sGtNpcTotalHpExp1Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp2Entry const* HpExp2 = sGtNpcTotalHpExp2Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp3Entry const* HpExp3 = sGtNpcTotalHpExp3Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp4Entry const* HpExp4 = sGtNpcTotalHpExp4Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp5Entry const* HpExp5 = sGtNpcTotalHpExp5Store.EvaluateTable(Level - 1, Class - 1);
-
         CreatureBaseStats stats;
-
-        stats.BaseHealth[0] = uint32(HpExp0->HP);
-        stats.BaseHealth[1] = uint32(HpExp1->HP);
-        stats.BaseHealth[2] = uint32(HpExp2->HP);
-        stats.BaseHealth[3] = uint32(HpExp3->HP);
-        stats.BaseHealth[4] = uint32(HpExp4->HP);
-        stats.BaseHealth[5] = uint32(HpExp5->HP);
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            stats.BaseDamage[i] = fields[6 + i].GetFloat();
+            stats.BaseHealth[0] = sGtNpcTotalHpStore[i].EvaluateTable(Level - 1, Class - 1)->HP;
+            stats.BaseDamage[0] = sGtNpcDamageByClassStore[i].EvaluateTable(Level - 1, Class - 1)->Damage;
             if (stats.BaseDamage[i] < 0.0f)
             {
                 TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);

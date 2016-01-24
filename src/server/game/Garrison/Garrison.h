@@ -157,6 +157,7 @@ private:
     GarrisonError CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const;
     GarrisonError CheckBuildingRemoval(uint32 garrPlotInstanceId) const;
     Player* _owner;
+    uint32 _siteLevelId;
     GarrSiteLevelEntry const* _siteLevel;
     uint32 _followerActivationsRemainingToday;
 

@@ -178,7 +178,7 @@ TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uin
             return 0;
     }
 
-    RandomPropertiesPointsEntry const* randPropPointsEntry = sRandomPropertiesPointsStore.LookupEntry(itemLevel);
+    RandPropPointsEntry const* randPropPointsEntry = sRandPropPointsStore.LookupEntry(itemLevel);
     if (!randPropPointsEntry)
         return 0;
 

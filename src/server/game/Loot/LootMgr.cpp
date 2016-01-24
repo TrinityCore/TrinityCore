@@ -1557,7 +1557,7 @@ void LoadLootTemplates_Disenchant()
         if (!disenchant)
             continue;
 
-        uint32 lootid = disenchant->ID;
+        uint32 lootid = i;
         if (lootIdSet.find(lootid) == lootIdSet.end())
             LootTemplates_Disenchant.ReportNonExistingId(lootid);
         else

@@ -901,29 +901,21 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                 return;
         }
 
-        // tried to put normal gem in meta socket
-        if (itemTarget->GetSocketColor(i) == SOCKET_COLOR_META && GemProps[i]->Type != SOCKET_COLOR_META)
-            return;
-
-        // tried to put meta gem in normal socket
-        if (itemTarget->GetSocketColor(i) != SOCKET_COLOR_META && GemProps[i]->Type == SOCKET_COLOR_META)
-            return;
-
-        // tried to put normal gem in cogwheel socket
-        if (itemTarget->GetSocketColor(i) == SOCKET_COLOR_COGWHEEL && GemProps[i]->Type != SOCKET_COLOR_COGWHEEL)
-            return;
-
-        // tried to put cogwheel gem in normal socket
-        if (itemTarget->GetSocketColor(i) != SOCKET_COLOR_COGWHEEL && GemProps[i]->Type == SOCKET_COLOR_COGWHEEL)
-            return;
+        // Gem must match socket color
+        if (SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] != GemProps[i]->Type)
+        {
+            // unless its red, blue, yellow or prismatic
+            if (!(SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] & SOCKET_COLOR_PRISMATIC) || !(GemProps[i]->Type & SOCKET_COLOR_PRISMATIC))
+                return;
+        }
     }
 
     uint32 GemEnchants[MAX_GEM_SOCKETS];
-    uint32 OldEnchants[MAX_GEM_SOCKETS];
+    uint32 oldGemItemIds[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get new and old enchantments
     {
         GemEnchants[i] = (GemProps[i]) ? GemProps[i]->EnchantID : 0;
-        OldEnchants[i] = itemTarget->GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i));
+        oldGemItemIds[i] = itemTarget->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size() > i ? itemTarget->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS)[i] : 0;
     }
 
     // check unique-equipped conditions
@@ -951,15 +943,12 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                         return;
                     }
                 }
-                else if (OldEnchants[j])
+                else if (oldGemItemIds[j])
                 {
-                    if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                    if (iGemProto->GetId() == oldGemItemIds[j])
                     {
-                        if (iGemProto->GetId() == enchantEntry->SRCItemID)
-                        {
-                            _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
-                            return;
-                        }
+                        _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
+                        return;
                     }
                 }
             }
@@ -980,13 +969,12 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                         if (iGemProto->GetItemLimitCategory() == Gems[j]->GetTemplate()->GetItemLimitCategory())
                             ++limit_newcount;
                     }
-                    else if (OldEnchants[j])
+                    else if (oldGemItemIds[j])
                     {
                         // existing gem
-                        if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
-                            if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID))
-                                if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
-                                    ++limit_newcount;
+                        if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(oldGemItemIds[j]))
+                            if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
+                                ++limit_newcount;
                     }
                 }
 
@@ -1018,16 +1006,25 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
         _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), false);
 
+    uint32 reqGemSlots = 0;
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        if (Gems[i])
+            reqGemSlots = i + 1;
+
+    while (itemTarget->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size() < reqGemSlots)
+        itemTarget->AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, 0);
+
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        if (GemEnchants[i])
+        if (Item* guidItem = _player->GetItemByGuid(socketGems.GemItem[i]))
         {
-            itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0, _player->GetGUID());
-            if (Item* guidItem = _player->GetItemByGuid(socketGems.GemItem[i]))
-            {
-                uint32 gemCount = 1;
-                _player->DestroyItemCount(guidItem, gemCount, true);
-            }
+            itemTarget->SetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i, guidItem->GetEntry());
+
+            if (GemEnchants[i])
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0, _player->GetGUID());
+
+            uint32 gemCount = 1;
+            _player->DestroyItemCount(guidItem, gemCount, true);
         }
     }
 

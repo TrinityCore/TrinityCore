@@ -1618,7 +1618,7 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
 
-    if (damage < 0 && power != POWER_ECLIPSE)
+    if (damage < 0 && power != POWER_LUNAR_POWER)
         return;
 
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
@@ -2435,7 +2435,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
+    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
     if (!rcEntry)
         return;
 
@@ -5192,52 +5192,24 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     m_runesState = m_caster->ToPlayer()->GetRunesState();
 
     uint32 count = damage;
-    if (count == 0) count = 1;
-    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
+    if (count == 0)
+        count = 1;
+
+    // first restore fully depleted runes
+    for (uint32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
     {
-        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(effectInfo->MiscValue))
+        if (player->GetRuneCooldown(j) == player->GetRuneBaseCooldown())
         {
-            if (m_spellInfo->Id == 45529)
-                if (player->GetBaseRune(j) != RuneType(effectInfo->MiscValueB))
-                    continue;
             player->SetRuneCooldown(j, 0);
             --count;
         }
     }
 
-    // Blood Tap
-    if (m_spellInfo->Id == 45529 && count > 0)
+    // then the rest if we still got something left
+    for (uint32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
     {
-        for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
-        {
-            // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetCurrentRune(l) == RuneType(effectInfo->MiscValueB)) && (player->GetRuneCooldown(l + 1) && player->GetCurrentRune(l + 1) == RuneType(effectInfo->MiscValueB)))
-            {
-                // Should always update the rune with the lowest cd
-                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
-                    l++;
-                player->SetRuneCooldown(l, 0);
-                --count;
-                // is needed to push through to the client that the rune is active
-                player->ResyncRunes(MAX_RUNES);
-            }
-            else
-                break;
-        }
-    }
-
-    // Empower rune weapon
-    if (m_spellInfo->Id == 47568)
-    {
-        // Need to do this just once
-        if (effIndex != 0)
-            return;
-
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
-        {
-            if (player->GetRuneCooldown(i) && (player->GetCurrentRune(i) == RUNE_FROST ||  player->GetCurrentRune(i) == RUNE_DEATH))
-                player->SetRuneCooldown(i, 0);
-        }
+        player->SetRuneCooldown(j, 0);
+        --count;
     }
 }
 
@@ -5435,7 +5407,7 @@ void Spell::EffectPlayMusic(SpellEffIndex /*effIndex*/)
 
     uint32 soundid = effectInfo->MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundid))
+    if (!sSoundKitStore.LookupEntry(soundid))
     {
         TC_LOG_ERROR("spells", "EffectPlayMusic: Sound (Id: %u) does not exist in spell %u.", soundid, m_spellInfo->Id);
         return;
@@ -5489,7 +5461,7 @@ void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)
 
     uint32 soundId = effectInfo->MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundId))
+    if (!sSoundKitStore.LookupEntry(soundId))
     {
         TC_LOG_ERROR("spells", "EffectPlaySound: Sound (Id: %u) does not exist in spell %u.", soundId, m_spellInfo->Id);
         return;

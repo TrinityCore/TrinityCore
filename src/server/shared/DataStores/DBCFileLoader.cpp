@@ -172,17 +172,6 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
 
 char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char*& sqlDataTable)
 {
-    /*
-    format STRING, NA, FLOAT, NA, INT <=>
-    struct{
-    char* field0,
-    float field1,
-    int field2
-    }entry;
-
-    this func will generate  entry[rows] data;
-    */
-
     typedef char* ptr;
     if (strlen(format) != fieldCount)
         return NULL;
@@ -193,11 +182,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     if (i >= 0)
     {
-        uint32 maxi = 0;
+        int32 maxi = 0;
         //find max index
         for (uint32 y = 0; y < recordCount; ++y)
         {
-            uint32 ind = getRecord(y).getUInt(i);
+            int32 ind = int32(getRecord(y).getUInt(i));
             if (ind > maxi)
                 maxi = ind;
         }
@@ -224,7 +213,10 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     for (uint32 y = 0; y < recordCount; ++y)
     {
         if (i >= 0)
-            indexTable[getRecord(y).getUInt(i)] = &dataTable[offset];
+        {
+            if (int32(getRecord(y).getUInt(i)) >= 0)
+                indexTable[getRecord(y).getUInt(i)] = &dataTable[offset];
+        }
         else
             indexTable[y] = &dataTable[offset];
 

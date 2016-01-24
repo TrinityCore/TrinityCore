@@ -22,6 +22,29 @@
 #include "ItemTemplate.h"
 #include "Player.h"
 
+uint32 const SocketColorToGemTypeMask[19] =
+{
+    0,
+    SOCKET_COLOR_META,
+    SOCKET_COLOR_RED,
+    SOCKET_COLOR_YELLOW,
+    SOCKET_COLOR_BLUE,
+    SOCKET_COLOR_HYDRAULIC,
+    SOCKET_COLOR_COGWHEEL,
+    SOCKET_COLOR_PRISMATIC,
+    SOCKET_COLOR_RELIC_IRON,
+    SOCKET_COLOR_RELIC_BLOOD,
+    SOCKET_COLOR_RELIC_SHADOW,
+    SOCKET_COLOR_RELIC_FEL,
+    SOCKET_COLOR_RELIC_ARCANE,
+    SOCKET_COLOR_RELIC_FROST,
+    SOCKET_COLOR_RELIC_FIRE,
+    SOCKET_COLOR_RELIC_WATER,
+    SOCKET_COLOR_RELIC_LIFE,
+    SOCKET_COLOR_RELIC_WIND,
+    SOCKET_COLOR_RELIC_HOLY
+};
+
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
     if (!strlen(ExtendedData->Name->Str[locale]))
@@ -137,21 +160,21 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
         return;
 
-    DBCStorage<ItemDamageEntry>* store = NULL;
     // get the right store here
     if (GetInventoryType() > INVTYPE_RANGEDRIGHT)
         return;
 
+    float dps = 0.0f;
     switch (GetInventoryType())
     {
         case INVTYPE_AMMO:
-            store = &sItemDamageAmmoStore;
+            dps = sItemDamageAmmoStore.AssertEntry(itemLevel)->DPS[quality];
             break;
         case INVTYPE_2HWEAPON:
             if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageTwoHandCasterStore;
+                dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
             else
-                store = &sItemDamageTwoHandStore;
+                dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->DPS[quality];
             break;
         case INVTYPE_RANGED:
         case INVTYPE_THROWN:
@@ -159,15 +182,15 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
             switch (GetSubClass())
             {
                 case ITEM_SUBCLASS_WEAPON_WAND:
-                    store = &sItemDamageWandStore;
-                    break;
-                case ITEM_SUBCLASS_WEAPON_THROWN:
-                    store = &sItemDamageThrownStore;
+                    dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
                     break;
                 case ITEM_SUBCLASS_WEAPON_BOW:
                 case ITEM_SUBCLASS_WEAPON_GUN:
                 case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    store = &sItemDamageRangedStore;
+                    if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+                        dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
+                    else
+                        dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->DPS[quality];
                     break;
                 default:
                     return;
@@ -177,21 +200,14 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
             if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageOneHandCasterStore;
+                dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
             else
-                store = &sItemDamageOneHandStore;
+                dps = sItemDamageOneHandStore.AssertEntry(itemLevel)->DPS[quality];
             break;
         default:
             return;
     }
 
-    ASSERT(store);
-
-    ItemDamageEntry const* damageInfo = store->LookupEntry(itemLevel);
-    if (!damageInfo)
-        return;
-
-    float dps = damageInfo->DPS[quality];
     float avgDamage = dps * GetDelay() * 0.001f;
     minDamage = (GetStatScalingFactor() * -0.5f + 1.0f) * avgDamage;
     maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));

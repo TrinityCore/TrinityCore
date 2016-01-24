@@ -755,7 +755,7 @@ public:
             }
 
             target->GetSpellHistory()->ResetCooldown(spellIid, true);
-            target->GetSpellHistory()->ResetCharges(spellInfo->ChargeCategoryEntry);
+            target->GetSpellHistory()->ResetCharges(spellInfo->ChargeCategoryId);
             handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
         }
         return true;
@@ -1168,10 +1168,10 @@ public:
             if (itemNameStr && itemNameStr[0])
             {
                 std::string itemName = itemNameStr+1;
-                auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* itemSparse)
+                auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](std::pair<uint32, ItemSparseEntry const*> kv)
                 {
                     for (uint32 i = 0; i < MAX_LOCALES; ++i)
-                        if (itemName == itemSparse->Name->Str[i])
+                        if (itemName == kv.second->Name->Str[i])
                             return true;
                     return false;
                 });
@@ -1183,7 +1183,7 @@ public:
                     return false;
                 }
 
-                itemId = itr->ID;
+                itemId = itr->first;
             }
             else
                 return false;
@@ -1469,7 +1469,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName_lang, handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->DisplayName->Str[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
         return true;
     }
 
@@ -1573,7 +1573,7 @@ public:
         uint8 raceid, classid           = 0; //RACE_NONE, CLASS_NONE
         std::string raceStr, classStr   = handler->GetTrinityString(LANG_UNKNOWN);
         uint8 gender                    = 0;
-        int8 locale                     = handler->GetSessionDbcLocale();
+        LocaleConstant locale           = handler->GetSessionDbcLocale();
         uint32 totalPlayerTime          = 0;
         uint8 level                     = 0;
         std::string alive               = handler->GetTrinityString(LANG_ERROR);
@@ -1794,7 +1794,7 @@ public:
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_HIGH, level);
 
         // Output XI. LANG_PINFO_CHR_RACE
-        raceStr  = GetRaceName(raceid, locale);
+        raceStr  = DB2Manager::GetChrRaceName(raceid, locale);
         classStr = GetClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
@@ -2608,7 +2608,7 @@ public:
 
         uint32 soundId = atoi((char*)args);
 
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sSoundKitStore.LookupEntry(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);
@@ -2688,7 +2688,7 @@ public:
         {
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName;
+            char const* name = aura->GetSpellInfo()->SpellName->Str[handler->GetSessionDbcLocale()];
 
             bool self = target->GetGUID() == aura->GetCasterGUID();
             if (self)
