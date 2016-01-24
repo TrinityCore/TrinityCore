@@ -91,15 +91,6 @@ DoorData const doorData[] =
     { 0,                        0,                  DOOR_TYPE_ROOM }
 };
 
-MinionData const minionData[] =
-{
-    { NPC_SIR,                  BOSS_HORSEMEN   },
-    { NPC_THANE,                BOSS_HORSEMEN   },
-    { NPC_LADY,                 BOSS_HORSEMEN   },
-    { NPC_BARON,                BOSS_HORSEMEN   },
-    { 0,                        0,              }
-};
-
 ObjectData const objectData[] =
 {
     { GO_NAXX_PORTAL_ARACHNID,  DATA_NAXX_PORTAL_ARACHNID  },
@@ -152,11 +143,8 @@ class instance_naxxramas : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                LoadMinionData(minionData);
                 LoadObjectData(nullptr, objectData);
 
-                minHorsemenDiedTime     = 0;
-                maxHorsemenDiedTime     = 0;
                 AbominationCount        = 0;
                 hadAnubRekhanGreet      = false;
                 hadFaerlinaGreet        = false;
@@ -178,6 +166,9 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                     case NPC_RAZUVIOUS:
                         RazuviousGUID = creature->GetGUID();
+                        break;
+                    case NPC_GOTHIK:
+                        GothikGUID = creature->GetGUID();
                         break;
                     case NPC_THANE:
                         ThaneGUID = creature->GetGUID();
@@ -215,13 +206,6 @@ class instance_naxxramas : public InstanceMapScript
                     default:
                         break;
                 }
-
-                AddMinion(creature, true);
-            }
-
-            void OnCreatureRemove(Creature* creature) override
-            {
-                AddMinion(creature, false);
             }
 
             void ProcessEvent(WorldObject* /*source*/, uint32 eventId) override
@@ -351,25 +335,6 @@ class instance_naxxramas : public InstanceMapScript
                         if (GameObject* gate = instance->GetGameObject(GothikGateGUID))
                             gate->SetGoState(GOState(value));
                         break;
-                    case DATA_HORSEMEN0:
-                    case DATA_HORSEMEN1:
-                    case DATA_HORSEMEN2:
-                    case DATA_HORSEMEN3:
-                        if (value == NOT_STARTED)
-                        {
-                            minHorsemenDiedTime = 0;
-                            maxHorsemenDiedTime = 0;
-                        }
-                        else if (value == DONE)
-                        {
-                            time_t now = time(NULL);
-
-                            if (minHorsemenDiedTime == 0)
-                                minHorsemenDiedTime = now;
-
-                            maxHorsemenDiedTime = now;
-                        }
-                        break;
                     case DATA_ABOMINATION_KILLED:
                         AbominationCount = value;
                         break;
@@ -416,6 +381,8 @@ class instance_naxxramas : public InstanceMapScript
                         return FaerlinaGUID;
                     case DATA_RAZUVIOUS:
                         return RazuviousGUID;
+                    case DATA_GOTHIK:
+                        return GothikGUID;
                     case DATA_THANE:
                         return ThaneGUID;
                     case DATA_LADY:
@@ -648,13 +615,13 @@ class instance_naxxramas : public InstanceMapScript
             {
                 switch (criteria_id)
                 {
-                    case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
-                        if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
-                            return true;
-                        return false;
-                    case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
-                        if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
-                            return true;
+                    // And They Would All Go Down Together (kill 4HM within 15sec of each other)
+                    case 7600: // 25-man
+                    case 7601: // 10-man
+                        if (criteria_id + instance->GetSpawnMode() == 7601)
+                            return false;
+                        if (Creature* baron = instance->GetCreature(BaronGUID)) // it doesn't matter which one we use, really
+                            return (baron->AI()->GetData(DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT) == 1u);
                         return false;
                     // Difficulty checks are done on DB.
                     // Criteria for achievement 2186: The Immortal (25-man)
@@ -693,6 +660,7 @@ class instance_naxxramas : public InstanceMapScript
             // Instructor Razuvious
             ObjectGuid RazuviousGUID;
             // Gothik the Harvester
+            ObjectGuid GothikGUID;
             ObjectGuid GothikGateGUID;
             // The Four Horsemen
             ObjectGuid ThaneGUID;
@@ -700,8 +668,6 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid BaronGUID;
             ObjectGuid SirGUID;
             ObjectGuid HorsemenChestGUID;
-            time_t minHorsemenDiedTime;
-            time_t maxHorsemenDiedTime;
 
             /* The Construct Quarter */
             // Thaddius
