@@ -1026,6 +1026,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         auctionEntry->bidder = UI64LIT(0);
         auctionEntry->bid = 0;
         auctionEntry->deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
+        auctionEntry->houseId = houseid;
         auctionEntry->auctionHouseEntry = ahEntry;
         auctionEntry->expire_time = time(NULL) + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
 

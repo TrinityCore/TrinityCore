@@ -3340,7 +3340,7 @@ void Spell::cast(bool skipCheck)
         if (m_caster->ToPlayer()->GetCommandStatus(CHEAT_COOLDOWN))
         {
             m_caster->GetSpellHistory()->ResetCooldown(m_spellInfo->Id, true);
-            m_caster->GetSpellHistory()->RestoreCharge(m_spellInfo->ChargeCategoryEntry);
+            m_caster->GetSpellHistory()->RestoreCharge(m_spellInfo->ChargeCategoryId);
         }
     }
 
@@ -3892,8 +3892,7 @@ void Spell::SendSpellStart()
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
-    if (m_spellInfo->RuneCostID &&
-        std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_RUNES; }) != m_powerCost.end())
+    if (std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_RUNES; }) != m_powerCost.end())
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
     WorldPackets::Spells::SpellStart packet;
@@ -3938,7 +3937,7 @@ void Spell::SendSpellStart()
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
+                float baseCd = float(player->GetRuneBaseCooldown());
                 castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
@@ -3995,7 +3994,6 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
-        && m_spellInfo->RuneCostID
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_RUNES; }) != m_powerCost.end()
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
@@ -4056,7 +4054,7 @@ void Spell::SendSpellGo()
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
+                float baseCd = float(player->GetRuneBaseCooldown());
                 castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
@@ -4544,9 +4542,10 @@ void Spell::TakePower()
     }
 }
 
-SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
+SpellCastResult Spell::CheckRuneCost()
 {
-    if (std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_RUNES; }) == m_powerCost.end() || !runeCostID)
+    auto runeCost = std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_RUNES; });
+    if (runeCost == m_powerCost.end())
         return SPELL_CAST_OK;
 
     Player* player = m_caster->ToPlayer();
@@ -4556,36 +4555,12 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
     if (player->getClass() != CLASS_DEATH_KNIGHT)
         return SPELL_CAST_OK;
 
-    SpellRuneCostEntry const* src = sSpellRuneCostStore.LookupEntry(runeCostID);
-    if (!src)
-        return SPELL_CAST_OK;
+    int32 readyRunes = 0;
+    for (uint32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+        if (player->GetRuneCooldown(i) == 0)
+            ++readyRunes;
 
-    if (src->NoRuneCost())
-        return SPELL_CAST_OK;
-
-    int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
-
-    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
-    {
-        runeCost[i] = src->RuneCost[i];
-        if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
-    }
-
-    runeCost[RUNE_DEATH] += MAX_RUNES;
-
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
-    {
-        RuneType rune = player->GetCurrentRune(i);
-        if ((player->GetRuneCooldown(i) == 0) && (runeCost[rune] > 0))
-            runeCost[rune]--;
-    }
-
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
-        if (runeCost[i] > 0)
-            runeCost[RUNE_DEATH] += runeCost[i];
-
-    if (runeCost[RUNE_DEATH] > MAX_RUNES)
+    if (readyRunes < runeCost->Amount)
         return SPELL_FAILED_NO_POWER;                       // not sure if result code is correct
 
     return SPELL_CAST_OK;
@@ -4596,95 +4571,24 @@ void Spell::TakeRunePower(bool didHit)
     if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    SpellRuneCostEntry const* runeCostData = sSpellRuneCostStore.LookupEntry(m_spellInfo->RuneCostID);
-    if (!runeCostData || (runeCostData->NoRuneCost() && runeCostData->NoRunicPowerGain()))
-        return;
-
     Player* player = m_caster->ToPlayer();
     m_runesState = player->GetRunesState();                 // store previous state
 
-    int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
-
-    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
+    int32 runeCost = std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost)
     {
-        runeCost[i] = runeCostData->RuneCost[i];
-        if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
-    }
+        return cost.Power == POWER_RUNES;
+    })->Amount;
 
-    bool convertUsedRunes = false;
-    for (AuraEffect const* convertConsumedRuneAuras : m_caster->GetAuraEffectsByType(SPELL_AURA_CONVERT_CONSUMED_RUNE))
-        if (convertConsumedRuneAuras->IsAffectingSpell(m_spellInfo))
-            convertUsedRunes = true;
-
-    // Let's say we use a skill that requires a Frost rune. This is the order:
-    // - Frost rune
-    // - Death rune, originally a Frost rune
-    // - Death rune, any kind
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
+    for (uint32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
     {
-        RuneType rune = player->GetCurrentRune(i);
-        if (!player->GetRuneCooldown(i) && runeCost[rune] > 0)
+        if (!player->GetRuneCooldown(i) && runeCost > 0)
         {
-            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN), true);
-            player->SetLastUsedRune(rune);
-            runeCost[rune]--;
+            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown() : uint32(RUNE_MISS_COOLDOWN), true);
+            --runeCost;
             if (convertUsedRunes)
                 player->ConvertRune(i, RUNE_DEATH);
         }
     }
-
-    // Find a Death rune where the base rune matches the one we need
-    runeCost[RUNE_DEATH] += runeCost[RUNE_BLOOD] + runeCost[RUNE_UNHOLY] + runeCost[RUNE_FROST];
-    if (runeCost[RUNE_DEATH] > 0)
-    {
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
-        {
-            RuneType rune = player->GetCurrentRune(i);
-            RuneType baseRune = player->GetBaseRune(i);
-            if (!player->GetRuneCooldown(i) && rune == RUNE_DEATH && runeCost[baseRune] > 0)
-            {
-                player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN), true);
-                player->SetLastUsedRune(rune);
-                runeCost[baseRune]--;
-                runeCost[rune]--;
-
-                // keep Death Rune type if missed
-                if (didHit && !convertUsedRunes)
-                    player->RestoreBaseRune(i);
-
-                if (runeCost[RUNE_DEATH] == 0)
-                    break;
-            }
-        }
-    }
-
-    // Grab any Death rune
-    if (runeCost[RUNE_DEATH] > 0)
-    {
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
-        {
-            RuneType rune = player->GetCurrentRune(i);
-            if (!player->GetRuneCooldown(i) && rune == RUNE_DEATH)
-            {
-                player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN), true);
-                player->SetLastUsedRune(rune);
-                runeCost[rune]--;
-
-                // keep Death Rune type if missed
-                if (didHit && !convertUsedRunes)
-                    player->RestoreBaseRune(i);
-
-                if (runeCost[RUNE_DEATH] == 0)
-                    break;
-            }
-        }
-    }
-
-    // you can gain some runic power when use runes
-    if (didHit)
-        if (int32 rp = int32(runeCostData->RunicPower * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
-            player->ModifyPower(POWER_RUNIC_POWER, int32(rp));
 }
 
 void Spell::TakeReagents()
@@ -5952,7 +5856,7 @@ SpellCastResult Spell::CheckRange(bool strict)
     {
         // check needed by 68766 51693 - both spells are cast on enemies and have 0 max range
         // these are triggered by other spells - possibly we should omit range check in that case?
-        if (m_spellInfo->RangeEntry->ID == 1)
+        if (m_spellInfo->RangeIndex == 1)
             return SPELL_CAST_OK;
 
         range_type = m_spellInfo->RangeEntry->Flags;
@@ -6025,7 +5929,7 @@ SpellCastResult Spell::CheckPower()
         //check rune cost only if a spell has PowerType == POWER_RUNES
         if (cost.Power == POWER_RUNES)
         {
-            SpellCastResult failReason = CheckRuneCost(m_spellInfo->RuneCostID);
+            SpellCastResult failReason = CheckRuneCost();
             if (failReason != SPELL_CAST_OK)
                 return failReason;
         }

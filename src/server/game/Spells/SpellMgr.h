@@ -597,6 +597,27 @@ TC_GAME_API int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto
 
 TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpellsStore;
 
+struct SpellInfoLoadHelper
+{
+    SpellEntry const* Entry = nullptr;
+
+    SpellAuraOptionsEntry const* AuraOptions = nullptr;
+    SpellAuraRestrictionsEntry const* AuraRestrictions = nullptr;
+    SpellCastingRequirementsEntry const* CastingRequirements = nullptr;
+    SpellCategoriesEntry const* Categories = nullptr;
+    SpellClassOptionsEntry const* ClassOptions = nullptr;
+    SpellCooldownsEntry const* Cooldowns = nullptr;
+    SpellEquippedItemsEntry const* EquippedItems = nullptr;
+    SpellInterruptsEntry const* Interrupts = nullptr;
+    SpellLevelsEntry const* Levels = nullptr;
+    SpellMiscEntry const* Misc = nullptr;
+    SpellReagentsEntry const* Reagents = nullptr;
+    SpellScalingEntry const* Scaling = nullptr;
+    SpellShapeshiftEntry const* Shapeshift = nullptr;
+    SpellTargetRestrictionsEntry const* TargetRestrictions = nullptr;
+    SpellTotemsEntry const* Totems = nullptr;
+};
+
 class TC_GAME_API SpellMgr
 {
     // Constructors

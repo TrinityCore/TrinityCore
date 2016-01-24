@@ -22,7 +22,7 @@
 #include "Utilities/ByteConverter.h"
 #include "Implementation/HotfixDatabase.h"
 #include <cassert>
-#include <list>
+#include <vector>
 
 class TC_SHARED_API DB2FileLoader
 {
@@ -61,6 +61,13 @@ class TC_SHARED_API DB2FileLoader
             EndianConvert(val);
             return val;
         }
+        uint16 getUInt16(size_t field) const
+        {
+            assert(field < file.fieldCount);
+            uint16 val = *reinterpret_cast<uint16*>(offset + file.GetOffset(field));
+            EndianConvert(val);
+            return val;
+        }
         const char *getString(size_t field) const
         {
             assert(field < file.fieldCount);
@@ -95,23 +102,26 @@ class TC_SHARED_API DB2FileLoader
 private:
     char const* fileName;
 
+    // WDB2 / WCH2 fields
     uint32 recordSize;
     uint32 recordCount;
     uint32 fieldCount;
     uint32 stringSize;
+    uint32 tableHash;
+    uint32 build;
+    uint32 unk1;
+    uint32 minIndex;
+    uint32 maxIndex;
+    uint32 localeMask;
+    uint32 copyIdSize;
+    uint32 metaFlags;
+
     uint32 *fieldsOffset;
-    unsigned char *data;
-    unsigned char *stringTable;
-
-    // WDB2 / WCH2 fields
-    uint32 tableHash;    // WDB2
-    uint32 build;        // WDB2
-
-    int unk1;            // WDB2 (Unix time in WCH2)
-    int minIndex;        // WDB2
-    int maxIndex;        // WDB2 (index table)
-    int localeMask;      // WDB2
-    int unk5;            // WDB2
+    unsigned char* data;
+    unsigned char* stringTable;
+    unsigned char* idTable;
+    uint32 idTableSize;
+    unsigned char* copyTable;
 };
 
 class TC_SHARED_API DB2DatabaseLoader
@@ -119,8 +129,8 @@ class TC_SHARED_API DB2DatabaseLoader
 public:
     explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
 
-    char* Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
-    void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
+    char* Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool);
+    void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::vector<char*>& stringPool);
     static char* AddString(char const** holder, std::string const& value);
 
 private:

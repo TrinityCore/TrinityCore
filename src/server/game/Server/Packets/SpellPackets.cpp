@@ -780,22 +780,11 @@ void WorldPackets::Spells::SpellClick::Read()
     TryAutoDismount = _worldPacket.ReadBit();
 }
 
-WorldPacket const* WorldPackets::Spells::ConvertRune::Write()
-{
-    _worldPacket << uint8(Index);
-    _worldPacket << uint8(Rune);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
 {
     _worldPacket << uint32(Runes.size());
-    for (auto const& rune : Runes)
-    {
-        _worldPacket << uint8(rune.RuneType);
-        _worldPacket << uint8(rune.Cooldown);
-    }
+    if (!Runes.empty())
+        _worldPacket.append(Runes.data(), Runes.size());
 
     return &_worldPacket;
 }

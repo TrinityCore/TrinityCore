@@ -688,41 +688,59 @@ public:
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
             if (skillInfo)
             {
-                std::string name = skillInfo->DisplayName_lang;
+                int locale = handler->GetSessionDbcLocale();
+                std::string name = skillInfo->DisplayName->Str[locale];
                 if (name.empty())
                     continue;
 
                 if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
+                    locale = 0;
+                    for (; locale < TOTAL_LOCALES; ++locale)
+                    {
+                        if (locale == handler->GetSessionDbcLocale())
+                            continue;
+
+                        name = skillInfo->DisplayName->Str[locale];
+                        if (name.empty())
+                            continue;
+
+                        if (Utf8FitTo(name, wNamePart))
+                            break;
+                    }
                 }
 
-                char valStr[50] = "";
-                char const* knownStr = "";
-                if (target && target->HasSkill(id))
+                if (locale < TOTAL_LOCALES)
                 {
-                    knownStr = handler->GetTrinityString(LANG_KNOWN);
-                    uint32 curValue = target->GetPureSkillValue(id);
-                    uint32 maxValue  = target->GetPureMaxSkillValue(id);
-                    uint32 permValue = target->GetSkillPermBonusValue(id);
-                    uint32 tempValue = target->GetSkillTempBonusValue(id);
+                    if (maxResults && count++ == maxResults)
+                    {
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
+                    }
 
-                    char const* valFormat = handler->GetTrinityString(LANG_SKILL_VALUES);
-                    snprintf(valStr, 50, valFormat, curValue, maxValue, permValue, tempValue);
+                    char valStr[50] = "";
+                    char const* knownStr = "";
+                    if (target && target->HasSkill(id))
+                    {
+                        knownStr = handler->GetTrinityString(LANG_KNOWN);
+                        uint32 curValue = target->GetPureSkillValue(id);
+                        uint32 maxValue = target->GetPureMaxSkillValue(id);
+                        uint32 permValue = target->GetSkillPermBonusValue(id);
+                        uint32 tempValue = target->GetSkillTempBonusValue(id);
+
+                        char const* valFormat = handler->GetTrinityString(LANG_SKILL_VALUES);
+                        snprintf(valStr, 50, valFormat, curValue, maxValue, permValue, tempValue);
+                    }
+
+                    // send skill in "id - [namedlink locale]" format
+                    if (handler->GetSession())
+                        handler->PSendSysMessage(LANG_SKILL_LIST_CHAT, id, id, name.c_str(), "", knownStr, valStr);
+                    else
+                        handler->PSendSysMessage(LANG_SKILL_LIST_CONSOLE, id, name.c_str(), "", knownStr, valStr);
+
+                    if (!found)
+                        found = true;
                 }
-
-                // send skill in "id - [namedlink locale]" format
-                if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_SKILL_LIST_CHAT, id, id, name.c_str(), "", knownStr, valStr);
-                else
-                    handler->PSendSysMessage(LANG_SKILL_LIST_CONSOLE, id, name.c_str(), "", knownStr, valStr);
-
-                if (!found)
-                    found = true;
             }
         }
         if (!found)
@@ -758,63 +776,81 @@ public:
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
             if (spellInfo)
             {
-                std::string name = spellInfo->SpellName;
+                int locale = handler->GetSessionDbcLocale();
+                std::string name = spellInfo->SpellName->Str[locale];
                 if (name.empty())
                     continue;
 
                 if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
+                    locale = 0;
+                    for (; locale < TOTAL_LOCALES; ++locale)
+                    {
+                        if (locale == handler->GetSessionDbcLocale())
+                            continue;
+
+                        name = spellInfo->SpellName->Str[locale];
+                        if (name.empty())
+                            continue;
+
+                        if (Utf8FitTo(name, wNamePart))
+                            break;
+                    }
                 }
 
-                bool known = target && target->HasSpell(id);
+                if (locale < TOTAL_LOCALES)
+                {
+                    if (maxResults && count++ == maxResults)
+                    {
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
+                    }
 
-                SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
-                bool learn = effect ? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
+                    bool known = target && target->HasSpell(id);
 
-                SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
+                    SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
+                    bool learn = effect ? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
 
-                bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
-                bool passive = spellInfo->IsPassive();
-                bool active = target && target->HasAura(id);
+                    SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
 
-                // unit32 used to prevent interpreting uint8 as char at output
-                // find rank of learned spell for learning spell, or talent rank
-                uint32 rank = learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
+                    bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
+                    bool passive = spellInfo->IsPassive();
+                    bool active = target && target->HasAura(id);
 
-                // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
-                std::ostringstream ss;
-                if (handler->GetSession())
-                    ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
-                else
-                    ss << id << " - " << name;
+                    // unit32 used to prevent interpreting uint8 as char at output
+                    // find rank of learned spell for learning spell, or talent rank
+                    uint32 rank = learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
 
-                // include rank in link name
-                if (rank)
-                    ss << handler->GetTrinityString(LANG_SPELL_RANK) << rank;
+                    // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
+                    std::ostringstream ss;
+                    if (handler->GetSession())
+                        ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
+                    else
+                        ss << id << " - " << name;
 
-                if (handler->GetSession())
-                    ss << "]|h|r";
+                    // include rank in link name
+                    if (rank)
+                        ss << handler->GetTrinityString(LANG_SPELL_RANK) << rank;
 
-                if (talent)
-                    ss << handler->GetTrinityString(LANG_TALENT);
-                if (passive)
-                    ss << handler->GetTrinityString(LANG_PASSIVE);
-                if (learn)
-                    ss << handler->GetTrinityString(LANG_LEARN);
-                if (known)
-                    ss << handler->GetTrinityString(LANG_KNOWN);
-                if (active)
-                    ss << handler->GetTrinityString(LANG_ACTIVE);
+                    if (handler->GetSession())
+                        ss << "]|h|r";
 
-                handler->SendSysMessage(ss.str().c_str());
+                    if (talent)
+                        ss << handler->GetTrinityString(LANG_TALENT);
+                    if (passive)
+                        ss << handler->GetTrinityString(LANG_PASSIVE);
+                    if (learn)
+                        ss << handler->GetTrinityString(LANG_LEARN);
+                    if (known)
+                        ss << handler->GetTrinityString(LANG_KNOWN);
+                    if (active)
+                        ss << handler->GetTrinityString(LANG_ACTIVE);
 
-                if (!found)
-                    found = true;
+                    handler->SendSysMessage(ss.str().c_str());
+
+                    if (!found)
+                        found = true;
+                }
             }
         }
         if (!found)
@@ -836,56 +872,56 @@ public:
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id))
         {
             int locale = handler->GetSessionDbcLocale();
-            std::string name = spellInfo->SpellName;
+            std::string name = spellInfo->SpellName->Str[locale];
             if (name.empty())
             {
                 handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
                 return true;
             }
 
-                bool known = target && target->HasSpell(id);
+            bool known = target && target->HasSpell(id);
 
-                SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
-                bool learn = effect? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
+            SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_0);
+            bool learn = effect? (effect->Effect == SPELL_EFFECT_LEARN_SPELL) : false;
 
-                SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
+            SpellInfo const* learnSpellInfo = effect ? sSpellMgr->GetSpellInfo(effect->TriggerSpell) : NULL;
 
-                bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
-                bool passive = spellInfo->IsPassive();
-                bool active = target && target->HasAura(id);
+            bool talent = spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
+            bool passive = spellInfo->IsPassive();
+            bool active = target && target->HasAura(id);
 
-                // unit32 used to prevent interpreting uint8 as char at output
-                // find rank of learned spell for learning spell, or talent rank
-                uint32 rank = learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
+            // unit32 used to prevent interpreting uint8 as char at output
+            // find rank of learned spell for learning spell, or talent rank
+            uint32 rank = learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
 
-                // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
-                std::ostringstream ss;
-                if (handler->GetSession())
-                    ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
-                else
-                    ss << id << " - " << name;
+            // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
+            std::ostringstream ss;
+            if (handler->GetSession())
+                ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
+            else
+                ss << id << " - " << name;
 
-                // include rank in link name
-                if (rank)
-                    ss << handler->GetTrinityString(LANG_SPELL_RANK) << rank;
+            // include rank in link name
+            if (rank)
+                ss << handler->GetTrinityString(LANG_SPELL_RANK) << rank;
 
-                if (handler->GetSession())
-                    ss << ' ' << localeNames[locale] << "]|h|r";
-                else
-                    ss << ' ' << localeNames[locale];
+            if (handler->GetSession())
+                ss << ' ' << localeNames[locale] << "]|h|r";
+            else
+                ss << ' ' << localeNames[locale];
 
-                if (talent)
-                    ss << handler->GetTrinityString(LANG_TALENT);
-                if (passive)
-                    ss << handler->GetTrinityString(LANG_PASSIVE);
-                if (learn)
-                    ss << handler->GetTrinityString(LANG_LEARN);
-                if (known)
-                    ss << handler->GetTrinityString(LANG_KNOWN);
-                if (active)
-                    ss << handler->GetTrinityString(LANG_ACTIVE);
+            if (talent)
+                ss << handler->GetTrinityString(LANG_TALENT);
+            if (passive)
+                ss << handler->GetTrinityString(LANG_PASSIVE);
+            if (learn)
+                ss << handler->GetTrinityString(LANG_LEARN);
+            if (known)
+                ss << handler->GetTrinityString(LANG_KNOWN);
+            if (active)
+                ss << handler->GetTrinityString(LANG_ACTIVE);
 
-                handler->SendSysMessage(ss.str().c_str());
+            handler->SendSysMessage(ss.str().c_str());
         }
         else
             handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);

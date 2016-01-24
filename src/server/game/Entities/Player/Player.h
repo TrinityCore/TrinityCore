@@ -447,7 +447,8 @@ struct Areas
     float y2;
 };
 
-#define MAX_RUNES       6
+#define MAX_RUNES 7
+#define MAX_RECHARGING_RUNES 3
 
 enum RuneCooldowns
 {
@@ -455,36 +456,13 @@ enum RuneCooldowns
     RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
 };
 
-enum RuneType : uint8
-{
-    RUNE_BLOOD      = 0,
-    RUNE_UNHOLY     = 1,
-    RUNE_FROST      = 2,
-    RUNE_DEATH      = 3,
-    NUM_RUNE_TYPES  = 4
-};
-
-struct RuneInfo
-{
-    RuneType BaseRune;
-    RuneType CurrentRune;
-    uint32 Cooldown;
-    AuraEffect const* ConvertAura;
-};
-
 struct Runes
 {
-    RuneInfo runes[MAX_RUNES];
-    uint8 runeState;                                        // mask of available runes
-    RuneType lastUsedRune;
+    std::deque<uint8> CooldownOrder;
+    uint32 Cooldown[MAX_RUNES];
+    uint8 RuneState;                                        // mask of available runes
 
-    void SetRuneState(uint8 index, bool set = true)
-    {
-        if (set)
-            runeState |= (1 << index);                      // usable
-        else
-            runeState &= ~(1 << index);                     // on cooldown
-    }
+    void SetRuneState(uint8 index, bool set = true);
 };
 
 struct EnchantDuration
@@ -1162,6 +1140,7 @@ struct ResurrectionData
 
 static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
 static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
+static uint32 const DHTalentRowLevels[MAX_TALENT_TIERS] = { 99, 100, 102, 104, 106, 108, 110 };
 
 struct TC_GAME_API PlayerTalentInfo
 {
@@ -1652,7 +1631,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
         static bool IsValidClass(uint8 Class) { return ((1 << (Class - 1)) & CLASSMASK_ALL_PLAYABLE) != 0; }
         static bool IsValidRace(uint8 Race) { return ((1 << (Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0; }
-        static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);
+        static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create = false);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2424,24 +2403,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool isAllowedToLoot(const Creature* creature);
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
-        uint8 GetRunesState() const { return m_runes->runeState; }
-        RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
-        RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
-        uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(); }
-        uint32 GetRuneTypeBaseCooldown() const;
-        bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
-        RuneType GetLastUsedRune() const { return m_runes->lastUsedRune; }
-        void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
-        void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
-        void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
+        uint8 GetRunesState() const { return m_runes->RuneState; }
+        uint32 GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
+        uint32 GetRuneBaseCooldown() const;
         void SetRuneCooldown(uint8 index, uint32 cooldown, bool casted = false);
-        void SetRuneConvertAura(uint8 index, AuraEffect const* aura);
-        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura);
-        void RemoveRunesByAuraEffect(AuraEffect const* aura);
-        void RestoreBaseRune(uint8 index);
-        void ConvertRune(uint8 index, RuneType newType);
-        void ResyncRunes(uint8 count) const;
+        void ResyncRunes() const;
         void AddRunePower(uint8 index) const;
         void InitRunes();
 
@@ -2454,6 +2420,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
+        bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
         bool HasTitle(uint32 bitIndex) const;
         bool HasTitle(CharTitlesEntry const* title) const { return HasTitle(title->MaskID); }

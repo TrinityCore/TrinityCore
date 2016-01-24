@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DB2StorageLoader.h"
+#include "DB2SparseStorageLoader.h"
 #include "DBStorageIterator.h"
 #include "ByteBuffer.h"
 
@@ -27,7 +28,16 @@
 class DB2StorageBase
 {
 public:
-    virtual ~DB2StorageBase() { }
+    DB2StorageBase(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
+        : _tableHash(0), _fileName(fileName), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex) { }
+
+    virtual ~DB2StorageBase()
+    {
+        delete[] reinterpret_cast<char*>(_dataTable);
+        delete[] reinterpret_cast<char*>(_dataTableEx);
+        for (char* strings : _stringPool)
+            delete[] strings;
+    }
 
     uint32 GetHash() const { return _tableHash; }
 
@@ -37,39 +47,20 @@ public:
 
     virtual void EraseRecord(uint32 id) = 0;
 
+    std::string const& GetFileName() const { return _fileName; }
+
+    uint32 GetFieldCount() const { return _fieldCount; }
+
+    char const* GetFormat() const { return _format; }
+
+    virtual bool Load(std::string const& path, uint32 locale) = 0;
+    virtual bool LoadStringsFrom(std::string const& path, uint32 locale) = 0;
+    virtual void LoadFromDB() = 0;
+    virtual void LoadStringsFromDB(uint32 locale) = 0;
+
 protected:
-    uint32 _tableHash;
-};
-
-template<class T>
-class DB2Storage : public DB2StorageBase
-{
-    typedef std::list<char*> StringPoolList;
-public:
-    typedef DBStorageIterator<T> iterator;
-
-    DB2Storage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
-        : _fileName(fileName), _indexTableSize(0), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
+    void WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const
     {
-        _indexTable.AsT = NULL;
-    }
-
-    ~DB2Storage()
-    {
-        delete[] reinterpret_cast<char*>(_indexTable.AsT);
-        delete[] reinterpret_cast<char*>(_dataTable);
-        delete[] reinterpret_cast<char*>(_dataTableEx);
-        for (char* stringPool : _stringPoolList)
-            delete[] stringPool;
-    }
-
-    bool HasRecord(uint32 id) const override { return id < _indexTableSize && _indexTable.AsT[id] != nullptr; }
-    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const override
-    {
-        ASSERT(id < _indexTableSize);
-        char const* entry = _indexTable.AsChar[id];
-        ASSERT(entry);
-
         std::size_t fields = strlen(_format);
         for (uint32 i = 0; i < fields; ++i)
         {
@@ -122,16 +113,48 @@ public:
         }
     }
 
+    uint32 _tableHash;
+    std::string _fileName;
+    uint32 _fieldCount;
+    char const* _format;
+    char* _dataTable;
+    char* _dataTableEx;
+    std::vector<char*> _stringPool;
+    HotfixDatabaseStatements _hotfixStatement;
+};
+
+template<class T>
+class DB2Storage : public DB2StorageBase
+{
+    static_assert(std::is_standard_layout<T>::value, "T in DB2Storage must have standard layout.");
+
+public:
+    typedef DBStorageIterator<T> iterator;
+
+    DB2Storage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex) : DB2StorageBase(fileName, format, preparedStmtIndex),
+        _indexTableSize(0)
+    {
+        _indexTable.AsT = NULL;
+    }
+
+    ~DB2Storage()
+    {
+        delete[] reinterpret_cast<char*>(_indexTable.AsT);
+    }
+
+    bool HasRecord(uint32 id) const override { return id < _indexTableSize && _indexTable.AsT[id] != nullptr; }
+    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const override
+    {
+        WriteRecordData(reinterpret_cast<char const*>(AssertEntry(id)), locale, buffer);
+    }
+
     void EraseRecord(uint32 id) override { if (id < _indexTableSize) _indexTable.AsT[id] = nullptr; }
 
     T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : _indexTable.AsT[id]; }
     T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
 
-    std::string const& GetFileName() const { return _fileName; }
     uint32 GetNumRows() const { return _indexTableSize; }
-    char const* GetFormat() const { return _format; }
-    uint32 GetFieldCount() const { return _fieldCount; }
-    bool Load(std::string const& path, uint32 locale)
+    bool Load(std::string const& path, uint32 locale) override
     {
         DB2FileLoader db2;
         // Check if load was successful, only then continue
@@ -142,23 +165,23 @@ public:
         _tableHash = db2.GetHash();
 
         // load raw non-string data
-        _dataTable = reinterpret_cast<T*>(db2.AutoProduceData(_format, _indexTableSize, _indexTable.AsChar));
+        _dataTable = db2.AutoProduceData(_format, _indexTableSize, _indexTable.AsChar);
 
         // create string holders for loaded string fields
-        if (char* stringHolders = db2.AutoProduceStringsArrayHolders(_format, (char*)_dataTable))
+        if (char* stringHolders = db2.AutoProduceStringsArrayHolders(_format, _dataTable))
         {
-            _stringPoolList.push_back(stringHolders);
+            _stringPool.push_back(stringHolders);
 
             // load strings from db2 data
-            if (char* stringBlock = db2.AutoProduceStrings(_format, (char*)_dataTable, locale))
-                _stringPoolList.push_back(stringBlock);
+            if (char* stringBlock = db2.AutoProduceStrings(_format, _dataTable, locale))
+                _stringPool.push_back(stringBlock);
         }
 
         // error in db2 file at loading if NULL
         return _indexTable.AsT != NULL;
     }
 
-    bool LoadStringsFrom(std::string const& path, uint32 locale)
+    bool LoadStringsFrom(std::string const& path, uint32 locale) override
     {
         // DB2 must be already loaded using Load
         if (!_indexTable.AsT)
@@ -171,54 +194,129 @@ public:
 
         // load strings from another locale db2 data
         if (DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
-            if (char* stringBlock = db2.AutoProduceStrings(_format, (char*)_dataTable, locale))
-                _stringPoolList.push_back(stringBlock);
+            if (char* stringBlock = db2.AutoProduceStrings(_format, _dataTable, locale))
+                _stringPool.push_back(stringBlock);
         return true;
     }
 
-    void LoadFromDB()
+    void LoadFromDB() override
     {
         char* extraStringHolders = nullptr;
-        if (char* dataTable = DB2DatabaseLoader(_fileName).Load(_format, _hotfixStatement, _indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPoolList))
-            _dataTableEx = reinterpret_cast<T*>(dataTable);
-
+        _dataTableEx = DB2DatabaseLoader(_fileName).Load(_format, _hotfixStatement, _indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPool);
         if (extraStringHolders)
-            _stringPoolList.push_back(extraStringHolders);
+            _stringPool.push_back(extraStringHolders);
     }
 
-    void LoadStringsFromDB(uint32 locale)
+    void LoadStringsFromDB(uint32 locale) override
     {
         if (!DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
             return;
 
-        DB2DatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTable.AsChar, _stringPoolList);
-    }
-
-    typedef bool(*SortFunc)(T const* left, T const* right);
-
-    void Sort(SortFunc pred)
-    {
-        ASSERT(strpbrk(_format, "nd") == nullptr, "Only non-indexed storages can be sorted");
-        std::sort(_indexTable.AsT, _indexTable.AsT + _indexTableSize, pred);
+        DB2DatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTable.AsChar, _stringPool);
     }
 
     iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
     iterator end() { return iterator(_indexTable.AsT, _indexTableSize, _indexTableSize); }
 
 private:
-    std::string _fileName;
-    uint32 _indexTableSize;
-    uint32 _fieldCount;
-    char const* _format;
     union
     {
         T** AsT;
         char** AsChar;
     } _indexTable;
-    T* _dataTable;
-    T* _dataTableEx;
-    StringPoolList _stringPoolList;
-    HotfixDatabaseStatements _hotfixStatement;
+    uint32 _indexTableSize;
+};
+
+template<class T>
+class DB2SparseStorage : public DB2StorageBase
+{
+    static_assert(std::is_pod<T>::value, "T in DB2SparseStorage must be POD-type.");
+
+public:
+    typedef typename std::unordered_map<uint32, T const*>::const_iterator iterator;
+
+    DB2SparseStorage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
+        : DB2StorageBase(fileName, format, preparedStmtIndex)
+    {
+    }
+
+    ~DB2SparseStorage()
+    {
+    }
+
+    bool HasRecord(uint32 id) const override { return _indexTable.count(id) > 0; }
+    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const override
+    {
+        WriteRecordData(reinterpret_cast<char const*>(AssertEntry(id)), locale, buffer);
+    }
+
+    void EraseRecord(uint32 id) override { _indexTable.erase(id); }
+
+    T const* LookupEntry(uint32 id) const
+    {
+        auto itr = _indexTable.find(id);
+        if (itr != _indexTable.end())
+            return itr->second;
+        return nullptr;
+    }
+
+    T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
+
+    uint32 GetNumRows() const { return _indexTable.size(); }
+
+    bool Load(std::string const& path, uint32 locale) override
+    {
+        DB2SparseFileLoader db2;
+        // Check if load was successful, only then continue
+        if (!db2.Load((path + _fileName).c_str()))
+            return false;
+
+        _fieldCount = db2.GetCols();
+        _tableHash = db2.GetHash();
+
+        // load raw non-string data
+        _dataTable = db2.AutoProduceData(_format, IndexTableAdapter<T>(_indexTable), locale, _stringPool);
+
+        // error in db2 file at loading if NULL
+        return !_indexTable.empty();
+    }
+
+    bool LoadStringsFrom(std::string const& path, uint32 locale) override
+    {
+        // DB2 must be already loaded using Load
+        if (_indexTable.empty())
+            return false;
+
+        DB2SparseFileLoader db2;
+        // Check if load was successful, only then continue
+        if (!db2.Load((path + _fileName).c_str()))
+            return false;
+
+        // load strings from another locale db2 data
+        if (DB2SparseFileLoader::GetFormatLocalizedStringFieldCount(_format))
+            if (char* stringBlock = db2.AutoProduceStrings(_format, _dataTable, locale))
+                _stringPool.push_back(stringBlock);
+        return true;
+    }
+
+    void LoadFromDB() override
+    {
+        _dataTableEx = DB2SparseDatabaseLoader(_fileName).Load(_format, _hotfixStatement, IndexTableAdapter<T>(_indexTable), _stringPool);
+    }
+
+    void LoadStringsFromDB(uint32 locale) override
+    {
+        if (!DB2SparseFileLoader::GetFormatLocalizedStringFieldCount(_format))
+            return;
+
+        DB2SparseDatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, IndexTableAdapter<T>(_indexTable), _stringPool);
+    }
+
+    iterator begin() const { return _indexTable.begin(); }
+    iterator end() const { return _indexTable.end(); }
+
+private:
+    std::unordered_map<uint32, T const*> _indexTable;
 };
 
 #endif

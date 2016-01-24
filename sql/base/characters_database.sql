@@ -1619,6 +1619,9 @@ CREATE TABLE `characters` (
   `hairStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `hairColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `facialStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `customDisplay1` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `customDisplay2` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `customDisplay3` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `bankSlots` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `restState` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `playerFlags` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2575,6 +2578,31 @@ CREATE TABLE `item_instance` (
 LOCK TABLES `item_instance` WRITE;
 /*!40000 ALTER TABLE `item_instance` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_instance` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `item_instance_gems`
+--
+
+DROP TABLE IF EXISTS `item_instance_gems`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_instance_gems` (
+  `itemGuid` bigint(20) unsigned NOT NULL,
+  `gemItemId1` int(10) unsigned DEFAULT NULL,
+  `gemItemId2` int(10) unsigned DEFAULT NULL,
+  `gemItemId3` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`itemGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_instance_gems`
+--
+
+LOCK TABLES `item_instance_gems` WRITE;
+/*!40000 ALTER TABLE `item_instance_gems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_instance_gems` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

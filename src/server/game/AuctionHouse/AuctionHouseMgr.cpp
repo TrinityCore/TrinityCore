@@ -513,7 +513,7 @@ void AuctionHouseMgr::Update()
     mNeutralAuctions.Update();
 }
 
-AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
+AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId, uint32* houseId)
 {
     uint32 houseid = 7; // goblin auction house
 
@@ -549,6 +549,9 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
             }
         }
     }
+
+    if (houseId)
+        *houseId = houseid;
 
     return sAuctionHouseStore.LookupEntry(houseid);
 }
@@ -904,7 +907,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     }
 
     factionTemplateId = auctioneerInfo->faction;
-    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
+    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId, &houseId);
     if (!auctionHouseEntry)
     {
         TC_LOG_ERROR("misc", "Auction %u has auctioneer (GUID : " UI64FMTD " Entry: %u) with wrong faction %u", Id, auctioneer, auctioneerData->id, factionTemplateId);

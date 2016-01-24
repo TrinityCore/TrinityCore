@@ -2690,9 +2690,11 @@ void SpellMgr::LoadSpellInfoStore()
 
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
+    std::unordered_map<uint32, SpellInfoLoadHelper> loadData;
 
     std::unordered_map<uint32, SpellEffectEntryMap> effectsBySpell;
     std::unordered_map<uint32, SpellVisualMap> visualsBySpell;
+    std::unordered_map<uint32, SpellEffectScalingEntry const*> spellEffectScallingByEffectId;
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
@@ -2709,12 +2711,70 @@ void SpellMgr::LoadSpellInfoStore()
         effectsForDifficulty[effect->EffectIndex] = effect;
     }
 
+    for (SpellAuraOptionsEntry const* auraOptions : sSpellAuraOptionsStore)
+        if (!auraOptions->DifficultyID)    // TODO: implement
+            loadData[auraOptions->SpellID].AuraOptions = auraOptions;
+
+    for (SpellAuraRestrictionsEntry const* auraRestrictions : sSpellAuraRestrictionsStore)
+        if (!auraRestrictions->DifficultyID)    // TODO: implement
+            loadData[auraRestrictions->SpellID].AuraRestrictions = auraRestrictions;
+
+    for (SpellCastingRequirementsEntry const* castingRequirements : sSpellCastingRequirementsStore)
+        loadData[castingRequirements->SpellID].CastingRequirements = castingRequirements;
+
+    for (SpellCategoriesEntry const* categories : sSpellCategoriesStore)
+        if (!categories->DifficultyID)  // TODO: implement
+            loadData[categories->SpellID].Categories = categories;
+
+    for (SpellClassOptionsEntry const* classOptions : sSpellClassOptionsStore)
+        loadData[classOptions->SpellID].ClassOptions = classOptions;
+
+    for (SpellCooldownsEntry const* cooldowns : sSpellCooldownsStore)
+        if (!cooldowns->DifficultyID)   // TODO: implement
+            loadData[cooldowns->SpellID].Cooldowns = cooldowns;
+
+    for (SpellEffectScalingEntry const* spellEffectScaling : sSpellEffectScalingStore)
+        spellEffectScallingByEffectId[spellEffectScaling->SpellEffectID] = spellEffectScaling;
+
+    for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
+        loadData[equippedItems->SpellID].EquippedItems = equippedItems;
+
+    for (SpellInterruptsEntry const* interrupts : sSpellInterruptsStore)
+        if (!interrupts->DifficultyID)  // TODO: implement
+            loadData[interrupts->SpellID].Interrupts = interrupts;
+
+    for (SpellLevelsEntry const* levels : sSpellLevelsStore)
+        if (!levels->DifficultyID)  // TODO: implement
+            loadData[levels->SpellID].Levels = levels;
+
+    for (SpellReagentsEntry const* reagents : sSpellReagentsStore)
+        loadData[reagents->SpellID].Reagents = reagents;
+
+    for (SpellScalingEntry const* scaling : sSpellScalingStore)
+        loadData[scaling->SpellID].Scaling = scaling;
+
+    for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
+        loadData[shapeshift->SpellID].Shapeshift = shapeshift;
+
+    for (SpellTargetRestrictionsEntry const* targetRestrictions : sSpellTargetRestrictionsStore)
+        if (!targetRestrictions->DifficultyID)  // TODO: implement
+            loadData[targetRestrictions->SpellID].TargetRestrictions = targetRestrictions;
+
+    for (SpellTotemsEntry const* totems : sSpellTotemsStore)
+        loadData[totems->SpellID].Totems = totems;
+
     for (SpellXSpellVisualEntry const* visual : sSpellXSpellVisualStore)
         visualsBySpell[visual->SpellID][visual->DifficultyID].push_back(visual);
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+    {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i], std::move(visualsBySpell[i]));
+        {
+            loadData[i].Entry = spellEntry;
+            loadData[i].Misc = sSpellMiscStore.LookupEntry(spellEntry->MiscID);
+            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]), spellEffectScallingByEffectId);
+        }
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3115,12 +3175,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 break;
-            case 5176:  // Wrath
-            case 2912:  // Starfire
-            //case 78674: // Starsurge 6.x effect 1 is no more
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->Effect = SPELL_EFFECT_DUMMY;
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TargetA = TARGET_UNIT_CASTER;
-                break;
             case 70728: // Exploit Weakness (needs target selection script)
             case 70840: // Devious Minds (needs target selection script)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
@@ -3467,6 +3521,11 @@ void SpellMgr::LoadSpellInfoCorrections()
 
 void SpellMgr::LoadPetFamilySpellsStore()
 {
+    std::unordered_map<uint32, SpellLevelsEntry const*> levelsBySpell;
+    for (SpellLevelsEntry const* levels : sSpellLevelsStore)
+        if (!levels->DifficultyID)
+            levelsBySpell[levels->SpellID] = levels;
+
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
         SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
@@ -3477,8 +3536,8 @@ void SpellMgr::LoadPetFamilySpellsStore()
         if (!spellInfo)
             continue;
 
-        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
-        if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
+        auto levels = levelsBySpell.find(skillLine->SpellID);
+        if (levels != levelsBySpell.end() && levels->second->SpellLevel)
             continue;
 
         if (SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID))

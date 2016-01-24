@@ -35,8 +35,11 @@ public:
         }
     }
 
-    T* operator->() { return _index[_pos]; }
-    T* operator*() { return _index[_pos]; }
+    uint32 Key() const { return _pos; }
+    T const* Value() const { return _index[_pos]; }
+
+    T const* operator->() { return _index[_pos]; }
+    T const* operator*() { return _index[_pos]; }
 
     bool operator==(DBStorageIterator const& right) const { /*ASSERT(_index == right._index, "Iterator belongs to a different container")*/ return _pos == right._pos; }
     bool operator!=(DBStorageIterator const& right) const { return !(*this == right); }

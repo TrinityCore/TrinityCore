@@ -82,10 +82,11 @@ enum Expansions
     EXPANSION_CATACLYSM                = 3,
     EXPANSION_MISTS_OF_PANDARIA        = 4,
     EXPANSION_WARLORDS_OF_DRAENOR      = 5,
-    MAX_EXPANSIONS                     = 6
+    EXPANSION_LEGION                   = 6,
+    MAX_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_WARLORDS_OF_DRAENOR
+#define CURRENT_EXPANSION EXPANSION_LEGION
 
 enum Gender
 {
@@ -174,11 +175,12 @@ enum Classes
     CLASS_MAGE          = 8,
     CLASS_WARLOCK       = 9,
     CLASS_MONK          = 10,
-    CLASS_DRUID         = 11
+    CLASS_DRUID         = 11,
+    CLASS_DEMON_HUNTER  = 12
 };
 
 // max+1 for player class
-#define MAX_CLASSES       12
+#define MAX_CLASSES       13
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
@@ -191,7 +193,8 @@ enum Classes
      (1<<(CLASS_MAGE-1))         | \
      (1<<(CLASS_WARLOCK-1))      | \
      (1<<(CLASS_MONK-1))         | \
-     (1<<(CLASS_DRUID-1)))
+     (1<<(CLASS_DRUID-1))        | \
+     (1<<(CLASS_DEMON_HUNTER-1)))
 
 // valid classes for creature_template.unit_class
 enum UnitClass
@@ -253,16 +256,18 @@ enum Powers // (6.0)
     POWER_RUNES                         = 5,
     POWER_RUNIC_POWER                   = 6,
     POWER_SOUL_SHARDS                   = 7,
-    POWER_ECLIPSE                       = 8,
+    POWER_LUNAR_POWER                   = 8,
     POWER_HOLY_POWER                    = 9,
     POWER_ALTERNATE_POWER               = 10,           // Used in some quests
-    POWER_DARK_FORCE                    = 11,
+    POWER_MAELSTROM                     = 11,
     POWER_CHI                           = 12,
-    POWER_SHADOW_ORBS                   = 13,
+    POWER_INSANITY                      = 13,
     POWER_BURNING_EMBERS                = 14,
     POWER_DEMONIC_FURY                  = 15,
     POWER_ARCANE_CHARGES                = 16,
-    MAX_POWERS                          = 17,
+    POWER_FURY                          = 17,
+    POWER_PAIN                          = 18,
+    MAX_POWERS                          = 19,
     POWER_ALL                           = 127,          // default for class?
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
 };
@@ -725,7 +730,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK9                             = 0x00000200, //  9
     SPELL_ATTR10_UNK10                            = 0x00000400, // 10
     SPELL_ATTR10_HERB_GATHERING_MINING            = 0x00000800, // 11 Only Herb Gathering and Mining
-    SPELL_ATTR10_UNK12                            = 0x00001000, // 12
+    SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING = 0x00001000, // 12
     SPELL_ATTR10_UNK13                            = 0x00002000, // 13
     SPELL_ATTR10_UNK14                            = 0x00004000, // 14
     SPELL_ATTR10_UNK15                            = 0x00008000, // 15
@@ -756,7 +761,7 @@ enum SpellAttr11
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
     SPELL_ATTR11_UNK5                             = 0x00000020, //  5
     SPELL_ATTR11_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR11_NO_RANK                          = 0x00000080, //  7 Spell_C_GetSpellRank returns 0 instead of 5 * std::min(SpellLevels->MaxLevel, caster->Level)
+    SPELL_ATTR11_RANK_IGNORES_CASTER_LEVEL        = 0x00000080, //  7 Spell_C_GetSpellRank returns SpellLevels->MaxLevel * 5 instead of std::min(SpellLevels->MaxLevel, caster->Level) * 5
     SPELL_ATTR11_UNK8                             = 0x00000100, //  8
     SPELL_ATTR11_UNK9                             = 0x00000200, //  9
     SPELL_ATTR11_UNK10                            = 0x00000400, // 10
