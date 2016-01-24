@@ -2748,7 +2748,7 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
                     }
                 }
             if (shouldDelay)
-                shouldDelay = (!focusSpell->IsTriggered() && !focusSpell->GetCastTime());
+                shouldDelay = !(focusSpell->IsTriggered() || focusSpell->GetCastTime() || focusSpell->GetSpellInfo()->IsChanneled());
 
         }
     }

@@ -50,10 +50,7 @@ enum Data
     DATA_HAD_FAERLINA_GREET,
     DATA_HAD_THADDIUS_GREET,
 
-    DATA_HORSEMEN0,
-    DATA_HORSEMEN1,
-    DATA_HORSEMEN2,
-    DATA_HORSEMEN3,
+    DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
     DATA_ABOMINATION_KILLED,
 
     DATA_NAXX_PORTAL_ARACHNID,
@@ -67,6 +64,7 @@ enum Data64
     DATA_ANUBREKHAN,
     DATA_FAERLINA,
     DATA_RAZUVIOUS,
+    DATA_GOTHIK,
     DATA_THANE,
     DATA_LADY,
     DATA_BARON,
@@ -89,6 +87,7 @@ enum CreaturesIds
     NPC_ANUBREKHAN              = 15956,
     NPC_FAERLINA                = 15953,
     NPC_RAZUVIOUS               = 16061,
+    NPC_GOTHIK                  = 16060,
     NPC_THANE                   = 16064,
     NPC_LADY                    = 16065,
     NPC_BARON                   = 30549,
