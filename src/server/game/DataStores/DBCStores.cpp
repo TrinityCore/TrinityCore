@@ -203,7 +203,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
     {
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (!(availableDbcLocales & (1 << i)))
+            if (i == LOCALE_none || !(availableDbcLocales & (1 << i)))
                 continue;
 
             std::string localizedName(dbcPath);
@@ -256,7 +256,7 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
 
             for (uint32 l = 0; l < TOTAL_LOCALES; ++l)
             {
-                if (tableName == gt->Name->Str[l])
+                if (i != LOCALE_none && tableName == gt->Name->Str[l])
                 {
                     found = true;
                     storage.SetGameTableEntry(gt);
