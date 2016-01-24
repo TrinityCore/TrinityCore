@@ -2337,6 +2337,44 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_RANDOM_SOUND:
+        {
+            uint32 sounds[SMART_ACTION_PARAM_COUNT - 1];
+            sounds[0] = e.action.randomSound.sound1;
+            sounds[1] = e.action.randomSound.sound2;
+            sounds[2] = e.action.randomSound.sound3;
+            sounds[3] = e.action.randomSound.sound4;
+            sounds[4] = e.action.randomSound.sound5;
+            uint32 temp[SMART_ACTION_PARAM_COUNT - 1];
+            uint32 count = 0;
+
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
+            {
+                if (sounds[i])
+                {
+                    temp[count] = sounds[i];
+                    ++count;
+                }
+            }
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets)
+            {
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (IsUnit(*itr))
+                    {
+                        uint32 sound = temp[urand(0, count - 1)];
+                        (*itr)->PlayDirectSound(sound, e.action.sound.onlySelf ? (*itr)->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u",
+                            (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), sound, e.action.sound.onlySelf);
+                    }
+                }
+
+                delete targets;
+                break;
+            }
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
