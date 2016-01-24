@@ -62,7 +62,7 @@ public:
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Spell* spell = nullptr);
-    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
+    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     template<class OwnerType>
     void WritePacket(WorldPacket& packet) const;
 
@@ -105,8 +105,8 @@ public:
     }
 
     void ResetAllCooldowns();
-    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0) const;
-    bool HasCooldown(uint32 spellId, uint32 itemId = 0) const;
+    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     uint32 GetRemainingCooldown(SpellInfo const* spellInfo) const;
 
     // School lockouts
