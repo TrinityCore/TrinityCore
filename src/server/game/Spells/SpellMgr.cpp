@@ -969,10 +969,12 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     // check spell family name/flags (if set) for spells
     if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION))
     {
-        if (procEntry.spellFamilyName && eventInfo.GetSpellInfo() && (procEntry.spellFamilyName != eventInfo.EnsureSpellInfo()->SpellFamilyName))
+        SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo();
+
+        if (procEntry.spellFamilyName && eventSpellInfo && (procEntry.spellFamilyName != eventSpellInfo->SpellFamilyName))
             return false;
 
-        if (procEntry.spellFamilyMask && eventInfo.GetSpellInfo() && !(procEntry.spellFamilyMask & eventInfo.EnsureSpellInfo()->SpellFamilyFlags))
+        if (procEntry.spellFamilyMask && eventSpellInfo && !(procEntry.spellFamilyMask & eventSpellInfo->SpellFamilyFlags))
             return false;
     }
 
@@ -3332,6 +3334,8 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
                 break;
             case 17364: // Stormstrike
+            case 48278: // Paralyze
+            case 53651: // Light's Beacon
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 51798: // Brewfest - Relay Race - Intro - Quest Complete
@@ -3565,7 +3569,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
-            case 48278: // Paralyze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 70715: // Column of Frost (visual marker)

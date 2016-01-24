@@ -30,6 +30,12 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 
+BossBoundaryData::~BossBoundaryData()
+{
+    for (const_iterator it = begin(); it != end(); ++it)
+        delete it->Boundary;
+}
+
 void InstanceScript::SaveToDB()
 {
     std::string data = GetSaveData();
@@ -99,8 +105,8 @@ void InstanceScript::SetHeaders(std::string const& dataHeaders)
 void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
 {
     for (BossBoundaryEntry const& entry : data)
-        if (entry.bossId < bosses.size())
-            bosses[entry.bossId].boundary.insert(entry.boundary);
+        if (entry.BossId < bosses.size())
+            bosses[entry.BossId].boundary.insert(entry.Boundary);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
