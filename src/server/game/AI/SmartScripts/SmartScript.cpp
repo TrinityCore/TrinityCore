@@ -2340,16 +2340,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_RANDOM_SOUND:
         {
             std::vector<uint32> sounds;
-            if (e.action.randomSound.sound1)
-                sounds.push_back(e.action.randomSound.sound1);
-            if (e.action.randomSound.sound2)
-                sounds.push_back(e.action.randomSound.sound2);
-            if (e.action.randomSound.sound3)
-                sounds.push_back(e.action.randomSound.sound3);
-            if (e.action.randomSound.sound4)
-                sounds.push_back(e.action.randomSound.sound4);
-            if (e.action.randomSound.sound5)
-                sounds.push_back(e.action.randomSound.sound5);
+
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
+            {
+                if (e.action.randomSound.sound[i])
+                    sounds.push_back(e.action.randomSound.sound[i]);
+            }
+
             bool onlySelf = e.action.randomSound.onlySelf != 0;
 
             ObjectList* targets = GetTargets(e, unit);

@@ -1028,11 +1028,7 @@ struct SmartAction
 
         struct
         {
-            uint32 sound1;
-            uint32 sound2;
-            uint32 sound3;
-            uint32 sound4;
-            uint32 sound5;
+            uint32 sound[5];
             uint32 onlySelf;
         } randomSound;
 

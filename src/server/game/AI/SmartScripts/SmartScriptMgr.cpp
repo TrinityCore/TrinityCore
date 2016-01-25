@@ -829,16 +829,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_RANDOM_SOUND:
-            if (e.action.randomSound.sound1 && !IsSoundValid(e, e.action.randomSound.sound1))
-                return false;
-            if (e.action.randomSound.sound2 && !IsSoundValid(e, e.action.randomSound.sound2))
-                return false;
-            if (e.action.randomSound.sound3 && !IsSoundValid(e, e.action.randomSound.sound3))
-                return false;
-            if (e.action.randomSound.sound4 && !IsSoundValid(e, e.action.randomSound.sound4))
-                return false;
-            if (e.action.randomSound.sound5 && !IsSoundValid(e, e.action.randomSound.sound5))
-                return false;
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
+            {
+                if (e.action.randomSound.sound[i] && !IsSoundValid(e, e.action.randomSound.sound[i]))
+                    return false;
+            }
             break;
         case SMART_ACTION_CAST:
         {
