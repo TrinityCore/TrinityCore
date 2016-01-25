@@ -2339,23 +2339,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_RANDOM_SOUND:
         {
-            uint32 sounds[SMART_ACTION_PARAM_COUNT - 1];
-            sounds[0] = e.action.randomSound.sound1;
-            sounds[1] = e.action.randomSound.sound2;
-            sounds[2] = e.action.randomSound.sound3;
-            sounds[3] = e.action.randomSound.sound4;
-            sounds[4] = e.action.randomSound.sound5;
-            uint32 temp[SMART_ACTION_PARAM_COUNT - 1];
-            uint32 count = 0;
-
-            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
-            {
-                if (sounds[i])
-                {
-                    temp[count] = sounds[i];
-                    ++count;
-                }
-            }
+            std::vector<uint32> sounds;
+            if (e.action.randomSound.sound1)
+                sounds.push_back(e.action.randomSound.sound1);
+            if (e.action.randomSound.sound2)
+                sounds.push_back(e.action.randomSound.sound2);
+            if (e.action.randomSound.sound3)
+                sounds.push_back(e.action.randomSound.sound3);
+            if (e.action.randomSound.sound4)
+                sounds.push_back(e.action.randomSound.sound4);
+            if (e.action.randomSound.sound5)
+                sounds.push_back(e.action.randomSound.sound5);
+            bool onlySelf = e.action.randomSound.onlySelf != 0;
 
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
@@ -2364,10 +2359,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(*itr))
                     {
-                        uint32 sound = temp[urand(0, count - 1)];
-                        (*itr)->PlayDirectSound(sound, e.action.sound.onlySelf ? (*itr)->ToPlayer() : nullptr);
-                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u",
-                            (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), sound, e.action.sound.onlySelf);
+                        uint32 sound = sounds[urand(0, sounds.size() - 1)];
+                        (*itr)->PlayDirectSound(sound, e.action.randomSound.onlySelf ? (*itr)->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %u",
+                            (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), sound, e.action.randomSound.onlySelf);
                     }
                 }
 
