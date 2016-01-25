@@ -25,6 +25,7 @@
 #include "MoveSpline.h"
 #include "Player.h"
 #include "CreatureGroups.h"
+#include "ObjectAccessor.h"
 
 //----- Point Movement Generator
 template<class T>
@@ -134,6 +135,9 @@ bool EffectMovementGenerator::Update(Unit* unit, uint32)
 
 void EffectMovementGenerator::Finalize(Unit* unit)
 {
+    if (_arrivalSpellId)
+        unit->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;
 
@@ -147,5 +151,5 @@ void EffectMovementGenerator::Finalize(Unit* unit)
     }
 
     if (unit->ToCreature()->AI())
-        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
+        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
 }
