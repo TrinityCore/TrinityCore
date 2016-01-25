@@ -17,6 +17,7 @@
 
 #include "SpellHistory.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellPackets.h"
@@ -335,17 +336,15 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
     }
 }
 
-/*
 template<>
-void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells)
+void SpellHistory::WritePacket(WorldPackets::Pets::PetSpells* petSpells) const
 {
     Clock::time_point now = Clock::now();
 
     petSpells->Cooldowns.reserve(_spellCooldowns.size());
     for (auto const& p : _spellCooldowns)
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(p.first);
-        WorldPackets::Pet::PetSpellCooldown petSpellCooldown;
+        WorldPackets::Pets::PetSpellCooldown petSpellCooldown;
         petSpellCooldown.SpellID = p.first;
         petSpellCooldown.Category = p.second.CategoryId;
 
@@ -361,7 +360,7 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells)
                 petSpellCooldown.CategoryDuration = uint32(categoryDuration.count());
         }
 
-        petSpells->Cooldowns.push_back(historyEntry);
+        petSpells->Cooldowns.push_back(petSpellCooldown);
     }
 
     petSpells->SpellHistory.reserve(_categoryCharges.size());
@@ -373,7 +372,7 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells)
             if (cooldownDuration.count() <= 0)
                 continue;
 
-            WorldPackets::Pet::PetSpellHistory petChargeEntry;
+            WorldPackets::Pets::PetSpellHistory petChargeEntry;
             petChargeEntry.CategoryID = p.first;
             petChargeEntry.RecoveryTime = uint32(cooldownDuration.count());
             petChargeEntry.ConsumedCharges = p.second.size();
@@ -382,7 +381,7 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells)
         }
     }
 }
-*/
+
 
 void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell /*= nullptr*/, bool onHold /*= false*/)
 {
