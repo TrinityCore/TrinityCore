@@ -341,6 +341,7 @@ void SpellHistory::WritePacket(WorldPackets::Pets::PetSpells* petSpells) const
 {
     Clock::time_point now = Clock::now();
 
+    petSpells->Cooldowns.reserve(_spellCooldowns.size());
     for (auto const& p : _spellCooldowns)
     {
         WorldPackets::Pets::PetSpellCooldown petSpellCooldown;
@@ -362,6 +363,7 @@ void SpellHistory::WritePacket(WorldPackets::Pets::PetSpells* petSpells) const
         petSpells->Cooldowns.push_back(petSpellCooldown);
     }
 
+    petSpells->SpellHistory.reserve(_categoryCharges.size());
     for (auto const& p : _categoryCharges)
     {
         if (!p.second.empty())

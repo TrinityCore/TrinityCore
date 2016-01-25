@@ -37,7 +37,7 @@ WorldPacket const* WorldPackets::Pets::PetSpells::Write()
     for (uint32 action : Actions)
         _worldPacket << action;
 
-    for (PetSpellCooldown cooldown : Cooldowns)
+    for (PetSpellCooldown const& cooldown : Cooldowns)
     {
         _worldPacket << int32(cooldown.SpellID);
         _worldPacket << int32(cooldown.Duration);
@@ -45,7 +45,7 @@ WorldPacket const* WorldPackets::Pets::PetSpells::Write()
         _worldPacket << int16(cooldown.Category);
     }
 
-    for (PetSpellHistory history : SpellHistory)
+    for (PetSpellHistory const& history : SpellHistory)
     {
         _worldPacket << int32(history.CategoryID);
         _worldPacket << int32(history.RecoveryTime);
@@ -60,7 +60,7 @@ WorldPacket const* WorldPackets::Pets::PetStableList::Write()
     _worldPacket << StableMaster;
 
     _worldPacket << Pets.size();
-    for (PetStableInfo pet : Pets)
+    for (PetStableInfo const& pet : Pets)
     {
         _worldPacket << int32(pet.PetSlot);
         _worldPacket << int32(pet.PetNumber);
