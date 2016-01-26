@@ -828,12 +828,20 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_RANDOM_SOUND:
-            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
+        {
+            if (std::all_of(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(), [](uint32 sound) { return sound == 0; }))
             {
-                if (e.action.randomSound.sound[i] && !IsSoundValid(e, e.action.randomSound.sound[i]))
-                    return false;
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u does not have any non-zero sound",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
             }
+
+            for (uint32 sound : e.action.randomSound.sounds)
+                if (sound && !IsSoundValid(e, sound))
+                    return false;
+
             break;
+        }
         case SMART_ACTION_CAST:
         {
             if (!IsSpellValid(e, e.action.cast.spell))

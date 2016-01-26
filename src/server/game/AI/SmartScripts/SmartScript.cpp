@@ -2308,26 +2308,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_RANDOM_SOUND:
         {
             std::vector<uint32> sounds;
-
-            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
-            {
-                if (e.action.randomSound.sound[i])
-                    sounds.push_back(e.action.randomSound.sound[i]);
-            }
+            std::copy_if(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(),
+                std::back_inserter(sounds), [](uint32 sound) { return sound != 0; });
 
             bool onlySelf = e.action.randomSound.onlySelf != 0;
 
-            ObjectList* targets = GetTargets(e, unit);
-            if (targets)
+            if (ObjectList* targets = GetTargets(e, unit))
             {
-                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                for (WorldObject* const obj : *targets)
                 {
-                    if (IsUnit(*itr))
+                    if (IsUnit(obj))
                     {
-                        uint32 sound = sounds[urand(0, sounds.size() - 1)];
-                        (*itr)->PlayDirectSound(sound, e.action.randomSound.onlySelf ? (*itr)->ToPlayer() : nullptr);
-                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %u",
-                            (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), sound, e.action.randomSound.onlySelf);
+                        uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
+                        obj->PlayDirectSound(sound, onlySelf ? obj->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %b",
+                            obj->GetName().c_str(), obj->GetGUID().ToString().c_str(), sound, onlySelf);
                     }
                 }
 
