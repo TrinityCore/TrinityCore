@@ -1380,39 +1380,38 @@ struct SmartScriptHolder
 
 typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
-typedef std::list<WorldObject*> ObjectList;
+typedef std::vector<WorldObject*> ObjectList;
 
 class ObjectGuidList
 {
-    ObjectList* m_objectList;
-    GuidList* m_guidList;
+    ObjectList m_objectList;
+    GuidList m_guidList;
     WorldObject* m_baseObject;
 
 public:
-    ObjectGuidList(ObjectList* objectList, WorldObject* baseObject)
+    ObjectGuidList(ObjectList objectList, WorldObject* baseObject)
     {
-        ASSERT(objectList != NULL);
+        ASSERT(!objectList.empty());
         m_objectList = objectList;
         m_baseObject = baseObject;
-        m_guidList = new GuidList();
 
-        for (ObjectList::iterator itr = objectList->begin(); itr != objectList->end(); ++itr)
+        for (ObjectList::iterator itr = objectList.begin(); itr != objectList.end(); ++itr)
         {
-            m_guidList->push_back((*itr)->GetGUID());
+            m_guidList.push_back((*itr)->GetGUID());
         }
     }
 
-    ObjectList* GetObjectList()
+    ObjectList& GetObjectList()
     {
         if (m_baseObject)
         {
             //sanitize list using m_guidList
-            m_objectList->clear();
+            m_objectList.clear();
 
-            for (GuidList::iterator itr = m_guidList->begin(); itr != m_guidList->end(); ++itr)
+            for (GuidList::iterator itr = m_guidList.begin(); itr != m_guidList.end(); ++itr)
             {
                 if (WorldObject* obj = ObjectAccessor::GetWorldObject(*m_baseObject, *itr))
-                    m_objectList->push_back(obj);
+                    m_objectList.push_back(obj);
                 else
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::mTargetStorage stores a guid to an invalid object: %s", itr->ToString().c_str());
             }
@@ -1420,19 +1419,8 @@ public:
 
         return m_objectList;
     }
-
-    bool Equals(ObjectList* objectList)
-    {
-        return m_objectList == objectList;
-    }
-
-    ~ObjectGuidList()
-    {
-        delete m_objectList;
-        delete m_guidList;
-    }
 };
-typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
+typedef std::unordered_map<uint32, ObjectGuidList> ObjectListMap;
 
 class SmartWaypointMgr
 {
