@@ -892,7 +892,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_PLAY_ANIMKIT:
                 // Source must be Creature.
                 if (Creature* cSource = _GetScriptCreature(source, true, step.script))
-                    cSource->PlayOneShotAnimKit(step.script->PlayAnimKit.AnimKitID);
+                    cSource->PlayOneShotAnimKitId(step.script->PlayAnimKit.AnimKitID);
                 break;
 
             default:
