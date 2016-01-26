@@ -997,6 +997,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseId`,`position_x`,`
 
 UPDATE `gameobject` SET `guid`=380 WHERE `guid`=20;
 
+DELETE FROM `gameobject` WHERE `guid` IN (2568,2730);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (2568, 188514, 578, 4228, 4228, 3, 1, 1209.71, 1334.59, 192.375, 1.10828, 0, 0, 0.526214, 0.850352, 180, 0, 1, 0),
 (2730, 183043, 530, 3521, 3648, 1, 1, 907.398, 5773.45, 10.7675, -1.58825, 0, 0, 0.71325, -0.700909, 60, 100, 1, 0);
