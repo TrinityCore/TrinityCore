@@ -13429,6 +13429,17 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(packet.Write());
 }
 
+void Unit::PlayOneShotAnimKitId(uint16 animKitId)
+{
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
+    WorldPackets::Misc::PlayOneShotAnimKit data;
+    data.Unit = GetGUID();
+    data.AnimKitID = animKitId;
+    SendMessageToSet(data.Write(), true);
+}
+
 void Unit::SetAIAnimKitId(uint16 animKitId)
 {
     if (_aiAnimKitId == animKitId)
@@ -13475,14 +13486,6 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     data.Unit = GetGUID();
     data.AnimKitID = animKitId;
     SendMessageToSet(data.Write(), true);
-}
-
-void Unit::PlayOneShotAnimKit(uint16 animKitId)
-{
-    WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7+2);
-    data << GetPackGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
 }
 
 void Unit::Kill(Unit* victim, bool durabilityLoss)
