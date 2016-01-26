@@ -827,6 +827,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6))
                 return false;
             break;
+        case SMART_ACTION_RANDOM_SOUND:
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
+            {
+                if (e.action.randomSound.sound[i] && !IsSoundValid(e, e.action.randomSound.sound[i]))
+                    return false;
+            }
+            break;
         case SMART_ACTION_CAST:
         {
             if (!IsSpellValid(e, e.action.cast.spell))

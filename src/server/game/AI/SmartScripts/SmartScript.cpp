@@ -2305,6 +2305,36 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_RANDOM_SOUND:
+        {
+            std::vector<uint32> sounds;
+
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT - 1; i++)
+            {
+                if (e.action.randomSound.sound[i])
+                    sounds.push_back(e.action.randomSound.sound[i]);
+            }
+
+            bool onlySelf = e.action.randomSound.onlySelf != 0;
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets)
+            {
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (IsUnit(*itr))
+                    {
+                        uint32 sound = sounds[urand(0, sounds.size() - 1)];
+                        (*itr)->PlayDirectSound(sound, e.action.randomSound.onlySelf ? (*itr)->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %u",
+                            (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), sound, e.action.randomSound.onlySelf);
+                    }
+                }
+
+                delete targets;
+                break;
+            }
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
