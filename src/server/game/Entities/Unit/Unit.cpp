@@ -13431,7 +13431,7 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
 
 void Unit::PlayOneShotAnimKitId(uint16 animKitId)
 {
-    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+    if (!sAnimKitStore.LookupEntry(animKitId))
         return;
 
     WorldPackets::Misc::PlayOneShotAnimKit data;
