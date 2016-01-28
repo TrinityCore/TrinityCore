@@ -29,7 +29,6 @@
 #include "MPSCQueue.h"
 #include <chrono>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
 class EncryptablePacket;
