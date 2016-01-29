@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,7 +121,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                             {
                                 Creature* add = instance->GetCreature(guid);
                                 if (add && add->IsAlive())
-                                    add->Kill(add);
+                                    add->KillSelf();
                             }
                             HorsemanAdds.clear();
                             HandleGameObject(PumpkinShrineGUID, false);

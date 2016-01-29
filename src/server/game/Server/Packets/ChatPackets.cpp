@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -251,14 +251,9 @@ WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
 
 void WorldPackets::Chat::ChatRegisterAddonPrefixes::Read()
 {
-    int32 count;
-    _worldPacket >> count;
-
-    for (int32 i = 0; i < count; ++i)
-    {
-        uint32 lenghts = _worldPacket.ReadBits(5);
-        Prefixes.push_back(_worldPacket.ReadString(lenghts));
-    }
+    Prefixes.resize(_worldPacket.read<uint32>());
+    for (std::string& prefix : Prefixes)
+        prefix.assign(_worldPacket.ReadString(_worldPacket.ReadBits(5)));
 }
 
 WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
@@ -269,4 +264,10 @@ WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
     _worldPacket.WriteString(MessageText);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Chat::ChatReportIgnored::Read()
+{
+    _worldPacket >> IgnoredGUID;
+    _worldPacket >> Reason;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
 
-        std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
+        std::string realmName = sObjectMgr->GetRealmName(realm.Id.Realm);
 
         // Send current home realm. Also there is no need to send it later in realm queries.
         response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);

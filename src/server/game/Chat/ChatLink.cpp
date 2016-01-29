@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -230,6 +230,9 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
     {
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
+            if (index == LOCALE_none)
+                continue;
+
             if (FormatName(index, suffixStrings) == buffer)
             {
                 res = true;
@@ -411,8 +414,14 @@ bool AchievementChatLink::ValidateName(char* buffer, const char* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    if (*_achievement->Title_lang && strcmp(_achievement->Title_lang, buffer) == 0)
-        return true;
+    for (uint8 locale = LOCALE_enUS; locale < TOTAL_LOCALES; ++locale)
+    {
+        if (locale == LOCALE_none)
+            continue;
+
+        if (strcmp(_achievement->Title->Str[locale], buffer) == 0)
+            return true;
+    }
 
     TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked achievement (id: %u) name wasn't found in any localization", context, _achievement->ID);
     return false;

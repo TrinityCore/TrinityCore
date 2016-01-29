@@ -49,6 +49,11 @@ if (MSVC)
   # Get Visual studio version number
   string(REGEX REPLACE "Visual Studio ([0-9]+).*" "\\1" ZMQ_VS_VERSION ${CMAKE_GENERATOR})
 
+  # HACK - zmq doesnt ship libs for VS 2015
+  if (${ZMQ_VS_VERSION} EQUAL 14)
+    set(ZMQ_VS_VERSION 12)
+  endif()
+
   if (${ZMQ_NAME} MATCHES "registry") # if key was not found, the string "registry" is returned
     set(_ZMQ_VERSIONS "4_0_4" "4_0_3" "4_0_2" "4_0_1" "4_0_0" "3_2_5" "3_2_4" "3_2_3" "3_2_2"  "3_2_1" "3_2_0" "3_1_0")
     set(ZMQ_LIBRARY_NAME)
@@ -72,7 +77,7 @@ find_library(ZMQ_LIBRARY
     "${ZMQ_ROOT_DIR}/lib"
 )
 
-if (ZMQ_INCLUDE_DIR AND ZMQ_LIBRARY)
+if (ZMQ_INCLUDE_DIR AND ZMQ_LIBRARY AND NOT ZMQ_LIBRARY-NOTFOUND)
   set(ZMQ_FOUND 1)
   message(STATUS "Found ZMQ library: ${ZMQ_LIBRARY}")
   message(STATUS "Found ZMQ headers: ${ZMQ_INCLUDE_DIR}")

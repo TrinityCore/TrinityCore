@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,7 +93,6 @@ class boss_festergut : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetReactState(REACT_DEFENSIVE);
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
                 events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
@@ -466,21 +465,11 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 if (target->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
                     return;
 
-                if (target->GetMap() && !target->GetMap()->Is25ManRaid())
-                {
-                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_10) != QUEST_STATUS_INCOMPLETE)
-                        return;
+                uint32 questId = target->GetMap()->Is25ManRaid() ? QUEST_RESIDUE_RENDEZVOUS_25 : QUEST_RESIDUE_RENDEZVOUS_10;
+                if (target->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE)
+                    return;
 
-                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-                }
-
-                if (target->GetMap() && target->GetMap()->Is25ManRaid())
-                {
-                    if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_25) != QUEST_STATUS_INCOMPLETE)
-                        return;
-
-                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-                }
+                target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
             }
 
             void Register() override

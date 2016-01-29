@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -174,6 +174,11 @@ enum DeprogrammingData
     POINT_DESPAWN           = 384721,
 };
 
+enum Actions
+{
+    ACTION_START_INTRO
+};
+
 #define NPC_DARNAVAN        RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
 #define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25, NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25)
 #define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25, QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25)
@@ -198,7 +203,7 @@ class DaranavanMoveEvent : public BasicEvent
     public:
         DaranavanMoveEvent(Creature& darnavan) : _darnavan(darnavan) { }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _darnavan.GetMotionMaster()->MovePoint(POINT_DESPAWN, SummonPositions[6]);
             return true;
@@ -241,20 +246,26 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
 
-            void MoveInLineOfSight(Unit* who) override
-
+            void DoAction(int32 action) override
             {
-                if (!_introDone && me->IsWithinDistInMap(who, 110.0f))
+                switch (action)
                 {
-                    _introDone = true;
-                    Talk(SAY_INTRO_1);
-                    events.SetPhase(PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_2, 11000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_3, 21000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_4, 31500, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_5, 39500, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_6, 48500, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_7, 58000, 0, PHASE_INTRO);
+                    case ACTION_START_INTRO:
+                        if (!_introDone)
+                        {
+                            _introDone = true;
+                            Talk(SAY_INTRO_1);
+                            events.SetPhase(PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_2, 11000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_3, 21000, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_4, 31500, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_5, 39500, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_6, 48500, 0, PHASE_INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_7, 58000, 0, PHASE_INTRO);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -820,7 +831,7 @@ class npc_vengeful_shade : public CreatureScript
                     case SPELL_VENGEFUL_BLAST_25N:
                     case SPELL_VENGEFUL_BLAST_10H:
                     case SPELL_VENGEFUL_BLAST_25H:
-                        me->Kill(me);
+                        me->KillSelf();
                         break;
                     default:
                         break;
@@ -1008,7 +1019,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
                     if (Unit* owner = GetCaster()->ToTempSummon()->GetSummoner())
                         owner->GetAI()->SetGUID(GetCaster()->GetGUID(), GUID_CULTIST);
 
-                GetCaster()->Kill(GetCaster());
+                GetCaster()->KillSelf();
                 GetCaster()->SetDisplayId(uint32(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010));
             }
 
@@ -1024,6 +1035,21 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
         }
 };
 
+class at_lady_deathwhisper_entrance : public AreaTriggerScript
+{
+    public:
+        at_lady_deathwhisper_entrance() : AreaTriggerScript("at_lady_deathwhisper_entrance") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
+                    ladyDeathwhisper->AI()->DoAction(ACTION_START_INTRO);
+
+            return true;
+        }
+};
+
 void AddSC_boss_lady_deathwhisper()
 {
     new boss_lady_deathwhisper();
@@ -1033,4 +1059,5 @@ void AddSC_boss_lady_deathwhisper()
     new npc_darnavan();
     new spell_deathwhisper_mana_barrier();
     new spell_cultist_dark_martyrdom();
+    new at_lady_deathwhisper_entrance();
 }

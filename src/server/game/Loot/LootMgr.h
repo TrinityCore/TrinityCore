@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,7 +68,8 @@ enum LootMethod
     ROUND_ROBIN       = 1,
     MASTER_LOOT       = 2,
     GROUP_LOOT        = 3,
-    NEED_BEFORE_GREED = 4
+    NEED_BEFORE_GREED = 4,
+    PERSONAL_LOOT     = 5
 };
 
 enum PermissionTypes
@@ -120,11 +121,11 @@ enum LootError
 // type of Loot Item in Loot View
 enum LootSlotType
 {
-    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
-    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_ALLOW_LOOT   = 4,                        // player can loot the item.
+    LOOT_SLOT_TYPE_ROLL_ONGOING = 7,                        // roll is ongoing. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 6,                        // item can only be distributed by group loot master.
     LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting (6.x no longer used)
+    LOOT_SLOT_TYPE_OWNER        = 5                         // ignore binding confirmation and etc, for single player looting
 };
 
 class Player;
@@ -140,7 +141,7 @@ struct LootStoreItem
     uint8   groupid     : 7;
     uint8   mincount;                                       // mincount for drop items
     uint8   maxcount;                                       // max drop count for the item mincount or Ref multiplicator
-    ConditionList conditions;                               // additional loot condition
+    ConditionContainer conditions;                               // additional loot condition
 
     // Constructor
     // displayid is filled in IsValid() which must be called after
@@ -159,7 +160,7 @@ struct LootItem
     uint32  randomSuffix;
     int32   randomPropertyId;
     std::vector<int32> BonusListIDs;
-    ConditionList conditions;                               // additional loot condition
+    ConditionContainer conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
     uint8   count             : 8;
     bool    is_looted         : 1;
@@ -259,7 +260,7 @@ class LootTemplate
         void AddEntry(LootStoreItem* item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
-        void CopyConditions(const ConditionList& conditions);
+        void CopyConditions(const ConditionContainer& conditions);
         void CopyConditions(LootItem* li) const;
 
         // True if template includes at least 1 quest drop entry

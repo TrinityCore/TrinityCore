@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,103 +34,55 @@ namespace Battlenet
             CMSG_BLOCK_ADD                              = 0x08,  // Not implemented
             CMSG_BLOCK_REMOVE                           = 0x0A,  // Not implemented
             CMSG_GET_FRIENDS_OF_FRIEND                  = 0x0B,  // Not implemented
-            CMSG_GET_SOCIAL_NETWORK_FRIENDS             = 0x0D,  // Won't support
-            CMSG_SOCIAL_NETWORK_CONNECT                 = 0x0F,  // Won't support
-            CMSG_SOCIAL_NETWORK_DISCONNECT              = 0x11,  // Won't support
-            CMSG_SOCIAL_NETWORK_CHECK_CONNECTED         = 0x13,
-            CMSG_REALID_FRIEND_INVITE                   = 0x16,  // Not implemented
+            CMSG_GET_SOCIAL_NETWORK_FRIENDS             = 0x0D,  // Deprecated in client
+            CMSG_SOCIAL_NETWORK_CONNECT                 = 0x0F,  // Deprecated in client
+            CMSG_SOCIAL_NETWORK_DISCONNECT              = 0x11,  // Deprecated in client
+            CMSG_SOCIAL_NETWORK_CHECK_CONNECTED         = 0x13,  // Deprecated in client
+            CMSG_REALID_FRIEND_INVITE                   = 0x16,  // Deprecated in client
+            CMSG_SEND_INVITATION_REQUEST                = 0x1A,  // Not implemented
 
             SMSG_FRIEND_INVITE_NOTIFY                   = 0x01,  // Not implemented
             SMSG_FRIEND_INVITE_RESULT                   = 0x03,  // Not implemented
             SMSG_TOONS_OF_FRIEND_NOTIFY                 = 0x06,  // Not implemented
-            SMSG_BLOCK_INVITE_NOTIFY                    = 0x07,  // Not implemented
+            SMSG_BLOCK_INVITE_NOTIFY                    = 0x07,  // Deprecated in client
             SMSG_BLOCK_ADD_FAILURE                      = 0x09,  // Not implemented
-            SMSG_FRIENDS_OF_FRIEND                      = 0x0C,  // Not implemented
-            SMSG_SOCIAL_NETWORK_FRIENDS                 = 0x0E,  // Won't support
-            SMSG_SOCIAL_NETWORK_CONNECT_RESULT          = 0x10,  // Won't support
-            SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT       = 0x12,  // Won't support
-            SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT  = 0x14,
+            SMSG_FRIENDS_OF_FRIEND                      = 0x0C,  // Deprecated in client
+            SMSG_SOCIAL_NETWORK_FRIENDS                 = 0x0E,  // Deprecated in client
+            SMSG_SOCIAL_NETWORK_CONNECT_RESULT          = 0x10,  // Deprecated in client
+            SMSG_SOCIAL_NETWORK_DISCONNECT_RESULT       = 0x12,  // Deprecated in client
+            SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT  = 0x14,  // Deprecated in client
             SMSG_MAX_FRIENDS_NOTIFY                     = 0x15,  // Not implemented
-            SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18   // Not implemented
+            SMSG_FRIENDS_LIST_NOTIFY_3                  = 0x18,  // Deprecated in client
+            SMSG_SEND_INVITATION_RESULT                 = 0x1B,  // Not implemented
+            SMSG_FRIEND_INVITATION_ADDED_NOTIFY         = 0x1C,  // Not implemented
+            SMSG_FRIEND_INVITATION_REMOVED_NOTIFY       = 0x1D,  // Not implemented
+            SMSG_FRIENDS_LIST_NOTIFY_5                  = 0x1E,  // Not implemented
+            SMSG_ACCOUNT_BLOCK_ADDED_NOTIFY             = 0x1F,  // Not implemented
+            SMSG_ACCOUNT_BLOCK_REMOVED_NOTIFY           = 0x20,  // Not implemented
+            SMSG_TOON_BLOCK_NOTIFY                      = 0x21,  // Not implemented
+            SMSG_FRIENDS_OF_FRIEND_RESULT               = 0x22   // Not implemented
         };
 
-        class GetFriendsOfFriend final : public ClientPacket
+        class SendInvitationRequest final : public ClientPacket
         {
         public:
-            GetFriendsOfFriend(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
-            {
-                ASSERT(header == PacketHeader(CMSG_GET_FRIENDS_OF_FRIEND, FRIENDS) && "Invalid packet header for GetFriendsOfFriend");
-            }
-
-            void Read() override;
-            std::string ToString() const override;
-        };
-
-        class SocialNetworkCheckConnected final : public ClientPacket
-        {
-        public:
-            SocialNetworkCheckConnected(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
-            {
-                ASSERT(header == PacketHeader(CMSG_SOCIAL_NETWORK_CHECK_CONNECTED, FRIENDS) && "Invalid packet header for SocialNetworkCheckConnected");
-            }
+            SendInvitationRequest(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream) { }
 
             void Read() override;
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            uint32 SocialNetworkId = 0;
-        };
+            uint32 Token = 0;
 
-        class RealIdFriendInvite final : public ClientPacket
-        {
-        public:
-            RealIdFriendInvite(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)
-            {
-                ASSERT(header == PacketHeader(CMSG_REALID_FRIEND_INVITE, FRIENDS) && "Invalid packet header for RealIdFriendInvite");
-            }
+            Optional<uint32> PresenceId;
+            Optional<GameAccount::Handle> GameAccount;
+            Optional<uint32> AccountId;
+            Optional<std::string> AccountMail;
+            Optional<std::string> Nickname;
 
-            void Read() override;
-            std::string ToString() const override;
-
-            std::string Email;
-            std::string Message;
-        };
-
-        class FriendInviteResult final : public ServerPacket
-        {
-        public:
-            FriendInviteResult() : ServerPacket(PacketHeader(SMSG_FRIEND_INVITE_RESULT, FRIENDS))
-            {
-            }
-
-            void Write() override;
-            std::string ToString() const override;
-        };
-
-        class FriendsOfFriend final : public ServerPacket
-        {
-        public:
-            FriendsOfFriend() : ServerPacket(PacketHeader(SMSG_FRIENDS_OF_FRIEND, FRIENDS))
-            {
-            }
-
-            void Write() override;
-            std::string ToString() const override;
-        };
-
-        class SocialNetworkCheckConnectedResult final : public ServerPacket
-        {
-        public:
-            SocialNetworkCheckConnectedResult() : ServerPacket(PacketHeader(SMSG_SOCIAL_NETWORK_CHECK_CONNECTED_RESULT, FRIENDS)),
-                Result(4601), SocialNetworkId(0)    // 4601 = The Facebook add friend service is unavailable right now. Please try again later.
-            {
-            }
-
-            void Write() override;
-            std::string ToString() const override;
-
-            uint16 Result;
-            uint32 SocialNetworkId;
+            Optional<std::string> InvitationMsg;
+            std::string Source;
+            uint32 Role = 0;
         };
     }
 }

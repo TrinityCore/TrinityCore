@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,7 +22,6 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Item.h"
 #include "Spell.h"
@@ -30,6 +29,7 @@
 #include "Language.h"
 #include "AccountMgr.h"
 #include "TradePackets.h"
+#include "TradeData.h"
 
 void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 {
@@ -435,6 +435,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
             SendTradeStatus(myCanCompleteInfo);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
+            delete my_spell;
+            delete his_spell;
             return;
         }
         else if (hisCanCompleteInfo.BagResult != EQUIP_ERR_OK)
@@ -447,6 +449,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
             trader->GetSession()->SendTradeStatus(hisCanCompleteInfo);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
+            delete my_spell;
+            delete his_spell;
             return;
         }
 
@@ -652,7 +656,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade&
         return;
     }
 
-    if (pOther->GetTeam() != _player->GetTeam() &&
+    if ((pOther->GetTeam() != _player->GetTeam() ||
+        pOther->HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_MERCENARY_MODE) ||
+        _player->HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_MERCENARY_MODE)) &&
         (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_TRADE) &&
         !HasPermission(rbac::RBAC_PERM_ALLOW_TWO_SIDE_TRADE)))
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
-#include "CellImpl.h"
 #include "Chat.h"
 #include "ChannelMgr.h"
 #include "GridNotifiersImpl.h"
@@ -34,7 +33,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
 #include "ScriptMgr.h"
@@ -456,7 +454,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
             if (!normalizePlayerName(target))
                 break;
 
-            Player* receiver = sObjectAccessor->FindPlayerByName(target);
+            Player* receiver = ObjectAccessor::FindPlayerByName(target);
             if (!receiver)
                 break;
 
@@ -637,31 +635,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
             creature->AI()->ReceiveEmote(_player, packet.SoundIndex);
 }
 
-void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
+void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored)
 {
-    ObjectGuid guid;
-    uint8 unk;
-
-    recvData >> unk;                                       // probably related to spam reporting
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
-
-    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    Player* player = ObjectAccessor::FindConnectedPlayer(chatReportIgnored.IgnoredGUID);
     if (!player || !player->GetSession())
         return;
 

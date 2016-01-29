@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,11 +29,11 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreaTrigger();
         ~AreaTrigger();
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         bool CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
-        void Update(uint32 p_time);
+        void Update(uint32 p_time) override;
         void Remove();
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         int32 GetDuration() const { return _duration; }

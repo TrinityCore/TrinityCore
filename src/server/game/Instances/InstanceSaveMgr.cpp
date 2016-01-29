@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,15 +21,12 @@
 #include "GridNotifiers.h"
 #include "Log.h"
 #include "GridStates.h"
-#include "CellImpl.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
 #include "Timer.h"
-#include "GridNotifiersImpl.h"
 #include "Config.h"
-#include "Transport.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Group.h"

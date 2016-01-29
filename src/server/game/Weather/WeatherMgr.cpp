@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,8 +25,6 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
 #include "WorldSession.h"
 #include "MiscPackets.h"
 
@@ -134,7 +132,7 @@ void LoadWeatherData()
             }
         }
 
-        wzc.ScriptId = sObjectMgr->GetScriptId(fields[13].GetCString());
+        wzc.ScriptId = sObjectMgr->GetScriptId(fields[13].GetString());
 
         ++count;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -149,7 +149,7 @@ class spell_dk_anti_magic_shell : public SpellScriptLoader
                     {
                         // Cannot reduce cooldown by more than 50%
                         int32 val = std::min(glyph->GetAmount(), int32(absorbedAmount) * 100 / maxHealth);
-                        player->GetSpellHistory()->ModifyCooldown(GetId(), -int32(player->GetSpellHistory()->GetRemainingCooldown(GetId()) * val / 100));
+                        player->GetSpellHistory()->ModifyCooldown(GetId(), -int32(player->GetSpellHistory()->GetRemainingCooldown(GetSpellInfo()) * val / 100));
                     }
             }
 

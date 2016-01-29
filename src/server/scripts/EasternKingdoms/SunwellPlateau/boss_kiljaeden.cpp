@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1112,7 +1112,7 @@ public:
             else if (me->IsWithinDistInMap(me->GetVictim(), 3)) // Explode if it's close enough to it's target
             {
                 DoCastVictim(SPELL_FELFIRE_FISSION);
-                me->Kill(me);
+                me->KillSelf();
             }
         }
     };
@@ -1172,7 +1172,7 @@ public:
                         uiTimer = 5000;
                         break;
                     case 3:
-                        me->Kill(me);
+                        me->KillSelf();
                         me->RemoveCorpse();
                         break;
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,11 +32,11 @@
 #include "BattlegroundMgr.h"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
-#include "MapInstanced.h"
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
 #include "PartyPackets.h"
+#include "LootPackets.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -578,7 +578,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         }
 
         // Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
-        if ((player && player->GetSkillValue(SKILL_ENCHANTING)) || !player)
+        if (!player || player->GetSkillValue(SKILL_ENCHANTING))
             ResetMaxEnchantingLevel();
 
         // Remove player from loot rolls
@@ -931,20 +931,17 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << creature->GetGUID();
+    WorldPackets::Loot::LootList lootList;
+
+    lootList.Owner = creature->GetGUID();
 
     if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
-        data << GetMasterLooterGuid().WriteAsPacked();
-    else
-        data << uint8(0);
+        lootList.Master = GetMasterLooterGuid();
 
     if (groupLooter)
-        data << groupLooter->GetPackGUID();
-    else
-        data << uint8(0);
+        lootList.RoundRobinWinner = groupLooter->GetGUID();
 
-    BroadcastPacket(&data, false);
+    BroadcastPacket(lootList.Write(), false);
 }
 
 void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
@@ -2113,7 +2110,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
         if (SendMsgTo)
         {
             if (!isEmpty)
-                SendMsgTo->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                SendMsgTo->SendResetInstanceFailed(INSTANCE_RESET_FAILED, instanceSave->GetMapId());
             else if (sWorld->getBoolConfig(CONFIG_INSTANCES_RESET_ANNOUNCE))
             {
                 if (Group* group = SendMsgTo->GetGroup())

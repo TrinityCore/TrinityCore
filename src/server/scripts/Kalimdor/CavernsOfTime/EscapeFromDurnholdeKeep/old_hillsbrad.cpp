@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -433,15 +433,11 @@ public:
                         }
 
                         //kill credit Creature for quest
-                        Map* map = me->GetMap();
-                        Map::PlayerList const& players = map->GetPlayers();
-                        if (!players.isEmpty() && map->IsDungeon())
+                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            {
-                                if (Player* player = itr->GetSource())
-                                    player->KilledMonsterCredit(20156);
-                            }
+                            if (Player* player = itr->GetSource())
+                                player->KilledMonsterCredit(20156);
                         }
 
                         //alot will happen here, thrall and taretha talk, erozion appear at spot to explain

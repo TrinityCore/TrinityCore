@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -145,6 +145,7 @@ enum ProcFlags
     PROC_FLAG_DONE_OFFHAND_ATTACK             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
 
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
+    PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
 
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
@@ -547,6 +548,9 @@ typedef std::pair<SpellLearnSpellMap::const_iterator, SpellLearnSpellMap::const_
 typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::const_iterator> SkillLineAbilityMapBounds;
 
+typedef std::set<uint32> PetFamilySpellsSet;
+typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
+
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
@@ -590,6 +594,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
+
+extern PetFamilySpellsStore                         sPetFamilySpellsStore;
 
 class SpellMgr
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,9 +56,9 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
         _worldPacket.FlushBits();
     }
 
-    _worldPacket.WriteBit(PersonalLooting);
     _worldPacket.WriteBit(Acquired);
     _worldPacket.WriteBit(AELooting);
+    _worldPacket.WriteBit(PersonalLooting);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -120,4 +120,27 @@ WorldPacket const* WorldPackets::Loot::LootReleaseResponse::Write()
     _worldPacket << Owner;
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::LootList::Write()
+{
+    _worldPacket << Owner;
+
+    _worldPacket.WriteBit(Master.is_initialized());
+    _worldPacket.WriteBit(RoundRobinWinner.is_initialized());
+
+    _worldPacket.FlushBits();
+
+    if (Master)
+        _worldPacket << *Master;
+
+    if (RoundRobinWinner)
+        _worldPacket << *RoundRobinWinner;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Loot::SetLootSpecialization::Read()
+{
+    _worldPacket >> SpecID;
 }

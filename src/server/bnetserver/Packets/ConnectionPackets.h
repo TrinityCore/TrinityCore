@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,8 +91,8 @@ namespace Battlenet
             void Read() override;
             std::string ToString() const override;
 
-            uint16 Timeout = 0;
-            uint32 Tick = 0;
+            uint16 Error = 0;
+            uint32 Timeout = 0;
         };
 
         class ConnectionClosing final : public ClientPacket
@@ -100,28 +100,30 @@ namespace Battlenet
         public:
             enum ClosingReason
             {
-                PACKET_TOO_LARGE,
-                PACKET_CORRUPT,
-                PACKET_INVALID,
-                PACKET_INCORRECT,
-                HEADER_CORRUPT,
-                HEADER_IGNORED,
-                HEADER_INCORRECT,
-                PACKET_REJECTED,
-                CHANNEL_UNHANDLED,
-                COMMAND_UNHANDLED,
-                COMMAND_BAD_PERMISSIONS,
-                DIRECT_CALL,
-                TIMEOUT,
+                PACKET_TOO_LARGE = 1,
+                PACKET_CORRUPT = 2,
+                PACKET_INVALID = 3,
+                PACKET_INCORRECT = 4,
+                HEADER_CORRUPT = 5,
+                HEADER_IGNORED = 6,
+                HEADER_INCORRECT = 7,
+                PACKET_REJECTED = 8,
+                CHANNEL_UNHANDLED = 9,
+                COMMAND_UNHANDLED = 10,
+                COMMAND_BAD_PERMISSIONS = 11,
+                DIRECT_CALL = 12,
+                TIMEOUT = 13,
             };
 
-            struct PacketInfo
+            struct PacketInfo : public PrintableComponent
             {
-                uint16 LayerId;
-                std::string Channel;
-                uint32 Timestamp;
-                std::string CommandName;
+                std::string Layer;
+                std::string Command;
+                uint16 Offset;
                 uint16 Size;
+                uint32 Time;
+
+                std::string ToString() const override;
             };
 
             ConnectionClosing(PacketHeader const& header, BitStream& stream) : ClientPacket(header, stream)

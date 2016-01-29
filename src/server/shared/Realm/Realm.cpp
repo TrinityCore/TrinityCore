@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,3 +51,13 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
     // Return external IP
     return endpoint;
 }
+
+uint32 Realm::GetConfigId() const
+{
+    return ConfigIdByType[Type];
+}
+
+uint32 const Realm::ConfigIdByType[MAX_CLIENT_REALM_TYPE] =
+{
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+};

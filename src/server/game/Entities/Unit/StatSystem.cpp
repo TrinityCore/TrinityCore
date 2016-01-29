@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,6 @@
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "SpellMgr.h"
 #include "World.h"
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
@@ -266,7 +265,7 @@ float Player::GetHealthBonusFromStamina()
 {
     // Taken from PaperDollFrame.lua - 6.0.3.19085
     float ratio = 10.0f;
-    if (gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.EvaluateTable(getLevel() - 1, 0))
+    if (GtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.EvaluateTable(getLevel() - 1, 0))
         ratio = hpBase->ratio;
 
     float stamina = GetStat(STAT_STAMINA);
@@ -682,19 +681,19 @@ void Player::UpdateArmorPenetration(int32 amount)
 
 void Player::UpdateMeleeHitChances()
 {
-    m_modMeleeHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    m_modMeleeHitChance = 7.5f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
     m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
 }
 
 void Player::UpdateRangedHitChances()
 {
-    m_modRangedHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    m_modRangedHitChance = 7.5f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
     m_modRangedHitChance += GetRatingBonusValue(CR_HIT_RANGED);
 }
 
 void Player::UpdateSpellHitChances()
 {
-    m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+    m_modSpellHitChance = 15.0f + (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
     m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
 }
 
@@ -759,7 +758,7 @@ void Player::UpdateManaRegen()
     spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
     // CombatRegen = 5% of Base Mana
-    float base_regen = GetCreateMana() * 0.01f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
+    float base_regen = GetCreateMana() * 0.02f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
 
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);

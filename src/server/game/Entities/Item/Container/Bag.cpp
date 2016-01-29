@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -210,7 +210,7 @@ uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
         for (uint32 i=0; i < GetBagSize(); ++i)
         {
             pItem = m_bagslot[i];
-            if (pItem && pItem != eItem && pItem->GetTemplate()->ExtendedData->SocketColor[0])
+            if (pItem && pItem != eItem && pItem->GetSocketColor(0))
                 count += pItem->GetGemCountWithID(item);
         }
     }

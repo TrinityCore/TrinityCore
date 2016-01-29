@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,6 +46,9 @@ enum Data
     DATA_HEIGAN_ERUPT,
     DATA_GOTHIK_GATE,
     DATA_SAPPHIRON_BIRTH,
+    DATA_HAD_ANUBREKHAN_GREET,
+    DATA_HAD_FAERLINA_GREET,
+    DATA_HAD_THADDIUS_GREET,
 
     DATA_HORSEMEN0,
     DATA_HORSEMEN1,
@@ -61,7 +64,9 @@ enum Data
 
 enum Data64
 {
+    DATA_ANUBREKHAN,
     DATA_FAERLINA,
+    DATA_RAZUVIOUS,
     DATA_THANE,
     DATA_LADY,
     DATA_BARON,
@@ -81,15 +86,18 @@ enum Data64
 
 enum CreaturesIds
 {
+    NPC_ANUBREKHAN              = 15956,
     NPC_FAERLINA                = 15953,
+    NPC_RAZUVIOUS               = 16061,
     NPC_THANE                   = 16064,
     NPC_LADY                    = 16065,
     NPC_BARON                   = 30549,
     NPC_SIR                     = 16063,
-    NPC_THADDIUS                = 15928,
     NPC_HEIGAN                  = 15936,
+    NPC_THADDIUS                = 15928,
     NPC_FEUGEN                  = 15930,
     NPC_STALAGG                 = 15929,
+    NPC_TESLA                   = 16218,
     NPC_SAPPHIRON               = 15989,
     NPC_KEL_THUZAD              = 15990,
     NPC_CRYPT_GUARD             = 16573,
@@ -168,6 +176,10 @@ enum InstanceEvents
     EVENT_DIALOGUE_GOTHIK_ZELIEK2,
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
     EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
+
+    // Thaddius AI requesting timed encounter (re-)spawn
+    EVENT_THADDIUS_BEGIN_RESET,
+    EVENT_THADDIUS_RESET,
 
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,

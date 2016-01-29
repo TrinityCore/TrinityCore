@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 
 #include "ObjectGuid.h"
 #include "World.h"
-#include "ObjectMgr.h"
+
 #include <sstream>
 #include <iomanip>
 
@@ -97,12 +97,12 @@ ObjectGuid ObjectGuid::Global(HighGuid type, LowType counter)
 
 ObjectGuid ObjectGuid::RealmSpecific(HighGuid type, LowType counter)
 {
-    return ObjectGuid(uint64(uint64(type) << 58 | uint64(realmHandle.Index) << 42), counter);
+    return ObjectGuid(uint64(uint64(type) << 58 | uint64(realm.Id.Realm) << 42), counter);
 }
 
 ObjectGuid ObjectGuid::MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, LowType counter)
 {
-    return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realmHandle.Index & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6) | (uint64(subType) & 0x3F)),
+    return ObjectGuid(uint64((uint64(type) << 58) | (uint64(realm.Id.Realm & 0x1FFF) << 42) | (uint64(mapId & 0x1FFF) << 29) | (uint64(entry & 0x7FFFFF) << 6) | (uint64(subType) & 0x3F)),
         uint64((uint64(serverId & 0xFFFFFF) << 40) | (counter & UI64LIT(0xFFFFFFFFFF))));
 }
 
@@ -121,46 +121,43 @@ void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
 
 void PackedGuid::Set(ObjectGuid const& guid)
 {
-    uint8 lowMask = 0;
-    uint8 highMask = 0;
     _packedGuid.clear();
-    _packedGuid << uint8(lowMask);
-    _packedGuid << uint8(highMask);
-
-    uint8 packed[8];
-    if (size_t packedSize = _packedGuid.PackUInt64(guid._low, &lowMask, packed))
-        _packedGuid.append(packed, packedSize);
-    if (size_t packedSize = _packedGuid.PackUInt64(guid._high, &highMask, packed))
-        _packedGuid.append(packed, packedSize);
-
-    _packedGuid.put(0, lowMask);
-    _packedGuid.put(1, highMask);
+    _packedGuid << guid;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
-    buf << guid.WriteAsPacked();
+    uint8 lowMask = 0;
+    uint8 highMask = 0;
+    buf.FlushBits();    // flush any unwritten bits to make wpos return a meaningful value
+    std::size_t pos = buf.wpos();
+    buf << uint8(lowMask);
+    buf << uint8(highMask);
+
+    uint8 packed[8];
+    if (size_t packedSize = ByteBuffer::PackUInt64(guid._low, &lowMask, packed))
+        buf.append(packed, packedSize);
+    if (size_t packedSize = ByteBuffer::PackUInt64(guid._high, &highMask, packed))
+        buf.append(packed, packedSize);
+
+    buf.put(pos, lowMask);
+    buf.put(pos + 1, highMask);
+
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    buf >> guid.ReadAsPacked();
+    uint8 lowMask, highMask;
+    buf >> lowMask >> highMask;
+    buf.ReadPackedUInt64(lowMask, guid._low);
+    buf.ReadPackedUInt64(highMask, guid._high);
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
 {
     buf.append(guid._packedGuid);
-    return buf;
-}
-
-ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid)
-{
-    uint8 lowMask, highMask;
-    buf >> lowMask >> highMask;
-    buf.ReadPackedUInt64(lowMask, guid.GuidPtr->_low);
-    buf.ReadPackedUInt64(highMask, guid.GuidPtr->_high);
     return buf;
 }
 

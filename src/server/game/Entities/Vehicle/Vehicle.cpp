@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,12 +22,8 @@
 #include "Vehicle.h"
 #include "Unit.h"
 #include "Util.h"
-#include "WorldPacket.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
-#include "ZoneScript.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
 #include "MoveSplineInit.h"
 #include "TemporarySummon.h"
 #include "EventProcessor.h"

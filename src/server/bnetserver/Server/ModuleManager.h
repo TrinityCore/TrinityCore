@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,7 @@
 #ifndef ModuleManager_h__
 #define ModuleManager_h__
 
-#include "Define.h"
-#include <cstring>
-#include <string>
-#include <map>
+#include "PacketsCommon.h"
 
 namespace Battlenet
 {
@@ -42,12 +39,14 @@ namespace Battlenet
         }
     };
 
-    struct ModuleInfo
+    struct ModuleInfo : public PrintableComponent
     {
-        ModuleInfo() : Region("EU"), DataSize(0), Data(nullptr) { }
-        ModuleInfo(ModuleInfo const& right) : Type(right.Type), Region(right.Region), DataSize(right.DataSize), Data(nullptr)
+        ModuleInfo() : DataSize(0), Data(nullptr) { Handle.Region = "EU"; }
+        ModuleInfo(ModuleInfo const& right) : DataSize(right.DataSize), Data(nullptr)
         {
-            memcpy(ModuleId, right.ModuleId, 32);
+            Handle.Type = right.Handle.Type;
+            Handle.Region = right.Handle.Region;
+            memcpy(Handle.ModuleId, right.Handle.ModuleId, 32);
             if (DataSize)
             {
                 Data = new uint8[DataSize];
@@ -55,16 +54,16 @@ namespace Battlenet
             }
         }
 
-        ~ModuleInfo()
+        virtual ~ModuleInfo()
         {
             delete[] Data;
         }
 
-        std::string Type;
-        std::string Region;
-        uint8 ModuleId[32];
+        Cache::Handle Handle;
         uint32 DataSize;
         uint8* Data;
+
+        std::string ToString() const override;
     };
 
     class ModuleManager
@@ -83,9 +82,6 @@ namespace Battlenet
         }
 
     private:
-        void LoadComponents();
-        void LoadModules();
-
         std::map<ModuleKey, ModuleInfo*> _modules;
     };
 }

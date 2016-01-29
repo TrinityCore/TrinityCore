@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -917,7 +917,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
             // Owner already found and different than expected owner - remove object from old owner
             if (!owner.IsEmpty() && !GetOwnerGUID().IsEmpty() && GetOwnerGUID() != owner)
             {
-                ASSERT(false);
+                ABORT();
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
             SetGuidValue(GAMEOBJECT_FIELD_CREATED_BY, owner);
@@ -1083,8 +1083,12 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void UpdateModelPosition();
 
+        uint16 GetAIAnimKitId() const override { return _animKitId; }
+        void SetAnimKitId(uint16 animKitId, bool oneshot);
+
     protected:
         bool AIM_Initialize();
+        GameObjectModel* CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
@@ -1126,5 +1130,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         }
 
         GameObjectAI* m_AI;
+        uint16 _animKitId;
 };
 #endif

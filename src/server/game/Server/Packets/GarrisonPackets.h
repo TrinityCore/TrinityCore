@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,7 +87,7 @@ namespace WorldPackets
             uint32 CurrentBuildingID = 0;
             uint32 CurrentMissionID = 0;
             std::list<GarrAbilityEntry const*> AbilityID;
-            uint32 FollowerStatus;
+            uint32 FollowerStatus = 0;
             std::string CustomName;
         };
 
@@ -105,8 +105,8 @@ namespace WorldPackets
 
         struct GarrisonMissionAreaBonus
         {
-            uint32 GarrMssnBonusAbilityID;
-            time_t StartTime;
+            uint32 GarrMssnBonusAbilityID = 0;
+            time_t StartTime = time_t(0);
         };
 
         class GetGarrisonInfoResult final : public ServerPacket

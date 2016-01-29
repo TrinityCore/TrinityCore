@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,13 +19,10 @@
 #include "QuestDef.h"
 #include "GossipDef.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Formulas.h"
 #include "QuestPackets.h"
 #include "NPCPackets.h"
-#include "WorldPacket.h"
 
 GossipMenu::GossipMenu()
 {
@@ -638,7 +635,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     offer.QuestGiverGUID = npcGUID;
 
     // Is there a better way? what about game objects?
-    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+    if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
         offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
 
     offer.QuestID = quest->GetQuestId();
@@ -696,7 +693,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.QuestGiverGUID = npcGUID;
 
     // Is there a better way? what about game objects?
-    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+    if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
         packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
 
     packet.QuestID = quest->GetQuestId();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -290,9 +290,8 @@ class boss_rimefang : public CreatureScript
 
         struct boss_rimefangAI : public ScriptedAI
         {
-            boss_rimefangAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
+            boss_rimefangAI(Creature* creature) : ScriptedAI(creature)
             {
-                ASSERT(_vehicle);
                 Initialize();
             }
 
@@ -314,7 +313,8 @@ class boss_rimefang : public CreatureScript
 
             void JustReachedHome() override
             {
-                _vehicle->InstallAllAccessories(false);
+                if (Vehicle* _vehicle = me->GetVehicleKit())
+                    _vehicle->InstallAllAccessories(false);
             }
 
             void DoAction(int32 actionId) override
@@ -376,7 +376,6 @@ class boss_rimefang : public CreatureScript
             }
 
         private:
-            Vehicle* _vehicle;
             ObjectGuid _hoarfrostTargetGUID;
             EventMap _events;
             uint8 _currentWaypoint;

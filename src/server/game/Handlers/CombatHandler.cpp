@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,11 +22,8 @@
 #include "WorldSession.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
-#include "ObjectDefines.h"
 #include "Vehicle.h"
-#include "VehicleDefines.h"
 #include "Player.h"
-#include "Opcodes.h"
 #include "CombatPackets.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -510,7 +510,7 @@ enum SpellAttr4
     SPELL_ATTR4_SPELL_VS_EXTEND_COST             = 0x00000400, // 10 Rogue Shiv have this flag
     SPELL_ATTR4_UNK11                            = 0x00000800, // 11
     SPELL_ATTR4_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR4_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR4_COMBAT_LOG_NO_CASTER             = 0x00002000, // 13 No caster object is sent to client combat log
     SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS        = 0x00004000, // 14 doesn't break auras by damage from these spells
     SPELL_ATTR4_UNK15                            = 0x00008000, // 15
     SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG  = 0x00010000, // 16 Cannot be used in both Arenas or Rated Battlegrounds
@@ -751,12 +751,12 @@ enum SpellAttr11
 {
     SPELL_ATTR11_UNK0                             = 0x00000001, //  0
     SPELL_ATTR11_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR11_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL           = 0x00000004, //  2
     SPELL_ATTR11_UNK3                             = 0x00000008, //  3
     SPELL_ATTR11_UNK4                             = 0x00000010, //  4
     SPELL_ATTR11_UNK5                             = 0x00000020, //  5
     SPELL_ATTR11_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR11_UNK7                             = 0x00000080, //  7
+    SPELL_ATTR11_NO_RANK                          = 0x00000080, //  7 Spell_C_GetSpellRank returns 0 instead of 5 * std::min(SpellLevels->MaxLevel, caster->Level)
     SPELL_ATTR11_UNK8                             = 0x00000100, //  8
     SPELL_ATTR11_UNK9                             = 0x00000200, //  9
     SPELL_ATTR11_UNK10                            = 0x00000400, // 10
@@ -839,7 +839,7 @@ enum SpellAttr13
     SPELL_ATTR13_UNK15                            = 0x00008000, // 15
     SPELL_ATTR13_UNK16                            = 0x00010000, // 16
     SPELL_ATTR13_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR13_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT    = 0x00040000, // 18
     SPELL_ATTR13_UNK19                            = 0x00080000, // 19
     SPELL_ATTR13_UNK20                            = 0x00100000, // 20
     SPELL_ATTR13_UNK21                            = 0x00200000, // 21
@@ -1262,7 +1262,7 @@ enum SpellEffectName
     TOTAL_SPELL_EFFECTS                             = 252,
 };
 
-enum SpellCastResult // 20201
+enum SpellCastResult // 20444
 {
     SPELL_FAILED_SUCCESS                                        = 0,
     SPELL_FAILED_AFFECTING_COMBAT                               = 1,
@@ -1458,81 +1458,83 @@ enum SpellCastResult // 20201
     SPELL_FAILED_FLIGHT_MASTER_RIDING_REQUIREMENT               = 191,
     SPELL_FAILED_CS_RIDING_REQUIREMENT                          = 192,
     SPELL_FAILED_PANDA_RIDING_REQUIREMENT                       = 193,
-    SPELL_FAILED_MOUNT_NO_FLOAT_HERE                            = 194,
-    SPELL_FAILED_MOUNT_NO_UNDERWATER_HERE                       = 195,
-    SPELL_FAILED_MOUNT_ABOVE_WATER_HERE                         = 196,
-    SPELL_FAILED_MOUNT_COLLECTED_ON_OTHER_CHAR                  = 197,
-    SPELL_FAILED_NOT_IDLE                                       = 198,
-    SPELL_FAILED_NOT_INACTIVE                                   = 199,
-    SPELL_FAILED_PARTIAL_PLAYTIME                               = 200,
-    SPELL_FAILED_NO_PLAYTIME                                    = 201,
-    SPELL_FAILED_NOT_IN_BATTLEGROUND                            = 202,
-    SPELL_FAILED_NOT_IN_RAID_INSTANCE                           = 203,
-    SPELL_FAILED_ONLY_IN_ARENA                                  = 204,
-    SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE                 = 205,
-    SPELL_FAILED_ON_USE_ENCHANT                                 = 206,
-    SPELL_FAILED_NOT_ON_GROUND                                  = 207,
-    SPELL_FAILED_CUSTOM_ERROR                                   = 208,
-    SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW                         = 209,
-    SPELL_FAILED_TOO_MANY_SOCKETS                               = 210,
-    SPELL_FAILED_INVALID_GLYPH                                  = 211,
-    SPELL_FAILED_UNIQUE_GLYPH                                   = 212,
-    SPELL_FAILED_GLYPH_SOCKET_LOCKED                            = 213,
-    SPELL_FAILED_GLYPH_EXCLUSIVE_CATEGORY                       = 214,
-    SPELL_FAILED_GLYPH_INVALID_SPEC                             = 215,
-    SPELL_FAILED_GLYPH_NO_SPEC                                  = 216,
-    SPELL_FAILED_NO_VALID_TARGETS                               = 217,
-    SPELL_FAILED_ITEM_AT_MAX_CHARGES                            = 218,
-    SPELL_FAILED_NOT_IN_BARBERSHOP                              = 219,
-    SPELL_FAILED_FISHING_TOO_LOW                                = 220,
-    SPELL_FAILED_ITEM_ENCHANT_TRADE_WINDOW                      = 221,
-    SPELL_FAILED_SUMMON_PENDING                                 = 222,
-    SPELL_FAILED_MAX_SOCKETS                                    = 223,
-    SPELL_FAILED_PET_CAN_RENAME                                 = 224,
-    SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED                   = 225,
-    SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING                   = 226,
-    SPELL_FAILED_NO_ACTIONS                                     = 227,
-    SPELL_FAILED_CURRENCY_WEIGHT_MISMATCH                       = 228,
-    SPELL_FAILED_WEIGHT_NOT_ENOUGH                              = 229,
-    SPELL_FAILED_WEIGHT_TOO_MUCH                                = 230,
-    SPELL_FAILED_NO_VACANT_SEAT                                 = 231,
-    SPELL_FAILED_NO_LIQUID                                      = 232,
-    SPELL_FAILED_ONLY_NOT_SWIMMING                              = 233,
-    SPELL_FAILED_BY_NOT_MOVING                                  = 234,
-    SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED                    = 235,
-    SPELL_FAILED_NOT_IN_ARENA                                   = 236,
-    SPELL_FAILED_TARGET_NOT_GROUNDED                            = 237,
-    SPELL_FAILED_EXCEEDED_WEEKLY_USAGE                          = 238,
-    SPELL_FAILED_NOT_IN_LFG_DUNGEON                             = 239,
-    SPELL_FAILED_BAD_TARGET_FILTER                              = 240,
-    SPELL_FAILED_NOT_ENOUGH_TARGETS                             = 241,
-    SPELL_FAILED_NO_SPEC                                        = 242,
-    SPELL_FAILED_CANT_ADD_BATTLE_PET                            = 243,
-    SPELL_FAILED_CANT_UPGRADE_BATTLE_PET                        = 244,
-    SPELL_FAILED_WRONG_BATTLE_PET_TYPE                          = 245,
-    SPELL_FAILED_NO_DUNGEON_ENCOUNTER                           = 246,
-    SPELL_FAILED_NO_TELEPORT_FROM_DUNGEON                       = 247,
-    SPELL_FAILED_MAX_LEVEL_TOO_LOW                              = 248,
-    SPELL_FAILED_CANT_REPLACE_ITEM_BONUS                        = 249,
-    GRANT_PET_LEVEL_FAIL                                        = 250,
-    SPELL_FAILED_SKILL_LINE_NOT_KNOWN                           = 251,
-    SPELL_FAILED_BLUEPRINT_KNOWN                                = 252,
-    SPELL_FAILED_FOLLOWER_KNOWN                                 = 253,
-    SPELL_FAILED_CANT_OVERRIDE_ENCHANT_VISUAL                   = 254,
-    SPELL_FAILED_ITEM_NOT_A_WEAPON                              = 255,
-    SPELL_FAILED_SAME_ENCHANT_VISUAL                            = 256,
-    SPELL_FAILED_TOY_USE_LIMIT_REACHED                          = 257,
-    SPELL_FAILED_TOY_ALREADY_KNOWN                              = 258,
-    SPELL_FAILED_SHIPMENTS_FULL                                 = 259,
-    SPELL_FAILED_NO_SHIPMENTS_FOR_CONTAINER                     = 260,
-    SPELL_FAILED_NO_BUILDING_FOR_SHIPMENT                       = 261,
-    SPELL_FAILED_NOT_ENOUGH_SHIPMENTS_FOR_CONTAINER             = 262,
-    SPELL_FAILED_HAS_MISSION                                    = 263,
-    SPELL_FAILED_BUILDING_ACTIVATE_NOT_READY                    = 264,
-    SPELL_FAILED_NOT_SOULBOUND                                  = 265,
-    SPELL_FAILED_RIDING_VEHICLE                                 = 266,
-    SPELL_FAILED_VETERAN_TRIAL_ABOVE_SKILL_RANK_MAX             = 267,
-    SPELL_FAILED_UNKNOWN                                        = 268,
+    SPELL_FAILED_DRAENOR_RIDING_REQUIREMENT                     = 194,
+    SPELL_FAILED_MOUNT_NO_FLOAT_HERE                            = 195,
+    SPELL_FAILED_MOUNT_NO_UNDERWATER_HERE                       = 196,
+    SPELL_FAILED_MOUNT_ABOVE_WATER_HERE                         = 197,
+    SPELL_FAILED_MOUNT_COLLECTED_ON_OTHER_CHAR                  = 198,
+    SPELL_FAILED_NOT_IDLE                                       = 199,
+    SPELL_FAILED_NOT_INACTIVE                                   = 200,
+    SPELL_FAILED_PARTIAL_PLAYTIME                               = 201,
+    SPELL_FAILED_NO_PLAYTIME                                    = 202,
+    SPELL_FAILED_NOT_IN_BATTLEGROUND                            = 203,
+    SPELL_FAILED_NOT_IN_RAID_INSTANCE                           = 204,
+    SPELL_FAILED_ONLY_IN_ARENA                                  = 205,
+    SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE                 = 206,
+    SPELL_FAILED_ON_USE_ENCHANT                                 = 207,
+    SPELL_FAILED_NOT_ON_GROUND                                  = 208,
+    SPELL_FAILED_CUSTOM_ERROR                                   = 209,
+    SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW                         = 210,
+    SPELL_FAILED_TOO_MANY_SOCKETS                               = 211,
+    SPELL_FAILED_INVALID_GLYPH                                  = 212,
+    SPELL_FAILED_UNIQUE_GLYPH                                   = 213,
+    SPELL_FAILED_GLYPH_SOCKET_LOCKED                            = 214,
+    SPELL_FAILED_GLYPH_EXCLUSIVE_CATEGORY                       = 215,
+    SPELL_FAILED_GLYPH_INVALID_SPEC                             = 216,
+    SPELL_FAILED_GLYPH_NO_SPEC                                  = 217,
+    SPELL_FAILED_NO_VALID_TARGETS                               = 218,
+    SPELL_FAILED_ITEM_AT_MAX_CHARGES                            = 219,
+    SPELL_FAILED_NOT_IN_BARBERSHOP                              = 220,
+    SPELL_FAILED_FISHING_TOO_LOW                                = 221,
+    SPELL_FAILED_ITEM_ENCHANT_TRADE_WINDOW                      = 222,
+    SPELL_FAILED_SUMMON_PENDING                                 = 223,
+    SPELL_FAILED_MAX_SOCKETS                                    = 224,
+    SPELL_FAILED_PET_CAN_RENAME                                 = 225,
+    SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED                   = 226,
+    SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING                   = 227,
+    SPELL_FAILED_NO_ACTIONS                                     = 228,
+    SPELL_FAILED_CURRENCY_WEIGHT_MISMATCH                       = 229,
+    SPELL_FAILED_WEIGHT_NOT_ENOUGH                              = 230,
+    SPELL_FAILED_WEIGHT_TOO_MUCH                                = 231,
+    SPELL_FAILED_NO_VACANT_SEAT                                 = 232,
+    SPELL_FAILED_NO_LIQUID                                      = 233,
+    SPELL_FAILED_ONLY_NOT_SWIMMING                              = 234,
+    SPELL_FAILED_BY_NOT_MOVING                                  = 235,
+    SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED                    = 236,
+    SPELL_FAILED_NOT_IN_ARENA                                   = 237,
+    SPELL_FAILED_TARGET_NOT_GROUNDED                            = 238,
+    SPELL_FAILED_EXCEEDED_WEEKLY_USAGE                          = 239,
+    SPELL_FAILED_NOT_IN_LFG_DUNGEON                             = 240,
+    SPELL_FAILED_BAD_TARGET_FILTER                              = 241,
+    SPELL_FAILED_NOT_ENOUGH_TARGETS                             = 242,
+    SPELL_FAILED_NO_SPEC                                        = 243,
+    SPELL_FAILED_CANT_ADD_BATTLE_PET                            = 244,
+    SPELL_FAILED_CANT_UPGRADE_BATTLE_PET                        = 245,
+    SPELL_FAILED_WRONG_BATTLE_PET_TYPE                          = 246,
+    SPELL_FAILED_NO_DUNGEON_ENCOUNTER                           = 247,
+    SPELL_FAILED_NO_TELEPORT_FROM_DUNGEON                       = 248,
+    SPELL_FAILED_MAX_LEVEL_TOO_LOW                              = 249,
+    SPELL_FAILED_CANT_REPLACE_ITEM_BONUS                        = 250,
+    GRANT_PET_LEVEL_FAIL                                        = 251,
+    SPELL_FAILED_SKILL_LINE_NOT_KNOWN                           = 252,
+    SPELL_FAILED_BLUEPRINT_KNOWN                                = 253,
+    SPELL_FAILED_FOLLOWER_KNOWN                                 = 254,
+    SPELL_FAILED_CANT_OVERRIDE_ENCHANT_VISUAL                   = 255,
+    SPELL_FAILED_ITEM_NOT_A_WEAPON                              = 256,
+    SPELL_FAILED_SAME_ENCHANT_VISUAL                            = 257,
+    SPELL_FAILED_TOY_USE_LIMIT_REACHED                          = 258,
+    SPELL_FAILED_TOY_ALREADY_KNOWN                              = 259,
+    SPELL_FAILED_SHIPMENTS_FULL                                 = 260,
+    SPELL_FAILED_NO_SHIPMENTS_FOR_CONTAINER                     = 261,
+    SPELL_FAILED_NO_BUILDING_FOR_SHIPMENT                       = 262,
+    SPELL_FAILED_NOT_ENOUGH_SHIPMENTS_FOR_CONTAINER             = 263,
+    SPELL_FAILED_HAS_MISSION                                    = 264,
+    SPELL_FAILED_BUILDING_ACTIVATE_NOT_READY                    = 265,
+    SPELL_FAILED_NOT_SOULBOUND                                  = 266,
+    SPELL_FAILED_RIDING_VEHICLE                                 = 267,
+    SPELL_FAILED_VETERAN_TRIAL_ABOVE_SKILL_RANK_MAX             = 268,
+    SPELL_FAILED_NOT_WHILE_MERCENARY                            = 269,
+    SPELL_FAILED_UNKNOWN                                        = 270,
     SPELL_CAST_OK                                               = 0xFFFF // custom value, must not be sent to client
 };
 
@@ -2032,12 +2034,14 @@ enum SpellMissInfo
 
 enum SpellHitType
 {
-    SPELL_HIT_TYPE_UNK1 = 0x00001,
-    SPELL_HIT_TYPE_CRIT = 0x00002,
-    SPELL_HIT_TYPE_UNK3 = 0x00004,
-    SPELL_HIT_TYPE_UNK4 = 0x00008,
-    SPELL_HIT_TYPE_UNK5 = 0x00010,                          // replace caster?
-    SPELL_HIT_TYPE_UNK6 = 0x00020
+    SPELL_HIT_TYPE_CRIT_DEBUG           = 0x01,
+    SPELL_HIT_TYPE_CRIT                 = 0x02,
+    SPELL_HIT_TYPE_HIT_DEBUG            = 0x04,
+    SPELL_HIT_TYPE_SPLIT                = 0x08,
+    SPELL_HIT_TYPE_VICTIM_IS_ATTACKER   = 0x10,
+    SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG   = 0x20,
+    SPELL_HIT_TYPE_UNK                  = 0x40,
+    SPELL_HIT_TYPE_NO_ATTACKER          = 0x80, // does the same as SPELL_ATTR4_COMBAT_LOG_NO_CASTER
 };
 
 enum SpellDmgClass
@@ -4667,32 +4671,32 @@ enum SpellFamilyNames
 
 enum TradeStatus
 {
-    TRADE_STATUS_STUNNED               = 0,
-    TRADE_STATUS_TARGET_DEAD           = 2,
-    TRADE_STATUS_PLAYER_IGNORED        = 3,
-    TRADE_STATUS_STATE_CHANGED         = 4,
-    TRADE_STATUS_PETITION              = 5,
-    TRADE_STATUS_FAILED                = 6,
-    TRADE_STATUS_NOT_ENOUGH_CURRENCY   = 7,
-    TRADE_STATUS_TARGET_LOGGING_OUT    = 8,
-    TRADE_STATUS_PROPOSED              = 9,
-    TRADE_STATUS_RESTRICTED_ACCOUNT    = 10,
-    TRADE_STATUS_WRONG_REALM           = 12,
-    TRADE_STATUS_ALREADY_TRADING       = 14,
-    TRADE_STATUS_COMPLETE              = 15,
-    TRADE_STATUS_TARGET_STUNNED        = 16,
+    TRADE_STATUS_LOGGING_OUT           = 0,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE = 1,
+    TRADE_STATUS_RESTRICTED_ACCOUNT    = 2,
+    TRADE_STATUS_DEAD                  = 3,
+    TRADE_STATUS_TARGET_LOGGING_OUT    = 4,
+    TRADE_STATUS_UNACCEPTED            = 5,
+    TRADE_STATUS_ALREADY_TRADING       = 6,
+    TRADE_STATUS_FAILED                = 10,
+    TRADE_STATUS_CANCELLED             = 11,
+    TRADE_STATUS_TARGET_STUNNED        = 12,
+    TRADE_STATUS_TARGET_DEAD           = 15,
+    TRADE_STATUS_WRONG_REALM           = 16,
     TRADE_STATUS_ACCEPTED              = 17,
-    TRADE_STATUS_NO_TARGET             = 18,
-    TRADE_STATUS_CURRENCY_NOT_TRADABLE = 19,
+    TRADE_STATUS_NOT_ENOUGH_CURRENCY   = 18,
+    TRADE_STATUS_NOT_ON_TAPLIST        = 19,
     TRADE_STATUS_WRONG_FACTION         = 20,
-    TRADE_STATUS_NOT_ON_TAPLIST        = 21,
-    TRADE_STATUS_UNACCEPTED            = 23,
-    TRADE_STATUS_LOGGING_OUT           = 24,
-    TRADE_STATUS_CANCELLED             = 26,
-    TRADE_STATUS_TOO_FAR_AWAY          = 27,
-    TRADE_STATUS_DEAD                  = 28,
-    TRADE_STATUS_INITIATED             = 29,
-    TRADE_STATUS_PLAYER_BUSY           = 30
+    TRADE_STATUS_STATE_CHANGED         = 22,
+    TRADE_STATUS_PROPOSED              = 23,
+    TRADE_STATUS_STUNNED               = 24,
+    TRADE_STATUS_INITIATED             = 25,
+    TRADE_STATUS_PLAYER_IGNORED        = 26,
+    TRADE_STATUS_PETITION              = 27,
+    TRADE_STATUS_COMPLETE              = 28,
+    TRADE_STATUS_PLAYER_BUSY           = 29,
+    TRADE_STATUS_TOO_FAR_AWAY          = 30,
+    TRADE_STATUS_NO_TARGET             = 31,
 };
 
 enum XPColorChar
@@ -4714,19 +4718,27 @@ enum RemoveMethod
 
 enum ActivateTaxiReply
 {
-    ERR_TAXIOK                      = 0,
-    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
-    ERR_TAXINOSUCHPATH              = 2,
-    ERR_TAXINOTENOUGHMONEY          = 3,
-    ERR_TAXITOOFARAWAY              = 4,
-    ERR_TAXINOVENDORNEARBY          = 5,
-    ERR_TAXINOTVISITED              = 6,
-    ERR_TAXIPLAYERBUSY              = 7,
-    ERR_TAXIPLAYERALREADYMOUNTED    = 8,
-    ERR_TAXIPLAYERSHAPESHIFTED      = 9,
+    ERR_TAXINOVENDORNEARBY          = 13,
     ERR_TAXIPLAYERMOVING            = 10,
-    ERR_TAXISAMENODE                = 11,
-    ERR_TAXINOTSTANDING             = 12
+    ERR_TAXIPLAYERALREADYMOUNTED    = 5,
+    ERR_TAXIPLAYERBUSY              = 14,
+    ERR_TAXINOTENOUGHMONEY          = 2,
+    ERR_TAXINOTSTANDING             = 11,
+    ERR_TAXIPLAYERSHAPESHIFTED      = 4,
+    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
+    ERR_TAXINOSUCHPATH              = 3,
+    ERR_TAXIOK                      = 8,
+    ERR_TAXISAMENODE                = 12,
+    ERR_TAXITOOFARAWAY              = 7,
+    ERR_TAXINOTVISITED              = 9
+};
+
+enum TaxiNodeStatus
+{
+    TAXISTATUS_NOT_ELIGIBLE     = 2,
+    TAXISTATUS_UNLEARNED        = 1,
+    TAXISTATUS_LEARNED          = 3,
+    TAXISTATUS_NONE             = 0
 };
 
 enum ProfessionUI
@@ -4885,35 +4897,6 @@ enum PartyResult
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
 };
 
-const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 7
-
-struct MmapTileHeader
-{
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    bool usesLiquids : 1;
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) { }
-};
-
-enum NavTerrain
-{
-    NAV_EMPTY   = 0x00,
-    NAV_GROUND  = 0x01,
-    NAV_MAGMA   = 0x02,
-    NAV_SLIME   = 0x04,
-    NAV_WATER   = 0x08,
-    NAV_UNUSED1 = 0x10,
-    NAV_UNUSED2 = 0x20,
-    NAV_UNUSED3 = 0x40,
-    NAV_UNUSED4 = 0x80
-    // we only have 8 bits
-};
-
 enum DiminishingLevels
 {
     DIMINISHING_LEVEL_1             = 0,
@@ -4935,6 +4918,22 @@ enum TokenResult
     TOKEN_RESULT_ERROR_TRANSACTION_IN_PROGRESS  = 6,
     TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED  = 7,
     TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 8
+};
+
+enum RaidGroupReason
+{
+    RAID_GROUP_ERR_NONE                 = 0,
+    RAID_GROUP_ERR_LOWLEVEL             = 1, // "You are too low level to enter this instance."
+    RAID_GROUP_ERR_ONLY                 = 2, // "You must be in a raid group to enter this instance."
+    RAID_GROUP_ERR_FULL                 = 3, // "The instance is full."
+    RAID_GROUP_ERR_REQUIREMENTS_UNMATCH = 4  // "You do not meet the requirements to enter this instance."
+};
+
+enum ResetFailedReason
+{
+    INSTANCE_RESET_FAILED           = 0, // "Cannot reset %s.  There are players still inside the instance."
+    INSTANCE_RESET_FAILED_ZONING    = 1, // "Cannot reset %s.  There are players in your party attempting to zone into an instance."
+    INSTANCE_RESET_FAILED_OFFLINE   = 2  // "Cannot reset %s.  There are players offline in your party."
 };
 
 #endif

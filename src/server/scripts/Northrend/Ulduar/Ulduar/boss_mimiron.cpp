@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -120,7 +120,7 @@ enum Spells
     SPELL_SUMMON_ROCKET_STRIKE                  = 63036,
     SPELL_SCRIPT_EFFECT_ROCKET_STRIKE           = 63681, // Cast by Rocket (Mimiron Visual)
     SPELL_ROCKET_STRIKE                         = 64064, // Added in creature_template_addon
-    SPELL_ROCKET_STRIKE_LEFT                    = 64402, // Cast by VX-001
+    SPELL_ROCKET_STRIKE_SINGLE                  = 64402, // Cast by VX-001
     SPELL_ROCKET_STRIKE_BOTH                    = 65034, // Cast by VX-001
 
     // Flames
@@ -318,6 +318,12 @@ enum Waypoints
     WP_MKII_P4_POS_4,
     WP_MKII_P4_POS_5,
     WP_AERIAL_P4_POS
+};
+
+enum SeatIds : int8
+{
+    ROCKET_SEAT_LEFT = 5,
+    ROCKET_SEAT_RIGHT = 6
 };
 
 uint32 const RepairSpells[4] =
@@ -695,7 +701,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                     {
                         me->CastStop();
                         if (Unit* turret = me->GetVehicleKit()->GetPassenger(3))
-                            turret->Kill(turret);
+                            turret->KillSelf();
 
                         me->SetSpeed(MOVE_RUN, 1.5f, true);
                         me->GetMotionMaster()->MovePoint(WP_MKII_P1_IDLE, VehicleRelocation[WP_MKII_P1_IDLE]);
@@ -1043,18 +1049,18 @@ class boss_vx_001 : public CreatureScript
                             events.RescheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX_001);
                             break;
                         case EVENT_ROCKET_STRIKE:
-                            DoCastAOE(events.IsInPhase(PHASE_VX_001) ? SPELL_ROCKET_STRIKE_LEFT : SPELL_ROCKET_STRIKE_BOTH);
+                            DoCastAOE(events.IsInPhase(PHASE_VX_001) ? SPELL_ROCKET_STRIKE_SINGLE : SPELL_ROCKET_STRIKE_BOTH);
                             events.ScheduleEvent(EVENT_RELOAD, 10000);
                             events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
                             break;
                         case EVENT_RELOAD:
-                            for (uint8 seat = 6; seat <= 7; seat++)
+                            for (int8 seat = ROCKET_SEAT_LEFT; seat <= ROCKET_SEAT_RIGHT; ++seat)
                                 if (Unit* rocket = me->GetVehicleKit()->GetPassenger(seat))
                                     rocket->SetDisplayId(rocket->GetNativeDisplayId());
                             break;
                         case EVENT_HAND_PULSE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 120, true))
-                                DoCast(target, urand(0, 1) == 0 ? SPELL_HAND_PULSE_LEFT : SPELL_HAND_PULSE_RIGHT);
+                                DoCast(target, RAND(SPELL_HAND_PULSE_LEFT, SPELL_HAND_PULSE_RIGHT));
                             events.RescheduleEvent(EVENT_HAND_PULSE, urand(1500, 3000), 0, PHASE_VOL7RON);
                             break;
                         case EVENT_FROST_BOMB:
@@ -1628,7 +1634,7 @@ class go_mimiron_hardmode_button : public GameObjectScript
     public:
         go_mimiron_hardmode_button() : GameObjectScript("go_mimiron_hardmode_button") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)
@@ -2187,8 +2193,8 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                if (m_scriptSpellId == SPELL_ROCKET_STRIKE_LEFT && GetCaster()->IsVehicle())
-                    if (WorldObject* target = GetCaster()->GetVehicleKit()->GetPassenger(6))
+                if (m_scriptSpellId == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
+                    if (WorldObject* target = GetCaster()->GetVehicleKit()->GetPassenger(RAND(ROCKET_SEAT_LEFT, ROCKET_SEAT_RIGHT)))
                     {
                         targets.clear();
                         targets.push_back(target);
@@ -2750,7 +2756,7 @@ class achievement_setup_boom : public AchievementCriteriaScript
     public:
         achievement_setup_boom() : AchievementCriteriaScript("achievement_setup_boom") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SETUP_BOMB);
         }
@@ -2761,7 +2767,7 @@ class achievement_setup_mine : public AchievementCriteriaScript
     public:
         achievement_setup_mine() : AchievementCriteriaScript("achievement_setup_mine") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SETUP_MINE);
         }
@@ -2772,7 +2778,7 @@ class achievement_setup_rocket : public AchievementCriteriaScript
     public:
         achievement_setup_rocket() : AchievementCriteriaScript("achievement_setup_rocket") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SETUP_ROCKET);
         }
@@ -2783,7 +2789,7 @@ class achievement_firefighter : public AchievementCriteriaScript
     public:
         achievement_firefighter() : AchievementCriteriaScript("achievement_firefighter") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_FIREFIGHTER);
         }

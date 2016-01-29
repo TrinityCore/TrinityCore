@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,6 +112,7 @@ namespace WorldPackets
                 std::vector<int32> Stats;
                 int32 PrimaryTalentTree = 0;
                 uint32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
+                uint32 Race;
             };
 
             Optional<uint8> Winner;
@@ -209,6 +210,16 @@ namespace WorldPackets
             uint8 Roles = 0;
             uint64 QueueID = 0;
             int32 BlacklistMap[2] = { };
+        };
+
+        class BattlemasterJoinArena final : public ClientPacket
+        {
+        public:
+            BattlemasterJoinArena(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_ARENA, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 TeamSizeIndex = 0;
         };
 
         class BattlefieldLeave final : public ClientPacket
@@ -352,6 +363,16 @@ namespace WorldPackets
         {
         public:
             BattlegroundPlayerLeft() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class DestroyArenaUnit final : public ServerPacket
+        {
+        public:
+            DestroyArenaUnit() : ServerPacket(SMSG_DESTROY_ARENA_UNIT, 16) { }
 
             WorldPacket const* Write() override;
 

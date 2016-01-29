@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,16 +17,8 @@
  */
 
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
-
-#include "ArenaTeam.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "SocialMgr.h"
-#include "ArenaTeamMgr.h"
 #include "Opcodes.h"
 
 void WorldSession::SendNotInArenaTeamPacket(uint8 type)

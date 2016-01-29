@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,10 +28,9 @@ EndScriptData */
 
 enum Ironaya
 {
-    SAY_AGGRO                   = 0,
     SPELL_ARCINGSMASH           = 8374,
     SPELL_KNOCKAWAY             = 10101,
-    SPELL_WSTOMP                = 11876,
+    SPELL_WSTOMP                = 11876
 };
 
 class boss_ironaya : public CreatureScript
@@ -66,10 +65,7 @@ class boss_ironaya : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-            }
+            void EnterCombat(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 uiDiff) override
             {

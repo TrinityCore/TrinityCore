@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -956,7 +956,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) override
+            void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
@@ -1224,7 +1224,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) override
+            void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
@@ -1389,7 +1389,7 @@ class npc_zafod_boombox : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
+            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
                 player->PlayerTalkClass->SendCloseGossip();

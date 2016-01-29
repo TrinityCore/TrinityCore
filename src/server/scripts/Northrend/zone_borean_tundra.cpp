@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -593,12 +593,13 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            Talk(SAY_START_1);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_START_1, player);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            Talk(SAY_END_1);
+                            Talk(SAY_START_2);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -608,12 +609,13 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            Talk(SAY_START_2);
+                            Talk(SAY_END_1);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            Talk(SAY_END_2);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_END_2, player);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
@@ -1321,7 +1323,7 @@ public:
             arlos->AI()->Talk(SAY_ARLOS_1);
             arlos->AI()->Talk(SAY_ARLOS_2);
             leryssa->AI()->Talk(SAY_LERYSSA_1);
-            arlos->Kill(arlos, false);
+            arlos->KillSelf(false);
             leryssa->RemoveAura(SPELL_STUN);
             leryssa->ClearUnitState(UNIT_STATE_STUNNED);
             leryssa->SetWalk(false);
@@ -1650,13 +1652,13 @@ public:
                         break;
                     case 5:
                         Talk(SAY_IMPRISIONED_BERYL_5);
+                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                     case 6:
                         Talk(SAY_IMPRISIONED_BERYL_6, caster);
                         break;
                     case 7:
                         Talk(SAY_IMPRISIONED_BERYL_7);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
                         break;
                 }
             }
@@ -1816,7 +1818,7 @@ public:
                 player->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
-        void UpdateEscortAI(const uint32 /*diff*/) override
+        void UpdateEscortAI(uint32 /*diff*/) override
         {
             if (GetAttack() && UpdateVictim())
             {

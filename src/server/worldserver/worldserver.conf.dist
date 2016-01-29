@@ -953,7 +953,7 @@ Guild.NewsLogRecordsCount = 250
 #
 #    MaxPrimaryTradeSkill
 #        Description: Maximum number of primary professions a character can learn.
-#        Range:       0-10
+#        Range:       0-11
 #        Default:     2
 
 MaxPrimaryTradeSkill = 2
@@ -1040,9 +1040,8 @@ BeepAtStart = 1
 
 #
 #    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
+#        Description: Message of the Day, displayed at login. Use '@' for a newline.
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
 Motd = "Welcome to a Trinity Core server."
@@ -1143,11 +1142,11 @@ FeatureSystem.CharacterUndelete.Cooldown = 2592000
 #           DATABASE_WORLD     = 4, // World database
 #           DATABASE_HOTFIX    = 8, // Hotfixes database
 #
-#        Default:     0  - (All Disabled)
+#        Default:     15 - (All enabled)
 #                     4  - (Enable world only)
-#                     15 - (All enabled)
+#                     0  - (All Disabled)
 
-Updates.EnableDatabases = 0
+Updates.EnableDatabases = 15
 
 #
 #    Updates.SourcePath
@@ -1159,7 +1158,7 @@ Updates.EnableDatabases = 0
 Updates.SourcePath  = ""
 
 #
-#    Updates.SourcePath
+#    Updates.MySqlCLIPath
 #        Description: The path to your mysql cli binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
@@ -1678,6 +1677,7 @@ GM.WhisperingTo = 2
 #                    applied on players when using the .freeze command
 #       Default:     0 - (Original aura duration. Lasts until the .unfreeze command is used)
 #                    N - (Aura duration if unspecified in .freeze command, in seconds)
+
 GM.FreezeAuraDuration = 0
 
 #
@@ -1905,13 +1905,21 @@ Rate.Drop.Item.ReferencedAmount = 1
 #    Rate.XP.Quest
 #    Rate.XP.Explore
 #        Description: Experience rates.
-#        Default:     1 - (Rate.XP.Kill)
+#        Default:     1 - (Rate.XP.Kill, affects only kills outside of Battlegrounds)
 #                     1 - (Rate.XP.Quest)
 #                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
+
+#
+#    Rate.XP.BattlegroundKill
+#        Description: Experience rate for honorable kills in battlegrounds,
+#                     it works when Battleground.GiveXPForKills = 1
+#        Default:     1
+
+Rate.XP.BattlegroundKill = 1
 
 #
 #    Rate.Quest.Money.Reward
@@ -2193,7 +2201,7 @@ AutoBroadcast.Center = 0
 #
 #    AutoBroadcast.Timer
 #        Description: Timer (in milliseconds) for auto broadcasts.
-#        Default:     60000 - (10 minutes)
+#        Default:     600000 - (10 minutes)
 
 AutoBroadcast.Timer = 600000
 
@@ -2241,6 +2249,7 @@ Battleground.StoreStatistics.Enable = 0
 #                          Don't bother with balance)
 #                     1 - (Experimental, Don't allow to invite much more players
 #                          of one faction)
+#                     2 - (Experimental, Try to have even teams)
 
 Battleground.InvitationType = 0
 
@@ -2264,7 +2273,8 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
-#        Description: Give experience for honorable kills in battlegrounds.
+#        Description: Give experience for honorable kills in battlegrounds,
+#                     the rate can be changed in the Rate.XP.BattlegroundKill setting.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -2310,7 +2320,7 @@ Battleground.RewardLoserHonorLast       = 3500
 #     Wintergrasp.Enable
 #         Description: Enable the Wintergrasp battlefield.
 #         Default:     0 - (Disabled)
-#                      1 - (Enabled, Experimental as of still being in development)
+#                      1 - (Enabled, Experimental as in incomplete, bugged and with crashes)
 
 Wintergrasp.Enable = 0
 
@@ -2445,6 +2455,39 @@ Arena.ArenaStartPersonalRating = 0
 #        Default:     1500
 
 Arena.ArenaStartMatchmakerRating = 1500
+
+#
+#    Arena.ArenaWinRatingModifier1
+#        Description: Modifier of rating addition when winner team rating is less than 1300
+#                     be aware that from 1000 to 1300 it gradually decreases automatically down to the half of it
+#                     (increasing this value will give more rating)
+#        Default:     48
+
+Arena.ArenaWinRatingModifier1 = 48
+
+#
+#    Arena.ArenaWinRatingModifier2
+#        Description: Modifier of rating addition when winner team rating is equal or more than 1300
+#                     (increasing this value will give more rating)
+#        Default:     24
+
+Arena.ArenaWinRatingModifier2 = 24
+
+
+#
+#    Arena.ArenaLoseRatingModifier
+#        Description: Modifier of rating subtraction for loser team
+#                     (increasing this value will subtract more rating)
+#        Default:     24
+
+Arena.ArenaLoseRatingModifier = 24
+
+#
+#    Arena.ArenaMatchmakerRatingModifier
+#        Description: Modifier of matchmaker rating
+#        Default:     24
+
+Arena.ArenaMatchmakerRatingModifier = 24
 
 #
 #    ArenaLog.ExtendedInfo
@@ -2601,14 +2644,14 @@ CharDelete.KeepDays = 30
 #
 #     AllowTrackBothResources
 #        Description: Allows players to track herbs and minerals at the same time (if they have the skills)
-#        Default: 0 (do not allow)
-#                 1 (allow)
+#        Default:     0 - (Do not allow)
+#                     1 - (Allow)
 #
-#        Note: The following are client limitations and cannot be coded for:
-#           * The minimap tracking icon will display whichever skill is activated second
-#           * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
-#              bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
-#           * The minimap dots are yellow for both resources
+#        Note:        The following are client limitations and cannot be coded for:
+#                     * The minimap tracking icon will display whichever skill is activated second.
+#                     * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
+#                       bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
+#                     * The minimap dots are yellow for both resources.
 
 AllowTrackBothResources = 0
 
@@ -2647,6 +2690,21 @@ PlayerStart.MapsExplored = 0
 #                     1+ - (Enabled)
 
 HonorPointsAfterDuel = 0
+
+#
+#    ResetDuelCooldowns
+#        Description: Reset all cooldowns before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelCooldowns = 0
+
+#    ResetDuelHealthMana
+#        Description: Reset health and mana before duel starts and restore them when duel ends.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+ResetDuelHealthMana = 0
 
 #
 #    AlwaysMaxWeaponSkill
@@ -2981,6 +3039,42 @@ AuctionHouseBot.Horde.Price.Ratio = 100
 AuctionHouseBot.Neutral.Price.Ratio = 100
 
 #
+#    AuctionHouseBot.Items.QUALITY.Price.Ratio
+#       Description: Percentage by which the price of items sold of each quality is incremented / decreased (for all houses)
+#       Default:     100 - (No change)
+
+AuctionHouseBot.Items.Gray.Price.Ratio = 100
+AuctionHouseBot.Items.White.Price.Ratio = 100
+AuctionHouseBot.Items.Green.Price.Ratio = 100
+AuctionHouseBot.Items.Blue.Price.Ratio = 100
+AuctionHouseBot.Items.Purple.Price.Ratio = 100
+AuctionHouseBot.Items.Orange.Price.Ratio = 100
+AuctionHouseBot.Items.Yellow.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Class.CLASS.Price.Ratio
+#       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
+#       Default:   100 - (No change)
+
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100 
+AuctionHouseBot.Class.Container.Price.Ratio = 100 
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100 
+AuctionHouseBot.Class.Gem.Price.Ratio = 100 
+AuctionHouseBot.Class.Armor.Price.Ratio = 100 
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100 
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100 
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100 
+AuctionHouseBot.Class.Generic.Price.Ratio = 100 
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100 
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100 
+AuctionHouseBot.Class.Quest.Price.Ratio = 100 
+AuctionHouseBot.Class.Key.Price.Ratio = 100 
+AuctionHouseBot.Class.Misc.Price.Ratio = 100 
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100 
+
+
+
+#
 #    AuctionHouseBot.Items.ItemLevel.*
 #       Description: Prevent seller from listing items below/above this item level
 #       Default:     0 - (Disabled)
@@ -2990,8 +3084,8 @@ AuctionHouseBot.Items.ItemLevel.Max = 0
 
 #
 #    AuctionHouseBot.Items.ReqLevel.*
-#        Prevent seller from listing items below/above this required level
-#    Default: - 0 (Disabled)
+#       Description: Prevent seller from listing items below/above this required level
+#       Default:     0 - (Disabled)
 
 AuctionHouseBot.Items.ReqLevel.Min = 0
 AuctionHouseBot.Items.ReqLevel.Max = 0
@@ -3021,7 +3115,7 @@ AuctionHouseBot.Items.Amount.Orange = 0
 AuctionHouseBot.Items.Amount.Yellow = 0
 
 #
-#    AustionHouseBot.Class.*
+#    AuctionHouseBot.Class.*
 #       Description: Here you can set the class of items you prefer to be show on AH
 #                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
 #       Default:     Consumable: 6
@@ -3055,6 +3149,7 @@ AuctionHouseBot.Class.Quest = 1
 AuctionHouseBot.Class.Key = 1
 AuctionHouseBot.Class.Misc = 5
 AuctionHouseBot.Class.Glyph = 3
+
 
 #
 ###################################################################################################
@@ -3152,6 +3247,13 @@ AuctionHouseBot.Buyer.Enabled = 0
 AuctionHouseBot.Buyer.Alliance.Enabled = 0
 AuctionHouseBot.Buyer.Horde.Enabled = 0
 AuctionHouseBot.Buyer.Neutral.Enabled = 0
+
+#    AuctionHouseBot.Buyer.ChanceFactor
+#       Description: k value in the formula used for the chance to buy an item "100^(1 + (1 - (AuctionBid / ItemPrice)) / k)"
+#                    It must be a decimal number in the range of (0, +infinity). The higher the number the higher chance to buy overpriced auctions
+#       Default:     2
+
+AuctionHouseBot.Buyer.ChanceFactor = 2
 
 #
 #    AuctionHouseBot.Buyer.Baseprice.QUALITY

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -435,7 +435,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     if (!normalizePlayerName(name))
         name.clear();
 
-    if (ObjectMgr::CheckPlayerName(name, true) == CHAR_NAME_SUCCESS)
+    if (ObjectMgr::CheckPlayerName(name, sWorld->GetDefaultDbcLocale(), true) == CHAR_NAME_SUCCESS)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
         stmt->setString(0, name);
@@ -681,7 +681,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(guid), name, gender, race, playerClass, level, false);
+    sWorld->AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(guid), account, name, gender, race, playerClass, level, false);
 
     sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
     sObjectMgr->_mailId     += mails.size();

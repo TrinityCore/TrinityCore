@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,17 @@
 
 #include "ItemPackets.h"
 #include "Player.h"
+
+bool WorldPackets::Item::ItemBonusInstanceData::operator==(ItemBonusInstanceData const& r) const
+{
+    if (Context != r.Context)
+        return false;
+
+    if (BonusListIDs.size() != r.BonusListIDs.size())
+        return false;
+
+    return std::is_permutation(BonusListIDs.begin(), BonusListIDs.end(), r.BonusListIDs.begin());
+}
 
 void WorldPackets::Item::BuyBackItem::Read()
 {
@@ -58,6 +69,63 @@ WorldPacket const* WorldPackets::Item::BuyFailed::Write()
 void WorldPackets::Item::GetItemPurchaseData::Read()
 {
     _worldPacket >> ItemGUID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundItem& refundItem)
+{
+    data << refundItem.ItemID;
+    data << refundItem.ItemCount;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundCurrency& refundCurrency)
+{
+    data << refundCurrency.CurrencyID;
+    data << refundCurrency.CurrencyCount;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseContents& purchaseContents)
+{
+    data << purchaseContents.Money;
+    for (uint32 i = 0; i < 5; ++i)
+        data << purchaseContents.Items[i];
+
+    for (uint32 i = 0; i < 5; ++i)
+        data << purchaseContents.Currencies[i];
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Item::SetItemPurchaseData::Write()
+{
+    _worldPacket << ItemGUID;
+    _worldPacket << Contents;
+    _worldPacket << Flags;
+    _worldPacket << PurchaseTime;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
+{
+    _worldPacket << ItemGUID;
+    _worldPacket << uint8(Result);
+    _worldPacket.WriteBit(Contents.is_initialized());
+    _worldPacket.FlushBits();
+    if (Contents)
+        _worldPacket << *Contents;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemExpirePurchaseRefund::Write()
+{
+    _worldPacket << ItemGUID;
+
+    return &_worldPacket;
 }
 
 void WorldPackets::Item::RepairItem::Read()
@@ -185,14 +253,13 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
         ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
     }
 
-    uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-    if (mask != 0)
-        Modifications = WorldPackets::CompactArray<int32>();
-
-    for (size_t i = 0; mask != 0; mask >>= 1, ++i)
+    if (uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK))
     {
-        if ((mask & 1) != 0)
-            Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
+        Modifications = boost::in_place();
+
+        for (size_t i = 0; mask != 0; mask >>= 1, ++i)
+            if ((mask & 1) != 0)
+                Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
     }
 }
 
@@ -216,6 +283,34 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
     ItemID = voidItem->ItemEntry;
     RandomPropertiesID = voidItem->ItemRandomPropertyId;
     RandomPropertiesSeed = voidItem->ItemSuffixFactor;
+    if (voidItem->ItemUpgradeId)
+    {
+        Modifications = boost::in_place();
+        Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, voidItem->ItemUpgradeId);
+    }
+
+    if (!voidItem->BonusListIDs.empty())
+    {
+        ItemBonus = boost::in_place();
+        ItemBonus->BonusListIDs = voidItem->BonusListIDs;
+    }
+}
+
+bool WorldPackets::Item::ItemInstance::operator==(ItemInstance const& r) const
+{
+    if (ItemID != r.ItemID || RandomPropertiesID != r.RandomPropertiesID || RandomPropertiesSeed != r.RandomPropertiesSeed)
+        return false;
+
+    if (ItemBonus.is_initialized() != r.ItemBonus.is_initialized() || Modifications.is_initialized() != r.Modifications.is_initialized())
+        return false;
+
+    if (Modifications.is_initialized() && *Modifications != *r.Modifications)
+        return false;
+
+    if (ItemBonus.is_initialized() && *ItemBonus != *r.ItemBonus)
+        return false;
+
+    return true;
 }
 
 WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
@@ -316,25 +411,27 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
 {
     _worldPacket << PlayerGUID;
 
-    _worldPacket << Slot;
-    _worldPacket << SlotInBag;
+    _worldPacket << uint8(Slot);
+    _worldPacket << int32(SlotInBag);
 
     _worldPacket << Item;
 
-    _worldPacket << WodUnk;
-    _worldPacket << Quantity;
-    _worldPacket << QuantityInInventory;
-    _worldPacket << BattlePetBreedID;
-    _worldPacket << BattlePetBreedQuality;
-    _worldPacket << BattlePetSpeciesID;
-    _worldPacket << BattlePetLevel;
+    _worldPacket << uint32(QuestLogItemID);
+    _worldPacket << int32(Quantity);
+    _worldPacket << int32(QuantityInInventory);
+    _worldPacket << uint32(DungeonEncounterID);
+    _worldPacket << int32(BattlePetBreedID);
+    _worldPacket << int32(BattlePetBreedQuality);
+    _worldPacket << int32(BattlePetSpeciesID);
+    _worldPacket << int32(BattlePetLevel);
 
     _worldPacket << ItemGUID;
 
     _worldPacket.WriteBit(Pushed);
     _worldPacket.WriteBit(Created);
-    _worldPacket.WriteBit(DisplayText);
+    _worldPacket.WriteBits(DisplayText, 2);
     _worldPacket.WriteBit(IsBonusRoll);
+    _worldPacket.WriteBit(IsEncounterLoot);
 
     _worldPacket.FlushBits();
 
@@ -379,6 +476,7 @@ WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
 {
     _worldPacket << ItemGuid;
     _worldPacket << uint32(SpellID);
+    _worldPacket << uint32(Cooldown);
 
     return &_worldPacket;
 }
@@ -389,6 +487,55 @@ WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
     _worldPacket << uint32(DurationLeft);
     _worldPacket << uint32(Slot);
     _worldPacket << OwnerGuid;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::TransmogrifyItem& transmogItem)
+{
+    if (data.ReadBit())
+        transmogItem.SrcItemGUID = boost::in_place();
+
+    if (data.ReadBit())
+        transmogItem.SrcVoidItemGUID = boost::in_place();
+
+    data >> transmogItem.Item;
+    data >> transmogItem.Slot;
+
+    if (transmogItem.SrcItemGUID.is_initialized())
+        data >> *transmogItem.SrcItemGUID;
+
+    if (transmogItem.SrcVoidItemGUID.is_initialized())
+        data >> *transmogItem.SrcVoidItemGUID;
+
+    return data;
+}
+
+void WorldPackets::Item::TransmogrifyItems::Read()
+{
+    Items.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Npc;
+    for (TransmogrifyItem& item : Items)
+        _worldPacket >> item;
+}
+
+void WorldPackets::Item::UseCritterItem::Read()
+{
+    _worldPacket >> ItemGuid;
+}
+
+void WorldPackets::Item::SocketGems::Read()
+{
+    _worldPacket >> ItemGuid;
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        _worldPacket >> GemItem[i];
+}
+
+WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
+{
+    _worldPacket << Item;
+    _worldPacket.append(Sockets, MAX_GEM_SOCKETS);
+    _worldPacket << int32(SocketMatch);
 
     return &_worldPacket;
 }

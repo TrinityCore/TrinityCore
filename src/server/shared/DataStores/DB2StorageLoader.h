@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
-
+#include "Implementation/HotfixDatabase.h"
 #include <cassert>
 #include <list>
 
@@ -38,23 +38,29 @@ class DB2FileLoader
         float getFloat(size_t field) const
         {
             assert(field < file.fieldCount);
-            float val = *reinterpret_cast<float*>(offset+file.GetOffset(field));
+            float val = *reinterpret_cast<float*>(offset + file.GetOffset(field));
             EndianConvert(val);
             return val;
         }
         uint32 getUInt(size_t field) const
         {
             assert(field < file.fieldCount);
-            uint32 val = *reinterpret_cast<uint32*>(offset+file.GetOffset(field));
+            uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
             EndianConvert(val);
             return val;
         }
         uint8 getUInt8(size_t field) const
         {
             assert(field < file.fieldCount);
-            return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
+            return *reinterpret_cast<uint8*>(offset + file.GetOffset(field));
         }
-
+        uint64 getUInt64(size_t field) const
+        {
+            assert(field < file.fieldCount);
+            uint64 val = *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
+            EndianConvert(val);
+            return val;
+        }
         const char *getString(size_t field) const
         {
             assert(field < file.fieldCount);
@@ -85,7 +91,9 @@ class DB2FileLoader
     char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
     static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
     static uint32 GetFormatStringFieldCount(const char * format);
+    static uint32 GetFormatLocalizedStringFieldCount(const char * format);
 private:
+    char const* fileName;
 
     uint32 recordSize;
     uint32 recordCount;
@@ -102,7 +110,7 @@ private:
     int unk1;            // WDB2 (Unix time in WCH2)
     int minIndex;        // WDB2
     int maxIndex;        // WDB2 (index table)
-    int locale;          // WDB2
+    int localeMask;      // WDB2
     int unk5;            // WDB2
 };
 
@@ -111,9 +119,9 @@ class DB2DatabaseLoader
 public:
     explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
 
-    char* Load(const char* format, uint32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
-    void LoadStrings(const char* format, uint32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
-    static char* AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value);
+    char* Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
+    void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
+    static char* AddString(char const** holder, std::string const& value);
 
 private:
     std::string _storageName;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,14 +17,11 @@
  */
 
 #include "BattlegroundWS.h"
-#include "Creature.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Object.h"
-#include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 
 // these variables aren't used outside of this file, so declare them only here
@@ -909,7 +906,10 @@ bool BattlegroundWS::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     switch (criteriaId)
     {
         case BG_CRITERIA_CHECK_SAVE_THE_DAY:
-            return GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE;
+            if (target)
+                if (Player const* playerTarget = target->ToPlayer())
+                    return GetFlagState(playerTarget->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE;
+            return false;
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscValue);

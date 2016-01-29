@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,6 @@
 #include <time.h>
 #include <cmath>
 #include <type_traits>
-#include <boost/asio/buffer.hpp>
 
 class MessageBuffer;
 
@@ -527,10 +526,10 @@ class ByteBuffer
             if (_rpos + length > size())
                 throw ByteBufferPositionException(false, _rpos, length, size());
 
+            ResetBitPos();
             if (!length)
                 return std::string();
 
-            ResetBitPos();
             std::string str((char const*)&_storage[_rpos], length);
             _rpos += length;
             return str;
@@ -658,7 +657,7 @@ class ByteBuffer
             put<uint8>(pos, mask);
         }
 
-        size_t PackUInt64(uint64 value, uint8* mask, uint8* result) const
+        static size_t PackUInt64(uint64 value, uint8* mask, uint8* result)
         {
             size_t resultSize = 0;
             *mask = 0;

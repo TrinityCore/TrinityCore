@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -277,18 +277,27 @@ void Garrison::Upgrade()
 
 void Garrison::Enter() const
 {
-    WorldLocation loc(_siteLevel->MapID);
-    loc.Relocate(_owner);
-    _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+    if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
+    {
+        if (int32(_owner->GetMapId()) == map->ParentMapID)
+        {
+            WorldLocation loc(_siteLevel->MapID);
+            loc.Relocate(_owner);
+            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+        }
+    }
 }
 
 void Garrison::Leave() const
 {
     if (MapEntry const* map = sMapStore.LookupEntry(_siteLevel->MapID))
     {
-        WorldLocation loc(map->ParentMapID);
-        loc.Relocate(_owner);
-        _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+        if (_owner->GetMapId() == _siteLevel->MapID)
+        {
+            WorldLocation loc(map->ParentMapID);
+            loc.Relocate(_owner);
+            _owner->TeleportTo(loc, TELE_TO_SEAMLESS);
+        }
     }
 }
 
@@ -725,7 +734,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
                 finalizer->SetRespawnTime(0);
 
                 if (uint16 animKit = finalizeInfo->FactionInfo[faction].AnimKitId)
-                    finalizer->SetAIAnimKitId(animKit);
+                    finalizer->SetAnimKitId(animKit, false);
 
                 map->AddToMap(finalizer);
             }

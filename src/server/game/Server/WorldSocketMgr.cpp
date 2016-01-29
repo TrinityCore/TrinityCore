@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2008  MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 #include "ScriptMgr.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+
 #include <boost/system/error_code.hpp>
 
 static void OnSocketAccept(tcp::socket&& sock)

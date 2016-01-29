@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,9 @@
 
 #include "Position.h"
 #include "ByteBuffer.h"
-#include "G3D/g3dmath.h"
 #include "GridDefines.h"
+
+#include <G3D/g3dmath.h>
 
 bool Position::operator==(Position const &a)
 {
@@ -95,6 +96,34 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
         vcos = dx / dist;
         vsin = dy / dist;
     }
+}
+
+bool Position::IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const
+{
+    // rotate the WorldObject position instead of rotating the whole cube, that way we can make a simplified
+    // is-in-cube check and we have to calculate only one point instead of 4
+
+    // 2PI = 360*, keep in mind that ingame orientation is counter-clockwise
+    double rotation = 2 * M_PI - center.GetOrientation();
+    double sinVal = std::sin(rotation);
+    double cosVal = std::cos(rotation);
+
+    float BoxDistX = GetPositionX() - center.GetPositionX();
+    float BoxDistY = GetPositionY() - center.GetPositionY();
+
+    float rotX = float(center.GetPositionX() + BoxDistX * cosVal - BoxDistY*sinVal);
+    float rotY = float(center.GetPositionY() + BoxDistY * cosVal + BoxDistX*sinVal);
+
+    // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
+    float dz = GetPositionZ() - center.GetPositionZ();
+    float dx = rotX - center.GetPositionX();
+    float dy = rotY - center.GetPositionY();
+    if ((std::fabs(dx) > xradius) ||
+        (std::fabs(dy) > yradius) ||
+        (std::fabs(dz) > zradius))
+        return false;
+
+    return true;
 }
 
 bool Position::HasInArc(float arc, const Position* obj, float border) const

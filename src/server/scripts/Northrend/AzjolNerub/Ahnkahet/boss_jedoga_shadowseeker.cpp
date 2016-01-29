@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -185,7 +185,7 @@ public:
                         who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         AttackStart(who);
                     }
-                    else if (me->GetMap()->IsDungeon())
+                    else
                     {
                         who->SetInCombatWith(me);
                         me->AddThreat(who, 0.0f);
@@ -433,7 +433,7 @@ public:
                         {
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = false;
-                            me->Kill(me);
+                            me->KillSelf();
                         }
                     }
                     break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -401,20 +401,21 @@ class StartAttackEvent : public BasicEvent
 {
     public:
         StartAttackEvent(Creature* summoner, Creature* owner)
-            : _summoner(summoner), _owner(owner)
+            : _summonerGuid(summoner->GetGUID()), _owner(owner)
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f))
-                _owner->AI()->AttackStart(target);
+            if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
+                if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f))
+                    _owner->AI()->AttackStart(target);
             return true;
         }
 
     private:
-        Creature* _summoner;
+        ObjectGuid _summonerGuid;
         Creature* _owner;
 };
 
@@ -695,19 +696,22 @@ class boss_sara : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (_events.IsInPhase(PHASE_ONE) && damage >= me->GetHealth())
+                if (damage >= me->GetHealth())
                 {
-                    damage = 0;
+                    damage = me->GetHealth() - 1;
 
-                    if (Creature* voice = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VOICE_OF_YOGG_SARON)))
-                        voice->AI()->DoAction(ACTION_PHASE_TRANSFORM);
+                    if (_events.IsInPhase(PHASE_ONE))
+                    {
+                        if (Creature* voice = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VOICE_OF_YOGG_SARON)))
+                            voice->AI()->DoAction(ACTION_PHASE_TRANSFORM);
 
-                    Talk(SAY_SARA_TRANSFORM_1);
-                    _events.SetPhase(PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_1, 4700, 0, PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_2, 9500, 0, PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_3, 14300, 0, PHASE_TRANSFORM);
-                    _events.ScheduleEvent(EVENT_TRANSFORM_4, 14500, 0, PHASE_TRANSFORM);
+                        Talk(SAY_SARA_TRANSFORM_1);
+                        _events.SetPhase(PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_1, 4700, 0, PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_2, 9500, 0, PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_3, 14300, 0, PHASE_TRANSFORM);
+                        _events.ScheduleEvent(EVENT_TRANSFORM_4, 14500, 0, PHASE_TRANSFORM);
+                    }
                 }
             }
 
@@ -1504,9 +1508,9 @@ class npc_observation_ring_keeper : public CreatureScript
                 DoCast(SPELL_KEEPER_ACTIVE);
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 /*action*/) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
-                if (sender != 10333)
+                if (menuId != 10333)
                     return;
 
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -2419,7 +2423,7 @@ class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125
             {
                 if (Unit* vehicle = GetTarget()->GetVehicleBase())
                     if (vehicle->IsAlive())
-                        vehicle->Kill(vehicle); // should tentacle die or just release its target?
+                        vehicle->KillSelf(); // should tentacle die or just release its target?
             }
 
             void Register() override
@@ -2901,7 +2905,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsAlive())
-                    GetTarget()->Kill(GetTarget());
+                    GetTarget()->KillSelf();
             }
 
             void Register() override

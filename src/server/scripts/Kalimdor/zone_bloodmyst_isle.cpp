@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -335,7 +335,7 @@ public:
         EventMap _events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_sironasAI(creature);
     }
@@ -527,7 +527,7 @@ public:
                         case PHASE_PLANT_FIRST_DETONATE: // first explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
+                                if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();
@@ -624,7 +624,7 @@ public:
                         case PHASE_PLANT_SECOND_DETONATE: // second explosives detonate finish
                             for (GuidList::iterator itr = _explosivesGuids.begin(); itr != _explosivesGuids.end(); ++itr)
                             {
-                                if (GameObject* explosive = sObjectAccessor->GetGameObject(*me, *itr))
+                                if (GameObject* explosive = ObjectAccessor::GetGameObject(*me, *itr))
                                     me->RemoveGameObject(explosive, true);
                             }
                             _explosivesGuids.clear();
@@ -799,7 +799,7 @@ public:
         EventMap _events;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_demolitionist_legosoAI(creature);
     }

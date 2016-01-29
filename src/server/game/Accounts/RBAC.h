@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -726,6 +726,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT                 = 832,
     RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION                = 833,
     RBAC_PERM_COMMAND_GO_QUEST                               = 834,
+    RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -967,8 +968,8 @@ class RBACData
         /// Adds a list of permissions to another list
         void AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
 
-        /// Removes a list of permissions to another list
-        void RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+        /// Removes a list of permissions from another list
+        void RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove);
 
         /**
          * @name ExpandPermissions

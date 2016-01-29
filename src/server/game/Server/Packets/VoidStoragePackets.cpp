@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,17 +65,14 @@ WorldPacket const* WorldPackets::VoidStorage::VoidStorageContents::Write()
 void WorldPackets::VoidStorage::VoidStorageTransfer::Read()
 {
     _worldPacket >> Npc;
-    _worldPacket >> DepositsCount;
-    _worldPacket >> WithdrawalsCount;
+    Deposits.resize(_worldPacket.read<uint32>());
+    Withdrawals.resize(_worldPacket.read<uint32>());
 
-    if (WithdrawalsCount > VOID_STORAGE_MAX_WITHDRAW || DepositsCount > VOID_STORAGE_MAX_DEPOSIT)
-        return;
+    for (ObjectGuid& deposit : Deposits)
+        _worldPacket >> deposit;
 
-    for (uint32 i = 0; i < DepositsCount; ++i)
-        _worldPacket >> Deposits[i];
-
-    for (uint32 i = 0; i < WithdrawalsCount; ++i)
-        _worldPacket >> Withdrawals[i];
+    for (ObjectGuid& withdrawal : Withdrawals)
+        _worldPacket >> withdrawal;
 }
 
 WorldPacket const* WorldPackets::VoidStorage::VoidStorageTransferChanges::Write()

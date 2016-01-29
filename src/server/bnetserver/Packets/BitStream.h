@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,7 +123,7 @@ namespace Battlenet
             uint32 fcc = Read<uint32>(32);
             EndianConvertReverse(fcc);
             size_t len = 4;
-            while (!(fcc & 0xFF))
+            while (!(fcc & 0xFF) && len)
             {
                 fcc >>= 8;
                 --len;

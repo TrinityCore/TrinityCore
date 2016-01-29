@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,24 @@ namespace WorldPackets
 
             ObjectGuid CasterGUID;
             int32 SpellID = 0;
+        };
+
+        class CancelAutoRepeatSpell final : public ClientPacket
+        {
+        public:
+            CancelAutoRepeatSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AUTO_REPEAT_SPELL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CancelChannelling final : public ClientPacket
+        {
+        public:
+            CancelChannelling(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CHANNELLING, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 ChannelSpell = 0;
         };
 
         class CancelGrowthAura final : public ClientPacket
@@ -135,6 +153,8 @@ namespace WorldPackets
 
         struct SpellLogPowerData
         {
+            SpellLogPowerData(int32 powerType, int32 amount) : PowerType(powerType), Amount(amount) { }
+
             int32 PowerType = 0;
             int32 Amount    = 0;
         };
@@ -145,6 +165,8 @@ namespace WorldPackets
             int32 AttackPower   = 0;
             int32 SpellPower    = 0;
             std::vector<SpellLogPowerData> PowerData;
+
+            void Initialize(Unit const* unit);
         };
 
         struct AuraDataInfo
@@ -508,6 +530,8 @@ namespace WorldPackets
             int32 RecoveryTime = 0;
             int32 CategoryRecoveryTime = 0;
             bool OnHold = false;
+            Optional<uint32> unused622_1;   ///< This field is not used for anything in the client in 6.2.2.20444
+            Optional<uint32> unused622_2;   ///< This field is not used for anything in the client in 6.2.2.20444
         };
 
         class SendSpellHistory final : public ServerPacket
@@ -600,6 +624,19 @@ namespace WorldPackets
 
             ObjectGuid Source;
             int32 SpellVisualID = 0;
+        };
+
+        class PlaySpellVisualKit final : public ServerPacket
+        {
+        public:
+            PlaySpellVisualKit() : ServerPacket(SMSG_PLAY_SPELL_VISUAL_KIT, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 KitRecID = 0;
+            int32 KitType = 0;
+            uint32 Duration = 0;
         };
 
         class CancelCast final : public ClientPacket
@@ -749,9 +786,37 @@ namespace WorldPackets
             ObjectGuid SpellClickUnitGuid;
             bool TryAutoDismount = false;
         };
+
+        class ConvertRune final : public ServerPacket
+        {
+        public:
+            ConvertRune() : ServerPacket(SMSG_CONVERT_RUNE, 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Index = 0;
+            uint8 Rune = 0;
+        };
+
+        class ResyncRunes final : public ServerPacket
+        {
+        public:
+            struct ResyncRune
+            {
+                uint8 RuneType = 0;
+                uint8 Cooldown = 0;
+            };
+
+            ResyncRunes(size_t size) : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * size) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ResyncRune> Runes;
+        };
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
+ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request);
 
 #endif // SpellPackets_h__

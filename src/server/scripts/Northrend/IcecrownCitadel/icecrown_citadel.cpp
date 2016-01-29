@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -365,7 +365,7 @@ class CaptainSurviveTalk : public BasicEvent
     public:
         explicit CaptainSurviveTalk(Creature const& owner) : _owner(owner) { }
 
-        bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+        bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             _owner.AI()->Talk(SAY_CAPTAIN_SURVIVE_TALK);
             return true;
@@ -1140,7 +1140,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void UpdateEscortAI(uint32 const diff) override
+            void UpdateEscortAI(uint32 diff) override
             {
                 if (_wipeCheckTimer <= diff)
                     _wipeCheckTimer = 0;

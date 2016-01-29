@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 #include "Group.h"
 #include "Log.h"
 #include "Language.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 
 /*********************************************************/
@@ -290,10 +289,11 @@ void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount)
     itr = m_QueuedPlayers.find(guid);
     if (itr == m_QueuedPlayers.end())
     {
+        //This happens if a player logs out while in a bg because WorldSession::LogoutPlayer() notifies the bg twice
         std::string playerName = "Unknown";
         if (Player* player = ObjectAccessor::FindPlayer(guid))
             playerName = player->GetName();
-        TC_LOG_ERROR("bg.battleground", "BattlegroundQueue: couldn't find player %s (%s)", playerName.c_str(), guid.ToString().c_str());
+        TC_LOG_DEBUG("bg.battleground", "BattlegroundQueue: couldn't find player %s (%s)", playerName.c_str(), guid.ToString().c_str());
         return;
     }
 
@@ -497,24 +497,51 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, BattlegroundBracketId 
 {
     int32 hordeFree = bg->GetFreeSlotsForTeam(HORDE);
     int32 aliFree   = bg->GetFreeSlotsForTeam(ALLIANCE);
+    uint32 aliCount   = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size();
+    uint32 hordeCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size();
+
+    // try to get even teams
+    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_EVEN)
+    {
+        // check if the teams are even
+        if (hordeFree == 1 && aliFree == 1)
+        {
+            // if we are here, the teams have the same amount of players
+            // then we have to allow to join the same amount of players
+            int32 hordeExtra = hordeCount - aliCount;
+            int32 aliExtra   = aliCount - hordeCount;
+
+            hordeExtra = std::max(hordeExtra, 0);
+            aliExtra   = std::max(aliExtra, 0);
+
+            if (aliCount != hordeCount)
+            {
+                aliFree   -= aliExtra;
+                hordeFree -= hordeExtra;
+
+                aliFree   = std::max(aliFree, 0);
+                hordeFree = std::max(hordeFree, 0);
+            }
+        }
+    }
 
     //iterator for iterating through bg queue
     GroupsQueueType::const_iterator Ali_itr = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].begin();
     //count of groups in queue - used to stop cycles
-    uint32 aliCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE].size();
+
     //index to queue which group is current
     uint32 aliIndex = 0;
     for (; aliIndex < aliCount && m_SelectionPools[TEAM_ALLIANCE].AddGroup((*Ali_itr), aliFree); aliIndex++)
         ++Ali_itr;
     //the same thing for horde
     GroupsQueueType::const_iterator Horde_itr = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].begin();
-    uint32 hordeCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size();
+
     uint32 hordeIndex = 0;
     for (; hordeIndex < hordeCount && m_SelectionPools[TEAM_HORDE].AddGroup((*Horde_itr), hordeFree); hordeIndex++)
         ++Horde_itr;
 
     //if ofc like BG queue invitation is set in config, then we are happy
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == 0)
+    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_NO_BALANCE)
         return;
 
     /*
@@ -649,7 +676,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* /*bg_template*/, Battlegr
     uint32 j = TEAM_ALLIANCE;
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() < m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())
         j = TEAM_HORDE;
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
+    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != BG_QUEUE_INVITATION_TYPE_NO_BALANCE
         && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j

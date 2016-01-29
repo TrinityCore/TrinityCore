@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,8 +61,8 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void SaveToDB();
         bool LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields);
 
-        void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
+        static void DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans);
 
         ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
 
@@ -70,8 +70,8 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void ResetGhostTime() { m_time = time(NULL); }
         CorpseType GetType() const { return m_type; }
 
-        GridCoord const& GetGridCoord() const { return _gridCoord; }
-        void SetGridCoord(GridCoord const& gridCoord) { _gridCoord = gridCoord; }
+        CellCoord const& GetCellCoord() const { return _cellCoord; }
+        void SetCellCoord(CellCoord const& cellCoord) { _cellCoord = cellCoord; }
 
         Loot loot;                                          // remove insignia ONLY at BG
         Player* lootRecipient;
@@ -82,6 +82,6 @@ class Corpse : public WorldObject, public GridObject<Corpse>
     private:
         CorpseType m_type;
         time_t m_time;
-        GridCoord _gridCoord;                                    // gride for corpse position for fast search
+        CellCoord _cellCoord;
 };
 #endif

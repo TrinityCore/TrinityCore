@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ namespace WorldPackets
         struct LootItemData
         {
             uint8 Type              = 2;
-            uint8 UIType            = 4;
+            uint8 UIType            = 7;
             uint32 Quantity         = 0;
             uint8 LootItemType      = 0;
             uint8 LootListID        = 0;
@@ -165,6 +165,28 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             ObjectGuid Owner;
+        };
+
+        class LootList final : public ServerPacket
+        {
+        public:
+            LootList() : ServerPacket(SMSG_LOOT_LIST, 3 * 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Owner;
+            Optional<ObjectGuid> Master;
+            Optional<ObjectGuid> RoundRobinWinner;
+        };
+
+        class SetLootSpecialization final : public ClientPacket
+        {
+        public:
+            SetLootSpecialization(WorldPacket&& packet) : ClientPacket(CMSG_SET_LOOT_SPECIALIZATION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpecID = 0;
         };
     }
 }

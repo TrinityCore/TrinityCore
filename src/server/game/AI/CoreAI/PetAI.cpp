@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,12 +20,10 @@
 #include "Errors.h"
 #include "Pet.h"
 #include "Player.h"
-#include "DBCStores.h"
 #include "Spell.h"
 #include "ObjectAccessor.h"
 #include "SpellMgr.h"
 #include "Creature.h"
-#include "World.h"
 #include "Util.h"
 #include "Group.h"
 #include "SpellInfo.h"

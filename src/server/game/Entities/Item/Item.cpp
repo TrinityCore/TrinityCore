@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "ItemPackets.h"
+#include "TradeData.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -351,6 +352,10 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID) | (GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD) << 24));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_UPGRADE_ID));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION));
+            stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID));
+            stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA));
+            stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL));
+            stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID));
 
             std::ostringstream bonusListIDs;
             for (uint32 bonusListID : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
@@ -405,8 +410,10 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry)
 {
-    //                                             0          1            2                3      4         5        6      7             8                 9          10          11    12                  13         14               15            16
-    //result = CharacterDatabase.PQuery("SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion, bonusListIDs FROM item_instance WHERE guid = '%u'", guid);
+    //                                             0          1            2                3      4         5        6      7             8                 9          10          11    12
+    //result = CharacterDatabase.PQuery("SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
+    //                                                          13         14               15                  16                  17              18                  19            20
+    //                                          transmogrification, upgradeId, enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -482,8 +489,12 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     }
     SetModifier(ITEM_MODIFIER_UPGRADE_ID, fields[14].GetUInt32());
     SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION, fields[15].GetUInt32());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, fields[16].GetUInt32());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, fields[17].GetUInt32());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[18].GetUInt16());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[19].GetUInt32());
 
-    Tokenizer bonusListIDs(fields[16].GetString(), ' ');
+    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
     for (char const* token : bonusListIDs)
     {
         uint32 bonusListID = atoul(token);
@@ -780,6 +791,22 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     return true;
 }
 
+void Item::SetCount(uint32 value)
+{
+    SetUInt32Value(ITEM_FIELD_STACK_COUNT, value);
+
+    if (Player* player = GetOwner())
+    {
+        if (TradeData* tradeData = player->GetTradeData())
+        {
+            TradeSlots slot = tradeData->GetTradeSlotForItem(GetGUID());
+
+            if (slot != TRADE_SLOT_INVALID)
+                tradeData->SetItem(slot, this, true);
+        }
+    }
+}
+
 bool Item::HasEnchantRequiredSkill(const Player* player) const
 {
     // Check all enchants for required skill
@@ -1013,12 +1040,14 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
 
 void Item::SendUpdateSockets()
 {
-    WorldPacket data(SMSG_SOCKET_GEMS, 8+4+4+4+4);
-    data << GetGUID();
-    for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
-        data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
+    WorldPackets::Item::SocketGemsResult socketGems;
+    socketGems.Item = GetGUID();
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        socketGems.Sockets[i] = int32(GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i)));
 
-    GetOwner()->GetSession()->SendPacket(&data);
+    socketGems.SocketMatch = int32(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
+
+    GetOwner()->GetSession()->SendPacket(socketGems.Write());
 }
 
 // Though the client has the information in the item's data field,
@@ -1059,7 +1088,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
             delete item;
     }
     else
-        ASSERT(false);
+        ABORT();
     return NULL;
 }
 
@@ -1214,6 +1243,10 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransa
     if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
         return;
 
+    WorldPackets::Item::ItemExpirePurchaseRefund itemExpirePurchaseRefund;
+    itemExpirePurchaseRefund.ItemGUID = GetGUID();
+    owner->SendDirectMessage(itemExpirePurchaseRefund.Write());
+
     RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
     // Following is not applicable in the trading procedure
     if (changestate)
@@ -1298,10 +1331,9 @@ bool Item::CheckSoulboundTradeExpire()
     return false;
 }
 
-bool Item::CanBeTransmogrified() const
+bool Item::IsValidTransmogrificationTarget() const
 {
     ItemTemplate const* proto = GetTemplate();
-
     if (!proto)
         return false;
 
@@ -1324,10 +1356,9 @@ bool Item::CanBeTransmogrified() const
     return true;
 }
 
-bool Item::CanTransmogrify() const
+bool Item::IsValidTransmogrificationSource(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
 {
-    ItemTemplate const* proto = GetTemplate();
-
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
     if (!proto)
         return false;
 
@@ -1347,41 +1378,7 @@ bool Item::CanTransmogrify() const
     if (proto->GetFlags2() & ITEM_FLAG2_CAN_TRANSMOG)
         return true;
 
-    if (!HasStats())
-        return false;
-
-    return true;
-}
-
-bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier)
-{
-    if (!transmogrifier || !transmogrified)
-        return false;
-
-    ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
-
-    if (proto1->GetId() == proto2->GetId())
-        return false;
-
-    if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
-        return false;
-
-    if (proto1->GetInventoryType() == INVTYPE_BAG ||
-        proto1->GetInventoryType() == INVTYPE_RELIC ||
-        proto1->GetInventoryType() == INVTYPE_BODY ||
-        proto1->GetInventoryType() == INVTYPE_FINGER ||
-        proto1->GetInventoryType() == INVTYPE_TRINKET ||
-        proto1->GetInventoryType() == INVTYPE_AMMO ||
-        proto1->GetInventoryType() == INVTYPE_QUIVER)
-        return false;
-
-    if (proto1->GetSubClass() != proto2->GetSubClass() && (proto1->GetClass() != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()))
-        return false;
-
-    if (proto1->GetInventoryType() != proto2->GetInventoryType() &&
-        (proto1->GetClass() != ITEM_CLASS_WEAPON || (proto2->GetInventoryType() != INVTYPE_WEAPONMAINHAND && proto2->GetInventoryType() != INVTYPE_WEAPONOFFHAND)) &&
-        (proto1->GetClass() != ITEM_CLASS_ARMOR || (proto1->GetInventoryType() != INVTYPE_CHEST && proto2->GetInventoryType() != INVTYPE_ROBE && proto1->GetInventoryType() != INVTYPE_ROBE && proto2->GetInventoryType() != INVTYPE_CHEST)))
+    if (!HasStats(transmogrifier, bonus))
         return false;
 
     return true;
@@ -1393,11 +1390,152 @@ bool Item::HasStats() const
         return true;
 
     ItemTemplate const* proto = GetTemplate();
+    Player const* owner = GetOwner();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->GetItemStatValue(i) != 0)
+        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatValue(i)) != 0)
             return true;
 
     return false;
+}
+
+bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus)
+{
+    if (itemInstance.RandomPropertiesID != 0)
+        return true;
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        if (bonus->ItemStatValue[i] != 0)
+            return true;
+
+    return false;
+}
+
+enum class ItemTransmogrificationWeaponCategory : uint8
+{
+    // Two-handed
+    MELEE_2H,
+    RANGED,
+
+    // One-handed
+    AXE_MACE_SWORD_1H,
+    DAGGER,
+    FIST,
+
+    INVALID
+};
+
+static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate const* proto)
+{
+    if (proto->GetClass() == ITEM_CLASS_WEAPON)
+    {
+        switch (proto->GetSubClass())
+        {
+            case ITEM_SUBCLASS_WEAPON_AXE2:
+            case ITEM_SUBCLASS_WEAPON_MACE2:
+            case ITEM_SUBCLASS_WEAPON_SWORD2:
+            case ITEM_SUBCLASS_WEAPON_STAFF:
+            case ITEM_SUBCLASS_WEAPON_POLEARM:
+                return ItemTransmogrificationWeaponCategory::MELEE_2H;
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                return ItemTransmogrificationWeaponCategory::RANGED;
+            case ITEM_SUBCLASS_WEAPON_AXE:
+            case ITEM_SUBCLASS_WEAPON_MACE:
+            case ITEM_SUBCLASS_WEAPON_SWORD:
+                return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
+            case ITEM_SUBCLASS_WEAPON_DAGGER:
+                return ItemTransmogrificationWeaponCategory::DAGGER;
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                return ItemTransmogrificationWeaponCategory::FIST;
+            default:
+                break;
+        }
+    }
+
+    return ItemTransmogrificationWeaponCategory::INVALID;
+}
+
+int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
+{
+    -1,                                                     // INVTYPE_NON_EQUIP
+    EQUIPMENT_SLOT_HEAD,                                    // INVTYPE_HEAD
+    EQUIPMENT_SLOT_NECK,                                    // INVTYPE_NECK
+    EQUIPMENT_SLOT_SHOULDERS,                               // INVTYPE_SHOULDERS
+    EQUIPMENT_SLOT_BODY,                                    // INVTYPE_BODY
+    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_CHEST
+    EQUIPMENT_SLOT_WAIST,                                   // INVTYPE_WAIST
+    EQUIPMENT_SLOT_LEGS,                                    // INVTYPE_LEGS
+    EQUIPMENT_SLOT_FEET,                                    // INVTYPE_FEET
+    EQUIPMENT_SLOT_WRISTS,                                  // INVTYPE_WRISTS
+    EQUIPMENT_SLOT_HANDS,                                   // INVTYPE_HANDS
+    -1,                                                     // INVTYPE_FINGER
+    -1,                                                     // INVTYPE_TRINKET
+    -1,                                                     // INVTYPE_WEAPON
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_SHIELD
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGED
+    EQUIPMENT_SLOT_BACK,                                    // INVTYPE_CLOAK
+    -1,                                                     // INVTYPE_2HWEAPON
+    -1,                                                     // INVTYPE_BAG
+    EQUIPMENT_SLOT_TABARD,                                  // INVTYPE_TABARD
+    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_ROBE
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPONMAINHAND
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_WEAPONOFFHAND
+    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_HOLDABLE
+    -1,                                                     // INVTYPE_AMMO
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_THROWN
+    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
+    -1,                                                     // INVTYPE_QUIVER
+    -1                                                      // INVTYPE_RELIC
+};
+
+bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
+{
+    ItemTemplate const* source = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
+    ItemTemplate const* target = transmogrified->GetTemplate(); // dest
+
+    if (!source || !target)
+        return false;
+
+    if (sDB2Manager.GetItemDisplayId(source->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
+        return false;
+
+    if (!IsValidTransmogrificationSource(transmogrifier, bonus) || !transmogrified->IsValidTransmogrificationTarget())
+        return false;
+
+    if (source->GetClass() != target->GetClass())
+        return false;
+
+    if (source->GetInventoryType() == INVTYPE_TABARD ||
+        source->GetInventoryType() == INVTYPE_BAG ||
+        source->GetInventoryType() == INVTYPE_RELIC ||
+        source->GetInventoryType() == INVTYPE_BODY ||
+        source->GetInventoryType() == INVTYPE_FINGER ||
+        source->GetInventoryType() == INVTYPE_TRINKET ||
+        source->GetInventoryType() == INVTYPE_AMMO ||
+        source->GetInventoryType() == INVTYPE_QUIVER)
+        return false;
+
+    if (source->GetSubClass() != target->GetSubClass())
+    {
+        if (source->GetClass() != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
+            return false;
+    }
+
+    if (source->GetInventoryType() != target->GetInventoryType())
+    {
+        int32 sourceSlot = ItemTransmogrificationSlots[source->GetInventoryType()];
+        if (sourceSlot == -1 && source->GetInventoryType() == INVTYPE_WEAPON && (target->GetInventoryType() == INVTYPE_WEAPONMAINHAND || target->GetInventoryType() == INVTYPE_WEAPONOFFHAND))
+            sourceSlot = ItemTransmogrificationSlots[target->GetInventoryType()];
+
+        if (sourceSlot != ItemTransmogrificationSlots[target->GetInventoryType()])
+            return false;
+    }
+
+    return true;
 }
 
 // used by mail items, transmog cost, stationeryinfo and others
@@ -1737,7 +1875,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
+    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
         if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
             itemLevel = heirloomIlvl;
 
@@ -1784,8 +1922,8 @@ uint32 Item::GetVisibleEntry() const
 
 uint32 Item::GetVisibleAppearanceModId() const
 {
-    if (uint32 transmogMod = GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD))
-        return transmogMod;
+    if (GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
+        return GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD);
 
     return GetAppearanceModId();
 }
@@ -1821,6 +1959,23 @@ void BonusData::Initialize(ItemTemplate const* proto)
         SocketColor[i] = proto->GetSocketColor(i);
 
     AppearanceModID = 0;
+    RepairCostMultiplier = 1.0f;
+    ScalingStatDistribution = proto->GetScalingStatDistribution();
+}
+
+void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
+{
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemInstance.ItemID);
+    if (!proto)
+        return;
+
+    Initialize(proto);
+
+    if (itemInstance.ItemBonus)
+        for (uint32 bonusListID : itemInstance.ItemBonus->BonusListIDs)
+            if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
+                for (ItemBonusEntry const* bonus : *bonuses)
+                    AddBonus(bonus->Type, bonus->Value);
 }
 
 void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
@@ -1867,6 +2022,12 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         case ITEM_BONUS_REQUIRED_LEVEL:
             RequiredLevel += values[0];
+            break;
+        case ITEM_BONUS_REPAIR_COST_MULTIPLIER:
+            RepairCostMultiplier *= static_cast<float>(values[0]) * 0.01f;
+            break;
+        case ITEM_BONUS_SCALING_STAT_DISTRIBUTION:
+            ScalingStatDistribution = static_cast<uint32>(values[0]);
             break;
     }
 }

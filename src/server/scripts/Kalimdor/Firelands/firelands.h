@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,7 +52,7 @@ class DelayedAttackStartEvent : public BasicEvent
     public:
         DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
 
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
         {
             _owner->AI()->DoZoneInCombat(_owner, 200.0f);
             return true;

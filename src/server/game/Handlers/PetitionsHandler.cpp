@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,6 @@
  */
 
 #include "Common.h"
-#include "Language.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -26,8 +25,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Guild.h"
-#include "GossipDef.h"
-#include "SocialMgr.h"
 #include "PetitionPackets.h"
 
 #define CHARTER_DISPLAY_ID 16161

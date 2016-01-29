@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@ void WorldPackets::Social::SendContactList::Read()
 WorldPackets::Social::ContactInfo::ContactInfo(ObjectGuid const& guid, FriendInfo const& friendInfo)
 {
     Guid = guid;
-    WowAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(ObjectMgr::GetPlayerAccountIdByGUID(guid));
+    WowAccountGuid = friendInfo.WowAccountGuid;
     VirtualRealmAddr = GetVirtualRealmAddress();
     NativeRealmAddr = GetVirtualRealmAddress();
     TypeFlags = friendInfo.Flags;
@@ -76,7 +76,7 @@ void WorldPackets::Social::FriendStatus::Initialize(ObjectGuid const& guid, Frie
     ClassID = friendInfo.Class;
     Status = friendInfo.Status;
     Guid = guid;
-    WowAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(ObjectMgr::GetPlayerAccountIdByGUID(guid));
+    WowAccountGuid = friendInfo.WowAccountGuid;
     Level = friendInfo.Level;
     AreaID = friendInfo.Area;
     FriendResult = result;

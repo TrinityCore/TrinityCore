@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,8 +78,8 @@ namespace WorldPackets
             uint32 MoveTime             = 0;
             float JumpGravity           = 0.0f;
             uint32 SpecialTime          = 0;
-            std::vector<G3D::Vector3> Points;        // Spline path
-            uint8 Mode                  = 0;
+            std::vector<G3D::Vector3> Points;   // Spline path
+            uint8 Mode                  = 0;    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
             uint8 VehicleExitVoluntary  = 0;
             ObjectGuid TransportGUID;
             uint8 VehicleSeat           = 255;
@@ -334,6 +334,20 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
         };
 
+        class MoveKnockBack final : public ServerPacket
+        {
+        public:
+            MoveKnockBack() : ServerPacket(SMSG_MOVE_KNOCK_BACK, 16 + 8 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            G3D::Vector2 Direction;
+            float HorzSpeed = 0.0f;
+            uint32 SequenceIndex = 0;
+            float VertSpeed = 0.0f;
+        };
+
         class MoveUpdateKnockBack final : public ServerPacket
         {
         public:
@@ -422,6 +436,17 @@ namespace WorldPackets
 
             ObjectGuid Guid;
             bool On = false;
+        };
+
+        class MoveSplineDone final : public ClientPacket
+        {
+        public:
+            MoveSplineDone(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_SPLINE_DONE, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementInfo movementInfo;
+            int32 SplineID = 0;
         };
     }
 

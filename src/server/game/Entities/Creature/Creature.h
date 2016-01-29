@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -141,6 +141,8 @@ struct CreatureTemplate
     uint32  ScriptID;
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
+    uint32  GetFirstInvisibleModel() const;
+    uint32  GetFirstVisibleModel() const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
@@ -254,8 +256,9 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 struct CreatureLocale
 {
     StringVector Name;
-    StringVector FemaleName;
-    StringVector SubName;
+    StringVector NameAlt;
+    StringVector Title;
+    StringVector TitleAlt;
 };
 
 struct GossipMenuItemsLocale
@@ -315,6 +318,7 @@ struct CreatureModelInfo
     float combat_reach;
     int8 gender;
     uint32 displayId_other_gender;
+    bool is_trigger;
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -474,7 +478,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void DisappearAndDie();
 
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
-        bool LoadCreaturesAddon(bool reload = false);
+        bool LoadCreaturesAddon();
         void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
 
@@ -634,6 +638,14 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         float GetRespawnRadius() const { return m_respawnradius; }
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
 
+        uint32 GetCombatPulseDelay() const { return m_combatPulseDelay; }
+        void SetCombatPulseDelay(uint32 delay) // (secs) interval at which the creature pulses the entire zone into combat (only works in dungeons)
+        {
+            m_combatPulseDelay = delay;
+            if (m_combatPulseTime == 0 || m_combatPulseTime > delay)
+                m_combatPulseTime = delay;
+        }
+
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting corpse
 
@@ -719,6 +731,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
         float m_respawnradius;
+        uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
+        uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();

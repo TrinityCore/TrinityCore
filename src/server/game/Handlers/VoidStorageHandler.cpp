@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,7 +52,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPackets::VoidStorage::UnlockVoid
 
 void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidStorage& queryVoidStorage)
 {
-    Creature* unit = _player->GetNPCIfCanInteractWith(queryVoidStorage.Npc, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = _player->GetNPCIfCanInteractWith(queryVoidStorage.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - %s not found or player can't interact with it.", queryVoidStorage.Npc.ToString().c_str());
@@ -95,18 +95,6 @@ void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidSt
 
 void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStorageTransfer& voidStorageTransfer)
 {
-    if (voidStorageTransfer.DepositsCount > VOID_STORAGE_MAX_DEPOSIT)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) wants to deposit more than 9 items (%u).", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), voidStorageTransfer.DepositsCount);
-        return;
-    }
-
-    if (voidStorageTransfer.WithdrawalsCount > VOID_STORAGE_MAX_WITHDRAW)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageTransfer - Player (%s, name: %s) wants to withdraw more than 9 items (%u).", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), voidStorageTransfer.WithdrawalsCount);
-        return;
-    }
-
     Creature* unit = _player->GetNPCIfCanInteractWith(voidStorageTransfer.Npc, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
@@ -120,14 +108,14 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         return;
     }
 
-    if (voidStorageTransfer.DepositsCount > _player->GetNumOfVoidStorageFreeSlots())
+    if (voidStorageTransfer.Deposits.size() > _player->GetNumOfVoidStorageFreeSlots())
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return;
     }
 
     uint32 freeBagSlots = 0;
-    if (voidStorageTransfer.WithdrawalsCount)
+    if (!voidStorageTransfer.Withdrawals.empty())
     {
         // make this a Player function
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
@@ -139,21 +127,24 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
                 ++freeBagSlots;
     }
 
-    if (voidStorageTransfer.WithdrawalsCount > freeBagSlots)
+    if (voidStorageTransfer.Withdrawals.size() > freeBagSlots)
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
         return;
     }
 
-    if (!_player->HasEnoughMoney(uint64(voidStorageTransfer.DepositsCount * VOID_STORAGE_STORE_ITEM_COST)))
+    if (!_player->HasEnoughMoney(uint64(voidStorageTransfer.Deposits.size() * VOID_STORAGE_STORE_ITEM_COST)))
     {
         SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NOT_ENOUGH_MONEY);
         return;
     }
 
-    std::pair<VoidStorageItem, uint8> depositItems[VOID_STORAGE_MAX_DEPOSIT];
+    WorldPackets::VoidStorage::VoidStorageTransferChanges voidStorageTransferChanges;
+    voidStorageTransferChanges.AddedItems.reserve(VOID_STORAGE_MAX_DEPOSIT);
+    voidStorageTransferChanges.RemovedItems.reserve(VOID_STORAGE_MAX_DEPOSIT);
+
     uint8 depositCount = 0;
-    for (uint32 i = 0; i < voidStorageTransfer.DepositsCount; ++i)
+    for (uint32 i = 0; i < voidStorageTransfer.Deposits.size(); ++i)
     {
         Item* item = _player->GetItemByGuid(voidStorageTransfer.Deposits[i]);
         if (!item)
@@ -162,26 +153,26 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             continue;
         }
 
-        // TODO: Save these fields to database - for now disallow storing these items to prevent data loss
-        if (item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK) || !item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).empty())
-            continue;
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR),
+            item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID), item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        WorldPackets::VoidStorage::VoidItem voidItem;
+        voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);
+        voidItem.Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
+        voidItem.Item.Initialize(&itemVS);
+        voidItem.Slot = _player->AddVoidStorageItem(std::move(itemVS));
 
-        uint8 slot = _player->AddVoidStorageItem(itemVS);
-
-        depositItems[depositCount++] = std::make_pair(itemVS, slot);
+        voidStorageTransferChanges.AddedItems.push_back(voidItem);
 
         _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+        ++depositCount;
     }
 
     int64 cost = depositCount * VOID_STORAGE_STORE_ITEM_COST;
 
     _player->ModifyMoney(-cost);
 
-    VoidStorageItem withdrawItems[VOID_STORAGE_MAX_WITHDRAW];
-    uint8 withdrawCount = 0;
-    for (uint32 i = 0; i < voidStorageTransfer.WithdrawalsCount; ++i)
+    for (uint32 i = 0; i < voidStorageTransfer.Withdrawals.size(); ++i)
     {
         uint8 slot = 0;
         VoidStorageItem* itemVS = _player->GetVoidStorageItem(voidStorageTransfer.Withdrawals[i].GetCounter(), slot);
@@ -200,31 +191,16 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
         }
 
-        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId);
+        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId, GuidSet(), itemVS->BonusListIDs);
         item->SetUInt32Value(ITEM_FIELD_PROPERTY_SEED, itemVS->ItemSuffixFactor);
         item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
+        item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemVS->ItemUpgradeId);
         item->SetBinding(true);
-        _player->SendNewItem(item, 1, false, false, false);
 
-        withdrawItems[withdrawCount++] = *itemVS;
+        voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
 
         _player->DeleteVoidStorageItem(slot);
     }
-
-    WorldPackets::VoidStorage::VoidStorageTransferChanges voidStorageTransferChanges;
-    voidStorageTransferChanges.AddedItems.resize(depositCount);
-    voidStorageTransferChanges.RemovedItems.resize(withdrawCount);
-
-    for (uint8 i = 0; i < depositCount; ++i)
-    {
-        voidStorageTransferChanges.AddedItems[i].Guid = ObjectGuid::Create<HighGuid::Item>(depositItems[i].first.ItemId);
-        voidStorageTransferChanges.AddedItems[i].Creator = depositItems[i].first.CreatorGuid;
-        voidStorageTransferChanges.AddedItems[i].Slot = depositItems[i].second;
-        voidStorageTransferChanges.AddedItems[i].Item.Initialize(&depositItems[i].first);
-    }
-
-    for (uint8 i = 0; i < withdrawCount; ++i)
-        voidStorageTransferChanges.RemovedItems[i] = ObjectGuid::Create<HighGuid::Item>(withdrawItems[i].ItemId);
 
     SendPacket(voidStorageTransferChanges.Write());
 

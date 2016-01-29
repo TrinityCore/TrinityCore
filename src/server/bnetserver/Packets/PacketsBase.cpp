@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,13 +22,15 @@
 std::string Battlenet::PacketHeader::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::PacketHeader opcode: " << Opcode << ", channel: " << Channel;
+    stream << "Battlenet::PacketHeader" << std::endl;
+    APPEND_FIELD(stream, Command);
+    APPEND_FIELD(stream, Channel);
     return stream.str();
 }
 
 Battlenet::ServerPacket::ServerPacket(PacketHeader const& header) : Packet(header, *new BitStream())
 {
-    _stream.Write(header.Opcode, 6);
+    _stream.Write(header.Command, 6);
     _stream.Write(1, 1);
     _stream.Write(header.Channel, 4);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,6 +69,27 @@ WorldPacket const* WorldPackets::Instance::InstanceResetFailed::Write()
     _worldPacket << uint32(MapID);
     _worldPacket.WriteBits(ResetFailedReason, 2);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceSaveCreated::Write()
+{
+    _worldPacket.WriteBit(Gm);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Instance::InstanceLockResponse::Read()
+{
+    AcceptLock = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Instance::RaidGroupOnly::Write()
+{
+    _worldPacket << Delay;
+    _worldPacket << Reason;
 
     return &_worldPacket;
 }

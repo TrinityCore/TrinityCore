@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,9 @@ namespace WorldPackets
         {
             uint8 Context = 0;
             std::vector<int32> BonusListIDs;
+
+            bool operator==(ItemBonusInstanceData const& r) const;
+            bool operator!=(ItemBonusInstanceData const& r) const { return !(*this == r); }
         };
 
         struct ItemInstance
@@ -45,6 +48,9 @@ namespace WorldPackets
             uint32 RandomPropertiesID = 0;
             Optional<ItemBonusInstanceData> ItemBonus;
             Optional<CompactArray<int32>> Modifications;
+
+            bool operator==(ItemInstance const& r) const;
+            bool operator!=(ItemInstance const& r) const { return !(*this == r); }
         };
 
         class BuyBackItem final : public ClientPacket
@@ -105,6 +111,60 @@ namespace WorldPackets
             GetItemPurchaseData(WorldPacket&& packet) : ClientPacket(CMSG_GET_ITEM_PURCHASE_DATA, std::move(packet)) { }
 
             void Read() override;
+
+            ObjectGuid ItemGUID;
+        };
+
+        struct ItemPurchaseRefundItem
+        {
+            int32 ItemID = 0;
+            int32 ItemCount = 0;
+        };
+
+        struct ItemPurchaseRefundCurrency
+        {
+            int32 CurrencyID = 0;
+            int32 CurrencyCount = 0;
+        };
+
+        struct ItemPurchaseContents
+        {
+            uint32 Money = 0;
+            ItemPurchaseRefundItem Items[5] = { };
+            ItemPurchaseRefundCurrency Currencies[5] = { };
+        };
+
+        class SetItemPurchaseData final : public ServerPacket
+        {
+        public:
+            SetItemPurchaseData() : ServerPacket(SMSG_SET_ITEM_PURCHASE_DATA, 4 + 4 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 PurchaseTime = 0;
+            uint32 Flags = 0;
+            ItemPurchaseContents Contents;
+            ObjectGuid ItemGUID;
+        };
+
+        class ItemPurchaseRefundResult final : public ServerPacket
+        {
+        public:
+            ItemPurchaseRefundResult() : ServerPacket(SMSG_ITEM_PURCHASE_REFUND_RESULT, 1 + 4 + 5 * (4 + 4) + 5 * (4 + 4) + 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+            ObjectGuid ItemGUID;
+            Optional<ItemPurchaseContents> Contents;
+        };
+
+        class ItemExpirePurchaseRefund final : public ServerPacket
+        {
+        public:
+            ItemExpirePurchaseRefund() : ServerPacket(SMSG_ITEM_EXPIRE_PURCHASE_REFUND, 16) { }
+
+            WorldPacket const* Write() override;
 
             ObjectGuid ItemGUID;
         };
@@ -288,6 +348,13 @@ namespace WorldPackets
         class ItemPushResult final : public ServerPacket
         {
         public:
+            enum DisplayType
+            {
+                DISPLAY_TYPE_ENCOUNTER_LOOT = 1,
+                DISPLAY_TYPE_NORMAL = 2,
+                DISPLAY_TYPE_HIDDEN = 3
+            };
+
             ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
@@ -296,18 +363,21 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            uint32 WodUnk                   = 0;
+            uint32 QuestLogItemID           = 0; // Item ID used for updating quest progress
+                                                 // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
+            uint32 DungeonEncounterID       = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetSpeciesID        = 0;
             int32 BattlePetLevel            = 0;
             ObjectGuid ItemGUID;
             bool Pushed                     = false;
-            bool DisplayText                = false;
+            DisplayType DisplayText         = DISPLAY_TYPE_HIDDEN;
             bool Created                    = false;
             bool IsBonusRoll                = false;
+            bool IsEncounterLoot            = false;
         };
 
         class ReadItem final : public ClientPacket
@@ -366,12 +436,13 @@ namespace WorldPackets
         class ItemCooldown final : public ServerPacket
         {
         public:
-            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 20) { }
+            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 24) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid ItemGuid;
             uint32 SpellID = 0;
+            uint32 Cooldown = 0;
         };
 
         class ItemEnchantTimeUpdate final : public ServerPacket
@@ -385,6 +456,63 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
             uint32 DurationLeft = 0;
             uint32 Slot = 0;
+        };
+
+        struct TransmogrifyItem
+        {
+            Optional<ObjectGuid> SrcItemGUID;
+            Optional<ObjectGuid> SrcVoidItemGUID;
+            ItemInstance Item;
+            uint32 Slot = 0;
+        };
+
+        class TransmogrifyItems final : public ClientPacket
+        {
+        public:
+            enum
+            {
+                MAX_TRANSMOGRIFY_ITEMS = 11
+            };
+
+            TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Npc;
+            Array<TransmogrifyItem, MAX_TRANSMOGRIFY_ITEMS> Items;
+        };
+
+        class UseCritterItem final : public ClientPacket
+        {
+        public:
+            UseCritterItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_CRITTER_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+        };
+
+        class SocketGems final : public ClientPacket
+        {
+        public:
+            SocketGems(WorldPacket&& packet) : ClientPacket(CMSG_SOCKET_GEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+            ObjectGuid GemItem[MAX_GEM_SOCKETS];
+        };
+
+        class SocketGemsResult final : public ServerPacket
+        {
+        public:
+            SocketGemsResult() : ServerPacket(SMSG_SOCKET_GEMS, 16 + 4 * 3 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Item;
+            int32 Sockets[MAX_GEM_SOCKETS] = {};
+            int32 SocketMatch = 0;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);

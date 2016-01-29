@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,11 +24,9 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Pet.h"
-#include "Formulas.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
@@ -55,7 +53,7 @@ Pet::Pet(Player* owner, PetType type) :
     }
 
     m_name = "Pet";
-    m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+    m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
 }
 
 Pet::~Pet()
@@ -592,22 +590,22 @@ void Pet::Update(uint32 diff)
             }
 
             //regenerate focus for hunter pets or energy for deathknight's ghoul
-            if (m_regenTimer)
+            if (m_focusRegenTimer)
             {
-                if (m_regenTimer > diff)
-                    m_regenTimer -= diff;
+                if (m_focusRegenTimer > diff)
+                    m_focusRegenTimer -= diff;
                 else
                 {
                     switch (getPowerType())
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
-                            m_regenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
-                            if (!m_regenTimer) ++m_regenTimer;
+                            m_focusRegenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
+                            if (!m_focusRegenTimer) ++m_focusRegenTimer;
 
                             // Reset if large diff (lag) causes focus to get 'stuck'
-                            if (m_regenTimer > PET_FOCUS_REGEN_INTERVAL)
-                                m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
+                            if (m_focusRegenTimer > PET_FOCUS_REGEN_INTERVAL)
+                                m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
 
                             break;
 
@@ -618,7 +616,7 @@ void Pet::Update(uint32 diff)
                         //    if (!m_regenTimer) ++m_regenTimer;
                         //    break;
                         default:
-                            m_regenTimer = 0;
+                            m_focusRegenTimer = 0;
                             break;
                     }
                 }

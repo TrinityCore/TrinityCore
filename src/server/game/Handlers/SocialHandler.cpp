@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
             uint32 team = Player::TeamForRace(fields[1].GetUInt8());
             uint32 friendAccountId = fields[2].GetUInt32();
 
-            if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmHandle.Index)))
+            if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;

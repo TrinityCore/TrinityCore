@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,7 +98,7 @@ public:
                 player->FailQuest(QUEST_TRAIL_OF_FIRE);
         }
 
-        void UpdateEscortAI(const uint32 diff) override
+        void UpdateEscortAI(uint32 diff) override
         {
             if (HealthBelowPct(75))
             {

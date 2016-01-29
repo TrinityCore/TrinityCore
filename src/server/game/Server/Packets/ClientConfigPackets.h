@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,6 +98,16 @@ namespace WorldPackets
             uint32 Size    = 0; ///< decompressed size
             uint8 DataType = 0; ///< @see enum AccountDataType
             ByteBuffer CompressedData;
+        };
+
+        class SetAdvancedCombatLogging final : public ClientPacket
+        {
+        public:
+            SetAdvancedCombatLogging(WorldPacket&& packet) : ClientPacket(CMSG_SET_ADVANCED_COMBAT_LOGGING, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Enable = false;
         };
     }
 }

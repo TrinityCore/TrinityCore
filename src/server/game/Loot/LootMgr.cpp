@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,7 +96,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         LootStoreItemList* GetExplicitlyChancedItemList() { return &ExplicitlyChanced; }
         LootStoreItemList* GetEqualChancedItemList() { return &EqualChanced; }
-        void CopyConditions(ConditionList conditions);
+        void CopyConditions(ConditionContainer conditions);
     private:
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
@@ -219,7 +219,7 @@ void LootStore::ResetConditions()
 {
     for (LootTemplateMap::iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
     {
-        ConditionList empty;
+        ConditionContainer empty;
         itr->second->CopyConditions(empty);
     }
 }
@@ -913,7 +913,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
                     WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = packet.Items.size()+1;
-                    lootItem.LootItemType = slot_type;
+                    lootItem.UIType = slot_type;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
                     packet.Items.push_back(lootItem);
@@ -933,7 +933,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
                     WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = packet.Items.size()+1;
-                    lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
                     packet.Items.push_back(lootItem);
@@ -950,7 +950,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 {
                     WorldPackets::Loot::LootItemData lootItem;
                     lootItem.LootListID = packet.Items.size()+1;
-                    lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.UIType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
                     packet.Items.push_back(lootItem);
@@ -962,6 +962,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             return;
     }
 
+    LootSlotType slotType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
     QuestItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID().GetCounter());
     if (q_itr != lootPlayerQuestItems.end())
@@ -982,25 +983,25 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     switch (permission)
                     {
                         case MASTER_PERMISSION:
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_MASTER;
+                            lootItem.UIType = LOOT_SLOT_TYPE_MASTER;
                             break;
                         case RESTRICTED_PERMISSION:
-                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
-                                lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                                lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                             else
-                                lootItem.LootItemType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                                lootItem.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
                             break;
                         default:
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = slotType;
                             break;
                     }
                 }
                 else
-                    lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.UIType = slotType;
 
                 packet.Items.push_back(lootItem);
             }
@@ -1019,7 +1020,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             {
                 WorldPackets::Loot::LootItemData lootItem;
                 lootItem.LootListID = packet.Items.size()+1;
-                lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
                 packet.Items.push_back(lootItem);
@@ -1047,25 +1048,25 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     switch (permission)
                     {
                     case MASTER_PERMISSION:
-                        lootItem.LootItemType = LOOT_SLOT_TYPE_MASTER;
+                        lootItem.UIType = LOOT_SLOT_TYPE_MASTER;
                         break;
                     case RESTRICTED_PERMISSION:
-                        lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                         break;
                     case GROUP_PERMISSION:
                     case ROUND_ROBIN_PERMISSION:
                         if (!item.is_blocked)
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                         else
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                            lootItem.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
                         break;
                     default:
-                        lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        lootItem.UIType = slotType;
                         break;
                     }
                 }
                 else
-                    lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.UIType = slotType;
 
                 packet.Items.push_back(lootItem);
             }
@@ -1159,7 +1160,7 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
     return false;
 }
 
-void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
+void LootTemplate::LootGroup::CopyConditions(ConditionContainer /*conditions*/)
 {
     for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
         (*i)->conditions.clear();
@@ -1264,7 +1265,7 @@ void LootTemplate::AddEntry(LootStoreItem* item)
         Entries.push_back(item);
 }
 
-void LootTemplate::CopyConditions(const ConditionList& conditions)
+void LootTemplate::CopyConditions(const ConditionContainer& conditions)
 {
     for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
         (*i)->conditions.clear();

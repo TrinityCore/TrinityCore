@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -83,6 +83,31 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_32         = 0x80000000
 };
 
+enum SpellCastFlagsEx
+{
+    CAST_FLAG_EX_NONE            = 0x00000,
+    CAST_FLAG_EX_UNKNOWN_1       = 0x00001,
+    CAST_FLAG_EX_UNKNOWN_2       = 0x00002,
+    CAST_FLAG_EX_UNKNOWN_3       = 0x00004,
+    CAST_FLAG_EX_UNKNOWN_4       = 0x00008,
+    CAST_FLAG_EX_UNKNOWN_5       = 0x00010,
+    CAST_FLAG_EX_UNKNOWN_6       = 0x00020,
+    CAST_FLAG_EX_UNKNOWN_7       = 0x00040,
+    CAST_FLAG_EX_UNKNOWN_8       = 0x00080,
+    CAST_FLAG_EX_UNKNOWN_9       = 0x00100,
+    CAST_FLAG_EX_UNKNOWN_10      = 0x00200,
+    CAST_FLAG_EX_UNKNOWN_11      = 0x00400,
+    CAST_FLAG_EX_UNKNOWN_12      = 0x00800,
+    CAST_FLAG_EX_UNKNOWN_13      = 0x01000,
+    CAST_FLAG_EX_UNKNOWN_14      = 0x02000,
+    CAST_FLAG_EX_UNKNOWN_15      = 0x04000,
+    CAST_FLAG_EX_USE_TOY_SPELL   = 0x08000, // Starts cooldown on toy
+    CAST_FLAG_EX_UNKNOWN_17      = 0x10000,
+    CAST_FLAG_EX_UNKNOWN_18      = 0x20000,
+    CAST_FLAG_EX_UNKNOWN_19      = 0x40000,
+    CAST_FLAG_EX_UNKNOWN_20      = 0x80000
+};
+
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT             = 0,
@@ -149,7 +174,6 @@ class SpellCastTargets
         SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
         ~SpellCastTargets();
 
-        void Read(ByteBuffer& data, Unit* caster);
         void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
@@ -410,6 +434,11 @@ class Spell
         void EffectCreateGarrison(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
+        void EffectHealBattlePetPct(SpellEffIndex effIndex);
+        void EffectEnableBattlePets(SpellEffIndex effIndex);
+        void EffectUncageBattlePet(SpellEffIndex effIndex);
+        void EffectCreateHeirloomItem(SpellEffIndex effIndex);
+        void EffectUpgradeHeirloom(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -435,12 +464,12 @@ class Spell
 
         void SelectEffectTypeImplicitTargets(uint32 effIndex);
 
-        uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList* condList);
+        uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionContainer* condList);
         template<class SEARCHER> void SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* referer, Position const* pos, float radius);
 
-        WorldObject* SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList = NULL);
-        void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList);
-        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal);
+        WorldObject* SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList = NULL);
+        void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
+        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionContainer* condList, bool isChainHeal);
 
         GameObject* SearchSpellFocus();
 
@@ -472,7 +501,7 @@ class Spell
         SpellCastResult CheckCasterAuras() const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], var); }
+        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], var, m_castItemLevel); }
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -480,7 +509,7 @@ class Spell
         uint32 getState() const { return m_spellState; }
         void setState(uint32 state) { m_spellState = state; }
 
-        void DoCreateItem(uint32 i, uint32 itemtype);
+        void DoCreateItem(uint32 i, uint32 itemtype, std::vector<int32> const& bonusListIDs = std::vector<int32>());
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const* effect) const;
@@ -519,7 +548,9 @@ class Spell
         Item* m_CastItem;
         ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
+        int32 m_castItemLevel;
         uint8 m_cast_count;
+        uint32 m_castFlagsEx;
         union
         {
             // Alternate names for this value
@@ -691,6 +722,8 @@ class Spell
         // Targets store structures and data
         struct TargetInfo
         {
+            // a bug in gcc-4.7 needs a destructor to call move operator instead of copy operator in std::vector remove
+            ~TargetInfo() { }
             ObjectGuid targetGUID;
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
@@ -825,10 +858,10 @@ namespace Trinity
         SpellInfo const* _spellInfo;
         SpellTargetCheckTypes _targetSelectionType;
         ConditionSourceInfo* _condSrcInfo;
-        ConditionList* _condList;
+        ConditionContainer* _condList;
 
         WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
-            SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         ~WorldObjectSpellTargetCheck();
         bool operator()(WorldObject* target);
     };
@@ -838,7 +871,7 @@ namespace Trinity
         float _range;
         Position const* _position;
         WorldObjectSpellNearbyTargetCheck(float range, Unit* caster, SpellInfo const* spellInfo,
-            SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 
@@ -847,7 +880,7 @@ namespace Trinity
         float _range;
         Position const* _position;
         WorldObjectSpellAreaTargetCheck(float range, Position const* position, Unit* caster,
-            Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 
@@ -855,7 +888,7 @@ namespace Trinity
     {
         float _coneAngle;
         WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
-            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList);
+            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 

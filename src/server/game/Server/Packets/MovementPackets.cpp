@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,7 +81,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 {
-    bool hasSpline = false;
+    //bool hasSpline = false;
 
     data >> movementInfo.guid;
     data >> movementInfo.time;
@@ -106,7 +106,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
-    hasSpline = data.ReadBit(); // todo 6.x read this infos
+    /*hasSpline = */data.ReadBit(); // todo 6.x read this infos
 
     data.ReadBit(); // HeightChangeFailed
     data.ReadBit(); // RemoteTimeValid
@@ -395,15 +395,15 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         if (!splineFlags.cyclic)
         {
             uint32 count = spline.getPointCount() - 3;
-            for (uint32 i = 2; i < count; ++i)
-                movementSpline.Points.push_back(array[i]);
+            for (uint32 i = 0; i < count; ++i)
+                movementSpline.Points.push_back(array[i + 2]);
         }
         else
         {
             uint32 count = spline.getPointCount() - 3;
             movementSpline.Points.push_back(array[1]);
-            for (uint32 i = 1; i < count; ++i)
-                movementSpline.Points.push_back(array[i]);
+            for (uint32 i = 0; i < count; ++i)
+                movementSpline.Points.push_back(array[i + 1]);
         }
     }
     else
@@ -422,8 +422,6 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
                 movementSpline.PackedDeltas.push_back(middle - realPath[i]);
         }
     }
-
-    movementSpline.Mode = spline.mode();
 }
 
 WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
@@ -632,6 +630,17 @@ WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << Direction;
+    _worldPacket << float(HorzSpeed);
+    _worldPacket << float(VertSpeed);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
 {
     _worldPacket << *movementInfo;
@@ -688,4 +697,10 @@ WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
     _worldPacket.FlushBits();
 
     return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveSplineDone::Read()
+{
+    _worldPacket >> movementInfo;
+    _worldPacket >> SplineID;
 }

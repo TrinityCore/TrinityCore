@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,6 @@
 
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
@@ -123,11 +122,11 @@ Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleId)
     return NULL;
 }
 
-Battlefield* BattlefieldMgr::GetBattlefieldByGUID(ObjectGuid guid)
+Battlefield* BattlefieldMgr::GetBattlefieldByQueueId(uint64 queueId)
 {
-    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-        if ((*itr)->GetGUID() == guid)
-            return *itr;
+    for (Battlefield* bf : _battlefieldSet)
+        if (bf->GetQueueId() == queueId)
+            return bf;
 
     return NULL;
 }

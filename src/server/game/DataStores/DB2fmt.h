@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,16 +18,22 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
-char const AreaGroupFormat[] = "n";
+char const AchievementFormat[] = "niiissiiiiisiii";
 char const AreaGroupMemberFormat[] = "nii";
 char const AuctionHouseFormat[] = "niiis";
 char const BarberShopStyleFormat[] = "nissfiii";
+char const BattlePetBreedQualityFormat[] = "nif";
+char const BattlePetBreedStateFormat[] = "niii";
+char const BattlePetSpeciesFormat[] = "niiiiiiss";
+char const BattlePetSpeciesStateFormat[] = "niii";
 char const BroadcastTextFormat[] = "nissiiiiiiiii";
 char const CharStartOutfitFormat[] = "nbbbbiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const ChrClassesXPowerTypesFormat[] = "iii";
 char const CinematicSequencesFormat[] = "niiiiiiiii";
 char const CreatureDisplayInfoFormat[] = "niiiffissssiiiiiiiiiii";
 char const CreatureTypeFormat[] = "nsi";
+char const CriteriaFormat[] = "niiiiiiiiiii";
+char const CriteriaTreeFormat[] = "niliiisi";
 char const CurrencyTypesFormat[] = "nisssiiiiiis";
 char const CurvePointFormat[] = "niiff";
 char const DestructibleModelDataFormat[] = "niiiiiiiiiiiiiiiiiiiiiii";
@@ -46,6 +52,7 @@ char const GarrPlotInstanceFormat[] = "nis";
 char const GarrSiteLevelFormat[] = "niiiiffiiii";
 char const GarrSiteLevelPlotInstFormat[] = "niiffi";
 char const GlyphSlotFormat[] = "nii";
+char const HeirloomFormat[] = "niisiiiiiiii";
 char const GuildPerkSpellsFormat[] = "nii";
 char const HolidaysEntryFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 char const ImportPriceArmorFormat[] = "nffff";
@@ -69,15 +76,21 @@ char const ItemRandomSuffixFormat[] = "nssiiiiiiiiii";
 char const ItemSparseFormat[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 char const ItemSpecFormat[] = "niiiiii";
 char const ItemSpecOverrideFormat[] = "nii";
+char const ItemToBattlePetSpeciesFormat[] = "ni";
 char const ItemXBonusTreeFormat[] = "nii";
 char const KeyChainFormat[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const MailTemplateFormat[] = "ns";
+char const ModifierTreeFormat[] = "niiiiii";
 char const MountCapabilityFormat[] = "niiiiiii";
-char const MountFormat[] = "niiisssiii";
+char const MountFormat[] = "niiiisssii";
 char const MountTypeXCapabilityFormat[] = "niii";
 char const NameGenFormat[] = "nsii";
+char const NamesProfanityFormat[] = "nSi";
+char const NamesReservedFormat[] = "nS";
+char const NamesReservedLocaleFormat[] = "nSi";
 char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
 char const PhaseXPhaseGroupFormat[] = "nii";
+char const PlayerConditionFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 char const QuestMoneyRewardFormat[] = "niiiiiiiiii";
 char const QuestPackageItemfmt[] = "niiii";
 char const QuestSortFormat[] = "ns";
@@ -106,6 +119,7 @@ char const TaxiNodesFormat[] = "nifffsiiiiiff";
 char const TaxiPathFormat[] = "niii";
 char const TaxiPathNodeFormat[] = "niiifffiiii";
 char const TotemCategoryFormat[] = "nsii";
+char const ToyFormat[] = "niisi";
 char const TransportAnimationFormat[] = "niifffi";
 char const TransportRotationFormat[] = "niiffff";
 char const UnitPowerBarFormat[] = "niiiiffiiiiiiiiiiiiiissssff";

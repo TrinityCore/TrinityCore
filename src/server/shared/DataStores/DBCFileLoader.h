@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,9 +56,10 @@ class DBCFileLoader
                 uint64 getUInt64(size_t field) const
                 {
                     assert(field < file.fieldCount);
-                    return *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
+                    uint64 val = *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
+                    EndianConvert(val);
+                    return val;
                 }
-
                 const char *getString(size_t field) const
                 {
                     assert(field < file.fieldCount);

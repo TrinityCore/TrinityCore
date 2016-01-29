@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,11 +51,40 @@ namespace Battlenet
             std::string ToString() const override;
             void CallHandler(Session* session) override;
 
-            std::string Channel;
-            std::string ItemName;
-            std::string Locale;
-            uint32 Index = 0;
+            enum
+            {
+                BEFORE = 0,
+                AFTER = 1
+            };
+
+            uint32 Token = 0;
+            uint8 MaxItems = 0;
             int32 ReferenceTime = 0;
+            uint8 Direction = BEFORE;
+
+            struct StreamId : public PrintableComponent
+            {
+                enum
+                {
+                    INDEX = 0,
+                    DESCRIPTION = 1
+                };
+
+                int32 Type;
+
+                uint16 Index;
+                struct DescriptionType : public PrintableComponent
+                {
+                    std::string Channel;
+                    std::string ItemName;
+
+                    std::string ToString() const override;
+                } Description;
+
+                std::string ToString() const override;
+            } Stream;
+
+            std::string Locale;
         };
 
         class GetStreamItemsResponse final : public ServerPacket
@@ -70,8 +99,10 @@ namespace Battlenet
             void Write() override;
             std::string ToString() const override;
 
-            uint32 Index = 0;
-            std::vector<ModuleInfo*> Modules;
+            std::vector<ModuleInfo*> Items;
+            uint16 Offset = 0;
+            uint16 TotalNumItems = 1;
+            uint32 Token = 0;
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,6 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
-#include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GameObjectPackets.h"
 #include "GridNotifiersImpl.h"
@@ -35,10 +34,9 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
-#include <G3D/Quat.h>
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(NULL), m_goValue(), m_AI(NULL)
+    m_model(NULL), m_goValue(), m_AI(NULL), _animKitId(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -118,7 +116,8 @@ void GameObject::RemoveFromOwner()
         return;
     }
 
-    TC_LOG_FATAL("misc", "Removed GameObject (%s SpellId: %u LinkedGO: %u) that just lost any reference to the owner (%s) GO list",
+    // This happens when a mage portal is despawned after the caster changes map (for example using the portal)
+    TC_LOG_DEBUG("misc", "Removed GameObject (%s SpellId: %u LinkedGO: %u) that just lost any reference to the owner (%s) GO list",
         GetGUID().ToString().c_str(), m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.ToString().c_str());
     SetOwnerGUID(ObjectGuid::Empty);
 }
@@ -235,7 +234,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     SetDisplayId(goinfo->displayId);
 
-    m_model = GameObjectModel::Create(*this);
+    m_model = CreateModel();
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -1855,6 +1854,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
     if (Unit* owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
+        if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
+            trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         // needed for GO casts for proper target validation checks
         trigger->SetOwnerGUID(owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, triggered, nullptr, nullptr, owner->GetGUID());
@@ -1986,14 +1987,13 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     // dealing damage, send packet
     if (player)
     {
-        WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8 + 8 + 8 + 4 + 4);
-        data << GetPackGUID();
-        data << attackerOrHealer->GetPackGUID();
-        data << player->GetPackGUID();
-        data << uint32(-change);                    // change  < 0 triggers SPELL_BUILDING_HEAL combat log event
-                                                    // change >= 0 triggers SPELL_BUILDING_DAMAGE event
-        data << uint32(spellId);
-        player->SendDirectMessage(&data);
+        WorldPackets::GameObject::DestructibleBuildingDamage packet;
+        packet.Caster = attackerOrHealer->GetGUID(); // todo: this can be a GameObject
+        packet.Target = GetGUID();
+        packet.Damage = -change;
+        packet.Owner = player->GetGUID();
+        packet.SpellID = spellId;
+        player->SendDirectMessage(packet.Write());
     }
 
     GameObjectDestructibleState newState = GetDestructibleState();
@@ -2212,7 +2212,7 @@ void GameObject::UpdateModel()
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
     delete m_model;
-    m_model = GameObjectModel::Create(*this);
+    m_model = CreateModel();
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);
 }
@@ -2426,4 +2426,46 @@ void GameObject::UpdateModelPosition()
         m_model->UpdatePosition();
         GetMap()->InsertGameObjectModel(*m_model);
     }
+}
+
+void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
+{
+    if (_animKitId == animKitId)
+        return;
+
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
+    if (!oneshot)
+        _animKitId = animKitId;
+    else
+        _animKitId = 0;
+
+    WorldPackets::GameObject::GameObjectActivateAnimKit activateAnimKit;
+    activateAnimKit.ObjectGUID = GetGUID();
+    activateAnimKit.AnimKitID = animKitId;
+    activateAnimKit.Maintain = !oneshot;
+    SendMessageToSet(activateAnimKit.Write(), true);
+}
+
+class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
+{
+public:
+    explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
+
+    virtual bool IsSpawned() const override { return _owner->isSpawned(); }
+    virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
+    virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
+    virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
+    virtual float GetOrientation() const override { return _owner->GetOrientation(); }
+    virtual float GetScale() const override { return _owner->GetObjectScale(); }
+    virtual void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+
+private:
+    GameObject const* _owner;
+};
+
+GameObjectModel* GameObject::CreateModel()
+{
+    return GameObjectModel::Create(Trinity::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
 }

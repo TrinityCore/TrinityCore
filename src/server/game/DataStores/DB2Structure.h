@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,13 +20,27 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Path.h"
+#include "Util.h"
 
 #pragma pack(push, 1)
 
-struct AreaGroupEntry
+struct AchievementEntry
 {
     uint32 ID;                                                      // 0
+    int32  Faction;                                                 // 1 -1=all, 0=horde, 1=alliance
+    int32  MapID;                                                   // 2 -1=none
+    uint32 Supercedes;                                              // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    LocalizedString* Title;                                         // 4
+    LocalizedString* Description;                                   // 5
+    uint32 Category;                                                // 6
+    uint32 Points;                                                  // 7 reward points
+    uint32 UIOrder;                                                 // 8
+    uint32 Flags;                                                   // 9
+    uint32 IconID;                                                  // 10 icon (from SpellIcon.dbc)
+    LocalizedString* Reward;                                        // 11
+    uint32 MinimumCriteria;                                         // 12 - need this count of completed criterias (own or referenced achievement criterias)
+    uint32 SharesCriteria;                                          // 13 - referenced achievement (counting of all completed criterias)
+    uint32 CriteriaTree;                                            // 14
 };
 
 struct AreaGroupMemberEntry
@@ -55,6 +69,42 @@ struct BarberShopStyleEntry
     uint32 Race;                                                    // 5
     uint32 Sex;                                                     // 6
     uint32 Data;                                                    // 7 (real ID to hair/facial hair)
+};
+
+struct BattlePetBreedQualityEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Quality;                                                 // 1
+    float Modifier;                                                 // 2
+};
+
+struct BattlePetBreedStateEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 BreedID;                                                 // 1
+    uint32 State;                                                   // 2
+    int32 Value;                                                    // 3
+};
+
+struct BattlePetSpeciesEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CreatureID;                                              // 1
+    uint32 IconFileID;                                              // 2
+    uint32 SummonSpellID;                                           // 3
+    uint32 PetType;                                                 // 4
+    int32  Source;                                                  // 5
+    uint32 Flags;                                                   // 6
+    LocalizedString* SourceText;                                    // 7
+    LocalizedString* Description;                                   // 8
+};
+
+struct BattlePetSpeciesStateEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 SpeciesID;                                               // 1
+    uint32 State;                                                   // 2
+    int32 Value;                                                    // 3
 };
 
 #define MAX_BROADCAST_TEXT_EMOTES 3
@@ -129,6 +179,152 @@ struct CreatureTypeEntry
     uint32 ID;                                                      // 0
     LocalizedString* Name;                                          // 1
     uint32 Flags;                                                   // 2 no exp? critters, non-combat pets, gas cloud.
+};
+
+struct CriteriaEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Type;                                                    // 1
+    union
+    {
+        uint32 ID;
+        // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
+        // ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE     = 20
+        uint32 CreatureID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                 = 1
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND  = 15
+        // ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP           = 16
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA              = 32
+        // ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA             = 33
+        uint32 MapID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL      = 7
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL      = 40
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS = 75
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE       = 112
+        uint32 SkillID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT   = 8
+        uint32 AchievementID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE = 11
+        uint32 ZoneID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY = 12
+        uint32 CurrencyID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON       = 18
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID          = 19
+        uint32 GroupSize;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM            = 26
+        uint32 DamageType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST         = 27
+        uint32 QuestID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET        = 28
+        // ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2       = 69
+        // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL             = 29
+        // ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2            = 110
+        // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL            = 34
+        uint32 SpellID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE
+        uint32 ObjectiveId;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
+        // ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA             = 163
+        // ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA             = 164
+        uint32 AreaID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM               = 36
+        // ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM               = 41
+        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM              = 42
+        // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM             = 57
+        // ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY                = 185
+        uint32 ItemID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING      = 39
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING = 39
+        uint32 TeamType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA           = 43
+        uint32 WorldMapOverlayID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION        = 46
+        uint32 FactionID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM        = 49
+        uint32 ItemSlot;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT      = 50
+        // ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT      = 51
+        uint32 RollValue;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS               = 52
+        uint32 ClassID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HK_RACE                = 53
+        uint32 RaceID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE               = 54
+        uint32 EmoteID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT         = 68
+        // ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT     = 72
+        uint32 GameObjectID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER          = 96
+        uint32 PowerType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT           = 97
+        uint32 StatType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER     = 98
+        uint32 SpellSchool;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE              = 109
+        uint32 LootType;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER = 165
+        uint32 DungeonEncounterID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
+        uint32 GarrBuildingID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON       = 170
+        uint32 GarrisonLevel;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION = 174
+        uint32 GarrMissionID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
+        uint32 CharShipmentContainerID;
+    } Asset;                                                        // 2
+    uint32 StartEvent;                                              // 3
+    uint32 StartAsset;                                              // 4
+    uint32 StartTimer;                                              // 5
+    uint32 FailEvent;                                               // 6
+    uint32 FailAsset;                                               // 7
+    uint32 ModifierTreeId;                                          // 8
+    uint32 Flags;                                                   // 9
+    uint32 EligibilityWorldStateID;                                 // 10
+    uint32 EligibilityWorldStateValue;                              // 11
+};
+
+struct CriteriaTreeEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CriteriaID;                                              // 1
+    uint64 Amount;                                                  // 2
+    uint32 Operator;                                                // 3
+    uint32 Parent;                                                  // 4
+    uint32 Flags;                                                   // 5
+    LocalizedString* Description;                                   // 6
+    uint32 OrderIndex;                                              // 7
 };
 
 struct CurrencyTypesEntry
@@ -385,6 +581,19 @@ struct GuildPerkSpellsEntry
     uint32 ID;                                                      // 0
     uint32 GuildLevel;                                              // 1
     uint32 SpellID;                                                 // 2
+};
+
+struct HeirloomEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemID;                                                  // 1
+    uint32 Flags;                                                   // 2
+    LocalizedString* SourceText;                                    // 3
+    uint32 Source;                                                  // 4
+    uint32 OldItem[2];                                              // 5-6
+    uint32 NextDifficultyItemID;                                    // 7
+    uint32 UpgradeItemID[2];                                        // 8-9
+    uint32 ItemBonusListID[2];                                      // 10-11
 };
 
 #define MAX_HOLIDAY_DURATIONS 10
@@ -664,6 +873,12 @@ struct ItemSpecOverrideEntry
     uint32 SpecID;                                                  // 2
 };
 
+struct ItemToBattlePetSpeciesEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      BattlePetSpeciesID;                                 // 1
+};
+
 struct ItemXBonusTreeEntry
 {
     uint32 ID;                                                      // 0
@@ -685,9 +900,20 @@ struct MailTemplateEntry
     LocalizedString* Body;                                          // 1
 };
 
+struct ModifierTreeEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Type;                                                    // 1
+    uint32 Asset[2];                                                // 2-3
+    uint32 Operator;                                                // 4
+    uint32 Amount;                                                  // 5
+    uint32 Parent;                                                  // 6
+};
+
 struct MountEntry
 {
     uint32 Id;
+    uint32 SpellId;
     uint32 MountTypeId;
     uint32 DisplayId;
     uint32 Flags;
@@ -695,7 +921,6 @@ struct MountEntry
     LocalizedString* Description;
     LocalizedString* SourceDescription;
     uint32 Source;
-    uint32 SpellId;
     uint32 PlayerConditionId;
 };
 
@@ -727,6 +952,26 @@ struct NameGenEntry
     uint32 Sex;                                                     // 3
 };
 
+struct NamesProfanityEntry
+{
+    uint32 ID;                                                      // 0
+    char const* Name;                                               // 1
+    int32 Language;                                                 // 2
+};
+
+struct NamesReservedEntry
+{
+    uint32 ID;                                                      // 0
+    char const* Name;                                               // 1
+};
+
+struct NamesReservedLocaleEntry
+{
+    uint32 ID;                                                      // 0
+    char const* Name;                                               // 1
+    uint32 LocaleMask;                                              // 2
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry
@@ -742,6 +987,87 @@ struct PhaseXPhaseGroupEntry
     uint32 ID;
     uint32 PhaseID;
     uint32 PhaseGroupID;
+};
+
+struct PlayerConditionEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Flags;                                                   // 1
+    uint32 MinLevel;                                                // 2
+    uint32 MaxLevel;                                                // 3
+    uint32 RaceMask;                                                // 4
+    uint32 ClassMask;                                               // 5
+    int32 Gender;                                                   // 6
+    int32 NativeGender;                                             // 7
+    uint32 SkillID[4];                                              // 8-11
+    int32 MinSkill[4];                                              // 12-15
+    int32 MaxSkill[4];                                              // 16-19
+    uint32 SkillLogic;                                              // 20
+    uint32 LanguageID;                                              // 21
+    uint32 MinLanguage;                                             // 22
+    uint32 MaxLanguage;                                             // 23
+    uint32 MinFactionID[3];                                         // 24-26
+    uint32 MaxFactionID;                                            // 27
+    uint32 MinReputation[3];                                        // 28-30
+    uint32 MaxReputation;                                           // 31
+    uint32 ReputationLogic;                                         // 32
+    uint32 Unknown1;                                                // 33
+    uint32 MinPVPRank;                                              // 34
+    uint32 MaxPVPRank;                                              // 35
+    uint32 PvpMedal;                                                // 36
+    uint32 PrevQuestLogic;                                          // 37
+    uint32 PrevQuestID[4];                                          // 38-41
+    uint32 CurrQuestLogic;                                          // 42
+    uint32 CurrQuestID[4];                                          // 43-46
+    uint32 CurrentCompletedQuestLogic;                              // 47
+    uint32 CurrentCompletedQuestID[4];                              // 48-51
+    uint32 SpellLogic;                                              // 52
+    uint32 SpellID[4];                                              // 53-56
+    uint32 ItemLogic;                                               // 57
+    uint32 ItemID[4];                                               // 58-61
+    uint32 ItemCount[4];                                            // 62-65
+    uint32 ItemFlags;                                               // 66
+    uint32 Explored[2];                                             // 67-68
+    uint32 Time[2];                                                 // 69-70
+    uint32 AuraSpellLogic;                                          // 71
+    uint32 AuraSpellID[4];                                          // 72-75
+    uint32 WorldStateExpressionID;                                  // 76
+    uint32 WeatherID;                                               // 77
+    uint32 PartyStatus;                                             // 78
+    uint32 LifetimeMaxPVPRank;                                      // 79
+    uint32 AchievementLogic;                                        // 80
+    uint32 Achievement[4];                                          // 81-84
+    uint32 LfgLogic;                                                // 85
+    uint32 LfgStatus[4];                                            // 86-89
+    uint32 LfgCompare[4];                                           // 90-93
+    uint32 LfgValue[4];                                             // 94-97
+    uint32 AreaLogic;                                               // 98
+    uint32 AreaID[4];                                               // 99-102
+    uint32 CurrencyLogic;                                           // 103
+    uint32 CurrencyID[4];                                           // 104-107
+    uint32 CurrencyCount[4];                                        // 108-111
+    uint32 QuestKillID;                                             // 112
+    uint32 QuestKillLogic;                                          // 113
+    uint32 QuestKillMonster[4];                                     // 114-117
+    int32 MinExpansionLevel;                                        // 118
+    int32 MaxExpansionLevel;                                        // 119
+    int32 MinExpansionTier;                                         // 120
+    int32 MaxExpansionTier;                                         // 121
+    uint32 MinGuildLevel;                                           // 122
+    uint32 MaxGuildLevel;                                           // 123
+    uint32 PhaseUseFlags;                                           // 124
+    uint32 PhaseID;                                                 // 125
+    uint32 PhaseGroupID;                                            // 126
+    uint32 MinAvgItemLevel;                                         // 127
+    uint32 MaxAvgItemLevel;                                         // 128
+    uint32 MinAvgEquippedItemLevel;                                 // 129
+    uint32 MaxAvgEquippedItemLevel;                                 // 130
+    int32 ChrSpecializationIndex;                                   // 131
+    int32 ChrSpecializationRole;                                    // 132
+    LocalizedString* FailureDescription_lang;                       // 133
+    int32 PowerType;                                                // 134
+    int32 PowerTypeComp;                                            // 135
+    int32 PowerTypeValue;                                           // 136
 };
 
 struct QuestMoneyRewardEntry
@@ -1037,6 +1363,15 @@ struct TotemCategoryEntry
     uint32 CategoryMask;                                            // 3
 };
 
+struct ToyEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemID;                                                  // 1
+    uint32 Flags;                                                   // 2
+    LocalizedString* Description;                                   // 3
+    uint32 CategoryFilter;                                          // 4
+};
+
 struct TransportAnimationEntry
 {
     uint32 ID;                                                      // 0
@@ -1111,18 +1446,10 @@ struct TaxiPathBySourceAndDestination
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
-struct TaxiPathNodePtr
-{
-    TaxiPathNodePtr() : i_ptr(NULL) { }
-    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) { }
-    TaxiPathNodeEntry const* i_ptr;
-    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
-};
-
-typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 215
-typedef uint8 TaxiMask[TaxiMaskSize];
+#define TaxiMaskSize 217
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 #endif

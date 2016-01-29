@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,6 @@
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
-#include "Language.h"
 #include "LFGMgr.h"
 #include "LFGScripts.h"
 #include "LFGGroupData.h"
@@ -584,7 +583,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 
    @param[in]     guid Player or group guid
 */
-void LFGMgr::LeaveLfg(ObjectGuid guid)
+void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
 {
     ObjectGuid gguid = guid.IsParty() ? guid : GetGroup(guid);
 
@@ -645,7 +644,7 @@ void LFGMgr::LeaveLfg(ObjectGuid guid)
             break;
         case LFG_STATE_DUNGEON:
         case LFG_STATE_FINISHED_DUNGEON:
-            if (guid != gguid) // Player
+            if (guid != gguid && !disconnected) // Player
                 SetState(guid, LFG_STATE_NONE);
             break;
     }
@@ -1273,14 +1272,6 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
             player->GetName().c_str(), player->GetMapId(), uint32(dungeon->map));
         if (player->GetMapId() == uint32(dungeon->map))
             player->TeleportToBGEntryPoint();
-
-        // in the case were we are the last in lfggroup then we must disband when porting out of the instance
-        if (group && group->GetMembersCount() == 1)
-        {
-            group->Disband();
-            TC_LOG_DEBUG("lfg.teleport", "Player %s is last in lfggroup so we disband the group.",
-                player->GetName().c_str());
-        }
 
         return;
     }

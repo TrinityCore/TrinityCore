@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -110,9 +110,8 @@ class npc_iceborn_protodrake : public CreatureScript
 
         struct npc_iceborn_protodrakeAI: public ScriptedAI
         {
-            npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
+            npc_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature)
             {
-                ASSERT(_vehicle);
                 Initialize();
             }
 
@@ -128,7 +127,8 @@ class npc_iceborn_protodrake : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                _vehicle->RemoveAllPassengers();
+                if (Vehicle* _vehicle = me->GetVehicleKit())
+                    _vehicle->RemoveAllPassengers();
             }
 
             void UpdateAI(uint32 diff) override
@@ -148,7 +148,6 @@ class npc_iceborn_protodrake : public CreatureScript
             }
 
         private:
-            Vehicle* _vehicle;
             uint32 _frostBreathCooldown;
         };
 

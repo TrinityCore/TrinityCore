@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,24 +33,41 @@ class cast_commandscript : public CommandScript
 public:
     cast_commandscript() : CommandScript("cast_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand castCommandTable[] =
+        static std::vector<ChatCommand> castCommandTable =
         {
-            { "back",   rbac::RBAC_PERM_COMMAND_CAST_BACK,   false, &HandleCastBackCommand,  "", NULL },
-            { "dist",   rbac::RBAC_PERM_COMMAND_CAST_DIST,   false, &HandleCastDistCommand,  "", NULL },
-            { "self",   rbac::RBAC_PERM_COMMAND_CAST_SELF,   false, &HandleCastSelfCommand,  "", NULL },
-            { "target", rbac::RBAC_PERM_COMMAND_CAST_TARGET, false, &HandleCastTargetCommad, "", NULL },
-            { "dest",   rbac::RBAC_PERM_COMMAND_CAST_DEST,   false, &HandleCastDestCommand,  "", NULL },
-            { "",       rbac::RBAC_PERM_COMMAND_CAST,        false, &HandleCastCommand,      "", NULL },
-            { NULL,     0,                             false, NULL,                    "", NULL }
+            { "back",   rbac::RBAC_PERM_COMMAND_CAST_BACK,   false, &HandleCastBackCommand,  "" },
+            { "dist",   rbac::RBAC_PERM_COMMAND_CAST_DIST,   false, &HandleCastDistCommand,  "" },
+            { "self",   rbac::RBAC_PERM_COMMAND_CAST_SELF,   false, &HandleCastSelfCommand,  "" },
+            { "target", rbac::RBAC_PERM_COMMAND_CAST_TARGET, false, &HandleCastTargetCommad, "" },
+            { "dest",   rbac::RBAC_PERM_COMMAND_CAST_DEST,   false, &HandleCastDestCommand,  "" },
+            { "",       rbac::RBAC_PERM_COMMAND_CAST,        false, &HandleCastCommand,      "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "cast",   rbac::RBAC_PERM_COMMAND_CAST,        false, NULL,                    "", castCommandTable },
-            { NULL,     0,                             false, NULL,                    "", NULL }
         };
         return commandTable;
+    }
+
+    static bool CheckSpellExistsAndIsValid(ChatHandler* handler, uint32 spellId)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!spellInfo)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        return true;
     }
 
     static bool HandleCastCommand(ChatHandler* handler, char const* args)
@@ -71,20 +88,8 @@ public:
         if (!spellId)
             return false;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-        if (!spellInfo)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-            handler->SetSentErrorMessage(true);
+        if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
-        }
-
-        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         char* triggeredStr = strtok(NULL, " ");
         if (triggeredStr)
@@ -111,15 +116,13 @@ public:
             return false;
         }
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-            handler->SetSentErrorMessage(true);
+        if (!spellId)
             return false;
-        }
+
+        if (!CheckSpellExistsAndIsValid(handler, spellId))
+            return false;
 
         char* triggeredStr = strtok(NULL, " ");
         if (triggeredStr)
@@ -146,20 +149,8 @@ public:
         if (!spellId)
             return false;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-        if (!spellInfo)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-            handler->SetSentErrorMessage(true);
+        if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
-        }
-
-        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         char* distStr = strtok(NULL, " ");
 
@@ -192,28 +183,14 @@ public:
             return false;
 
         Unit* target = handler->getSelectedUnit();
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         if (!spellId)
             return false;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-        if (!spellInfo)
+        if (!CheckSpellExistsAndIsValid(handler, spellId))
             return false;
-
-        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         target->CastSpell(target, spellId, false);
 
@@ -239,12 +216,11 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-            handler->SetSentErrorMessage(true);
+        if (!spellId)
             return false;
-        }
+
+        if (!CheckSpellExistsAndIsValid(handler, spellId))
+            return false;
 
         char* triggeredStr = strtok(NULL, " ");
         if (triggeredStr)
@@ -273,12 +249,11 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-            handler->SetSentErrorMessage(true);
+        if (!spellId)
             return false;
-        }
+
+        if (!CheckSpellExistsAndIsValid(handler, spellId))
+            return false;
 
         char* posX = strtok(NULL, " ");
         char* posY = strtok(NULL, " ");

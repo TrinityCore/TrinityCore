@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -104,6 +104,37 @@ namespace WorldPackets
             ResetFailedNotify() : ServerPacket(SMSG_RESET_FAILED_NOTIFY, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class InstanceSaveCreated final : public ServerPacket
+        {
+        public:
+            InstanceSaveCreated() : ServerPacket(SMSG_INSTANCE_SAVE_CREATED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Gm = false;
+        };
+
+        class InstanceLockResponse final : public ClientPacket
+        {
+        public:
+            InstanceLockResponse(WorldPacket&& packet) : ClientPacket(CMSG_INSTANCE_LOCK_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool AcceptLock = false;
+        };
+
+        class RaidGroupOnly final : public ServerPacket
+        {
+        public:
+            RaidGroupOnly() : ServerPacket(SMSG_RAID_GROUP_ONLY, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Delay = 0;
+            uint32 Reason = 0;
         };
     }
 }

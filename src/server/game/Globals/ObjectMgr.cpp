@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,7 +27,6 @@
 #include "DB2Structure.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
-#include "GameEventMgr.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
@@ -38,19 +37,15 @@
 #include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
-#include "Pet.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
-#include "Spell.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "Transport.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
-#include "WaypointManager.h"
 #include "World.h"
 
 ScriptMapMap sSpellScripts;
@@ -307,17 +302,8 @@ void ObjectMgr::LoadCreatureLocales()
 
     _creatureLocaleStore.clear(); // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, "
-        "name_loc1, femaleName_loc1, subname_loc1, "
-        "name_loc2, femaleName_loc2, subname_loc2, "
-        "name_loc3, femaleName_loc3, subname_loc3, "
-        "name_loc4, femaleName_loc4, subname_loc4, "
-        "name_loc5, femaleName_loc5, subname_loc5, "
-        "name_loc6, femaleName_loc6, subname_loc6, "
-        "name_loc7, femaleName_loc7, subname_loc7, "
-        "name_loc8, femaleName_loc8, subname_loc8 "
-        "FROM locales_creature");
-
+    //                                               0      1       2     3        4      5
+    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
     if (!result)
         return;
 
@@ -325,17 +311,24 @@ void ObjectMgr::LoadCreatureLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id               = fields[0].GetUInt32();
+        std::string localeName  = fields[1].GetString();
 
-        CreatureLocale& data = _creatureLocaleStore[entry];
+        std::string name        = fields[2].GetString();
+        std::string nameAlt     = fields[3].GetString();
+        std::string title       = fields[4].GetString();
+        std::string titleAlt    = fields[5].GetString();
 
-        for (uint8 i = OLD_TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.FemaleName);
-            AddLocaleString(fields[1 + 3 * (i - 1) + 2].GetString(), locale, data.SubName);
-        }
+        CreatureLocale& data = _creatureLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        AddLocaleString(name,       locale, data.Name);
+        AddLocaleString(nameAlt,    locale, data.NameAlt);
+        AddLocaleString(title,      locale, data.Title);
+        AddLocaleString(titleAlt,   locale, data.TitleAlt);
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature locale strings in %u ms", uint32(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -399,6 +392,8 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(name, locale, data.Name);
     } while (result->NextRow());
@@ -529,7 +524,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.RegenHealth        = fields[74].GetBool();
     creatureTemplate.MechanicImmuneMask = fields[75].GetUInt32();
     creatureTemplate.flags_extra        = fields[76].GetUInt32();
-    creatureTemplate.ScriptID           = GetScriptId(fields[77].GetCString());
+    creatureTemplate.ScriptID           = GetScriptId(fields[77].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -581,6 +576,12 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
             if (AdditionalSpellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
                 TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_template_addon`.", entry, spellId);
+
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %u) in `auras` field in `creature_template_addon`.", entry, spellId);
+                continue;
+            }
 
             creatureAddon.auras[i++] = spellId;
         }
@@ -1033,6 +1034,12 @@ void ObjectMgr::LoadCreatureAddons()
             if (AdditionalSpellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
                 TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has SPELL_AURA_CONTROL_VEHICLE aura %u defined in `auras` field in `creature_addon`.", guid, spellId);
 
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), spellId) != creatureAddon.auras.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has duplicate aura (spell %u) in `auras` field in `creature_addon`.", guid, spellId);
+                continue;
+            }
+
             creatureAddon.auras[i++] = spellId;
         }
 
@@ -1254,7 +1261,11 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     if (data && data->displayid)
         return data->displayid;
 
-    return cinfo->GetRandomValidModelId();
+    if (!(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER))
+        return cinfo->GetRandomValidModelId();
+
+    // Triggers by default receive the invisible model
+    return cinfo->GetFirstInvisibleModel();
 }
 
 void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cinfo, uint64& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data /*= NULL*/)
@@ -1314,6 +1325,9 @@ void ObjectMgr::LoadCreatureModelInfo()
     _creatureModelStore.rehash(result->GetRowCount());
     uint32 count = 0;
 
+    // List of model FileDataIDs that the client treats as invisible stalker
+    uint32 trigggerCreatureModelFileID[5] = { 124640, 124641, 124642, 343863, 439302 };
+
     do
     {
         Field* fields = result->Fetch();
@@ -1333,6 +1347,7 @@ void ObjectMgr::LoadCreatureModelInfo()
         modelInfo.combat_reach           = fields[2].GetFloat();
         modelInfo.displayId_other_gender = fields[3].GetUInt32();
         modelInfo.gender                 = creatureDisplay->Gender;
+        modelInfo.is_trigger             = false;
 
         // Checks
 
@@ -1352,6 +1367,18 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         if (modelInfo.combat_reach < 0.1f)
             modelInfo.combat_reach = DEFAULT_COMBAT_REACH;
+
+        if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(creatureDisplay->ModelID))
+        {
+            for (uint32 i = 0; i < 5; ++i)
+            {
+                if (modelData->FileDataID == trigggerCreatureModelFileID[i])
+                {
+                    modelInfo.is_trigger = true;
+                    break;
+                }
+            }
+        }
 
         ++count;
     }
@@ -2259,9 +2286,6 @@ bool ObjectMgr::GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string&
 
 uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
 {
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-        return player->GetTeam();
-
     if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
         return Player::TeamForRace(characterInfo->Race);
 
@@ -2270,15 +2294,8 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
 
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
 {
-    // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-        return player->GetSession()->GetAccountId();
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
-    stmt->setUInt64(0, guid.GetCounter());
-
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-        return (*result)[0].GetUInt32();
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+        return characterInfo->AccountId;
 
     return 0;
 }
@@ -2748,7 +2765,7 @@ void ObjectMgr::LoadItemScriptNames()
                 continue;
             }
 
-            _itemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetCString());
+            _itemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetString());
             ++count;
         } while (result->NextRow());
     }
@@ -4081,6 +4098,8 @@ void ObjectMgr::LoadQuests()
                     case QUEST_OBJECTIVE_TALKTO:
                     case QUEST_OBJECTIVE_PLAYERKILLS:
                     case QUEST_OBJECTIVE_AREATRIGGER:
+                    case QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC:
+                    case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has invalid StorageIndex = %d for objective type %u", qinfo->GetQuestId(), obj.ID, obj.StorageIndex, obj.Type);
                         break;
                     default:
@@ -4115,7 +4134,7 @@ void ObjectMgr::LoadQuests()
                 case QUEST_OBJECTIVE_MIN_REPUTATION:
                 case QUEST_OBJECTIVE_MAX_REPUTATION:
                     if (!sFactionStore.LookupEntry(obj.ObjectID))
-                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing faction id %u", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing faction id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
                 case QUEST_OBJECTIVE_PLAYERKILLS:
                     qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
@@ -4123,13 +4142,42 @@ void ObjectMgr::LoadQuests()
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has invalid player kills count %d", qinfo->GetQuestId(), obj.ID, obj.Amount);
                     break;
                 case QUEST_OBJECTIVE_CURRENCY:
+                case QUEST_OBJECTIVE_HAVE_CURRENCY:
+                case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
                     if (!sCurrencyTypesStore.LookupEntry(obj.ObjectID))
-                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing currency %u", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing currency %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     if (obj.Amount <= 0)
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has invalid currency amount %d", qinfo->GetQuestId(), obj.ID, obj.Amount);
                     break;
+                case QUEST_OBJECTIVE_LEARNSPELL:
+                    if (!sSpellMgr->GetSpellInfo(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing spell id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC:
+                    if (obj.ObjectID && !sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing creature entry %u, quest can't be done.",
+                            qinfo->GetQuestId(), obj.ID, uint32(obj.ObjectID));
+                    break;
+                case QUEST_OBJECTIVE_DEFEATBATTLEPET:
+                    if (!sBattlePetSpeciesStore.LookupEntry(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing battlepet species id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_CRITERIA_TREE:
+                    if (!sCriteriaTreeStore.LookupEntry(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing criteria tree id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_AREATRIGGER:
+                    if (sAreaTriggerStore.LookupEntry(uint32(obj.ObjectID)))
+                        _questAreaTriggerStore[obj.ObjectID].insert(qinfo->ID);
+                    else if (obj.ObjectID != -1)
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing areatrigger id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_MONEY:
+                case QUEST_OBJECTIVE_WINPVPPETBATTLES:
+                    break;
                 default:
                     TC_LOG_ERROR("sql.sql", "Quest %u objective %u has unhandled type %u", qinfo->GetQuestId(), obj.ID, obj.Type);
+                    break;
             }
         }
 
@@ -4472,6 +4520,8 @@ void ObjectMgr::LoadQuestTemplateLocale()
 
         QuestTemplateLocale& data = _questTemplateLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(logTitle,               locale, data.LogTitle);
         AddLocaleString(logDescription,         locale, data.LogDescription);
@@ -4508,6 +4558,8 @@ void ObjectMgr::LoadQuestObjectivesLocale()
 
         QuestObjectivesLocale& data = _questObjectivesLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(Description, locale, data.Description);
     }
@@ -4876,13 +4928,13 @@ void ObjectMgr::LoadEventScripts()
     {
         for (size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
         {
-            TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
+            TaxiPathNodeEntry const* node = sTaxiPathNodesByPath[path_idx][node_idx];
 
-            if (node.ArrivalEventID)
-                evt_scripts.insert(node.ArrivalEventID);
+            if (node->ArrivalEventID)
+                evt_scripts.insert(node->ArrivalEventID);
 
-            if (node.DepartureEventID)
-                evt_scripts.insert(node.DepartureEventID);
+            if (node->DepartureEventID)
+                evt_scripts.insert(node->DepartureEventID);
         }
     }
 
@@ -4946,8 +4998,8 @@ void ObjectMgr::LoadSpellScriptNames()
 
         Field* fields = result->Fetch();
 
-        int32 spellId          = fields[0].GetInt32();
-        char const* scriptName = fields[1].GetCString();
+        int32 spellId                = fields[0].GetInt32();
+        std::string const scriptName = fields[1].GetString();
 
         bool allRanks = false;
         if (spellId < 0)
@@ -4959,18 +5011,18 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName, fields[0].GetInt32());
+            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist.", scriptName.c_str(), fields[0].GetInt32());
             continue;
         }
 
         if (allRanks)
         {
             if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) has no ranks of spell.", scriptName.c_str(), fields[0].GetInt32());
 
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName.c_str(), fields[0].GetInt32());
                 continue;
             }
             while (spellInfo)
@@ -4982,7 +5034,7 @@ void ObjectMgr::LoadSpellScriptNames()
         else
         {
             if (spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName.c_str(), spellId);
 
             _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
         }
@@ -5020,7 +5072,7 @@ void ObjectMgr::ValidateSpellScripts()
             bool valid = true;
             if (!spellScript && !auraScript)
             {
-                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second).c_str());
                 valid = false;
             }
             if (spellScript)
@@ -5121,6 +5173,8 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
@@ -5158,7 +5212,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
         instanceTemplate.AllowMount = fields[3].GetBool();
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetCString());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -5520,7 +5574,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
             // continue; - quest modified to required objective and trigger can be allowed.
         }
 
-        _questAreaTriggerStore[trigger_ID] = quest_ID;
+        _questAreaTriggerStore[trigger_ID].insert(quest_ID);
 
     } while (result->NextRow());
 
@@ -5585,7 +5639,7 @@ void ObjectMgr::LoadQuestGreetings()
                 continue;
         }
 
-        uint16 greetEmoteType       = fields[2].GetUInt32();
+        uint16 greetEmoteType       = fields[2].GetUInt16();
         uint32 greetEmoteDelay      = fields[3].GetUInt32();
         std::string greeting        = fields[4].GetString();
 
@@ -5650,8 +5704,8 @@ void ObjectMgr::LoadAreaTriggerScripts()
     {
         Field* fields = result->Fetch();
 
-        uint32 triggerId       = fields[0].GetUInt32();
-        char const* scriptName = fields[1].GetCString();
+        uint32 triggerId             = fields[0].GetUInt32();
+        std::string const scriptName = fields[1].GetString();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
         if (!atEntry)
@@ -5672,9 +5726,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
+    uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
-        if (!node || node->MapID != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        if (!node || node->MapID != mapid || !(node->Flags & requireFlag))
             continue;
 
         uint8  field   = (uint8)((node->ID - 1) / 8);
@@ -5870,7 +5925,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     // not need to check validity of map object; MapId _MUST_ be valid here
     if (range.first == range.second && !map->IsBattlegroundOrArena())
     {
-        TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
+        if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
+            TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
         return GetDefaultGraveYard(team);
     }
 
@@ -6356,12 +6412,22 @@ uint32 ObjectMgr::GenerateMailID()
 
 uint32 ObjectMgr::GeneratePetNumber()
 {
-    return ++_hiPetNumber;
+    if (_hiPetNumber >= 0xFFFFFFFE)
+    {
+        TC_LOG_ERROR("misc", "_hiPetNumber Id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _hiPetNumber++;
 }
 
 uint64 ObjectMgr::GenerateVoidStorageItemId()
 {
-    return ++_voidItemId;
+    if (_voidItemId >= uint64(0xFFFFFFFFFFFFFFFELL))
+    {
+        TC_LOG_ERROR("misc", "_voidItemId overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _voidItemId++;
 }
 
 uint64 ObjectMgr::GenerateCreatureSpawnId()
@@ -6408,6 +6474,8 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(name, locale, data.Name);
         AddLocaleString(castBarCaption, locale, data.CastBarCaption);
@@ -6539,7 +6607,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         got.unkInt32 = fields[43].GetInt32();
         got.AIName = fields[44].GetString();
-        got.ScriptId = GetScriptId(fields[45].GetCString());
+        got.ScriptId = GetScriptId(fields[45].GetString());
 
         // Checks
 
@@ -6787,7 +6855,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
         if (!cinfo)
             return std::string();
 
-        char const* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        char const* petname = GetCreatureFamilyPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
         if (petname)
             return std::string(petname);
         else
@@ -7266,20 +7334,6 @@ void ObjectMgr::DeleteGOData(ObjectGuid::LowType guid)
     _gameObjectDataStore.erase(guid);
 }
 
-void ObjectMgr::AddCorpseCellData(uint32 mapid, uint32 cellid, ObjectGuid player_guid, uint32 instance)
-{
-    // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(mapid, 0)][cellid];
-    cell_guids.corpses[player_guid] = instance;
-}
-
-void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, ObjectGuid player_guid)
-{
-    // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids& cell_guids = _mapObjectGuidsStore[MAKE_PAIR32(mapid, 0)][cellid];
-    cell_guids.corpses.erase(player_guid);
-}
-
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go)
 {
     uint32 oldMSTime = getMSTime();
@@ -7506,7 +7560,7 @@ bool isValidString(const std::wstring& wstr, uint32 strictMask, bool numericOrSp
     return false;
 }
 
-ResponseCodes ObjectMgr::CheckPlayerName(const std::string& name, bool create)
+ResponseCodes ObjectMgr::CheckPlayerName(std::string const& name, LocaleConstant locale, bool create /*= false*/)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
@@ -7528,7 +7582,7 @@ ResponseCodes ObjectMgr::CheckPlayerName(const std::string& name, bool create)
         if (wname[i] == wname[i-1] && wname[i] == wname[i-2])
             return CHAR_NAME_THREE_CONSECUTIVE;
 
-    return CHAR_NAME_SUCCESS;
+    return sDB2Manager.ValidateName(name, locale);
 }
 
 bool ObjectMgr::IsValidCharterName(const std::string& name)
@@ -7807,7 +7861,7 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
     if (sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
         return SKILL_RANGE_RANK;
 
-    if (rcEntry->SkillID == SKILL_RUNEFORGING)
+    if (rcEntry->SkillID == SKILL_RUNEFORGING || rcEntry->SkillID == SKILL_RUNEFORGING_2)
         return SKILL_RANGE_MONO;
 
     switch (skill->CategoryID)
@@ -8533,7 +8587,7 @@ void ObjectMgr::LoadScriptNames()
 
     do
     {
-        _scriptNamesStore.emplace_back((*result)[0].GetCString());
+        _scriptNamesStore.push_back((*result)[0].GetString());
     }
     while (result->NextRow());
 
@@ -8547,11 +8601,17 @@ void ObjectMgr::LoadScriptNames()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-uint32 ObjectMgr::GetScriptId(char const* name)
+std::string const& ObjectMgr::GetScriptName(uint32 id) const
+{
+    static std::string const empty = "";
+    return id < _scriptNamesStore.size() ? _scriptNamesStore[id] : empty;
+}
+
+uint32 ObjectMgr::GetScriptId(std::string const& name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
-    if (!name)
+    if (name.empty())
         return 0;
 
     ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
@@ -8893,8 +8953,7 @@ void ObjectMgr::LoadTerrainSwapDefaults()
 
         uint32 mapId = fields[0].GetUInt32();
 
-        MapEntry const* map = sMapStore.LookupEntry(mapId);
-        if (!map)
+        if (!sMapStore.LookupEntry(mapId))
         {
             TC_LOG_ERROR("sql.sql", "Map %u defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
             continue;
@@ -8902,14 +8961,15 @@ void ObjectMgr::LoadTerrainSwapDefaults()
 
         uint32 terrainSwap = fields[1].GetUInt32();
 
-        map = sMapStore.LookupEntry(terrainSwap);
-        if (!map)
+        if (!sMapStore.LookupEntry(terrainSwap))
         {
             TC_LOG_ERROR("sql.sql", "TerrainSwapMap %u defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
             continue;
         }
 
-        _terrainMapDefaultStore[mapId].push_back(terrainSwap);
+        PhaseInfoStruct defaultSwap;
+        defaultSwap.Id = terrainSwap;
+        _terrainMapDefaultStore[mapId].push_back(defaultSwap);
 
         ++count;
     } while (result->NextRow());
@@ -8946,7 +9006,8 @@ void ObjectMgr::LoadTerrainPhaseInfo()
             continue;
         }
 
-        uint32 terrainSwap = fields[1].GetUInt32();
+        PhaseInfoStruct terrainSwap;
+        terrainSwap.Id = fields[1].GetUInt32();
 
         _terrainPhaseInfoStore[phaseId].push_back(terrainSwap);
 
@@ -9015,9 +9076,9 @@ void ObjectMgr::LoadAreaPhases()
     {
         Field* fields = result->Fetch();
 
+        PhaseInfoStruct phase;
         uint32 area = fields[0].GetUInt32();
-        uint32 phase = fields[1].GetUInt32();
-
+        phase.Id = fields[1].GetUInt32();
         _phases[area].push_back(phase);
 
         ++count;

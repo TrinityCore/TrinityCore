@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,9 +84,9 @@ public:
     // Ensures there's "some" free space, make sure to call Normalize() before this
     void EnsureFreeSpace()
     {
-        // Double the size of the buffer if it's already full
+        // resize buffer if it's already full
         if (GetRemainingSpace() == 0)
-            _storage.resize(_storage.size() * 2);
+            _storage.resize(_storage.size() * 3 / 2);
     }
 
     void Write(void const* data, std::size_t size)

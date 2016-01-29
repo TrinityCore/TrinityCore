@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -375,7 +375,7 @@ void Puppet::InitSummon()
 {
     Minion::InitSummon();
     if (!SetCharmedBy(GetOwner(), CHARM_TYPE_POSSESS))
-        ASSERT(false);
+        ABORT();
 }
 
 void Puppet::Update(uint32 time)

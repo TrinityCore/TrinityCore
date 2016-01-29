@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1244,8 +1244,9 @@ public:
                 ++_wpCount;
             }
             else if (Vehicle* hoverDisk = me->GetVehicleKit())
-                if (Unit* lordPassenger = hoverDisk->GetPassenger(0))
-                    lordPassenger->ToCreature()->AI()->DoAction(ACTION_SET_DISK_VICTIM_CHASE);
+                if (Unit* passenger = hoverDisk->GetPassenger(0))
+                    if (Creature* lordPassenger = passenger->ToCreature())
+                        lordPassenger->AI()->DoAction(ACTION_SET_DISK_VICTIM_CHASE);
         }
 
     private:

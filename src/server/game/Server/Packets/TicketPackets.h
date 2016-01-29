@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,8 +78,6 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            time_t OldestTicketTime = 0;
-            time_t UpdateTime = 0;
             std::vector<GMTicketCase> Cases;
         };
 
@@ -142,8 +140,8 @@ namespace WorldPackets
 
             struct SupportTicketCalendarEventInfo
             {
-                ObjectGuid EventID;
-                ObjectGuid InviteID;
+                uint64 EventID;
+                uint64 InviteID;
                 std::string EventTitle;
             };
 
@@ -159,21 +157,22 @@ namespace WorldPackets
                 std::string GuildName;
             };
 
-            struct Struct5E4383
+            struct SupportTicketLFGListSearchResult
             {
                 WorldPackets::LFG::RideTicket RideTicket;
-                ObjectGuid _40;
-                ObjectGuid _56;
-                ObjectGuid _72;
-                std::string _88;
-                std::string _217;
-                std::string _1242;
+                uint32 GroupFinderActivityID = 0;
+                ObjectGuid LastTitleAuthorGuid;
+                ObjectGuid LastDescriptionAuthorGuid;
+                ObjectGuid LastVoiceChatAuthorGuid;
+                std::string Title;
+                std::string Description;
+                std::string VoiceChat;
             };
 
-            struct Struct5E3DFB
+            struct SupportTicketLFGListApplicant
             {
                 WorldPackets::LFG::RideTicket RideTicket;
-                std::string _32;
+                std::string Comment;
             };
 
             SupportTicketSubmitComplaint(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT, std::move(packet)) { }
@@ -189,8 +188,8 @@ namespace WorldPackets
             Optional<SupportTicketCalendarEventInfo> CalenderInfo;
             Optional<SupportTicketPetInfo> PetInfo;
             Optional<SupportTicketGuildInfo> GuildInfo;
-            Optional<Struct5E4383> _5E4383;
-            Optional<Struct5E3DFB> _5E3DFB;
+            Optional<SupportTicketLFGListSearchResult> LFGListSearchResult;
+            Optional<SupportTicketLFGListApplicant> LFGListApplicant;
 
         };
 

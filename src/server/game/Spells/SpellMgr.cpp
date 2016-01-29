@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,18 +19,16 @@
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "ObjectMgr.h"
-#include "SpellAuras.h"
 #include "SpellAuraDefines.h"
 #include "SharedDefines.h"
 #include "DBCStores.h"
-#include "World.h"
 #include "Chat.h"
-#include "Spell.h"
 #include "BattlegroundMgr.h"
-#include "MapManager.h"
 #include "BattlefieldWG.h"
 #include "BattlefieldMgr.h"
 #include "Player.h"
+
+PetFamilySpellsStore sPetFamilySpellsStore;
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1021,10 +1019,12 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     // check spell family name/flags (if set) for spells
     if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION))
     {
-        if (procEntry.spellFamilyName && eventInfo.GetSpellInfo() && (procEntry.spellFamilyName != eventInfo.GetSpellInfo()->SpellFamilyName))
+        SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo();
+
+        if (procEntry.spellFamilyName && eventSpellInfo && (procEntry.spellFamilyName != eventSpellInfo->SpellFamilyName))
             return false;
 
-        if (procEntry.spellFamilyMask && eventInfo.GetSpellInfo() && !(procEntry.spellFamilyMask & eventInfo.GetSpellInfo()->SpellFamilyFlags))
+        if (procEntry.spellFamilyMask && eventSpellInfo && !(procEntry.spellFamilyMask & eventSpellInfo->SpellFamilyFlags))
             return false;
     }
 
@@ -3091,6 +3091,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70614: // AoD Special - Vegard
             case 52479: // Gift of the Harvester
             case 61588: // Blazing Harpoon
+            case 55479: // Force Obedience
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
@@ -3122,11 +3123,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 28796: // Poison Bolt Volly - Faerlina
                 spellInfo->MaxAffectedTargets = 5;
                 break;
+            case 54835: // Curse of the Plaguebringer - Noth (H)
+                spellInfo->MaxAffectedTargets = 8;
+                break;
             case 40827: // Sinful Beam
             case 40859: // Sinister Beam
             case 40860: // Vile Beam
             case 40861: // Wicked Beam
-            case 54835: // Curse of the Plaguebringer - Noth (H)
             case 54098: // Poison Bolt Volly - Faerlina (H)
                 spellInfo->MaxAffectedTargets = 10;
                 break;
@@ -3221,6 +3224,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
                 break;
             case 17364: // Stormstrike
+            case 48278: // Paralyze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 51798: // Brewfest - Relay Race - Intro - Quest Complete
@@ -3228,6 +3232,19 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->Effect = 0;
                 break;
+            // VIOLET HOLD SPELLS
+            //
+            case 54258: // Water Globule (Ichoron)
+            case 54264: // Water Globule (Ichoron)
+            case 54265: // Water Globule (Ichoron)
+            case 54266: // Water Globule (Ichoron)
+            case 54267: // Water Globule (Ichoron)
+                // in 3.3.5 there is only one radius in dbc which is 0 yards in this case
+                // use max radius from 4.3.4
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS);
+                break;
+            // ENDOF VIOLET HOLD
+            //
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
@@ -3365,7 +3382,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->RequiredAreasID = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
-            case 48278: // Paralyze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 70715: // Column of Frost (visual marker)
@@ -3485,7 +3501,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
                 break;
             case 5420: // Tree of Life (Passive)
-                spellInfo->Stances = 1 << (FORM_TREE - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
                 break;
             case 49376: // Feral Charge (Cat Form)
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -427,7 +427,7 @@ enum SMART_SCRIPT_RESPAWN_CONDITION
 enum SMART_ACTION
 {
     SMART_ACTION_NONE                               = 0,      // No action
-    SMART_ACTION_TALK                               = 1,      // groupID from creature_text, duration to wait before TEXT_OVER event is triggered
+    SMART_ACTION_TALK                               = 1,      // groupID from creature_text, duration to wait before TEXT_OVER event is triggered, useTalkTarget (0/1) - use target as talk target
     SMART_ACTION_SET_FACTION                        = 2,      // FactionId (or 0 for default)
     SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL            = 3,      // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to demorph)
     SMART_ACTION_SOUND                              = 4,      // SoundId, onlySelf
@@ -453,7 +453,7 @@ enum SMART_ACTION
     SMART_ACTION_EVADE                              = 24,     // No Params
     SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
     SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
-    // none                                         = 27,
+    SMART_ACTION_COMBAT_STOP                        = 27,     //
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid (0 removes all auras), charges (0 removes aura)
     SMART_ACTION_FOLLOW                             = 29,     // Distance (0 = default), Angle (0 = default), EndCreatureEntry, credit, creditType (0monsterkill, 1event)
     SMART_ACTION_RANDOM_PHASE                       = 30,     // PhaseId1, PhaseId2, PhaseId3...
@@ -540,8 +540,9 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
+    SMART_ACTION_RISE_UP                            = 114,    // distance
 
-    SMART_ACTION_END                                = 114
+    SMART_ACTION_END                                = 115
 };
 
 struct SmartAction
@@ -554,6 +555,7 @@ struct SmartAction
         {
             uint32 textGroupID;
             uint32 duration;
+            uint32 useTalkTarget;
         } talk;
 
         struct

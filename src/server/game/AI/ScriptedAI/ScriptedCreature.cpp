@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,14 +17,12 @@
  */
 
 #include "ScriptedCreature.h"
-#include "Item.h"
 #include "Spell.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "ObjectMgr.h"
-#include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
@@ -99,7 +97,6 @@ bool SummonList::HasEntry(uint32 entry) const
 }
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
-    me(creature),
     IsFleeing(false),
     _evadeCheckCooldown(2500),
     _isCombatMovementAllowed(true)
@@ -448,16 +445,24 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
     summons(creature),
     _boundary(instance ? instance->GetBossBoundary(bossId) : NULL),
-    _bossId(bossId) { }
+    _bossId(bossId)
+{
+    scheduler.SetValidator([this]
+    {
+        return !me->HasUnitState(UNIT_STATE_CASTING);
+    });
+}
 
 void BossAI::_Reset()
 {
     if (!me->IsAlive())
         return;
 
+    me->SetCombatPulseDelay(0);
     me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
+    scheduler.CancelAll();
     if (instance)
         instance->SetBossState(_bossId, NOT_STARTED);
 }
@@ -466,14 +471,13 @@ void BossAI::_JustDied()
 {
     events.Reset();
     summons.DespawnAll();
+    scheduler.CancelAll();
     if (instance)
         instance->SetBossState(_bossId, DONE);
 }
 
 void BossAI::_EnterCombat()
 {
-    me->setActive(true);
-    DoZoneInCombat();
     if (instance)
     {
         // bosses do not respawn, check only on enter combat
@@ -484,6 +488,11 @@ void BossAI::_EnterCombat()
         }
         instance->SetBossState(_bossId, IN_PROGRESS);
     }
+
+    me->SetCombatPulseDelay(5);
+    me->setActive(true);
+    DoZoneInCombat();
+    ScheduleTasks();
 }
 
 void BossAI::TeleportCheaters()

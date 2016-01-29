@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,6 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_ECLIPSE_MARKER        = 67483, // Will make the yellow arrow on eclipse bar point to the yellow side (solar)
     SPELL_DRUID_SOLAR_ECLIPSE               = 48517,
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
-    SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
@@ -49,7 +48,6 @@ enum DruidSpells
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
-    SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
@@ -60,8 +58,7 @@ enum DruidSpells
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
-    SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
-    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+    SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881
 };
 
 // 1850 - Dash
@@ -242,42 +239,6 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_dru_eclipse_energize_SpellScript;
-        }
-};
-
-// 5229 - Enrage
-class spell_dru_enrage : public SpellScriptLoader
-{
-    public:
-        spell_dru_enrage() : SpellScriptLoader("spell_dru_enrage") { }
-
-        class spell_dru_enrage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_enrage_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_KING_OF_THE_JUNGLE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DRUID_ENRAGE_MOD_DAMAGE))
-                    return false;
-                return true;
-            }
-
-            void OnHit()
-            {
-                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffectOfRankedSpell(SPELL_DRUID_KING_OF_THE_JUNGLE, EFFECT_0))
-                    GetHitUnit()->CastCustomSpell(SPELL_DRUID_ENRAGE_MOD_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetHitUnit(), true);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_dru_enrage_SpellScript::OnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dru_enrage_SpellScript();
         }
 };
 
@@ -1057,34 +1018,6 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
-// 5217 - Tiger's Fury
-class spell_dru_tiger_s_fury : public SpellScriptLoader
-{
-    public:
-        spell_dru_tiger_s_fury() : SpellScriptLoader("spell_dru_tiger_s_fury") { }
-
-        class spell_dru_tiger_s_fury_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_tiger_s_fury_SpellScript);
-
-            void OnHit()
-            {
-                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffectOfRankedSpell(SPELL_DRUID_KING_OF_THE_JUNGLE, EFFECT_1))
-                    GetHitUnit()->CastCustomSpell(SPELL_DRUID_TIGER_S_FURY_ENERGIZE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetHitUnit(), true);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_dru_tiger_s_fury_SpellScript::OnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dru_tiger_s_fury_SpellScript();
-        }
-};
-
 // 61391 - Typhoon
 class spell_dru_typhoon : public SpellScriptLoader
 {
@@ -1245,7 +1178,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_eclipse("spell_dru_eclipse_lunar");
     new spell_dru_eclipse("spell_dru_eclipse_solar");
     new spell_dru_eclipse_energize();
-    new spell_dru_enrage();
     new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
     new spell_dru_glyph_of_starfire_proc();
@@ -1263,7 +1195,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_stampede();
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
-    new spell_dru_tiger_s_fury();
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -351,39 +351,6 @@ struct MovementInfo
     void OutDebug();
 };
 
-#define MAPID_INVALID 0xFFFFFFFF
-
-class WorldLocation : public Position
-{
-    public:
-        explicit WorldLocation(uint32 _mapId = MAPID_INVALID, float _x = 0.f, float _y = 0.f, float _z = 0.f, float _o = 0.f)
-            : Position(_x, _y, _z, _o), m_mapId(_mapId) { }
-
-        WorldLocation(WorldLocation const& loc)
-            : Position(loc), m_mapId(loc.GetMapId()) { }
-
-        void WorldRelocate(WorldLocation const& loc)
-        {
-            m_mapId = loc.GetMapId();
-            Relocate(loc);
-        }
-
-        void WorldRelocate(uint32 _mapId = MAPID_INVALID, float _x = 0.f, float _y = 0.f, float _z = 0.f, float _o = 0.f)
-        {
-            m_mapId = _mapId;
-            Relocate(_x, _y, _z, _o);
-        }
-
-        WorldLocation GetWorldLocation() const
-        {
-            return *this;
-        }
-
-        uint32 GetMapId() const { return m_mapId; }
-
-        uint32 m_mapId;
-};
-
 template<class T>
 class GridObject
 {
@@ -649,12 +616,9 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
-        uint16 GetAIAnimKitId() const { return m_aiAnimKitId; }
-        void SetAIAnimKitId(uint16 animKitId);
-        uint16 GetMovementAnimKitId() const { return m_movementAnimKitId; }
-        void SetMovementAnimKitId(uint16 animKitId);
-        uint16 GetMeleeAnimKitId() const { return m_meleeAnimKitId; }
-        void SetMeleeAnimKitId(uint16 animKitId);
+        virtual uint16 GetAIAnimKitId() const { return 0; }
+        virtual uint16 GetMovementAnimKitId() const { return 0; }
+        virtual uint16 GetMeleeAnimKitId() const { return 0; }
 
     protected:
         std::string m_name;
@@ -696,10 +660,6 @@ class WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert = false) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj, bool checkAlert = false) const;
-
-        uint16 m_aiAnimKitId;
-        uint16 m_movementAnimKitId;
-        uint16 m_meleeAnimKitId;
 };
 
 namespace Trinity

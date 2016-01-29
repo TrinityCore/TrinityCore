@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 #include "Corpse.h"
 #include "Player.h"
 #include "Garrison.h"
-#include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
 #include "Battleground.h"
@@ -158,8 +157,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     }
 
     // resurrect character at enter into instance where his corpse exist after add to map
-    Corpse* corpse = GetPlayer()->GetCorpse();
-    if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == GetPlayer()->GetMapId())
+    Corpse* corpse = GetPlayer()->GetMap()->GetCorpseByPlayer(GetPlayer()->GetGUID());
+    if (corpse && corpse->GetType() != CORPSE_BONES)
     {
         if (mEntry->IsDungeon())
         {
@@ -484,14 +483,6 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveM
             TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
-{
-    WorldPacket data(SMSG_SPECIAL_MOUNT_ANIM, 8);
-    data << GetPlayer()->GetGUID();
-
-    GetPlayer()->SendMessageToSet(&data, false);
-}
-
 void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
     GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
@@ -526,4 +517,48 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& /*moveTimeSkipped*/)
 {
+}
+
+void WorldSession::HandleMoveSplineDoneOpcode(WorldPackets::Movement::MoveSplineDone& moveSplineDone)
+{
+    MovementInfo movementInfo = moveSplineDone.movementInfo;
+    _player->ValidateMovementInfo(&movementInfo);
+
+    // in taxi flight packet received in 2 case:
+    // 1) end taxi path in far (multi-node) flight
+    // 2) switch from one map to other in case multim-map taxi path
+    // we need process only (1)
+
+    uint32 curDest = GetPlayer()->m_taxi.GetTaxiDestination();
+    if (curDest)
+    {
+        TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
+
+        // far teleport case
+        if (curDestNode && curDestNode->MapID != GetPlayer()->GetMapId())
+        {
+            if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+            {
+                // short preparations to continue flight
+                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
+
+                flight->SetCurrentNodeAfterTeleport();
+                TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
+                flight->SkipCurrentNode();
+
+                GetPlayer()->TeleportTo(curDestNode->MapID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+            }
+        }
+
+        return;
+    }
+
+    // at this point only 1 node is expected (final destination)
+    if (GetPlayer()->m_taxi.GetPath().size() != 1)
+        return;
+
+    GetPlayer()->CleanupAfterTaxiFlight();
+    GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
+    if (GetPlayer()->pvpInfo.IsHostile)
+        GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 }

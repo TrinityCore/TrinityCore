@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -275,8 +275,8 @@ class instance_serpent_shrine : public InstanceMapScript
                         if (data == DONE)
                         {
                             HandleGameObject(BridgePart[0], true);
-                            HandleGameObject(BridgePart[0], true);
-                            HandleGameObject(BridgePart[0], true);
+                            HandleGameObject(BridgePart[1], true);
+                            HandleGameObject(BridgePart[2], true);
                         }
                         break;
                     case DATA_TRASH:

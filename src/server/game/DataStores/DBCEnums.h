@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -159,6 +159,7 @@ enum AchievementCriteriaAdditionalCondition
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND          = 63, // NYI
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY              = 65,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RACE                = 66,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES          = 91,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY   = 145,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL     = 146,
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_RARE_MISSION       = 147, // NYI
@@ -419,6 +420,8 @@ enum Difficulty : uint8
     DIFFICULTY_EVENT_RAID     = 18,
     DIFFICULTY_EVENT_DUNGEON  = 19,
     DIFFICULTY_EVENT_SCENARIO = 20,
+    DIFFICULTY_MYTHIC         = 23,
+    DIFFICULTY_TIMEWALKER     = 24,
 
     MAX_DIFFICULTY
 };
@@ -526,14 +529,18 @@ enum ItemExtendedCostFlags
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL     = 1,
-    ITEM_BONUS_STAT           = 2,
-    ITEM_BONUS_QUALITY        = 3,
-    ITEM_BONUS_DESCRIPTION    = 4,
-    ITEM_BONUS_SUFFIX         = 5,
-    ITEM_BONUS_SOCKET         = 6,
-    ITEM_BONUS_APPEARANCE     = 7,
-    ITEM_BONUS_REQUIRED_LEVEL = 8,
+    ITEM_BONUS_ITEM_LEVEL                = 1,
+    ITEM_BONUS_STAT                      = 2,
+    ITEM_BONUS_QUALITY                   = 3,
+    ITEM_BONUS_DESCRIPTION               = 4,
+    ITEM_BONUS_SUFFIX                    = 5,
+    ITEM_BONUS_SOCKET                    = 6,
+    ITEM_BONUS_APPEARANCE                = 7,
+    ITEM_BONUS_REQUIRED_LEVEL            = 8,
+    ITEM_BONUS_DISPLAY_TOAST_METHOD      = 9,
+    ITEM_BONUS_REPAIR_COST_MULTIPLIER    = 10,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION = 11,
+    ITEM_BONUS_UNK_12                    = 12
 };
 
 enum ItemLimitCategoryMode
@@ -681,6 +688,18 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK19           = 0x00040000,
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
     SUMMON_PROP_FLAG_UNK21           = 0x00100000           // Totems
+};
+
+enum TaxiNodeFlags
+{
+    TAXI_NODE_FLAG_ALLIANCE = 0x1,
+    TAXI_NODE_FLAG_HORDE    = 0x2
+};
+
+enum TaxiPathNodeFlags
+{
+    TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
+    TAXI_PATH_NODE_FLAG_STOP        = 0x2
 };
 
 enum VehicleSeatFlags

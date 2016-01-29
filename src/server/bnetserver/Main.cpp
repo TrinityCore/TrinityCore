@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,9 +31,10 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "Util.h"
 #include "ZmqContext.h"
 #include "DatabaseLoader.h"
@@ -104,11 +105,19 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
+    sLog->RegisterAppender<AppenderDB>();
+    sLog->Initialize(nullptr);
+
+    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
     TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+
+    // Seed the OpenSSL's PRNG here.
+    // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
+    BigNumber seed;
+    seed.SetRand(16 * 8);
 
     // bnetserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
@@ -303,7 +312,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     }
     else if (variablesMap.count("version"))
     {
-        std::cout << _FULLVERSION << "\n";
+        std::cout << GitRevision::GetFullVersion() << "\n";
     }
 
     return variablesMap;

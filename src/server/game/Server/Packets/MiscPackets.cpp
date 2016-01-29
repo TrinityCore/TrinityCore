@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -146,7 +146,9 @@ WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
 void WorldPackets::Misc::TutorialSetFlag::Read()
 {
     Action = _worldPacket.ReadBits(2);
-    _worldPacket >> TutorialBit;
+
+    if (Action == TUTORIAL_ACTION_UPDATE)
+        _worldPacket >> TutorialBit;
 }
 
 WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
@@ -530,11 +532,75 @@ WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetMovementAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMeleeAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
 {
     _worldPacket << UnitGUID;
     _worldPacket.WriteBit(PlayHoverAnim);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::SetPvP::Read()
+{
+    EnablePVP = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> MapID;
+    _worldPacket >> TransportGUID;
+    _worldPacket >> Pos;
+    _worldPacket >> Facing;
+}
+
+WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
+{
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket.FlushBits();
+
+    _worldPacket << int32(Unk);
+
+    // both lists have to have the same size
+    _worldPacket << int32(Heirlooms->size());
+    _worldPacket << int32(Heirlooms->size());
+
+    for (auto const& item : *Heirlooms)
+        _worldPacket << uint32(item.first);
+
+    for (auto const& flags : *Heirlooms)
+        _worldPacket << uint32(flags.second.flags);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
+{
+    _worldPacket << UnitGUID;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << int32(Threshold);
+    _worldPacket << int32(ItemID);
 
     return &_worldPacket;
 }

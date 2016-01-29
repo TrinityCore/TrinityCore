@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -390,7 +390,6 @@ enum BG_IC_NPCs
     BG_IC_NPC_KEEP_CANNON_22,
     BG_IC_NPC_KEEP_CANNON_23,
     BG_IC_NPC_KEEP_CANNON_24,
-    BG_IC_NPC_KEEP_CANNON_25,
 
     BG_IC_NPC_SIEGE_ENGINE_A,
     BG_IC_NPC_SIEGE_ENGINE_H,
@@ -444,7 +443,7 @@ enum BannersTypes
 enum BG_IC_MaxSpawns
 {
     MAX_NORMAL_GAMEOBJECTS_SPAWNS                       = BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR03+1,
-    MAX_NORMAL_NPCS_SPAWNS                              = BG_IC_NPC_KEEP_CANNON_25+1,
+    MAX_NORMAL_NPCS_SPAWNS                              = BG_IC_NPC_KEEP_CANNON_24+1,
     MAX_WORKSHOP_SPAWNS                                 = 10,
     MAX_DOCKS_SPAWNS                                    = 12,
     MAX_SPIRIT_GUIDES_SPAWNS                            = 7,
@@ -506,9 +505,8 @@ const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS] =
     {BG_IC_NPC_KEEP_CANNON_20, NPC_KEEP_CANNON, TEAM_HORDE, 1137.72f, -688.517f, 88.4023f, 3.9619f}, // 30
     {BG_IC_NPC_KEEP_CANNON_21, NPC_KEEP_CANNON, TEAM_HORDE, 1135.29f, -840.878f, 88.0252f, 2.30383f}, // 31
     {BG_IC_NPC_KEEP_CANNON_22, NPC_KEEP_CANNON, TEAM_HORDE, 1144.33f, -833.309f, 87.9268f, 2.14675f}, // 32
-    {BG_IC_NPC_KEEP_CANNON_23, NPC_KEEP_CANNON, TEAM_HORDE, 1135.29f, -840.878f, 88.0252f, 2.30383f}, // 33
-    {BG_IC_NPC_KEEP_CANNON_24, NPC_KEEP_CANNON, TEAM_HORDE, 1142.59f, -691.946f, 87.9756f, 3.9619f}, // 34
-    {BG_IC_NPC_KEEP_CANNON_25, NPC_KEEP_CANNON, TEAM_HORDE, 1166.13f, -858.391f, 87.9653f, 5.63741f} // 35
+    {BG_IC_NPC_KEEP_CANNON_23, NPC_KEEP_CANNON, TEAM_HORDE, 1142.59f, -691.946f, 87.9756f, 3.9619f}, // 33
+    {BG_IC_NPC_KEEP_CANNON_24, NPC_KEEP_CANNON, TEAM_HORDE, 1166.13f, -858.391f, 87.9653f, 5.63741f} // 34
 };
 
 const Position BG_IC_WorkshopVehicles[5] =

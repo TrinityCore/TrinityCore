@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,12 +34,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
-#include "MapManager.h"
-#include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "QuestDef.h"
@@ -48,7 +43,6 @@
 #include "TemporarySummon.h"
 #include "Util.h"
 #include "Vehicle.h"
-#include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "CombatPackets.h"
@@ -111,6 +105,48 @@ uint32 CreatureTemplate::GetFirstValidModelId() const
     return 0;
 }
 
+uint32 CreatureTemplate::GetFirstInvisibleModel() const
+{
+    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid1);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid1;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid2);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid2;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid3);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid3;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid4);
+    if (modelInfo && modelInfo->is_trigger)
+        return Modelid4;
+
+    return 11686;
+}
+
+uint32 CreatureTemplate::GetFirstVisibleModel() const
+{
+    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid1);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid1;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid2);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid2;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid3);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid3;
+
+    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid4);
+    if (modelInfo && !modelInfo->is_trigger)
+        return Modelid4;
+
+    return 17519;
+}
+
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     if (Unit* victim = ObjectAccessor::GetUnit(m_owner, m_victim))
@@ -146,7 +182,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 m_groupLootTimer(0), m_PlayerDamageReq(0),
 _pickpocketLootRestore(0), m_corpseRemoveTime(0), m_respawnTime(0),
-m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
+m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(NULL), m_creatureData(NULL), m_waypointID(0), m_path_id(0), m_formation(NULL)
@@ -450,6 +486,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     }
 
     UpdateMovementFlags();
+    LoadCreaturesAddon();
     return true;
 }
 
@@ -549,10 +586,44 @@ void Creature::Update(uint32 diff)
                 LastCharmerGUID.Clear();
             }
 
+            // if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
+            if (m_combatPulseDelay > 0 && IsInCombat() && GetMap()->IsDungeon())
+            {
+                if (diff > m_combatPulseTime)
+                    m_combatPulseTime = 0;
+                else
+                    m_combatPulseTime -= diff;
+
+                if (m_combatPulseTime == 0)
+                {
+                    Map::PlayerList const &players = GetMap()->GetPlayers();
+                    if (!players.isEmpty())
+                        for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+                        {
+                            if (Player* player = it->GetSource())
+                            {
+                                if (player->IsGameMaster())
+                                    continue;
+
+                                if (player->IsAlive() && this->IsHostileTo(player))
+                                {
+                                    if (CanHaveThreatList())
+                                        AddThreat(player, 0.0f);
+                                    this->SetInCombatWith(player);
+                                    player->SetInCombatWith(this);
+                                }
+                            }
+                        }
+
+                    m_combatPulseTime = m_combatPulseDelay * IN_MILLISECONDS;
+                }
+            }
+
             if (!IsInEvadeMode() && IsAIEnabled)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
+
                 i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
@@ -1552,7 +1623,7 @@ void Creature::setDeathState(DeathState s)
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         Motion_Initialize();
         Unit::setDeathState(ALIVE);
-        LoadCreaturesAddon(true);
+        LoadCreaturesAddon();
     }
 }
 
@@ -2068,7 +2139,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
 }
 
 //creature_addon table
-bool Creature::LoadCreaturesAddon(bool reload)
+bool Creature::LoadCreaturesAddon()
 {
     CreatureAddon const* cainfo = GetCreatureAddon();
     if (!cainfo)
@@ -2134,12 +2205,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
             // skip already applied aura
             if (HasAura(*itr))
-            {
-                if (!reload)
-                    TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD " Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetSpawnId(), GetEntry(), *itr);
-
                 continue;
-            }
 
             AddAura(*itr, this);
             TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (%s)", *itr, GetGUID().ToString().c_str());
@@ -2489,7 +2555,7 @@ void Creature::UpdateMovementFlags()
         return;
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    float ground = GetMap()->GetHeight(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    float ground = GetMap()->GetHeight(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
 
     bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
 

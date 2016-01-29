@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 #include "AuctionHouseMgr.h"
 #include "Log.h"
 #include "Language.h"
-#include "Opcodes.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "AccountMgr.h"
@@ -446,7 +445,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         SendAuctionCommandResult(auction, AUCTION_PLACE_BID, ERR_AUCTION_OK);
 
         // Not sure if we must send this now.
-        Player* owner = sObjectAccessor->FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(auction->owner));
+        Player* owner = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(auction->owner));
         Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
         if (owner && item)
             owner->GetSession()->SendAuctionOwnerBidNotification(auction, item);

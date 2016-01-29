@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -593,6 +593,17 @@ namespace WorldPackets
             uint32 ActiveMarkers = 0u;
 
             std::vector<RaidMarker*> RaidMarkers;
+        };
+
+        class PartyKillLog final : public ServerPacket
+        {
+        public:
+            PartyKillLog() : ServerPacket(SMSG_PARTY_KILL_LOG, 2 * 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            ObjectGuid Victim;
         };
     }
 }

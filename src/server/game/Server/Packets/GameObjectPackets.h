@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,6 +65,32 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid GameObjectGUID;
+        };
+
+        class GameObjectActivateAnimKit final : public ServerPacket
+        {
+        public:
+            GameObjectActivateAnimKit() : ServerPacket(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            int32 AnimKitID = 0;
+            bool Maintain = false;
+        };
+
+        class DestructibleBuildingDamage final : public ServerPacket
+        {
+        public:
+            DestructibleBuildingDamage() : ServerPacket(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 16 + 16 + 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            ObjectGuid Caster;
+            ObjectGuid Owner;
+            int32 Damage = 0;
+            int32 SpellID = 0;
         };
     }
 }

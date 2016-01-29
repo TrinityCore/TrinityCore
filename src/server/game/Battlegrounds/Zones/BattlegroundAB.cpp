@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,7 @@
  */
 
 #include "BattlegroundAB.h"
-#include "World.h"
 #include "WorldPacket.h"
-#include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Language.h"
@@ -311,7 +309,7 @@ int32 BattlegroundAB::_GetNodeNameId(uint8 node)
         case BG_AB_NODE_LUMBER_MILL:return LANG_BG_AB_NODE_LUMBER_MILL;
         case BG_AB_NODE_GOLD_MINE:  return LANG_BG_AB_NODE_GOLD_MINE;
         default:
-            ASSERT(false);
+            ABORT();
     }
     return 0;
 }

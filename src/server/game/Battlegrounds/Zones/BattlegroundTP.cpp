@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,17 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundTP.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "Language.h"
-#include "Object.h"
-#include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
-#include "Player.h"
-#include "World.h"
-#include "WorldPacket.h"
 
 BattlegroundTP::BattlegroundTP()
 {

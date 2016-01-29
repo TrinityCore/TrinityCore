@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.26, for Win64 (x86_64)
 --
--- Host: localhost    Database: world
+-- Host: localhost    Database: world6_temp
 -- ------------------------------------------------------
--- Server version	5.6.9-rc
+-- Server version	5.6.26-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -150,6 +150,34 @@ CREATE TABLE `areatrigger_teleport` (
   PRIMARY KEY (`ID`),
   FULLTEXT KEY `name` (`Name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `battle_pet_breeds`
+--
+
+DROP TABLE IF EXISTS `battle_pet_breeds`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `battle_pet_breeds` (
+  `speciesId` int(10) unsigned NOT NULL DEFAULT '0',
+  `breedId` smallint(5) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`speciesId`,`breedId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `battle_pet_quality`
+--
+
+DROP TABLE IF EXISTS `battle_pet_quality`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `battle_pet_quality` (
+  `speciesId` int(10) unsigned NOT NULL DEFAULT '0',
+  `quality` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`speciesId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -597,6 +625,25 @@ CREATE TABLE `creature_template_addon` (
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `auras` text,
   PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_template_locale`
+--
+
+DROP TABLE IF EXISTS `creature_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_template_locale` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Name` text,
+  `NameAlt` text,
+  `Title` text,
+  `TitleAlt` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`,`locale`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1177,6 +1224,24 @@ CREATE TABLE `gameobject_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `gameobject_template_locale`
+--
+
+DROP TABLE IF EXISTS `gameobject_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_template_locale` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `name` text,
+  `castBarCaption` text,
+  `unk1` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `garrison_follower_class_spec_abilities`
 --
 
@@ -1483,44 +1548,6 @@ CREATE TABLE `locales_achievement_reward` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `locales_creature`
---
-
-DROP TABLE IF EXISTS `locales_creature`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_creature` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc1` char(100) NOT NULL,
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc2` char(100) NOT NULL,
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc3` char(100) NOT NULL,
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc4` char(100) NOT NULL,
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc5` char(100) NOT NULL,
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc6` char(100) NOT NULL,
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc7` char(100) NOT NULL,
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc8` char(100) NOT NULL,
-  `subname_loc1` varchar(100) DEFAULT NULL,
-  `subname_loc2` varchar(100) DEFAULT NULL,
-  `subname_loc3` varchar(100) DEFAULT NULL,
-  `subname_loc4` varchar(100) DEFAULT NULL,
-  `subname_loc5` varchar(100) DEFAULT NULL,
-  `subname_loc6` varchar(100) DEFAULT NULL,
-  `subname_loc7` varchar(100) DEFAULT NULL,
-  `subname_loc8` varchar(100) DEFAULT NULL,
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `locales_creature_text`
 --
 
@@ -1540,36 +1567,6 @@ CREATE TABLE `locales_creature_text` (
   `text_loc7` text,
   `text_loc8` text,
   PRIMARY KEY (`entry`,`groupid`,`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_gameobject`
---
-
-DROP TABLE IF EXISTS `locales_gameobject`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_gameobject` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc1` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc2` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc3` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc4` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc5` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc6` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc7` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc8` varchar(100) NOT NULL DEFAULT '',
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1742,6 +1739,8 @@ CREATE TABLE `npc_vendor` (
   `incrtime` int(10) unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `PlayerConditionID` int(10) unsigned NOT NULL DEFAULT '0',
+  `IgnoreFiltering` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) DEFAULT '0',
   PRIMARY KEY (`entry`,`item`,`ExtendedCost`,`type`),
   KEY `slot` (`slot`)
@@ -2725,6 +2724,22 @@ CREATE TABLE `skill_fishing_base_level` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `skill_perfect_item_template`
+--
+
+DROP TABLE IF EXISTS `skill_perfect_item_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `skill_perfect_item_template` (
+  `spellId` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellId of the item creation spell',
+  `requiredSpecialization` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Specialization spell id',
+  `perfectCreateChance` float NOT NULL DEFAULT '0' COMMENT 'chance to create the perfect item instead',
+  `perfectItemType` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'perfect item type to create instead',
+  PRIMARY KEY (`spellId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Crafting Perfection System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `skill_tiers`
 --
 
@@ -2828,7 +2843,7 @@ CREATE TABLE `spell_area` (
   `quest_start` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `quest_end` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `aura_spell` mediumint(8) NOT NULL DEFAULT '0',
-  `racemask` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `racemask` int(10) unsigned NOT NULL DEFAULT '0',
   `gender` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `autocast` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `quest_start_status` int(11) NOT NULL DEFAULT '64',
@@ -3455,4 +3470,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-07-13 23:52:04
+-- Dump completed on 2015-11-08  1:52:20

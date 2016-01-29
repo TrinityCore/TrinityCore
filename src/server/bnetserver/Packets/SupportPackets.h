@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,8 @@ namespace Battlenet
     {
         enum Opcode
         {
-            CMSG_COMPLAINT_REQUEST  = 0x0   // Not implemented
+            CMSG_COMPLAINT_REQUEST      = 0x0,  // Deprecated in client
+            CMSG_COMPLAINT_REQUEST_2    = 0x1   // Not implemented
         };
     }
 }

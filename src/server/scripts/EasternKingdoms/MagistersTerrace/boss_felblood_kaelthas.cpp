@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -473,7 +473,7 @@ public:
             if (FlameStrikeTimer <= diff)
             {
                 DoCast(me, SPELL_FLAMESTRIKE1_NORMAL, true);
-                me->Kill(me);
+                me->KillSelf();
             } else FlameStrikeTimer -= diff;
         }
     };
@@ -542,7 +542,6 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 me->SetHealth(0);
                 me->StopMoving();
-                me->ClearComboPointHolders();
                 me->RemoveAllAurasOnDeath();
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
@@ -636,7 +635,7 @@ public:
             if (HatchTimer <= diff)
             {
                 me->SummonCreature(CREATURE_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-                me->Kill(me);
+                me->KillSelf();
             } else HatchTimer -= diff;
         }
     };
@@ -675,7 +674,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (DespawnTimer <= diff)
-                me->Kill(me);
+                me->KillSelf();
             else
                 DespawnTimer -= diff;
 

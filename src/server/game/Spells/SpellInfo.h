@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -263,7 +263,7 @@ public:
     uint32    TriggerSpell;
     flag128   SpellClassMask;
     float     BonusCoefficientFromAP;
-    std::list<Condition*>* ImplicitTargetConditions;
+    std::vector<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
     struct ScalingInfo
     {
@@ -288,7 +288,7 @@ public:
     bool IsFarDestTargetEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
-    int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr) const;
+    int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, int32 itemLevel = -1) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
@@ -345,8 +345,8 @@ public:
     uint32 AttributesEx12;
     uint32 AttributesEx13;
     uint32 AttributesCu;
-    uint32 Stances;
-    uint32 StancesNot;
+    uint64 Stances;
+    uint64 StancesNot;
     uint32 Targets;
     uint32 TargetCreatureType;
     uint32 RequiresSpellFocus;

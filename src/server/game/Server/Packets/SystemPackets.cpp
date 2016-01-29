@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,8 +25,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
     _worldPacket << uint32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
-    _worldPacket << uint32(UnkInt27);
-    _worldPacket << uint32(TwitterMsTillCanPost);
+    _worldPacket << uint32(TwitterPostThrottleLimit);
+    _worldPacket << uint32(TwitterPostThrottleCooldown);
     _worldPacket << uint32(TokenPollTimeSeconds);
     _worldPacket << uint32(TokenRedeemIndex);
 
@@ -93,6 +93,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
+    _worldPacket.WriteBit(IsExpansionPreorderInStore);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);

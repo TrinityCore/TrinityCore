@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -444,7 +444,7 @@ enum ItemSubclassWeapon
 
 #define ITEM_SUBCLASS_MASK_WEAPON_RANGED (\
     (1 << ITEM_SUBCLASS_WEAPON_BOW) | (1 << ITEM_SUBCLASS_WEAPON_GUN) |\
-    (1 << ITEM_SUBCLASS_WEAPON_CROSSBOW) | (1 << ITEM_SUBCLASS_WEAPON_THROWN))
+    (1 << ITEM_SUBCLASS_WEAPON_CROSSBOW))
 
 #define MAX_ITEM_SUBCLASS_WEAPON                  21
 

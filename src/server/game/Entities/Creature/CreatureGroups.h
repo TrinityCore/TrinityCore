@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,8 +32,8 @@ struct FormationInfo
     float follow_dist;
     float follow_angle;
     uint8 groupAI;
-    uint16 point_1;
-    uint16 point_2;
+    uint32 point_1;
+    uint32 point_2;
 };
 
 typedef std::unordered_map<ObjectGuid::LowType/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;

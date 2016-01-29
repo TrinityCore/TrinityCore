@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -317,6 +317,11 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         return true;
     }
     return false;
+}
+
+bool InstanceScript::_SkipCheckRequiredBosses(Player const* player /*= nullptr*/) const
+{
+    return player && player->GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES);
 }
 
 void InstanceScript::Load(char const* data)
@@ -653,4 +658,26 @@ void InstanceScript::UpdatePhasing()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource())
             player->SendUpdatePhasing();
+}
+
+std::string InstanceScript::GetBossStateName(uint8 state)
+{
+    // See enum EncounterState in InstanceScript.h
+    switch (state)
+    {
+        case NOT_STARTED:
+            return "NOT_STARTED";
+        case IN_PROGRESS:
+            return "IN_PROGRESS";
+        case FAIL:
+            return "FAIL";
+        case DONE:
+            return "DONE";
+        case SPECIAL:
+            return "SPECIAL";
+        case TO_BE_DECIDED:
+            return "TO_BE_DECIDED";
+        default:
+            return "INVALID";
+    }
 }

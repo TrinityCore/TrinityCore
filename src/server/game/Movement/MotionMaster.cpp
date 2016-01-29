@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,6 @@
 #include "RandomMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
-#include <cassert>
 
 inline bool isStatic(MovementGenerator *mv)
 {
@@ -364,7 +363,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id)
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
 {
     TC_LOG_DEBUG("misc", "Unit (%s) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString().c_str(), x, y, z);
     if (speedXY <= 0.1f)
@@ -378,7 +377,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     init.SetParabolic(max_height, 0);
     init.SetVelocity(speedXY);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
@@ -416,6 +415,24 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     }
 
     init.Launch();
+}
+
+void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk)
+{
+    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
+
+    Movement::MoveSplineInit init(_owner);
+    init.MovebyPath(path);
+    init.SetSmooth();
+    init.SetWalk(walk);
+    init.Launch();
+
+    // This code is not correct
+    // EffectMovementGenerator does not affect UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE
+    // need to call PointMovementGenerator with various pointIds
+    Mutate(new EffectMovementGenerator(pointId), MOTION_SLOT_ACTIVE);
+    //Position pos(pathPoints[pathSize - 1].x, pathPoints[pathSize - 1].y, pathPoints[pathSize - 1].z);
+    //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
 void MotionMaster::MoveFall(uint32 id /*=0*/)
@@ -535,7 +552,8 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
         if (path < sTaxiPathNodesByPath.size())
         {
             TC_LOG_DEBUG("misc", "%s taxi to (Path %u node %u)", _owner->GetName().c_str(), path, pathnode);
-            FlightPathMovementGenerator* mgen = new FlightPathMovementGenerator(sTaxiPathNodesByPath[path], pathnode);
+            FlightPathMovementGenerator* mgen = new FlightPathMovementGenerator();
+            mgen->LoadPath(_owner->ToPlayer());
             Mutate(mgen, MOTION_SLOT_CONTROLLED);
         }
         else

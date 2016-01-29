@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,9 +137,8 @@ class boss_ick : public CreatureScript
 
         struct boss_ickAI : public BossAI
         {
-            boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK), _vehicle(creature->GetVehicleKit())
+            boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK)
             {
-                ASSERT(_vehicle);
                 _tempThreat = 0;
             }
 
@@ -177,7 +176,8 @@ class boss_ick : public CreatureScript
             {
                 if (Creature* krick = GetKrick())
                 {
-                    _vehicle->RemoveAllPassengers();
+                    if (Vehicle* _vehicle = me->GetVehicleKit())
+                        _vehicle->RemoveAllPassengers();
                     if (krick->AI())
                         krick->AI()->DoAction(ACTION_OUTRO);
                 }
@@ -268,7 +268,6 @@ class boss_ick : public CreatureScript
             }
 
         private:
-            Vehicle* _vehicle;
             float _tempThreat;
         };
 

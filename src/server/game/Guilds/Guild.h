@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -251,7 +251,7 @@ struct GuildReward
     std::vector<uint32> AchievementsRequired;
 };
 
-uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
+uint32 const MinNewsItemLevel = 353;
 
 // Guild Challenge
 #define GUILD_CHALLENGES_TYPES 6
@@ -533,7 +533,7 @@ private:
                m_flags &= ~1;
         }
 
-        void SaveToDB(SQLTransaction& trans) const;
+        void SaveToDB(SQLTransaction& trans) const override;
         void WritePacket(WorldPackets::Guild::GuildNews& newsPacket) const;
 
     private:
@@ -766,7 +766,6 @@ public:
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
-    uint32 GetMemberCount() const { return uint32(m_members.size()); }
     time_t GetCreatedDate() const { return m_createdDate; }
     uint64 GetBankMoney() const { return m_bankMoney; }
 
@@ -836,7 +835,7 @@ public:
     // Broadcasts
     void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
     void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix) const;
-    void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
+    void BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const;
     void BroadcastPacket(WorldPacket const* packet) const;
     void BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const;
 

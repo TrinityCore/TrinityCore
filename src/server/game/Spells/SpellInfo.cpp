@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -452,7 +452,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
@@ -467,7 +467,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         else if (caster)
             level = caster->getLevel();
 
-        if (!_spellInfo->HasAttribute(SPELL_ATTR11_UNK2) && _spellInfo->HasAttribute(SPELL_ATTR10_UNK12))
+        if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_UNK12))
             level = _spellInfo->BaseLevel;
 
         if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel > level)
@@ -481,13 +481,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
 
             if (!_spellInfo->Scaling.ScalesFromItemLevel)
             {
-                if (!_spellInfo->HasAttribute(SPELL_ATTR11_UNK2))
+                if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
                 {
                     if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class : ((MAX_CLASSES - 1 /*last class*/) - _spellInfo->Scaling.Class)) - 1))
                         value = gtScaling->value;
                 }
                 else
-                    value = GetRandomPropertyPoints(level, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                    value = GetRandomPropertyPoints(itemLevel != -1 ? uint32(itemLevel) : 1u, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
             }
             else
                 value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
@@ -496,7 +496,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
 
             if (level < _spellInfo->Scaling.NerfMaxLevel)
-                value *= ((((1.0 - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
+                value *= ((((1.0f - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
         }
 
         value *= Scaling.Coefficient;
@@ -1126,9 +1126,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();
-    // TODO: 6.x these maks have 2 parts
-    Stances = _shapeshift ? _shapeshift->ShapeshiftMask[0] : 0;
-    StancesNot = _shapeshift ? _shapeshift->ShapeshiftExclude[0] : 0;
+    Stances = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftMask[0], _shapeshift->ShapeshiftMask[1]) : 0;
+    StancesNot = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftExclude[0], _shapeshift->ShapeshiftExclude[1]) : 0;
 
     // SpellTargetRestrictionsEntry
     SpellTargetRestrictionsEntry const* _target = GetSpellTargetRestrictions();
@@ -1668,7 +1667,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;*/
 
-    uint32 stanceMask = (form ? 1 << (form - 1) : 0);
+    //if (HasAttribute(SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT))
+    //    return SPELL_CAST_OK;
+
+    uint64 stanceMask = (form ? UI64LIT(1) << (form - 1) : 0);
 
     if (stanceMask & StancesNot)                 // can explicitly not be cast in this stance
         return SPELL_FAILED_NOT_SHAPESHIFT;
@@ -2664,7 +2666,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
                     modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost);
             }
 
-            if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->ManaCostPercentage, 0.0f))
+            if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->ManaCostPercentage, 0.0f) && SpellLevel)
             {
                 if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
                 {
@@ -2727,7 +2729,8 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
     else
         collector(sDB2Manager.GetSpellPowers(Id, caster->GetMap()->GetDifficultyID()));
 
-    std::remove_if(costs.begin(), costs.end(), [](CostData const& cost) { return cost.Amount <= 0; });
+    // POWER_RUNES is handled by SpellRuneCost.db2, and cost.Amount is always 0 (see Spell::TakeRunePower)
+    costs.erase(std::remove_if(costs.begin(), costs.end(), [](CostData const& cost) { return cost.Power != POWER_RUNES && cost.Amount <= 0; }), costs.end());
     return costs;
 }
 
@@ -2918,6 +2921,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case 62344: // Fists of Stone
                 case 61819: // Manabonked! (item)
                 case 61834: // Manabonked! (minigob)
+                case 73523: // Rigor Mortis
                     return true;
                 default:
                     break;
@@ -3009,6 +3013,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
                 case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_SKILL:
+                case SPELL_AURA_MOD_SKILL_2:
                 case SPELL_AURA_MOD_DODGE_PERCENT:
                 case SPELL_AURA_MOD_HEALING_PCT:
                 case SPELL_AURA_MOD_HEALING_DONE:
@@ -3282,7 +3287,7 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
         {
             if (SpellEffectInfo const* effect = GetEffect(d, i))
             {
-                ConditionList* cur = effect->ImplicitTargetConditions;
+                ConditionContainer* cur = effect->ImplicitTargetConditions;
                 if (!cur)
                     continue;
                 for (uint8 j = i; j < _effects.size(); ++j)

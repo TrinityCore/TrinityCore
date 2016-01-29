@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,9 +26,7 @@
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
-#include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "LootPackets.h"
 #include "WorldSession.h"
@@ -483,4 +481,18 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     loot->NotifyItemRemoved(slotid);
     --loot->unlootedCount;
+}
+
+void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet)
+{
+    if (packet.SpecID)
+    {
+        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(packet.SpecID))
+        {
+            if (chrSpec->ClassID == GetPlayer()->getClass())
+                GetPlayer()->SetLootSpecId(packet.SpecID);
+        }
+    }
+    else
+        GetPlayer()->SetLootSpecId(packet.SpecID);
 }

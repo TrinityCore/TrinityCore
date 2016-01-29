@@ -130,6 +130,14 @@ WrongPass.BanTime = 600
 WrongPass.BanType = 0
 
 #
+#    WrongPass.Logging
+#        Description: Additionally log attempted wrong password logging
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WrongPass.Logging = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -155,13 +163,6 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 
 LoginDatabase.WorkerThreads = 1
 
-#
-#    Wrong.Password.Login.Logging
-#        Description: Additionally log attempted wrong password logging
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-Wrong.Password.Login.Logging = 0
 #
 ###################################################################################################
 
@@ -189,7 +190,7 @@ Updates.EnableDatabases = 0
 Updates.SourcePath  = ""
 
 #
-#    Updates.SourcePath
+#    Updates.MySqlCLIPath
 #        Description: The path to your mysql cli binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"

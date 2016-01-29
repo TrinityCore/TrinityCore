@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,7 +67,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     uint32 MSV = pItem->GetTemplate()->GetSellPrice();
 
     if (MSV <= 0)
-        return AH_MINIMUM_DEPOSIT;
+        return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
 
     float multiplier = CalculatePct(float(entry->DepositRate), 3);
     uint32 timeHr = (((time / 60) / 60) / 12);
@@ -78,8 +78,8 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     TC_LOG_DEBUG("auctionHouse", "Multiplier: %f", multiplier);
     TC_LOG_DEBUG("auctionHouse", "Deposit:    %u", deposit);
 
-    if (deposit < AH_MINIMUM_DEPOSIT)
-        return AH_MINIMUM_DEPOSIT;
+    if (deposit < AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT))
+        return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
     else
         return deposit;
 }
@@ -107,7 +107,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     else
     {
         bidderAccId = ObjectMgr::GetPlayerAccountIdByGUID(bidderGuid);
-        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realmHandle.Index);
+        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realm.Id.Realm);
 
         if (logGmTrade && !ObjectMgr::GetPlayerNameByGUID(bidderGuid, bidderName))
             bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);

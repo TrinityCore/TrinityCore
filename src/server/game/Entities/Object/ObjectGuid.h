@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,10 +21,8 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
-#include <boost/functional/hash.hpp>
 #include <type_traits>
 #include <functional>
-#include <unordered_set>
 
 enum TypeID
 {
@@ -180,19 +178,13 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILockTicket)
 class ObjectGuid;
 class PackedGuid;
 
-struct PackedGuidReader
-{
-    explicit PackedGuidReader(ObjectGuid& guid) : GuidPtr(&guid) { }
-    ObjectGuid* GuidPtr;
-};
-
 #pragma pack(push, 1)
 
 class ObjectGuid
 {
     friend std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
-    friend ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
-    friend class PackedGuid;
+    friend ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
+    friend ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid);
 
     public:
         static ObjectGuid const Empty;
@@ -210,16 +202,11 @@ class ObjectGuid
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
-        ObjectGuid(ObjectGuid const&) = default;
-
-        PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);
         void SetRawValue(uint64 high, uint64 low) { _high = high; _low = low; }
         void Clear() { _high = 0; _low = 0; }
-
-        PackedGuid WriteAsPacked() const;
 
         HighGuid GetHigh() const { return HighGuid((_high >> 58) & 0x3F); }
         uint32 GetRealmId() const { return uint32((_high >> 42) & 0x1FFF); }
@@ -393,11 +380,8 @@ ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
 ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
-ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
 
 std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
-
-inline PackedGuid ObjectGuid::WriteAsPacked() const { return PackedGuid(*this); }
 
 namespace std
 {

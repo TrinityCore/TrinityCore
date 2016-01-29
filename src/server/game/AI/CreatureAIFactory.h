@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,6 +50,8 @@ CreatureAIFactory<REAL_AI>::Create(void* data) const
 typedef FactoryHolder<CreatureAI> CreatureAICreator;
 typedef FactoryHolder<CreatureAI>::FactoryHolderRegistry CreatureAIRegistry;
 
+#define sCreatureAIRegistry CreatureAIRegistry::instance()
+
 //GO
 struct SelectableGameObjectAI : public FactoryHolder<GameObjectAI>, public Permissible<GameObject>
 {
@@ -76,4 +78,7 @@ GameObjectAIFactory<REAL_GO_AI>::Create(void* data) const
 
 typedef FactoryHolder<GameObjectAI> GameObjectAICreator;
 typedef FactoryHolder<GameObjectAI>::FactoryHolderRegistry GameObjectAIRegistry;
+
+#define sGameObjectAIRegistry GameObjectAIRegistry::instance()
+
 #endif

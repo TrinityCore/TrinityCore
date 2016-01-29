@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -90,10 +90,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::array<ObjectGuid, VOID_STORAGE_MAX_WITHDRAW> Withdrawals;
-            uint32 WithdrawalsCount = 0;
-            std::array<ObjectGuid, VOID_STORAGE_MAX_DEPOSIT> Deposits;
-            uint32 DepositsCount = 0;
+            Array<ObjectGuid, VOID_STORAGE_MAX_WITHDRAW> Withdrawals;
+            Array<ObjectGuid, VOID_STORAGE_MAX_DEPOSIT> Deposits;
             ObjectGuid Npc;
         };
 

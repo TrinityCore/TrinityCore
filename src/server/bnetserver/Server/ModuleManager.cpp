@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,8 +33,8 @@ void Battlenet::ModuleManager::Load()
         {
             Field* fields = result->Fetch();
             ModuleInfo* module = new ModuleInfo();
-            module->Type = fields[2].GetString();
-            HexStrToByteArray(fields[0].GetString(), module->ModuleId);
+            module->Handle.Type = fields[2].GetString();
+            HexStrToByteArray(fields[0].GetString(), module->Handle.ModuleId);
             std::string data = fields[4].GetString();
             module->DataSize = data.length() / 2;
             if (module->DataSize)
@@ -55,4 +55,12 @@ Battlenet::ModuleInfo* Battlenet::ModuleManager::CreateModule(std::string const&
         return nullptr;
 
     return new ModuleInfo(*_modules.at(key));
+}
+
+std::string Battlenet::ModuleInfo::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::ModuleInput" << std::endl;
+    APPEND_FIELD(stream, Handle);
+    return stream.str();
 }

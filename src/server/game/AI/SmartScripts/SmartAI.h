@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -175,8 +175,8 @@ class SmartAI : public CreatureAI
         void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
 
         void sGossipHello(Player* player) override;
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) override;
-        void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override;
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        void sGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
         void sQuestAccept(Player* player, Quest const* quest) override;
         //void sQuestSelect(Player* player, Quest const* quest) override;
         void sQuestReward(Player* player, Quest const* quest, uint32 opt) override;

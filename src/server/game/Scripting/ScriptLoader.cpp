@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,6 +93,7 @@ void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_achievement_scripts();
 void AddSC_action_ip_logger();
+void AddSC_duel_reset();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -113,11 +114,8 @@ void AddSC_blackrock_caverns();
 void AddSC_instance_blackrock_caverns();
 void AddSC_blackrock_depths();               //Blackrock Depths
 void AddSC_boss_ambassador_flamelash();
-void AddSC_boss_anubshiah();
 void AddSC_boss_draganthaurissan();
 void AddSC_boss_general_angerforge();
-void AddSC_boss_gorosh_the_dervish();
-void AddSC_boss_grizzle();
 void AddSC_boss_high_interrogator_gerstahn();
 void AddSC_boss_magmus();
 void AddSC_boss_moira_bronzebeard();
@@ -812,6 +810,7 @@ void AddWorldScripts()
     // To avoid duplicate code, we check once /*ONLY*/ if logging is permitted or not.
     if (sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
         AddSC_action_ip_logger(); // location: scripts\World\action_ip_logger.cpp
+    AddSC_duel_reset();
 #endif
 }
 
@@ -836,11 +835,8 @@ void AddEasternKingdomsScripts()
     AddSC_instance_blackrock_caverns();
     AddSC_blackrock_depths();               //Blackrock Depths
     AddSC_boss_ambassador_flamelash();
-    AddSC_boss_anubshiah();
     AddSC_boss_draganthaurissan();
     AddSC_boss_general_angerforge();
-    AddSC_boss_gorosh_the_dervish();
-    AddSC_boss_grizzle();
     AddSC_boss_high_interrogator_gerstahn();
     AddSC_boss_magmus();
     AddSC_boss_moira_bronzebeard();

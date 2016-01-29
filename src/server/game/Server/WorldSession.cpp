@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@
 */
 
 #include "WorldSocket.h"
-#include <zlib.h>
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -40,19 +39,20 @@
 #include "ObjectAccessor.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "MapManager.h"
 #include "SocialMgr.h"
-#include "zlib.h"
 #include "ScriptMgr.h"
-#include "Transport.h"
 #include "WardenWin.h"
-#include "WardenMac.h"
 #include "BattlenetServerManager.h"
 #include "AuthenticationPackets.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "ChatPackets.h"
+#include "BattlePetMgr.h"
+#include "PacketUtilities.h"
+#include "CollectionMgr.h"
+
+#include <zlib.h>
 
 namespace {
 
@@ -132,7 +132,9 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _RBACData(NULL),
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
-    m_currentBankerGUID()
+    m_currentBankerGUID(),
+    _battlePetMgr(Trinity::make_unique<BattlePetMgr>(this)),
+    _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
 {
     memset(_tutorials, 0, sizeof(_tutorials));
 
@@ -144,6 +146,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     }
 
     m_Socket[CONNECTION_TYPE_REALM] = sock;
+    _instanceConnectKey.Raw = UI64LIT(0);
 
     InitializeQueryCallbackParameters();
 }
@@ -174,6 +177,12 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
+}
+
+bool WorldSession::PlayerDisconnected() const
+{
+    return !(m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() &&
+             m_Socket[CONNECTION_TYPE_INSTANCE] && m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen());
 }
 
 std::string const & WorldSession::GetPlayerName() const
@@ -429,6 +438,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             , GetPlayerInfo().c_str());
                     break;
             }
+        }
+        catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
+        {
+            TC_LOG_ERROR("network", "PacketArrayMaxCapacityException: %s while parsing %s from %s.",
+                pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
         }
         catch (ByteBufferException const&)
         {
@@ -703,8 +717,12 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
     instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
 
+    _instanceConnectKey.Fields.AccountId = GetAccountId();
+    _instanceConnectKey.Fields.ConnectionType = CONNECTION_TYPE_INSTANCE;
+    _instanceConnectKey.Fields.Key = urand(0, 0x7FFFFFFF);
+
     WorldPackets::Auth::ConnectTo connectTo;
-    connectTo.Key = MAKE_PAIR64(GetAccountId(), CONNECTION_TYPE_INSTANCE);
+    connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
     connectTo.Payload.Where = instanceAddress;
     connectTo.Con = CONNECTION_TYPE_INSTANCE;
@@ -913,17 +931,8 @@ void WorldSession::HandleUnregisterAllAddonPrefixesOpcode(WorldPackets::Chat::Ch
 void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPackets::Chat::ChatRegisterAddonPrefixes& packet)
 {
     // This is always sent after CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES
-
-    if (packet.Prefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP)
-    {
-        // if we have hit the softcap (64) nothing should be filtered
-        _filterAddonMessages = false;
-        return;
-    }
-
     _registeredAddonPrefixes.insert(_registeredAddonPrefixes.end(), packet.Prefixes.begin(), packet.Prefixes.end());
-
-    if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
+    if (_registeredAddonPrefixes.size() > WorldPackets::Chat::ChatRegisterAddonPrefixes::MAX_PREFIXES)
     {
         _filterAddonMessages = false;
         return;
@@ -1101,9 +1110,9 @@ void WorldSession::LoadPermissions()
     uint8 secLevel = GetSecurity();
 
     TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
-        id, _accountName.c_str(), realmHandle.Index, secLevel);
+        id, _accountName.c_str(), realm.Id.Realm, secLevel);
 
-    _RBACData = new rbac::RBACData(id, _accountName, realmHandle.Index, secLevel);
+    _RBACData = new rbac::RBACData(id, _accountName, realm.Id.Realm, secLevel);
     _RBACData->LoadFromDB();
 }
 
@@ -1113,9 +1122,9 @@ PreparedQueryResultFuture WorldSession::LoadPermissionsAsync()
     uint8 secLevel = GetSecurity();
 
     TC_LOG_DEBUG("rbac", "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d, secLevel: %u]",
-        id, _accountName.c_str(), realmHandle.Index, secLevel);
+        id, _accountName.c_str(), realm.Id.Realm, secLevel);
 
-    _RBACData = new rbac::RBACData(id, _accountName, realmHandle.Index, secLevel);
+    _RBACData = new rbac::RBACData(id, _accountName, realm.Id.Realm, secLevel);
     return _RBACData->LoadFromDBAsync();
 }
 
@@ -1153,14 +1162,35 @@ class AccountInfoQueryHolder : public SQLQueryHolder
 public:
     enum
     {
+        GLOBAL_ACCOUNT_TOYS = 0,
+        BATTLE_PETS,
+        BATTLE_PET_SLOTS,
+        GLOBAL_ACCOUNT_HEIRLOOMS,
+
         MAX_QUERIES
     };
 
     AccountInfoQueryHolder() { SetSize(MAX_QUERIES); }
 
-    bool Initialize(uint32 /*accountId*/, uint32 /*battlenetAccountId*/)
+    bool Initialize(uint32 /*accountId*/, uint32 battlenetAccountId)
     {
         bool ok = true;
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(GLOBAL_ACCOUNT_TOYS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PETS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(BATTLE_PETS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PET_SLOTS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(BATTLE_PET_SLOTS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_HEIRLOOMS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(GLOBAL_ACCOUNT_HEIRLOOMS, stmt) && ok;
 
         return ok;
     }
@@ -1193,6 +1223,8 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
 {
     LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
     LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
+    _collectionMgr->LoadAccountToys(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
+    _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
 
     if (!m_inQueue)
         SendAuthResponse(AUTH_OK, false);
@@ -1207,6 +1239,9 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendAddonsInfo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendTutorialsData();
+
+    _battlePetMgr->LoadFromDB(holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
+                              holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
 
     delete realmHolder;
     delete holder;
@@ -1224,7 +1259,7 @@ bool WorldSession::HasPermission(uint32 permission)
 
     bool hasPermission = _RBACData->HasPermission(permission);
     TC_LOG_DEBUG("rbac", "WorldSession::HasPermission [AccountId: %u, Name: %s, realmId: %d]",
-                   _RBACData->GetId(), _RBACData->GetName().c_str(), realmHandle.Index);
+                   _RBACData->GetId(), _RBACData->GetName().c_str(), realm.Id.Realm);
 
     return hasPermission;
 }
@@ -1232,7 +1267,7 @@ bool WorldSession::HasPermission(uint32 permission)
 void WorldSession::InvalidateRBACData()
 {
     TC_LOG_DEBUG("rbac", "WorldSession::Invalidaterbac::RBACData [AccountId: %u, Name: %s, realmId: %d]",
-                   _RBACData->GetId(), _RBACData->GetName().c_str(), realmHandle.Index);
+                   _RBACData->GetId(), _RBACData->GetName().c_str(), realm.Id.Realm);
     delete _RBACData;
     _RBACData = NULL;
 }
@@ -1381,6 +1416,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_STAND_STATE_CHANGE:                   // not profiled
         case CMSG_RANDOM_ROLL:                          // not profiled
         case CMSG_TIME_SYNC_RESPONSE:                   // not profiled
+        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:      // not profiled
         {
             // "0" is a magic number meaning there's no limit for the opcode.
             // All the opcodes above must cause little CPU usage and no sync/async database queries at all

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,17 @@
  */
 
 #include "SpellPackets.h"
-#include "SpellAuraEffects.h"
 #include "MovementPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
 {
     _worldPacket >> SpellID;
     _worldPacket >> CasterGUID;
+}
+
+void WorldPackets::Spells::CancelChannelling::Read()
+{
+    _worldPacket >> ChannelSpell;
 }
 
 WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()
@@ -76,6 +80,14 @@ WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
+{
+    Health = unit->GetHealth();
+    AttackPower = unit->GetTotalAttackPowerValue(unit->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
+    SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+    PowerData.emplace_back(int32(unit->getPowerType()), unit->GetPower(unit->getPowerType()));
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData)
@@ -547,7 +559,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
     data << uint32(historyEntry.Category);
     data << int32(historyEntry.RecoveryTime);
     data << int32(historyEntry.CategoryRecoveryTime);
+    data.WriteBit(historyEntry.unused622_1.is_initialized());
+    data.WriteBit(historyEntry.unused622_2.is_initialized());
     data.WriteBit(historyEntry.OnHold);
+    if (historyEntry.unused622_1)
+        data << uint32(*historyEntry.unused622_1);
+    if (historyEntry.unused622_2)
+        data << uint32(*historyEntry.unused622_2);
     data.FlushBits();
 
     return data;
@@ -625,6 +643,16 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
 {
     _worldPacket << Source;
     _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << int32(KitRecID);
+    _worldPacket << int32(KitType);
+    _worldPacket << uint32(Duration);
 
     return &_worldPacket;
 }
@@ -744,4 +772,24 @@ void WorldPackets::Spells::SpellClick::Read()
 {
     _worldPacket >> SpellClickUnitGuid;
     TryAutoDismount = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Spells::ConvertRune::Write()
+{
+    _worldPacket << uint8(Index);
+    _worldPacket << uint8(Rune);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
+{
+    _worldPacket << uint32(Runes.size());
+    for (auto const& rune : Runes)
+    {
+        _worldPacket << uint8(rune.RuneType);
+        _worldPacket << uint8(rune.Cooldown);
+    }
+
+    return &_worldPacket;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2515,7 +2515,7 @@ class spell_item_chicken_cover : public SpellScriptLoader
                     if (!target->HasAura(SPELL_CHICKEN_NET) && (caster->GetQuestStatus(QUEST_CHICKEN_PARTY) == QUEST_STATUS_INCOMPLETE || caster->GetQuestStatus(QUEST_FLOWN_THE_COOP) == QUEST_STATUS_INCOMPLETE))
                     {
                         caster->CastSpell(caster, SPELL_CAPTURE_CHICKEN_ESCAPE, true);
-                        target->Kill(target);
+                        target->KillSelf();
                     }
                 }
             }

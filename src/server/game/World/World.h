@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@
 #define __WORLD_H
 
 #include "Common.h"
-#include "Commands.h"
+#include "Realm/Realm.h"
 #include "ObjectGuid.h"
 #include "Timer.h"
 #include "SharedDefines.h"
@@ -176,6 +176,8 @@ enum WorldBoolConfigs
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
     CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED,
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
+    CONFIG_RESET_DUEL_COOLDOWNS,
+    CONFIG_RESET_DUEL_HEALTH_MANA,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -195,6 +197,10 @@ enum WorldFloatConfigs
     CONFIG_STATS_LIMITS_PARRY,
     CONFIG_STATS_LIMITS_BLOCK,
     CONFIG_STATS_LIMITS_CRIT,
+    CONFIG_ARENA_WIN_RATING_MODIFIER_1,
+    CONFIG_ARENA_WIN_RATING_MODIFIER_2,
+    CONFIG_ARENA_LOSE_RATING_MODIFIER,
+    CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER,
     FLOAT_CONFIG_VALUE_COUNT
 };
 
@@ -394,6 +400,7 @@ enum Rates
     RATE_DROP_ITEM_REFERENCED_AMOUNT,
     RATE_DROP_MONEY,
     RATE_XP_KILL,
+    RATE_XP_BG_KILL,
     RATE_XP_QUEST,
     RATE_XP_GUILD_MODIFIER,
     RATE_XP_EXPLORE,
@@ -453,18 +460,6 @@ enum BillingPlanFlags
     SESSION_TIME_MIXTURE    = 0x20,
     SESSION_RESTRICTED      = 0x40,
     SESSION_ENABLE_CAIS     = 0x80
-};
-
-/// Type of server, this is values from second column of Cfg_Configs.dbc
-enum RealmType
-{
-    REALM_TYPE_NORMAL       = 0,
-    REALM_TYPE_PVP          = 1,
-    REALM_TYPE_NORMAL2      = 4,
-    REALM_TYPE_RP           = 6,
-    REALM_TYPE_RPPVP        = 8,
-    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
-                                                            // replaced by REALM_PVP in realm list
 };
 
 enum RealmZone
@@ -551,6 +546,7 @@ typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 struct CharacterInfo
 {
     std::string Name;
+    uint32 AccountId;
     uint8 Class;
     uint8 Race;
     uint8 Sex;
@@ -572,7 +568,7 @@ class World
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
-        void AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint32 sessionAccountId);
+        void AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint64 connectToKey);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
@@ -777,7 +773,7 @@ class World
         void UpdateAreaDependentAuras();
 
         CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
-        void AddCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
+        void AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
         void DeleteCharacterInfo(ObjectGuid const& guid) { _characterInfoStore.erase(guid); }
         bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
         void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
@@ -788,8 +784,9 @@ class World
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
 
-        void UpdatePhaseDefinitions();
         void ReloadRBAC();
+
+        void RemoveOldCorpses();
 
     protected:
         void _UpdateGameTime();
@@ -881,8 +878,8 @@ class World
         void AddSession_(WorldSession* s);
         LockedQueue<WorldSession*> addSessQueue;
 
-        void ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint32> linkInfo);
-        LockedQueue<std::pair<std::shared_ptr<WorldSocket>, uint32>> _linkSocketQueue;
+        void ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint64> linkInfo);
+        LockedQueue<std::pair<std::shared_ptr<WorldSocket>, uint64>> _linkSocketQueue;
 
         // used versions
         std::string m_DBVersion;
@@ -901,7 +898,6 @@ class World
         std::deque<PreparedQueryResultFuture> m_realmCharCallbacks;
 };
 
-extern Battlenet::RealmHandle realmHandle;
 extern Realm realm;
 uint32 GetVirtualRealmAddress();
 

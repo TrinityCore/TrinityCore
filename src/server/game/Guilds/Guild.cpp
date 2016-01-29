@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@
 #include "SocialMgr.h"
 #include "Opcodes.h"
 #include "ChatPackets.h"
+#include "CalendarPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -367,7 +368,7 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[19].GetUInt8();
+    uint8 slotId = fields[23].GetUInt8();
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
@@ -505,7 +506,7 @@ void Guild::Member::SetStats(Player* player)
     m_name      = player->GetName();
     m_level     = player->getLevel();
     m_class     = player->getClass();
-    _gender     = player->getGender();
+    _gender     = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();
@@ -2394,7 +2395,7 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[18].GetUInt8();
+    uint8 tabId = fields[22].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
@@ -2508,7 +2509,7 @@ void Guild::BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::
     }
 }
 
-void Guild::BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const
+void Guild::BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const
 {
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->second->IsRank(rankId))
@@ -2533,15 +2534,12 @@ void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
 {
-    uint32 count = 0;
-
-    WorldPacket data(SMSG_CALENDAR_EVENT_INITIAL_INVITES);
-    data << uint32(count); // count placeholder
+    WorldPackets::Calendar::CalendarEventInitialInvites packet;
 
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         // not sure if needed, maybe client checks it as well
-        if (count >= CALENDAR_MAX_INVITES)
+        if (packet.Invites.size() >= CALENDAR_MAX_INVITES)
         {
             if (Player* player = session->GetPlayer())
                 sCalendarMgr->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INVITES_EXCEEDED);
@@ -2552,16 +2550,10 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         uint32 level = Player::GetLevelFromDB(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
-        {
-            data << member->GetGUID().WriteAsPacked();
-            data << uint8(level);
-            ++count;
-        }
+            packet.Invites.emplace_back(member->GetGUID(), level);
     }
 
-    data.put<uint32>(0, count);
-
-    session->SendPacket(&data);
+    session->SendPacket(packet.Write());
 }
 
 // Members handling

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 
         void MovementInform(T*);
 
-        void unitSpeedChanged() { i_recalculateSpeed = true; }
+        void unitSpeedChanged() override { i_recalculateSpeed = true; }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
@@ -63,14 +63,17 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        explicit EffectMovementGenerator(uint32 Id) : m_Id(Id) { }
+        EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
+            : _id(id), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
         void Initialize(Unit*) override { }
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
         bool Update(Unit*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
     private:
-        uint32 m_Id;
+        uint32 _id;
+        uint32 _arrivalSpellId;
+        ObjectGuid _arrivalSpellTargetGuid;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -219,12 +219,12 @@ public:
                 if (WateryGrave_Timer <= diff)
                 {
                     //Teleport 4 players under the waterfalls
-                    Unit* target;
                     GuidSet targets;
                     GuidSet::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
+                        Unit* target;
                         do
                         {
                             target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
@@ -257,12 +257,12 @@ public:
                 //WateryGlobules_Timer
                 if (WateryGlobules_Timer <= diff)
                 {
-                    Unit* pGlobuleTarget;
                     GuidSet globules;
                     GuidSet::const_iterator itr;
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
+                        Unit* pGlobuleTarget;
                         do
                         {
                             pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,16 @@
 #include "QuestDef.h"
 #include "Player.h"
 #include "World.h"
-#include "ObjectMgr.h"
 #include "QuestPackets.h"
 
 Quest::Quest(Field* questRecord)
 {
+    EmoteOnIncomplete = 0;
+    EmoteOnComplete = 0;
+    _rewItemsCount = 0;
+    _rewChoiceItemsCount = 0;
+    _rewCurrencyCount = 0;
+
     ID = questRecord[0].GetUInt32();
     Type = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt32();
@@ -53,6 +58,9 @@ Quest::Quest(Field* questRecord)
         RewardItemCount[i] = questRecord[23+i*4].GetUInt32();
         ItemDrop[i] = questRecord[24+i*4].GetUInt32();
         ItemDropQuantity[i] = questRecord[25+i*4].GetUInt32();
+
+        if (RewardItemId[i])
+            ++_rewItemsCount;
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
@@ -60,6 +68,9 @@ Quest::Quest(Field* questRecord)
         RewardChoiceItemId[i] = questRecord[38+i*3].GetUInt32();
         RewardChoiceItemCount[i] = questRecord[39+i*3].GetUInt32();
         RewardChoiceItemDisplayId[i] = questRecord[40+i*3].GetUInt32();
+
+        if (RewardChoiceItemId[i])
+            ++_rewChoiceItemsCount;
     }
 
     POIContinent = questRecord[56].GetUInt32();
@@ -89,6 +100,9 @@ Quest::Quest(Field* questRecord)
     {
         RewardCurrencyId[i] = questRecord[83+i*2].GetUInt32();
         RewardCurrencyCount[i] = questRecord[84+i*2].GetUInt32();
+
+        if (RewardCurrencyId[i])
+            ++_rewCurrencyCount;
     }
 
     SoundAccept = questRecord[91].GetUInt32();
@@ -107,21 +121,13 @@ Quest::Quest(Field* questRecord)
     PortraitTurnInName = questRecord[103].GetString();
     QuestCompletionLog = questRecord[104].GetString();
 
-    _rewItemsCount = 0;
-    _rewChoiceItemsCount = 0;
-    _rewCurrencyCount = 0;
-
-    for (int i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
-        if (RewardItemId[i])
-            ++_rewItemsCount;
-
-    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        if (RewardChoiceItemId[i])
-            ++_rewChoiceItemsCount;
-
-    for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        if (RewardCurrencyId[i])
-            ++_rewCurrencyCount;
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    {
+        DetailsEmote[i] = 0;
+        DetailsEmoteDelay[i] = 0;
+        OfferRewardEmote[i] = 0;
+        OfferRewardEmoteDelay[i] = 0;
+    }
 }
 
 void Quest::LoadQuestDetails(Field* fields)

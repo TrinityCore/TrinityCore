@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -217,7 +217,8 @@ enum TrinityStrings
     LANG_PHASING_NO_DEFINITIONS         = 184,              // Phasing
 
     LANG_GRID_POSITION                  = 185,
-    // Room for more level 1              186-199 not used
+    LANG_TRANSPORT_POSITION             = 186,
+    // Room for more level 1              187-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -388,7 +389,8 @@ enum TrinityStrings
     LANG_COMMAND_CHEAT_POWER            = 361,
     LANG_COMMAND_CHEAT_WW               = 362,
     LANG_COMMAND_WHISPEROFFPLAYER       = 363,
-    // Room for more level 2              364-399 not used
+    LANG_COMMAND_CHEAT_TAXINODES        = 364,
+    // Room for more level 2              365-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
@@ -1078,9 +1080,9 @@ enum TrinityStrings
     LANG_BATTLEGROUND                   = 5015,
     LANG_ARENA                          = 5016,
     LANG_RAID                           = 5017,
-                                        //= 5018,
+    LANG_NPCINFO_PHASE_IDS              = 5018,
     LANG_COMMAND_TEMP_FROZEN_PLAYER     = 5019,
-    LANG_NPCINFO_PHASEMASK              = 5020,
+    LANG_NPCINFO_PHASES                 = 5020,
     LANG_NPCINFO_ARMOR                  = 5021,
     LANG_CHANNEL_ENABLE_OWNERSHIP       = 5022,
     LANG_CHANNEL_DISABLE_OWNERSHIP      = 5023,
@@ -1210,5 +1212,6 @@ enum TrinityStrings
 
     LANG_NPCINFO_INHABIT_TYPE                     = 11008,
     LANG_NPCINFO_FLAGS_EXTRA                      = 11009
+
 };
 #endif

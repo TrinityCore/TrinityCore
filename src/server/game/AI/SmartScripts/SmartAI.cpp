@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,11 +21,7 @@
 #include "GridDefines.h"
 #include "GridNotifiers.h"
 #include "SpellMgr.h"
-#include "GridNotifiersImpl.h"
 #include "Cell.h"
-#include "CellImpl.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "Group.h"
 #include "SmartAI.h"
 #include "ScriptMgr.h"
@@ -212,7 +208,7 @@ void SmartAI::EndPath(bool fail)
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
         {
             Player* player = (*targets->begin())->ToPlayer();
-            if (!fail && player->IsAtGroupRewardDistance(me) && !player->GetCorpse())
+            if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                 player->GroupEventHappens(mEscortQuestID, me);
 
             if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
@@ -224,7 +220,7 @@ void SmartAI::EndPath(bool fail)
                 {
                     Player* groupGuy = groupRef->GetSource();
 
-                    if (!fail && groupGuy->IsAtGroupRewardDistance(me) && !groupGuy->GetCorpse())
+                    if (!fail && groupGuy->IsAtGroupRewardDistance(me) && !groupGuy->HasCorpse())
                         groupGuy->AreaExploredOrEventHappens(mEscortQuestID);
                     if (fail && groupGuy->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
                         groupGuy->FailQuest(mEscortQuestID);
@@ -237,7 +233,7 @@ void SmartAI::EndPath(bool fail)
                 if (GetScript()->IsPlayer((*iter)))
                 {
                     Player* player = (*iter)->ToPlayer();
-                    if (!fail && player->IsAtGroupRewardDistance(me) && !player->GetCorpse())
+                    if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                         player->AreaExploredOrEventHappens(mEscortQuestID);
                     if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
                         player->FailQuest(mEscortQuestID);
@@ -457,45 +453,15 @@ void SmartAI::MoveInLineOfSight(Unit* who)
 
     GetScript()->OnMoveInLineOfSight(who);
 
-    if (me->HasReactState(REACT_PASSIVE) || AssistPlayerInCombat(who))
+    if (AssistPlayerInCombat(who))
         return;
 
-    if (!CanAIAttack(who))
-        return;
-
-    if (!me->CanStartAttack(who, false))
-        return;
-
-    if (me->IsHostileTo(who))
-    {
-        float fAttackRadius = me->GetAttackDistance(who);
-        if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
-        {
-            if (!me->GetVictim())
-            {
-                // Clear distracted state on combat
-                if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-                {
-                   me->ClearUnitState(UNIT_STATE_DISTRACTED);
-                   me->GetMotionMaster()->Clear();
-                }
-
-                AttackStart(who);
-            }
-            else/* if (me->GetMap()->IsDungeon())*/
-            {
-                who->SetInCombatWith(me);
-                me->AddThreat(who, 0.0f);
-            }
-        }
-    }
+    CreatureAI::MoveInLineOfSight(who);
 }
 
 bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 {
-    if (me->GetReactState() == REACT_PASSIVE)
-        return false;
-    return true;
+    return !(me->HasReactState(REACT_PASSIVE));
 }
 
 bool SmartAI::AssistPlayerInCombat(Unit* who)
@@ -732,12 +698,12 @@ void SmartAI::sGossipHello(Player* player)
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player);
 }
 
-void SmartAI::sGossipSelect(Player* player, uint32 sender, uint32 action)
+void SmartAI::sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, sender, action);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, menuId, gossipListId);
 }
 
-void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
+void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/) { }
 
 void SmartAI::sQuestAccept(Player* player, Quest const* quest)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -395,10 +395,10 @@ void GuildMgr::LoadGuilds()
         // Delete orphan guild bank items
         CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-        //           0          1            2                3      4         5        6      7             8                 9          10          11    12                  13         14                15           16
-        // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion, bonusListIDs,
-        //             17     18      19
-        //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
+        //           0          1            2                3      4         5        6      7             8                 9          10          11    12                  13         14               15
+        // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion,
+        //                        17                  18              19                  20       21     22      23
+        //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
         if (!result)
@@ -411,7 +411,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 guildId = fields[17].GetUInt64();
+                uint64 guildId = fields[21].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

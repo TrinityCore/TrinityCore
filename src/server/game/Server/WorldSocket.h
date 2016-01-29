@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,6 @@
 #include "WorldSession.h"
 #include <chrono>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
 struct z_stream_s;
@@ -95,7 +94,15 @@ protected:
     void OnClose() override;
     void ReadHandler() override;
     bool ReadHeaderHandler();
-    bool ReadDataHandler();
+
+    enum class ReadDataHandlerResult
+    {
+        Ok = 0,
+        Error = 1,
+        WaitingForQuery = 2
+    };
+
+    ReadDataHandlerResult ReadDataHandler();
 private:
     void CheckIpCallback(PreparedQueryResult result);
 

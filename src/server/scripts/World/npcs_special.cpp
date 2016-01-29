@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -936,6 +936,28 @@ public:
     {
         npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
         {
+            switch (me->GetEntry())
+            {
+                case ENTRY_SHAYA:
+                    quest = QUEST_MOON;
+                    break;
+                case ENTRY_ROBERTS:
+                    quest = QUEST_LIGHT_1;
+                    break;
+                case ENTRY_DOLF:
+                    quest = QUEST_LIGHT_2;
+                    break;
+                case ENTRY_KORJA:
+                    quest = QUEST_SPIRIT;
+                    break;
+                case ENTRY_DG_KEL:
+                    quest = QUEST_DARKNESS;
+                    break;
+                default:
+                    quest = 0;
+                    break;
+            }
+
             Reset();
         }
 
@@ -945,6 +967,7 @@ public:
         bool CanRun;
 
         uint32 RunAwayTimer;
+        uint32 quest;
 
         void Reset() override
         {
@@ -976,93 +999,20 @@ public:
 
                 if (Player* player = caster->ToPlayer())
                 {
-                    switch (me->GetEntry())
+                    if (quest && player->GetQuestStatus(quest) == QUEST_STATUS_INCOMPLETE)
                     {
-                        case ENTRY_SHAYA:
-                            if (player->GetQuestStatus(QUEST_MOON) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
-                                {
-                                    Talk(SAY_THANKS, caster);
-                                    CanRun = true;
-                                }
-                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
-                                {
-                                    CasterGUID = caster->GetGUID();
-                                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    Talk(SAY_HEALED, caster);
-                                    IsHealed = true;
-                                }
-                            }
-                            break;
-                        case ENTRY_ROBERTS:
-                            if (player->GetQuestStatus(QUEST_LIGHT_1) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
-                                {
-                                    Talk(SAY_THANKS, caster);
-                                    CanRun = true;
-                                }
-                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
-                                {
-                                    CasterGUID = caster->GetGUID();
-                                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    Talk(SAY_HEALED, caster);
-                                    IsHealed = true;
-                                }
-                            }
-                            break;
-                        case ENTRY_DOLF:
-                            if (player->GetQuestStatus(QUEST_LIGHT_2) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
-                                {
-                                    Talk(SAY_THANKS, caster);
-                                    CanRun = true;
-                                }
-                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
-                                {
-                                    CasterGUID = caster->GetGUID();
-                                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    Talk(SAY_HEALED, caster);
-                                    IsHealed = true;
-                                }
-                            }
-                            break;
-                        case ENTRY_KORJA:
-                            if (player->GetQuestStatus(QUEST_SPIRIT) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
-                                {
-                                    Talk(SAY_THANKS, caster);
-                                    CanRun = true;
-                                }
-                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
-                                {
-                                    CasterGUID = caster->GetGUID();
-                                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    Talk(SAY_HEALED, caster);
-                                    IsHealed = true;
-                                }
-                            }
-                            break;
-                        case ENTRY_DG_KEL:
-                            if (player->GetQuestStatus(QUEST_DARKNESS) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
-                                {
-                                    Talk(SAY_THANKS, caster);
-                                    CanRun = true;
-                                }
-                                else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
-                                {
-                                    CasterGUID = caster->GetGUID();
-                                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                                    Talk(SAY_HEALED, caster);
-                                    IsHealed = true;
-                                }
-                            }
-                            break;
+                        if (IsHealed && !CanRun && spell->Id == SPELL_FORTITUDE_R1)
+                        {
+                            Talk(SAY_THANKS, caster);
+                            CanRun = true;
+                        }
+                        else if (!IsHealed && spell->Id == SPELL_LESSER_HEAL_R2)
+                        {
+                            CasterGUID = caster->GetGUID();
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
+                            Talk(SAY_HEALED, caster);
+                            IsHealed = true;
+                        }
                     }
 
                     // give quest credit, not expect any special quest objectives
@@ -1472,6 +1422,7 @@ public:
 
         void Reset() override
         {
+            // TODO: solve this in a different way! setting them as stunned prevents dummies from parrying
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 

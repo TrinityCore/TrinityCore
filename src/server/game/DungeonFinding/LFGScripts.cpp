@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,6 +44,8 @@ void LFGPlayerScript::OnLogout(Player* player)
         player->GetSession()->SendLfgLfrList(false);
         sLFGMgr->LeaveLfg(player->GetGUID());
     }
+    else if (player->GetSession()->PlayerDisconnected())
+        sLFGMgr->LeaveLfg(player->GetGUID(), true);
 }
 
 void LFGPlayerScript::OnLogin(Player* player, bool /*loginFirst*/)
@@ -99,7 +101,17 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
     }
     else
+    {
+        Group* group = player->GetGroup();
+        if (group && group->GetMembersCount() == 1)
+        {
+            sLFGMgr->LeaveLfg(group->GetGUID());
+            group->Disband();
+            TC_LOG_DEBUG("lfg", "LFGPlayerScript::OnMapChanged, Player %s(%s) is last in the lfggroup so we disband the group.",
+                player->GetName().c_str(), player->GetGUID().ToString().c_str());
+        }
         player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+    }
 }
 
 LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript") { }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@
 #include "Unit.h"
 #include "Player.h"
 #include "Weather.h"
+#include "CollectionMgr.h"
 
 namespace WorldPackets
 {
@@ -676,6 +677,28 @@ namespace WorldPackets
             uint16 AnimKitID = 0;
         };
 
+        class SetMovementAnimKit final : public ServerPacket
+        {
+        public:
+            SetMovementAnimKit() : ServerPacket(SMSG_SET_MOVEMENT_ANIM_KIT, 16 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
+        class SetMeleeAnimKit final : public ServerPacket
+        {
+        public:
+            SetMeleeAnimKit() : ServerPacket(SMSG_SET_MELEE_ANIM_KIT, 16 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
         class SetPlayHoverAnim final : public ServerPacket
         {
         public:
@@ -685,6 +708,87 @@ namespace WorldPackets
 
             ObjectGuid UnitGUID;
             bool PlayHoverAnim = false;
+        };
+
+        class OpeningCinematic final : public ClientPacket
+        {
+        public:
+            OpeningCinematic(WorldPacket&& packet) : ClientPacket(CMSG_OPENING_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class TogglePvP final : public ClientPacket
+        {
+        public:
+            TogglePvP(WorldPacket&& packet) : ClientPacket(CMSG_TOGGLE_PVP, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SetPvP final : public ClientPacket
+        {
+        public:
+            SetPvP(WorldPacket&& packet) : ClientPacket(CMSG_SET_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            bool EnablePVP = false;
+        };
+
+        class WorldTeleport final : public ClientPacket
+        {
+        public:
+            WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MapID = 0;
+            ObjectGuid TransportGUID;
+            G3D::Vector3 Pos;
+            float Facing = 0.0f;
+        };
+
+        class AccountHeirloomUpdate final : public ServerPacket
+        {
+        public:
+            AccountHeirloomUpdate() : ServerPacket(SMSG_ACCOUNT_HEIRLOOM_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            HeirloomContainer const* Heirlooms = nullptr;
+            int32 Unk = 0;
+        };
+
+        class MountSpecial final : public ClientPacket
+        {
+        public:
+            MountSpecial(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SPECIAL_ANIM, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SpecialMountAnim final : public ServerPacket
+        {
+        public:
+            SpecialMountAnim() : ServerPacket(SMSG_SPECIAL_MOUNT_ANIM, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
+
+        class CrossedInebriationThreshold final : public ServerPacket
+        {
+        public:
+            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 ItemID = 0;
+            int32 Threshold = 0;
         };
     }
 }

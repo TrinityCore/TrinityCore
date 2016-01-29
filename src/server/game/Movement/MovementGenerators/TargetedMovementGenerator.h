@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         bool DoUpdate(T*, uint32);
         Unit* GetTarget() const { return i_target.getTarget(); }
 
-        void unitSpeedChanged() { i_recalculateTravel = true; }
+        void unitSpeedChanged() override { i_recalculateTravel = true; }
         bool IsReachable() const { return (i_path) ? (i_path->GetPathType() & PATHFIND_NORMAL) : true; }
     protected:
         void _setTargetLocation(T* owner, bool updateDestination);

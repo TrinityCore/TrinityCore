@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,12 +23,13 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <openssl/md5.h>
 #include "World.h"
 #include "Player.h"
 #include "Util.h"
 #include "WardenMac.h"
 #include "WardenModuleMac.h"
+
+#include <openssl/md5.h>
 
 WardenMac::WardenMac() : Warden() { }
 

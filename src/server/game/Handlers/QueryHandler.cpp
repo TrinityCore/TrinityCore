@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,20 +17,16 @@
  */
 
 #include "Common.h"
-#include "Language.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
 #include "Log.h"
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "UpdateMask.h"
 #include "NPCHandler.h"
-#include "Pet.h"
 #include "MapManager.h"
-#include "CharacterPackets.h"
 #include "QueryPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
@@ -81,35 +77,50 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 
         WorldPackets::Query::CreatureStats& stats = response.Stats;
 
-        stats.Title = creatureInfo->SubName;
-        stats.CursorName = creatureInfo->IconName;
+        stats.Leader = creatureInfo->RacialLeader;
+
+        stats.Name[0] = creatureInfo->Name;
+        stats.NameAlt[0] = creatureInfo->FemaleName;
+
+        stats.Flags[0] = creatureInfo->type_flags;
+        stats.Flags[1] = creatureInfo->type_flags2;
+
         stats.CreatureType = creatureInfo->type;
         stats.CreatureFamily = creatureInfo->family;
         stats.Classification = creatureInfo->rank;
-        stats.HpMulti = creatureInfo->ModHealth;
-        stats.EnergyMulti = creatureInfo->ModMana;
-        stats.Leader = creatureInfo->RacialLeader;
 
-        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID);
-        if (items)
-            for (uint32 item : *items)
-                stats.QuestItems.push_back(item);
-
-        stats.CreatureMovementInfoID = creatureInfo->movementId;
-        stats.RequiredExpansion = creatureInfo->expansionUnknown;
-        stats.Flags[0] = creatureInfo->type_flags;
-        stats.Flags[1] = creatureInfo->type_flags2;
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
+
         stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
         stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
         stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
         stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
-        stats.Name[0] = creatureInfo->Name;
-        stats.NameAlt[0] = creatureInfo->FemaleName;
+
+        stats.HpMulti = creatureInfo->ModHealth;
+        stats.EnergyMulti = creatureInfo->ModMana;
+
+        stats.CreatureMovementInfoID = creatureInfo->movementId;
+        stats.RequiredExpansion = creatureInfo->expansionUnknown;
+
+        stats.Title = creatureInfo->SubName;
+        //stats.TitleAlt = ;
+        stats.CursorName = creatureInfo->IconName;
+
+        if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
+            for (uint32 item : *items)
+                stats.QuestItems.push_back(item);
+
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
+            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
+            {
+                ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
+                ObjectMgr::GetLocaleString(creatureLocale->NameAlt, localeConstant, stats.NameAlt[0]);
+                ObjectMgr::GetLocaleString(creatureLocale->Title, localeConstant, stats.Title);
+                ObjectMgr::GetLocaleString(creatureLocale->TitleAlt, localeConstant, stats.TitleAlt);
+            }
     }
-    else
-        response.Allow = false;
 
     SendPacket(response.Write());
 }
@@ -158,9 +169,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
 void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
-    Corpse* corpse = GetPlayer()->GetCorpse();
-
-    if (!corpse)
+    if (!_player->HasCorpse())
     {
         WorldPackets::Query::CorpseLocation packet;
         packet.Valid = false;                               // corpse not found
@@ -168,11 +177,12 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
         return;
     }
 
-    uint32 mapID = corpse->GetMapId();
-    float x = corpse->GetPositionX();
-    float y = corpse->GetPositionY();
-    float z = corpse->GetPositionZ();
-    uint32 corpseMapID = mapID;
+    WorldLocation corpseLocation = _player->GetCorpseLocation();
+    uint32 corpseMapID = corpseLocation.GetMapId();
+    uint32 mapID = corpseLocation.GetMapId();
+    float x = corpseLocation.GetPositionX();
+    float y = corpseLocation.GetPositionY();
+    float z = corpseLocation.GetPositionZ();
 
     // if corpse at different map
     if (mapID != _player->GetMapId())
@@ -199,7 +209,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
     packet.Position = G3D::Vector3(x, y, z);
-    packet.Transport = corpse->GetTransGUID();
+    packet.Transport = ObjectGuid::Empty;
     SendPacket(packet.Write());
 }
 
@@ -269,12 +279,12 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
     }
 }
 
-void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
+void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& queryCorpseTransport)
 {
     Corpse* corpse = _player->GetCorpse();
 
     WorldPackets::Query::CorpseTransportQuery response;
-    if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)
+    if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != queryCorpseTransport.Transport)
     {
         response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
         response.Facing = 0.0f;

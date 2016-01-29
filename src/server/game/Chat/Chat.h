@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,13 +39,18 @@ struct GameTele;
 
 class ChatCommand
 {
+    typedef bool(*pHandler)(ChatHandler*, char const*);
+
     public:
-        const char *       Name;
-        uint32             Permission;                   // function pointer required correct align (use uint32)
-        bool               AllowConsole;
-        bool (*Handler)(ChatHandler*, const char* args);
-        std::string        Help;
-        ChatCommand*      ChildCommands;
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
+            : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
+
+        char const* Name;
+        uint32 Permission;                   // function pointer required correct align (use uint32)
+        bool AllowConsole;
+        pHandler Handler;
+        std::string Help;
+        std::vector<ChatCommand> ChildCommands;
 };
 
 class ChatHandler
@@ -59,7 +64,7 @@ class ChatHandler
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str);
+        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
 
@@ -83,7 +88,7 @@ class ChatHandler
 
         bool ParseCommands(const char* text);
 
-        static ChatCommand* getCommandTable();
+        static std::vector<ChatCommand> const& getCommandTable();
 
         bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
@@ -134,12 +139,12 @@ class ChatHandler
         static bool LoadCommandTable() { return load_command_table; }
         static void SetLoadCommandTable(bool val) { load_command_table = val; }
 
-        bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
+        bool ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd);
     protected:
         explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
-        static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
-        bool ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd);
-        bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
+        static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
+        bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, const char* text, std::string const& fullcmd);
+        bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
 
     private:
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
@@ -159,7 +164,7 @@ class CliHandler : public ChatHandler
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str) override;
+        void SendSysMessage(const char *str, bool escapeCharacters) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;

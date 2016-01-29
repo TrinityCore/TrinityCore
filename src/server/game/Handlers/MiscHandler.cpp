@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,36 +28,25 @@
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "WorldSession.h"
-#include "BigNumber.h"
-#include "SHA1.h"
-#include "UpdateData.h"
-#include "LootMgr.h"
 #include "Chat.h"
 #include "zlib.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "Battleground.h"
 #include "OutdoorPvP.h"
-#include "Pet.h"
-#include "CellImpl.h"
 #include "AccountMgr.h"
-#include "Vehicle.h"
-#include "CreatureAI.h"
 #include "DBCEnums.h"
 #include "ScriptMgr.h"
 #include "MapManager.h"
-#include "InstanceScript.h"
 #include "Group.h"
-#include "AccountMgr.h"
 #include "Spell.h"
 #include "SpellPackets.h"
-#include "BattlegroundMgr.h"
-#include "DB2Stores.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "AchievementPackets.h"
 #include "WhoPackets.h"
+#include "InstancePackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -331,21 +320,12 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCance
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
 {
-    // this opcode can be used in two ways: Either set explicit new status or toggle old status
-    if (recvData.size() == 1)
-    {
-        bool newPvPStatus;
-        recvData >> newPvPStatus;
-        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
-        GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
-    }
-    else
-    {
-        GetPlayer()->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
-    }
+    bool inPvP = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, !inPvP);
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, inPvP);
 
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
@@ -355,11 +335,25 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     else
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(NULL);     // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
     }
+}
 
-    //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
-    //    pvp->HandlePlayerActivityChanged(_player);
+void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
+{
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, packet.EnablePVP);
+    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !packet.EnablePVP);
+
+    if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+    {
+        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
+            GetPlayer()->UpdatePvP(true, true);
+    }
+    else
+    {
+        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start set-off
+    }
 }
 
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
@@ -424,7 +418,6 @@ void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*pack
         return;
 
     Corpse* corpse = _player->GetCorpse();
-
     if (!corpse)
         return;
 
@@ -477,57 +470,11 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
         return;
     }
 
-    if (player->GetMapId() != atEntry->MapID)
+    if (!player->IsInAreaTriggerRadius(atEntry))
     {
-        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->MapID, player->GetMapId(), packet.AreaTriggerID);
+        TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far, ignore Area Trigger ID: %u",
+            player->GetName().c_str(), player->GetGUID().ToString().c_str(), packet.AreaTriggerID);
         return;
-    }
-
-    // delta is safe radius
-    const float delta = 5.0f;
-
-    if (atEntry->Radius > 0)
-    {
-        // if we have radius check it
-        float dist = player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
-        if (dist > atEntry->Radius + delta)
-        {
-            TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->Radius, dist, packet.AreaTriggerID);
-            return;
-        }
-    }
-    else
-    {
-        // we have only extent
-
-        // rotate the players position instead of rotating the whole cube, that way we can make a simplified
-        // is-in-cube check and we have to calculate only one point instead of 4
-
-        // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
-        double rotation = 2 * M_PI - atEntry->BoxYaw;
-        double sinVal = std::sin(rotation);
-        double cosVal = std::cos(rotation);
-
-        float playerBoxDistX = player->GetPositionX() - atEntry->Pos.X;
-        float playerBoxDistY = player->GetPositionY() - atEntry->Pos.Y;
-
-        float rotPlayerX = float(atEntry->Pos.X + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = float(atEntry->Pos.Y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
-
-        // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = player->GetPositionZ() - atEntry->Pos.Z;
-        float dx = rotPlayerX - atEntry->Pos.X;
-        float dy = rotPlayerY - atEntry->Pos.Y;
-        if ((std::fabs(dx) > atEntry->BoxLength / 2 + delta) ||
-            (std::fabs(dy) > atEntry->BoxWidth / 2 + delta) ||
-            (std::fabs(dz) > atEntry->BoxHeight / 2 + delta))
-        {
-            TC_LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, packet.AreaTriggerID);
-            return;
-        }
     }
 
     if (player->isDebugAreaTriggers)
@@ -538,22 +485,25 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
 
     if (player->IsAlive())
     {
-        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(packet.AreaTriggerID))
+        if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
         {
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-            if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+            for (uint32 questId : *quests)
             {
-                for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+                if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                    for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
                     {
-                        player->SetQuestObjectiveData(qInfo, j, int32(true));
-                        break;
+                        if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                        {
+                            player->SetQuestObjectiveData(qInfo, j, int32(true));
+                            break;
+                        }
                     }
-                }
 
-                if (player->CanCompleteQuest(questId))
-                    player->CompleteQuest(questId);
+                    if (player->CanCompleteQuest(questId))
+                        player->CompleteQuest(questId);
+                }
             }
         }
     }
@@ -561,9 +511,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
         // set resting flag we are in the inn
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->InnEnter(time(NULL), atEntry->MapID, atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z);
-        player->SetRestType(REST_TYPE_IN_TAVERN);
+        player->SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
 
         if (sWorld->IsFFAPvPRealm())
             player->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
@@ -706,22 +654,8 @@ void WorldSession::HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& 
     SendPacket(playedTime.Write());
 }
 
-void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
+void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport)
 {
-    uint32 time;
-    uint32 mapid;
-    float PositionX;
-    float PositionY;
-    float PositionZ;
-    float Orientation;
-
-    recvData >> time;                                      // time in m.sec.
-    recvData >> mapid;
-    recvData >> PositionX;
-    recvData >> PositionY;
-    recvData >> PositionZ;
-    recvData >> Orientation;                               // o (3.141593 = 180 degrees)
-
     if (GetPlayer()->IsInFlight())
     {
         TC_LOG_DEBUG("network", "Player '%s' (%s) in flight, ignore worldport command.",
@@ -729,11 +663,11 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
         return;
     }
 
-    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f",
-        GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
+    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, map = %u, x = %f, y = %f, z = %f, o = %f",
+        GetPlayer()->GetName().c_str(), worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
 
     if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
+        GetPlayer()->TeleportTo(worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }
@@ -828,24 +762,6 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "REPORT SPAM: type %u, %s, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s",
         spam_type, spammer_guid.ToString().c_str(), unk1, unk2, unk3, unk4, description.c_str());
-}
-
-void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
-{
-    uint32 unk;
-    std::string split_date = "01/01/01";
-    recvData >> unk;
-
-    WorldPacket data(SMSG_REALM_SPLIT, 4+4+split_date.size()+1);
-    data << unk;
-    data << uint32(0x00000000);                             // realm split state
-    // split states:
-    // 0x0 realm normal
-    // 0x1 realm split
-    // 0x2 realm split pending
-    data << split_date;
-    SendPacket(&data);
-    //TC_LOG_DEBUG("response sent %u", unk);
 }
 
 void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)
@@ -1072,15 +988,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
     }
 }
 
-void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& /*recvData*/)
-{
-    // fly mode on/off
-    MovementInfo movementInfo;
-    _player->ValidateMovementInfo(&movementInfo);
-
-    _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
-}
-
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 {
     /*
@@ -1122,11 +1029,8 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     SendPacket(phaseShift.Write());
 }
 
-void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
+void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet)
 {
-    uint8 accept;
-    recvPacket >> accept;
-
     if (!_player->HasPendingBind())
     {
         TC_LOG_INFO("network", "InstanceLockResponse: Player %s (%s) tried to bind himself/teleport to graveyard without a pending bind!",
@@ -1134,7 +1038,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
         return;
     }
 
-    if (accept)
+    if (packet.AcceptLock)
         _player->BindToInstance();
     else
         _player->RepopAtGraveyard();
@@ -1238,4 +1142,16 @@ void WorldSession::SendLoadCUFProfiles()
         if (CUFProfile* cufProfile = player->GetCUFProfile(i))
             loadCUFProfiles.CUFProfiles.push_back(cufProfile);
     SendPacket(loadCUFProfiles.Write());
+}
+
+void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging)
+{
+    _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
+}
+
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& /*mountSpecial*/)
+{
+    WorldPackets::Misc::SpecialMountAnim specialMountAnim;
+    specialMountAnim.UnitGUID = _player->GetGUID();
+    GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
 }

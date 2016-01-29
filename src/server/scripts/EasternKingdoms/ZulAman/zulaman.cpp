@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,12 +97,12 @@ class npc_voljin_zulaman : public CreatureScript
                 _gongCount = 0;
             }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
                     return;
 
-                if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
+                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
                     _events.Reset();
                     me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);

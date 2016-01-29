@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,22 +42,20 @@ class mmaps_commandscript : public CommandScript
 public:
     mmaps_commandscript() : CommandScript("mmaps_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand mmapCommandTable[] =
+        static std::vector<ChatCommand> mmapCommandTable =
         {
-            { "loadedtiles", rbac::RBAC_PERM_COMMAND_MMAP_LOADEDTILES, false, &HandleMmapLoadedTilesCommand, "", NULL },
-            { "loc", rbac::RBAC_PERM_COMMAND_MMAP_LOC, false, &HandleMmapLocCommand, "", NULL },
-            { "path", rbac::RBAC_PERM_COMMAND_MMAP_PATH, false, &HandleMmapPathCommand, "", NULL },
-            { "stats", rbac::RBAC_PERM_COMMAND_MMAP_STATS, false, &HandleMmapStatsCommand, "", NULL },
-            { "testarea", rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA, false, &HandleMmapTestArea, "", NULL },
-            { NULL, 0, false, NULL, "", NULL }
+            { "loadedtiles", rbac::RBAC_PERM_COMMAND_MMAP_LOADEDTILES, false, &HandleMmapLoadedTilesCommand, "" },
+            { "loc",         rbac::RBAC_PERM_COMMAND_MMAP_LOC,         false, &HandleMmapLocCommand,         "" },
+            { "path",        rbac::RBAC_PERM_COMMAND_MMAP_PATH,        false, &HandleMmapPathCommand,        "" },
+            { "stats",       rbac::RBAC_PERM_COMMAND_MMAP_STATS,       false, &HandleMmapStatsCommand,       "" },
+            { "testarea",    rbac::RBAC_PERM_COMMAND_MMAP_TESTAREA,    false, &HandleMmapTestArea,           "" },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable },
-            { NULL, 0, false, NULL, "", NULL }
         };
         return commandTable;
     }

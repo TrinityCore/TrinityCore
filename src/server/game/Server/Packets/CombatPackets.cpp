@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,64 +94,6 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Combat::AttackerStateUpdate::Write()
-{
-    if (_worldPacket.WriteBit(LogData.is_initialized()))
-        _worldPacket << *LogData;
-
-    // Placeholder for size which will be calculated at the end based on packet size
-    // Client uses this size to copy remaining packet to another CDataStore
-    _worldPacket << int32(0);
-    size_t pos = _worldPacket.wpos();
-
-    _worldPacket << HitInfo;
-    _worldPacket << AttackerGUID;
-    _worldPacket << VictimGUID;
-    _worldPacket << Damage;
-    _worldPacket << OverDamage;
-
-    if (_worldPacket.WriteBit(SubDmg.is_initialized()))
-    {
-        _worldPacket << SubDmg->SchoolMask;
-        _worldPacket << SubDmg->FDamage;
-        _worldPacket << SubDmg->Damage;
-        if (HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
-            _worldPacket << SubDmg->Absorbed;
-        if (HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
-            _worldPacket << SubDmg->Resisted;
-    }
-
-    _worldPacket << VictimState;
-    _worldPacket << AttackerState;
-    _worldPacket << MeleeSpellID;
-    if (HitInfo & HITINFO_BLOCK)
-        _worldPacket << BlockAmount;
-    if (HitInfo & HITINFO_RAGE_GAIN)
-        _worldPacket << RageGained;
-    if (HitInfo & HITINFO_UNK1)
-    {
-        _worldPacket << UnkState.State1;
-        _worldPacket << UnkState.State2;
-        _worldPacket << UnkState.State3;
-        _worldPacket << UnkState.State4;
-        _worldPacket << UnkState.State5;
-        _worldPacket << UnkState.State6;
-        _worldPacket << UnkState.State7;
-        _worldPacket << UnkState.State8;
-        _worldPacket << UnkState.State9;
-        _worldPacket << UnkState.State10;
-        _worldPacket << UnkState.State11;
-        _worldPacket << UnkState.State12;
-    }
-    if (HitInfo & (HITINFO_BLOCK|HITINFO_UNK12))
-        _worldPacket << Unk;
-
-    // Update size placeholder
-    _worldPacket.put<int32>(pos - sizeof(int32), _worldPacket.wpos() - pos);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
 {
     _worldPacket.WriteBits(Reason, 2);
@@ -204,6 +146,13 @@ WorldPacket const* WorldPackets::Combat::PvPCredit::Write()
     _worldPacket << int32(Honor);
     _worldPacket << Target;
     _worldPacket << int32(Rank);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::BreakTarget::Write()
+{
+    _worldPacket << UnitGUID;
 
     return &_worldPacket;
 }

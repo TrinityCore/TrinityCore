@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -162,7 +162,7 @@ namespace MMAP
     {
         while (1)
         {
-            uint32 mapId;
+            uint32 mapId = 0;
 
             _queue.WaitAndPop(mapId);
 

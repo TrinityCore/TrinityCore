@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,27 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DBCStores.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "SpellMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Spell.h"
-#include "Totem.h"
-#include "TemporarySummon.h"
-#include "SpellAuras.h"
-#include "CreatureAI.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
+#include "Common.h"
 #include "Config.h"
-#include "SpellPackets.h"
+#include "DBCStores.h"
+#include "GameObjectAI.h"
 #include "GameObjectPackets.h"
+#include "GuildMgr.h"
+#include "Log.h"
+#include "Player.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellPackets.h"
+#include "Totem.h"
+#include "TotemPackets.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 {
@@ -282,7 +278,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     // check known spell or raid marker spell (which not requires player to know it)
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER))
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER))
         return;
 
     // Check possible spell cast overrides
@@ -427,17 +423,15 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMount
     });
 }
 
-void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& /*cancelAutoRepeatSpell*/)
 {
     // may be better send SMSG_CANCEL_AUTO_REPEAT?
     // cancel and prepare for deleting
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 }
 
-void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
+void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& /*cancelChanneling*/)
 {
-    recvData.read_skip<uint32>();                          // spellid, not used
-
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
@@ -446,18 +440,15 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
-void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)
 {
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
 
-    uint8 slotId;
-    ObjectGuid guid;
-    recvPacket >> slotId;
-    recvPacket >> guid;
+    uint8 slotId = totemDestroyed.Slot;
+    slotId += SUMMON_SLOT_TOTEM;
 
-    ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)
         return;
 
@@ -465,7 +456,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
         return;
 
     Creature* totem = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]);
-    if (totem && totem->IsTotem() && totem->GetGUID() == guid)
+    if (totem && totem->IsTotem() && totem->GetGUID() == totemDestroyed.TotemGUID)
         totem->ToTotem()->UnSummon();
 }
 

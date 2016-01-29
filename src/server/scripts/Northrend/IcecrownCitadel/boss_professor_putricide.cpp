@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -616,7 +616,7 @@ class boss_professor_putricide : public CreatureScript
                             DoCast(me, SPELL_TEAR_GAS_PERIODIC_TRIGGER, true);
                             break;
                         case EVENT_RESUME_ATTACK:
-                            me->SetReactState(REACT_DEFENSIVE);
+                            me->SetReactState(REACT_AGGRESSIVE);
                             AttackStart(me->GetVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
@@ -778,7 +778,7 @@ class npc_volatile_ooze : public CreatureScript
             {
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastSpell(me, SPELL_VOLATILE_OOZE_ADHESIVE, false);
             }
@@ -802,7 +802,7 @@ class npc_gas_cloud : public CreatureScript
                 _newTargetSelectTimer = 0;
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, me, false);
             }

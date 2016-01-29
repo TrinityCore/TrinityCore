@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -761,7 +761,7 @@ class achievement_ohganot_so_fast : public AchievementCriteriaScript
    public:
        achievement_ohganot_so_fast() : AchievementCriteriaScript("achievement_ohganot_so_fast") { }
 
-       bool OnCheck(Player* /*player*/, Unit* target)
+       bool OnCheck(Player* /*player*/, Unit* target) override
        {
            return target && target->GetAI()->GetData(DATA_OHGANOT_SO_FAST);
        }

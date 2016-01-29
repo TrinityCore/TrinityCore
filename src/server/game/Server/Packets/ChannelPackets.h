@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +45,7 @@ namespace WorldPackets
 
             std::vector<ChannelPlayer> _Members;
             std::string _Channel; ///< Channel Name
-            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
             bool _Display = false;
         };
 
@@ -79,7 +79,7 @@ namespace WorldPackets
             std::string ChannelWelcomeMsg;
             int32 ChatChannelID = 0;
             int32 InstanceID    = 0;
-            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
             std::string _Channel;     ///< Channel Name
         };
 
@@ -103,12 +103,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid AddedUserGUID;
-
-            uint8 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
+            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
             uint8 UserFlags = MEMBER_FLAG_NONE;
-
             int32 ChannelID = 0;
-
             std::string ChannelName;
         };
 
@@ -120,11 +117,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid RemovedUserGUID;
-
-            uint8 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
-
+            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
             uint32 ChannelID = 0;
-
             std::string ChannelName;
         };
 
@@ -136,12 +130,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UpdatedUserGUID;
-
-            uint8 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
+            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
             uint8 UserFlags = MEMBER_FLAG_NONE;
-
             int32 ChannelID = 0;
-
             std::string ChannelName;
         };
 
@@ -153,7 +144,7 @@ namespace WorldPackets
                 switch (GetOpcode())
                 {
                     default:
-                        ASSERT(false);
+                        ABORT();
                     case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
                     case CMSG_CHAT_CHANNEL_BAN:
                     case CMSG_CHAT_CHANNEL_DECLINE_INVITE:

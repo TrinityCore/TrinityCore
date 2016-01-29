@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -129,7 +129,6 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         TrainerSpell const* tSpell = &itr->second;
 
         bool valid = true;
-        bool primary_prof_first_rank = false;
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
         {
             if (!tSpell->ReqAbility[i])
@@ -139,9 +138,6 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
                 valid = false;
                 break;
             }
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(tSpell->ReqAbility[i]);
-            if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
-                primary_prof_first_rank = true;
         }
 
         if (!valid)
@@ -409,10 +405,12 @@ void WorldSession::SendSpiritResurrect()
 
     // get corpse nearest graveyard
     WorldSafeLocsEntry const* corpseGrave = NULL;
-    Corpse* corpse = _player->GetCorpse();
-    if (corpse)
-        corpseGrave = sObjectMgr->GetClosestGraveYard(
-            corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetMapId(), _player->GetTeam());
+    WorldLocation corpseLocation = _player->GetCorpseLocation();
+    if (_player->HasCorpse())
+    {
+        corpseGrave = sObjectMgr->GetClosestGraveYard(corpseLocation.GetPositionX(), corpseLocation.GetPositionY(),
+            corpseLocation.GetPositionZ(), corpseLocation.GetMapId(), _player->GetTeam());
+    }
 
     // now can spawn bones
     _player->SpawnCorpseBones();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,14 +20,10 @@
 #include "Transport.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "Path.h"
 #include "ScriptMgr.h"
-#include "WorldPacket.h"
 #include "DBCStores.h"
-#include "World.h"
 #include "GameObjectAI.h"
 #include "Vehicle.h"
-#include "MapReference.h"
 #include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -98,13 +94,12 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetName(goinfo->name);
     UpdateRotationFields(0.0f, 1.0f);
 
-    m_model = GameObjectModel::Create(*this);
+    m_model = CreateModel();
     return true;
 }
 
 void Transport::CleanupsBeforeDelete(bool finalCleanup /*= true*/)
 {
-    HashMapHolder<Transport>::Remove(this);
     UnloadStaticPassengers();
     while (!_passengers.empty())
     {

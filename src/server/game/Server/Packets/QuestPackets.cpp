@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -276,17 +276,17 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(RewardText.size(), 12);
-    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
-    _worldPacket.WriteBits(PortraitGiverName.size(), 8);
     _worldPacket.WriteBits(PortraitGiverText.size(), 10);
+    _worldPacket.WriteBits(PortraitGiverName.size(), 8);
+    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
     _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(RewardText);
-    _worldPacket.WriteString(PortraitTurnInText);
-    _worldPacket.WriteString(PortraitGiverName);
     _worldPacket.WriteString(PortraitGiverText);
+    _worldPacket.WriteString(PortraitGiverName);
+    _worldPacket.WriteString(PortraitTurnInText);
     _worldPacket.WriteString(PortraitTurnInName);
 
     return &_worldPacket;
@@ -359,10 +359,10 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(DescriptionText.size(), 12);
     _worldPacket.WriteBits(LogDescription.size(), 12);
-    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
-    _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.WriteBits(PortraitGiverText.size(), 10);
     _worldPacket.WriteBits(PortraitGiverName.size(), 8);
+    _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
+    _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.WriteBit(DisplayPopup);
     _worldPacket.WriteBit(StartCheat);
     _worldPacket.WriteBit(AutoLaunched);
@@ -371,10 +371,10 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteString(QuestTitle);
     _worldPacket.WriteString(DescriptionText);
     _worldPacket.WriteString(LogDescription);
-    _worldPacket.WriteString(PortraitTurnInText);
-    _worldPacket.WriteString(PortraitTurnInName);
     _worldPacket.WriteString(PortraitGiverText);
     _worldPacket.WriteString(PortraitGiverName);
+    _worldPacket.WriteString(PortraitTurnInText);
+    _worldPacket.WriteString(PortraitTurnInName);
 
     return &_worldPacket;
 }
@@ -495,10 +495,46 @@ void WorldPackets::Quest::QuestConfirmAccept::Read()
     _worldPacket >> QuestID;
 }
 
-WorldPacket const* WorldPackets::Quest::QuestPushResult::Write()
+WorldPacket const* WorldPackets::Quest::QuestPushResultResponse::Write()
 {
     _worldPacket << SenderGUID;
     _worldPacket << uint8(Result);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Quest::QuestPushResult::Read()
+{
+    _worldPacket >> SenderGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> Result;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverInvalidQuest::Write()
+{
+    _worldPacket << Reason;
+
+    _worldPacket.WriteBit(SendErrorMessage);
+    _worldPacket.WriteBits(ReasonText.length(), 9);
+
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(ReasonText);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateFailedTimer::Write()
+{
+    _worldPacket << QuestID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestFailed::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << Reason;
 
     return &_worldPacket;
 }

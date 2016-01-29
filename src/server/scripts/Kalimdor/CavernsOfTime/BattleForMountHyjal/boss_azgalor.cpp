@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -200,7 +200,6 @@ public:
             CrippleTimer = 50000;
             WarstompTimer = 10000;
             CheckTimer = 5000;
-            instance = creature->GetInstanceScript();
             AzgalorGUID = instance->GetGuidData(DATA_AZGALOR);
         }
 
@@ -208,7 +207,6 @@ public:
         uint32 WarstompTimer;
         uint32 CheckTimer;
         ObjectGuid AzgalorGUID;
-        InstanceScript* instance;
 
         void Reset() override
         {
@@ -248,7 +246,7 @@ public:
                 if (!AzgalorGUID.IsEmpty())
                 {
                     Creature* boss = ObjectAccessor::GetCreature(*me, AzgalorGUID);
-                    if (!boss || (boss && boss->isDead()))
+                    if (!boss || boss->isDead())
                     {
                         me->setDeathState(JUST_DIED);
                         me->RemoveCorpse();
