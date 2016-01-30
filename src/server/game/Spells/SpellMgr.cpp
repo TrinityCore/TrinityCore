@@ -3095,6 +3095,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53096: // Quetz'lun's Judgment
             case 70743: // AoD Special
             case 70614: // AoD Special - Vegard
+            case 4020:  // Safirdrang's Chill
             case 52479: // Gift of the Harvester
             case 61588: // Blazing Harpoon
             case 55479: // Force Obedience
