@@ -19,12 +19,11 @@
 /* ScriptData
 SDName: Stonetalon_Mountains
 SD%Complete: 95
-SDComment: Quest support: 6627, 6523
+SDComment: Quest support: 6523
 SDCategory: Stonetalon Mountains
 EndScriptData */
 
 /* ContentData
-npc_braug_dimspirit
 npc_kaya_flathoof
 EndContentData */
 
@@ -33,61 +32,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
-
-/*######
-## npc_braug_dimspirit
-######*/
-
-#define GOSSIP_HBD1 "Ysera"
-#define GOSSIP_HBD2 "Neltharion"
-#define GOSSIP_HBD3 "Nozdormu"
-#define GOSSIP_HBD4 "Alexstrasza"
-#define GOSSIP_HBD5 "Malygos"
-
-class npc_braug_dimspirit : public CreatureScript
-{
-public:
-    npc_braug_dimspirit() : CreatureScript("npc_braug_dimspirit") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, 6766, false);
-
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+2)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->AreaExploredOrEventHappens(6627);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(6627) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBD5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-            player->SEND_GOSSIP_MENU(5820, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(5819, creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*######
 ## npc_kaya_flathoof
@@ -174,6 +118,5 @@ public:
 
 void AddSC_stonetalon_mountains()
 {
-    new npc_braug_dimspirit();
     new npc_kaya_flathoof();
 }
