@@ -155,6 +155,14 @@ enum TalentSpecialization // talent tabs
     TALENT_SPEC_MONK_MISTWEAVER         = 270
 };
 
+enum SpecResetType
+{
+    SPEC_RESET_TALENTS = 0,
+    SPEC_RESET_SPECIALIZATION = 1,
+    SPEC_RESET_GLYPHS = 2,
+    SPEC_RESET_PET_TALENTS = 3
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {

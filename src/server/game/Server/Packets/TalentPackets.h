@@ -68,8 +68,31 @@ namespace WorldPackets
 
             void Read() override;
             std::vector<uint16> Talents;
-
         };
+
+        class RespecWipeConfirm final : public ServerPacket
+        {
+        public:
+            RespecWipeConfirm() : ServerPacket(SMSG_RESPEC_WIPE_CONFIRM, 16 + 4 +1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid RespecMaster;
+            uint32 Cost = 0;
+            int8 RespecType = 0;
+        };
+
+        class ConfirmRespecWipe final : public ClientPacket
+        {
+        public:
+            ConfirmRespecWipe(WorldPacket&& packet) : ClientPacket(CMSG_CONFIRM_RESPEC_WIPE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid RespecMaster;
+            uint8 RespecType = 0;
+        };
+
     }
 }
 
