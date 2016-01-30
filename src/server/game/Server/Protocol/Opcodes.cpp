@@ -294,7 +294,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_COMPLAINT,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleComplainOpcode            );
     DEFINE_HANDLER(CMSG_COMPLETE_CINEMATIC,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::CompleteCinematic, &WorldSession::HandleCompleteCinematic);
     DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CONFIRM_RESPEC_WIPE,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleConfirmRespecWipeOpcode   );
+    DEFINE_HANDLER(CMSG_CONFIRM_RESPEC_WIPE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Talent::ConfirmRespecWipe, &WorldSession::HandleConfirmRespecWipeOpcode);
     DEFINE_HANDLER(CMSG_CONNECT_TO_FAILED,                                  STATUS_NEVER,     PROCESS_INPLACE,      WorldPacket, &WorldSession::Handle_EarlyProccess);
     DEFINE_HANDLER(CMSG_CONVERT_RAID,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Party::ConvertRaid, &WorldSession::HandleConvertRaidOpcode);
     DEFINE_HANDLER(CMSG_CREATE_CHARACTER,                                   STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::CreateCharacter, &WorldSession::HandleCharCreateOpcode);
@@ -1527,7 +1527,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESET_FAILED_NOTIFY,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESET_RANGED_COMBAT_TIMER,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESET_WEEKLY_CURRENCY,                   STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESPEC_WIPE_CONFIRM,                     STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESPEC_WIPE_CONFIRM,                     STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESPOND_INSPECT_ACHIEVEMENTS,            STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESUME_CAST_BAR,                         STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESUME_COMMS,                            STATUS_NEVER,        CONNECTION_TYPE_REALM);

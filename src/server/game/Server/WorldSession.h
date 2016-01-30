@@ -582,6 +582,7 @@ namespace WorldPackets
     {
         class SetSpecialization;
         class LearnTalents;
+        class ConfirmRespecWipe;
     }
 
     namespace Taxi
@@ -1369,7 +1370,7 @@ class WorldSession
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
 
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
-        void HandleConfirmRespecWipeOpcode(WorldPacket& recvPacket);
+        void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 

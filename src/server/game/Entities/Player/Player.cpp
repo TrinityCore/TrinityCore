@@ -9045,10 +9045,11 @@ void Player::SetBindPoint(ObjectGuid guid) const
 
 void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const
 {
-    WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8 + 4);
-    data << guid;
-    data << cost;
-    GetSession()->SendPacket(&data);
+    WorldPackets::Talent::RespecWipeConfirm respecWipeConfirm;
+    respecWipeConfirm.RespecMaster = guid;
+    respecWipeConfirm.Cost = cost;
+    respecWipeConfirm.RespecType = SPEC_RESET_TALENTS;
+    GetSession()->SendPacket(respecWipeConfirm.Write());
 }
 
 void Player::ResetPetTalents()
