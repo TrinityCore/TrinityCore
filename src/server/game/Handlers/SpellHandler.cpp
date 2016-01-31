@@ -24,6 +24,7 @@
 #include "GameObjectPackets.h"
 #include "GuildMgr.h"
 #include "Log.h"
+#include "PetPackets.h"
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -367,13 +368,10 @@ void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& canc
     }
 }
 
-void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Pets::PetCancelAura& packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-
-    recvPacket >> guid;
-    recvPacket >> spellId;
+    ObjectGuid guid = packet.PetGUID;
+    uint32 spellId = packet.SpellID;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)

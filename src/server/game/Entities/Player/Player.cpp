@@ -74,6 +74,7 @@
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
 #include "ReputationMgr.h"
@@ -19941,9 +19942,8 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (pet->isControlled())
     {
-        WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-        data << uint64(0);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Pets::PetSpells petSpellsPacket;
+        GetSession()->SendPacket(petSpellsPacket.Write());
 
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
@@ -20090,22 +20090,17 @@ void Player::PetSpellInitialize()
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
-    data << pet->GetGUID();
-    data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
-    data << uint32(pet->GetDuration());
-    data << uint8(pet->GetReactState());
-    data << uint8(charmInfo->GetCommandState());
-    data << uint16(0); // Flags, mostly unknown
+    WorldPackets::Pets::PetSpells petSpellsPacket;
+    petSpellsPacket.PetGUID = pet->GetGUID();
+    petSpellsPacket.CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
+    //petSpellsPacket.Specialization = pet->GetSpecialization(); NYI
+    petSpellsPacket.TimeLimit = pet->GetDuration();
+    petSpellsPacket.ReactState = pet->GetReactState();
+    petSpellsPacket.CommandState = charmInfo->GetCommandState();
 
     // action bar loop
-    charmInfo->BuildActionBar(&data);
-
-    size_t spellsCountPos = data.wpos();
-
-    // spells count
-    uint8 addlist = 0;
-    data << uint8(addlist);                                 // placeholder
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        petSpellsPacket.ActionButtons[i] = charmInfo->GetActionBarEntry(i)->packedData;
 
     if (pet->IsPermanentPetFor(this))
     {
@@ -20115,17 +20110,14 @@ void Player::PetSpellInitialize()
             if (itr->second.state == PETSPELL_REMOVED)
                 continue;
 
-            data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
-            ++addlist;
+            petSpellsPacket.Actions.push_back(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
         }
     }
 
-    data.put<uint8>(spellsCountPos, addlist);
-
     // Cooldowns
-    //pet->GetSpellHistory()->WritePacket(&petSpells);
+    pet->GetSpellHistory()->WritePacket(&petSpellsPacket);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(petSpellsPacket.Write());
 }
 
 void Player::PossessSpellInitialize()
@@ -20142,20 +20134,16 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
-    data << charm->GetGUID();
-    data << uint16(0);
-    data << uint32(0);
-    data << uint32(0);
+    WorldPackets::Pets::PetSpells petSpellsPacket;
+    petSpellsPacket.PetGUID = charm->GetGUID();
 
-    charmInfo->BuildActionBar(&data);
-
-    data << uint8(0);                                       // spells count
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        petSpellsPacket.ActionButtons[i] = charmInfo->GetActionBarEntry(i)->packedData;
 
     // Cooldowns
-    //charm->GetSpellHistory()->WritePacket(&petSpells);
+    charm->GetSpellHistory()->WritePacket(&petSpellsPacket);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(petSpellsPacket.Write());
 }
 
 void Player::VehicleSpellInitialize()
@@ -20267,9 +20255,8 @@ void Player::CharmSpellInitialize()
 
 void Player::SendRemoveControlBar() const
 {
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-    data << uint64(0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Pets::PetSpells packet;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell) const
