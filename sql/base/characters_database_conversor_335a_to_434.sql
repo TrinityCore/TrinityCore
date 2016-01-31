@@ -13,8 +13,8 @@ ALTER TABLE guild ADD `level` INT(10) unsigned DEFAULT '1' AFTER `BankMoney`;
 ALTER TABLE guild ADD `experience` BIGINT(20) unsigned DEFAULT '0' AFTER `level`;
 ALTER TABLE guild ADD `todayExperience` BIGINT(20) unsigned DEFAULT '0' AFTER `experience`;
 
-DROP TABLE IF EXISTS `guild_news_log`;
-CREATE TABLE `guild_news_log` (
+DROP TABLE IF EXISTS `guild_newslog`;
+CREATE TABLE `guild_newslog` (
   `guild` int(10) unsigned NOT NULL,
   `id` int(10) unsigned NOT NULL,
   `eventType` int(10) unsigned NOT NULL,
@@ -24,9 +24,6 @@ CREATE TABLE `guild_news_log` (
   `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guild`,`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Rename table and column to fit the other guild_*log tables and columns and create indexes
-RENAME TABLE `guild_news_log` TO `guild_newslog`;
 
 ALTER TABLE `guild_newslog`
 CHANGE COLUMN `guild` `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
@@ -121,8 +118,8 @@ INSERT INTO `character_currency` (`guid`, `currency`, `total_count`, `week_count
 
 ALTER TABLE `characters` DROP `totalHonorPoints`;
 
-DROP TABLE IF EXISTS `void_storage`;
-CREATE TABLE IF NOT EXISTS `void_storage` (
+DROP TABLE IF EXISTS `character_void_storage`;
+CREATE TABLE IF NOT EXISTS `character_void_storage` (
   `itemId` bigint(20) unsigned NOT NULL,
   `playerGuid` int(10) unsigned NOT NULL,
   `itemEntry` mediumint(8) unsigned NOT NULL,
@@ -133,10 +130,8 @@ CREATE TABLE IF NOT EXISTS `void_storage` (
   KEY `idx_player` (`playerGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `void_storage` ADD `randomProperty` int(10) unsigned NOT NULL DEFAULT '0';
-ALTER TABLE `void_storage` ADD `suffixFactor` int(10) unsigned NOT NULL DEFAULT '0';
-
-RENAME TABLE `void_storage` TO `character_void_storage`;
+ALTER TABLE `character_void_storage` ADD `randomProperty` int(10) unsigned NOT NULL DEFAULT '0';
+ALTER TABLE `character_void_storage` ADD `suffixFactor` int(10) unsigned NOT NULL DEFAULT '0';
 
 DROP TABLE IF EXISTS `character_cuf_profiles`;
 CREATE TABLE IF NOT EXISTS `character_cuf_profiles` (
