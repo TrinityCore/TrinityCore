@@ -22,6 +22,7 @@
 #include "Define.h"
 
 #include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "GridDefines.h"
 #include "Cell.h"
 #include "Timer.h"

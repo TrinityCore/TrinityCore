@@ -539,21 +539,21 @@ void Player::UpdateMastery()
     if (!chrSpec)
         return;
 
-    if (!chrSpec->MasterySpellID)
-        return;
-
-    if (Aura* aura = GetAura(chrSpec->MasterySpellID))
+    for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
     {
-        for (SpellEffectInfo const* effect : aura->GetSpellEffectInfos())
+        if (Aura* aura = GetAura(chrSpec->MasterySpellID[i]))
         {
-            if (!effect)
-                continue;
+            for (SpellEffectInfo const* effect : aura->GetSpellEffectInfos())
+            {
+                if (!effect)
+                    continue;
 
-            float mult = effect->BonusCoefficient;
-            if (G3D::fuzzyEq(mult, 0.0f))
-                continue;
+                float mult = effect->BonusCoefficient;
+                if (G3D::fuzzyEq(mult, 0.0f))
+                    continue;
 
-            aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * effect->BonusCoefficient));
+                aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * effect->BonusCoefficient));
+            }
         }
     }
 }

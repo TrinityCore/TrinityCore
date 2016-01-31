@@ -148,6 +148,14 @@ struct CharStartOutfitEntry
     uint8 PetFamilyID;                                              // Pet Family Entry for starting pet
 };
 
+struct ChatChannelsEntry
+{
+    uint32 Flags;
+    LocalizedString* Name;
+    LocalizedString* Shortcut;
+    uint8 FactionGroup;
+};
+
 struct ChrClassesXPowerTypesEntry
 {
     uint8 ClassID;
@@ -193,6 +201,26 @@ struct ChrRacesEntry
     uint8 CharComponentTexLayoutHiResID;
 };
 
+#define MAX_MASTERY_SPELLS 2
+
+struct ChrSpecializationEntry
+{
+    uint32 ID;
+    uint32 MasterySpellID[MAX_MASTERY_SPELLS];
+    uint32 Flags;
+    uint32 AnimReplacementSetID;
+    LocalizedString* Name;
+    LocalizedString* Name2;
+    LocalizedString* Description;
+    char* BackgroundFile;
+    uint16 SpellIconID;
+    uint8 ClassID;
+    uint8 OrderIndex;
+    uint8 PetTalentType;
+    uint8 Role;
+    uint8 PrimaryStatOrder;
+};
+
 struct CinematicSequencesEntry
 {
     uint16 SoundID;
@@ -226,7 +254,6 @@ struct CreatureDisplayInfoEntry
 
 struct CreatureDisplayInfoExtraEntry
 {
-    uint32 NPCItemDisplay[10];
     uint32 FileDataID;
     uint32 HDFileDataID;
     uint8 DisplayRaceID;
@@ -451,6 +478,17 @@ struct DurabilityQualityEntry
     float QualityMod;
 };
 
+struct EmotesEntry
+{
+    char const* EmoteSlashCommand;
+    uint32 SpellVisualKitID;
+    uint32 EmoteFlags;
+    uint16 AnimID;
+    uint16 EmoteSoundID;
+    uint8 EmoteSpecProc;
+    uint8 EmoteSpecProcParam;
+};
+
 struct EmotesTextSoundEntry
 {
     uint16 EmotesTextId;
@@ -486,7 +524,6 @@ struct GameObjectDisplayInfoEntry
     DBCPosition3D GeoBoxMax;
     float OverrideLootEffectScale;
     float OverrideNameScale;
-    uint16 Sound[10];
     uint16 ObjectEffectPackageID;
 };
 
@@ -554,6 +591,7 @@ struct GarrClassSpecEntry
     LocalizedString* NameGenderless;
     uint16 ClassAtlasID;                                            // UiTextureAtlasMember.db2 ref
     uint8 GarrFollItemSetID;
+    uint8 Unknown700;
 };
 
 struct GarrFollowerEntry
@@ -634,6 +672,23 @@ struct GarrSiteLevelPlotInstEntry
     uint16 GarrSiteLevelID;
     uint8 GarrPlotInstanceID;
     uint8 Unknown;
+};
+
+struct GemPropertiesEntry
+{
+    uint32 Type;
+    uint16 EnchantID;
+    uint16 MinItemLevel;
+    uint8 MaxCountInv;
+    uint8 MaxCountItem;
+};
+
+struct GlyphPropertiesEntry
+{
+    uint32 SpellID;
+    uint16 SpellIconID;
+    uint8 Type;
+    uint8 GlyphExclusiveCategoryID;
 };
 
 struct GlyphSlotEntry
@@ -905,6 +960,16 @@ struct ItemRandomSuffixEntry
     uint16 AllocationPct[MAX_ITEM_RANDOM_PROPERTIES];
 };
 
+#define MAX_ITEM_SET_ITEMS 17
+
+struct ItemSetEntry
+{
+    LocalizedString* Name;
+    uint32 ItemID[MAX_ITEM_SET_ITEMS];
+    uint16 RequiredSkillRank;
+    uint8 RequiredSkill;
+};
+
 struct ItemSetSpellEntry
 {
     uint32 SpellID;
@@ -1015,6 +1080,16 @@ struct ItemXBonusTreeEntry
 struct KeyChainEntry
 {
     uint8 Key[KEYCHAIN_SIZE];
+};
+
+#define MAX_LOCK_CASE 8
+
+struct LockEntry
+{
+    uint32 Index[MAX_LOCK_CASE];
+    uint16 Skill[MAX_LOCK_CASE];
+    uint8 Type[MAX_LOCK_CASE];
+    uint8 Action[MAX_LOCK_CASE];
 };
 
 struct MailTemplateEntry
@@ -1203,6 +1278,17 @@ struct PowerDisplayEntry
     uint8 Red;
     uint8 Green;
     uint8 Blue;
+};
+
+struct PvPDifficultyEntry
+{
+    uint16 MapID;
+    uint8 BracketID;
+    uint8 MinLevel;
+    uint8 MaxLevel;
+
+    // helpers
+    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
 };
 
 struct QuestFactionRewardEntry
@@ -1511,6 +1597,7 @@ struct SpellLevelsEntry
     uint16 MaxLevel;
     uint16 SpellLevel;
     uint8 DifficultyID;
+    uint8 MaxUsableLevel;
 };
 
 struct SpellMiscEntry
@@ -1673,6 +1760,15 @@ struct SpellXSpellVisualEntry
     uint8 Flags;
 };
 
+struct SummonPropertiesEntry
+{
+    uint32 Category;
+    uint32 Faction;
+    uint32 Type;
+    int32 Slot;
+    uint32 Flags;
+};
+
 struct TaxiNodesEntry
 {
     uint32 ID;
@@ -1759,6 +1855,84 @@ struct UnitPowerBarEntry
     uint8 MinPower;
     uint8 CenterPower;
     uint8 BarType;
+};
+
+struct VehicleSeatEntry
+{
+    uint32 Flags[3];
+    DBCPosition3D AttachmentOffset;
+    float EnterPreDelay;
+    float EnterSpeed;
+    float EnterGravity;
+    float EnterMinDuration;
+    float EnterMaxDuration;
+    float EnterMinArcHeight;
+    float EnterMaxArcHeight;
+    float ExitPreDelay;
+    float ExitSpeed;
+    float ExitGravity;
+    float ExitMinDuration;
+    float ExitMaxDuration;
+    float ExitMinArcHeight;
+    float ExitMaxArcHeight;
+    float PassengerYaw;
+    float PassengerPitch;
+    float PassengerRoll;
+    float VehicleEnterAnimDelay;
+    float VehicleExitAnimDelay;
+    float CameraEnteringDelay;
+    float CameraEnteringDuration;
+    float CameraExitingDelay;
+    float CameraExitingDuration;
+    DBCPosition3D CameraOffset;
+    float CameraPosChaseRate;
+    float CameraFacingChaseRate;
+    float CameraEnteringZoom;
+    float CameraSeatZoomMin;
+    float CameraSeatZoomMax;
+    uint32 UISkinFileDataID;
+    int16 EnterAnimStart;
+    int16 EnterAnimLoop;
+    int16 RideAnimStart;
+    int16 RideAnimLoop;
+    int16 RideUpperAnimStart;
+    int16 RideUpperAnimLoop;
+    int16 ExitAnimStart;
+    int16 ExitAnimLoop;
+    int16 ExitAnimEnd;
+    int16 VehicleEnterAnim;
+    int16 VehicleExitAnim;
+    int16 VehicleRideAnimLoop;
+    uint16 EnterUISoundID;
+    uint16 ExitUISoundID;
+    uint16 EnterAnimKitID;
+    uint16 RideAnimKitID;
+    uint16 ExitAnimKitID;
+    uint16 VehicleEnterAnimKitID;
+    uint16 VehicleRideAnimKitID;
+    uint16 VehicleExitAnimKitID;
+    uint16 CameraModeID;
+    int8 AttachmentID;
+    int8 PassengerAttachmentID;
+    int8 VehicleEnterAnimBone;
+    int8 VehicleExitAnimBone;
+    int8 VehicleRideAnimLoopBone;
+    uint8 VehicleAbilityDisplay;
+
+    bool CanEnterOrExit() const
+    {
+        return ((Flags[0] & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0 ||
+                //If it has anmation for enter/ride, means it can be entered/exited by logic
+                (Flags[0] & (VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER | VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) != 0);
+    }
+    bool CanSwitchFromSeat() const { return (Flags[0] & VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0; }
+    bool IsUsableByOverride() const
+    {
+        return (Flags[0] & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
+                                    || (Flags[1] & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
+                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4)));
+    }
+    bool IsEjectable() const { return (Flags[1] & VEHICLE_SEAT_FLAG_B_EJECTABLE) != 0; }
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4

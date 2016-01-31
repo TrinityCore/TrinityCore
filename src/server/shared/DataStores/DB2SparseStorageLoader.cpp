@@ -390,7 +390,7 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
             ++records;
 
     uint32 recordsize = GetFormatRecordSize(format);
-    std::size_t stringFields = GetFormatStringFieldCount(format);
+    std::size_t stringFields = GetFormatLocalizedStringFieldCount(format);
     char* stringTable = new char[offsetsPos - dataStart - records * (recordsize - stringFields * sizeof(char*))];
     memset(stringTable, 0, offsetsPos - dataStart - records * (recordsize - stringFields * sizeof(char*)));
     char* stringPtr = stringTable;
@@ -402,7 +402,7 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
         if (!offsets[y].FileOffset || !offsets[y].RecordSize)
             continue;
 
-        uint32 fieldOffset;
+        uint32 fieldOffset = 0;
         for (uint32 x = 0; x < fieldCount; x++)
         {
             switch (format[x])
@@ -427,7 +427,6 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
                     break;
                 case FT_STRING:
                 {
-                    // fill only not filled entries
                     LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
                     db2str->Str[locale] = stringPtr;
                     strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
@@ -438,11 +437,7 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
                 }
                 case FT_STRING_NOT_LOCALIZED:
                 {
-                    char** db2str = (char**)(&dataTable[offset]);
-                    *db2str = stringPtr;
-                    strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    fieldOffset += strlen(stringPtr) + 1;
-                    stringPtr += strlen(stringPtr) + 1;
+                    fieldOffset += strlen((char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]) + 1;
                     offset += sizeof(char*);
                     break;
                 }

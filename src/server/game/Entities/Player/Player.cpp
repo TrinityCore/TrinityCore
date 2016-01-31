@@ -3231,7 +3231,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
 bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
 {
     if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
-        return spellInfo->Id == chrSpec->MasterySpellID;
+        return spellInfo->Id == chrSpec->MasterySpellID[0] || spellInfo->Id == chrSpec->MasterySpellID[1];
 
     return false;
 }
@@ -4729,9 +4729,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     else
                         currentNameExt = current_zone->AreaName_lang;
 
-                    snprintf(new_channel_name_buf, 100, channel->Name_lang, currentNameExt);
+                    snprintf(new_channel_name_buf, 100, channel->Name->Str[m_session->GetSessionDbcLocale()], currentNameExt);
 
-                    joinChannel = cMgr->GetJoinChannel(new_channel_name_buf, channel->ID);
+                    joinChannel = cMgr->GetJoinChannel(new_channel_name_buf, i);
                     if (usedChannel)
                     {
                         if (joinChannel != usedChannel)
@@ -4744,7 +4744,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     }
                 }
                 else
-                    joinChannel = cMgr->GetJoinChannel(channel->Name_lang, channel->ID);
+                    joinChannel = cMgr->GetJoinChannel(channel->Name->Str[m_session->GetSessionDbcLocale()], i);
             }
             else
                 removeChannel = usedChannel;
@@ -25235,8 +25235,9 @@ void Player::ActivateTalentGroup(uint8 spec)
 
     if (CanUseMastery())
         if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
-            if (uint32 mastery = specialization->MasterySpellID)
-                LearnSpell(mastery, false);
+            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+                if (uint32 mastery = specialization->MasterySpellID[i])
+                    LearnSpell(mastery, false);
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
@@ -26146,7 +26147,7 @@ void Player::RemoveSpecializationSpells()
 {
     for (uint32 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
-        if (ChrSpecializationEntry const* specialization = sChrSpecializationByIndexStore[getClass()][i])
+        if (ChrSpecializationEntry const* specialization = sDB2Manager.GetChrSpecializationByIndex(getClass(), i))
         {
             if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
             {
@@ -26159,8 +26160,9 @@ void Player::RemoveSpecializationSpells()
                 }
             }
 
-            if (uint32 mastery = specialization->MasterySpellID)
-                RemoveAurasDueToSpell(mastery);
+            for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
+                if (uint32 mastery = specialization->MasterySpellID[j])
+                    RemoveAurasDueToSpell(mastery);
         }
     }
 }
