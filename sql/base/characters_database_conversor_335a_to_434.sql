@@ -13,29 +13,31 @@ ALTER TABLE guild ADD `level` INT(10) unsigned DEFAULT '1' AFTER `BankMoney`;
 ALTER TABLE guild ADD `experience` BIGINT(20) unsigned DEFAULT '0' AFTER `level`;
 ALTER TABLE guild ADD `todayExperience` BIGINT(20) unsigned DEFAULT '0' AFTER `experience`;
 
-DROP TABLE IF EXISTS `guild_newslog`;
-CREATE TABLE `guild_newslog` (
-  `guild` int(10) unsigned NOT NULL,
-  `id` int(10) unsigned NOT NULL,
-  `eventType` int(10) unsigned NOT NULL,
-  `playerGuid` bigint(20) unsigned NOT NULL,
-  `data` int(10) unsigned NOT NULL,
-  `flags` int(10) unsigned NOT NULL,
-  `date` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guild`,`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+-- Table structure for table `guild_news_log`
+--
 
-ALTER TABLE `guild_newslog`
-CHANGE COLUMN `guild` `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
-CHANGE COLUMN `id` `LogGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
-CHANGE COLUMN `eventType` `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
-CHANGE COLUMN `playerGuid` `PlayerGuid` int(10) unsigned NOT NULL DEFAULT '0',
-CHANGE COLUMN `data` `Value` int(10) unsigned NOT NULL DEFAULT '0',
-CHANGE COLUMN `flags` `Flags` int(10) unsigned NOT NULL DEFAULT '0' AFTER `PlayerGuid`,
-CHANGE COLUMN `date` `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
-ADD KEY `guildid_key` (`guildid`),
-ADD KEY `Idx_PlayerGuid` (`PlayerGuid`),
-ADD KEY `Idx_LogGuid` (`LogGuid`);
+DROP TABLE IF EXISTS `guild_newslog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `guild_newslog` (
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
+  `LogGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
+  `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
+  `PlayerGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `Flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `Value` int(10) unsigned NOT NULL DEFAULT '0',
+  `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
+  PRIMARY KEY (`guildid`,`LogGuid`),
+  KEY `guildid_key` (`guildid`),
+  KEY `Idx_PlayerGuid` (`PlayerGuid`),
+  KEY `Idx_LogGuid` (`LogGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `guild_newslog`
+--
 
 -- Create missing tabs
 
@@ -118,20 +120,35 @@ INSERT INTO `character_currency` (`guid`, `currency`, `total_count`, `week_count
 
 ALTER TABLE `characters` DROP `totalHonorPoints`;
 
+--
+-- Table structure for table `character_void_storage`
+--
+
 DROP TABLE IF EXISTS `character_void_storage`;
-CREATE TABLE IF NOT EXISTS `character_void_storage` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_void_storage` (
   `itemId` bigint(20) unsigned NOT NULL,
   `playerGuid` int(10) unsigned NOT NULL,
   `itemEntry` mediumint(8) unsigned NOT NULL,
   `slot` tinyint(3) unsigned NOT NULL,
   `creatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `randomProperty` int(10) unsigned NOT NULL DEFAULT '0',
+  `suffixFactor` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`itemId`),
   UNIQUE KEY `idx_player_slot` (`playerGuid`,`slot`),
   KEY `idx_player` (`playerGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-ALTER TABLE `character_void_storage` ADD `randomProperty` int(10) unsigned NOT NULL DEFAULT '0';
-ALTER TABLE `character_void_storage` ADD `suffixFactor` int(10) unsigned NOT NULL DEFAULT '0';
+--
+-- Dumping data for table `character_void_storage`
+--
+
+LOCK TABLES `character_void_storage` WRITE;
+/*!40000 ALTER TABLE `character_void_storage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_void_storage` ENABLE KEYS */;
+UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `character_cuf_profiles`;
 CREATE TABLE IF NOT EXISTS `character_cuf_profiles` (
