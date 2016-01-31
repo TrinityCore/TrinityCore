@@ -30,10 +30,6 @@ TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSection
 // ChrClasses
 TC_GAME_API char const* GetClassName(uint8 class_, uint8 locale);
 
-// ChrSpecialization
-#define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
-typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
-
 // CreatureFamilty
 TC_GAME_API char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);
 
@@ -54,10 +50,6 @@ typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry
 TC_GAME_API MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr);
 TC_GAME_API MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
 TC_GAME_API MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
-
-// PvpDifficulty
-TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
 // Talent
 typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
@@ -107,33 +99,23 @@ TC_GAME_API extern DBCStorage<BannedAddOnsEntry>                sBannedAddOnsSto
 TC_GAME_API extern DBCStorage<BattlemasterListEntry>            sBattlemasterListStore;
 TC_GAME_API extern DBCStorage<CharSectionsEntry>                sCharSectionsStore;
 TC_GAME_API extern DBCStorage<CharTitlesEntry>                  sCharTitlesStore;
-TC_GAME_API extern DBCStorage<ChatChannelsEntry>                sChatChannelsStore;
 TC_GAME_API extern DBCStorage<ChrClassesEntry>                  sChrClassesStore;
-TC_GAME_API extern DBCStorage<ChrSpecializationEntry>           sChrSpecializationStore;
-TC_GAME_API extern ChrSpecializationByIndexArray                sChrSpecializationByIndexStore;
 TC_GAME_API extern DBCStorage<CreatureFamilyEntry>              sCreatureFamilyStore;
 TC_GAME_API extern DBCStorage<CreatureModelDataEntry>           sCreatureModelDataStore;
 TC_GAME_API extern DBCStorage<DifficultyEntry>                  sDifficultyStore;
 TC_GAME_API extern DBCStorage<DungeonEncounterEntry>            sDungeonEncounterStore;
-TC_GAME_API extern DBCStorage<EmotesEntry>                      sEmotesStore;
 TC_GAME_API extern DBCStorage<EmotesTextEntry>                  sEmotesTextStore;
 TC_GAME_API extern DBCStorage<FactionEntry>                     sFactionStore;
 TC_GAME_API extern DBCStorage<FactionTemplateEntry>             sFactionTemplateStore;
-TC_GAME_API extern DBCStorage<GemPropertiesEntry>               sGemPropertiesStore;
-TC_GAME_API extern DBCStorage<GlyphPropertiesEntry>             sGlyphPropertiesStore;
-TC_GAME_API extern DBCStorage<ItemSetEntry>                     sItemSetStore;
 TC_GAME_API extern DBCStorage<LFGDungeonEntry>                  sLFGDungeonStore;
 TC_GAME_API extern DBCStorage<LiquidTypeEntry>                  sLiquidTypeStore;
-TC_GAME_API extern DBCStorage<LockEntry>                        sLockStore;
 TC_GAME_API extern DBCStorage<MapEntry>                         sMapStore;
 TC_GAME_API extern MapDifficultyMap                             sMapDifficultyMap;
 TC_GAME_API extern DBCStorage<PhaseEntry>                       sPhaseStore;
 TC_GAME_API extern DBCStorage<SpellItemEnchantmentEntry>        sSpellItemEnchantmentStore;
-TC_GAME_API extern DBCStorage<SummonPropertiesEntry>            sSummonPropertiesStore;
 TC_GAME_API extern DBCStorage<TalentEntry>                      sTalentStore;
 TC_GAME_API extern TalentsByPosition                            sTalentByPos;
 TC_GAME_API extern DBCStorage<VehicleEntry>                     sVehicleStore;
-TC_GAME_API extern DBCStorage<VehicleSeatEntry>                 sVehicleSeatStore;
 TC_GAME_API extern DBCStorage<WMOAreaTableEntry>                sWMOAreaTableStore;
 TC_GAME_API extern DBCStorage<WorldSafeLocsEntry>               sWorldSafeLocsStore;
 

@@ -151,15 +151,6 @@ struct CharTitlesEntry
     //uint32    Flags;                                      // 5
 };
 
-struct ChatChannelsEntry
-{
-    uint32      ID;                                         // 0
-    uint32      Flags;                                      // 1
-    //uint32    FactionGroup                                // 2
-    char*     Name_lang;                                    // 3
-    //char*     Shortcut_lang;                              // 4
-};
-
 struct ChrClassesEntry
 {
     uint32      ID;                                         // 0
@@ -181,25 +172,6 @@ struct ChrClassesEntry
     //uint32    LowResScreenFileDataID;                     // 16
     //uint32    IconFileDataID;                             // 17
     //uint32    Unk1;                                       // 18
-};
-
-struct ChrSpecializationEntry
-{
-    uint32      ID;                                         // 0 Specialization ID
-    //char*     BackgroundFile;                             // 1
-    uint32      ClassID;                                    // 2
-    uint32      MasterySpellID;                             // 3
-    uint32      OrderIndex;                                 // 4
-    uint32      PetTalentType;                              // 5
-    uint32      Role;                                       // 6 (0 - Tank, 1 - Healer, 2 - DPS)
-    uint32      SpellIconID;                                // 7
-    uint32      RaidBuffs;                                  // 8
-    uint32      Flags;                                      // 9
-    //char*     Name_lang;                                  // 10
-    //char*     Name2_lang;                                 // 11 Same as name_lang?
-    //char*     Description_lang;                           // 12
-    //uint32    PrimaryStatOrder;                           // 13
-    //uint32    AnimReplacementSetID;                       // 14
 };
 
 struct CreatureFamilyEntry
@@ -294,18 +266,6 @@ struct DungeonEncounterEntry
     //uint32    Unk;                                        // 8 Flags2?
 };
 
-struct EmotesEntry
-{
-    uint32      ID;                                         // 0
-    //char*     EmoteSlashCommand;                          // 1
-    //uint32    AnimID;                                     // 2 ref to animationData
-    uint32      EmoteFlags;                                 // 3 bitmask, may be unit_flags
-    uint32      EmoteSpecProc;                              // 4 Can be 0, 1 or 2 (determine how emote are shown)
-    uint32      EmoteSpecProcParam;                         // 5 uncomfirmed, may be enum UnitStandStateType
-    //uint32    EmoteSoundID;                               // 6 ref to soundEntries
-    //uint32    SpellVisualKitID                            // 7
-};
-
 struct EmotesTextEntry
 {
     uint32      ID;                                         // 0
@@ -394,25 +354,6 @@ struct FactionTemplateEntry
         return EnemyMask == 0 && FriendMask == 0;
     }
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-};
-
-struct GemPropertiesEntry
-{
-    uint32      ID;                                         // 0
-    uint32      EnchantID;                                  // 1
-    //uint32    MaxCountInv;                                // 2
-    //uint32    MaxCountItem;                               // 3
-    uint32      Type;                                       // 4
-    uint32      MinItemLevel;                               // 5
-};
-
-struct GlyphPropertiesEntry
-{
-    uint32      ID;                                         // 0
-    uint32      SpellID;                                    // 1
-    uint32      Type;                                       // 2
-    uint32      SpellIconID;                                // 3 GlyphIconId (SpellIcon.dbc)
-    //uint32    GlyphExclusiveCategoryID;                   // 4
 };
 
 struct GtArmorMitigationByLvlEntry
@@ -534,18 +475,6 @@ struct ItemDisplayInfoEntry
     //uint32    ParticleColorID;                            // 22
 };
 
-#define MAX_ITEM_SET_ITEMS 17
-#define MAX_ITEM_SET_SPELLS 8
-
-struct ItemSetEntry
-{
-    uint32      ID;                                         // 0
-    char*       Name_lang;                                  // 1
-    uint32      ItemID[MAX_ITEM_SET_ITEMS];                 // 2-18
-    uint32      RequiredSkill;                              // 19
-    uint32      RequiredSkillRank;                          // 20
-};
-
 struct LFGDungeonEntry
 {
     uint32      ID;                                         // 0
@@ -615,17 +544,6 @@ struct LiquidTypeEntry
     //uint32    Color[2];                                   // 27-28
     //float     Float[18];                                  // 29-46
     //uint32    Int[4];                                     // 47-50
-};
-
-#define MAX_LOCK_CASE 8
-
-struct LockEntry
-{
-    uint32      ID;                                         // 0
-    uint32      Type[MAX_LOCK_CASE];                        // 1-8
-    uint32      Index[MAX_LOCK_CASE];                       // 9-16
-    uint32      Skill[MAX_LOCK_CASE];                       // 17-24
-    //uint32    Action[MAX_LOCK_CASE];                      // 25-32
 };
 
 struct PhaseEntry
@@ -711,18 +629,6 @@ struct MinorTalentEntry
     uint32      OrderIndex;                                 // 3
 };
 
-struct PvPDifficultyEntry
-{
-    //uint32    ID;                                         // 0
-    uint32      MapID;                                      // 1
-    uint32      BracketID;                                  // 2 m_rangeIndex
-    uint32      MinLevel;                                   // 3
-    uint32      MaxLevel;                                   // 4
-
-    // helpers
-    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
-};
-
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
 
 struct SpellItemEnchantmentEntry
@@ -753,16 +659,6 @@ struct StableSlotPricesEntry
 {
     uint32 Slot;
     uint32 Price;
-};
-
-struct SummonPropertiesEntry
-{
-    uint32      ID;                                             // 0
-    uint32      Category;                                       // 1, 0 - can't be controlled?, 1 - something guardian?, 2 - pet?, 3 - something controllable?, 4 - taxi/mount?
-    uint32      Faction;                                        // 2, 14 rows > 0
-    uint32      Type;                                           // 3, see enum
-    int32       Slot;                                           // 4, 0-6
-    uint32      Flags;                                          // 5
 };
 
 #define MAX_TALENT_TIERS 7
@@ -816,84 +712,6 @@ struct VehicleEntry
     float       MsslTrgtImpactTexRadius;                    // 36
     uint32      VehicleUIIndicatorID;                       // 37
     uint32      PowerDisplayID[3];                          // 38-40
-};
-
-struct VehicleSeatEntry
-{
-    uint32          ID;                                     // 0
-    uint32          Flags;                                  // 1
-    int32           AttachmentID;                           // 2
-    DBCPosition3D   AttachmentOffset;                       // 3-5
-    float           EnterPreDelay;                          // 6
-    float           EnterSpeed;                             // 7
-    float           EnterGravity;                           // 8
-    float           EnterMinDuration;                       // 9
-    float           EnterMaxDuration;                       // 10
-    float           EnterMinArcHeight;                      // 11
-    float           EnterMaxArcHeight;                      // 12
-    int32           EnterAnimStart;                         // 13
-    int32           EnterAnimLoop;                          // 14
-    int32           RideAnimStart;                          // 15
-    int32           RideAnimLoop;                           // 16
-    int32           RideUpperAnimStart;                     // 17
-    int32           RideUpperAnimLoop;                      // 18
-    float           ExitPreDelay;                           // 19
-    float           ExitSpeed;                              // 20
-    float           ExitGravity;                            // 21
-    float           ExitMinDuration;                        // 22
-    float           ExitMaxDuration;                        // 23
-    float           ExitMinArcHeight;                       // 24
-    float           ExitMaxArcHeight;                       // 25
-    int32           ExitAnimStart;                          // 26
-    int32           ExitAnimLoop;                           // 27
-    int32           ExitAnimEnd;                            // 28
-    float           PassengerYaw;                           // 29
-    float           PassengerPitch;                         // 30
-    float           PassengerRoll;                          // 31
-    int32           PassengerAttachmentID;                  // 32
-    int32           VehicleEnterAnim;                       // 33
-    int32           VehicleExitAnim;                        // 34
-    int32           VehicleRideAnimLoop;                    // 35
-    int32           VehicleEnterAnimBone;                   // 36
-    int32           VehicleExitAnimBone;                    // 37
-    int32           VehicleRideAnimLoopBone;                // 38
-    float           VehicleEnterAnimDelay;                  // 39
-    float           VehicleExitAnimDelay;                   // 40
-    uint32          VehicleAbilityDisplay;                  // 41
-    uint32          EnterUISoundID;                         // 42
-    uint32          ExitUISoundID;                          // 43
-    uint32          FlagsB;                                 // 44
-    float           CameraEnteringDelay;                    // 45
-    float           CameraEnteringDuration;                 // 46
-    float           CameraExitingDelay;                     // 47
-    float           CameraExitingDuration;                  // 48
-    DBCPosition3D   CameraOffset;                           // 49-51
-    float           CameraPosChaseRate;                     // 52
-    float           CameraFacingChaseRate;                  // 53
-    float           CameraEnteringZoom;                     // 54
-    float           CameraSeatZoomMin;                      // 55
-    float           CameraSeatZoomMax;                      // 56
-    uint32          EnterAnimKitID;                         // 57
-    uint32          RideAnimKitID;                          // 58
-    uint32          ExitAnimKitID;                          // 59
-    uint32          VehicleEnterAnimKitID;                  // 60
-    uint32          VehicleRideAnimKitID;                   // 61
-    uint32          VehicleExitAnimKitID;                   // 62
-    uint32          CameraModeID;                           // 63
-    uint32          FlagsC;                                 // 64
-    uint32          UISkinFileDataID;                       // 65
-
-    bool CanEnterOrExit() const
-    {
-        return ((Flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0 ||
-                //If it has anmation for enter/ride, means it can be entered/exited by logic
-                (Flags & (VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER | VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) != 0);
-    }
-    bool CanSwitchFromSeat() const { return (Flags & VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0; }
-    bool IsUsableByOverride() const { return (Flags & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
-                                    || (FlagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
-                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4))); }
-    bool IsEjectable() const { return (FlagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE) != 0; }
 };
 
 struct WMOAreaTableEntry

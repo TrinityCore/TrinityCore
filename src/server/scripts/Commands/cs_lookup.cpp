@@ -425,27 +425,45 @@ public:
             ItemSetEntry const* set = sItemSetStore.LookupEntry(id);
             if (set)
             {
-                std::string name = set->Name_lang;
+                int32 locale = handler->GetSessionDbcLocale();
+                std::string name = set->Name->Str[locale];
                 if (name.empty())
                     continue;
 
                 if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
+                    locale = 0;
+                    for (; locale < TOTAL_LOCALES; ++locale)
+                    {
+                        if (locale == handler->GetSessionDbcLocale())
+                            continue;
+
+                        name = set->Name->Str[locale];
+                        if (name.empty())
+                            continue;
+
+                        if (Utf8FitTo(name, wNamePart))
+                            break;
+                    }
                 }
 
-                // send item set in "id - [namedlink locale]" format
-                if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_ITEMSET_LIST_CHAT, id, id, name.c_str(), "");
-                else
-                    handler->PSendSysMessage(LANG_ITEMSET_LIST_CONSOLE, id, name.c_str(), "");
+                if (locale < TOTAL_LOCALES)
+                {
+                    if (maxResults && count++ == maxResults)
+                    {
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
+                    }
 
-                if (!found)
-                    found = true;
+                    // send item set in "id - [namedlink locale]" format
+                    if (handler->GetSession())
+                        handler->PSendSysMessage(LANG_ITEMSET_LIST_CHAT, id, id, name.c_str(), "");
+                    else
+                        handler->PSendSysMessage(LANG_ITEMSET_LIST_CONSOLE, id, name.c_str(), "");
+
+                    if (!found)
+                        found = true;
+                }
             }
         }
         if (!found)

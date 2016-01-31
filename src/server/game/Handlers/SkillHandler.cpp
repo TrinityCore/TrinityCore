@@ -88,8 +88,7 @@ void WorldSession::HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecia
         return;
     }
 
-    ChrSpecializationEntry const* chrSpec = sChrSpecializationByIndexStore[player->getClass()][packet.SpecGroupIndex];
-
+    ChrSpecializationEntry const* chrSpec = sDB2Manager.GetChrSpecializationByIndex(player->getClass(), packet.SpecGroupIndex);
     if (!chrSpec)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSetSpecializationOpcode - specialization index %u not found", packet.SpecGroupIndex);

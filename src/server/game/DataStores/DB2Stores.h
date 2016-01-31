@@ -36,7 +36,9 @@ TC_GAME_API extern DB2Storage<BattlePetSpeciesEntry>                sBattlePetSp
 TC_GAME_API extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSpeciesStateStore;
 TC_GAME_API extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
 TC_GAME_API extern DB2Storage<CharStartOutfitEntry>                 sCharStartOutfitStore;
+TC_GAME_API extern DB2Storage<ChatChannelsEntry>                    sChatChannelsStore;
 TC_GAME_API extern DB2Storage<ChrRacesEntry>                        sChrRacesStore;
+TC_GAME_API extern DB2Storage<ChrSpecializationEntry>               sChrSpecializationStore;
 TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoExtraEntry>        sCreatureDisplayInfoExtraStore;
@@ -47,6 +49,7 @@ TC_GAME_API extern DB2Storage<CurrencyTypesEntry>                   sCurrencyTyp
 TC_GAME_API extern DB2Storage<DestructibleModelDataEntry>           sDestructibleModelDataStore;
 TC_GAME_API extern DB2Storage<DurabilityCostsEntry>                 sDurabilityCostsStore;
 TC_GAME_API extern DB2Storage<DurabilityQualityEntry>               sDurabilityQualityStore;
+TC_GAME_API extern DB2Storage<EmotesEntry>                          sEmotesStore;
 TC_GAME_API extern DB2Storage<GameObjectsEntry>                     sGameObjectsStore;
 TC_GAME_API extern DB2Storage<GameObjectDisplayInfoEntry>           sGameObjectDisplayInfoStore;
 TC_GAME_API extern DB2Storage<GameTablesEntry>                      sGameTablesStore;
@@ -61,6 +64,8 @@ TC_GAME_API extern DB2Storage<GarrPlotEntry>                        sGarrPlotSto
 TC_GAME_API extern DB2Storage<GarrPlotInstanceEntry>                sGarrPlotInstanceStore;
 TC_GAME_API extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLevelStore;
 TC_GAME_API extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
+TC_GAME_API extern DB2Storage<GemPropertiesEntry>                   sGemPropertiesStore;
+TC_GAME_API extern DB2Storage<GlyphPropertiesEntry>                 sGlyphPropertiesStore;
 TC_GAME_API extern DB2Storage<GlyphSlotEntry>                       sGlyphSlotStore;
 TC_GAME_API extern DB2Storage<GuildColorBackgroundEntry>            sGuildColorBackgroundStore;
 TC_GAME_API extern DB2Storage<GuildColorBorderEntry>                sGuildColorBorderStore;
@@ -89,11 +94,13 @@ TC_GAME_API extern DB2Storage<ItemLimitCategoryEntry>               sItemLimitCa
 TC_GAME_API extern DB2Storage<ItemPriceBaseEntry>                   sItemPriceBaseStore;
 TC_GAME_API extern DB2Storage<ItemRandomPropertiesEntry>            sItemRandomPropertiesStore;
 TC_GAME_API extern DB2Storage<ItemRandomSuffixEntry>                sItemRandomSuffixStore;
+TC_GAME_API extern DB2Storage<ItemSetEntry>                         sItemSetStore;
 TC_GAME_API extern DB2Storage<ItemSetSpellEntry>                    sItemSetSpellStore;
 TC_GAME_API extern DB2SparseStorage<ItemSparseEntry>                sItemSparseStore;
 TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
 TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
 TC_GAME_API extern DB2Storage<ItemToBattlePetSpeciesEntry>          sItemToBattlePetSpeciesStore;
+TC_GAME_API extern DB2Storage<LockEntry>                            sLockStore;
 TC_GAME_API extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
 TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
@@ -141,9 +148,11 @@ TC_GAME_API extern DB2Storage<SpellShapeshiftFormEntry>             sSpellShapes
 TC_GAME_API extern DB2Storage<SpellTargetRestrictionsEntry>         sSpellTargetRestrictionsStore;
 TC_GAME_API extern DB2Storage<SpellTotemsEntry>                     sSpellTotemsStore;
 TC_GAME_API extern DB2Storage<SpellXSpellVisualEntry>               sSpellXSpellVisualStore;
+TC_GAME_API extern DB2Storage<SummonPropertiesEntry>                sSummonPropertiesStore;
 TC_GAME_API extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
 TC_GAME_API extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
 TC_GAME_API extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBarStore;
+TC_GAME_API extern DB2Storage<VehicleSeatEntry>                     sVehicleSeatStore;
 TC_GAME_API extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
 
 TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;
@@ -179,6 +188,7 @@ public:
     typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
     typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
     typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
+    typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES][MAX_SPECIALIZATIONS];
     typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
     typedef std::set<GlyphSlotEntry const*, GlyphSlotEntryComparator> GlyphSlotContainer;
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
@@ -216,6 +226,7 @@ public:
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender) const;
+    ChrSpecializationEntry const* GetChrSpecializationByIndex(uint32 class_, uint32 index) const;
     uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId) const;
     static char const* GetChrRaceName(uint8 race, LocaleConstant locale = DEFAULT_LOCALE);
     EmotesTextSoundEntry const* GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const;
@@ -236,6 +247,8 @@ public:
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
+    static PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
+    static PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
@@ -251,6 +264,7 @@ private:
     AreaGroupMemberContainer _areaGroupMembers;
     CharStartOutfitContainer _charStartOutfits;
     uint32 _powersByClass[MAX_CLASSES][MAX_POWERS];
+    ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
     EmotesTextSoundContainer _emoteTextSounds;
     GlyphSlotContainer _glyphSlots;
     HeirloomItemsContainer _heirlooms;

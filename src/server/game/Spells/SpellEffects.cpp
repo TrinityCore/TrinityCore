@@ -2034,7 +2034,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
     // and in spell attributes, possibly we need to add a table for those)
     // so here's a list of MiscValueB values, which is currently most generic check
-    switch (properties->ID)
+    switch (effectInfo->MiscValueB)
     {
         case 64:
         case 61:
@@ -5175,7 +5175,7 @@ void Spell::EffectQuestStart(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::EffectActivateRune(SpellEffIndex effIndex)
+void Spell::EffectActivateRune(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -5196,7 +5196,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         count = 1;
 
     // first restore fully depleted runes
-    for (uint32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
+    for (int32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
     {
         if (player->GetRuneCooldown(j) == player->GetRuneBaseCooldown())
         {
@@ -5206,7 +5206,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     }
 
     // then the rest if we still got something left
-    for (uint32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
+    for (int32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
     {
         player->SetRuneCooldown(j, 0);
         --count;

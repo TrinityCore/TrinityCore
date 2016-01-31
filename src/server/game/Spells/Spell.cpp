@@ -4556,7 +4556,7 @@ SpellCastResult Spell::CheckRuneCost()
         return SPELL_CAST_OK;
 
     int32 readyRunes = 0;
-    for (uint32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
         if (player->GetRuneCooldown(i) == 0)
             ++readyRunes;
 
@@ -4579,7 +4579,7 @@ void Spell::TakeRunePower(bool didHit)
         return cost.Power == POWER_RUNES;
     })->Amount;
 
-    for (uint32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+    for (int32 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
     {
         if (!player->GetRuneCooldown(i) && runeCost > 0)
         {
