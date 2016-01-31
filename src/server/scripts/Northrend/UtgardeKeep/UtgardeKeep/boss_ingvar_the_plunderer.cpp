@@ -110,16 +110,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
             {
                 if (me->GetEntry() != NPC_INGVAR)
                     me->UpdateEntry(NPC_INGVAR);
-
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
 
                 _Reset();
-                events.SetPhase(PHASE_HUMAN);
-
-                events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             }
 
             void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
@@ -130,6 +123,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                     events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
                     me->RemoveAllAuras();
+                    me->StopMoving();
                     DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
@@ -157,10 +151,16 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                if (events.IsInPhase(PHASE_EVENT)) // ingvar gets a second EnterCombat just after feigning death
+                if (events.IsInPhase(PHASE_EVENT) || events.IsInPhase(PHASE_UNDEAD)) // ingvar gets multiple EnterCombat calls
                     return;
                 _EnterCombat();
+
                 Talk(SAY_AGGRO);
+                events.SetPhase(PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             }
 
             void AttackStart(Unit* who) override
@@ -178,10 +178,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void ScheduleSecondPhase()
             {
-                DoCast(me, SPELL_DREADFUL_ROAR);
                 events.SetPhase(PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_DARK_SMASH, urand(14, 18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
             }
@@ -224,9 +223,17 @@ class boss_ingvar_the_plunderer : public CreatureScript
                             events.ScheduleEvent(EVENT_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                             break;
                         case EVENT_JUST_TRANSFORMED:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                            DoZoneInCombat();
                             ScheduleSecondPhase();
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                            if (Unit* target = me->getThreatManager().getHostilTarget())
+                                AttackStart(target);
+                            else
+                            {
+                                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                                return;
+                            }
+                            Talk(SAY_AGGRO);
+                            DoZoneInCombat();
                             return;
                         case EVENT_SUMMON_BANSHEE:
                             DoCast(me, SPELL_SUMMON_BANSHEE);
