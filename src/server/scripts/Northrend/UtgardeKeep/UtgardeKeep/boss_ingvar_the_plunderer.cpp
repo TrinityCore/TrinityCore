@@ -126,13 +126,13 @@ class boss_ingvar_the_plunderer : public CreatureScript
             {
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {
+                    events.SetPhase(PHASE_EVENT);
+                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
+
                     me->RemoveAllAuras();
                     DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-
-                    events.SetPhase(PHASE_EVENT);
-                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
                     Talk(SAY_DEATH);
                 }
@@ -152,13 +152,22 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 me->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                 DoCast(me, SPELL_INGVAR_TRANSFORM, true);
                 me->UpdateEntry(NPC_INGVAR_UNDEAD);
-                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 2 * IN_MILLISECONDS, 0, PHASE_EVENT);
+                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, IN_MILLISECONDS / 2, 0, PHASE_EVENT);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                if (events.IsInPhase(PHASE_EVENT)) // ingvar gets a second EnterCombat just after feigning death
+                    return;
                 _EnterCombat();
                 Talk(SAY_AGGRO);
+            }
+
+            void AttackStart(Unit* who) override
+            {
+                if (events.IsInPhase(PHASE_EVENT)) // prevent ingvar from beginning to attack/chase during transition
+                    return;
+                BossAI::AttackStart(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -169,6 +178,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void ScheduleSecondPhase()
             {
+                DoCast(me, SPELL_DREADFUL_ROAR);
                 events.SetPhase(PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_DARK_SMASH, urand(14, 18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
