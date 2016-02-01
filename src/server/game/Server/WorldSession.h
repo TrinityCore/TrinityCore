@@ -476,6 +476,11 @@ namespace WorldPackets
         class ClearRaidMarker;
     }
 
+    namespace Pet
+    {
+        class DismissCritter;
+    }
+
     namespace Petition
     {
         class DeclinePetition;
@@ -1450,7 +1455,7 @@ class WorldSession
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
-        void HandleDismissCritter(WorldPacket& recvData);
+        void HandleDismissCritter(WorldPackets::Pet::DismissCritter& dismissCritter);
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello);

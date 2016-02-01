@@ -503,7 +503,7 @@ void WorldPackets::Party::PartyMemberStats::Initialize(Player const* player)
     // Pet
     if (player->GetPet())
     {
-        Pet* pet = player->GetPet();
+        ::Pet* pet = player->GetPet();
 
         MemberStats.PetStats = boost::in_place();
 
