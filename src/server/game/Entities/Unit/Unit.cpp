@@ -16874,7 +16874,7 @@ void Unit::JumpTo(WorldObject* obj, float speedZ)
     float x, y, z;
     obj->GetContactPoint(this, x, y, z);
     float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
-    GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    GetMotionMaster()->MoveJump(x, y, z, obj->GetOrientation(), speedXY, speedZ);
 }
 
 bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)

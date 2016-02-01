@@ -1021,7 +1021,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, m_caster->GetOrientation(), speedXY, speedZ);
 }
 
 void Spell::EffectJumpDest(SpellEffIndex effIndex)
@@ -1035,13 +1035,9 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     if (!m_targets.HasDst())
         return;
 
-    // Init dest coordinates
-    float x, y, z;
-    destTarget->GetPosition(x, y, z);
-
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(destTarget), speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, true);
 }
 
 void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
@@ -4903,7 +4899,7 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
     float speedXY = float(m_spellInfo->Effects[effIndex].MiscValue) * 0.1f;
     float speedZ = unitTarget->GetDistance(pos) / speedXY * 0.5f * Movement::gravity;
 
-    unitTarget->GetMotionMaster()->MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), speedXY, speedZ);
+    unitTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
 }
 
 void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
