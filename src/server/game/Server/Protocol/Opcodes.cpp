@@ -557,7 +557,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_PETITION_RENAME_GUILD,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionRenameGuild, &WorldSession::HandlePetitionRenameGuild);
     DEFINE_HANDLER(CMSG_PETITION_SHOW_LIST,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionShowList, &WorldSession::HandlePetitionShowList);
     DEFINE_HANDLER(CMSG_PETITION_SHOW_SIGNATURES,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::PetitionShowSignatures, &WorldSession::HandlePetitionShowSignatures);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ABANDON,                             STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                );
+    DEFINE_HANDLER(CMSG_PET_ABANDON,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Pet::PetAbandon ,&WorldSession::HandlePetAbandon);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ACTION,                              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                 );
     DEFINE_HANDLER(CMSG_PET_BATTLE_FINAL_NOTIFY,                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_PET_BATTLE_INPUT,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
