@@ -1,4 +1,3 @@
-#include "PetPackets.h"
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
@@ -21,4 +20,9 @@
 void WorldPackets::Pet::DismissCritter::Read()
 {
     _worldPacket >> CritterGUID;
+}
+
+void WorldPackets::Pet::PetAbandon::Read()
+{
+    _worldPacket >> Pet;
 }

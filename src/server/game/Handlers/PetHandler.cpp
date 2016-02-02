@@ -662,17 +662,12 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPacket& recvData)
+void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;                                      //pet guid
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_ABANDON %s", guid.ToString().c_str());
-
     if (!_player->IsInWorld())
         return;
 
-    // pet/charmed
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.Pet);
     if (pet)
     {
         if (pet->IsPet())
