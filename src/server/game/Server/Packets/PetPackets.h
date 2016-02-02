@@ -63,8 +63,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PetGUID;
-            uint32 SpellID;
-            bool AutocastEnabled;
+            uint32 SpellID = 0;
+            bool AutocastEnabled = false;
         };
     }
 }

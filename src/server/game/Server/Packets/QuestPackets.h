@@ -556,7 +556,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 QuestID;
+            uint32 QuestID = 0;
         };
     }
 }
