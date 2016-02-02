@@ -310,5 +310,8 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
     if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
         return false;
 
+    if (HostileReference* currentVictim = _source->getThreatManager().getCurrentVictim())
+        return target->GetGUID() != currentVictim->getUnitGuid();
+
     return target != _source->GetVictim();
 }
