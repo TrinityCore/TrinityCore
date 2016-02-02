@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Formulas.h"
+#include "Grumboz_VIP_Core.h"
 
 GossipMenu::GossipMenu()
 {
@@ -383,6 +384,13 @@ void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, ObjectGuid npcGUID) con
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const
 {
+	float VIP_OFFSET = VIP::GetVIPOFFSET();
+	uint32 acctId = GetSession()->GetAccountId();
+	uint8 Pvip = VIP::GetVIP(acctId);
+	float MOD = (Pvip * VIP_OFFSET);
+
+	float rate = (sWorld->getRate(RATE_XP_QUEST) + (sWorld->getRate(RATE_XP_QUEST) * MOD));
+
     std::string questTitle      = quest->GetTitle();
     std::string questDetails    = quest->GetDetails();
     std::string questObjectives = quest->GetObjectives();
@@ -447,7 +455,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
                 continue;
 
             data << uint32(quest->RewardItemId[i]);
-            data << uint32(quest->RewardItemIdCount[i]);
+            data << uint32(quest->RewardItemIdCount[i] + (quest->RewardItemIdCount[i] * MOD));
 
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
                 data << uint32(itemTemplate->DisplayInfoID);
@@ -455,8 +463,8 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
                 data << uint32(0);
         }
 
-        data << uint32(quest->GetRewOrReqMoney());
-        data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+        data << uint32(quest->GetRewOrReqMoney(quest->GetRewOrReqMoney() * MOD));
+        data << uint32(quest->XPValue(_session->GetPlayer()) + (quest->XPValue(_session->GetPlayer()) * rate));
     }
 
     // rewarded honor points. Multiply with 10 to satisfy client
@@ -491,6 +499,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 {
+	float VIP_OFFSET = VIP::GetVIPOFFSET();
+	uint32 acctId = GetSession()->GetAccountId();
+	uint8 Pvip = VIP::GetVIP(acctId);
+	float MOD = (Pvip * VIP_OFFSET);
+
+	Player* player = GetSession()->GetPlayer();
+
     std::string questTitle = quest->GetTitle();
     std::string questDetails = quest->GetDetails();
     std::string questObjectives = quest->GetObjectives();
@@ -540,7 +555,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         data << uint32(0);                                  // Hide money rewarded
     else
-        data << uint32(quest->GetRewOrReqMoney());          // reward money (below max lvl)
+        data << uint32(quest->GetRewOrReqMoney() + (quest->GetRewOrReqMoney() * MOD));          // reward money (below max lvl)
 
     data << uint32(quest->GetRewMoneyMaxLevel());           // used in XP calculation at client
     data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
@@ -569,12 +584,20 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         {
             data << uint32(quest->RewardItemId[i]);
-            data << uint32(quest->RewardItemIdCount[i]);
+
+			uint32 Item_Reward_Count = quest->RewardItemIdCount[i];
+			uint32 extra_Item_Reward_Count = Item_Reward_Count * MOD;
+
+			data << uint32(quest->RewardItemIdCount[i] + extra_Item_Reward_Count);
         }
         for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
             data << uint32(quest->RewardChoiceItemId[i]);
-            data << uint32(quest->RewardChoiceItemCount[i]);
+
+			uint32 Item_Choice_Reward_Count = quest->RewardItemIdCount[i];
+			uint32 extra_Item_Choice_Reward_Count = Item_Choice_Reward_Count * MOD;
+
+			data << uint32(quest->RewardChoiceItemCount[i] + extra_Item_Choice_Reward_Count);
         }
     }
 
@@ -628,6 +651,15 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
 {
+
+
+	float VIP_OFFSET = VIP::GetVIPOFFSET();
+	uint32 acctId = GetSession()->GetAccountId();
+	uint8 Pvip = VIP::GetVIP(acctId);
+	float MOD = (Pvip * VIP_OFFSET);
+
+	Player* player = GetSession()->GetPlayer();
+
     std::string questTitle = quest->GetTitle();
     std::string questOfferRewardText = quest->GetOfferRewardText();
 
@@ -666,14 +698,24 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     for (uint8 i = 0; i < emoteCount; ++i)
     {
         data << uint32(quest->OfferRewardEmoteDelay[i]);    // Delay Emote
+
+
         data << uint32(quest->OfferRewardEmote[i]);
     }
 
-    data << uint32(quest->GetRewChoiceItemsCount());
-    for (uint32 i=0; i < quest->GetRewChoiceItemsCount(); ++i)
+		uint32 Get_Item_Choice_Reward_Count = quest->GetRewChoiceItemsCount();
+
+        uint32 extra_Get_Item_Choice_Reward_Count = Item_Choice_Reward_Count + (Item_Choice_Reward_Count * MOD);
+
+    data << uint32(extra_Get_Item_Choice_Reward_Count);
+
+
+		uint32 Item_Choice_Reward_Count = quest->RewardItemIdCount[i] + extra_Get_Item_Choice_Reward_Count;
+
+		data << uint32(quest->RewardChoiceItemCount[i] + extra_Item_Choice_Reward_Count);
     {
         data << uint32(quest->RewardChoiceItemId[i]);
-        data << uint32(quest->RewardChoiceItemCount[i]);
+        data << uint32(quest->RewardChoiceItemCount[i] + extra_Item_Choice_Reward_Count);
 
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
@@ -685,16 +727,23 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
     {
         data << uint32(quest->RewardItemId[i]);
-        data << uint32(quest->RewardItemIdCount[i]);
+        data << uint32(quest->RewardItemIdCount[i] + (quest->RewardItemIdCount[i] * MOD));
 
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);
     }
+    
+	uint32 MONEY = quest->GetRewOrReqMoney();
+	uint32 extra_MONEY = MONEY + (MONEY * MOD);
 
-    data << uint32(quest->GetRewOrReqMoney());
-    data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+	uint32 XP = quest->XPValue(player);
+	float xp_rate = sWorld->getRate(RATE_XP_QUEST);
+	uint32 extra_XP = XP * xp_rate + (xp_rate * MOD);
+
+	data << uint32(MONEY + extra_MONEY);
+	data << uint32(XP + extra_XP);
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
