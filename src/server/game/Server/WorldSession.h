@@ -197,6 +197,7 @@ namespace WorldPackets
         class SetFactionNotAtWar;
         class SetFactionInactive;
         class SetWatchedFaction;
+        class SetPlayerDeclinedNames;
 
         enum class LoginFailureReason : uint8;
     }
@@ -1071,7 +1072,7 @@ class WorldSession
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo* renameInfo);
-        void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
+        void HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlayerDeclinedNames& packet);
         void HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet);
         void HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet);
         void HandleCharCustomizeCallback(PreparedQueryResult result, WorldPackets::Character::CharCustomizeInfo* customizeInfo);
