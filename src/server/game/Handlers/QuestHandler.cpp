@@ -543,17 +543,12 @@ void WorldSession::HandleQuestgiverQuestAutoLaunch(WorldPacket& /*recvPacket*/)
 {
 }
 
-void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
+void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet)
 {
-    uint32 questId;
-    recvPacket >> questId;
-
-    if (!_player->CanShareQuest(questId))
+    if (!_player->CanShareQuest(packet.QuestID))
         return;
 
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_PUSHQUESTTOPARTY questId = %u", questId);
-
-    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
     if (!quest)
         return;
 
@@ -576,7 +571,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
             continue;
         }
 
-        if (receiver->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+        if (receiver->GetQuestStatus(packet.QuestID) == QUEST_STATUS_COMPLETE)
         {
             sender->SendPushToPartyResponse(receiver, QUEST_PUSH_ALREADY_DONE);
             continue;
