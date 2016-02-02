@@ -297,10 +297,10 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                 uint32 areaId = player->GetAreaId();
                 std::string areaName = "Unknown";
                 std::string zoneName = "Unknown";
-                if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+                if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
                 {
                     areaName = area->AreaName_lang;
-                    if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID))
+                    if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
                         zoneName = zone->AreaName_lang;
                 }
 

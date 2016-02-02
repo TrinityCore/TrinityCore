@@ -24,12 +24,6 @@
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 
-// AreaTable
-int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
-AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
-AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id);
-uint32 GetAreaFlagByMapId(uint32 mapid);
-
 // CharSections
 CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
 
@@ -128,7 +122,7 @@ private:
 };
 
 extern DBCStorage<AnimKitEntry>                     sAnimKitStore;
-extern DBCStorage<AreaTableEntry>                   sAreaStore;// recommend access using functions
+extern DBCStorage<AreaTableEntry>                   sAreaTableStore;
 extern DBCStorage<AreaTriggerEntry>                 sAreaTriggerStore;
 extern DBCStorage<ArmorLocationEntry>               sArmorLocationStore;
 extern DBCStorage<BankBagSlotPricesEntry>           sBankBagSlotPricesStore;
