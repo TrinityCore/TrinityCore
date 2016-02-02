@@ -450,6 +450,7 @@ namespace WorldPackets
         class RequestPartyMemberStats;
         class PartyMemberStats;
         class SetPartyLeader;
+        class SetPartyAssignment;
         class SetRole;
         class RoleChangedInform;
         class SetLootMethod;
@@ -1227,7 +1228,7 @@ class WorldSession
         void HandleChangeSubGroupOpcode(WorldPackets::Party::ChangeSubGroup& packet);
         void HandleSwapSubGroupsOpcode(WorldPackets::Party::SwapSubGroups& packet);
         void HandleSetAssistantLeaderOpcode(WorldPackets::Party::SetAssistantLeader& packet);
-        void HandlePartyAssignmentOpcode(WorldPacket& recvData);
+        void HandleSetPartyAssignment(WorldPackets::Party::SetPartyAssignment& packet);
         void HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll& packet);
         void HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet);
         void HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& packet);
