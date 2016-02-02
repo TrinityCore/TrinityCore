@@ -1768,7 +1768,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         }
         case CONDITION_SOURCE_TYPE_PHASE:
         {
-            if (cond->SourceEntry && !GetAreaEntryByAreaID(cond->SourceEntry))
+            if (cond->SourceEntry && !sAreaTableStore.LookupEntry(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in AreaTable.dbc, ignoring.", cond->ToString().c_str());
                 return false;
@@ -1845,7 +1845,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_ZONEID:
         {
-            AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(cond->ConditionValue1);
+            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(cond->ConditionValue1);
             if (!areaEntry)
             {
                 TC_LOG_ERROR("sql.sql", "%s Area (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
@@ -2592,12 +2592,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
 
         for (std::size_t i = 0; i < ExploredCount::value; ++i)
         {
-            if (condition->Explored[i])
-            {
-                int32 exploreFlag = GetAreaFlagByAreaID(condition->Explored[i]);
-                if (exploreFlag != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + exploreFlag / 32) & (1 << (uint32(exploreFlag) % 32))))
+            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(condition->Explored[i]))
+                if (area->AreaBit != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + area->AreaBit / 32) & (1 << (uint32(area->AreaBit) % 32))))
                     return false;
-            }
         }
     }
 
