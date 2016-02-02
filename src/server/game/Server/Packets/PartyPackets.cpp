@@ -163,6 +163,15 @@ void WorldPackets::Party::SetPartyLeader::Read()
     _worldPacket >> TargetGUID;
 }
 
+void WorldPackets::Party::SetPartyAssignment::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Assignment;
+    _worldPacket >> Target;
+    Set = _worldPacket.ReadBit();
+}
+
+
 void WorldPackets::Party::SetRole::Read()
 {
     _worldPacket >> PartyIndex;
