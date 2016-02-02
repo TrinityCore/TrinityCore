@@ -125,6 +125,7 @@ namespace WorldPackets
         class GetPVPOptionsEnabled;
         class RequestBattlefieldStatus;
         class ReportPvPPlayerAFK;
+        class RequestPVPRewards;
     }
 
     namespace BattlePet
@@ -1475,7 +1476,7 @@ class WorldSession
         void HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& reportPvPPlayerAFK);
         void HandleRequestRatedBattlefieldInfo(WorldPacket& recvData);
         void HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& getPvPOptionsEnabled);
-        void HandleRequestPvpReward(WorldPacket& recvData);
+        void HandleRequestPvpReward(WorldPackets::Battleground::RequestPVPRewards& packet);
         void HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery);
         void HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue);
         void HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& hearthAndResurrect);
