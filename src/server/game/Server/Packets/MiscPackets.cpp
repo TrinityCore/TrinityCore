@@ -604,3 +604,8 @@ WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::SetTaxiBenchmarkMode::Read()
+{
+    Enable = _worldPacket.ReadBit();
+}
