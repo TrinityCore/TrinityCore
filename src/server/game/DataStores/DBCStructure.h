@@ -42,7 +42,7 @@ struct AreaTableEntry
     uint32      ID;                                         // 0
     uint32      MapID;                                      // 1
     uint32      ParentAreaID;                               // 2 if 0 then it's zone, else it's zone id of this area
-    uint32      AreaBit;                                    // 3, main index
+    int32       AreaBit;                                    // 3
     uint32      Flags[2];                                   // 4-5,
     //uint32    SoundProviderPref;                          // 6,
     //uint32    SoundProviderPrefUnderwater;                // 7,
