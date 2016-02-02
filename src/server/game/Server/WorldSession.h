@@ -415,6 +415,7 @@ namespace WorldPackets
         class SetPvP;
         class WorldTeleport;
         class MountSpecial;
+        class SetTaxiBenchmarkMode;
     }
 
     namespace Movement
@@ -1549,7 +1550,7 @@ class WorldSession
         void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
         void HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& packet);
 
-        void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
+        void HandleSetTaxiBenchmark(WorldPackets::Misc::SetTaxiBenchmarkMode& packet);
 
         // Guild Bank
         void HandleGuildPermissionsQuery(WorldPackets::Guild::GuildPermissionsQuery& packet);
