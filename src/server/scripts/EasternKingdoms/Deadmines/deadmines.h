@@ -40,12 +40,17 @@ enum Data64
     DATA_SMITE_CHEST
 };
 
+enum MrSmite
+{
+    NPC_MR_SMITE      = 646
+};
+
 enum GameObjects
 {
-    GO_FACTORY_DOOR                                        = 13965,
-    GO_IRONCLAD_DOOR                                       = 16397,
-    GO_DEFIAS_CANNON                                       = 16398,
-    GO_DOOR_LEVER                                          = 101833,
-    GO_MR_SMITE_CHEST                                      = 144111
+    GO_FACTORY_DOOR   = 13965,
+    GO_IRONCLAD_DOOR  = 16397,
+    GO_DEFIAS_CANNON  = 16398,
+    GO_DOOR_LEVER     = 101833,
+    GO_MR_SMITE_CHEST = 144111
 };
 #endif

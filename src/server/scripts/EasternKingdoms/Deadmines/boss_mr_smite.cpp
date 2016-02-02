@@ -25,7 +25,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "deadmines.h"
 
-enum Spels
+enum Spells
 {
     SPELL_TRASH             = 3391,
     SPELL_SMITE_STOMP       = 6432,
@@ -35,7 +35,7 @@ enum Spels
     EQUIP_SWORD             = 5191,
     EQUIP_MACE              = 7230,
 
-    SAY_AGGRO               = 0,
+    SAY_AGGRO               = 1
 };
 
 class boss_mr_smite : public CreatureScript
@@ -147,7 +147,8 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            me->HandleEmoteCommand(EMOTE_STATE_KNEEL); //dosen't work?
+                            me->SetSheath(SHEATH_STATE_UNARMED);
+                            me->SetStandState(UNIT_STAND_STATE_KNEEL);
                             uiTimer = 1000;
                             uiPhase = 2;
                             break;

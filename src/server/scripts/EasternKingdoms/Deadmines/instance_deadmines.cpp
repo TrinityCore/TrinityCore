@@ -31,19 +31,22 @@ EndScriptData */
 
 enum Sounds
 {
-    SOUND_CANNONFIRE                                     = 1400,
-    SOUND_DESTROYDOOR                                    = 3079,
-    SOUND_MR_SMITE_ALARM1                                = 5775,
-    SOUND_MR_SMITE_ALARM2                                = 5777
+    SOUND_CANNONFIRE         = 1400,
+    SOUND_DESTROYDOOR        = 3079,
+    SOUND_MR_SMITE_ALARM1    = 5775,
+    SOUND_MR_SMITE_ALARM2    = 5777
 };
 
-#define SAY_MR_SMITE_ALARM1 "You there, check out that noise!"
-#define SAY_MR_SMITE_ALARM2 "We're under attack! A vast, ye swabs! Repel the invaders!"
-
-enum Misc
+enum MrSmiteYells
 {
-    DATA_CANNON_BLAST_TIMER                                = 3000,
-    DATA_PIRATES_DELAY_TIMER                               = 1000
+    SAY_CHECK                = 0,
+    SAY_AGGRO                = 1
+};
+
+enum Timers
+{
+    DATA_PIRATES_DELAY_TIMER = 1000,
+    DATA_CANNON_BLAST_TIMER  = 3000
 };
 
 class instance_deadmines : public InstanceMapScript
@@ -74,9 +77,22 @@ class instance_deadmines : public InstanceMapScript
             ObjectGuid DefiasCompanionGUID;
 
             uint32 State;
+            ObjectGuid MrSmiteGUID;
             uint32 CannonBlast_Timer;
             uint32 PiratesDelay_Timer;
             ObjectGuid uiSmiteChestGUID;
+
+            void OnCreatureCreate(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_MR_SMITE:
+                        MrSmiteGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             virtual void Update(uint32 diff) override
             {
@@ -91,9 +107,9 @@ class instance_deadmines : public InstanceMapScript
                 {
                     case CANNON_GUNPOWDER_USED:
                         CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
-                        // it's a hack - Mr. Smite should do that but his too far away
-                        //pIronCladDoor->SetName("Mr. Smite");
-                        //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, NULL);
+
+                        if (Creature* mrsmite = instance->GetCreature(MrSmiteGUID))
+                            mrsmite->AI()->Talk(SAY_CHECK);
                         pIronCladDoor->PlayDirectSound(SOUND_MR_SMITE_ALARM1);
                         State = CANNON_BLAST_INITIATED;
                         break;
@@ -105,17 +121,21 @@ class instance_deadmines : public InstanceMapScript
                             ShootCannon();
                             BlastOutDoor();
                             LeverStucked();
-                            //pIronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, NULL);
+
+                            if (Creature* mrsmite = instance->GetCreature(MrSmiteGUID))
+                                mrsmite->AI()->Talk(SAY_AGGRO);
                             pIronCladDoor->PlayDirectSound(SOUND_MR_SMITE_ALARM2);
                             State = PIRATES_ATTACK;
-                        } else CannonBlast_Timer -= diff;
+                        }
+                        else CannonBlast_Timer -= diff;
                         break;
                     case PIRATES_ATTACK:
                         if (PiratesDelay_Timer <= diff)
                         {
                             MoveCreaturesInside();
                             State = EVENT_DONE;
-                        } else PiratesDelay_Timer -= diff;
+                        }
+                        else PiratesDelay_Timer -= diff;
                         break;
                 }
             }
@@ -184,11 +204,21 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                    case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID(); break;
-                    case GO_IRONCLAD_DOOR:  IronCladDoorGUID = go->GetGUID();  break;
-                    case GO_DEFIAS_CANNON:  DefiasCannonGUID = go->GetGUID();  break;
-                    case GO_DOOR_LEVER:     DoorLeverGUID = go->GetGUID();     break;
-                    case GO_MR_SMITE_CHEST: uiSmiteChestGUID = go->GetGUID();  break;
+                    case GO_FACTORY_DOOR:
+                        FactoryDoorGUID = go->GetGUID();
+                        break;
+                    case GO_IRONCLAD_DOOR:
+                        IronCladDoorGUID = go->GetGUID();
+                        break;
+                    case GO_DEFIAS_CANNON:
+                        DefiasCannonGUID = go->GetGUID();
+                        break;
+                    case GO_DOOR_LEVER:
+                        DoorLeverGUID = go->GetGUID();
+                        break;
+                    case GO_MR_SMITE_CHEST:
+                        uiSmiteChestGUID = go->GetGUID();
+                        break;
                 }
             }
 
