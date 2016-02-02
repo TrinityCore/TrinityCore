@@ -72,6 +72,17 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class PetCancelAura final : public ClientPacket
+        {
+        public:
+            PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            uint32 SpellID;
+        };
+
         class RequestCategoryCooldowns final : public ClientPacket
         {
         public:
