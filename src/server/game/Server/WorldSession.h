@@ -481,6 +481,7 @@ namespace WorldPackets
     {
         class DismissCritter;
         class PetAbandon;
+        class PetStopAttack;
     }
 
     namespace Petition
@@ -1445,7 +1446,7 @@ class WorldSession
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);
-        void HandlePetStopAttack(WorldPacket& recvData);
+        void HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);
         void HandlePetSetAction(WorldPacket& recvData);
