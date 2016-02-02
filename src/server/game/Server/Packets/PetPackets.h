@@ -54,6 +54,18 @@ namespace WorldPackets
 
             ObjectGuid PetGUID;
         };
+
+        class PetSpellAutocast final : public ClientPacket
+        {
+        public:
+            PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            uint32 SpellID;
+            bool AutocastEnabled;
+        };
     }
 }
 

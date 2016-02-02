@@ -31,3 +31,10 @@ void WorldPackets::Pet::PetStopAttack::Read()
 {
     _worldPacket >> PetGUID;
 }
+
+void WorldPackets::Pet::PetSpellAutocast::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+    AutocastEnabled = _worldPacket.ReadBit();
+}
