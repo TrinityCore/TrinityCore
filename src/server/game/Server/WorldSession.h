@@ -482,6 +482,7 @@ namespace WorldPackets
         class DismissCritter;
         class PetAbandon;
         class PetStopAttack;
+        class PetSpellAutocast;
     }
 
     namespace Petition
@@ -1453,7 +1454,7 @@ class WorldSession
         void HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet);
         void HandlePetRename(WorldPacket& recvData);
         void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
-        void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
+        void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);

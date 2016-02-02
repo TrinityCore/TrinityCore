@@ -666,57 +666,52 @@ void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
     if (pet)
     {
         if (pet->IsPet())
-            _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+            _player->RemovePet(pet->ToPet(), PET_SAVE_AS_DELETED);
         else if (pet->GetGUID() == _player->GetCharmGUID())
             _player->StopCastingCharm();
     }
 }
 
-void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet)
 {
-    ObjectGuid guid;
-    uint32 spellid;
-    uint8  state;                                           //1 for on, 0 for off
-    recvPacket >> guid >> spellid >> state;
-
-    if (!_player->GetGuardianPet() && !_player->GetCharm())
-        return;
-
-    if (ObjectAccessor::FindPlayer(guid))
-        return;
-
-    Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-
-    if (!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.PetGUID);
+    if (!pet)
     {
-        TC_LOG_ERROR("network", "HandlePetSpellAutocastOpcode. %s isn't pet of player %s (%s).", guid.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcode: Pet %s not found.", packet.PetGUID.ToString().c_str());
         return;
     }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+    if (pet != _player->GetGuardianPet() && pet != _player->GetCharm())
+    {
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcode: %s isn't pet of player %s (%s).",
+            packet.PetGUID.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+        return;
+    }
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.SpellID);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "WORLD: unknown PET spell id %u", spellid);
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcode: Unknown spell id %u used by %s.", packet.SpellID, packet.PetGUID.ToString().c_str());
         return;
     }
 
     // do not add not learned spells/ passive spells
-    if (!pet->HasSpell(spellid) || !spellInfo->IsAutocastable())
+    if (!pet->HasSpell(packet.SpellID) || !spellInfo->IsAutocastable())
         return;
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcod: object (%s) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetSpellAutocastOpcode: object (%s) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().ToString().c_str());
         return;
     }
 
     if (pet->IsPet())
-        ((Pet*)pet)->ToggleAutocast(spellInfo, state != 0);
+        pet->ToPet()->ToggleAutocast(spellInfo, packet.AutocastEnabled);
     else
-        pet->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, state != 0);
+        charmInfo->ToggleCreatureAutocast(spellInfo, packet.AutocastEnabled);
 
-    charmInfo->SetSpellAutocast(spellInfo, state != 0);
+    charmInfo->SetSpellAutocast(spellInfo, packet.AutocastEnabled);
 }
 
 void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell)
@@ -724,19 +719,22 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petCastSpell.Cast.SpellID);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "WORLD: unknown PET spell id %i", petCastSpell.Cast.SpellID);
+        TC_LOG_ERROR("network", "WorldSession::HandlePetCastSpellOpcode: unknown spell id %i tried to cast by %s",
+            petCastSpell.Cast.SpellID, petCastSpell.PetGUID.ToString().c_str());
+        return;
+    }
+
+    Unit* caster = ObjectAccessor::GetUnit(*_player, petCastSpell.PetGUID);
+    if (!caster)
+    {
+        TC_LOG_ERROR("network", "WorldSession::HandlePetCastSpellOpcode: Caster %s not found.", petCastSpell.PetGUID.ToString().c_str());
         return;
     }
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
-    if (!_player->GetGuardianPet() && !_player->GetCharm())
-        return;
-
-    Unit* caster = ObjectAccessor::GetUnit(*_player, petCastSpell.PetGUID);
-
-    if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
+    if (caster != _player->GetGuardianPet() && caster != _player->GetCharm())
     {
-        TC_LOG_ERROR("network", "HandlePetCastSpellOpcode: %s isn't pet of player %s (%s).", petCastSpell.PetGUID.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("network", "WorldSession::HandlePetCastSpellOpcode: %s isn't pet of player %s (%s).", petCastSpell.PetGUID.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
         return;
     }
 
