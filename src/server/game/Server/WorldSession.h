@@ -529,6 +529,7 @@ namespace WorldPackets
         class QuestGiverAcceptQuest;
         class QuestLogRemoveQuest;
         class QuestPushResult;
+        class PushQuestToParty;
     }
 
     namespace RaF
@@ -1397,7 +1398,7 @@ class WorldSession
         void HandleQuestConfirmAccept(WorldPackets::Quest::QuestConfirmAccept& packet);
         void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
-        void HandlePushQuestToParty(WorldPacket& recvPacket);
+        void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
