@@ -24,6 +24,12 @@ void WorldPackets::Spells::CancelAura::Read()
     _worldPacket >> CasterGUID;
 }
 
+void WorldPackets::Spells::PetCancelAura::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+}
+
 void WorldPackets::Spells::CancelChannelling::Read()
 {
     _worldPacket >> ChannelSpell;
