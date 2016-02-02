@@ -346,6 +346,7 @@ namespace WorldPackets
         class BuyBackItem;
         class DestroyItem;
         class GetItemPurchaseData;
+        class ItemPurchaseRefund;
         class RepairItem;
         class ReadItem;
         class SellItem;
@@ -1535,7 +1536,7 @@ class WorldSession
         void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 
         void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
-        void HandleItemRefund(WorldPacket& recvData);
+        void HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& packet);
 
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
