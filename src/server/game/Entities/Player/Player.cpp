@@ -80,6 +80,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "GameObjectAI.h"
+#include "Grumboz_VIP_Core.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -15296,6 +15297,13 @@ void Player::IncompleteQuest(uint32 quest_id)
 
 void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce)
 {
+	float VIP_OFFSET = VIP::GetVIPOFFSET();
+	uint32 acctId = GetSession()->GetAccountId();
+	uint8 Pvip = VIP::GetVIP(acctId);
+	float MOD = (Pvip * VIP_OFFSET);
+
+	Player* player = GetSession()->GetPlayer();
+
     //this THING should be here to protect code from quest, which cast on player far teleport as a reward
     //should work fine, cause far teleport will be executed in Player::Update()
     SetCanDelayTeleport(true);
@@ -15340,7 +15348,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemIdCount[i]) == EQUIP_ERR_OK)
                 {
                     Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                    SendNewItem(item, quest->RewardItemIdCount[i], true, false);
+
+                	uint32 RewardItemCount = quest->RewardItemIdCount[i];
+                	SendNewItem(item, RewardItemCount + (RewardItemCount * MOD), true, false);
                 }
                 else if (quest->IsDFQuest())
                     SendItemRetrievalMail(quest->RewardItemId[i], quest->RewardItemIdCount[i]);
@@ -15357,7 +15367,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
+	uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
+	XP = XP + (XP * MOD);
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
@@ -15368,7 +15379,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP(XP, NULL);
     else
-        moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
+		moneyRew = int32(quest->GetRewMoneyMaxLevel() + (quest->GetRewMoneyMaxLevel() * MOD));
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     if (quest->GetRewOrReqMoney())
@@ -15383,8 +15394,11 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
 
     // honor reward
-    if (uint32 honor = quest->CalculateHonorGain(getLevel()))
-        RewardHonor(NULL, 0, honor);
+	if (uint32 honor = quest->CalculateHonorGain(getLevel()))
+	{
+		honor = honor + (honor * MOD);
+		RewardHonor(NULL, 0, honor);
+	}
 
     // title reward
     if (quest->GetCharTitleId())
@@ -15399,8 +15413,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         InitTalentForLevel();
     }
 
-    if (quest->GetRewArenaPoints())
-        ModifyArenaPoints(quest->GetRewArenaPoints());
+	if (quest->GetRewArenaPoints())
+	{
+		int32 ArenaPoints = quest->GetRewArenaPoints();
+		int32 RewardArenaPoints = ArenaPoints + (ArenaPoints * MOD);
+		ModifyArenaPoints(RewardArenaPoints);
+	}
 
     // Send reward mail
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
@@ -16855,26 +16873,41 @@ void Player::SendQuestComplete(uint32 quest_id)
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP)
 {
+	float VIP_OFFSET = VIP::GetVIPOFFSET();
+	uint32 acctId = GetSession()->GetAccountId();
+	uint8 Pvip = VIP::GetVIP(acctId);
+	float MOD = (Pvip * VIP_OFFSET);
+
+	Player* player = GetSession()->GetPlayer();
+
     uint32 questid = quest->GetQuestId();
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questid);
     sGameEventMgr->HandleQuestComplete(questid);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
     data << uint32(questid);
-
+ 
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
+		XP = XP = (XP * MOD);
         data << uint32(XP);
-        data << uint32(quest->GetRewOrReqMoney());
+        
+    	int32 RewMoney = quest->GetRewOrReqMoney();
+    	int32 ModRewMoney = RewMoney + (RewMoney * MOD);
+
+    	data << uint32(ModRewMoney);
     }
     else
     {
         data << uint32(0);
-        data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
+		float DropMoneyRate = sWorld->getRate(RATE_DROP_MONEY);
+		DropMoneyRate = DropMoneyRate + (DropMoneyRate * MOD);
+
+		data << uint32(ModRewMoney + int32(quest->GetRewMoneyMaxLevel() * DropMoneyRate));
     }
 
     data << uint32(10 * quest->CalculateHonorGain(GetQuestLevel(quest)));
     data << uint32(quest->GetBonusTalents());              // bonus talents
-    data << uint32(quest->GetRewArenaPoints());
+    data << uint32(quest->GetRewArenaPoints() + (quest->GetRewArenaPoints() * MOD));
     GetSession()->SendPacket(&data);
 }
 
