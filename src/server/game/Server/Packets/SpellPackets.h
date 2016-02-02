@@ -80,7 +80,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PetGUID;
-            uint32 SpellID;
+            uint32 SpellID = 0;
         };
 
         class RequestCategoryCooldowns final : public ClientPacket
