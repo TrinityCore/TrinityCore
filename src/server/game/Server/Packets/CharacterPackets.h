@@ -716,6 +716,17 @@ namespace WorldPackets
             uint8 Result = 0;
             ObjectGuid CharGUID;
         };
+
+        class SetPlayerDeclinedNames final : public ClientPacket
+        {
+        public:
+            SetPlayerDeclinedNames(WorldPacket&& packet) : ClientPacket(CMSG_SET_PLAYER_DECLINED_NAMES, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid Player;
+            DeclinedName DeclinedNames;
+        };
     }
 }
 

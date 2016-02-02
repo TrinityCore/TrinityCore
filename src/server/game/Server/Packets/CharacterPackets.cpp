@@ -545,3 +545,16 @@ WorldPacket const* WorldPackets::Character::CharCustomizeFailed::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Character::SetPlayerDeclinedNames::Read()
+{
+    _worldPacket >> Player;
+
+    uint8 stringLengths[MAX_DECLINED_NAME_CASES];
+
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        stringLengths[i] = _worldPacket.ReadBits(7);
+
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        DeclinedNames.name[i] = _worldPacket.ReadString(stringLengths[i]);
+}
