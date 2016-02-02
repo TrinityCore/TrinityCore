@@ -55,6 +55,10 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
     }
 }
 
+void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*recvData */)
+{
+}
+
 void WorldSession::HandlePetAction(WorldPacket& recvData)
 {
     ObjectGuid guid1;

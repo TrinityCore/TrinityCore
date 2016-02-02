@@ -480,6 +480,7 @@ namespace WorldPackets
     namespace Pet
     {
         class DismissCritter;
+        class RequestPetInfo;
         class PetAbandon;
         class PetStopAttack;
         class PetSpellAutocast;
@@ -1533,7 +1534,7 @@ class WorldSession
 
         void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& packet);
         void HandleComplainOpcode(WorldPacket& recvData);
-        void HandleRequestPetInfoOpcode(WorldPacket& recvData);
+        void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
 
         // Socket gem
         void HandleSocketGems(WorldPackets::Item::SocketGems& socketGems);
