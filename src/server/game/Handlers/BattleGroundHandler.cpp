@@ -595,13 +595,8 @@ void WorldSession::HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlaye
     reportedPlayer->ReportedAfkBy(_player);
 }
 
-void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
+void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPackets::Battleground::RequestRatedBattlefieldInfo& /*packet*/)
 {
-    uint8 unk;
-    recvData >> unk;
-
-    TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBattlefieldInfo: unk = %u", unk);
-
     /// @Todo: perfome research in this case
     /// The unk fields are related to arenas
     WorldPacket data(SMSG_RATED_BATTLEFIELD_INFO, 72);
