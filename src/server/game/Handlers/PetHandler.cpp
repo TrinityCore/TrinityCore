@@ -898,7 +898,7 @@ void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
     recvData.rfinish();
 }
 
-void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*packet*/)
 {
     // Handle the packet CMSG_REQUEST_PET_INFO - sent when player does ingame /reload command
 
