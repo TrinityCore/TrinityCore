@@ -436,6 +436,7 @@ namespace WorldPackets
         class GossipSelectOption;
         class SpiritHealerActivate;
         class TrainerBuySpell;
+        class RequestStabledPets;
     }
 
     namespace Party
@@ -1296,7 +1297,7 @@ class WorldSession
         void HandleSpiritHealerActivate(WorldPackets::NPC::SpiritHealerActivate& packet);
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
-        void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
+        void HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPets& packet);
         void HandleStablePet(WorldPacket& recvPacket);
         void HandleStablePetCallback(PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
