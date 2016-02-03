@@ -562,38 +562,26 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
     }
 }
 
-void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
+void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet)
 {
-    ObjectGuid casterGuid;
-    uint32 spellId;
-    uint8 castCount;
-    float x, y, z;    // Position of missile hit
-
-    recvPacket >> casterGuid;
-    recvPacket >> spellId;
-    recvPacket >> castCount;
-    recvPacket >> x;
-    recvPacket >> y;
-    recvPacket >> z;
-
-    Unit* caster = ObjectAccessor::GetUnit(*_player, casterGuid);
+    Unit* caster = ObjectAccessor::GetUnit(*_player, packet.Target);
     if (!caster)
         return;
 
-    Spell* spell = caster->FindCurrentSpellBySpellId(spellId);
+    Spell* spell = caster->FindCurrentSpellBySpellId(packet.SpellID);
     if (!spell || !spell->m_targets.HasDst())
         return;
 
     Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(x, y, z);
+    pos.Relocate(packet.CollisionPos.x, packet.CollisionPos.y, packet.CollisionPos.z);
     spell->m_targets.ModDst(pos);
 
     WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
-    data << casterGuid;
-    data << uint8(castCount);
-    data << float(x);
-    data << float(y);
-    data << float(z);
+    data << packet.Target;
+    data << uint8(packet.CastID);
+    data << float(packet.CollisionPos.x);
+    data << float(packet.CollisionPos.y);
+    data << float(packet.CollisionPos.z);
     caster->SendMessageToSet(&data, true);
 }
 
