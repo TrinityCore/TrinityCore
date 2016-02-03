@@ -799,3 +799,11 @@ WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Spells::MissileTrajectoryCollision::Read()
+{
+    _worldPacket >> Target;
+    _worldPacket >> SpellID;
+    _worldPacket >> CastID;
+    _worldPacket >> CollisionPos;
+}
