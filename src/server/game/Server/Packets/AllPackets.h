@@ -70,6 +70,7 @@
 #include "VehiclePackets.h"
 #include "VoicePackets.h"
 #include "VoidStoragePackets.h"
+#include "WardenPackets.h"
 #include "WhoPackets.h"
 #include "WorldStatePackets.h"
 

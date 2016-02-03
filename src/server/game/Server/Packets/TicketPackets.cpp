@@ -18,6 +18,7 @@
 #include "LFGPackets.h"
 #include "TicketPackets.h"
 #include "PacketUtilities.h"
+#include "SupportMgr.h"
 
 using namespace WorldPackets;
 
@@ -248,15 +249,16 @@ void WorldPackets::Ticket::Complaint::Read()
 
     switch (ComplaintType)
     {
-        case 0:
+        case SUPPORT_SPAM_TYPE_MAIL:
             _worldPacket >> MailID;
             break;
-        case 1:
+        case SUPPORT_SAPM_TYPE_CHAT:
             _worldPacket >> Chat;
             break;
-        case 2:
+        case SUPPORT_SPAM_TYPE_CALENDAR:
             _worldPacket >> EventGuid;
             _worldPacket >> InviteGuid;
+            break;
         default:
             break;
     }

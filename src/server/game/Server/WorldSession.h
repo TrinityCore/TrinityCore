@@ -680,6 +680,11 @@ namespace WorldPackets
         class SwapVoidItem;
     }
 
+    namespace Warden
+    {
+        class WardenData;
+    }
+
     namespace Who
     {
         class WhoIsRequest;
@@ -1509,7 +1514,7 @@ class WorldSession
         void HandleBfQueueInviteResponse(WorldPackets::Battlefield::BFMgrQueueInviteResponse& bfMgrQueueInviteResponse);
         void HandleBfQueueExitRequest(WorldPackets::Battlefield::BFMgrQueueExitRequest& bfMgrQueueExitRequest);
 
-        void HandleWardenDataOpcode(WorldPacket& recvData);
+        
         void HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport);
         void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
@@ -1662,6 +1667,9 @@ class WorldSession
         void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
+        // Warden
+        void HandleWardenData(WorldPackets::Warden::WardenData& packet);
 
         union ConnectToKey
         {
