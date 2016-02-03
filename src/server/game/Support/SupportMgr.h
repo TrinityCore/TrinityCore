@@ -41,6 +41,13 @@ enum GMSupportComplaintType
     GMTICKET_SUPPORT_COMPLAINT_TYPE_SPAMMING    = 24
 };
 
+enum SupportSpamType
+{
+    SUPPORT_SPAM_TYPE_MAIL = 0,
+    SUPPORT_SAPM_TYPE_CHAT = 1,
+    SUPPORT_SPAM_TYPE_CALENDAR = 2
+};
+
 using ChatLog = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLog;
 
 class Ticket

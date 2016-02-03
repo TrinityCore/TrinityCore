@@ -26,6 +26,7 @@
 #include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
+#include "WardenPackets.h"
 
 #include <openssl/sha.h>
 
@@ -220,16 +221,16 @@ std::string Warden::Penalty(WardenCheck* check /*= NULL*/)
     return "Undefined";
 }
 
-void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
+void WorldSession::HandleWardenData(WorldPackets::Warden::WardenData& packet)
 {
-    if (!_warden || recvData.empty())
+    if (!_warden || packet.Data.empty())
         return;
 
-    _warden->DecryptData(recvData.contents(), recvData.size());
+    _warden->DecryptData(packet.Data.contents(), packet.Data.size());
     uint8 opcode;
-    recvData >> opcode;
-    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(recvData.size()));
-    recvData.hexlike();
+    packet.Data >> opcode;
+    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(packet.Data.size()));
+    packet.Data.hexlike();
 
     switch (opcode)
     {
@@ -240,20 +241,20 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
             _warden->RequestHash();
             break;
         case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
-            _warden->HandleData(recvData);
+            _warden->HandleData(packet.Data);
             break;
         case WARDEN_CMSG_MEM_CHECKS_RESULT:
             TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
             break;
         case WARDEN_CMSG_HASH_RESULT:
-            _warden->HandleHashResult(recvData);
+            _warden->HandleHashResult(packet.Data);
             _warden->InitializeModule();
             break;
         case WARDEN_CMSG_MODULE_FAILED:
             TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            TC_LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
+            TC_LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(packet.Data.size() - 1));
             break;
     }
 }
