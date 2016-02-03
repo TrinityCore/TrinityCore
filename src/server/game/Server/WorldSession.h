@@ -665,6 +665,12 @@ namespace WorldPackets
         class MoveSetVehicleRecIdAck;
     }
 
+    namespace Voice
+    {
+        class VoiceSessionEnable;
+        class SetActiveVoiceChannel;
+    }
+
     namespace VoidStorage
     {
         class UnlockVoidStorage;
@@ -1447,8 +1453,8 @@ class WorldSession
         template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
         void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
 
-        void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
-        void HandleSetActiveVoiceChannel(WorldPacket& recvData);
+        void HandleVoiceSessionEnable(WorldPackets::Voice::VoiceSessionEnable& packet);
+        void HandleSetActiveVoiceChannel(WorldPackets::Voice::SetActiveVoiceChannel& packet);
 
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
