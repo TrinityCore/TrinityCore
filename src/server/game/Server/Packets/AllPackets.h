@@ -68,6 +68,7 @@
 #include "ToyPackets.h"
 #include "TradePackets.h"
 #include "VehiclePackets.h"
+#include "VoicePackets.h"
 #include "VoidStoragePackets.h"
 #include "WhoPackets.h"
 #include "WorldStatePackets.h"
