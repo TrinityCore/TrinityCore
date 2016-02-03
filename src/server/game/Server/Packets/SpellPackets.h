@@ -849,8 +849,8 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint16 MoveMsgID = 0;
             int32 SpellID = 0;
-            float Pitch = 0.0;
-            float Speed = 0.0;
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
             G3D::Vector3 FirePos;
             G3D::Vector3 ImpactPos;
             Optional<MovementInfo> Status;

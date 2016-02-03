@@ -223,6 +223,45 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
         _worldPacket >> LFGListApplicant;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintOffender& complaintOffender)
+{
+    data >> complaintOffender.PlayerGuid;
+    data >> complaintOffender.RealmAddress;
+    data >> complaintOffender.TimeSinceOffence;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintChat& chat)
+{
+    data >> chat.Command;
+    data >> chat.ChannelID;
+    chat.MessageLog = data.ReadString(data.ReadBits(12));
+
+    return data;
+}
+
+void WorldPackets::Ticket::Complaint::Read()
+{
+    _worldPacket >> ComplaintType;
+    _worldPacket >> Offender;
+
+    switch (ComplaintType)
+    {
+        case 0:
+            _worldPacket >> MailID;
+            break;
+        case 1:
+            _worldPacket >> Chat;
+            break;
+        case 2:
+            _worldPacket >> EventGuid;
+            _worldPacket >> InviteGuid;
+        default:
+            break;
+    }
+}
+
 WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()
 {
     _worldPacket << uint32(ComplaintType);
