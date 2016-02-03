@@ -595,6 +595,7 @@ namespace WorldPackets
         class GetMirrorImageData;
         class SpellClick;
         class MissileTrajectoryCollision;
+        class UpdateMissileTrajectory;
     }
 
     namespace Talent
@@ -1387,6 +1388,8 @@ class WorldSession
         void HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& cancelGrowthAura);
         void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
+        void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
+        void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
 
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
@@ -1614,8 +1617,6 @@ class WorldSession
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& questPoiQuery);
-        void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
-        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);

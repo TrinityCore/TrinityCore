@@ -837,6 +837,23 @@ namespace WorldPackets
             uint8 CastID = 0;
             Position CollisionPos;
         };
+
+        class UpdateMissileTrajectory final : public ClientPacket
+        {
+        public:
+            UpdateMissileTrajectory(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_MISSILE_TRAJECTORY, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid Guid;
+            uint16 MoveMsgID = 0;
+            int32 SpellID = 0;
+            float Pitch = 0.0;
+            float Speed = 0.0;
+            Position FirePos;
+            Position ImpactPos;
+            Optional<MovementInfo> Status;
+        };
     }
 }
 

@@ -585,6 +585,34 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
     caster->SendMessageToSet(&data, true);
 }
 
+void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet)
+{
+    Unit* caster = ObjectAccessor::GetUnit(*_player, packet.Guid);
+    Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : NULL;
+    if (!spell || spell->m_spellInfo->Id != packet.SpellID || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
+        return;
+
+    Position pos = *spell->m_targets.GetSrcPos();
+    pos.Relocate(packet.FirePos);
+    spell->m_targets.ModSrc(pos);
+
+    pos = *spell->m_targets.GetDstPos();
+    pos.Relocate(packet.ImpactPos);
+    spell->m_targets.ModDst(pos);
+
+    spell->m_targets.SetPitch(packet.Pitch);
+    spell->m_targets.SetSpeed(packet.Speed);
+
+    if (packet.Status.is_initialized())
+    {
+        GetPlayer()->ValidateMovementInfo(packet.Status.get_ptr());
+        /*uint32 opcode;
+        recvPacket >> opcode;
+        recvPacket.SetOpcode(CMSG_MOVE_STOP); // always set to CMSG_MOVE_STOP in client SetOpcode
+                                              //HandleMovementOpcodes(recvPacket);*/
+    }
+}
+
 void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*requestCategoryCooldowns*/)
 {
     _player->SendSpellCategoryCooldowns();
