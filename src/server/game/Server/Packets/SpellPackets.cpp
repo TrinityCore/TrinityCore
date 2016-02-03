@@ -805,7 +805,7 @@ void WorldPackets::Spells::MissileTrajectoryCollision::Read()
     _worldPacket >> Target;
     _worldPacket >> SpellID;
     _worldPacket >> CastID;
-    _worldPacket >> CollisionPos.PositionXYZStream();
+    _worldPacket >> CollisionPos;
 }
 
 void WorldPackets::Spells::UpdateMissileTrajectory::Read()
@@ -815,8 +815,8 @@ void WorldPackets::Spells::UpdateMissileTrajectory::Read()
     _worldPacket >> SpellID;
     _worldPacket >> Pitch;
     _worldPacket >> Speed;
-    _worldPacket >> FirePos.PositionXYZStream();
-    _worldPacket >> ImpactPos.PositionXYZStream();
+    _worldPacket >> FirePos;
+    _worldPacket >> ImpactPos;
     bool hasStatus = _worldPacket.ReadBit();
 
     _worldPacket.ResetBitPos();

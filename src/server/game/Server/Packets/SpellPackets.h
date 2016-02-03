@@ -19,6 +19,7 @@
 #define SpellPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Spell.h"
@@ -835,7 +836,7 @@ namespace WorldPackets
             ObjectGuid Target;
             int32 SpellID = 0;
             uint8 CastID = 0;
-            Position CollisionPos;
+            G3D::Vector3 CollisionPos;
         };
 
         class UpdateMissileTrajectory final : public ClientPacket
@@ -850,8 +851,8 @@ namespace WorldPackets
             int32 SpellID = 0;
             float Pitch = 0.0;
             float Speed = 0.0;
-            Position FirePos;
-            Position ImpactPos;
+            G3D::Vector3 FirePos;
+            G3D::Vector3 ImpactPos;
             Optional<MovementInfo> Status;
         };
     }
