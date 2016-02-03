@@ -579,9 +579,9 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
     WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
     data << packet.Target;
     data << uint8(packet.CastID);
-    data << float(packet.CollisionPos.m_positionX);
-    data << float(packet.CollisionPos.m_positionY);
-    data << float(packet.CollisionPos.m_positionZ);
+    data << float(packet.CollisionPos.x);
+    data << float(packet.CollisionPos.y);
+    data << float(packet.CollisionPos.z);
     caster->SendMessageToSet(&data, true);
 }
 
