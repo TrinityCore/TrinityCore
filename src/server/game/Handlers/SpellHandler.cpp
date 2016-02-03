@@ -573,15 +573,15 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
         return;
 
     Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(packet.CollisionPos.x, packet.CollisionPos.y, packet.CollisionPos.z);
+    pos.Relocate(packet.CollisionPos);
     spell->m_targets.ModDst(pos);
 
     WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
     data << packet.Target;
     data << uint8(packet.CastID);
-    data << float(packet.CollisionPos.x);
-    data << float(packet.CollisionPos.y);
-    data << float(packet.CollisionPos.z);
+    data << float(packet.CollisionPos.m_positionX);
+    data << float(packet.CollisionPos.m_positionY);
+    data << float(packet.CollisionPos.m_positionZ);
     caster->SendMessageToSet(&data, true);
 }
 

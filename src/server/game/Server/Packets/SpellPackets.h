@@ -19,7 +19,6 @@
 #define SpellPackets_h__
 
 #include "Packet.h"
-#include "PacketUtilities.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Spell.h"
@@ -836,7 +835,7 @@ namespace WorldPackets
             ObjectGuid Target;
             int32 SpellID = 0;
             uint8 CastID = 0;
-            G3D::Vector3 CollisionPos;
+            Position CollisionPos;
         };
     }
 }
