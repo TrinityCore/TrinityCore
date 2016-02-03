@@ -187,10 +187,10 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Auctioneer;
-            int32 Count = 0;
-            int32 ChangeNumberGlobal = 0;
-            int32 ChangeNumberCursor = 0;
-            int32 ChangeNumberTombstone = 0;
+            uint32 ChangeNumberGlobal = 0;
+            uint32 ChangeNumberCursor = 0;
+            uint32 ChangeNumberTombstone = 0;
+            uint32 Count = 0;
         };
 
         class AuctionListPendingSales final : public ClientPacket

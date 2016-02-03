@@ -631,7 +631,7 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
         wsearchedname, packet.Offset, packet.MinLevel, packet.MaxLevel, packet.OnlyUsable,
         packet.InvType, packet.ItemClass, packet.ItemSubclass, packet.Quality, result.TotalCount);
 
-    result.DesiredDelay = 300;
+    result.DesiredDelay = sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
     result.OnlyUsable = packet.OnlyUsable;
     SendPacket(result.Write());
 }
@@ -645,12 +645,24 @@ void WorldSession::HandleAuctionListPendingSales(WorldPackets::AuctionHouse::Auc
 
 void WorldSession::HandleReplicateItems(WorldPackets::AuctionHouse::AuctionReplicateItems& packet)
 {
-    //@todo implement this properly
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
+    if (!creature)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleReplicateItems - %s not found or you can't interact with him.", packet.Auctioneer.ToString().c_str());
+        return;
+    }
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
+
     WorldPackets::AuctionHouse::AuctionReplicateResponse response;
-    response.ChangeNumberCursor = packet.ChangeNumberCursor;
-    response.ChangeNumberGlobal = packet.ChangeNumberGlobal;
-    response.ChangeNumberTombstone = packet.ChangeNumberTombstone;
-    response.DesiredDelay = 300;
+
+    auctionHouse->BuildReplicate(response, GetPlayer(), packet.ChangeNumberGlobal, packet.ChangeNumberCursor, packet.ChangeNumberTombstone, packet.Count);
+
+    response.DesiredDelay = sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY) * 5;
     response.Result = 0;
     SendPacket(response.Write());
 }
