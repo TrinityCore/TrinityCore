@@ -535,7 +535,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void setDeathState(DeathState s) override;                   // override virtual Unit::setDeathState
 
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadCreatureFromDB(spawnId, map, false); }
-        bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
+        bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);

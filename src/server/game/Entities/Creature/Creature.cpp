@@ -1292,8 +1292,38 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     return true;
 }
 
-bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap)
+bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate)
 {
+    if (!allowDuplicate)
+    {
+        // If an alive instance of this spawnId is already found, skip creation
+        // If only dead instance(s) exist, despawn them and spawn a new (maybe also dead) version
+        const auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(spawnId);
+        std::vector <Creature*> despawnList;
+
+        if (creatureBounds.first != creatureBounds.second)
+        {
+            for (auto itr = creatureBounds.first; itr != creatureBounds.second; ++itr)
+            {
+                if (itr->second->IsAlive())
+                {
+                    TC_LOG_DEBUG("maps", "Would have spawned %u but %s already exists", spawnId, creatureBounds.first->second->GetGUID().ToString().c_str());
+                    return false;
+                }
+                else
+                {
+                    despawnList.push_back(itr->second);
+                    TC_LOG_DEBUG("maps", "Despawned dead instance of spawn %u (%s)", spawnId, itr->second->GetGUID().ToString().c_str());
+                }
+            }
+
+            for (Creature* despawnCreature : despawnList)
+            {
+                despawnCreature->AddObjectToRemoveList();
+            }
+        }
+    }
+
     CreatureData const* data = sObjectMgr->GetCreatureData(spawnId);
 
     if (!data)
