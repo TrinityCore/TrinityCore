@@ -95,3 +95,13 @@ void WorldSession::HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugRep
     stmt->setString(1, bugReport.DiagInfo);
     CharacterDatabase.Execute(stmt);
 }
+
+void WorldSession::HandleComplaint(WorldPackets::Ticket::Complaint& packet)
+{    // NOTE: all chat messages from this spammer are automatically ignored by the spam reporter until logout in case of chat spam.
+     // if it's mail spam - ALL mails from this spammer are automatically removed by client
+
+    WorldPackets::Ticket::ComplaintResult result;
+    result.ComplaintType = packet.ComplaintType;
+    result.Result = 0;
+    SendPacket(result.Write());
+}

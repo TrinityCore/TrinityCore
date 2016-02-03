@@ -623,6 +623,7 @@ namespace WorldPackets
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
         class BugReport;
+        class Complaint;
     }
 
     namespace Token
@@ -1157,6 +1158,7 @@ class WorldSession
         void HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet);
         void HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet);
         void HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugReport);
+        void HandleComplaint(WorldPackets::Ticket::Complaint& packet);
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
@@ -1549,7 +1551,6 @@ class WorldSession
         void SendLfgTeleportError(uint8 err);
 
         void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& packet);
-        void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
 
         // Socket gem
