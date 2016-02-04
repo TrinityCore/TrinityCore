@@ -1,7 +1,3 @@
-UPDATE `quest_template` SET `AllowableRaces`=1101 WHERE `ID`=11921;
-UPDATE `quest_template` SET `AllowableRaces`=690 WHERE `ID`=11926;
-UPDATE `quest_template` SET `TimeAllowed`=45 WHERE `ID` IN (11922,11731);
-UPDATE `quest_template` SET `TimeAllowed`=90 WHERE `ID` IN (11921,11926);
 UPDATE `quest_template_addon` SET `PrevQuestId`=11731 WHERE `ID`=11921; -- More Torch Tossing(A) requires Torch Tossing
 UPDATE `quest_template_addon` SET `PrevQuestId`=11922 WHERE `ID`=11926; -- More Torch Tossing(H) requires Torch Tossing
 UPDATE `quest_template_addon` SET `PrevQuestId`=11731 WHERE `ID`=11657; -- Torch Catching(A) requires Torch Tossing(A)
