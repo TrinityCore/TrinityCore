@@ -334,7 +334,7 @@ class Battlefield : public ZoneScript
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }
 
-        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid);
 
         void StartBattle();
         void EndBattle(bool endByTimer);
