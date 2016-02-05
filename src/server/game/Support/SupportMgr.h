@@ -43,8 +43,8 @@ enum GMSupportComplaintType
 
 enum SupportSpamType
 {
-    SUPPORT_SPAM_TYPE_MAIL = 0,
-    SUPPORT_SAPM_TYPE_CHAT = 1,
+    SUPPORT_SPAM_TYPE_MAIL     = 0,
+    SUPPORT_SPAM_TYPE_CHAT     = 1,
     SUPPORT_SPAM_TYPE_CALENDAR = 2
 };
 
