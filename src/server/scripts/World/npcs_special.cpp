@@ -2492,7 +2492,7 @@ class npc_train_wrecker : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 /*type*/, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id == MOVEID_CHASE)
                     _nextAction = EVENT_DO_JUMP;
