@@ -202,12 +202,12 @@ void SmartAI::EndPath(bool fail)
     else
         GetScript()->SetPathId(0);
 
-    ObjectList* targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
-    if (targets && mEscortQuestID)
+    ObjectList targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
+    if (mEscortQuestID)
     {
-        if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
+        if (targets.size() == 1 && GetScript()->IsPlayer(targets.front()))
         {
-            Player* player = (*targets->begin())->ToPlayer();
+            Player* player = targets.front()->ToPlayer();
             if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                 player->GroupEventHappens(mEscortQuestID, me);
 
@@ -226,9 +226,10 @@ void SmartAI::EndPath(bool fail)
                         groupGuy->FailQuest(mEscortQuestID);
                 }
             }
-        }else
+        }
+        else
         {
-            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); ++iter)
+            for (ObjectList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
             {
                 if (GetScript()->IsPlayer((*iter)))
                 {
@@ -241,6 +242,7 @@ void SmartAI::EndPath(bool fail)
             }
         }
     }
+
     if (mDespawnState == 1)
         StartDespawn();
 }
@@ -354,38 +356,37 @@ void SmartAI::UpdateAI(uint32 diff)
 
 bool SmartAI::IsEscortInvokerInRange()
 {
-    ObjectList* targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
-    if (targets)
+    ObjectList targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
+    if (targets.size() == 1 && GetScript()->IsPlayer(targets.front()))
     {
-        if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
-        {
-            Player* player = (*targets->begin())->ToPlayer();
-            if (me->GetDistance(player) <= SMART_ESCORT_MAX_PLAYER_DIST)
-                        return true;
+        Player* player = targets.front()->ToPlayer();
+        if (me->GetDistance(player) <= SMART_ESCORT_MAX_PLAYER_DIST)
+            return true;
 
-            if (Group* group = player->GetGroup())
-            {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
-                {
-                    Player* groupGuy = groupRef->GetSource();
-
-                    if (me->GetDistance(groupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
-                        return true;
-                }
-            }
-        }else
+        if (Group* group = player->GetGroup())
         {
-            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); ++iter)
+            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
             {
-                if (GetScript()->IsPlayer((*iter)))
-                {
-                    if (me->GetDistance((*iter)->ToPlayer()) <= SMART_ESCORT_MAX_PLAYER_DIST)
-                        return true;
-                }
+                Player* groupGuy = groupRef->GetSource();
+
+                if (me->GetDistance(groupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
+                    return true;
             }
         }
     }
-    return true;//escort targets were not set, ignore range check
+    else
+    {
+        for (ObjectList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        {
+            if (GetScript()->IsPlayer((*iter)))
+            {
+                if (me->GetDistance((*iter)->ToPlayer()) <= SMART_ESCORT_MAX_PLAYER_DIST)
+                    return true;
+            }
+        }
+    }
+
+    return true; // escort targets were not set, ignore range check
 }
 
 void SmartAI::MovepointReached(uint32 id)

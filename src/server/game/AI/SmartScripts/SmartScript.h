@@ -32,7 +32,6 @@ class SmartScript
 {
     public:
         SmartScript();
-        ~SmartScript();
 
         void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = NULL);
         void GetScript();
@@ -46,8 +45,8 @@ class SmartScript
         void InitTimer(SmartScriptHolder& e);
         void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
         void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
-        ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
-        ObjectList* GetWorldObjectsInDist(float dist);
+        ObjectList GetTargets(SmartScriptHolder const& e, Unit* invoker = nullptr);
+        ObjectList GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
         SmartScriptHolder CreateEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask = 0);
         void AddEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask = 0);
@@ -91,21 +90,11 @@ class SmartScript
         void DoFindFriendlyMissingBuff(std::list<Creature*>& list, float range, uint32 spellid);
         Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly);
 
-        void StoreTargetList(ObjectList* targets, uint32 id)
+        void StoreTargetList(ObjectList& targets, uint32 id)
         {
-            if (!targets)
-                return;
-
-            if (mTargetStorage->find(id) != mTargetStorage->end())
-            {
-                // check if already stored
-                if ((*mTargetStorage)[id]->Equals(targets))
-                    return;
-
-                delete (*mTargetStorage)[id];
-            }
-
-            (*mTargetStorage)[id] = new ObjectGuidList(targets, GetBaseObject());
+            // insert or override
+            mTargetStorage.erase(id);
+            mTargetStorage.emplace(id, ObjectGuidList(targets, GetBaseObject()));
         }
 
         bool IsSmart(Creature* c = NULL)
@@ -137,12 +126,12 @@ class SmartScript
             return smart;
         }
 
-        ObjectList* GetTargetList(uint32 id)
+        ObjectList GetTargetList(uint32 id)
         {
-            ObjectListMap::iterator itr = mTargetStorage->find(id);
-            if (itr != mTargetStorage->end())
-                return (*itr).second->GetObjectList();
-            return NULL;
+            ObjectListMap::iterator itr = mTargetStorage.find(id);
+            if (itr != mTargetStorage.end())
+                return itr->second.GetObjectList();
+            return ObjectList();
         }
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset)
@@ -198,7 +187,7 @@ class SmartScript
             return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
         }
 
-        ObjectListMap* mTargetStorage;
+        ObjectListMap mTargetStorage;
 
         void OnReset();
         void ResetBaseObject()
