@@ -979,6 +979,9 @@ class go_celestial_planetarium_access : public GameObjectScript
 
             bool GossipHello(Player* player) override
             {
+                if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+                    return false;
+
                 bool hasKey = true;
                 if (LockEntry const* lock = sLockStore.LookupEntry(go->GetGOInfo()->goober.lockId))
                 {
