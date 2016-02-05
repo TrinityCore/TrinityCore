@@ -252,7 +252,7 @@ void WorldPackets::Ticket::Complaint::Read()
         case SUPPORT_SPAM_TYPE_MAIL:
             _worldPacket >> MailID;
             break;
-        case SUPPORT_SAPM_TYPE_CHAT:
+        case SUPPORT_SPAM_TYPE_CHAT:
             _worldPacket >> Chat;
             break;
         case SUPPORT_SPAM_TYPE_CALENDAR:
