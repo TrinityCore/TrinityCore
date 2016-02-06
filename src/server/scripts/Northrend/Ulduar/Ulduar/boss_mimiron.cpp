@@ -1637,7 +1637,7 @@ class go_mimiron_hardmode_button : public GameObjectScript
         bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
             if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
-                return false;
+                return true;
 
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)
