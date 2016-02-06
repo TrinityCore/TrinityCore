@@ -3384,7 +3384,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
                 && !iter->second->IsPositive()          //Don't remove positive spells
                 && spell->Id != GetId())               //Don't remove self
             {
-                target->RemoveAura(iter);
+                target->RemoveAura(iter, AURA_REMOVE_BY_ENEMY_SPELL);
             }
             else
                 ++iter;
