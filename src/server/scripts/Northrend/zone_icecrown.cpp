@@ -213,7 +213,6 @@ class npc_tournament_training_dummy : public CreatureScript
             void Reset() override
             {
                 me->SetControlled(true, UNIT_STATE_STUNNED);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 Initialize();
 
                 // Cast Defend spells to max stack size
