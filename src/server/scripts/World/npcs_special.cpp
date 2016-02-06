@@ -2697,24 +2697,24 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_FOCUS:
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        me->SetFacingToObject(owner);
-                    _events.ScheduleEvent(EVENT_EMOTE, 1000);
-                    break;
-                case EVENT_EMOTE:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                    _events.ScheduleEvent(EVENT_FOLLOW, 1000);
-                    break;
-                case EVENT_FOLLOW:
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                    break;
-                case EVENT_DRINK:
-                    me->CastSpell(me, SPELL_PANDAREN_MONK, false);
-                    break;
-                default:
-                    break;
+                    case EVENT_FOCUS:
+                        if (Unit* owner = me->GetCharmerOrOwner())
+                            me->SetFacingToObject(owner);
+                        _events.ScheduleEvent(EVENT_EMOTE, 1000);
+                        break;
+                    case EVENT_EMOTE:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                        _events.ScheduleEvent(EVENT_FOLLOW, 1000);
+                        break;
+                    case EVENT_FOLLOW:
+                        if (Unit* owner = me->GetCharmerOrOwner())
+                            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        break;
+                    case EVENT_DRINK:
+                        me->CastSpell(me, SPELL_PANDAREN_MONK, false);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
