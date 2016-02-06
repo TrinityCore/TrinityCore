@@ -216,11 +216,8 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
 
 void WorldSession::HandleGameObjectUseOpcode(WorldPackets::GameObject::GameObjUse& packet)
 {
-    if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(packet.Guid))
+    if (GameObject* obj = GetPlayer()->GetGameObjectIfCanInteractWith(packet.Guid))
     {
-        if (!obj->IsWithinDistInMap(GetPlayer(), obj->GetInteractionDistance()))
-            return;
-
         // ignore for remote control state
         if (GetPlayer()->m_mover != GetPlayer())
             if (!(GetPlayer()->IsOnVehicle(GetPlayer()->m_mover) || GetPlayer()->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
@@ -236,17 +233,13 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
     if (_player->m_mover != _player)
         return;
 
-    GameObject* go = GetPlayer()->GetMap()->GetGameObject(packet.Guid);
-    if (!go)
-        return;
+    if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(packet.Guid))
+    {
+        if (go->AI()->GossipHello(_player))
+            return;
 
-    if (!go->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
-        return;
-
-    if (go->AI()->GossipHello(_player))
-        return;
-
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+        _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+    }
 }
 
 void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
