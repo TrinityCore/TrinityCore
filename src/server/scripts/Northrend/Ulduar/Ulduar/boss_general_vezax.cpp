@@ -380,7 +380,6 @@ class npc_saronite_vapors : public CreatureScript
             {
                 Talk(EMOTE_VAPORS);
                 instance = me->GetInstanceScript();
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
                 me->SetReactState(REACT_PASSIVE);
             }

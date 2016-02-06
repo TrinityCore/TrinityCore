@@ -1222,7 +1222,6 @@ class npc_kinetic_bomb : public CreatureScript
                 _x = 0.f;
                 _y = 0.f;
                 _groundZ = 0.f;
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             }
 
             void Reset() override
