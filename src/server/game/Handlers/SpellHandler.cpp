@@ -569,13 +569,11 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
     pos.Relocate(packet.CollisionPos);
     spell->m_targets.ModDst(pos);
 
-    WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
-    data << packet.Target;
-    data << uint8(packet.CastID);
-    data << float(packet.CollisionPos.x);
-    data << float(packet.CollisionPos.y);
-    data << float(packet.CollisionPos.z);
-    caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::NotifyMissileTrajectoryCollision notify;
+    notify.Caster = packet.Target;
+    notify.CastID = packet.CastID;
+    notify.CollisionPos = packet.CollisionPos;
+    caster->SendMessageToSet(notify.Write(), true);
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet)

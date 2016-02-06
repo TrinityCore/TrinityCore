@@ -808,6 +808,15 @@ void WorldPackets::Spells::MissileTrajectoryCollision::Read()
     _worldPacket >> CollisionPos;
 }
 
+WorldPacket const * WorldPackets::Spells::NotifyMissileTrajectoryCollision::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint8(CastID);
+    _worldPacket << CollisionPos;
+    
+    return &_worldPacket;
+}
+
 void WorldPackets::Spells::UpdateMissileTrajectory::Read()
 {
     _worldPacket >> Guid;

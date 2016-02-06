@@ -839,6 +839,18 @@ namespace WorldPackets
             G3D::Vector3 CollisionPos;
         };
 
+        class NotifyMissileTrajectoryCollision : public ServerPacket
+        {
+        public:
+            NotifyMissileTrajectoryCollision() : ServerPacket(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 8 + 1 + 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            uint8 CastID = 0;
+            G3D::Vector3 CollisionPos;
+        };
+
         class UpdateMissileTrajectory final : public ClientPacket
         {
         public:
