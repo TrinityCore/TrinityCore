@@ -2596,7 +2596,7 @@ public:
         void Reset() override
         {
             _events.Reset();
-            _events.ScheduleEvent(EVENT_MOVE_POS, urand(1.0, 20.0) * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_MOVE_POS, urandms(1, 20));
         }
 
         void UpdateAI(uint32 diff) override
@@ -2613,14 +2613,12 @@ public:
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + frand(-30.0f, 30.0f), owner->GetPositionY() + frand(-30.0f, 30.0f), owner->GetPositionZ());
                     }
-                    _events.ScheduleEvent(EVENT_RETURN, urand(3.0, 4.0) * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_RETURN, urandms(3, 4));
                     break;
                 case EVENT_RETURN:
                     if (Unit* owner = me->GetCharmerOrOwner())
-                    {
-                        me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
-                    }
-                    _events.ScheduleEvent(EVENT_MOVE_POS, urand(1.0, 20.0) * IN_MILLISECONDS);
+                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+                    _events.ScheduleEvent(EVENT_MOVE_POS, urandms(1, 20));
                     break;
                 default:
                     break;
