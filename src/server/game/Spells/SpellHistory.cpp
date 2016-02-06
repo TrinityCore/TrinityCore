@@ -337,14 +337,14 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
 }
 
 template<>
-void SpellHistory::WritePacket(WorldPackets::Pets::PetSpells* petSpells) const
+void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
 {
     Clock::time_point now = Clock::now();
 
     petSpells->Cooldowns.reserve(_spellCooldowns.size());
     for (auto const& p : _spellCooldowns)
     {
-        WorldPackets::Pets::PetSpellCooldown petSpellCooldown;
+        WorldPackets::Pet::PetSpellCooldown petSpellCooldown;
         petSpellCooldown.SpellID = p.first;
         petSpellCooldown.Category = p.second.CategoryId;
 
@@ -372,7 +372,7 @@ void SpellHistory::WritePacket(WorldPackets::Pets::PetSpells* petSpells) const
             if (cooldownDuration.count() <= 0)
                 continue;
 
-            WorldPackets::Pets::PetSpellHistory petChargeEntry;
+            WorldPackets::Pet::PetSpellHistory petChargeEntry;
             petChargeEntry.CategoryID = p.first;
             petChargeEntry.RecoveryTime = uint32(cooldownDuration.count());
             petChargeEntry.ConsumedCharges = p.second.size();

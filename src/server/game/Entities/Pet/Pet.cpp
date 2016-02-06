@@ -1428,7 +1428,7 @@ bool Pet::learnSpell(uint32 spell_id)
 
     if (!m_loading)
     {
-        WorldPackets::Pets::PetLearnedSpells packet;
+        WorldPackets::Pet::PetLearnedSpells packet;
         packet.Spells.push_back(spell_id);
         GetOwner()->GetSession()->SendPacket(packet.Write());
         GetOwner()->PetSpellInitialize();
@@ -1479,7 +1479,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPackets::Pets::PetUnlearnedSpells packet;
+            WorldPackets::Pet::PetUnlearnedSpells packet;
             packet.Spells.push_back(spell_id);
             GetOwner()->GetSession()->SendPacket(packet.Write());
         }

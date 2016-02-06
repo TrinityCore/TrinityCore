@@ -368,7 +368,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& canc
     }
 }
 
-void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Pets::PetCancelAura& packet)
+void WorldSession::HandlePetCancelAuraOpcode(WorldPackets::Pet::PetCancelAura& packet)
 {
     ObjectGuid guid = packet.PetGUID;
     uint32 spellId = packet.SpellID;

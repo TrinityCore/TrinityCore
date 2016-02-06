@@ -19875,7 +19875,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (pet->isControlled())
     {
-        WorldPackets::Pets::PetSpells petSpellsPacket;
+        WorldPackets::Pet::PetSpells petSpellsPacket;
         GetSession()->SendPacket(petSpellsPacket.Write());
 
         if (GetGroup())
@@ -20023,7 +20023,7 @@ void Player::PetSpellInitialize()
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    WorldPackets::Pets::PetSpells petSpellsPacket;
+    WorldPackets::Pet::PetSpells petSpellsPacket;
     petSpellsPacket.PetGUID = pet->GetGUID();
     petSpellsPacket.CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
     //petSpellsPacket.Specialization = pet->GetSpecialization(); NYI
@@ -20067,7 +20067,7 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    WorldPackets::Pets::PetSpells petSpellsPacket;
+    WorldPackets::Pet::PetSpells petSpellsPacket;
     petSpellsPacket.PetGUID = charm->GetGUID();
 
     for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
@@ -20188,7 +20188,7 @@ void Player::CharmSpellInitialize()
 
 void Player::SendRemoveControlBar() const
 {
-    WorldPackets::Pets::PetSpells packet;
+    WorldPackets::Pet::PetSpells packet;
     GetSession()->SendPacket(packet.Write());
 }
 

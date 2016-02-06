@@ -25,7 +25,7 @@
 
 namespace WorldPackets
 {
-    namespace Pets
+    namespace Pet
     {        
         struct PetSpellCooldown
         {

@@ -472,7 +472,7 @@ namespace WorldPackets
         class ClearRaidMarker;
     }
 
-    namespace Pets
+    namespace Pet
     {
         class ClientPetAction;
         class DismissCritter;
@@ -1443,21 +1443,21 @@ class WorldSession
         void HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet);
 
         //Pet
-        void HandlePetAction(WorldPackets::Pets::ClientPetAction& packet);
-        void HandlePetStopAttack(WorldPackets::Pets::PetStopAttack& packet);
+        void HandlePetAction(WorldPackets::Pet::ClientPetAction& packet);
+        void HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);
-        void HandlePetSetAction(WorldPackets::Pets::PetSetAction& packet);
-        void HandlePetAbandon(WorldPackets::Pets::PetAbandon& packet);
-        void HandlePetRename(WorldPackets::Pets::PetRename& packet);
-        void HandlePetCancelAuraOpcode(WorldPackets::Pets::PetCancelAura& packet);
-        void HandlePetSpellAutocastOpcode(WorldPackets::Pets::PetSpellAutocast& packet);
+        void HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet);
+        void HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet);
+        void HandlePetRename(WorldPackets::Pet::PetRename& packet);
+        void HandlePetCancelAuraOpcode(WorldPackets::Pet::PetCancelAura& packet);
+        void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
-        void HandleDismissCritter(WorldPackets::Pets::DismissCritter& packet);
+        void HandleDismissCritter(WorldPackets::Pet::DismissCritter& packet);
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello);

@@ -37,7 +37,7 @@
 #include "SpellPackets.h"
 #include "QueryPackets.h"
 
-void WorldSession::HandleDismissCritter(WorldPackets::Pets::DismissCritter& packet)
+void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packet)
 {
     ObjectGuid guid = packet.CritterGUID;
 
@@ -59,7 +59,7 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pets::DismissCritter& pack
     }
 }
 
-void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
+void WorldSession::HandlePetAction(WorldPackets::Pet::ClientPetAction& packet)
 {
     ObjectGuid guid1 = packet.PetGUID;         //pet guid
     ObjectGuid guid2 = packet.TargetGUID;      //tag guid
@@ -110,7 +110,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pets::ClientPetAction& packet)
     }
 }
 
-void WorldSession::HandlePetStopAttack(WorldPackets::Pets::PetStopAttack& packet)
+void WorldSession::HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet)
 {
     ObjectGuid guid = packet.PetGUID;
 
@@ -457,7 +457,7 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPackets::Pets::PetSetAction& packet)
+void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
 {
     ObjectGuid petguid = packet.PetGUID;
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
@@ -515,7 +515,7 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pets::PetSetAction& packet)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
+void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 {
     ObjectGuid petguid = packet.RenameData.PetGUID;
     bool isdeclined = packet.RenameData.HasDeclinedNames;
@@ -590,7 +590,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pets::PetRename& packet)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPackets::Pets::PetAbandon& packet)
+void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
 {
     ObjectGuid guid = packet.PetGUID;                                    //pet guid
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_PET_ABANDON %s", guid.ToString().c_str());
@@ -609,7 +609,7 @@ void WorldSession::HandlePetAbandon(WorldPackets::Pets::PetAbandon& packet)
     }
 }
 
-void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pets::PetSpellAutocast& packet)
+void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet)
 {
     ObjectGuid guid = packet.PetGUID;
     uint32 spellid = packet.SpellID;
@@ -722,7 +722,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
 
 void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName)
 {
-    WorldPackets::Pets::PetNameInvalid petNameInvalid;
+    WorldPackets::Pet::PetNameInvalid petNameInvalid;
     petNameInvalid.Result = error;
     petNameInvalid.RenameData.NewName = name;
     for (int i = 0; i < MAX_DECLINED_NAME_CASES; i++)

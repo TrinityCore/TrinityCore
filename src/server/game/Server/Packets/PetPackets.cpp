@@ -17,7 +17,7 @@
 
 #include "PetPackets.h"
 
-WorldPacket const* WorldPackets::Pets::PetSpells::Write()
+WorldPacket const* WorldPackets::Pet::PetSpells::Write()
 {
     _worldPacket << PetGUID;
     _worldPacket << int16(CreatureFamily);
@@ -55,7 +55,7 @@ WorldPacket const* WorldPackets::Pets::PetSpells::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pets::PetStableList::Write()
+WorldPacket const* WorldPackets::Pet::PetStableList::Write()
 {
     _worldPacket << StableMaster;
 
@@ -76,7 +76,7 @@ WorldPacket const* WorldPackets::Pets::PetStableList::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pets::PetLearnedSpells::Write()
+WorldPacket const* WorldPackets::Pet::PetLearnedSpells::Write()
 {
     _worldPacket << uint32(Spells.size());
     for (uint32 spell : Spells)
@@ -84,7 +84,7 @@ WorldPacket const* WorldPackets::Pets::PetLearnedSpells::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pets::PetUnlearnedSpells::Write()
+WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
 {
     _worldPacket << uint32(Spells.size());
     for (uint32 spell : Spells)
@@ -92,7 +92,7 @@ WorldPacket const* WorldPackets::Pets::PetUnlearnedSpells::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
+WorldPacket const* WorldPackets::Pet::PetNameInvalid::Write()
 {
     _worldPacket << RenameData.PetGUID;
     _worldPacket << int32(RenameData.PetNumber);
@@ -118,7 +118,7 @@ WorldPacket const* WorldPackets::Pets::PetNameInvalid::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Pets::PetRename::Read()
+void WorldPackets::Pet::PetRename::Read()
 {
     _worldPacket >> RenameData.PetGUID;
     _worldPacket >> RenameData.PetNumber;
@@ -140,7 +140,7 @@ void WorldPackets::Pets::PetRename::Read()
     RenameData.NewName = _worldPacket.ReadString(nameLen);
 }
 
-void WorldPackets::Pets::ClientPetAction::Read()
+void WorldPackets::Pet::ClientPetAction::Read()
 {
     _worldPacket >> PetGUID;
     
@@ -150,12 +150,12 @@ void WorldPackets::Pets::ClientPetAction::Read()
     _worldPacket >> ActionPosition;
 }
 
-void WorldPackets::Pets::PetStopAttack::Read()
+void WorldPackets::Pet::PetStopAttack::Read()
 {
     _worldPacket >> PetGUID;
 }
 
-void WorldPackets::Pets::PetSetAction::Read()
+void WorldPackets::Pet::PetSetAction::Read()
 {
     _worldPacket >> PetGUID;
 
@@ -163,12 +163,12 @@ void WorldPackets::Pets::PetSetAction::Read()
     _worldPacket >> Action;
 }
 
-void WorldPackets::Pets::PetAbandon::Read()
+void WorldPackets::Pet::PetAbandon::Read()
 {
     _worldPacket >> PetGUID;
 }
 
-void WorldPackets::Pets::PetSpellAutocast::Read()
+void WorldPackets::Pet::PetSpellAutocast::Read()
 {
     _worldPacket >> PetGUID;
     AutocastEnabled = _worldPacket.ReadBit();
@@ -176,12 +176,12 @@ void WorldPackets::Pets::PetSpellAutocast::Read()
     _worldPacket >> SpellID;
 }
 
-void WorldPackets::Pets::DismissCritter::Read()
+void WorldPackets::Pet::DismissCritter::Read()
 {
     _worldPacket >> CritterGUID;
 }
 
-void WorldPackets::Pets::PetCancelAura::Read()
+void WorldPackets::Pet::PetCancelAura::Read()
 {
     _worldPacket >> PetGUID;
     _worldPacket >> SpellID;
