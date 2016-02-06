@@ -224,8 +224,8 @@ bool Garrison::Create(uint32 garrSiteId)
     if (siteLevelItr == sGarrSiteLevelStore.end())
         return false;
 
-    _siteLevelId = siteLevelItr.Key();
-    _siteLevel = siteLevelItr.Value();
+    _siteLevelId = siteLevelItr.ID();
+    _siteLevel = siteLevelItr.Data();
 
     InitializePlots();
 

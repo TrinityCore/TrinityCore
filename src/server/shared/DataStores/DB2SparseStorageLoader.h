@@ -65,6 +65,7 @@ class DB2SparseFileLoader
     uint32 GetNumRows() const { return recordCount; }
     uint32 GetCols() const { return fieldCount; }
     uint32 GetHash() const { return tableHash; }
+    uint32 GetBuild() const { return build; }
     bool IsLoaded() const { return (data != NULL); }
     char* AutoProduceData(const char* fmt, IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool);
     char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);

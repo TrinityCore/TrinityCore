@@ -30,9 +30,6 @@ TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSection
 // ChrClasses
 TC_GAME_API char const* GetClassName(uint8 class_, uint8 locale);
 
-// CreatureFamilty
-TC_GAME_API char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);
-
 // Faction
 TC_GAME_API std::vector<uint32> const* GetFactionTeamList(uint32 faction);
 
@@ -93,25 +90,16 @@ private:
     GameTablesEntry const* _gtEntry;
 };
 
-TC_GAME_API extern DBCStorage<AreaTableEntry>                   sAreaTableStore;
-TC_GAME_API extern DBCStorage<AreaTriggerEntry>                 sAreaTriggerStore;
 TC_GAME_API extern DBCStorage<BannedAddOnsEntry>                sBannedAddOnsStore;
 TC_GAME_API extern DBCStorage<BattlemasterListEntry>            sBattlemasterListStore;
 TC_GAME_API extern DBCStorage<CharSectionsEntry>                sCharSectionsStore;
-TC_GAME_API extern DBCStorage<CharTitlesEntry>                  sCharTitlesStore;
 TC_GAME_API extern DBCStorage<ChrClassesEntry>                  sChrClassesStore;
-TC_GAME_API extern DBCStorage<CreatureFamilyEntry>              sCreatureFamilyStore;
 TC_GAME_API extern DBCStorage<CreatureModelDataEntry>           sCreatureModelDataStore;
-TC_GAME_API extern DBCStorage<DifficultyEntry>                  sDifficultyStore;
-TC_GAME_API extern DBCStorage<DungeonEncounterEntry>            sDungeonEncounterStore;
-TC_GAME_API extern DBCStorage<EmotesTextEntry>                  sEmotesTextStore;
 TC_GAME_API extern DBCStorage<FactionEntry>                     sFactionStore;
 TC_GAME_API extern DBCStorage<FactionTemplateEntry>             sFactionTemplateStore;
 TC_GAME_API extern DBCStorage<LFGDungeonEntry>                  sLFGDungeonStore;
 TC_GAME_API extern DBCStorage<LiquidTypeEntry>                  sLiquidTypeStore;
-TC_GAME_API extern DBCStorage<MapEntry>                         sMapStore;
 TC_GAME_API extern MapDifficultyMap                             sMapDifficultyMap;
-TC_GAME_API extern DBCStorage<PhaseEntry>                       sPhaseStore;
 TC_GAME_API extern DBCStorage<SpellItemEnchantmentEntry>        sSpellItemEnchantmentStore;
 TC_GAME_API extern DBCStorage<TalentEntry>                      sTalentStore;
 TC_GAME_API extern TalentsByPosition                            sTalentByPos;

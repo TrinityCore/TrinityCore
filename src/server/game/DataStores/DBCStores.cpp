@@ -46,23 +46,13 @@ typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
 typedef std::map<uint32, std::vector<uint32>> FactionTeamMap;
 typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
-DBCStorage<AreaTableEntry>                  sAreaTableStore(AreaTablefmt);
-DBCStorage<AreaTriggerEntry>                sAreaTriggerStore(AreaTriggerfmt);
-
 DBCStorage<BannedAddOnsEntry>               sBannedAddOnsStore(BannedAddOnsfmt);
 DBCStorage<BattlemasterListEntry>           sBattlemasterListStore(BattlemasterListfmt);
 
 DBCStorage<CharSectionsEntry>               sCharSectionsStore(CharSectionsfmt);
 CharSectionsMap                             sCharSectionMap;
-DBCStorage<CharTitlesEntry>                 sCharTitlesStore(CharTitlesfmt);
 DBCStorage<ChrClassesEntry>                 sChrClassesStore(ChrClassesfmt);
-DBCStorage<CreatureFamilyEntry>             sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage<CreatureModelDataEntry>          sCreatureModelDataStore(CreatureModelDatafmt);
-
-DBCStorage<DifficultyEntry>                 sDifficultyStore(DifficultyFmt);
-DBCStorage<DungeonEncounterEntry>           sDungeonEncounterStore(DungeonEncounterfmt);
-
-DBCStorage<EmotesTextEntry>                 sEmotesTextStore(EmotesTextfmt);
 
 DBCStorage<FactionEntry>                    sFactionStore(Factionfmt);
 static FactionTeamMap                       sFactionTeamMap;
@@ -72,11 +62,8 @@ DBCStorage<LFGDungeonEntry>                 sLFGDungeonStore(LFGDungeonfmt);
 DBCStorage<LightEntry>                      sLightStore(Lightfmt);
 DBCStorage<LiquidTypeEntry>                 sLiquidTypeStore(LiquidTypefmt);
 
-DBCStorage<MapEntry>                        sMapStore(Mapfmt);
 DBCStorage<MapDifficultyEntry>              sMapDifficultyStore(MapDifficultyfmt); // only for loading
 MapDifficultyMap                            sMapDifficultyMap;
-
-DBCStorage<PhaseEntry>                      sPhaseStore(Phasefmt);
 
 DBCStorage<SpellItemEnchantmentEntry>       sSpellItemEnchantmentStore(SpellItemEnchantmentfmt);
 
@@ -224,26 +211,17 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
 
 #define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
-    LOAD_DBC(sAreaTableStore, "AreaTable.dbc");//20810
-    LOAD_DBC(sAreaTriggerStore, "AreaTrigger.dbc");//20810
     LOAD_DBC(sBannedAddOnsStore, "BannedAddOns.dbc");//20810
     LOAD_DBC(sBattlemasterListStore, "BattlemasterList.dbc");//20810
     LOAD_DBC(sCharSectionsStore, "CharSections.dbc");//20810
-    LOAD_DBC(sCharTitlesStore, "CharTitles.dbc");//20810
     LOAD_DBC(sChrClassesStore, "ChrClasses.dbc");//20810
-    LOAD_DBC(sCreatureFamilyStore, "CreatureFamily.dbc");//20810
     LOAD_DBC(sCreatureModelDataStore, "CreatureModelData.dbc");//20810
-    LOAD_DBC(sDifficultyStore, "Difficulty.dbc");//20810
-    LOAD_DBC(sDungeonEncounterStore, "DungeonEncounter.dbc");//20810
-    LOAD_DBC(sEmotesTextStore, "EmotesText.dbc");//20810
     LOAD_DBC(sFactionStore, "Faction.dbc");//20810
     LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20810
     LOAD_DBC(sLFGDungeonStore, "LfgDungeons.dbc");//20810
     LOAD_DBC(sLightStore, "Light.dbc"); //20810
     LOAD_DBC(sLiquidTypeStore, "LiquidType.dbc");//20810
     LOAD_DBC(sMapDifficultyStore, "MapDifficulty.dbc");//20810
-    LOAD_DBC(sMapStore, "Map.dbc");//20810
-    LOAD_DBC(sPhaseStore, "Phase.dbc");//20810
     LOAD_DBC(sSpellItemEnchantmentStore, "SpellItemEnchantment.dbc");//20810
     LOAD_DBC(sTalentStore, "Talent.dbc");//20810
     LOAD_DBC(sVehicleStore, "Vehicle.dbc");//20810
@@ -258,28 +236,11 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
             if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) //ignore Nonplayable races
                 sCharSectionMap.insert({ entry->GenType | (entry->Gender << 8) | (entry->Race << 16), entry });
 
-        uint32 storageIndex = chrSpec->ClassID;
-        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_PET_OVERRIDE_SPEC)
-        {
-            ASSERT(!chrSpec->ClassID);
-            storageIndex = PET_SPEC_OVERRIDE_CLASS_INDEX;
-        }
-
-        sChrSpecializationByIndexStore[storageIndex][chrSpec->OrderIndex] = chrSpec;
-    }
-
-    ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
-        "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",
-        MAX_DIFFICULTY, sDifficultyStore.GetNumRows());
-
     for (uint32 i = 0; i < sFactionStore.GetNumRows(); ++i)
     {
         FactionEntry const* faction = sFactionStore.LookupEntry(i);
         if (faction && faction->ParentFactionID)
-        {
-            std::vector<uint32> &flist = sFactionTeamMap[faction->ParentFactionID];
-            flist.push_back(i);
-        }
+            sFactionTeamMap[faction->ParentFactionID].push_back(i);
     }
 
     // fill data
@@ -317,15 +278,6 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
             str += *i + "\n";
 
         TC_LOG_ERROR("misc", "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
-        exit(1);
-    }
-
-    // Check loaded DBC files proper version
-    if (!sAreaTableStore.LookupEntry(6719)     ||     // last area (areaflag) added in 7.0.1 (20810)
-        !sCharTitlesStore.LookupEntry(469)     ||     // last char title added in 7.0.1 (20810)
-        !sMapStore.LookupEntry(1602)           )      // last map added in 7.0.1 (20810)
-    {
-        TC_LOG_ERROR("misc", "You have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
     }
 
@@ -399,18 +351,6 @@ std::vector<uint32> const* GetFactionTeamList(uint32 faction)
         return &itr->second;
 
     return NULL;
-}
-
-char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 /*locale*/)
-{
-    if (!petfamily)
-        return nullptr;
-
-    CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
-    if (!pet_family)
-        return nullptr;
-
-    return pet_family->Name_lang ? pet_family->Name_lang : NULL;
 }
 
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)

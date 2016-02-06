@@ -22,28 +22,18 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
 
-char const AreaTablefmt[] = "niiiiixxxxxxisiiiiixxxxxxxxx";
-char const AreaTriggerfmt[] = "nifffxxxfffffxxxx";
 char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 char const BattlemasterListfmt[] = "niiiiiiiiiiiiiiiiixsiiiixxxxxxx";
 char const CharSectionsfmt[] = "diiixxxiii";
-char const CharTitlesfmt[] = "nxssix";
 char const ChrClassesfmt[] = "nixsxxxixiiiiixxxxx";
-char const CreatureFamilyfmt[] = "nfifiiiiixsx";
 char const CreatureModelDatafmt[] = "niixxxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
-char const DifficultyFmt[] = "niiiixiixxxxix";
-char const DungeonEncounterfmt[] = "niiixsxxx";
-char const EmotesTextfmt[] = "nxixxxxxxxxxxxxxxxx";
 char const EmotesTextSoundEntryfmt[] = "niiii";
 char const Factionfmt[] = "niiiiiiiiiiiiiiiiiiffixsxixx";
 char const FactionTemplatefmt[] = "niiiiiiiiiiiii";
 char const LFGDungeonfmt[] = "nsiiixxiiiixxixixxxxxxxxxxxxxx";
 char const Lightfmt[] = "nifffxxxxxxxxxx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-char const Mapfmt[] = "nxiixxsixxixiffxiiiiix";
 char const MapDifficultyfmt[] = "diisiiii";
-char const MinorTalentfmt[] = "niii";
-char const Phasefmt[] = "ni";
 char const SpellItemEnchantmentfmt[] = "niiiiiiiiiixiiiiiiiiiifffxxx";
 char const Talentfmt[] = "niiiiiiiiix";
 char const Vehiclefmt[] = "niiffffiiiiiiiifffffffffffffffxxxxfifiiii";

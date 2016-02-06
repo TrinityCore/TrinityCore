@@ -29,7 +29,7 @@ class DB2StorageBase
 {
 public:
     DB2StorageBase(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
-        : _tableHash(0), _fileName(fileName), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex) { }
+        : _tableHash(0), _build(0), _fileName(fileName), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex) { }
 
     virtual ~DB2StorageBase()
     {
@@ -40,6 +40,8 @@ public:
     }
 
     uint32 GetHash() const { return _tableHash; }
+
+    uint32 GetBuild() const { return _build; }
 
     virtual bool HasRecord(uint32 id) const = 0;
 
@@ -114,6 +116,7 @@ protected:
     }
 
     uint32 _tableHash;
+    uint32 _build;
     std::string _fileName;
     uint32 _fieldCount;
     char const* _format;
@@ -163,6 +166,7 @@ public:
 
         _fieldCount = db2.GetCols();
         _tableHash = db2.GetHash();
+        _build = db2.GetBuild();
 
         // load raw non-string data
         _dataTable = db2.AutoProduceData(_format, _indexTableSize, _indexTable.AsChar);
@@ -233,7 +237,17 @@ class DB2SparseStorage : public DB2StorageBase
     static_assert(std::is_pod<T>::value, "T in DB2SparseStorage must be POD-type.");
 
 public:
-    typedef typename std::unordered_map<uint32, T const*>::const_iterator iterator;
+    typedef struct iterator_wrapper : public std::unordered_map<uint32, T const*>::const_iterator
+    {
+        typedef typename std::unordered_map<uint32, T const*>::const_iterator Base;
+
+        iterator_wrapper() = default;
+        iterator_wrapper(iterator_wrapper const& right) = default;
+        iterator_wrapper(Base const& baseItr) : Base(baseItr) { }
+
+        uint32 ID() const { return (*this)->first; }
+        T const* Data() const { return (*this)->second; }
+    } iterator;
 
     DB2SparseStorage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
         : DB2StorageBase(fileName, format, preparedStmtIndex)
@@ -273,6 +287,7 @@ public:
 
         _fieldCount = db2.GetCols();
         _tableHash = db2.GetHash();
+        _build = db2.GetBuild();
 
         // load raw non-string data
         _dataTable = db2.AutoProduceData(_format, IndexTableAdapter<T>(_indexTable), locale, _stringPool);
@@ -312,8 +327,8 @@ public:
         DB2SparseDatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, IndexTableAdapter<T>(_indexTable), _stringPool);
     }
 
-    iterator begin() const { return _indexTable.begin(); }
-    iterator end() const { return _indexTable.end(); }
+    iterator begin() const { return iterator(_indexTable.begin()); }
+    iterator end() const { return iterator(_indexTable.end()); }
 
 private:
     std::unordered_map<uint32, T const*> _indexTable;
