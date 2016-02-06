@@ -29,6 +29,7 @@
 #include "SpellAuraEffects.h"
 #include "SkillDiscovery.h"
 #include "Battleground.h"
+#include "DBCStores.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -2630,6 +2631,43 @@ public:
     }
 };
 
+class spell_item_toy_train_set_pulse : public SpellScriptLoader
+{
+public:
+    spell_item_toy_train_set_pulse() : SpellScriptLoader("spell_item_toy_train_set_pulse") { }
+
+    class spell_item_toy_train_set_pulse_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_toy_train_set_pulse_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*index*/)
+        {
+            if (Player* target = GetHitUnit()->ToPlayer())
+            {
+                target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
+                if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->getRace(), target->getGender()))
+                    target->PlayDistanceSound(soundEntry->SoundId);
+            }
+        }
+
+        void HandleTargets(std::list<WorldObject*>& targetList)
+        {
+            targetList.remove_if([](WorldObject const* obj) { return obj->GetTypeId() != TYPEID_PLAYER; });
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_item_toy_train_set_pulse_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_toy_train_set_pulse_SpellScript::HandleTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_item_toy_train_set_pulse_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2698,4 +2736,5 @@ void AddSC_item_spell_scripts()
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
+    new spell_item_toy_train_set_pulse();
 }
