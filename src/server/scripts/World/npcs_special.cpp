@@ -57,6 +57,7 @@ EndContentData */
 #include "SpellHistory.h"
 #include "SpellAuras.h"
 #include "Pet.h"
+#include "PetAI.h"
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 
@@ -2574,66 +2575,66 @@ class npc_train_wrecker : public CreatureScript
 
 enum EgbertMisc
 {
-	EVENT_MOVE_POS = 1,
-	EVENT_RETURN = 2
+    EVENT_MOVE_POS = 1,
+    EVENT_RETURN = 2
 };
 
 class npc_egbert : public CreatureScript
 {
 public:
-	npc_egbert() : CreatureScript("npc_egbert") {}
+    npc_egbert() : CreatureScript("npc_egbert") {}
 
-	struct npc_egbertAI : public PetAI
-	{
-		npc_egbertAI(Creature* creature) : PetAI(creature)
-		{
-			if (Unit* owner = me->GetCharmerOrOwner())
-				if (owner->GetMap()->GetEntry()->addon > 1)
-					me->SetCanFly(true);
-		}
+    struct npc_egbertAI : public PetAI
+    {
+        npc_egbertAI(Creature* creature) : PetAI(creature)
+        {
+            if (Unit* owner = me->GetCharmerOrOwner())
+                if (owner->GetMap()->GetEntry()->addon > 1)
+                    me->SetCanFly(true);
+        }
 
-		void Reset() override
-		{
-			_events.Reset();
-			_events.ScheduleEvent(EVENT_MOVE_POS, urand(1.0, 20.0) * IN_MILLISECONDS);
-		}
+        void Reset() override
+        {
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_MOVE_POS, urand(1.0, 20.0) * IN_MILLISECONDS);
+        }
 
-		void UpdateAI(uint32 diff) override
-		{
-			_events.Update(diff);
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
 
-			while (uint32 eventId = _events.ExecuteEvent())
-			{
-				switch (eventId)
-				{
-				case EVENT_MOVE_POS:
-					if (Unit* owner = me->GetCharmerOrOwner())
-					{
-						me->GetMotionMaster()->Clear();
-						me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + frand(-30.0f, 30.0f), owner->GetPositionY() + frand(-30.0f, 30.0f), owner->GetPositionZ());
-					}
-					_events.ScheduleEvent(EVENT_RETURN, urand(3.0, 4.0) * IN_MILLISECONDS);
-					break;
-				case EVENT_RETURN:
-					if (Unit* owner = me->GetCharmerOrOwner())
-					{
-						me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
-					}
-					_events.ScheduleEvent(EVENT_MOVE_POS, urand(1.0, 20.0) * IN_MILLISECONDS);
-					break;
-				default:
-					break;
-				}
-			}
-		}
-	private:
-		EventMap _events;
-	};
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_MOVE_POS:
+                    if (Unit* owner = me->GetCharmerOrOwner())
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + frand(-30.0f, 30.0f), owner->GetPositionY() + frand(-30.0f, 30.0f), owner->GetPositionZ());
+                    }
+                    _events.ScheduleEvent(EVENT_RETURN, urand(3.0, 4.0) * IN_MILLISECONDS);
+                    break;
+                case EVENT_RETURN:
+                    if (Unit* owner = me->GetCharmerOrOwner())
+                    {
+                        me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
+                    }
+                    _events.ScheduleEvent(EVENT_MOVE_POS, urand(1.0, 20.0) * IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
 
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_egbertAI(creature);
-	}
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_egbertAI(creature);
+    }
 };
 
 void AddSC_npcs_special()
