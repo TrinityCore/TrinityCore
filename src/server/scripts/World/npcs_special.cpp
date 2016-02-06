@@ -2668,20 +2668,17 @@ public:
 
         void ReceiveEmote(Player* player, uint32 emote) override
         {
-            if (Unit* owner = me->GetCharmerOrOwner())
-            {
-                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                me->StopMoving();
+            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+            me->StopMoving();
 
-                switch (emote)
-                {
+            switch (emote)
+            {
                 case TEXT_EMOTE_BOW:
                     _events.ScheduleEvent(EVENT_FOCUS, 1000);
                     break;
                 case TEXT_EMOTE_DRINK:
                     _events.ScheduleEvent(EVENT_DRINK, 1000);
                     break;
-                }
             }
         }
 
