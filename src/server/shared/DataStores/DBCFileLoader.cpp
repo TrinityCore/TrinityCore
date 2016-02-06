@@ -182,11 +182,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     if (i >= 0)
     {
-        int32 maxi = 0;
+        uint32 maxi = 0;
         //find max index
         for (uint32 y = 0; y < recordCount; ++y)
         {
-            int32 ind = int32(getRecord(y).getUInt(i));
+            uint32 ind = getRecord(y).getUInt(i);
             if (ind > maxi)
                 maxi = ind;
         }
@@ -213,10 +213,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     for (uint32 y = 0; y < recordCount; ++y)
     {
         if (i >= 0)
-        {
-            if (int32(getRecord(y).getUInt(i)) >= 0)
-                indexTable[getRecord(y).getUInt(i)] = &dataTable[offset];
-        }
+            indexTable[getRecord(y).getUInt(i)] = &dataTable[offset];
         else
             indexTable[y] = &dataTable[offset];
 

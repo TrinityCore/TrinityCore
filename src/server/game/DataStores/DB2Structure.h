@@ -56,6 +56,60 @@ struct AreaGroupMemberEntry
     uint16 AreaID;
 };
 
+struct AreaTableEntry
+{
+    uint32 Flags[2];
+    char const* ZoneName;
+    float AmbientMultiplier;
+    LocalizedString* AreaName;
+    uint16 MapID;
+    uint16 ParentAreaID;
+    int16 AreaBit;
+    uint16 AmbienceID;
+    uint16 ZoneMusic;
+    uint16 IntroSound;
+    uint16 LiquidTypeID[4];
+    uint16 UWZoneMusic;
+    uint16 UWAmbience;
+    uint16 PvPCombastWorldStateID;
+    uint8 SoundProviderPref;
+    uint8 SoundProviderPrefUnderwater;
+    uint8 ExplorationLevel;
+    uint8 FactionGroupMask;
+    uint8 MountFlags;
+    uint8 UWIntroMusic;
+    uint8 WildBattlePetLevelMin;
+    uint8 WildBattlePetLevelMax;
+    uint8 WindSettingsID;
+
+    // helpers
+    bool IsSanctuary() const
+    {
+        if (MapID == 609)
+            return true;
+        return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
+    }
+};
+
+struct AreaTriggerEntry
+{
+    uint32 ID;
+    DBCPosition3D Pos;
+    float Radius;
+    float BoxLength;
+    float BoxWidth;
+    float BoxHeight;
+    float BoxYaw;
+    uint16 MapID;
+    uint16 PhaseID;
+    uint16 PhaseGroupID;
+    uint16 ShapeID;
+    uint16 AreaTriggerActionSetID;
+    uint8 PhaseUseFlags;
+    uint8 ShapeType;
+    uint8 Flag;
+};
+
 struct ArmorLocationEntry
 {
     float Modifier[5];
@@ -146,6 +200,15 @@ struct CharStartOutfitEntry
     uint8 GenderID;
     uint8 OutfitID;
     uint8 PetFamilyID;                                              // Pet Family Entry for starting pet
+};
+
+struct CharTitlesEntry
+{
+    LocalizedString* NameMale;
+    LocalizedString* NameFemale;
+    uint16 ConditionID;
+    uint16 MaskID;
+    uint8 Flags;
 };
 
 struct ChatChannelsEntry
@@ -266,6 +329,20 @@ struct CreatureDisplayInfoExtraEntry
     uint8 FacialHairID;
     uint8 CustomDisplayOption[3];
     uint8 Flags;
+};
+
+struct CreatureFamilyEntry
+{
+    float MinScale;
+    float MaxScale;
+    LocalizedString* Name;
+    char const* IconFile;
+    uint16 SkillLine[2];
+    uint16 PetFoodMask;
+    uint8 MinScaleLevel;
+    uint8 MaxScaleLevel;
+    uint8 PetTalentType;
+    uint8 CategoryEnumID;
 };
 
 struct CreatureTypeEntry
@@ -467,6 +544,36 @@ struct DestructibleModelDataEntry
     uint8 HealEffect;
 };
 
+struct DifficultyEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    uint8 FallbackDifficultyID;
+    uint8 InstanceType;
+    uint8 MinPlayers;
+    uint8 MaxPlayers;
+    int8 OldEnumValue;
+    uint8 Flags;
+    uint8 ToggleDifficultyID;
+    uint8 GroupSizeHealthCurveID;
+    uint8 GroupSizeDmgCurveID;
+    uint8 GroupSizeSpellPointsCurveID;
+    uint8 ItemBonusTreeModID;
+    uint8 OrderIndex;
+};
+
+struct DungeonEncounterEntry
+{
+    LocalizedString* Name;
+    uint32 CreatureDisplayID;
+    uint16 MapID;
+    uint16 OrderIndex;
+    uint16 SpellIconID;
+    uint8 DifficultyID;
+    uint8 Bit;
+    uint8 Flags;
+};
+
 struct DurabilityCostsEntry
 {
     uint16 WeaponSubClassCost[21];
@@ -487,6 +594,12 @@ struct EmotesEntry
     uint16 EmoteSoundID;
     uint8 EmoteSpecProc;
     uint8 EmoteSpecProcParam;
+};
+
+struct EmotesTextEntry
+{
+    LocalizedString* Name;
+    uint16 EmoteID;
 };
 
 struct EmotesTextSoundEntry
@@ -1097,6 +1210,62 @@ struct MailTemplateEntry
     LocalizedString* Body;
 };
 
+struct MapEntry
+{
+    uint32 ID;
+    char* Directory;
+    uint32 Flags;
+    uint32 MapType;
+    float MinimapIconScale;
+    DBCPosition2D CorpsePos;                                        // entrance coordinates in ghost mode  (in most cases = normal entrance)
+    uint32 RaidOffset;
+    LocalizedString* MapName;
+    LocalizedString* MapDescription0;                               // Horde
+    LocalizedString* MapDescription1;                               // Alliance
+    uint16 AreaTableID;
+    uint16 LoadingScreenID;
+    int16 CorpseMapID;                                              // map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    uint16 TimeOfDayOverride;
+    int16 ParentMapID;
+    int16 CosmeticParentMapID;
+    uint8 InstanceType;
+    uint8 unk5;
+    uint8 ExpansionID;
+    uint8 MaxPlayers;
+    uint8 TimeOffset;
+
+    // Helpers
+    uint8 Expansion() const { return ExpansionID; }
+
+    bool IsDungeon() const { return (InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID) && !IsGarrison(); }
+    bool IsNonRaidDungeon() const { return InstanceType == MAP_INSTANCE; }
+    bool Instanceable() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID || InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
+    bool IsRaid() const { return InstanceType == MAP_RAID; }
+    bool IsBattleground() const { return InstanceType == MAP_BATTLEGROUND; }
+    bool IsBattleArena() const { return InstanceType == MAP_ARENA; }
+    bool IsBattlegroundOrArena() const { return InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
+    bool IsWorldMap() const { return InstanceType == MAP_COMMON; }
+
+    bool GetEntrancePos(int32& mapid, float& x, float& y) const
+    {
+        if (CorpseMapID < 0)
+            return false;
+
+        mapid = CorpseMapID;
+        x = CorpsePos.X;
+        y = CorpsePos.Y;
+        return true;
+    }
+
+    bool IsContinent() const
+    {
+        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116;
+    }
+
+    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsGarrison() const { return (Flags & MAP_FLAG_GARRISON) != 0; }
+};
+
 struct ModifierTreeEntry
 {
     uint32 Asset[2];
@@ -1179,6 +1348,11 @@ struct OverrideSpellDataEntry
     uint32 SpellID[MAX_OVERRIDE_SPELL];
     uint32 PlayerActionbarFileDataID;
     uint8 Flags;
+};
+
+struct PhaseEntry
+{
+    uint16 Flags;
 };
 
 struct PhaseXPhaseGroupEntry

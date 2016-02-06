@@ -504,12 +504,12 @@ public:
 
         if (map->Instanceable())
         {
-            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->AreaName_lang, map->GetId(), map->GetMapName());
+            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaId, areaEntry->AreaName->Str[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        Zone2MapCoordinates(x, y, zoneEntry->ID);
+        Zone2MapCoordinates(x, y, areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->MapID, x, y))
         {

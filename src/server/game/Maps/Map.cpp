@@ -2438,20 +2438,20 @@ uint32 Map::GetAreaId(float x, float y, float z, bool *isOutdoors) const
     WMOAreaTableEntry const* wmoEntry = nullptr;
     AreaTableEntry const* atEntry = nullptr;
     bool haveAreaInfo = false;
+    uint32 areaId = 0;
 
     if (GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
     {
         haveAreaInfo = true;
         wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
         if (wmoEntry)
+        {
+            areaId = wmoEntry->AreaTableID;
             atEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
+        }
     }
 
-    uint32 areaId = 0;
-
-    if (atEntry)
-        areaId = atEntry->ID;
-    else
+    if (!areaId)
     {
         if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
             areaId = gmap->getArea(x, y);
@@ -2651,7 +2651,7 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
 
 char const* Map::GetMapName() const
 {
-    return i_mapEntry ? i_mapEntry->MapName_lang : "UNNAMEDMAP\x0";
+    return i_mapEntry ? i_mapEntry->MapName->Str[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
 }
 
 void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellCoord cellpair)

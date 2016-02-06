@@ -102,30 +102,48 @@ public:
             AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(i);
             if (areaEntry)
             {
-                std::string name = areaEntry->AreaName_lang;
+                int32 locale = handler->GetSessionDbcLocale();
+                std::string name = areaEntry->AreaName->Str[locale];
                 if (name.empty())
                     continue;
 
                 if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
+                    locale = 0;
+                    for (; locale < TOTAL_LOCALES; ++locale)
+                    {
+                        if (locale == handler->GetSessionDbcLocale())
+                            continue;
+
+                        name = areaEntry->AreaName->Str[locale];
+                        if (name.empty())
+                            continue;
+
+                        if (Utf8FitTo(name, wNamePart))
+                            break;
+                    }
                 }
 
-                // send area in "id - [name]" format
-                std::ostringstream ss;
-                if (handler->GetSession())
-                    ss << i << " - |cffffffff|Harea:" << i << "|h[" << name<< "]|h|r";
-                else
-                    ss << i << " - " << name;
+                if (locale < TOTAL_LOCALES)
+                {
+                    if (maxResults && count++ == maxResults)
+                    {
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
+                    }
 
-                handler->SendSysMessage(ss.str().c_str());
+                    // send area in "id - [name]" format
+                    std::ostringstream ss;
+                    if (handler->GetSession())
+                        ss << i << " - |cffffffff|Harea:" << i << "|h[" << name << "]|h|r";
+                    else
+                        ss << i << " - " << name;
 
-                if (!found)
-                    found = true;
+                    handler->SendSysMessage(ss.str().c_str());
+
+                    if (!found)
+                        found = true;
+                }
             }
         }
 
@@ -1091,36 +1109,54 @@ public:
                     if (target && target->getGender() != gender)
                         continue;
 
-                    std::string name = gender == GENDER_MALE ? titleInfo->NameMale_lang : titleInfo->NameFemale_lang;
+                    int32 locale = handler->GetSessionDbcLocale();
+                    std::string name = (gender == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[locale];
 
                     if (name.empty())
                         continue;
 
                     if (!Utf8FitTo(name, wNamePart))
-                        continue;
-
-                    if (maxResults && counter == maxResults)
                     {
-                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                        return true;
+                        locale = 0;
+                        for (; locale < TOTAL_LOCALES; ++locale)
+                        {
+                            if (locale == handler->GetSessionDbcLocale())
+                                continue;
+
+                            name = (gender == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[locale];
+                            if (name.empty())
+                                continue;
+
+                            if (Utf8FitTo(name, wNamePart))
+                                break;
+                        }
                     }
 
-                    char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
+                    if (locale < TOTAL_LOCALES)
+                    {
+                        if (maxResults && counter == maxResults)
+                        {
+                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
 
-                    char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
-                        ? handler->GetTrinityString(LANG_ACTIVE)
-                        : "";
+                        char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                    char titleNameStr[80];
-                    snprintf(titleNameStr, 80, name.c_str(), targetName);
+                        char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                            ? handler->GetTrinityString(LANG_ACTIVE)
+                            : "";
 
-                    // send title in "id (idx:idx) - [namedlink locale]" format
-                    if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, "", knownStr, activeStr);
-                    else
-                        handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, "", knownStr, activeStr);
+                        char titleNameStr[80];
+                        snprintf(titleNameStr, 80, name.c_str(), targetName);
 
-                    ++counter;
+                        // send title in "id (idx:idx) - [namedlink locale]" format
+                        if (handler->GetSession())
+                            handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, "", knownStr, activeStr);
+                        else
+                            handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, titleNameStr, "", knownStr, activeStr);
+
+                        ++counter;
+                    }
                 }
             }
         }
@@ -1145,18 +1181,35 @@ public:
 
         uint32 counter = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
-        uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
 
         // search in Map.dbc
         for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                std::string name = mapInfo->MapName_lang;
+                int32 locale = handler->GetSessionDbcLocale();
+                std::string name = mapInfo->MapName->Str[locale];
                 if (name.empty())
                     continue;
 
-                if (Utf8FitTo(name, wNamePart) && locale < TOTAL_LOCALES)
+                if (!Utf8FitTo(name, wNamePart) && handler->GetSession())
+                {
+                    locale = 0;
+                    for (; locale < TOTAL_LOCALES; ++locale)
+                    {
+                        if (locale == handler->GetSessionDbcLocale())
+                            continue;
+
+                        name = mapInfo->MapName->Str[locale];
+                        if (name.empty())
+                            continue;
+
+                        if (Utf8FitTo(name, wNamePart))
+                            break;
+                    }
+                }
+
+                if (locale < TOTAL_LOCALES)
                 {
                     if (maxResults && counter == maxResults)
                     {

@@ -92,6 +92,7 @@ class TC_SHARED_API DB2FileLoader
     uint32 GetCols() const { return fieldCount; }
     uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
     uint32 GetHash() const { return tableHash; }
+    uint32 GetBuild() const { return build; }
     bool IsLoaded() const { return (data != NULL); }
     char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable);
     char* AutoProduceStringsArrayHolders(const char* fmt, char* dataTable);

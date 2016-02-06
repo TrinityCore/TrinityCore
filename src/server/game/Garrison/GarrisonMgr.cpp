@@ -33,7 +33,7 @@ GarrisonMgr& GarrisonMgr::Instance()
 void GarrisonMgr::Initialize()
 {
     for (auto itr = sGarrSiteLevelPlotInstStore.begin(); itr != sGarrSiteLevelPlotInstStore.end(); ++itr)
-        _garrisonPlotInstBySiteLevel[itr->GarrSiteLevelID].push_back(std::make_pair(itr.Key(), itr.Value()));
+        _garrisonPlotInstBySiteLevel[itr->GarrSiteLevelID].push_back(std::make_pair(itr.ID(), itr.Data()));
 
     for (GameObjectsEntry const* gameObject : sGameObjectsStore)
         if (gameObject->Type == GAMEOBJECT_TYPE_GARRISON_PLOT)
@@ -46,7 +46,7 @@ void GarrisonMgr::Initialize()
         _garrisonBuildingPlotInstances[MAKE_PAIR64(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
 
     for (auto itr = sGarrBuildingStore.begin(); itr != sGarrBuildingStore.end(); ++itr)
-        _garrisonBuildingsByType[itr->Type].push_back(itr.Key());
+        _garrisonBuildingsByType[itr->Type].push_back(itr.ID());
 
     for (GarrFollowerXAbilityEntry const* followerAbility : sGarrFollowerXAbilityStore)
     {

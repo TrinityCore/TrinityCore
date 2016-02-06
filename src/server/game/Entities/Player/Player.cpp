@@ -4727,7 +4727,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     if (channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                         currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
-                        currentNameExt = current_zone->AreaName_lang;
+                        currentNameExt = current_zone->AreaName->Str[GetSession()->GetSessionDbcLocale()];
 
                     snprintf(new_channel_name_buf, 100, channel->Name->Str[m_session->GetSessionDbcLocale()], currentNameExt);
 
@@ -6906,9 +6906,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if (sWorld->getBoolConfig(CONFIG_WEATHER) && !HasAuraType(SPELL_AURA_FORCE_WEATHER))
     {
-        if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
+        if (Weather* weather = WeatherMgr::FindWeather(newZone))
             weather->SendWeatherUpdateToPlayer(this);
-        else if (!WeatherMgr::AddWeather(zone->ID))
+        else if (!WeatherMgr::AddWeather(newZone))
             // send fine weather packet to remove old zone's weather
             WeatherMgr::SendFineWeatherUpdateToPlayer(this);
     }
@@ -18060,7 +18060,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             bool deleteInstance = false;
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-            std::string mapname = mapEntry ? mapEntry->MapName_lang : "Unknown";
+            std::string mapname = mapEntry ? mapEntry->MapName->Str[sWorld->GetDefaultDbcLocale()] : "Unknown";
 
             if (!mapEntry || !mapEntry->IsDungeon())
             {
@@ -25792,9 +25792,9 @@ std::string Player::GetMapAreaAndZoneString() const
     std::string zoneName = "Unknown";
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
-        areaName = area->AreaName_lang;
+        areaName = area->AreaName->Str[GetSession()->GetSessionDbcLocale()];
         if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
-            zoneName = zone->AreaName_lang;
+            zoneName = zone->AreaName->Str[GetSession()->GetSessionDbcLocale()];
     }
 
     std::ostringstream str;
