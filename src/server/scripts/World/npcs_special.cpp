@@ -2607,7 +2607,7 @@ public:
             Reset();
         }
 
-        void ReceiveEmote(Player* player, uint32 emote) override
+        void ReceiveEmote(Player* /*player*/, uint32 emote) override
         {
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             me->StopMoving();
