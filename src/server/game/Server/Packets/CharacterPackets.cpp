@@ -558,3 +558,11 @@ void WorldPackets::Character::SetPlayerDeclinedNames::Read()
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         DeclinedNames.name[i] = _worldPacket.ReadString(stringLengths[i]);
 }
+
+WorldPacket const * WorldPackets::Character::SetPlayerDeclinedNamesResult::Write()
+{
+    _worldPacket << int32(ResultCode);
+    _worldPacket << Player;
+
+    return &_worldPacket;
+}

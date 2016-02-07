@@ -2548,11 +2548,11 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
 
 void WorldSession::SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid)
 {
-    WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4 + 8);
-    data << uint32(result);
-    if (result == DECLINED_NAMES_RESULT_SUCCESS)
-        data << guid;
-    SendPacket(&data);
+    WorldPackets::Character::SetPlayerDeclinedNamesResult packet;
+    packet.ResultCode = result;
+    packet.Player = guid;
+
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendBarberShopResult(BarberShopResult result)
