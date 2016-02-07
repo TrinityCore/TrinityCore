@@ -727,6 +727,17 @@ namespace WorldPackets
             ObjectGuid Player;
             DeclinedName DeclinedNames;
         };
+
+        class SetPlayerDeclinedNamesResult final : public ServerPacket
+        {
+        public:
+            SetPlayerDeclinedNamesResult() : ServerPacket(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            int32 ResultCode = 0;
+        };
     }
 }
 
