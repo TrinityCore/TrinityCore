@@ -324,13 +324,13 @@ class boss_gothik : public CreatureScript
             {
                 _EnterCombat();
                 events.SetPhase(PHASE_ONE);
-                events.ScheduleEvent(EVENT_SUMMON, 25 * IN_MILLISECONDS, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOORS_UNLOCK, 205 * IN_MILLISECONDS, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_PHASE_TWO, 270 * IN_MILLISECONDS, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON, Seconds(25), 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOORS_UNLOCK, Minutes(3) + Seconds(25), 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_PHASE_TWO, Minutes(4) + Seconds(30), 0, PHASE_ONE);
                 Talk(SAY_INTRO_1);
-                events.ScheduleEvent(EVENT_INTRO_2, 4 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_INTRO_3, 9 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_INTRO_4, 14 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_INTRO_2, Seconds(4));
+                events.ScheduleEvent(EVENT_INTRO_3, Seconds(9));
+                events.ScheduleEvent(EVENT_INTRO_4, Seconds(14));
                 instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
                 _gateIsOpen = false;
             }
@@ -480,7 +480,7 @@ class boss_gothik : public CreatureScript
                                 }
 
                             if (uint8 timeToNext = RAID_MODE(waves10, waves25)[_waveCount].second)
-                                events.ScheduleEvent(EVENT_SUMMON, timeToNext * IN_MILLISECONDS, 0, PHASE_ONE);
+                                events.Repeat(Seconds(timeToNext));
 
                             ++_waveCount;
                             break;
@@ -497,9 +497,9 @@ class boss_gothik : public CreatureScript
                             break;
                         case EVENT_PHASE_TWO:
                             events.SetPhase(PHASE_TWO);
-                            events.ScheduleEvent(EVENT_TELEPORT, 20 * IN_MILLISECONDS, 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_HARVEST, 15 * IN_MILLISECONDS, 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_RESUME_ATTACK, 2 * IN_MILLISECONDS, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_TELEPORT, Seconds(20), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_HARVEST, Seconds(15), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_RESUME_ATTACK, Seconds(2), 0, PHASE_TWO);
                             Talk(SAY_PHASE_TWO);
                             Talk(EMOTE_PHASE_TWO);
                             me->SetReactState(REACT_PASSIVE);
@@ -518,23 +518,23 @@ class boss_gothik : public CreatureScript
                                 _lastTeleportDead = !_lastTeleportDead;
 
                                 events.CancelEvent(EVENT_BOLT);
-                                events.ScheduleEvent(EVENT_TELEPORT, 20 * IN_MILLISECONDS, 0, PHASE_TWO);
                                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 2 * IN_MILLISECONDS, 0, PHASE_TWO);
+                                events.Repeat(Seconds(20));
                             }
                             break;
 
                         case EVENT_HARVEST:
                             DoCastAOE(SPELL_HARVEST_SOUL, true); // triggered allows this to go "through" shadow bolt
-                            events.ScheduleEvent(EVENT_HARVEST, 15 * IN_MILLISECONDS, 0, PHASE_TWO);
+                            events.Repeat(Seconds(15));
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(EVENT_BOLT, 0, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_BOLT, Seconds(0), 0, PHASE_TWO);
                             // return to the start of this method so victim side etc is re-evaluated
                             return UpdateAI(0u); // tail recursion for efficiency
                         case EVENT_BOLT:
                             DoCastVictim(SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_BOLT, 1 * IN_MILLISECONDS, 0, PHASE_TWO);
+                            events.Repeat(Seconds(2));
                             break;
                         case EVENT_INTRO_2:
                             Talk(SAY_INTRO_2);
