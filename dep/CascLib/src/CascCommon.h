@@ -23,9 +23,13 @@
 
 #include "CascPort.h"
 #include "common/Common.h"
+#include "common/DynamicArray.h"
 #include "common/Map.h"
 #include "common/FileStream.h"
+#include "common/Directory.h"
 #include "common/ListFile.h"
+#include "common/DumpContext.h"
+#include "common/RootHandler.h"
 
 // Headers from LibTomCrypt
 #include "libtomcrypt/src/headers/tomcrypt.h"
@@ -36,16 +40,17 @@
 //-----------------------------------------------------------------------------
 // CascLib private defines
 
-#define CASC_GAME_HOTS      0x00010000          // Heroes of the Storm
-#define CASC_GAME_WOW6      0x00020000          // World of Warcraft - Warlords of Draenor
-#define CASC_GAME_DIABLO3   0x00030000          // Diablo 3 Since PTR 2.2.0
-#define CASC_GAME_MASK      0xFFFF0000          // Mask for getting game ID
+#define CASC_GAME_HOTS       0x00010000         // Heroes of the Storm
+#define CASC_GAME_WOW6       0x00020000         // World of Warcraft - Warlords of Draenor
+#define CASC_GAME_DIABLO3    0x00030000         // Diablo 3 since PTR 2.2.0
+#define CASC_GAME_OVERWATCH  0x00040000         // Overwatch since PTR 24919
+#define CASC_GAME_STARCRAFT2 0x00050000         // Starcraft II - Legacy of the Void, since build 38996
+#define CASC_GAME_MASK       0xFFFF0000         // Mask for getting game ID
 
 #define CASC_INDEX_COUNT          0x10
 #define CASC_FILE_KEY_SIZE        0x09          // Size of the file key
 #define CASC_MAX_DATA_FILES      0x100
-#define CASC_MAX_MAR_FILES           3          // Maximum of 3 MAR files are supported
-#define CASC_MNDX_SIGNATURE 0x58444E4D          // 'MNDX'
+#define CASC_EXTRA_FILES          0x20          // Number of extra entries to be reserved for additionally inserted files
 
 #define CASC_SEARCH_HAVE_NAME   0x0001          // Indicated that previous search found a name
 
@@ -71,41 +76,28 @@
 
 #define CASC_PACKAGE_BUFFER     0x1000
 
-//-----------------------------------------------------------------------------
-// On-disk structures
-
-typedef struct _FILE_LOCALE_BLOCK
-{
-    DWORD NumberOfFiles;                        // Number of entries
-    DWORD Flags;
-    DWORD Locales;                              // File locale mask (CASC_LOCALE_XXX)
-
-    // Followed by a block of 32-bit integers (count: NumberOfFiles)
-    // Followed by the MD5 and file name hash (count: NumberOfFiles)
-
-} FILE_LOCALE_BLOCK, *PFILE_LOCALE_BLOCK;
-
-typedef struct _FILE_ROOT_ENTRY
-{
-    DWORD EncodingKey[4];                       // MD5 of the file
-    ULONGLONG FileNameHash;                     // Jenkins hash of the file name
-
-} FILE_ROOT_ENTRY, *PFILE_ROOT_ENTRY;
-
-typedef struct _ROOT_BLOCK_INFO
-{
-    PFILE_LOCALE_BLOCK pLocaleBlockHdr;         // Pointer to the locale block
-    PDWORD pInt32Array;                         // Pointer to the array of 32-bit integers
-    PFILE_ROOT_ENTRY pRootEntries;
-
-} ROOT_BLOCK_INFO, *PROOT_BLOCK_INFO;
+#ifndef _maxchars
+#define _maxchars(buff)  ((sizeof(buff) / sizeof(buff[0])) - 1)
+#endif
 
 //-----------------------------------------------------------------------------
 // In-memory structures
+// See http://pxr.dk/wowdev/wiki/index.php?title=CASC for more information
 
-class TMndxFindResult;
 struct TFileStream;
-struct _MAR_FILE;
+
+typedef enum _CBLD_TYPE
+{
+    CascBuildNone = 0,                              // No build type found
+    CascBuildInfo,                                  // .build.info
+    CascBuildDb,                                    // .build.db (older storages)
+} CBLD_TYPE, *PCBLD_TYPE;
+
+typedef struct _ENCODING_KEY
+{
+    BYTE Value[MD5_HASH_SIZE];                      // MD5 of the file
+
+} ENCODING_KEY, *PENCODING_KEY;
 
 typedef struct _CASC_INDEX_ENTRY
 {
@@ -140,25 +132,34 @@ typedef struct _CASC_FILE_FRAME
     BYTE  md5[MD5_HASH_SIZE];                       // MD5 hash of the file sector
 } CASC_FILE_FRAME, *PCASC_FILE_FRAME;
 
+// The encoding file is in the form of:
+// * File header
+// * String block #1
+// * Table A header
+// * Table A entries
+// * Table B header
+// * Table B entries
+// * String block #2
+// http://pxr.dk/wowdev/wiki/index.php?title=CASC#Key_CASC_Files
 typedef struct _CASC_ENCODING_HEADER
 {
     BYTE Magic[2];                                  // "EN"
-    BYTE field_2;
-    BYTE field_3;
-    BYTE field_4;
-    BYTE field_5[2];
-    BYTE field_7[2];
-    BYTE NumSegments[4];                            // Number of entries (big endian)
-    BYTE field_D[4];
+    BYTE Version;                                   // Expected to be 1 by CascLib
+    BYTE ChecksumSizeA;                             // The length of the checksums in Encoding Table
+    BYTE ChecksumSizeB;                             // The length of the checksums in Encoding Layout Table
+    BYTE Flags_TableA[2];                           // Flags for Encoding Table
+    BYTE Flags_TableB[2];                           // Flags for Encoding Layout Table
+    BYTE Entries_TableA[4];                         // Number of segments in Encoding Table (big endian)
+    BYTE Entries_TableB[4];                         // Number of segments in Encoding Layout Table (big endian)
     BYTE field_11;
-    BYTE SegmentsPos[4];                            // Offset of encoding segments
+    BYTE Size_StringTable1[4];                      // Size of the string block #1
 
 } CASC_ENCODING_HEADER, *PCASC_ENCODING_HEADER;
 
 typedef struct _CASC_ENCODING_ENTRY
 {
-    USHORT KeyCount;                                // Number of subitems
-    BYTE FileSizeBE[4];                          // Compressed file size (header area + frame headers + compressed frames), in bytes
+    USHORT KeyCount;                                // Number of index keys
+    BYTE FileSizeBE[4];                             // Compressed file size (header area + frame headers + compressed frames), in bytes
     BYTE EncodingKey[MD5_HASH_SIZE];                // File encoding key
 
     // Followed by the index keys
@@ -166,87 +167,21 @@ typedef struct _CASC_ENCODING_ENTRY
     // Followed by the index keys (number of items = KeyCount)
 } CASC_ENCODING_ENTRY, *PCASC_ENCODING_ENTRY;
 
-typedef struct _CASC_ROOT_LOCALE_BLOCK
+// A version of CASC_ENCODING_ENTRY with one index key
+typedef struct _CASC_ENCODING_ENTRY_1
 {
-    DWORD NumberOfFiles;                            // Number of entries
-    DWORD Flags;
-    DWORD FileLocales;                              // File locales (CASC_LOCALE_XXX)
+    USHORT KeyCount;                                // Number of index keys
+    BYTE FileSizeBE[4];                             // Compressed file size (header area + frame headers + compressed frames), in bytes
+    BYTE EncodingKey[MD5_HASH_SIZE];                // File encoding key
+    BYTE IndexKey[MD5_HASH_SIZE];                   // File index key
 
-    // Followed by a block of 32-bit integers (count: NumberOfFiles)
-    // Followed by the MD5 and file name hash (count: NumberOfFiles)
+} CASC_ENCODING_ENTRY_1, *PCASC_ENCODING_ENTRY_1;
 
-} CASC_ROOT_LOCALE_BLOCK, *PCASC_ROOT_LOCALE_BLOCK;
+#define GET_INDEX_KEY(pEncodingEntry)  (pEncodingEntry->EncodingKey + MD5_HASH_SIZE)
+#define FAKE_ENCODING_ENTRY_SIZE  (sizeof(CASC_ENCODING_ENTRY) + MD5_HASH_SIZE)
 
-// Root file entry for CASC storages with MNDX root file (Heroes of the Storm)
-// Corresponds to the in-file structure
-typedef struct _CASC_ROOT_ENTRY_MNDX
-{
-    DWORD Flags;                                    // High 8 bits: Flags, low 24 bits: package index
-    BYTE  EncodingKey[MD5_HASH_SIZE];               // Encoding key for the file
-    DWORD FileSize;                                 // Uncompressed file size, in bytes
-
-} CASC_ROOT_ENTRY_MNDX, *PCASC_ROOT_ENTRY_MNDX;
-
-// Root file entry for CASC storages without MNDX root file (World of Warcraft 6.0+)
-// Does not match to the in-file structure of the root entry
-typedef struct _CASC_ROOT_ENTRY
-{
-    ULONGLONG FileNameHash;                         // Jenkins hash of the file name
-    DWORD SumValue;                                 // Sum value
-    DWORD Locales;                                  // Locale flags of the file
-    DWORD EncodingKey[4];                           // File encoding key (MD5)
-
-} CASC_ROOT_ENTRY, *PCASC_ROOT_ENTRY;
-
-// Definition of the hash table for CASC root items
-typedef struct _CASC_ROOT_HASH_TABLE
-{
-    PCASC_ROOT_ENTRY TablePtr;                      // Pointer to the CASC root table
-    DWORD TableSize;                                // Total size of the root table
-    DWORD ItemCount;                                // Number of items currently in the table
-
-} CASC_ROOT_HASH_TABLE, *PCASC_ROOT_HASH_TABLE;
-
-typedef struct _CASC_MNDX_INFO
-{
-    bool bRootFileLoaded;                           // true if the root info file was properly loaded
-    BYTE RootFileName[MD5_HASH_SIZE];               // Name (aka MD5) of the root file 
-    DWORD HeaderVersion;                            // Must be <= 2
-    DWORD FormatVersion;
-    DWORD field_1C;
-    DWORD field_20;
-    DWORD MarInfoOffset;                            // Offset of the first MAR entry info
-    DWORD MarInfoCount;                             // Number of the MAR info entries
-    DWORD MarInfoSize;                              // Size of the MAR info entry
-    DWORD MndxEntriesOffset;
-    DWORD MndxEntriesTotal;                         // Total number of MNDX root entries
-    DWORD MndxEntriesValid;                         // Number of valid MNDX root entries
-    DWORD MndxEntrySize;                            // Size of one MNDX root entry
-    struct _MAR_FILE * pMarFile1;                   // File name list for the packages
-    struct _MAR_FILE * pMarFile2;                   // File name list for names stripped of package names
-    struct _MAR_FILE * pMarFile3;                   // File name list for complete names
-    PCASC_ROOT_ENTRY_MNDX pMndxEntries;
-    PCASC_ROOT_ENTRY_MNDX * ppValidEntries;
-
-} CASC_MNDX_INFO, *PCASC_MNDX_INFO;
-
-typedef struct _CASC_PACKAGE
-{
-    char * szFileName;                              // Pointer to file name
-    size_t nLength;                                 // Length of the file name
-
-} CASC_PACKAGE, *PCASC_PACKAGE;
-
-typedef struct _CASC_PACKAGES
-{
-    char * szNameBuffer;                            // Pointer to the buffer for file names
-    size_t NameEntries;                             // Number of name entries in Names
-    size_t NameBufferUsed;                          // Number of bytes used in the name buffer
-    size_t NameBufferMax;                           // Total size of the name buffer
-
-    CASC_PACKAGE Packages[1];                       // List of packages
-
-} CASC_PACKAGES, *PCASC_PACKAGES;
+//-----------------------------------------------------------------------------
+// Structures for CASC storage and CASC file
 
 typedef struct _TCascStorage
 {
@@ -254,6 +189,7 @@ typedef struct _TCascStorage
     const TCHAR * szIndexFormat;                    // Format of the index file name
     TCHAR * szRootPath;                             // This is the game directory
     TCHAR * szDataPath;                             // This is the directory where data files are
+    TCHAR * szBuildFile;                            // Build file name (.build.info or .build.db)
     TCHAR * szIndexPath;                            // This is the directory where index files are
     TCHAR * szUrlPath;                              // URL to the Blizzard servers
     DWORD dwRefCount;                               // Number of references
@@ -262,40 +198,29 @@ typedef struct _TCascStorage
     DWORD dwFileBeginDelta;                         // This is number of bytes to shift back from archive offset (from index entry) to actual begin of file data
     DWORD dwDefaultLocale;                          // Default locale, read from ".build.info"
     
+    CBLD_TYPE BuildFileType;                        // Type of the build file
+
     QUERY_KEY CdnConfigKey;
     QUERY_KEY CdnBuildKey;
-
-    PQUERY_KEY pArchiveArray;                       // Array of the archives
-    QUERY_KEY ArchiveGroup;                         // Name of the group archive file
-    DWORD ArchiveCount;                             // Number of archives in the array
-
-    PQUERY_KEY pPatchArchiveArray;                  // Array of the patch archives
-    QUERY_KEY PatchArchiveGroup;                    // Name of the patch group archive file
-    DWORD PatchArchiveCount;                        // Number of patch archives in the array
-
+    QUERY_KEY ArchivesGroup;                        // Key array of the "archive-group"
+    QUERY_KEY ArchivesKey;                          // Key array of the "archives"
+    QUERY_KEY PatchArchivesKey;                     // Key array of the "patch-archives"
     QUERY_KEY RootKey;
     QUERY_KEY PatchKey;
     QUERY_KEY DownloadKey;
     QUERY_KEY InstallKey;
-
-    PQUERY_KEY pEncodingKeys;
     QUERY_KEY EncodingKey;
-    QUERY_KEY EncodingEKey;
-    DWORD EncodingKeys;
 
     TFileStream * DataFileArray[CASC_MAX_DATA_FILES]; // Data file handles
 
     CASC_MAPPING_TABLE KeyMapping[CASC_INDEX_COUNT]; // Key mapping
     PCASC_MAP pIndexEntryMap;                       // Map of index entries
 
-    PCASC_ENCODING_HEADER pEncodingHeader;          // The encoding file
-    PCASC_ENCODING_ENTRY * ppEncodingEntries;       // Map of encoding entries
-    size_t nEncodingEntries;
+    QUERY_KEY EncodingFile;                         // Content of the ENCODING file
+    PCASC_MAP pEncodingMap;                         // Map of encoding entries
+    DYNAMIC_ARRAY ExtraEntries;                     // Extra encoding entries
 
-    CASC_ROOT_HASH_TABLE RootTable;                 // Hash table for the root entries
-
-    PCASC_MNDX_INFO pMndxInfo;                      // Used for storages which have MNDX/MAR file
-    PCASC_PACKAGES pPackages;                       // Linear list of present packages
+    TRootHandler * pRootHandler;                    // Common handler for various ROOT file formats
 
 } TCascStorage;
 
@@ -336,16 +261,19 @@ typedef struct _TCascFile
 typedef struct _TCascSearch
 {
     TCascStorage * hs;                              // Pointer to the storage handle
-    const char * szClassName;
-    TCHAR * szListFile;
+    const char * szClassName;                       // Contains "TCascSearch"
+    TCHAR * szListFile;                             // Name of the listfile
     void * pCache;                                  // Listfile cache
-    TMndxFindResult * pStruct1C;                    // Search structure for MNDX info
-    char * szMask;
+    char * szMask;                                  // Search mask
     char szFileName[MAX_PATH];                      // Buffer for the file name
-    char szNormName[MAX_PATH];                      // Buffer for normalized file name
-    DWORD RootIndex;                                // Root index of the previously found item
-    DWORD dwState;                                  // Pointer to the state (0 = listfile, 1 = nameless, 2 = done)
-    BYTE BitArray[1];                               // Bit array of already-reported files
+
+    // Provider-specific data
+    void * pRootContext;                            // Root-specific search context
+    size_t IndexLevel1;                             // Root-specific search context
+    size_t IndexLevel2;                             // Root-specific search context
+    DWORD dwState;                                  // Pointer to the search state (0 = listfile, 1 = nameless, 2 = done)
+
+    BYTE BitArray[1];                               // Bit array of encoding keys. Set for each entry that has already been reported
 
 } TCascSearch;
 
@@ -384,10 +312,15 @@ DWORD ConvertBytesToInteger_4(LPBYTE ValueAsBytes);
 DWORD ConvertBytesToInteger_4_LE(LPBYTE ValueAsBytes);
 ULONGLONG ConvertBytesToInteger_5(LPBYTE ValueAsBytes);
 
+void ConvertIntegerToBytes_4(DWORD Value, LPBYTE ValueAsBytes);
+void FreeCascBlob(PQUERY_KEY pQueryKey);
+
 //-----------------------------------------------------------------------------
-// Build configuration reading
+// Text file parsing (CascFiles.cpp)
 
 int LoadBuildInfo(TCascStorage * hs);
+int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory);
+int ParseRootFileLine(const char * szLinePtr, const char * szLineEnd, PQUERY_KEY pEncodingKey, char * szFileName, size_t nMaxChars);
 
 //-----------------------------------------------------------------------------
 // Internal file functions
@@ -395,11 +328,20 @@ int LoadBuildInfo(TCascStorage * hs);
 TCascStorage * IsValidStorageHandle(HANDLE hStorage);
 TCascFile * IsValidFileHandle(HANDLE hFile);
 
-PCASC_ROOT_ENTRY     FindRootEntry(TCascStorage * hs, const char * szFileName, DWORD * PtrTableIndex);
-PCASC_ENCODING_ENTRY FindEncodingEntry(TCascStorage * hs, PQUERY_KEY pEncodingKey, size_t * PtrIndex);
+PCASC_ENCODING_ENTRY FindEncodingEntry(TCascStorage * hs, PQUERY_KEY pEncodingKey, PDWORD PtrIndex);
 PCASC_INDEX_ENTRY    FindIndexEntry(TCascStorage * hs, PQUERY_KEY pIndexKey);
 
-int CascDecompress(void * pvOutBuffer, PDWORD pcbOutBuffer, void * pvInBuffer, DWORD cbInBuffer);
+int CascDecompress(LPBYTE pvOutBuffer, PDWORD pcbOutBuffer, LPBYTE pvInBuffer, DWORD cbInBuffer);
+int CascDecrypt   (LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer, DWORD dwFrameIndex);
+int CascDirectCopy(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer);
+
+//-----------------------------------------------------------------------------
+// Support for ROOT file
+
+int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
+int RootHandler_CreateDiablo3(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
+int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
+int RootHandler_CreateWoW6(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile, DWORD dwLocaleMask);
 
 //-----------------------------------------------------------------------------
 // Dumping CASC data structures
@@ -409,8 +351,7 @@ void CascDumpSparseArray(const char * szFileName, void * pvSparseArray);
 void CascDumpNameFragTable(const char * szFileName, void * pvMarFile);
 void CascDumpFileNames(const char * szFileName, void * pvMarFile);
 void CascDumpIndexEntries(const char * szFileName, TCascStorage * hs);
-void CascDumpMndxRoot(const char * szFileName, PCASC_MNDX_INFO pMndxInfo);
-void CascDumpRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile, const char * szFormat, const TCHAR * szListFile, int nDumpLevel);
+void CascDumpEncodingEntry(TCascStorage * hs, TDumpContext * dc, PCASC_ENCODING_ENTRY pEncodingEntry, int nDumpLevel);
 void CascDumpFile(const char * szFileName, HANDLE hFile);
 #endif  // _DEBUG
 

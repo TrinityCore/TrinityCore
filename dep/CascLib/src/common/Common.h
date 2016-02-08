@@ -29,33 +29,31 @@ extern unsigned char AsciiToUpperTable_BkSlash[256];
 extern unsigned char IntToHexChar[];
 
 //-----------------------------------------------------------------------------
-// GetLastError/SetLastError support for non-Windows platform
-
-#ifndef PLATFORM_WINDOWS
-int GetLastError();
-void SetLastError(int nError);
-#endif  // PLATFORM_WINDOWS
-
-//-----------------------------------------------------------------------------
 // String manipulation
 
 void CopyString(char * szTarget, const char * szSource, size_t cchLength);
 void CopyString(wchar_t * szTarget, const char * szSource, size_t cchLength);
 void CopyString(char * szTarget, const wchar_t * szSource, size_t cchLength);
 
-char * NewStr(const char * szString, size_t nCharsToReserve);
-wchar_t * NewStr(const wchar_t * szString, size_t nCharsToReserve);
+char * CascNewStr(const char * szString, size_t nCharsToReserve);
+wchar_t * CascNewStr(const wchar_t * szString, size_t nCharsToReserve);
 
-TCHAR * NewStrFromAnsi(LPBYTE pbStringBegin, LPBYTE pbStringEnd);
+TCHAR * CascNewStrFromAnsi(const char * szBegin, const char * szEnd);
 
 TCHAR * CombinePath(const TCHAR * szPath, const TCHAR * szSubDir);
+TCHAR * CombinePathAndString(const TCHAR * szPath, const char * szString, size_t nLength);
 
-void NormalizeFileName_UpperBkSlash(char * szTrgFileName, const char * szSrcFileName, size_t cchMaxChars);
-void NormalizeFileName_LowerSlash(char * szTrgFileName, const char * szSrcFileName, size_t cchMaxChars);
+size_t NormalizeFileName_UpperBkSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
+size_t NormalizeFileName_LowerSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
+
+ULONGLONG CalcFileNameHash(const char * szFileName);
 
 int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue);
+int ConvertStringToInt08(const char * szString, PDWORD PtrValue);
 int ConvertStringToInt32(const TCHAR * szString, size_t nMaxDigits, PDWORD PtrValue);
+int ConvertStringToBinary(const char * szString, size_t nMaxDigits, LPBYTE pbBinary);
 char * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, char * szBuffer);
+char * StringFromMD5(LPBYTE md5, char * szBuffer);
 
 //-----------------------------------------------------------------------------
 // File name utilities

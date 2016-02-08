@@ -11,7 +11,6 @@
 #define __CASCLIB_SELF__
 #include "CascLib.h"
 #include "CascCommon.h"
-#include "CascMndxRoot.h"
 
 //-----------------------------------------------------------------------------
 // Local functions
@@ -30,74 +29,28 @@ static void FreeSearchHandle(TCascSearch * pSearch)
 
     // Close (dereference) the archive handle
     if(pSearch->hs != NULL)
+    {
+        // Give root handler chance to free their stuff
+        RootHandler_EndSearch(pSearch->hs->pRootHandler, pSearch);
+
+        // Dereference the storage handle
         CascCloseStorage((HANDLE)pSearch->hs);
-    pSearch->hs = NULL;
+        pSearch->hs = NULL;
+    }
 
     // Free the file cache and frame array
     if(pSearch->szMask != NULL)
         CASC_FREE(pSearch->szMask);
     if(pSearch->szListFile != NULL)
         CASC_FREE(pSearch->szListFile);
-    if(pSearch->pStruct1C != NULL)
-        delete pSearch->pStruct1C;
+//  if(pSearch->pStruct1C != NULL)
+//      delete pSearch->pStruct1C;
     if(pSearch->pCache != NULL)
         ListFile_Free(pSearch->pCache);
 
     // Free the structure itself
     pSearch->szClassName = NULL;
     CASC_FREE(pSearch);
-}
-/*
-DWORD dwRootEntries = 0;
-DWORD dwEncoEntries = 0;
-DWORD dwIndexEntries = 0;
-*/
-static bool VerifyRootEntry(TCascSearch * pSearch, PCASC_ROOT_ENTRY pRootEntry, PCASC_FIND_DATA pFindData, size_t nRootIndex)
-{
-    PCASC_ENCODING_ENTRY pEncodingEntry;
-    PCASC_INDEX_ENTRY pIndexEntry;
-    TCascStorage * hs = pSearch->hs;
-    QUERY_KEY QueryKey;
-    DWORD dwByteIndex = (DWORD)(nRootIndex / 0x08);
-    DWORD dwBitIndex = (DWORD)(nRootIndex & 0x07);
-
-    // First of all, check if that entry has been reported before
-    // If the bit is set, then the file has already been reported
-    // by a previous search iteration
-    if(pSearch->BitArray[dwByteIndex] & (1 << dwBitIndex))
-        return false;
-    pSearch->BitArray[dwByteIndex] |= (1 << dwBitIndex);
-
-    // Increment the number of root entries
-//  dwRootEntries++;
-
-    // Now try to find that encoding key in the array of encoding keys
-    QueryKey.pbData = (LPBYTE)pRootEntry->EncodingKey;
-    QueryKey.cbData = MD5_HASH_SIZE;
-    pEncodingEntry = FindEncodingEntry(hs, &QueryKey, NULL);
-    if(pEncodingEntry == NULL)
-        return false;
-
-//  dwEncoEntries++;
-
-    // Now try to find the index entry. Note that we take the first key
-    QueryKey.pbData = pEncodingEntry->EncodingKey + MD5_HASH_SIZE;
-    QueryKey.cbData = MD5_HASH_SIZE;
-    pIndexEntry = FindIndexEntry(hs, &QueryKey);
-    if(pIndexEntry == NULL)
-        return false;
-
-//  dwIndexEntries++;
-
-    // Fill the name hash and the MD5
-    memcpy(pFindData->EncodingKey, pRootEntry->EncodingKey, MD5_HASH_SIZE);
-    pFindData->FileNameHash = pRootEntry->FileNameHash;
-    pFindData->dwPackageIndex = 0;
-    pFindData->dwLocaleFlags = pRootEntry->Locales;
-    
-    // Fill-in the file size
-    pFindData->dwFileSize = ConvertBytesToInteger_4(pEncodingEntry->FileSizeBE);
-    return true;
 }
 
 static TCascSearch * AllocateSearchHandle(TCascStorage * hs, const TCHAR * szListFile, const char * szMask)
@@ -106,7 +59,7 @@ static TCascSearch * AllocateSearchHandle(TCascStorage * hs, const TCHAR * szLis
     size_t cbToAllocate;
 
     // When using the MNDX info, do not allocate the extra bit array
-    cbToAllocate = sizeof(TCascSearch) + ((hs->pMndxInfo == NULL) ? (hs->RootTable.TableSize / 8) : 0);
+    cbToAllocate = sizeof(TCascSearch) + ((hs->pEncodingMap->TableSize + 7) / 8);
     pSearch = (TCascSearch *)CASC_ALLOC(BYTE, cbToAllocate);
     if(pSearch != NULL)
     {
@@ -125,7 +78,7 @@ static TCascSearch * AllocateSearchHandle(TCascStorage * hs, const TCHAR * szLis
         // Save the other variables
         if(szListFile != NULL)
         {
-            pSearch->szListFile = NewStr(szListFile, 0);
+            pSearch->szListFile = CascNewStr(szListFile, 0);
             if(pSearch->szListFile == NULL)
             {
                 FreeSearchHandle(pSearch);
@@ -134,7 +87,7 @@ static TCascSearch * AllocateSearchHandle(TCascStorage * hs, const TCHAR * szLis
         }
 
         // Allocate the search mask
-        pSearch->szMask = NewStr(szMask, 0);
+        pSearch->szMask = CascNewStr(szMask, 0);
         if(pSearch->szMask == NULL)
         {
             FreeSearchHandle(pSearch);
@@ -145,64 +98,106 @@ static TCascSearch * AllocateSearchHandle(TCascStorage * hs, const TCHAR * szLis
     return pSearch;
 }
 
-static bool DoStorageSearch_ListFile(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
+// Perform searching using root-specific provider.
+// The provider may need the listfile
+static bool DoStorageSearch_RootFile(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
 {
-    PCASC_ROOT_ENTRY pRootEntry;
-    TCascStorage * hs = pSearch->hs;
-    char szFileName2[MAX_PATH + 1];
-    DWORD TableIndex = 0;
+    PCASC_ENCODING_ENTRY pEncodingEntry;
+    PCASC_INDEX_ENTRY pIndexEntry;
+    QUERY_KEY EncodingKey;
+    QUERY_KEY IndexKey;
+    LPBYTE pbEncodingKey;
+    DWORD EncodingIndex = 0;
+    DWORD LocaleFlags = 0;
+    DWORD FileSize = CASC_INVALID_SIZE;
+    DWORD ByteIndex;
+    DWORD BitMask;
 
-    // Get next file from the listfile
-    while(ListFile_GetNext(pSearch->pCache, pSearch->szMask, pSearch->szFileName, MAX_PATH))
+    for(;;)
     {
-#ifdef _DEBUG
-//      if(!_stricmp(pSearch->szFileName, "Character\\BloodElf\\Female\\DeathKnightEyeGlow.blp"))
-//          DebugBreak();
-#endif
+        // Attempt to find (the next) file from the root entry
+        pbEncodingKey = RootHandler_Search(pSearch->hs->pRootHandler, pSearch, &FileSize, &LocaleFlags);
+        if(pbEncodingKey == NULL)
+            return false;
 
-        // Normalize the file name found in the list file
-        NormalizeFileName_UpperBkSlash(szFileName2, pSearch->szFileName, MAX_PATH);
-
-        // Find the root entry
-        pRootEntry = FindRootEntry(hs, szFileName2, &TableIndex);
-        if(pRootEntry != NULL)
+        // Verify whether the encoding key exists in the encoding table
+        EncodingKey.pbData = pbEncodingKey;
+        EncodingKey.cbData = MD5_HASH_SIZE;
+        pEncodingEntry = FindEncodingEntry(pSearch->hs, &EncodingKey, &EncodingIndex);
+        if(pEncodingEntry != NULL)
         {
-            // Verify whether the file exists in the storage
-            if(VerifyRootEntry(pSearch, pRootEntry, pFindData, TableIndex))
-            {
-                strcpy(pFindData->szFileName, pSearch->szFileName);
-                pFindData->szPlainName = (char *)GetPlainFileName(pFindData->szFileName);
-                return true;
-            }
-        }
-    }
+            // Mark the item as already found
+            // Note: Duplicate items are allowed while we are searching using file names
+            // Do not exclude items from search if they were found before
+            ByteIndex = (DWORD)(EncodingIndex / 8);
+            BitMask   = 1 << (EncodingIndex & 0x07);
+            pSearch->BitArray[ByteIndex] |= BitMask;
+            
+            // Locate the index entry
+            IndexKey.pbData = GET_INDEX_KEY(pEncodingEntry);
+            IndexKey.cbData = MD5_HASH_SIZE;
+            pIndexEntry = FindIndexEntry(pSearch->hs, &IndexKey);
+            if(pIndexEntry == NULL)
+                continue;
 
-    // Listfile search ended
-    return false;
-}
+            // If we retrieved the file size directly from the root provider, use it
+            // Otherwise, we need to retrieve it from the encoding entry
+            if(FileSize == CASC_INVALID_SIZE)
+                FileSize = ConvertBytesToInteger_4(pEncodingEntry->FileSizeBE);
 
-static bool DoStorageSearch_Hash(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
-{
-    PCASC_ROOT_ENTRY pRootEntry;
-    TCascStorage * hs = pSearch->hs;
-
-    // Check if there is more files with the same name hash
-    while(pSearch->RootIndex < hs->RootTable.TableSize)
-    {
-        // Get the pointer to the root entry
-        pRootEntry = hs->RootTable.TablePtr + pSearch->RootIndex;
-
-        // Verify if that root entry exists in the CASC storage
-        // and was not found before
-        if(VerifyRootEntry(pSearch, pRootEntry, pFindData, pSearch->RootIndex))
-        {
-            pFindData->szFileName[0] = 0;
-            pFindData->szPlainName = NULL;
+            // Fill-in the found file
+            strcpy(pFindData->szFileName, pSearch->szFileName);
+            memcpy(pFindData->EncodingKey, pEncodingEntry->EncodingKey, MD5_HASH_SIZE);
+            pFindData->szPlainName = (char *)GetPlainFileName(pFindData->szFileName);
+            pFindData->dwLocaleFlags = LocaleFlags;
+            pFindData->dwFileSize = FileSize;
             return true;
         }
+    }
+}
 
-        // Move to the next entry
-        pSearch->RootIndex++;
+static bool DoStorageSearch_EncodingKey(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
+{
+    PCASC_ENCODING_ENTRY pEncodingEntry;
+    PCASC_INDEX_ENTRY pIndexEntry;
+    TCascStorage * hs = pSearch->hs;
+    QUERY_KEY IndexKey;
+    DWORD ByteIndex;
+    DWORD BitMask;
+
+    // Check for encoding keys that haven't been found yet
+    while(pSearch->IndexLevel1 < hs->pEncodingMap->TableSize)
+    {
+        // Check if that entry has been reported before
+        ByteIndex = (DWORD)(pSearch->IndexLevel1 / 8);
+        BitMask = 1 << (pSearch->IndexLevel1 & 0x07);
+        if((pSearch->BitArray[ByteIndex] & BitMask) == 0)
+        {
+            // Locate the index entry
+            pEncodingEntry  = (PCASC_ENCODING_ENTRY)hs->pEncodingMap->HashTable[pSearch->IndexLevel1];
+            if(pEncodingEntry != NULL)
+            {
+                IndexKey.pbData = GET_INDEX_KEY(pEncodingEntry);
+                IndexKey.cbData = MD5_HASH_SIZE;
+                pIndexEntry = FindIndexEntry(pSearch->hs, &IndexKey);
+                if(pIndexEntry != NULL)
+                {
+                    // Fill-in the found file
+                    memcpy(pFindData->EncodingKey, pEncodingEntry->EncodingKey, MD5_HASH_SIZE);
+                    pFindData->szFileName[0] = 0;
+                    pFindData->szPlainName = NULL;
+                    pFindData->dwLocaleFlags = CASC_LOCALE_NONE;
+                    pFindData->dwFileSize = ConvertBytesToInteger_4(pEncodingEntry->FileSizeBE);
+
+                    // Mark the entry as already-found
+                    pSearch->BitArray[ByteIndex] |= BitMask;
+                    return true;
+                }
+            }
+        }
+
+        // Go to the next encoding entry
+        pSearch->IndexLevel1++;
     }
     
     // Nameless search ended
@@ -211,10 +206,6 @@ static bool DoStorageSearch_Hash(TCascSearch * pSearch, PCASC_FIND_DATA pFindDat
 
 static bool DoStorageSearch(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
 {
-    // Are we searching using the MNDX ?
-    if(pSearch->hs->pMndxInfo != NULL)
-        return DoStorageSearch_MNDX(pSearch, pFindData);
-
     // State 0: No search done yet
     if(pSearch->dwState == 0)
     {
@@ -223,30 +214,25 @@ static bool DoStorageSearch(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
             pSearch->pCache = ListFile_OpenExternal(pSearch->szListFile);
         
         // Move the search phase to the listfile searching
-        pSearch->RootIndex = 0;
+        pSearch->IndexLevel1 = 0;
         pSearch->dwState++;
-
-        // If either file stream or listfile cache are invalid,
-        // move to the next phase
-        if(pSearch->pCache == NULL)
-            pSearch->dwState++;
     }
 
     // State 1: Searching the list file
     if(pSearch->dwState == 1)
     {
-        if(DoStorageSearch_ListFile(pSearch, pFindData))
+        if(DoStorageSearch_RootFile(pSearch, pFindData))
             return true;
 
         // Move to the nameless search state
-        assert(pSearch->RootIndex == 0);
+        pSearch->IndexLevel1 = 0;
         pSearch->dwState++;
     }
 
     // State 2: Searching the remaining entries
     if(pSearch->dwState == 2)
     {
-        if(DoStorageSearch_Hash(pSearch, pFindData))
+        if(DoStorageSearch_EncodingKey(pSearch, pFindData))
             return true;
 
         // Move to the final search state
@@ -275,18 +261,11 @@ HANDLE WINAPI CascFindFirstFile(
     if(szMask == NULL || pFindData == NULL)
         nError = ERROR_INVALID_PARAMETER;
     
-    // Allocate the structure for archive search
+    // Init the search structure and search handle
     if(nError == ERROR_SUCCESS)
     {
         // Clear the entire search structure
         memset(pFindData, 0, sizeof(CASC_FIND_DATA));
-
-        // We must have listfile for non-MNDX storages
-        if(hs->pMndxInfo == NULL && szListFile == NULL)
-        {
-            SetLastError(ERROR_INVALID_PARAMETER);
-            return NULL;
-        }
 
         // Allocate the search handle
         pSearch = AllocateSearchHandle(hs, szListFile, szMask);
