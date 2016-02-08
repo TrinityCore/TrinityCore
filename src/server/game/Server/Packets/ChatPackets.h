@@ -300,6 +300,16 @@ namespace WorldPackets
             ObjectGuid IgnoredGUID;
             uint8 Reason = 0;
         };
+
+        class ChatPlayerAmbiguous : ServerPacket
+        {
+        public:
+            ChatPlayerAmbiguous()  : ServerPacket(SMSG_CHAT_PLAYER_AMBIGUOUS, 2 + Name.length()) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+        };
     }
 }
 
