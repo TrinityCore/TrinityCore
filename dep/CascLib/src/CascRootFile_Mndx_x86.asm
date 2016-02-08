@@ -6,9 +6,9 @@ ASSUME FS: NOTHING
 
 TMndxFindResult struc ; (sizeof=0x1C) ; XREF: GAME_OBJECT_03F7E848::sub_E94500_r
 szSearchMask    dd ?                    ; XREF: TMndxFindResult__SetPath+2D_w
-                                        ; TMndxFindResult__Constructor+4_w ...
+                                        ; TMndxFindResult__Constructor+4_w
 cchSearchMask   dd ?                    ; XREF: TMndxFindResult__SetPath:loc_1956E9A_w
-                                        ; TMndxFindResult__Constructor+6_w ...
+                                        ; TMndxFindResult__Constructor+6_w
 field_8         dd ?                    ; XREF: TMndxFindResult__Constructor+9_w
 szFoundPath     dd ?                    ; XREF: TMndxFindResult__Constructor+C_w
                                         ; TFileNameDatabase__FindFileInDatabase+55_w
@@ -17,7 +17,7 @@ cchFoundPath    dd ?                    ; XREF: TMndxFindResult__Constructor+F_w
 FileNameIndex   dd ?                    ; XREF: TMndxFindResult__Constructor+12_w
                                         ; TFileNameDatabase__FindFileInDatabase+6B_w
 pStruct40       dd ?                    ; XREF: MAR_FILE__FindFileInDatabase+19_r
-                                        ; TMndxFindResult__SetPath:loc_1956E8C_r ...
+                                        ; TMndxFindResult__SetPath:loc_1956E8C_r
 TMndxFindResult ends
 
 ; ---------------------------------------------------------------------------
@@ -25,9 +25,9 @@ TMndxFindResult ends
 TRIPLET         struc ; (sizeof=0xC)
 BitIndex        dd ?                    ; XREF: TFileNameDatabase__CheckNextPathFragment+39_r
 NextKey         dd ?                    ; XREF: TFileNameDatabase__CheckNextPathFragment+8C_r
-                                        ; TSparseArray__GetItemValue:loc_1959B8F_r ...
+                                        ; TSparseArray__GetItemValue:loc_1959B8F_r
 Distance        dd ?                    ; XREF: TFileNameDatabase__CheckNextPathFragment+3E_r
-                                        ; TSparseArray__GetItemValue:loc_1959BBE_r ...
+                                        ; TSparseArray__GetItemValue:loc_1959BBE_r
 TRIPLET         ends
 
 ; ---------------------------------------------------------------------------
@@ -44,33 +44,33 @@ NAME_ENTRY   ends
 
 TStruct14       struc ; (sizeof=0x14)   ; XREF: TFileNameDatabase::sub_1959460r
 HashValue       dd ?                    ; XREF: TGenericArray__InsertItem_STRUCT14+44r
-                                        ; TGenericArray__InsertItem_STRUCT14+46w ...
+                                        ; TGenericArray__InsertItem_STRUCT14+46w
 field_4         dd ?                    ; XREF: TGenericArray__InsertItem_STRUCT14+48r
-                                        ; TGenericArray__InsertItem_STRUCT14+4Bw ...
+                                        ; TGenericArray__InsertItem_STRUCT14+4Bw
 field_8         dd ?                    ; XREF: TGenericArray__InsertItem_STRUCT14+4Er
-                                        ; TGenericArray__InsertItem_STRUCT14+51w ...
+                                        ; TGenericArray__InsertItem_STRUCT14+51w
 field_C         dd ?                    ; XREF: TGenericArray__InsertItem_STRUCT14+54r
-                                        ; TGenericArray__InsertItem_STRUCT14+57w ...
+                                        ; TGenericArray__InsertItem_STRUCT14+57w
 field_10        dd ?                    ; XREF: TGenericArray__InsertItem_STRUCT14+5Ar
-                                        ; TGenericArray__InsertItem_STRUCT14+5Dw ...
+                                        ; TGenericArray__InsertItem_STRUCT14+5Dw
 TStruct14       ends
 
 ; ---------------------------------------------------------------------------
 
 TGenericArray   struc ; (sizeof=0x15)   ; XREF: TGenericArray::LoadDwordsArrayWithCopyr
-                                        ; TFileNameDatabase::LoadBytesr ...
+                                        ; TFileNameDatabase::LoadBytesr
 DataBuffer      dd ?                    ; XREF: TMndxFindResult__CreateStruct40+24w
-                                        ; TMndxFindResult__CreateStruct40+35w ...
+                                        ; TMndxFindResult__CreateStruct40+35w
 field_4         dd ?                    ; XREF: TMndxFindResult__CreateStruct40+26w
-                                        ; TMndxFindResult__CreateStruct40+38w ...
+                                        ; TMndxFindResult__CreateStruct40+38w
 ItemArray       dd ?                    ; XREF: TMndxFindResult__CreateStruct40+29w
-                                        ; TMndxFindResult__CreateStruct40+3Bw ...
+                                        ; TMndxFindResult__CreateStruct40+3Bw
 ItemCount       dd ?                    ; XREF: TMndxFindResult__CreateStruct40+2Cw
-                                        ; TMndxFindResult__CreateStruct40+3Ew ...
+                                        ; TMndxFindResult__CreateStruct40+3Ew
 MaxItemCount    dd ?                    ; XREF: TFileNameDatabasePtr__CreateDatabase+27o
-                                        ; TMndxFindResult__CreateStruct40+2Fw ...
+                                        ; TMndxFindResult__CreateStruct40+2Fw
 bIsValidArray   db ?                    ; XREF: LoadAndVerifyIndexFileHeader+31w
-                                        ; TMndxFindResult__CreateStruct40+32w ...
+                                        ; TMndxFindResult__CreateStruct40+32w
 TGenericArray   ends
 
 ; ---------------------------------------------------------------------------
@@ -81,7 +81,7 @@ DataBuffer      dd ?                    ; XREF: TArchiveDatabase__Destructor+64
                                         ; TArchiveDatabase__Constructor+1A3w
 field_4         dd ?                    ; XREF: TArchiveDatabase__Constructor+1A9w
 ItemArray       dd ?                    ; XREF: sub_1957350+31r
-                                        ; sub_19573D0+1Fr ...
+                                        ; sub_19573D0+1Fr
 ItemCount       dd ?                    ; XREF: TArchiveDatabase__Constructor+1B5w
 MaxItemCount    dd ?                    ; XREF: TArchiveDatabase__Constructor+1BBw
 bIsValidArray   db ?                    ; XREF: TArchiveDatabase__Constructor+1C1w
@@ -89,9 +89,9 @@ bIsValidArray   db ?                    ; XREF: TArchiveDatabase__Constructor+1C
                 db ? ; undefined
                 db ? ; undefined
 BitsPerEntry    dd ?                    ; XREF: sub_1957350+1Fr
-                                        ; sub_19573D0+6r ...
+                                        ; sub_19573D0+6r
 EntryBitMask    dd ?                    ; XREF: sub_1957350:loc_19573B1r
-                                        ; sub_19573D0:loc_1957419r ...
+                                        ; sub_19573D0:loc_1957419r
 TotalEntries    dd ?                    ; XREF: TGenericArrayEx__LoadFromStream:loc_195861Bw
                                         ; TArchiveDatabase__Constructor+1D3w
 TBitEntryArray  ends
@@ -100,50 +100,50 @@ TBitEntryArray  ends
 
 TStruct40       struc ; (sizeof=0x40)
 array_00        TGenericArray <>        ; XREF: TMndxFindResult__CreateStruct40+24w
-                                        ; TMndxFindResult__CreateStruct40+26w ...
+                                        ; TMndxFindResult__CreateStruct40+26w
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 array_18        TGenericArray <>        ; XREF: TMndxFindResult__CreateStruct40+35w
-                                        ; TMndxFindResult__CreateStruct40+38w ...
+                                        ; TMndxFindResult__CreateStruct40+38w
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 HashValue       dd ?                    ; XREF: TMndxFindResult__CreateStruct40+47w
-                                        ; TFileNameDatabase__CheckNextPathFragment+1Ar ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+1Ar
 CharIndex       dd ?                    ; XREF: TMndxFindResult__CreateStruct40+4Aw
-                                        ; TFileNameDatabase__CheckNextPathFragment+11r ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+11r
 ItemCount       dd ?                    ; XREF: TMndxFindResult__CreateStruct40+4Dw
-                                        ; TStruct40__InitSearchBuffers+6Bw ...
+                                        ; TStruct40__InitSearchBuffers+6Bw
 SearchPhase     dd ?                    ; XREF: TMndxFindResult__CreateStruct40+50w
-                                        ; TFileNameDatabase__FindFileInDatabase+17w ...
+                                        ; TFileNameDatabase__FindFileInDatabase+17w
 TStruct40       ends
 
 ; ---------------------------------------------------------------------------
 
 TSparseArray    struc ; (sizeof=0x65)   ; XREF: TSparseArray::LoadFromStream_Exchange_r
-                                        ; TNameIndexStruct_r ...
+                                        ; TNameIndexStruct_r
 ItemIsPresent   TGenericArray <>        ; XREF: LoadAndVerifyIndexFileHeader+31_w
-                                        ; TFileNameDatabase__Destructor+4C_r ...
+                                        ; TFileNameDatabase__Destructor+4C_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 TotalItemCount  dd ?                    ; XREF: TSparseArray__ExchangeWith+4D_r
-                                        ; TSparseArray__ExchangeWith+56_w ...
+                                        ; TSparseArray__ExchangeWith+56_w
 ValidItemCount  dd ?                    ; XREF: TFileNameDatabasePtr__GetFileNameCount:loc_1956D32_r
-                                        ; TSparseArray__ExchangeWith+59_r ...
+                                        ; TSparseArray__ExchangeWith+59_r
 ArrayTriplets_20 TGenericArray <>       ; XREF: TFileNameDatabase__Destructor+40_r
-                                        ; TFileNameDatabase__Destructor+94_r ...
+                                        ; TFileNameDatabase__Destructor+94_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 ArrayDwords_38  TGenericArray <>        ; XREF: TFileNameDatabasePtr__CreateDatabase+27_o
-                                        ; TFileNameDatabase__Destructor+34_r ...
+                                        ; TFileNameDatabase__Destructor+34_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 ArrayDwords_50  TGenericArray <>        ; XREF: TFileNameDatabase__Destructor+28_r
-                                        ; TFileNameDatabase__Destructor+7C_r ...
+                                        ; TFileNameDatabase__Destructor+7C_r
 TSparseArray    ends
 
 ; ---------------------------------------------------------------------------
@@ -151,12 +151,12 @@ TSparseArray    ends
 TNameIndexStruct struc ; (sizeof=0x7D)  ; XREF: TNameIndexStruct::LoadFromStream_Exchange_r
                                         ; TFileNameDatabaser
 NameFragments   TGenericArray <>        ; XREF: TFileNameDatabase__Destructor+58_r
-                                        ; TFileNameDatabase__LoadFromStream+82_r ...
+                                        ; TFileNameDatabase__LoadFromStream+82_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 Struct68        TSparseArray <>         ; XREF: LoadAndVerifyIndexFileHeader+31_w
-                                        ; TFileNameDatabase__Destructor+28_r ...
+                                        ; TFileNameDatabase__Destructor+28_r
 TNameIndexStruct ends
 
 ; ---------------------------------------------------------------------------
@@ -164,11 +164,11 @@ TNameIndexStruct ends
 TByteStream     struc ; (sizeof=0x18)   ; XREF: TFileNameDatabasePtr::CreateDatabase_r
                                         ; TFileNameDatabase_r
 pbData          dd ?                    ; XREF: TByteStream__Constructor+4_w
-                                        ; TByteStream__IsMarDataValid+2_r ...
+                                        ; TByteStream__IsMarDataValid+2_r
 pvMappedFile    dd ?                    ; XREF: TByteStream__Constructor+6_w
                                         ; TByteStream__Destructor+3_r
 cbData          dd ?                    ; XREF: TByteStream__Constructor+9_w
-                                        ; TByteStream__GetBytes:loc_1959A05_r ...
+                                        ; TByteStream__GetBytes:loc_1959A05_r
 field_C         dd ?                    ; XREF: TByteStream__Constructor+C_w
 hFile           dd ?                    ; XREF: TByteStream__Constructor+F_w
                                         ; TByteStream__Destructor:loc_19599D2_r
@@ -183,11 +183,11 @@ TStruct10       struc ; (sizeof=0x10)   ; XREF: TStruct10::sub_1957800_r
 field_0         dd ?                    ; XREF: sub_19572E0+24_w
                                         ; TFileNameDatabase__Constructor+21A_w
 field_4         dd ?                    ; XREF: sub_1956FD0+28_w
-                                        ; sub_1956FD0:loc_1957001_w ...
+                                        ; sub_1956FD0:loc_1957001_w
 field_8         dd ?                    ; XREF: sub_19572E0+4A_w
-                                        ; sub_19572E0+5B_w ...
+                                        ; sub_19572E0+5B_w
 field_C         dd ?                    ; XREF: sub_1957050:loc_1957074_w
-                                        ; sub_1957050:loc_1957081_w ...
+                                        ; sub_1957050:loc_1957081_w
 TStruct10       ends
 
 ; ---------------------------------------------------------------------------
@@ -195,52 +195,52 @@ TStruct10       ends
 TFileNameDatabasePtr struc ; (sizeof=0x4) ; XREF: TFileNameDatabase_r
                                         ; MAR_FILE_r
 pDatabase       dd ?                    ; XREF: MAR_FILE__Constructor+1D_w
-                                        ; MAR_FILE__CreateDatabase+22_w ...
+                                        ; MAR_FILE__CreateDatabase+22_w
 TFileNameDatabasePtr ends
 
 ; ---------------------------------------------------------------------------
 
 TFileNameDatabase struc ; (sizeof=0x240) ; XREF: TFileNameDatabase::LoadFromStream_Exchange_r
 Struct68_00     TSparseArray <>         ; XREF: TFileNameDatabasePtr__CreateDatabase+27_o
-                                        ; TFileNameDatabase__Destructor+D9_r ...
+                                        ; TFileNameDatabase__Destructor+D9_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 FileNameIndexes TSparseArray <>         ; XREF: TFileNameDatabasePtr__GetFileNameCount:loc_1956D32_r
-                                        ; TFileNameDatabase__Destructor+AC_r ...
+                                        ; TFileNameDatabase__Destructor+AC_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 Struct68_D0     TSparseArray <>         ; XREF: TFileNameDatabase__Destructor+7C_r
-                                        ; TFileNameDatabase__Destructor+88_r ...
+                                        ; TFileNameDatabase__Destructor+88_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 FrgmDist_LoBits TGenericArray <>        ; XREF: TFileNameDatabase__Destructor+70_r
-                                        ; TFileNameDatabase__CheckNextPathFragment:loc_1957AC9_r ...
+                                        ; TFileNameDatabase__CheckNextPathFragment:loc_1957AC9_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 FrgmDist_HiBits TBitEntryArray <>       ; XREF: TFileNameDatabase__Destructor+64_r
-                                        ; TFileNameDatabase__CheckNextPathFragment+119_r ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+119_r
 IndexStruct_174 TNameIndexStruct <>     ; XREF: TFileNameDatabase__Destructor+28_r
-                                        ; TFileNameDatabase__Destructor+34_r ...
+                                        ; TFileNameDatabase__Destructor+34_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 NextDB          TFileNameDatabasePtr <> ; XREF: TFileNameDatabase__Destructor+1D_o
-                                        ; TFileNameDatabase__CheckNextPathFragment+52_r ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+52_r
 NameFragTable   TGenericArray <>        ; XREF: TFileNameDatabase__Destructor+E_r
-                                        ; TFileNameDatabase__CheckNextPathFragment+2F_r ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+2F_r
                 db ? ; undefined
                 db ? ; undefined
                 db ? ; undefined
 NameFragIndexMask dd ?                  ; XREF: TFileNameDatabase__CheckNextPathFragment+26_r
-                                        ; sub_1957B80:loc_1957B95_r ...
+                                        ; sub_1957B80:loc_1957B95_r
 field_214       dd ?                    ; XREF: TFileNameDatabase__Constructor+20E_w
                                         ; TFileNameDatabase__LoadFromStream+110_w
 Struct10        TStruct10 <>            ; XREF: TFileNameDatabase__Constructor+21A_w
-                                        ; TFileNameDatabase__Constructor+224_w ...
+                                        ; TFileNameDatabase__Constructor+224_w
 MarStream       TByteStream <>          ; XREF: TFileNameDatabase__Destructor+3_o
                                         ; TFileNameDatabase__Constructor+214_o
 TFileNameDatabase ends
@@ -249,11 +249,11 @@ TFileNameDatabase ends
 
 MAR_FILE        struc ; (sizeof=0xC)
 pDatabasePtr    TFileNameDatabasePtr <>   ; XREF: MAR_FILE__Constructor+1D_w
-                                        ; MAR_FILE__CreateDatabase+22_w ...
+                                        ; MAR_FILE__CreateDatabase+22_w
 pbMarFileData   dd ?                    ; XREF: MAR_FILE__Constructor+1A_w
-                                        ; MAR_FILE__CreateDatabase+1B_r ...
+                                        ; MAR_FILE__CreateDatabase+1B_r
 cbMarFileData   dd ?                    ; XREF: MAR_FILE__Constructor+12_w
-                                        ; MAR_FILE__CreateDatabase+18_r ...
+                                        ; MAR_FILE__CreateDatabase+18_r
 MAR_FILE        ends
 
 .DATA
@@ -368,7 +368,7 @@ operator_delete ENDP
 
 
 TSparseArray__GetItemValue     proc near               ; CODE XREF: sub_1957350+1A_p
-                                        ; TFileNameDatabase__CheckNextPathFragment+103_p ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+103_p
 
 arg_0           = dword ptr  8
 
@@ -451,7 +451,7 @@ loc_1959BDE:                            ; CODE XREF: TSparseArray__GetItemValue+
                 add     esi, eax
 
 loc_1959BE0:                            ; CODE XREF: TSparseArray__GetItemValue+26_j
-                                        ; TSparseArray__GetItemValue+45_j ...
+                                        ; TSparseArray__GetItemValue+45_j
                 mov     ebx, edi        ; jumptable 01959B88 default case
                 shr     ebx, 5
                 test    bl, 1
@@ -525,7 +525,7 @@ TSparseArray__GetItemValue     endp
 
 TArchiveDatabase__sub_1959CB0 proc near
                                         ; CODE XREF: TFileNameDatabase__CheckNextPathFragment+A1_p
-                                        ; sub_1958B00+E8_p ...
+                                        ; sub_1958B00+E8_p
 
 pThis           = dword ptr -4
 dwKey           = dword ptr  8
@@ -614,7 +614,7 @@ loc_1959D55:                            ; CODE XREF: TFileNameDatabase__FindNext
                 mov     ecx, [ebp+pThis]
 
 loc_1959D5F:                            ; CODE XREF: TFileNameDatabase__FindNextMatch+62_j
-                                        ; TFileNameDatabase__FindNextMatch+7C_j ...
+                                        ; TFileNameDatabase__FindNextMatch+7C_j
                 mov     ecx, [ecx+28h]
                 lea     esi, [eax+eax*2]
                 mov     edi, [ecx+esi*4] ; EDI = Struct68_00.ArrayTriplets_20.ItemArray[eax]
@@ -709,7 +709,7 @@ loc_1959E49:                            ; CODE XREF: TFileNameDatabase__FindNext
                 lea     edx, [edx+esi-1C0h]
 
 loc_1959E53:                            ; CODE XREF: TFileNameDatabase__FindNextMatch+FE_j
-                                        ; TFileNameDatabase__FindNextMatch+10B_j ...
+                                        ; TFileNameDatabase__FindNextMatch+10B_j
                 mov     eax, [ebp+pThis]
                 mov     ebx, [eax+8]
                 mov     ecx, [ebx+edi*4]
@@ -809,7 +809,7 @@ TArchiveDatabase__sub_1959CB0 endp
 ; Attributes: bp-based frame
 
 TNameIndexStruct__CheckNameFragment     proc near               ; CODE XREF: TFileNameDatabase__CheckNextPathFragment+6B_p
-                                        ; TFileNameDatabase__CheckNextPathFragment+191_p ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+191_p
 
 pThis           = dword ptr -4
 pUnknownStruct1C= dword ptr  8
@@ -845,7 +845,7 @@ loc_195A1A1:                            ; CODE XREF: TNameIndexStruct__CheckName
                 jb      short loc_195A1A1
 
 loc_195A1BD:                            ; CODE XREF: TNameIndexStruct__CheckNameFragment+2C_j
-                                        ; TNameIndexStruct__CheckNameFragment+5Ej ...
+                                        ; TNameIndexStruct__CheckNameFragment+5Ej
                 pop     edi
                 pop     esi
                 xor     al, al
@@ -907,7 +907,7 @@ TNameIndexStruct__CheckNameFragment     endp
 ; Attributes: bp-based frame
 
 sub_1957350     proc near               ; CODE XREF: sub_1957B80+D8p
-                                        ; sub_1957B80:loc_1957C73p ...
+                                        ; sub_1957B80:loc_1957C73p
 
 arg_0           = dword ptr  8
 
@@ -971,7 +971,7 @@ sub_1957350     endp
 ; Attributes: bp-based frame
 
 sub_1959F50     proc near               ; CODE XREF: sub_1957B80+14C_p
-                                        ; sub_1958980+62_p ...
+                                        ; sub_1958980+62_p
 
 var_4           = dword ptr -4
 arg_0           = dword ptr  8
@@ -1046,7 +1046,7 @@ loc_1959FCA:                            ; CODE XREF: sub_1959F50+76_j
                 mov     ecx, [ebp+var_4]
 
 loc_1959FD4:                            ; CODE XREF: sub_1959F50+51_j
-                                        ; sub_1959F50+5B_j ...
+                                        ; sub_1959F50+5B_j
                 mov     edi, [ecx+28h]
                 lea     esi, [eax+eax*2]
                 sub     edx, [edi+esi*4]
@@ -1124,7 +1124,7 @@ loc_195A064:                            ; CODE XREF: sub_1959F50+CD_j
                 sub     edx, esi
 
 loc_195A066:                            ; CODE XREF: sub_1959F50+B5_j
-                                        ; sub_1959F50+BC_j ...
+                                        ; sub_1959F50+BC_j
                 mov     ebx, [ecx+8]
                 mov     esi, [ebx+edi*4]
                 mov     eax, esi
@@ -1223,7 +1223,7 @@ sub_1959F50     endp
 ; Attributes: bp-based frame
 
 sub_1957B80     proc near               ; CODE XREF: TFileNameDatabase__CheckNextPathFragment+5E_p
-                                        ; TFileNameDatabase__CheckNextPathFragment+180_p ...
+                                        ; TFileNameDatabase__CheckNextPathFragment+180_p
 
 pStruct40       = dword ptr -4
 arg_0           = dword ptr  8
@@ -1300,7 +1300,7 @@ loc_1957C05:                            ; CODE XREF: sub_1957B80+6C_j
                 jb      loc_1957B95
 
 loc_1957C25:                            ; CODE XREF: sub_1957B80+67_j
-                                        ; sub_1957B80+7C_j ...
+                                        ; sub_1957B80+7C_j
                 pop     edi
                 pop     esi
                 xor     al, al
@@ -1765,7 +1765,7 @@ TFileNameDatabase__FindFileInDatabase endp
 ; Attributes: bp-based frame
 
 TGenericArray__SetMaxItems_BYTE proc near ; CODE XREF: sub_19582E0+2Cp
-                                        ; TStruct40__InitSearchBuffers+2Cp ...
+                                        ; TStruct40__InitSearchBuffers+2Cp
 
 ByteCount       = dword ptr  8
 
@@ -1820,7 +1820,7 @@ TGenericArray__SetMaxItems_BYTE endp
 
 TGenericArray__SetMaxItems_STRUCT14 proc near
                                         ; CODE XREF: TGenericArray__InsertItem_STRUCT14+2Cp
-                                        ; TGenericArray__sub_19583A0+2Dp ...
+                                        ; TGenericArray__sub_19583A0+2Dp
 
 var_4           = dword ptr -4
 ItemCount       = dword ptr  8
@@ -2086,7 +2086,7 @@ TGenericArray__InsertItem_STRUCT14 endp
 ; Attributes: bp-based frame
 
 CopyNameFragment proc near              ; CODE XREF: sub_1958980+DAp
-                                        ; sub_1958D70+6Dp ...
+                                        ; sub_1958D70+6Dp
 
 pThis           = dword ptr -4
 pStruct1C       = dword ptr  8
@@ -2284,7 +2284,7 @@ CopyNameFragment endp
 ; Attributes: bp-based frame
 
 sub_1958D70     proc near               ; CODE XREF: sub_1958980+C9p
-                                        ; sub_1958D70+59p ...
+                                        ; sub_1958D70+59p
 
 var_C           = dword ptr -0Ch
 var_8           = dword ptr -8
@@ -2582,7 +2582,7 @@ sub_1958D70     endp
 ; Attributes: bp-based frame
 
 TFileNameDatabase__sub_1959CB0 proc near ; CODE XREF: TFileNameDatabase__CheckNextPathFragment+A1p
-                                        ; TFileNameDatabase__sub_1958B00+E8p ...
+                                        ; TFileNameDatabase__sub_1958B00+E8p
 
 pThis           = dword ptr -4
 dwKey           = dword ptr  8
@@ -2671,7 +2671,7 @@ loc_1959D55:                            ; CODE XREF: TFileNameDatabase__sub_1959
                 mov     ecx, [ebp+pThis]
 
 loc_1959D5F:                            ; CODE XREF: TFileNameDatabase__sub_1959CB0+62j
-                                        ; TFileNameDatabase__sub_1959CB0+7Cj ...
+                                        ; TFileNameDatabase__sub_1959CB0+7Cj
                 mov     ecx, [ecx+TFileNameDatabase.Struct68_00.ArrayTriplets_20.ItemArray]
                 lea     esi, [eax+eax*2]
                 mov     edi, [ecx+esi*4] ; EDI = Struct68_00.ArrayTriplets_20.ItemArray[eax]
@@ -2766,7 +2766,7 @@ loc_1959E49:                            ; CODE XREF: TFileNameDatabase__sub_1959
                 lea     edx, [edx+esi-1C0h]
 
 loc_1959E53:                            ; CODE XREF: TFileNameDatabase__sub_1959CB0+FEj
-                                        ; TFileNameDatabase__sub_1959CB0+10Bj ...
+                                        ; TFileNameDatabase__sub_1959CB0+10Bj
                 mov     eax, [ebp+pThis]
                 mov     ebx, [eax+TFileNameDatabase.Struct68_00.ItemIsPresent.ItemArray]
                 mov     ecx, [ebx+edi*4]
@@ -2866,7 +2866,7 @@ TFileNameDatabase__sub_1959CB0 endp
 ; Attributes: bp-based frame
 
 TNameIndexStruct__CheckAndCopyNameFragment     proc near               ; CODE XREF: TArchiveDatabase__sub_1958B00+74p
-                                        ; TArchiveDatabase__sub_1958B00+1E0p ...
+                                        ; TArchiveDatabase__sub_1958B00+1E0p
 
 var_C           = dword ptr -0Ch
 pThis           = dword ptr -8
@@ -3206,7 +3206,7 @@ TNameIndexStruct__CheckAndCopyNameFragment     endp
 ; Attributes: bp-based frame
 
 sub_1959010     proc near               ; CODE XREF: TArchiveDatabase__sub_1958B00+67p
-                                        ; TArchiveDatabase__sub_1958B00+1CFp ...
+                                        ; TArchiveDatabase__sub_1958B00+1CFp
 
 pFragmentInfo   = dword ptr -0Ch
 var_8           = dword ptr -8
@@ -3262,7 +3262,7 @@ loc_195907F:                            ; CODE XREF: sub_1959010+5Ej
                 jnz     loc_195912E
 
 loc_1959087:                            ; CODE XREF: sub_1959010+90j
-                                        ; sub_1959010+1F3j ...
+                                        ; sub_1959010+1F3j
                 pop     edi
                 pop     esi
                 xor     al, al
@@ -3962,14 +3962,14 @@ loc_19594B0:                            ; CODE XREF: TFileNameDatabase__sub_1959
 ; ---------------------------------------------------------------------------
 
 loc_1959522:                            ; CODE XREF: TFileNameDatabase__sub_1959460+26Bj
-                                        ; TFileNameDatabase__sub_1959460+2D9j ...
+                                        ; TFileNameDatabase__sub_1959460+2D9j
                 mov     ebx, [ebp+pThis]
                 jmp     short loc_1959530
 ; ---------------------------------------------------------------------------
                 align 10h
 
 loc_1959530:                            ; CODE XREF: TFileNameDatabase__sub_1959460+23j
-                                        ; TFileNameDatabase__sub_1959460+97j ...
+                                        ; TFileNameDatabase__sub_1959460+97j
                 mov     edx, [esi+TStruct40.ItemCount]
                 cmp     edx, [esi+TStruct40.array_18.ItemCount]
                 jnz     loc_19595BD

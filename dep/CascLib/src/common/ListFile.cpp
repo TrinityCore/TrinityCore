@@ -13,176 +13,33 @@
 #include "../CascCommon.h"
 
 //-----------------------------------------------------------------------------
-// Listfile entry structure
+// Listfile cache structure
 
-#define CACHE_BUFFER_SIZE  0x1000       // Size of the cache buffer
-
-typedef bool (*RELOAD_CACHE)(void * pvCacheContext, LPBYTE pbBuffer, DWORD dwBytesToRead);
-typedef void (*CLOSE_STREAM)(void * pvCacheContext);
-
-struct TListFileCache
+typedef struct _LISTFILE_CACHE
 {
-    RELOAD_CACHE pfnReloadCache;        // Function for reloading the cache
-    CLOSE_STREAM pfnCloseStream;        // Function for closing the stream
-    void  * pvCacheContext;             // Reload context passed to reload function
-    char  * szMask;                     // Self-relative pointer to file mask
-    DWORD   dwFileSize;                 // Total size of the cached file
-    DWORD   dwFilePos;                  // Position of the cache in the file
-    BYTE  * pBegin;                     // The begin of the listfile cache
-    BYTE  * pPos;
-    BYTE  * pEnd;                       // The last character in the file cache
+    char * pBegin;                      // The begin of the listfile cache
+    char * pPos;                        // Current position in the cache
+    char * pEnd;                        // The last character in the file cache
 
-    BYTE Buffer[CACHE_BUFFER_SIZE];
-//  char MaskBuff[1]                    // Followed by the name mask (if any)
-};
+    // Followed by the cache (variable length)
+
+} LISTFILE_CACHE, *PLISTFILE_CACHE;
 
 //-----------------------------------------------------------------------------
-// Local functions
+// Creating the listfile cache for the given amount of data
 
-static bool ReloadCache_ExternalFile(void * pvCacheContext, LPBYTE pbBuffer, DWORD dwBytesToRead)
+static PLISTFILE_CACHE CreateListFileCache(DWORD dwFileSize)
 {
-    TFileStream * pStream = (TFileStream *)pvCacheContext;
-
-    return FileStream_Read(pStream, NULL, pbBuffer, dwBytesToRead);
-}
-
-static void CloseStream_ExternalFile(void * pvCacheContext)
-{
-    TFileStream * pStream = (TFileStream *)pvCacheContext;
-
-    return FileStream_Close(pStream);
-}
-
-
-// Reloads the cache. Returns number of characters
-// that has been loaded into the cache.
-static DWORD ReloadListFileCache(TListFileCache * pCache)
-{
-    DWORD dwBytesToRead = 0;
-
-    // Only do something if the cache is empty
-    if(pCache->pPos >= pCache->pEnd)
-    {
-        // Move the file position forward
-        pCache->dwFilePos += CACHE_BUFFER_SIZE;
-        if(pCache->dwFilePos >= pCache->dwFileSize)
-            return 0;
-
-        // Get the number of bytes remaining
-        dwBytesToRead = pCache->dwFileSize - pCache->dwFilePos;
-        if(dwBytesToRead > CACHE_BUFFER_SIZE)
-            dwBytesToRead = CACHE_BUFFER_SIZE;
-
-        // Load the next data chunk to the cache
-        // If we didn't read anything, it might mean that the block
-        // of the file is not available
-        // We stop reading the file at this point, because the rest
-        // of the listfile is unreliable
-        if(!pCache->pfnReloadCache(pCache->pvCacheContext, pCache->Buffer, dwBytesToRead))
-            return 0;
-
-        // Set the buffer pointers
-        pCache->pBegin =
-        pCache->pPos = &pCache->Buffer[0];
-        pCache->pEnd = pCache->pBegin + dwBytesToRead;
-    }
-
-    return dwBytesToRead;
-}
-
-static size_t ReadListFileLine(TListFileCache * pCache, char * szLine, size_t nMaxChars)
-{
-    char * szLineBegin = szLine;
-    char * szLineEnd = szLine + nMaxChars - 1;
-    char * szExtraString = NULL;
-    
-    // Skip newlines, spaces, tabs and another non-printable stuff
-    for(;;)
-    {
-        // If we need to reload the cache, do it
-        if(pCache->pPos == pCache->pEnd)
-        {
-            if(ReloadListFileCache(pCache) == 0)
-                break;
-        }
-
-        // If we found a non-whitespace character, stop
-        if(pCache->pPos[0] > 0x20)
-            break;
-
-        // Skip the character
-        pCache->pPos++;
-    }
-
-    // Copy the remaining characters
-    while(szLine < szLineEnd)
-    {
-        // If we need to reload the cache, do it now and resume copying
-        if(pCache->pPos == pCache->pEnd)
-        {
-            if(ReloadListFileCache(pCache) == 0)
-                break;
-        }
-
-        // If we have found a newline, stop loading
-        if(pCache->pPos[0] == 0x0D || pCache->pPos[0] == 0x0A)
-            break;
-
-        // Blizzard listfiles can also contain information about patch:
-        // Pass1\Files\MacOS\unconditional\user\Background Downloader.app\Contents\Info.plist~Patch(Data#frFR#base-frFR,1326)
-        if(pCache->pPos[0] == '~')
-            szExtraString = szLine;
-
-        // Copy the character
-        *szLine++ = *pCache->pPos++;
-    }
-
-    // Terminate line with zero
-    *szLine = 0;
-
-    // If there was extra string after the file name, clear it
-    if(szExtraString != NULL)
-    {
-        if(szExtraString[0] == '~' && szExtraString[1] == 'P')
-        {
-            szLine = szExtraString;
-            *szExtraString = 0;
-        }
-    }
-
-    // Return the length of the line
-    return (szLine - szLineBegin);
-}
-
-static TListFileCache * CreateListFileCache(RELOAD_CACHE pfnReloadCache, CLOSE_STREAM pfnCloseStream, void * pvCacheContext, DWORD dwFileSize)
-{
-    TListFileCache * pCache = NULL;
-    DWORD dwBytesToRead;
+    PLISTFILE_CACHE pCache;
 
     // Allocate cache for one file block
-    pCache = (TListFileCache *)CASC_ALLOC(BYTE, sizeof(TListFileCache));
+    pCache = (PLISTFILE_CACHE)CASC_ALLOC(BYTE, sizeof(LISTFILE_CACHE) + dwFileSize);
     if(pCache != NULL)
     {
-        // Clear the entire structure
-        memset(pCache, 0, sizeof(TListFileCache));
-        pCache->pfnReloadCache = pfnReloadCache;
-        pCache->pfnCloseStream = pfnCloseStream;
-        pCache->pvCacheContext = pvCacheContext;
-        pCache->dwFileSize = dwFileSize;
-
-        // Load the file cache from the file
-        dwBytesToRead = CASCLIB_MIN(CACHE_BUFFER_SIZE, dwFileSize);
-        if(pfnReloadCache(pvCacheContext, pCache->Buffer, dwBytesToRead))
-        {
-            // Allocate pointers
-            pCache->pBegin = pCache->pPos = &pCache->Buffer[0];
-            pCache->pEnd   = pCache->pBegin + dwBytesToRead;
-        }
-        else
-        {
-            ListFile_Free(pCache);
-            pCache = NULL;
-        }
+        // Set the initial pointers
+        pCache->pBegin = 
+        pCache->pPos   = (char *)(pCache + 1);
+        pCache->pEnd   = pCache->pBegin + dwFileSize;
     }
 
     // Return the cache
@@ -194,7 +51,7 @@ static TListFileCache * CreateListFileCache(RELOAD_CACHE pfnReloadCache, CLOSE_S
 
 void * ListFile_OpenExternal(const TCHAR * szListFile)
 {
-    TListFileCache * pCache;
+    PLISTFILE_CACHE pCache = NULL;
     TFileStream * pStream;
     ULONGLONG FileSize = 0;
 
@@ -204,46 +61,135 @@ void * ListFile_OpenExternal(const TCHAR * szListFile)
     {
         // Retrieve the size of the external listfile
         FileStream_GetSize(pStream, &FileSize);
-        if(0 < FileSize && FileSize <= 0xFFFFFFFF)
-        {                                                               
-            // Create the cache for the listfile
-            pCache = CreateListFileCache(ReloadCache_ExternalFile, CloseStream_ExternalFile, pStream, (DWORD)FileSize);
+        if(0 < FileSize && FileSize <= 0x30000000)
+        {
+            // Create the in-memory cache for the entire listfile
+            // The listfile does not have any data loaded yet
+            pCache = CreateListFileCache((DWORD)FileSize);
             if(pCache != NULL)
-                return pCache;
+            {
+                if(!FileStream_Read(pStream, NULL, pCache->pBegin, (DWORD)FileSize))
+                {
+                    ListFile_Free(pCache);
+                    pCache = NULL;
+                }
+            }
         }
 
         // Close the file stream
         FileStream_Close(pStream);
     }
 
-    return NULL;
+    return pCache;
+}
+
+void * ListFile_FromBuffer(LPBYTE pbBuffer, DWORD cbBuffer)
+{
+    PLISTFILE_CACHE pCache = NULL;
+
+    // Create the in-memory cache for the entire listfile
+    // The listfile does not have any data loaded yet
+    pCache = CreateListFileCache(cbBuffer);
+    if(pCache != NULL)
+        memcpy(pCache->pBegin, pbBuffer, cbBuffer);
+
+    return pCache;
+}
+
+// Performs the MD5-based check on the listfile
+bool ListFile_VerifyMD5(void * pvListFile, LPBYTE pbHashMD5)
+{
+    PLISTFILE_CACHE pCache = (PLISTFILE_CACHE)pvListFile;
+
+    // Must be at the beginning
+    assert(pCache->pPos == pCache->pBegin);
+
+    // Verify the MD5 hash for the entire block
+    return VerifyDataBlockHash(pCache->pBegin, (DWORD)(pCache->pEnd - pCache->pBegin), pbHashMD5);
+}
+
+size_t ListFile_GetNextLine(void * pvListFile, const char ** pszLineBegin, const char ** pszLineEnd)
+{
+    PLISTFILE_CACHE pCache = (PLISTFILE_CACHE)pvListFile;
+    char * szExtraString = NULL;
+    char * szLineBegin;
+    char * szLineEnd;
+    
+    // Skip newlines, spaces, tabs and another non-printable stuff
+    while(pCache->pPos < pCache->pEnd && pCache->pPos[0] <= 0x20)
+        pCache->pPos++;
+
+    // Remember the begin of the line
+    szLineBegin = pCache->pPos;
+
+    // Copy the remaining characters
+    while(pCache->pPos < pCache->pEnd)
+    {
+        // If we have found a newline, stop loading
+        if(pCache->pPos[0] == 0x0D || pCache->pPos[0] == 0x0A)
+            break;
+
+        // Blizzard listfiles can also contain information about patch:
+        // Pass1\Files\MacOS\unconditional\user\Background Downloader.app\Contents\Info.plist~Patch(Data#frFR#base-frFR,1326)
+        if(pCache->pPos[0] == '~')
+            szExtraString = pCache->pPos;
+
+        // Move the position by one character forward
+        pCache->pPos++;
+    }
+
+    // Remember the end of the line
+    szLineEnd = (szExtraString != NULL && szExtraString[0] == '~' && szExtraString[1] == 'P') ? szExtraString : pCache->pPos;
+
+    // Give the caller the positions of the begin and end of the line
+    pszLineBegin[0] = szLineBegin;
+    pszLineEnd[0] = szLineEnd;
+    return (size_t)(szLineEnd - szLineBegin);
+}
+
+size_t ListFile_GetNextLine(void * pvListFile, char * szBuffer, size_t nMaxChars)
+{
+    const char * szLineBegin = NULL;
+    const char * szLineEnd = NULL;
+    size_t nLength;
+
+    // Retrieve the next line
+    nLength = ListFile_GetNextLine(pvListFile, &szLineBegin, &szLineEnd);
+
+    // Check the length
+    if(nLength > nMaxChars)
+    {
+        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        return 0;
+    }
+
+    // Copy the line to the user buffer
+    memcpy(szBuffer, szLineBegin, nLength);
+    szBuffer[nLength] = 0;
+    return nLength;
 }
 
 size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer, size_t nMaxChars)
 {
-    TListFileCache * pCache = (TListFileCache *)pvListFile;
     size_t nLength = 0;
-    int nError = ERROR_INVALID_PARAMETER;
+    int nError = ERROR_SUCCESS;
 
     // Check for parameters
-    if(pCache != NULL)
+    for(;;)
     {
-        for(;;)
+        // Read the (next) line
+        nLength = ListFile_GetNextLine(pvListFile, szBuffer, nMaxChars);
+        if(nLength == 0)
         {
-            // Read the (next) line
-            nLength = ReadListFileLine(pCache, szBuffer, nMaxChars);
-            if(nLength == 0)
-            {
-                nError = ERROR_NO_MORE_FILES;
-                break;
-            }
+            nError = ERROR_NO_MORE_FILES;
+            break;
+        }
 
-            // If some mask entered, check it
-            if(CheckWildCard(szBuffer, szMask))
-            {
-                nError = ERROR_SUCCESS;
-                break;
-            }
+        // If some mask entered, check it
+        if(CheckWildCard(szBuffer, szMask))
+        {
+            nError = ERROR_SUCCESS;
+            break;
         }
     }
 
@@ -254,14 +200,9 @@ size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer,
 
 void ListFile_Free(void * pvListFile)
 {
-    TListFileCache * pCache = (TListFileCache *)pvListFile;
-
-    // Valid parameter check
-    if(pCache != NULL)
+    if(pvListFile != NULL)
     {
-        if(pCache->pfnCloseStream != NULL)
-            pCache->pfnCloseStream(pCache->pvCacheContext);
-        CASC_FREE(pCache);
+        CASC_FREE(pvListFile);
     }
 }
 
@@ -293,11 +234,8 @@ static PLISTFILE_MAP ListMap_Create()
 static PLISTFILE_MAP ListMap_InsertName(PLISTFILE_MAP pListMap, const char * szFileName, size_t nLength)
 {
     PLISTFILE_ENTRY pListEntry;
-    char szFileName2[MAX_PATH+1];
     size_t cbToAllocate;
     size_t cbEntrySize;
-    uint32_t dwHashHigh = 0;
-    uint32_t dwHashLow = 0;
 
     // Make sure there is enough space in the list map
     cbEntrySize = sizeof(LISTFILE_ENTRY) + nLength;
@@ -314,14 +252,10 @@ static PLISTFILE_MAP ListMap_InsertName(PLISTFILE_MAP pListMap, const char * szF
 
     // Get the pointer to the first entry
     pListEntry = (PLISTFILE_ENTRY)((LPBYTE)(pListMap + 1) + pListMap->cbBuffer);
-
-    // Get the name hash
-    NormalizeFileName_UpperBkSlash(szFileName2, szFileName, MAX_PATH);
-    hashlittle2(szFileName2, nLength, &dwHashHigh, &dwHashLow);
-    
-    // Calculate the HASH value of the normalized file name
-    pListEntry->FileNameHash = ((ULONGLONG)dwHashHigh << 0x20) | dwHashLow;
+    pListEntry->FileNameHash = CalcFileNameHash(szFileName);
     pListEntry->cbEntrySize = (DWORD)cbEntrySize;
+
+    // Copy the file name to the entry
     memcpy(pListEntry->szFileName, szFileName, nLength);
     pListEntry->szFileName[nLength] = 0;
 
@@ -357,7 +291,7 @@ static PLISTFILE_MAP ListMap_Finish(PLISTFILE_MAP pListMap)
         pbEntry += pListEntry->cbEntrySize;
 
         // Insert the entry to the map
-        Map_InsertObject(pMap, pListEntry);
+        Map_InsertObject(pMap, pListEntry, &pListEntry->FileNameHash);
     }
 
     return pListMap;
@@ -408,7 +342,7 @@ const char * ListFile_FindName(PLISTFILE_MAP pListMap, ULONGLONG FileNameHash)
     PLISTFILE_ENTRY pListEntry = NULL;
 
     if(pListMap != NULL)
-        pListEntry = (PLISTFILE_ENTRY)Map_FindObject(pListMap->pNameMap, &FileNameHash);
+        pListEntry = (PLISTFILE_ENTRY)Map_FindObject(pListMap->pNameMap, &FileNameHash, NULL);
     return (pListEntry != NULL) ? pListEntry->szFileName : "";
 }
 

@@ -12,20 +12,20 @@
 #define __CASCLIB_SELF__
 #include "CascLib.h"
 #include "CascCommon.h"
-#include "CascMndxRoot.h"
+#include "CascMndx.h"
 
 //-----------------------------------------------------------------------------
 // Local defines
 
-#define CASC_MAR_SIGNATURE 0x0052414d           //  'MAR\0'
+#define CASC_MAR_SIGNATURE 0x0052414d               //  'MAR\0'
 
 //-----------------------------------------------------------------------------
 // Local structures
 
 typedef struct _FILE_MNDX_HEADER
 {
-    DWORD Signature;                            // 'MNDX'
-    DWORD HeaderVersion;                        // Must be <= 2
+    DWORD Signature;                                // 'MNDX'
+    DWORD HeaderVersion;                            // Must be <= 2
     DWORD FormatVersion;
 
 } FILE_MNDX_HEADER, *PFILE_MNDX_HEADER;
@@ -38,6 +38,57 @@ typedef struct _FILE_MAR_INFO
     DWORD MarDataOffset;
     DWORD MarDataOffsetHi;
 } FILE_MAR_INFO, *PFILE_MAR_INFO;
+
+typedef struct _CASC_MNDX_INFO
+{
+    BYTE  RootFileName[MD5_HASH_SIZE];              // Name (aka MD5) of the root file 
+    DWORD HeaderVersion;                            // Must be <= 2
+    DWORD FormatVersion;
+    DWORD field_1C;
+    DWORD field_20;
+    DWORD MarInfoOffset;                            // Offset of the first MAR entry info
+    DWORD MarInfoCount;                             // Number of the MAR info entries
+    DWORD MarInfoSize;                              // Size of the MAR info entry
+    DWORD MndxEntriesOffset;
+    DWORD MndxEntriesTotal;                         // Total number of MNDX root entries
+    DWORD MndxEntriesValid;                         // Number of valid MNDX root entries
+    DWORD MndxEntrySize;                            // Size of one MNDX root entry
+    struct _MAR_FILE * pMarFile1;                   // File name list for the packages
+    struct _MAR_FILE * pMarFile2;                   // File name list for names stripped of package names
+    struct _MAR_FILE * pMarFile3;                   // File name list for complete names
+//  PCASC_ROOT_ENTRY_MNDX pMndxEntries;
+//  PCASC_ROOT_ENTRY_MNDX * ppValidEntries;
+    bool bRootFileLoaded;                           // true if the root info file was properly loaded
+
+} CASC_MNDX_INFO, *PCASC_MNDX_INFO;
+
+typedef struct _CASC_MNDX_PACKAGE
+{
+    char * szFileName;                              // Pointer to file name
+    size_t nLength;                                 // Length of the file name
+
+} CASC_MNDX_PACKAGE, *PCASC_MNDX_PACKAGE;
+
+typedef struct _CASC_MNDX_PACKAGES
+{
+    char * szNameBuffer;                            // Pointer to the buffer for file names
+    size_t NameEntries;                             // Number of name entries in Names
+    size_t NameBufferUsed;                          // Number of bytes used in the name buffer
+    size_t NameBufferMax;                           // Total size of the name buffer
+
+    CASC_MNDX_PACKAGE Packages[1];                  // List of packages
+
+} CASC_MNDX_PACKAGES, *PCASC_MNDX_PACKAGES;
+
+// Root file entry for CASC storages with MNDX root file (Heroes of the Storm)
+// Corresponds to the in-file structure
+typedef struct _CASC_ROOT_ENTRY_MNDX
+{
+    DWORD Flags;                                    // High 8 bits: Flags, low 24 bits: package index
+    BYTE  EncodingKey[MD5_HASH_SIZE];               // Encoding key for the file
+    DWORD FileSize;                                 // Uncompressed file size, in bytes
+
+} CASC_ROOT_ENTRY_MNDX, *PCASC_ROOT_ENTRY_MNDX;
 
 //-----------------------------------------------------------------------------
 // Testing functions prototypes
@@ -2734,14 +2785,14 @@ static void MAR_FILE_Destructor(PMAR_FILE pMarFile)
 #define CASC_PACKAGES_INIT  0x10
 #define CASC_PACKAGES_DELTA 0x10
 
-static PCASC_PACKAGES AllocatePackages(size_t nNameEntries, size_t nNameBufferMax)
+static PCASC_MNDX_PACKAGES AllocatePackages(size_t nNameEntries, size_t nNameBufferMax)
 {
-    PCASC_PACKAGES pPackages;
+    PCASC_MNDX_PACKAGES pPackages;
     size_t cbToAllocate;
 
     // Allocate space
-    cbToAllocate = sizeof(CASC_PACKAGES) + (nNameEntries * sizeof(CASC_PACKAGE)) + nNameBufferMax;
-    pPackages = (PCASC_PACKAGES)CASC_ALLOC(BYTE, cbToAllocate);
+    cbToAllocate = sizeof(CASC_MNDX_PACKAGES) + (nNameEntries * sizeof(CASC_MNDX_PACKAGE)) + nNameBufferMax;
+    pPackages = (PCASC_MNDX_PACKAGES)CASC_ALLOC(BYTE, cbToAllocate);
     if(pPackages != NULL)
     {
         // Fill the structure
@@ -2757,8 +2808,8 @@ static PCASC_PACKAGES AllocatePackages(size_t nNameEntries, size_t nNameBufferMa
     return pPackages;
 }
 
-static PCASC_PACKAGES InsertToPackageList(
-    PCASC_PACKAGES pPackages,
+static PCASC_MNDX_PACKAGES InsertToPackageList(
+    PCASC_MNDX_PACKAGES pPackages,
     const char * szFileName,
     size_t cchFileName,
     size_t nPackageIndex)
@@ -2777,11 +2828,11 @@ static PCASC_PACKAGES InsertToPackageList(
     // If any of the two variables overflowed, we need to reallocate the name list
     if(nNewNameEntries > pPackages->NameEntries || nNewNameBufferMax > pPackages->NameBufferMax)
     {
-        PCASC_PACKAGES pOldPackages = pPackages;
+        PCASC_MNDX_PACKAGES pOldPackages = pPackages;
 
         // Allocate new name list
-        cbToAllocate = sizeof(CASC_PACKAGES) + (nNewNameEntries * sizeof(CASC_PACKAGE)) + nNewNameBufferMax;
-        pPackages = (PCASC_PACKAGES)CASC_ALLOC(BYTE, cbToAllocate);
+        cbToAllocate = sizeof(CASC_MNDX_PACKAGES) + (nNewNameEntries * sizeof(CASC_MNDX_PACKAGE)) + nNewNameBufferMax;
+        pPackages = (PCASC_MNDX_PACKAGES)CASC_ALLOC(BYTE, cbToAllocate);
         if(pPackages == NULL)
             return NULL;
 
@@ -2822,17 +2873,17 @@ static PCASC_PACKAGES InsertToPackageList(
     return pPackages;
 }
 
-static int LoadPackageNames(TCascStorage * hs)
+static int LoadPackageNames(PCASC_MNDX_INFO pMndxInfo, PCASC_MNDX_PACKAGES * ppPackages)
 {
     TMndxFindResult Struct1C;
-    PCASC_PACKAGES pPackages = NULL;
+    PCASC_MNDX_PACKAGES pPackages = NULL;
     PMAR_FILE pMarFile;
 
     // Sanity checks
-    assert(hs->pMndxInfo != NULL);
+    assert(pMndxInfo != NULL);
 
     // Prepare the file name search in the top level directory
-    pMarFile = hs->pMndxInfo->pMarFile1;
+    pMarFile = pMndxInfo->pMarFile1;
     Struct1C.SetSearchPath("", 0);
 
     // Allocate initial name list structure
@@ -2856,21 +2907,34 @@ static int LoadPackageNames(TCascStorage * hs)
             return ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    // Set the name list to the CASC storage structure
-    hs->pPackages = pPackages;
+    // Give the packages to the caller
+    if(ppPackages != NULL)
+        ppPackages[0] = pPackages;
     return ERROR_SUCCESS;
 }
 
-PCASC_PACKAGE FindMndxPackage(TCascStorage * hs, const char * szFileName)
+//-----------------------------------------------------------------------------
+// Implementation of root file functions
+
+struct TRootHandler_MNDX : public TRootHandler
 {
-    PCASC_PACKAGE pMatching = NULL;
-    PCASC_PACKAGE pPackage;
+    CASC_MNDX_INFO MndxInfo;
+
+    PCASC_ROOT_ENTRY_MNDX * ppValidEntries;
+    PCASC_ROOT_ENTRY_MNDX pMndxEntries;
+    PCASC_MNDX_PACKAGES pPackages;              // Linear list of present packages
+};
+
+PCASC_MNDX_PACKAGE FindMndxPackage(TRootHandler_MNDX * pRootHandler, const char * szFileName)
+{
+    PCASC_MNDX_PACKAGE pMatching = NULL;
+    PCASC_MNDX_PACKAGE pPackage;
     size_t nMaxLength = 0;
     size_t nLength = strlen(szFileName);
 
     // Packages must be loaded
-    assert(hs->pPackages != NULL);
-    pPackage = hs->pPackages->Packages;
+    assert(pRootHandler->pPackages != NULL);
+    pPackage = pRootHandler->pPackages->Packages;
 
     //FILE * fp = fopen("E:\\packages.txt", "wt");
     //for(size_t i = 0; i < hs->pPackages->NameEntries; i++, pPackage++)
@@ -2881,7 +2945,7 @@ PCASC_PACKAGE FindMndxPackage(TCascStorage * hs, const char * szFileName)
     //fclose(fp);
 
     // Find the longest matching name
-    for(size_t i = 0; i < hs->pPackages->NameEntries; i++, pPackage++)
+    for(size_t i = 0; i < pRootHandler->pPackages->NameEntries; i++, pPackage++)
     {
         if(pPackage->szFileName != NULL && pPackage->nLength < nLength && pPackage->nLength > nMaxLength)
         {
@@ -2898,11 +2962,49 @@ PCASC_PACKAGE FindMndxPackage(TCascStorage * hs, const char * szFileName)
     return pMatching;
 }
 
-static bool FillFindData(TCascSearch * pSearch, PCASC_FIND_DATA pFindData, TMndxFindResult * pStruct1C)
+int SearchMndxInfo(TRootHandler_MNDX * pRootHandler, const char * szFileName, DWORD dwPackage, PCASC_ROOT_ENTRY_MNDX * ppRootEntry)
+{
+    PCASC_ROOT_ENTRY_MNDX pRootEntry;
+    PCASC_MNDX_INFO pMndxInfo = &pRootHandler->MndxInfo;
+    TMndxFindResult Struct1C;
+
+    // Search the database for the file name
+    if(pMndxInfo->bRootFileLoaded)
+    {
+        Struct1C.SetSearchPath(szFileName, strlen(szFileName));
+
+        // Search the file name in the second MAR info (the one with stripped package names)
+        if(MAR_FILE_SearchFile(pMndxInfo->pMarFile2, &Struct1C) != ERROR_SUCCESS)
+            return ERROR_FILE_NOT_FOUND;
+
+        // The found MNDX index must fall into range of valid MNDX entries
+        if(Struct1C.FileNameIndex < pMndxInfo->MndxEntriesValid)
+        {
+            // HOTS: E945F4
+            pRootEntry = pRootHandler->ppValidEntries[Struct1C.FileNameIndex];
+            while((pRootEntry->Flags & 0x00FFFFFF) != dwPackage)
+            {
+                // The highest bit serves as a terminator if set
+                if(pRootEntry->Flags & 0x80000000)
+                    return ERROR_FILE_NOT_FOUND;
+
+                pRootEntry++;
+            }
+
+            // Give the root entry pointer to the caller
+            if(ppRootEntry != NULL)
+                ppRootEntry[0] = pRootEntry;
+            return ERROR_SUCCESS;
+        }
+    }
+
+    return ERROR_FILE_NOT_FOUND;
+}
+
+static LPBYTE FillFindData(TRootHandler_MNDX * pRootHandler, TCascSearch * pSearch, TMndxFindResult * pStruct1C, PDWORD PtrFileSize)
 {
     PCASC_ROOT_ENTRY_MNDX pRootEntry = NULL;
-    TCascStorage * hs = pSearch->hs;
-    PCASC_PACKAGE pPackage;
+    PCASC_MNDX_PACKAGE pPackage;
     char * szStrippedPtr;
     char szStrippedName[MAX_PATH+1];
     int nError;
@@ -2911,40 +3013,134 @@ static bool FillFindData(TCascSearch * pSearch, PCASC_FIND_DATA pFindData, TMndx
     assert(pStruct1C->cchFoundPath < MAX_PATH);
 
     // Fill the file name
-    memcpy(pFindData->szFileName, pStruct1C->szFoundPath, pStruct1C->cchFoundPath);
-    pFindData->szFileName[pStruct1C->cchFoundPath] = 0;
-    pFindData->szPlainName = (char *)GetPlainFileName(pFindData->szFileName);
-    pFindData->dwFileSize = CASC_INVALID_SIZE;
+    memcpy(pSearch->szFileName, pStruct1C->szFoundPath, pStruct1C->cchFoundPath);
+    pSearch->szFileName[pStruct1C->cchFoundPath] = 0;
     
     // Fill the file size
-    pPackage = FindMndxPackage(hs, pFindData->szFileName);
-    if(pPackage != NULL)
+    pPackage = FindMndxPackage(pRootHandler, pSearch->szFileName);
+    if(pPackage == NULL)
+        return NULL;
+
+    // Cut the package name off the full path
+    szStrippedPtr = pSearch->szFileName + pPackage->nLength;
+    while(szStrippedPtr[0] == '/')
+        szStrippedPtr++;
+
+    // We need to convert the stripped name to lowercase, replacing backslashes with slashes
+    NormalizeFileName_LowerSlash(szStrippedName, szStrippedPtr, MAX_PATH);
+
+    // Search the package
+    nError = SearchMndxInfo(pRootHandler, szStrippedName, (DWORD)(pPackage - pRootHandler->pPackages->Packages), &pRootEntry);
+    if(nError != ERROR_SUCCESS)
+        return NULL;
+
+    // Give the file size
+    if(PtrFileSize != NULL)
+        PtrFileSize[0] = pRootEntry->FileSize;
+    return pRootEntry->EncodingKey;
+}
+
+static int MndxHandler_Insert(TRootHandler_MNDX *, const char *, LPBYTE)
+{
+    return ERROR_NOT_SUPPORTED;
+}
+
+static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD /* PtrLocaleFlags */)
+{
+    TMndxFindResult * pStruct1C = NULL;
+    PCASC_MNDX_INFO pMndxInfo = &pRootHandler->MndxInfo;
+    PMAR_FILE pMarFile = pMndxInfo->pMarFile3;
+    bool bFindResult = false;
+        
+    // If the first time, allocate the structure for the search result
+    if(pSearch->pRootContext == NULL)
     {
-        // Cut the package name off the full path
-        szStrippedPtr = pFindData->szFileName + pPackage->nLength;
-        while(szStrippedPtr[0] == '/')
-            szStrippedPtr++;
+        // Create the new search structure
+        pStruct1C = new TMndxFindResult;
+        if(pStruct1C == NULL)
+            return NULL;
 
-        // We need to convert the stripped name to lowercase, replacing backslashes with slashes
-        NormalizeFileName_LowerSlash(szStrippedName, szStrippedPtr, MAX_PATH);
-
-        // Search the package
-        nError = SearchMndxInfo(hs->pMndxInfo, szStrippedName, (DWORD)(pPackage - hs->pPackages->Packages), &pRootEntry);
-        if(nError == ERROR_SUCCESS)
-        {
-            pFindData->dwFileSize = pRootEntry->FileSize;
-        }
+        // Setup the search mask
+        pStruct1C->SetSearchPath("", 0);
+        pSearch->pRootContext = pStruct1C;
     }
-    return true;
+
+    // Make shortcut for the search structure
+    assert(pSearch->pRootContext != NULL);
+    pStruct1C = (TMndxFindResult *)pSearch->pRootContext;
+
+    // Search the next file name (our code)
+    pMarFile->pDatabasePtr->sub_1956CE0(pStruct1C, &bFindResult);
+    if(bFindResult == false)
+        return NULL;
+
+    // Give the file size and encoding key
+    return FillFindData(pRootHandler, pSearch, pStruct1C, PtrFileSize);
+}
+
+static void MndxHandler_EndSearch(TRootHandler_MNDX * /* pRootHandler */, TCascSearch * pSearch)
+{
+    if(pSearch != NULL)
+        delete (TMndxFindResult *)pSearch->pRootContext;
+    pSearch->pRootContext = NULL;
+}
+
+static LPBYTE MndxHandler_GetKey(TRootHandler_MNDX * pRootHandler, const char * szFileName)
+{
+    PCASC_ROOT_ENTRY_MNDX pRootEntry = NULL;
+    PCASC_MNDX_PACKAGE pPackage;
+    char * szStrippedName;
+    char szNormName[MAX_PATH+1];
+    int nError;
+
+    // Convert the file name to lowercase + slashes
+    NormalizeFileName_LowerSlash(szNormName, szFileName, MAX_PATH);
+
+    // Find the package number
+    pPackage = FindMndxPackage(pRootHandler, szNormName);
+    if(pPackage == NULL)
+        return NULL;
+
+    // Cut the package name off the full path
+    szStrippedName = szNormName + pPackage->nLength;
+    while(szStrippedName[0] == '/')
+        szStrippedName++;
+
+    // Find the root entry
+    nError = SearchMndxInfo(pRootHandler, szStrippedName, (DWORD)(pPackage - pRootHandler->pPackages->Packages), &pRootEntry);
+    if(nError != ERROR_SUCCESS || pRootEntry == NULL)
+        return NULL;
+
+    // Return the encoding key
+    return pRootEntry->EncodingKey;
+}
+
+static void MndxHandler_Close(TRootHandler_MNDX * pRootHandler)
+{
+    if(pRootHandler->MndxInfo.pMarFile1 != NULL)
+        MAR_FILE_Destructor(pRootHandler->MndxInfo.pMarFile1);
+    if(pRootHandler->MndxInfo.pMarFile2 != NULL)
+        MAR_FILE_Destructor(pRootHandler->MndxInfo.pMarFile2);
+    if(pRootHandler->MndxInfo.pMarFile3 != NULL)
+        MAR_FILE_Destructor(pRootHandler->MndxInfo.pMarFile3);
+    if(pRootHandler->ppValidEntries != NULL)
+        CASC_FREE(pRootHandler->ppValidEntries);
+    if(pRootHandler->pMndxEntries != NULL)
+        CASC_FREE(pRootHandler->pMndxEntries);
+    if(pRootHandler->pPackages != NULL)
+        CASC_FREE(pRootHandler->pPackages);
+
+    CASC_FREE(pRootHandler);
 }
 
 //-----------------------------------------------------------------------------
 // Public functions - MNDX info
 
-int LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
 {
     PFILE_MNDX_HEADER pMndxHeader = (PFILE_MNDX_HEADER)pbRootFile;
     PCASC_MNDX_INFO pMndxInfo;
+    TRootHandler_MNDX * pRootHandler;    
     FILE_MAR_INFO MarInfo;
     PMAR_FILE pMarFile;
     LPBYTE pbRootFileEnd = pbRootFile + cbRootFile;
@@ -2957,13 +3153,24 @@ int LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
     if(pMndxHeader->Signature != CASC_MNDX_SIGNATURE || pMndxHeader->FormatVersion > 2 || pMndxHeader->FormatVersion < 1)
         return ERROR_BAD_FORMAT;
 
-    // Allocate space for the CASC_MNDX_INFO structure
-    pMndxInfo = CASC_ALLOC(CASC_MNDX_INFO, 1);
-    if(pMndxInfo == NULL)
+    // Allocate the structure for the MNDX root file
+    hs->pRootHandler = pRootHandler = CASC_ALLOC(TRootHandler_MNDX, 1);
+    if(pRootHandler == NULL)
         return ERROR_NOT_ENOUGH_MEMORY;
 
+    // Fill-in the handler functions
+    memset(pRootHandler, 0, sizeof(TRootHandler_MNDX));
+    pRootHandler->Insert      = (ROOT_INSERT)MndxHandler_Insert;
+    pRootHandler->Search      = (ROOT_SEARCH)MndxHandler_Search;
+    pRootHandler->EndSearch   = (ROOT_ENDSEARCH)MndxHandler_EndSearch;
+    pRootHandler->GetKey      = (ROOT_GETKEY)MndxHandler_GetKey;
+    pRootHandler->Close       = (ROOT_CLOSE) MndxHandler_Close;
+    pMndxInfo = &pRootHandler->MndxInfo;
+
+    // Fill-in the flags
+    pRootHandler->dwRootFlags |= ROOT_FLAG_HAS_NAMES;
+
     // Copy the header into the MNDX info
-    memset(pMndxInfo, 0, sizeof(CASC_MNDX_INFO));
     pMndxInfo->HeaderVersion = pMndxHeader->HeaderVersion;
     pMndxInfo->FormatVersion = pMndxHeader->FormatVersion;
     dwFilePointer += sizeof(FILE_MNDX_HEADER);
@@ -3047,10 +3254,10 @@ int LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
         if(nError == ERROR_SUCCESS && FileNameCount == pMndxInfo->MndxEntriesValid)
         {
             cbToAllocate = pMndxInfo->MndxEntriesTotal * pMndxInfo->MndxEntrySize;
-            pMndxInfo->pMndxEntries = (PCASC_ROOT_ENTRY_MNDX)CASC_ALLOC(BYTE, cbToAllocate);
-            if(pMndxInfo->pMndxEntries != NULL)
+            pRootHandler->pMndxEntries = (PCASC_ROOT_ENTRY_MNDX)CASC_ALLOC(BYTE, cbToAllocate);
+            if(pRootHandler->pMndxEntries != NULL)
             {
-                if(!RootFileRead(pbRootFile + pMndxInfo->MndxEntriesOffset, pbRootFileEnd, pMndxInfo->pMndxEntries, cbToAllocate))
+                if(!RootFileRead(pbRootFile + pMndxInfo->MndxEntriesOffset, pbRootFileEnd, pRootHandler->pMndxEntries, cbToAllocate))
                     nError = ERROR_FILE_CORRUPT;
             }
             else
@@ -3064,15 +3271,15 @@ int LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
     if(nError == ERROR_SUCCESS)
     {
         assert(pMndxInfo->MndxEntriesValid <= pMndxInfo->MndxEntriesTotal);
-        pMndxInfo->ppValidEntries = CASC_ALLOC(PCASC_ROOT_ENTRY_MNDX, pMndxInfo->MndxEntriesValid + 1);
-        if(pMndxInfo->ppValidEntries != NULL)
+        pRootHandler->ppValidEntries = CASC_ALLOC(PCASC_ROOT_ENTRY_MNDX, pMndxInfo->MndxEntriesValid + 1);
+        if(pRootHandler->ppValidEntries != NULL)
         {
-            PCASC_ROOT_ENTRY_MNDX pRootEntry = pMndxInfo->pMndxEntries;
+            PCASC_ROOT_ENTRY_MNDX pRootEntry = pRootHandler->pMndxEntries;
             DWORD ValidEntryCount = 1; // edx
             DWORD nIndex1 = 0;
 
             // The first entry is always valid
-            pMndxInfo->ppValidEntries[nIndex1++] = pMndxInfo->pMndxEntries;
+            pRootHandler->ppValidEntries[nIndex1++] = pRootHandler->pMndxEntries;
 
             // Put the remaining entries
             for(i = 0; i < pMndxInfo->MndxEntriesTotal; i++, pRootEntry++)
@@ -3082,7 +3289,7 @@ int LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
 
                 if(pRootEntry->Flags & 0x80000000)
                 {
-                    pMndxInfo->ppValidEntries[nIndex1++] = pRootEntry + 1;
+                    pRootHandler->ppValidEntries[nIndex1++] = pRootEntry + 1;
                     ValidEntryCount++;
                 }
             }
@@ -3090,129 +3297,26 @@ int LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
             // Verify the final number of valid entries
             if((ValidEntryCount - 1) != pMndxInfo->MndxEntriesValid)
                 nError = ERROR_BAD_FORMAT;
-
-            // Mark the MNDX info as fully loaded
-            pMndxInfo->bRootFileLoaded = true;
         }
         else
             nError = ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    // Save the MNDX info to the archive storage
+    // Load the MNDX packages
     if(nError == ERROR_SUCCESS)
     {
-        // Store the MNDX database into the archive
-        hs->pMndxInfo = pMndxInfo;
-        pMndxInfo = NULL;
+        nError = LoadPackageNames(pMndxInfo, &pRootHandler->pPackages);
+        pMndxInfo->bRootFileLoaded = (nError == ERROR_SUCCESS);
+    }
 
 #if defined(_DEBUG) && defined(_X86_) && defined(CASCLIB_TEST)
-//      CascDumpNameFragTable("E:\\casc-name-fragment-table.txt", hs->pMndxInfo->pMarFile1);
-//      CascDumpFileNames("E:\\casc-listfile.txt", hs->pMndxInfo->pMarFile1);
-        TestMndxRootFile(hs->pMndxInfo);
+//  CascDumpNameFragTable("E:\\casc-name-fragment-table.txt", pMndxInfo->pMarFile1);
+//  CascDumpFileNames("E:\\casc-listfile.txt", pMndxInfo->pMarFile1);
+//  TestMndxRootFile(pRootHandler);
 #endif
-        // Load the top level entries
-        nError = LoadPackageNames(hs);
-    }
 
-    // If anything failed, free the memory remaining allocated
-    if(nError != ERROR_SUCCESS)
-    {
-        if(pMndxInfo != NULL)
-            FreeMndxInfo(pMndxInfo);
-        pMndxInfo = NULL;
-    }
-
+    // Return the result
     return nError;
-}
-
-int SearchMndxInfo(PCASC_MNDX_INFO pMndxInfo, const char * szFileName, DWORD dwPackage, PCASC_ROOT_ENTRY_MNDX * ppRootEntry)
-{
-    PCASC_ROOT_ENTRY_MNDX pRootEntry;
-    TMndxFindResult Struct1C;
-
-    // Search the database for the file name
-    if(pMndxInfo->bRootFileLoaded)
-    {
-        Struct1C.SetSearchPath(szFileName, strlen(szFileName));
-
-        // Search the file name in the second MAR info (the one with stripped package names)
-        if(MAR_FILE_SearchFile(pMndxInfo->pMarFile2, &Struct1C) != ERROR_SUCCESS)
-            return ERROR_FILE_NOT_FOUND;
-
-        // The found MNDX index must fall into range of valid MNDX entries
-        if(Struct1C.FileNameIndex < pMndxInfo->MndxEntriesValid)
-        {
-            // HOTS: E945F4
-            pRootEntry = pMndxInfo->ppValidEntries[Struct1C.FileNameIndex];
-            while((pRootEntry->Flags & 0x00FFFFFF) != dwPackage)
-            {
-                // The highest bit serves as a terminator if set
-                if(pRootEntry->Flags & 0x80000000)
-                    return ERROR_FILE_NOT_FOUND;
-
-                pRootEntry++;
-            }
-
-            // Give the root entry pointer to the caller
-            if(ppRootEntry != NULL)
-                ppRootEntry[0] = pRootEntry;
-            return ERROR_SUCCESS;
-        }
-    }
-
-    return ERROR_FILE_NOT_FOUND;
-}
-
-bool DoStorageSearch_MNDX(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
-{
-    TMndxFindResult * pStruct1C = NULL;
-    PCASC_MNDX_INFO pMndxInfo = pSearch->hs->pMndxInfo;
-    PMAR_FILE pMarFile = pMndxInfo->pMarFile3;
-    bool bFindResult = false;
-        
-    // Sanity checks
-    assert(pMndxInfo != NULL);
-
-    // If the first time, allocate the structure for the search result
-    if(pSearch->pStruct1C == NULL)
-    {
-        // Create the new search structure
-        pSearch->pStruct1C = pStruct1C = new TMndxFindResult;
-        if(pSearch->pStruct1C == NULL)
-            return false;
-
-        // Setup the search mask
-        pStruct1C->SetSearchPath("", 0);
-    }
-
-    // Make shortcut for the search structure
-    assert(pSearch->pStruct1C != NULL);
-    pStruct1C = (TMndxFindResult *)pSearch->pStruct1C;
-
-    // Search the next file name (our code)
-    pMarFile->pDatabasePtr->sub_1956CE0(pStruct1C, &bFindResult);
-    if(bFindResult)
-        return FillFindData(pSearch, pFindData, pStruct1C);
-
-    return false;
-}
-
-void FreeMndxInfo(PCASC_MNDX_INFO pMndxInfo)
-{
-    if(pMndxInfo != NULL)
-    {
-        if(pMndxInfo->pMarFile1 != NULL)
-            MAR_FILE_Destructor(pMndxInfo->pMarFile1);
-        if(pMndxInfo->pMarFile2 != NULL)
-            MAR_FILE_Destructor(pMndxInfo->pMarFile2);
-        if(pMndxInfo->pMarFile3 != NULL)
-            MAR_FILE_Destructor(pMndxInfo->pMarFile3);
-        if(pMndxInfo->ppValidEntries != NULL)
-            CASC_FREE(pMndxInfo->ppValidEntries);
-        if(pMndxInfo->pMndxEntries != NULL)
-            CASC_FREE(pMndxInfo->pMndxEntries);
-        CASC_FREE(pMndxInfo);
-    }
 }
 
 //----------------------------------------------------------------------------
