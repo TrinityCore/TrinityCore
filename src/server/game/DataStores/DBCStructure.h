@@ -34,9 +34,6 @@ struct AnimKitEntry
     //uint32      LowDefAnimKitID;                          // 3
 };
 
-// Temporary define until max depth is found somewhere (adt?)
-#define MAX_MAP_DEPTH -5000
-
 struct AreaTableEntry
 {
     uint32      ID;                                         // 0
