@@ -219,6 +219,22 @@ struct adt_MH2O
 
 };
 
+struct adt_MFBO
+{
+    union
+    {
+        uint32 fcc;
+        char   fcc_txt[4];
+    };
+    uint32 size;
+    struct plane
+    {
+        int16 coords[9];
+    };
+    plane max;
+    plane min;
+};
+
 #pragma pack(pop)
 
 #endif
