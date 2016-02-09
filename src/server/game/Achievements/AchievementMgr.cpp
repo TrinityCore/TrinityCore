@@ -1909,9 +1909,6 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 if (!area)
                     break;
 
-                if (area->exploreFlag < 0)
-                    continue;
-
                 uint32 playerIndexOffset = uint32(area->exploreFlag) / 32;
                 if (playerIndexOffset >= PLAYER_EXPLORED_ZONES_SIZE)
                     continue;
