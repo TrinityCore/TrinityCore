@@ -787,10 +787,11 @@ enum BFLeaveReason
 
 enum ChatRestrictionType
 {
-    ERR_CHAT_RESTRICTED = 0,
-    ERR_CHAT_THROTTLED  = 1,
-    ERR_USER_SQUELCHED  = 2,
-    ERR_YELL_RESTRICTED = 3
+    ERR_CHAT_RESTRICTED      = 0,
+    ERR_CHAT_THROTTLED       = 1,
+    ERR_USER_SQUELCHED       = 2,
+    ERR_YELL_RESTRICTED      = 3,
+    ERR_CHAT_RAID_RESTRICTED = 4
 };
 
 enum CharterTypes
@@ -1438,7 +1439,7 @@ class WorldSession
         void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& chatMessageEmote);
         void SendChatPlayerNotfoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
-        void SendChatRestrictedNotice(ChatRestrictionType restriction);
+        void SendChatRestricted(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored);
 
