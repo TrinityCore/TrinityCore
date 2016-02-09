@@ -285,6 +285,7 @@ enum Phases
 #define PHASE_TWO_THREE  (events.IsInPhase(PHASE_TWO) ? PHASE_TWO : PHASE_THREE)
 
 Position const CenterPosition     = {503.6282f, -2124.655f, 840.8569f, 0.0f};
+Position const TirionSpawn        = {505.2118f, -2124.353f, 840.9403f, 3.141593f};
 Position const TirionIntro        = {489.2970f, -2124.840f, 840.8569f, 0.0f};
 Position const TirionCharge       = {482.9019f, -2124.479f, 840.8570f, 0.0f};
 Position const LichKingIntro[3]   =
@@ -514,13 +515,33 @@ class boss_the_lich_king : public CreatureScript
                 _vileSpiritExplosions = 0;
             }
 
-            void Reset() override
+            void InitializeAI() override
+            {
+                SetupEncounter();
+            }
+
+            void JustRespawned() override
+            {
+                SetupEncounter();
+            }
+
+            void SetupEncounter()
             {
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 Initialize();
                 SetEquipmentSlots(true);
+
+                // Reset The Frozen Throne gameobjects
+                FrozenThroneResetWorker reset;
+                Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
+                me->VisitNearbyGridObject(333.0f, worker);
+
+                // Reset any light override
+                me->GetMap()->SetZoneOverrideLight(AREA_THE_FROZEN_THRONE, 0, 5000);
+
+                me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING_LK, TirionSpawn, TEMPSUMMON_MANUAL_DESPAWN);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -556,40 +577,21 @@ class boss_the_lich_king : public CreatureScript
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
             }
 
-            void JustReachedHome() override
-            {
-                _JustReachedHome();
-                instance->SetBossState(DATA_THE_LICH_KING, NOT_STARTED);
-
-                // Reset The Frozen Throne gameobjects
-                FrozenThroneResetWorker reset;
-                Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
-                me->VisitNearbyGridObject(333.0f, worker);
-
-                // Restore Tirion's gossip only after The Lich King fully resets to prevent
-                // restarting the encounter while LK still runs back to spawn point
-                if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
-                    tirion->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-                // Reset any light override
-                me->GetMap()->SetZoneOverrideLight(AREA_THE_FROZEN_THRONE, 0, 5000);
-            }
-
             bool CanAIAttack(Unit const* target) const override
             {
                 // The Lich King must not select targets in frostmourne room if he killed everyone outside
                 return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM);
             }
 
-            void EnterEvadeMode(EvadeReason why) override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                instance->SetBossState(DATA_THE_LICH_KING, FAIL);
-                BossAI::EnterEvadeMode(why);
                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
-                    tirion->AI()->EnterEvadeMode();
+                    tirion->DespawnOrUnsummon();
                 DoCastAOE(SPELL_KILL_FROSTMOURNE_PLAYERS);
                 EntryCheckPredicate pred(NPC_STRANGULATE_VEHICLE);
                 summons.DoAction(ACTION_TELEPORT_BACK, pred);
+                summons.DespawnAll();
+                _DespawnAtEvade();
             }
 
             void KilledUnit(Unit* victim) override
@@ -769,6 +771,8 @@ class boss_the_lich_king : public CreatureScript
                     }
                     case NPC_STRANGULATE_VEHICLE:
                         summons.Summon(summon);
+                        return;
+                    case NPC_HIGHLORD_TIRION_FORDRING_LK:
                         return;
                     default:
                         break;
@@ -1153,6 +1157,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 _events.Reset();
                 if (_instance->GetBossState(DATA_THE_LICH_KING) == DONE)
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->LoadEquipment(1);
             }
 
             void MovementInform(uint32 type, uint32 id) override
