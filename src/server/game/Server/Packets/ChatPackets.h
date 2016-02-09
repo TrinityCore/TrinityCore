@@ -301,14 +301,24 @@ namespace WorldPackets
             uint8 Reason = 0;
         };
 
-        class ChatPlayerAmbiguous : ServerPacket
+        class ChatPlayerAmbiguous final : public ServerPacket
         {
         public:
-            ChatPlayerAmbiguous()  : ServerPacket(SMSG_CHAT_PLAYER_AMBIGUOUS, 2 + Name.length()) { }
+            ChatPlayerAmbiguous() : ServerPacket(SMSG_CHAT_PLAYER_AMBIGUOUS, 2 + Name.length()) { }
 
             WorldPacket const* Write() override;
 
             std::string Name;
+        };
+
+        class ChatRestricted final : public ServerPacket
+        {
+        public:
+            ChatRestricted() : ServerPacket(SMSG_CHAT_RESTRICTED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Reason = 0;
         };
     }
 }
