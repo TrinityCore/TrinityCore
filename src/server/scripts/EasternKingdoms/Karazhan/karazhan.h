@@ -64,4 +64,20 @@ enum OperaEvents
     EVENT_RAJ                       = 3
 };
 
+enum MiscCreatures
+{
+    NPC_HYAKISS_THE_LURKER          = 16179,
+    NPC_ROKAD_THE_RAVAGER           = 16181,
+    NPC_SHADIKITH_THE_GLIDER        = 16180,
+
+    // Trash
+    NPC_COLDMIST_WIDOW              = 16171,
+    NPC_COLDMIST_STALKER            = 16170,
+    NPC_SHADOWBAT                   = 16173,
+    NPC_VAMPIRIC_SHADOWBAT          = 16175,
+    NPC_GREATER_SHADOWBAT           = 16174,
+    NPC_PHASE_HOUND                 = 16178,
+    NPC_DREADBEAST                  = 16177,
+    NPC_SHADOWBEAST                 = 16176
+};
 #endif
