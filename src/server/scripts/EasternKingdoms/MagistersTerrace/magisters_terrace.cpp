@@ -32,6 +32,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "magisters_terrace.h"
+#include "EventMap.h"
 
 /*######
 ## npc_kalecgos

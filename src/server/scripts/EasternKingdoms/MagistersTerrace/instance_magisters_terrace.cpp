@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "EventMap.h"
 
 /*
 0  - Selin Fireheart
@@ -148,15 +149,15 @@ class instance_magisters_terrace : public InstanceMapScript
             void ProcessEvent(WorldObject* obj, uint32 eventId) override
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
-                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && events.Empty())
-                       events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
+                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && Events.Empty())
+                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
             }
 
             void Update(uint32 diff) override
             {
-                events.Update(diff);
+                Events.Update(diff);
 
-                if (events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                if (Events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
                     if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
                     {
                         kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
@@ -202,7 +203,7 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
-            EventMap events;
+            EventMap Events;
             ObjectGuid SelinGUID;
             ObjectGuid DelrissaGUID;
             ObjectGuid KaelStatue[2];
