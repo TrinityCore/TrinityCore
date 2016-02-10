@@ -464,8 +464,8 @@ void GameObject::Update(uint32 diff)
                             {
                                 caster->ToPlayer()->RemoveGameObject(this, false);
 
-                                WorldPacket data(SMSG_FISH_ESCAPED, 0);
-                                caster->ToPlayer()->SendDirectMessage(&data);
+                                WorldPackets::GameObject::FishEscaped escaped;
+                                caster->ToPlayer()->SendDirectMessage(escaped.Write());
                             }
                             // can be delete
                             m_lootState = GO_JUST_DEACTIVATED;

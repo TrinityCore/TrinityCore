@@ -100,6 +100,14 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class FishEscaped final : public ServerPacket
+        {
+        public:
+            FishEscaped() : ServerPacket(SMSG_FISH_ESCAPED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 #endif // GOPackets_h__
