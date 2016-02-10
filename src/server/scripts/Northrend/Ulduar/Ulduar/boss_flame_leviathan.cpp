@@ -1768,9 +1768,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                             else
                             {
                                 passenger->ExitVehicle();
-                                float x, y, z;
-                                targets.GetDstPos()->GetPosition(x, y, z);
-                                passenger->GetMotionMaster()->MoveJump(x, y, z, targets.GetSpeedXY(), targets.GetSpeedZ());
+                                passenger->GetMotionMaster()->MoveJump(*targets.GetDstPos(), targets.GetSpeedXY(), targets.GetSpeedZ());
                             }
                         }
             }
