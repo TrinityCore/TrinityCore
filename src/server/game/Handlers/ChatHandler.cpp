@@ -653,9 +653,7 @@ void WorldSession::SendChatPlayerNotfoundNotice(std::string const& name)
 
 void WorldSession::SendPlayerAmbiguousNotice(std::string const& name)
 {
-    WorldPackets::Chat::ChatPlayerAmbiguous packet;
-    packet.Name = name;
-    SendPacket(packet.Write());
+    SendPacket(WorldPackets::Chat::ChatPlayerAmbiguous(name).Write());
 }
 
 void WorldSession::SendChatRestricted(ChatRestrictionType restriction)
