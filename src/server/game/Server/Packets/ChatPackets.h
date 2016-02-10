@@ -304,7 +304,7 @@ namespace WorldPackets
         class ChatPlayerAmbiguous final : public ServerPacket
         {
         public:
-            ChatPlayerAmbiguous() : ServerPacket(SMSG_CHAT_PLAYER_AMBIGUOUS, 2 + Name.length()) { }
+            ChatPlayerAmbiguous(std::string const& name) : ServerPacket(SMSG_CHAT_PLAYER_AMBIGUOUS, 2 + name.length()), Name(name) { }
 
             WorldPacket const* Write() override;
 

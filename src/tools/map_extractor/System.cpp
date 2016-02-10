@@ -40,8 +40,6 @@
 #include "adt.h"
 #include "wdt.h"
 
-#include <G3D/Plane.h>
-
 namespace
 {
     const char* HumanReadableCASCError(int error)
@@ -705,6 +703,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
 
     if (FileChunk* chunk = adt.GetChunk("MFBO"))
     {
+        adt_MFBO* mfbo = chunk->As<adt_MFBO>();
         memcpy(flight_box_max, &mfbo->max, sizeof(flight_box_max));
         memcpy(flight_box_min, &mfbo->min, sizeof(flight_box_min));
         hasFlightBox = true;
