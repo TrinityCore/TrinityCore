@@ -643,7 +643,7 @@ class spell_dk_death_gate : public SpellScriptLoader
         }
 };
 
-// 49560 - Death Grip
+// 49560 - Death Grip (second part)
 class spell_dk_death_grip : public SpellScriptLoader
 {
     public:
@@ -655,12 +655,12 @@ class spell_dk_death_grip : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
+                int32 spellId = GetEffectValue(); // should return 49575.
                 Position const* pos = GetExplTargetDest();
                 if (Unit* target = GetHitUnit())
                 {
                     if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
+                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), spellId, true, nullptr, nullptr, GetCaster()->GetGUID());
                 }
             }
 
