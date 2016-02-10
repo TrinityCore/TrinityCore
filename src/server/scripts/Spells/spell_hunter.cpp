@@ -55,7 +55,8 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_VICIOUS_VIPER                      = 61609,
     SPELL_HUNTER_VIPER_ATTACK_SPEED                 = 60144,
-    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543
+    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+    SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT               = 61389
 };
 
 // 13161 - Aspect of the Beast
@@ -946,6 +947,66 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
         }
 };
 
+// 56841 - Glyph of Arcane Shot
+class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_glyph_of_arcane_shot() : SpellScriptLoader("spell_hun_glyph_of_arcane_shot") { }
+
+    class spell_hun_glyph_of_arcane_shot_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_glyph_of_arcane_shot_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            bool found = false;
+            Unit::AuraApplicationMap& Auras = eventInfo.GetProcTarget()->GetAppliedAuras();
+            for (Unit::AuraApplicationMap::const_iterator i = Auras.begin(); i != Auras.end(); ++i)
+            {
+                Aura const* aura = i->second->GetBase();
+                // Search only Serpent Sting, Viper Sting, Scorpid Sting, Wyvern Sting
+                flag96 familyFlag = aura->GetSpellInfo()->SpellFamilyFlags;
+                if (familyFlag[1] & 0x1080 || familyFlag[0] & 0xC000)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            SpellInfo const* procSpell = eventInfo.GetSpellInfo();
+            if (!procSpell)
+                return;
+
+            uint32 mana = procSpell->ManaCost + procSpell->ManaCostPercentage *  GetTarget()->GetCreateMana() / 100;
+            int32 basepoint = CalculatePct(int32(mana), aurEff->GetAmount());
+            GetTarget()->CastCustomSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT, &basepoint, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_hun_glyph_of_arcane_shot_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_hun_glyph_of_arcane_shot_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hun_glyph_of_arcane_shot_AuraScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -967,4 +1028,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_viper_attack_speed();
+    new spell_hun_glyph_of_arcane_shot();
 }
