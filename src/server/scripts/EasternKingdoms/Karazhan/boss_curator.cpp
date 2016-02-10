@@ -150,7 +150,7 @@ public:
 
                     if (AstralFlare && target)
                     {
-                        AstralFlare->CastSpell(AstralFlare, SPELL_ASTRAL_FLARE_PASSIVE, false);
+                        AstralFlare->AddAura(SPELL_ASTRAL_FLARE_PASSIVE, AstralFlare);
                         AstralFlare->AI()->AttackStart(target);
                     }
 
