@@ -1520,9 +1520,9 @@ void GameObject::Use(Unit* user)
                 default:
                 {
                     SetLootState(GO_JUST_DEACTIVATED);
-
-                    WorldPacket data(SMSG_FISH_NOT_HOOKED, 0);
-                    player->SendDirectMessage(&data);
+                    
+                    WorldPackets::GameObject::FishNotHooked notHooked;
+                    player->SendDirectMessage(notHooked.Write());
                     break;
                 }
             }

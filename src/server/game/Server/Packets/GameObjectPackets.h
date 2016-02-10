@@ -92,6 +92,14 @@ namespace WorldPackets
             int32 Damage = 0;
             int32 SpellID = 0;
         };
+
+        class FishNotHooked final : public ServerPacket
+        {
+        public:
+            FishNotHooked() : ServerPacket(SMSG_FISH_NOT_HOOKED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 #endif // GOPackets_h__
