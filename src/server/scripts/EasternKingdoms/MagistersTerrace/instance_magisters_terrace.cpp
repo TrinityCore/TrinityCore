@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
 #include "EventMap.h"
