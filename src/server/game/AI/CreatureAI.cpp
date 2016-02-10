@@ -350,7 +350,7 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     return boundsWarning ? LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED : 0;
 }
 
-bool CreatureAI::CheckBoundary(Position* who) const
+bool CreatureAI::CheckBoundary(Position const* who) const
 {
     if (!who)
         who = me;

@@ -578,7 +578,7 @@ class boss_the_lich_king : public CreatureScript
             bool CanAIAttack(Unit const* target) const override
             {
                 // The Lich King must not select targets in frostmourne room if he killed everyone outside
-                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM);
+                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && BossAI::CanAIAttack(target);
             }
 
             void EnterEvadeMode(EvadeReason why) override
