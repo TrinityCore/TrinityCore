@@ -8328,8 +8328,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 52914:
         case 52915:
         case 52910:
-        // Honor Among Thieves
-        case 52916:
         {
             target = triggeredByAura->GetBase()->GetCaster();
             if (!target)
