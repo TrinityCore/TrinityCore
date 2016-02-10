@@ -238,7 +238,7 @@ public:
             me->SetInCombatWithZone();
             instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-            me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
+            me->GetMotionMaster()->MoveJump(Location[0], 5.0f, 10.0f);
             me->SetWalk(false);
             m_uiMountTimer = 1000;
             Summons.DespawnEntry(NPC_GRAUF);
@@ -289,7 +289,7 @@ public:
                         pGrauf->GetMotionMaster()->MoveFall();
                         pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
                     }
-                    me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
+                    me->GetMotionMaster()->MoveJump(Location[4], 5.0f, 10.0f);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                     Talk(SAY_DRAKE_DEATH);
                     m_uiCrushTimer = 8000;

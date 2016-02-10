@@ -16859,12 +16859,12 @@ void Unit::JumpTo(float speedXY, float speedZ, bool forward)
     }
 }
 
-void Unit::JumpTo(WorldObject* obj, float speedZ)
+void Unit::JumpTo(WorldObject* obj, float speedZ, bool withOrientation)
 {
     float x, y, z;
     obj->GetContactPoint(this, x, y, z);
     float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
-    GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    GetMotionMaster()->MoveJump(x, y, z, GetAngle(obj), speedXY, speedZ, EVENT_JUMP, withOrientation);
 }
 
 bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
