@@ -834,14 +834,27 @@ enum PlayerDelayedOperations
 // Maximum money amount : 2^31 - 1
 extern uint32 const MAX_MONEY_AMOUNT;
 
+enum BindExtensionState
+{
+    EXTEND_STATE_EXPIRED  =   0,
+    EXTEND_STATE_NORMAL   =   1,
+    EXTEND_STATE_EXTENDED =   2,
+    EXTEND_STATE_KEEP     = 255   // special state: keep current save type
+};
 struct InstancePlayerBind
 {
     InstanceSave* save;
-    bool perm;
     /* permanent PlayerInstanceBinds are created in Raid/Heroic instances for players
-       that aren't already permanently bound when they are inside when a boss is killed
-       or when they enter an instance that the group leader is permanently bound to. */
-    InstancePlayerBind() : save(NULL), perm(false) { }
+    that aren't already permanently bound when they are inside when a boss is killed
+    or when they enter an instance that the group leader is permanently bound to. */
+    bool perm;
+    /* extend state listing:
+    EXPIRED  - doesn't affect anything unless manually re-extended by player
+    NORMAL   - standard state
+    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL */
+    BindExtensionState extendState;
+
+    InstancePlayerBind() : save(NULL), perm(false), extendState(EXTEND_STATE_NORMAL) { }
 };
 
 struct AccessRequirement
@@ -2115,12 +2128,12 @@ class Player : public Unit, public GridObject<Player>
         bool m_InstanceValid;
         // permanent binds and solo binds by difficulty
         BoundInstancesMap m_boundInstances[MAX_DIFFICULTY];
-        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
+        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
         InstanceSave* GetInstanceSave(uint32 mapid, bool raid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
-        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
+        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, BindExtensionState extendState = EXTEND_STATE_NORMAL, bool load = false);
         void BindToInstance();
         void SetPendingBind(uint32 instanceId, uint32 bindTimer);
         bool HasPendingBind() const { return _pendingBindId > 0; }

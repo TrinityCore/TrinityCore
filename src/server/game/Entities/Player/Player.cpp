@@ -18375,8 +18375,9 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             uint32 mapId = fields[2].GetUInt16();
             uint32 instanceId = fields[0].GetUInt32();
             uint8 difficulty = fields[3].GetUInt8();
+            BindExtensionState extendState = BindExtensionState(fields[4].GetUInt8());
 
-            time_t resetTime = time_t(fields[4].GetUInt32());
+            time_t resetTime = time_t(fields[5].GetUInt32());
             // the resettime for normal instances is only saved when the InstanceSave is unloaded
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
@@ -18425,13 +18426,13 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
 
             // since non permanent binds are always solo bind, they can always be reset
             if (InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, !perm, true))
-               BindToInstance(save, perm, true);
+               BindToInstance(save, perm, extendState, true);
         }
         while (result->NextRow());
     }
 }
 
-InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty)
+InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired)
 {
     // some instances only have one difficulty
     MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
@@ -18440,9 +18441,9 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
     if (itr != m_boundInstances[difficulty].end())
-        return &itr->second;
-    else
-        return NULL;
+        if (itr->second.extendState || withExpired)
+            return &itr->second;
+    return nullptr;
 }
 
 InstanceSave* Player::GetInstanceSave(uint32 mapid, bool raid)
@@ -18485,24 +18486,32 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
     }
 }
 
-InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, bool load)
+InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, BindExtensionState extendState, bool load)
 {
     if (save)
     {
         InstancePlayerBind& bind = m_boundInstances[save->GetDifficulty()][save->GetMapId()];
+        if (extendState == EXTEND_STATE_KEEP) // special flag, keep the player's current extend state when updating for new boss down
+        {
+            if (save == bind.save)
+                extendState = bind.extendState;
+            else
+                extendState = EXTEND_STATE_NORMAL;
+        }
         if (!load)
         {
             if (bind.save)
             {
                 // update the save when the group kills a boss
-                if (permanent != bind.perm || save != bind.save)
+                if (permanent != bind.perm || save != bind.save || extendState != bind.extendState)
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
 
                     stmt->setUInt32(0, save->GetInstanceId());
                     stmt->setBool(1, permanent);
-                    stmt->setUInt32(2, GetGUID().GetCounter());
-                    stmt->setUInt32(3, bind.save->GetInstanceId());
+                    stmt->setUInt8(2, extendState);
+                    stmt->setUInt32(3, GetGUID().GetCounter());
+                    stmt->setUInt32(4, bind.save->GetInstanceId());
 
                     CharacterDatabase.Execute(stmt);
                 }
@@ -18514,6 +18523,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
                 stmt->setUInt32(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, save->GetInstanceId());
                 stmt->setBool(2, permanent);
+                stmt->setUInt8(3, extendState);
 
                 CharacterDatabase.Execute(stmt);
             }
@@ -18531,9 +18541,10 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
 
         bind.save = save;
         bind.perm = permanent;
+        bind.extendState = extendState;
         if (!load)
             TC_LOG_DEBUG("maps", "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName().c_str(), GetGUID().GetCounter(), save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficulty(), save->GetMapId(), permanent);
+        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficulty(), save->GetMapId(), permanent, uint8(extendState));
         return &bind;
     }
 
@@ -18551,7 +18562,7 @@ void Player::BindToInstance()
     GetSession()->SendPacket(&data);
     if (!IsGameMaster())
     {
-        BindToInstance(mapSave, true);
+        BindToInstance(mapSave, true, EXTEND_STATE_KEEP);
         GetSession()->SendCalendarRaidLockout(mapSave, true);
     }
 }
@@ -18577,15 +18588,19 @@ void Player::SendRaidInfo()
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
         {
-            if (itr->second.perm)
+            InstancePlayerBind const& bind = itr->second;
+            if (bind.perm)
             {
-                InstanceSave* save = itr->second.save;
-                data << uint32(save->GetMapId());           // map id
-                data << uint32(save->GetDifficulty());      // difficulty
-                data << uint64(save->GetInstanceId());      // instance id
-                data << uint8(1);                           // expired = 0
-                data << uint8(0);                           // extended = 1
-                data << uint32(save->GetResetTime() - now); // reset time
+                InstanceSave* save = bind.save;
+                data << uint32(save->GetMapId());                          // map id
+                data << uint32(save->GetDifficulty());                     // difficulty
+                data << uint64(save->GetInstanceId());                     // instance id
+                data << uint8(bind.extendState != EXTEND_STATE_EXPIRED);   // expired = 0
+                data << uint8(bind.extendState == EXTEND_STATE_EXTENDED);  // extended = 1
+                time_t nextReset = save->GetResetTime();
+                if (bind.extendState == EXTEND_STATE_EXTENDED)
+                    nextReset = sInstanceSaveMgr->GetSubsequentResetTime(save->GetMapId(), save->GetDifficulty(), save->GetResetTime());
+                data << uint32(nextReset - now);                // reset time
                 ++counter;
             }
         }

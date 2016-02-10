@@ -771,6 +771,9 @@ class InstanceMap : public Map
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
+        /* this checks if any players have a permanent bind (included reactivatable expired binds) to the instance ID
+        it needs a DB query, so use sparingly */
+        bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
 
