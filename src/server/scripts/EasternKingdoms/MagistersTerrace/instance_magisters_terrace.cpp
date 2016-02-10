@@ -36,6 +36,8 @@ DoorData const doorData[] =
     { 0,                       0,             DOOR_TYPE_ROOM } // END
 };
 
+Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f };
+
 class instance_magisters_terrace : public InstanceMapScript
 {
     public:
@@ -93,6 +95,10 @@ class instance_magisters_terrace : public InstanceMapScript
                     case NPC_DELRISSA:
                         DelrissaGUID = creature->GetGUID();
                         break;
+                    case NPC_KALECGOS:
+                    case NPC_HUMAN_KALECGOS:
+                        KalecgosGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -139,6 +145,25 @@ class instance_magisters_terrace : public InstanceMapScript
                 }
             }
 
+            void ProcessEvent(WorldObject* obj, uint32 eventId) override
+            {
+                if (eventId == EVENT_SPAWN_KALECGOS)
+                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && events.Empty())
+                       events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
+            }
+
+            void Update(uint32 diff) override
+            {
+                events.Update(diff);
+
+                if (events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                    if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
+                    {
+                        kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
+                        kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
+                    }
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -177,10 +202,12 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
+            EventMap events;
             ObjectGuid SelinGUID;
             ObjectGuid DelrissaGUID;
             ObjectGuid KaelStatue[2];
             ObjectGuid EscapeOrbGUID;
+            ObjectGuid KalecgosGUID;
             uint32 DelrissaDeathCount;
         };
 
