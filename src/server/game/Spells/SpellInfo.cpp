@@ -1537,6 +1537,11 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return (AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG) != 0;
 }
 
+bool SpellInfo::HasInitialAggro() const
+{
+    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
+}
+
 bool SpellInfo::IsAffectedBySpellMods() const
 {
     return !(AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS);
