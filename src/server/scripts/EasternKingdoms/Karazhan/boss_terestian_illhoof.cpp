@@ -316,7 +316,7 @@ public:
 
             Initialize();
 
-            instance->SetData(TYPE_TERESTIAN, NOT_STARTED);
+            instance->SetBossState(DATA_TERESTIAN, NOT_STARTED);
 
             me->RemoveAurasDueToSpell(SPELL_BROKEN_PACT);
 
@@ -371,7 +371,7 @@ public:
 
             Talk(SAY_DEATH);
 
-            instance->SetData(TYPE_TERESTIAN, DONE);
+            instance->SetBossState(DATA_TERESTIAN, DONE);
         }
 
         void UpdateAI(uint32 diff) override

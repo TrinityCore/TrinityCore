@@ -708,13 +708,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_CRONE_DEATH);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void UpdateAI(uint32 diff) override
@@ -908,13 +902,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1158,12 +1146,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_JULIANNE_DEATH02);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -1316,13 +1299,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_ROMULO_DEATH);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) override
