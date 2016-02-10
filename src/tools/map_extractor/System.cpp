@@ -257,7 +257,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.7";
+static char const* MAP_VERSION_MAGIC = "v1.8";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -348,8 +348,8 @@ uint8 liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
 
-float flight_box_max[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
-float flight_box_min[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+int16 flight_box_max[3][3];
+int16 flight_box_min[3][3];
 
 bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int /*cell_y*/, int /*cell_x*/, uint32 build)
 {
@@ -529,76 +529,8 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     bool hasFlightBox = false;
     if (adt_MFBO* mfbo = adt.a_grid->getMFBO())
     {
-        static uint32 const indices[] =
-        {
-            3, 0, 4,
-            0, 1, 4,
-            1, 2, 4,
-            2, 5, 4,
-            5, 8, 4,
-            8, 7, 4,
-            7, 6, 4,
-            6, 3, 4
-        };
-
-        static float const boundGridCoords[] =
-        {
-            0.0f, 0.0f,
-            0.0f, -266.66666f,
-            0.0f, -533.33331f,
-            -266.66666f, 0.0f,
-            -266.66666f, -266.66666f,
-            -266.66666f, -533.33331f,
-            -533.33331f, 0.0f,
-            -533.33331f, -266.66666f,
-            -533.33331f, -533.33331f
-        };
-
-        for (int gy = 0; gy < ADT_CELLS_PER_GRID; ++gy)
-        {
-            for (int gx = 0; gx < ADT_CELLS_PER_GRID; ++gx)
-            {
-                int32 quarterIndex = 0;
-                if (gy > ADT_CELLS_PER_GRID / 2)
-                {
-                    if (gx > ADT_CELLS_PER_GRID / 2)
-                    {
-                        quarterIndex = 4 + gx < gy;
-                    }
-                    else
-                        quarterIndex = 2;
-                }
-                else if (gx > ADT_CELLS_PER_GRID / 2)
-                {
-                    quarterIndex = 7;
-                }
-                else
-                    quarterIndex = gx > gy;
-
-                quarterIndex *= 3;
-                G3D::Plane planeMax(
-                    G3D::Vector3(boundGridCoords[indices[quarterIndex + 0] * 2 + 0], boundGridCoords[indices[quarterIndex + 0] * 2 + 1], mfbo->max.coords[indices[quarterIndex + 0]]),
-                    G3D::Vector3(boundGridCoords[indices[quarterIndex + 1] * 2 + 0], boundGridCoords[indices[quarterIndex + 1] * 2 + 1], mfbo->max.coords[indices[quarterIndex + 1]]),
-                    G3D::Vector3(boundGridCoords[indices[quarterIndex + 2] * 2 + 0], boundGridCoords[indices[quarterIndex + 2] * 2 + 1], mfbo->max.coords[indices[quarterIndex + 2]])
-                    );
-
-                G3D::Plane planeMin(
-                    G3D::Vector3(boundGridCoords[indices[quarterIndex + 0] * 2 + 0], boundGridCoords[indices[quarterIndex + 0] * 2 + 1], mfbo->min.coords[indices[quarterIndex + 0]]),
-                    G3D::Vector3(boundGridCoords[indices[quarterIndex + 1] * 2 + 0], boundGridCoords[indices[quarterIndex + 1] * 2 + 1], mfbo->min.coords[indices[quarterIndex + 1]]),
-                    G3D::Vector3(boundGridCoords[indices[quarterIndex + 2] * 2 + 0], boundGridCoords[indices[quarterIndex + 2] * 2 + 1], mfbo->min.coords[indices[quarterIndex + 2]])
-                    );
-
-                auto non_nan_distance = [](G3D::Plane const& plane) {
-                    auto d = plane.distance(G3D::Vector3(0.0f, 0.0f, 0.0f));
-                    assert(!G3D::isNaN(d));
-                    return d;
-                };
-
-                flight_box_max[gy][gx] = non_nan_distance(planeMax);
-                flight_box_min[gy][gx] = non_nan_distance(planeMin);
-            }
-        }
-
+        memcpy(flight_box_max, &mfbo->max, sizeof(flight_box_max));
+        memcpy(flight_box_min, &mfbo->min, sizeof(flight_box_min));
         hasFlightBox = true;
     }
 
