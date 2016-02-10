@@ -21,20 +21,22 @@
 
 #define DataHeader "KZ"
 
+uint32 const EncounterCount = 12;
+
 enum DataTypes
 {
-    DATA_ATTUMEN                    = 1,
-    DATA_MOROES                     = 2,
-    DATA_MAIDEN_OF_VIRTUE           = 3,
-    DATA_OPTIONAL_BOSS              = 4,
-    DATA_OPERA_PERFORMANCE          = 5,
-    DATA_CURATOR                    = 6,
-    DATA_ARAN                       = 7,
-    DATA_TERESTIAN                  = 8,
-    DATA_NETHERSPITE                = 9,
-    DATA_CHESS                      = 10,
-    DATA_MALCHEZZAR                 = 11,
-    DATA_NIGHTBANE                  = 12,
+    DATA_ATTUMEN                    = 0,
+    DATA_MOROES                     = 1,
+    DATA_MAIDEN_OF_VIRTUE           = 2,
+    DATA_OPTIONAL_BOSS              = 3,
+    DATA_OPERA_PERFORMANCE          = 4,
+    DATA_CURATOR                    = 5,
+    DATA_ARAN                       = 6,
+    DATA_TERESTIAN                  = 7,
+    DATA_NETHERSPITE                = 8,
+    DATA_CHESS                      = 9,
+    DATA_MALCHEZZAR                 = 10,
+    DATA_NIGHTBANE                  = 11,
 
     DATA_OPERA_OZ_DEATHCOUNT        = 14,
 
@@ -66,6 +68,8 @@ enum MiscCreatures
     NPC_HYAKISS_THE_LURKER          = 16179,
     NPC_ROKAD_THE_RAVAGER           = 16181,
     NPC_SHADIKITH_THE_GLIDER        = 16180,
+    NPC_TERESTIAN_ILLHOOF           = 15688,
+    NPC_MOROES                      = 15687,
 
     // Trash
     NPC_COLDMIST_WIDOW              = 16171,
@@ -75,6 +79,7 @@ enum MiscCreatures
     NPC_GREATER_SHADOWBAT           = 16174,
     NPC_PHASE_HOUND                 = 16178,
     NPC_DREADBEAST                  = 16177,
-    NPC_SHADOWBEAST                 = 16176
+    NPC_SHADOWBEAST                 = 16176,
+    NPC_KILREK                      = 17229
 };
 #endif
