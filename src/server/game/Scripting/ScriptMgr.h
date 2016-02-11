@@ -740,7 +740,7 @@ class PlayerScript : public UnitScript
         virtual void OnSave(Player* /*player*/) { }
 
         // Called when a player is bound to an instance
-        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { }
+        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/, uint8 /*extendState*/) { }
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
@@ -855,10 +855,7 @@ class GroupScript : public ScriptObject
 
 // namespace
 // {
-    typedef std::vector<ScriptObject*> UnusedScriptContainer;
     typedef std::list<std::string> UnusedScriptNamesContainer;
-
-    extern UnusedScriptContainer UnusedScripts;
     extern UnusedScriptNamesContainer UnusedScriptNames;
 // }
 
@@ -890,7 +887,6 @@ class ScriptMgr
     public: /* Unloading */
 
         void Unload();
-        void UnloadUnusedScripts();
 
     public: /* SpellScriptLoader */
 
@@ -1068,7 +1064,7 @@ class ScriptMgr
         void OnPlayerDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerSave(Player* player);
-        void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
+        void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action);
         void OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code);

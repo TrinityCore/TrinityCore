@@ -44,6 +44,13 @@ EndScriptData */
 11 - Nightbane
 */
 
+const Position OptionalSpawn[] =
+{
+    { -10960.981445f, -1940.138428f, 46.178097f, 4.12f  }, // Hyakiss the Lurker
+    { -10899.903320f, -2085.573730f, 49.474449f, 1.38f  }, // Rokad the Ravager
+    { -10945.769531f, -2040.153320f, 49.474438f, 0.077f } // Shadikith the Glider
+};
+
 class instance_karazhan : public InstanceMapScript
 {
 public:
@@ -64,6 +71,7 @@ public:
             // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
             m_uiOperaEvent = urand(1, 3);
             m_uiOzDeathCount = 0;
+            OptionalBossCount = 0;
         }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -71,6 +79,7 @@ public:
 
         uint32 m_uiOperaEvent;
         uint32 m_uiOzDeathCount;
+        uint32 OptionalBossCount;
 
         ObjectGuid m_uiCurtainGUID;
         ObjectGuid m_uiStageDoorLeftGUID;
@@ -107,6 +116,29 @@ public:
             }
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            switch (creature->GetEntry())
+            {
+                case NPC_COLDMIST_WIDOW:
+                case NPC_COLDMIST_STALKER:
+                case NPC_SHADOWBAT:
+                case NPC_VAMPIRIC_SHADOWBAT:
+                case NPC_GREATER_SHADOWBAT:
+                case NPC_PHASE_HOUND:
+                case NPC_DREADBEAST:
+                case NPC_SHADOWBEAST:
+                    SetData(TYPE_OPTIONAL_BOSS, NOT_STARTED);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void SetData(uint32 type, uint32 uiData) override
         {
             switch (type)
@@ -118,7 +150,28 @@ public:
                     m_auiEncounter[1] = uiData;
                     break;
                 case TYPE_MAIDEN:               m_auiEncounter[2] = uiData; break;
-                case TYPE_OPTIONAL_BOSS:        m_auiEncounter[3] = uiData; break;
+                case TYPE_OPTIONAL_BOSS:
+                    m_auiEncounter[3] = uiData;
+                    if (uiData == NOT_STARTED)
+                    {
+                        ++OptionalBossCount;
+                        if (OptionalBossCount == 50)
+                        {
+                            switch (urand(0, 2))
+                            {
+                                case 0:
+                                    instance->SummonCreature(NPC_HYAKISS_THE_LURKER, OptionalSpawn[0]);
+                                    break;
+                                case 1:
+                                    instance->SummonCreature(NPC_ROKAD_THE_RAVAGER, OptionalSpawn[1]);
+                                    break;
+                                case 2:
+                                    instance->SummonCreature(NPC_SHADIKITH_THE_GLIDER, OptionalSpawn[2]);
+                                    break;
+                            }
+                        }
+                    }
+                    break;
                 case TYPE_OPERA:
                     m_auiEncounter[4] = uiData;
                     if (uiData == DONE)
