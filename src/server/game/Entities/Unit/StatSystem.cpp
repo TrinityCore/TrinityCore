@@ -1170,6 +1170,11 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         {
             float mod = 1.0f;                                                 //Hunter contribution modifier
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
+            if (AuraEffect* aurEff = owner->GetAuraEffectOfRankedSpell(34453, EFFECT_1, owner->GetGUID())) // Animal Handler
+            {
+                AddPct(bonusAP, aurEff->GetAmount());
+                AddPct(val, aurEff->GetAmount());
+            }
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
         }
         else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
