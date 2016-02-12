@@ -375,8 +375,12 @@ class boss_gothik : public CreatureScript
                 _gateIsOpen = true;
                 
                 for (ObjectGuid summonGuid : summons)
+                {
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, summonGuid))
                         summon->AI()->DoAction(ACTION_GATE_OPENED);
+                    if (summons.empty()) // ACTION_GATE_OPENED may cause an evade, despawning summons and invalidating our iterator
+                        break;
+                }
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage) override
