@@ -144,6 +144,7 @@ enum Spells
     // Thaladred the Darkener spells
     SPELL_PSYCHIC_BLOW                          = 10689,
     SPELL_SILENCE                               = 30225,
+    SPELL_REND                                  = 36965,
     // Lord Sanguinar spells
     SPELL_BELLOWING_ROAR                        = 40636,
     // Grand Astromancer Capernian spells
@@ -938,7 +939,16 @@ class boss_thaladred_the_darkener : public CreatureScript
                 }
                 else
                     Silence_Timer -= diff;
-
+                    
+                //REND_Timer
+                if (Silence_Timer <= diff)
+                {
+                    DoCastVictim(SPELL_REND);
+                    Silence_Timer = 8000;
+                }
+                else
+                    Silence_Timer -= diff;
+				
                 //PsychicBlow_Timer
                 if (PsychicBlow_Timer <= diff)
                 {
