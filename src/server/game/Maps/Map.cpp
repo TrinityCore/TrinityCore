@@ -2447,8 +2447,9 @@ uint32 Map::GetAreaId(float x, float y, float z, bool *isOutdoors) const
     {
         if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
             areaId = gmap->getArea(x, y);
+
         // this used while not all *.map files generated (instances)
-        else
+        if (!areaId)
             areaId = i_mapEntry->AreaTableID;
     }
 
