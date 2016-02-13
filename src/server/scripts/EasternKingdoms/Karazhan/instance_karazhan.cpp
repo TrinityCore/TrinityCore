@@ -67,7 +67,7 @@ public:
             SetBossNumber(EncounterCount);
 
             // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
-            OperaEvent = urand(1, 3);
+            OperaEvent = urand(EVENT_OZ, EVENT_RAJ);
             OzDeathCount = 0;
             OptionalBossCount = 0;
         }
@@ -183,48 +183,48 @@ public:
         {
             switch (go->GetEntry())
             {
-                case 183932:
+                case GO_STAGE_CURTAIN:
                     CurtainGUID = go->GetGUID();
                     break;
-                case 184278:
+                case GO_STAGE_DOOR_LEFT:
                     StageDoorLeftGUID = go->GetGUID();
                     if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
-                case 184279:
+                case GO_STAGE_DOOR_RIGHT:
                     StageDoorRightGUID = go->GetGUID();
                     if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
-                case 184517:
+                case GO_PRIVATE_LIBRARY_DOOR:
                     LibraryDoor = go->GetGUID();
                     break;
-                case 185521:
+                case GO_MASSIVE_DOOR:
                     MassiveDoor = go->GetGUID();
                     break;
-                case 184276:
+                case GO_GAMESMAN_HALL_DOOR:
                     GamesmansDoor = go->GetGUID();
                     break;
-                case 184277:
+                case GO_GAMESMAN_HALL_EXIT_DOOR:
                     GamesmansExitDoor = go->GetGUID();
                     break;
-                case 185134:
+                case GO_NETHERSPACE_DOOR:
                     NetherspaceDoor = go->GetGUID();
                     break;
-                case 184274:
+                case GO_MASTERS_TERRACE_DOOR:
                     MastersTerraceDoor[0] = go->GetGUID();
                     break;
-                case 184280:
+                case GO_MASTERS_TERRACE_DOOR2:
                     MastersTerraceDoor[1] = go->GetGUID();
                     break;
-                case 184275:
+                case GO_SIDE_ENTRANCE_DOOR:
                     SideEntranceDoor = go->GetGUID();
                     if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                     else
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                     break;
-                case 185119:
+                case GO_DUST_COVERED_CHEST:
                     DustCoveredChest = go->GetGUID();
                     break;
             }

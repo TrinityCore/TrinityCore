@@ -82,4 +82,20 @@ enum MiscCreatures
     NPC_SHADOWBEAST                 = 16176,
     NPC_KILREK                      = 17229
 };
+
+enum GameObjectIds
+{
+    GO_STAGE_CURTAIN                = 183932,
+    GO_STAGE_DOOR_LEFT              = 184278,
+    GO_STAGE_DOOR_RIGHT             = 184279,
+    GO_PRIVATE_LIBRARY_DOOR         = 184517,
+    GO_MASSIVE_DOOR                 = 185521,
+    GO_GAMESMAN_HALL_DOOR           = 184276,
+    GO_GAMESMAN_HALL_EXIT_DOOR      = 184277,
+    GO_NETHERSPACE_DOOR             = 185134,
+    GO_MASTERS_TERRACE_DOOR         = 184274,
+    GO_MASTERS_TERRACE_DOOR2        = 184280,
+    GO_SIDE_ENTRANCE_DOOR           = 184275,
+    GO_DUST_COVERED_CHEST           = 185119
+};
 #endif

@@ -168,7 +168,7 @@ public:
             instance->SetBossState(DATA_NIGHTBANE, IN_PROGRESS);
 
             HandleTerraceDoors(false);
-           Talk(YELL_AGGRO);
+            Talk(YELL_AGGRO);
         }
 
         void AttackStart(Unit* who) override
