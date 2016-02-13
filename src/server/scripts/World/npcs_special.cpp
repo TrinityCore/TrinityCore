@@ -2575,9 +2575,8 @@ class npc_train_wrecker : public CreatureScript
 
 enum EgbertMisc
 {
-    SPELL_EGBERT = 40670,
-    SPELL_EGBERT2 = 40669,
-    EVENT_RETURN = 3,
+    SPELL_EGBERT = 40669,
+    EVENT_RETURN = 3
 };
 
 class npc_egbert : public CreatureScript
@@ -2599,7 +2598,6 @@ public:
             _events.Reset();
             if (Unit* owner = me->GetCharmerOrOwner())
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-            me->CastSpell(me, SPELL_EGBERT);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -2618,12 +2616,12 @@ public:
             {
                 if (!me->IsWithinDist(owner, 40.f))
                 {
-                    me->RemoveAura(SPELL_EGBERT2);
+                    me->RemoveAura(SPELL_EGBERT);
                     me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
                 }
             }
 
-            if (me->HasAura(SPELL_EGBERT2))
+            if (me->HasAura(SPELL_EGBERT))
                 _events.ScheduleEvent(EVENT_RETURN, urandms(5, 20));
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -2631,7 +2629,7 @@ public:
                 switch (eventId)
                 {
                 case EVENT_RETURN:
-                    me->RemoveAura(SPELL_EGBERT2);
+                    me->RemoveAura(SPELL_EGBERT);
                     break;
                 default:
                     break;
