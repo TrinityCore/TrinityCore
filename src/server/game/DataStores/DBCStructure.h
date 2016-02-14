@@ -509,7 +509,7 @@ struct AreaTableEntry
     uint32  ID;                                             // 0
     uint32  mapid;                                          // 1
     uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3, main index
+    uint32  exploreFlag;                                    // 3
     uint32  flags;                                          // 4, unknown value but 312 for all cities
                                                             // 5-9 unused
     int32   area_level;                                     // 10
