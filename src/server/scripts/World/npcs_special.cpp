@@ -39,6 +39,7 @@ npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die f
 npc_locksmith            75%    list of keys needs to be confirmed
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 npc_train_wrecker       100%    Wind-Up Train Wrecker that kills train set
+npc_egbert              100%    Egbert run's around
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -2192,7 +2193,7 @@ public:
                 // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
                 if (me->GetZoneId() == ZONE_MOONGLADE)
                 {
-                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f, false) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
+                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
                     {
                         switch (urand(0, 9))
                         {
@@ -2574,8 +2575,8 @@ class npc_train_wrecker : public CreatureScript
 
 enum EgbertMisc
 {
-    EVENT_MOVE_POS = 1,
-    EVENT_RETURN = 2
+    SPELL_EGBERT = 40669,
+    EVENT_RETURN = 3
 };
 
 class npc_egbert : public CreatureScript
@@ -2583,9 +2584,9 @@ class npc_egbert : public CreatureScript
 public:
     npc_egbert() : CreatureScript("npc_egbert") {}
 
-    struct npc_egbertAI : public PetAI
+    struct npc_egbertAI : public NullCreatureAI
     {
-        npc_egbertAI(Creature* creature) : PetAI(creature)
+        npc_egbertAI(Creature* creature) : NullCreatureAI(creature)
         {
             if (Unit* owner = me->GetCharmerOrOwner())
                 if (owner->GetMap()->GetEntry()->addon > 1)
@@ -2595,29 +2596,40 @@ public:
         void Reset() override
         {
             _events.Reset();
-            _events.ScheduleEvent(EVENT_MOVE_POS, urandms(1, 20));
+            if (Unit* owner = me->GetCharmerOrOwner())
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            if (!_EnterEvadeMode(why))
+                return;
+
+            Reset();
         }
 
         void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
+            if (Unit* owner = me->GetCharmerOrOwner())
+            {
+                if (!me->IsWithinDist(owner, 40.f))
+                {
+                    me->RemoveAura(SPELL_EGBERT);
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+                }
+            }
+
+            if (me->HasAura(SPELL_EGBERT))
+                _events.ScheduleEvent(EVENT_RETURN, urandms(5, 20));
+
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                case EVENT_MOVE_POS:
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                    {
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + frand(-30.0f, 30.0f), owner->GetPositionY() + frand(-30.0f, 30.0f), owner->GetPositionZ());
-                    }
-                    _events.ScheduleEvent(EVENT_RETURN, urandms(3, 4));
-                    break;
                 case EVENT_RETURN:
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-                    _events.ScheduleEvent(EVENT_MOVE_POS, urandms(1, 20));
+                    me->RemoveAura(SPELL_EGBERT);
                     break;
                 default:
                     break;

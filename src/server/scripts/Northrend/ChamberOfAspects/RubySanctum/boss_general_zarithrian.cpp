@@ -135,9 +135,9 @@ class boss_general_zarithrian : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            bool CanAIAttack(Unit const* /*target*/) const override
+            bool CanAIAttack(Unit const* target) const override
             {
-                return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE);
+                return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE && BossAI::CanAIAttack(target));
             }
 
             void UpdateAI(uint32 diff) override
