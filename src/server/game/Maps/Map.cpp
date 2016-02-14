@@ -2439,7 +2439,7 @@ uint32 Map::GetAreaId(float x, float y, float z, bool *isOutdoors) const
             atEntry = sAreaTableStore.LookupEntry(wmoEntry->AreaTableID);
     }
 
-    uint32 areaId;
+    uint32 areaId = 0;
 
     if (atEntry)
         areaId = atEntry->ID;
