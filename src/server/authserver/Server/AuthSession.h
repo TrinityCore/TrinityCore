@@ -23,29 +23,48 @@
 #include "ByteBuffer.h"
 #include "Socket.h"
 #include "BigNumber.h"
+#include "Callback.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
 
+class Field;
 struct AuthHandler;
+
+enum AuthStatus
+{
+    STATUS_CONNECTED = 0,
+    STATUS_AUTHED
+};
+
+struct AccountInfo
+{
+    void LoadResult(Field* fields);
+
+    uint32 Id = 0;
+    std::string Login;
+    bool IsLockedToIP = false;
+    std::string LockCountry;
+    std::string LastIP;
+    uint32 FailedLogins = 0;
+    bool IsBanned = false;
+    bool IsPermanenetlyBanned = false;
+    AccountTypes SecurityLevel = SEC_PLAYER;
+    std::string TokenKey;
+};
 
 class AuthSession : public Socket<AuthSession>
 {
+    typedef Socket<AuthSession> AuthSocket;
+
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
-    AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-        _isAuthenticated(false), _build(0), _expversion(0), _accountSecurityLevel(SEC_PLAYER)
-    {
-        N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-        g.SetDword(7);
-    }
+    AuthSession(tcp::socket&& socket);
 
-    void Start() override
-    {
-        AsyncRead();
-    }
+    void Start() override;
+    bool Update() override;
 
     void SendPacket(ByteBuffer& packet);
 
@@ -59,10 +78,10 @@ private:
     bool HandleReconnectProof();
     bool HandleRealmList();
 
-    //data transfer handle for patch
-    bool HandleXferResume();
-    bool HandleXferCancel();
-    bool HandleXferAccept();
+    void CheckIpCallback(PreparedQueryResult result);
+    void LogonChallengeCallback(PreparedQueryResult result);
+    void ReconnectChallengeCallback(PreparedQueryResult result);
+    void RealmListCallback(PreparedQueryResult result);
 
     void SetVSFields(const std::string& rI);
 
@@ -71,22 +90,27 @@ private:
     BigNumber K;
     BigNumber _reconnectProof;
 
-    bool _isAuthenticated;
+    bool _sentChallenge;
+    bool _sentProof;
+
+    AuthStatus _status;
+    AccountInfo _accountInfo;
     std::string _tokenKey;
-    std::string _login;
     std::string _localizationName;
     std::string _os;
+    std::string _ipCountry;
     uint16 _build;
     uint8 _expversion;
 
-    AccountTypes _accountSecurityLevel;
+    PreparedQueryResultFuture _queryFuture;
+    std::function<void(PreparedQueryResult)> _queryCallback;
 };
 
 #pragma pack(push, 1)
 
 struct AuthHandler
 {
-    uint32 status;
+    AuthStatus status;
     size_t packetSize;
     bool (AuthSession::*handler)();
 };
