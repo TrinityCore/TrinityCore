@@ -41,6 +41,9 @@ enum RogueSpells
     SPELL_ROGUE_SHIV_TRIGGERED                  = 5940,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST   = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC        = 59628,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES             = 51698,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC        = 52916,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_2           = 51699
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -703,6 +706,143 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         }
 };
 
+// 51698,51700,51701 - Honor Among Thieves
+class spell_rog_honor_among_thieves : public SpellScriptLoader
+{
+public:
+    spell_rog_honor_among_thieves() : SpellScriptLoader("spell_rog_honor_among_thieves") { }
+
+    class spell_rog_honor_among_thieves_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_honor_among_thieves_AuraScript);
+
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return false;
+
+            if (!caster->GetSpellHistory()->HasCooldown(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell))
+                return true;
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+        {
+            PreventDefaultAction();
+
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            Unit* target = GetTarget();
+            target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD), nullptr, aurEff, caster->GetGUID());
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_rog_honor_among_thieves_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rog_honor_among_thieves_AuraScript();
+    }
+};
+
+// 52916 - Honor Among Thieves (Proc)
+class spell_rog_honor_among_thieves_proc : public SpellScriptLoader
+{
+public:
+    spell_rog_honor_among_thieves_proc() : SpellScriptLoader("spell_rog_honor_among_thieves_proc") { }
+
+    class spell_rog_honor_among_thieves_proc_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_honor_among_thieves_proc_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC))
+                return false;
+
+            return true;
+        }
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            targets.clear();
+
+            Unit* target = GetOriginalCaster();
+            if (!target)
+                return;
+
+            targets.push_back(target);
+        }
+
+        void HandleBeforeHit()
+        {
+            Unit* target = GetHitUnit();
+            if (!target)
+                return;
+
+            /*
+             * The applied aura has a duration of 8 seconds
+             * This prevents new applications while its active
+             * Removing it on each new proc enables the application from different sources (different grouped players)
+             * and on new procs after the source cooldown is finished (1 second)
+             */
+            if (target->HasAura(GetSpellInfo()->Id))
+                target->RemoveAura(GetSpellInfo()->Id);
+        }
+
+        void TriggerCooldown()
+        {
+            Unit* target = GetHitUnit();
+            if (!target)
+                return;
+
+            target->GetSpellHistory()->AddCooldown(GetSpellInfo()->Id, 0, std::chrono::seconds(1));
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_honor_among_thieves_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+            BeforeHit += SpellHitFn(spell_rog_honor_among_thieves_proc_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_rog_honor_among_thieves_proc_SpellScript::TriggerCooldown);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_honor_among_thieves_proc_SpellScript();
+    }
+
+    class spell_rog_honor_among_thieves_proc_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_honor_among_thieves_proc_AuraScript);
+
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* player = GetTarget()->ToPlayer())
+                if (Unit* spellTarget = ObjectAccessor::GetUnit(*player, player->GetTarget()))
+                    player->CastSpell(spellTarget, SPELL_ROGUE_HONOR_AMONG_THIEVES_2, true);
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_rog_honor_among_thieves_proc_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rog_honor_among_thieves_proc_AuraScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -716,4 +856,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shiv();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
+    new spell_rog_honor_among_thieves();
+    new spell_rog_honor_among_thieves_proc();
 }
