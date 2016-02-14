@@ -19,10 +19,11 @@
 #define TRINITY_CONTAINERS_H
 
 #include "Define.h"
+#include "Random.h"
+#include <algorithm>
+#include <functional>
 #include <list>
-
-//! Because circular includes are bad
-extern uint32 urand(uint32 min, uint32 max);
+#include <vector>
 
 namespace Trinity
 {
@@ -57,12 +58,62 @@ namespace Trinity
             list = listCopy;
         }
 
-        /* Select a random element from a container. Note: make sure you explicitly empty check the container */
-        template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
+        /*
+         * Select a random element from a container.
+         *
+         * Note: container cannot be empty
+         */
+        template <class C>
+        typename C::value_type const& SelectRandomContainerElement(C const& container)
         {
             typename C::const_iterator it = container.begin();
             std::advance(it, urand(0, container.size() - 1));
             return *it;
+        }
+
+        /*
+         * Select a random element from a container where each element has a different chance to be selected.
+         *
+         * @param container Container to select an element from
+         * @param weights Chances of each element to be selected, must be in the same order as elements in container.
+         *                Caller is responsible for checking that sum of all weights is greater than 0.
+         *
+         * Note: container cannot be empty
+         */
+        template <class C>
+        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights)
+        {
+            Trinity::discrete_distribution_param<uint32> ddParam(weights.begin(), weights.end());
+            std::discrete_distribution<uint32> dd(ddParam);
+            typename C::const_iterator it = container.begin();
+            std::advance(it, dd(SFMTEngine::Instance()));
+            return it;
+        }
+
+        /*
+         * Select a random element from a container where each element has a different chance to be selected.
+         *
+         * @param container Container to select an element from
+         * @param weightExtractor Function retrieving chance of each element in container, expected to take an element of the container and returning a double
+         *
+         * Note: container cannot be empty
+         */
+        template <class C, class Fn>
+        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor)
+        {
+            std::vector<double> weights;
+            weights.reserve(container.size());
+            double weightSum = 0.0;
+            for (auto itr = container.begin(); itr != container.end(); ++itr)
+            {
+                double weight = weightExtractor(*itr);
+                weights.push_back(weight);
+                weightSum += weight;
+            }
+            if (weightSum <= 0.0)
+                weights.assign(container.size(), 1.0);
+
+            return SelectRandomWeightedContainerElement(container, weights);
         }
 
         /**

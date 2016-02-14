@@ -41,7 +41,6 @@
 
 // namespace
 // {
-    UnusedScriptContainer UnusedScripts;
     UnusedScriptNamesContainer UnusedScriptNames;
 // }
 
@@ -111,8 +110,9 @@ class ScriptRegistry
         // The actual list of scripts. This will be accessed concurrently, so it must not be modified
         // after server startup.
         static ScriptMap ScriptPointerList;
+        static std::vector<TScript*> Scripts;
 
-        static void AddScript(TScript* const script)
+        static void AddScript(TScript* const script, bool addToDeleteContainer = true)
         {
             ASSERT(script);
 
@@ -130,6 +130,8 @@ class ScriptRegistry
             }
 
             AddScript(is_script_database_bound<TScript>{}, script);
+            if (addToDeleteContainer)
+                Scripts.push_back(script);
         }
 
         // Gets a script by its ID (assigned by ObjectMgr).
@@ -190,11 +192,6 @@ class ScriptRegistry
             {
                 // The script uses a script name from database, but isn't assigned to anything.
                 TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.", script->GetName().c_str());
-
-                // Avoid calling "delete script;" because we are currently in the script constructor
-                // In a valid scenario this will not happen because every script has a name assigned in the database
-                UnusedScripts.push_back(script);
-                return;
             }
         }
 
@@ -214,6 +211,7 @@ class ScriptRegistry
 #define SCR_REG_MAP(T) ScriptRegistry<T>::ScriptMap
 #define SCR_REG_ITR(T) ScriptRegistry<T>::ScriptMapIterator
 #define SCR_REG_LST(T) ScriptRegistry<T>::ScriptPointerList
+#define SCR_REG_VEC(T) ScriptRegistry<T>::Scripts
 
 // Utility macros for looping over scripts.
 #define FOR_SCRIPTS(T, C, E) \
@@ -270,17 +268,15 @@ void ScriptMgr::Initialize()
     }
 #endif
 
-    UnloadUnusedScripts();
-
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ScriptMgr::Unload()
 {
     #define SCR_CLEAR(T) \
-        for (SCR_REG_ITR(T) itr = SCR_REG_LST(T).begin(); itr != SCR_REG_LST(T).end(); ++itr) \
-            delete itr->second; \
-        SCR_REG_LST(T).clear();
+        for (T* scr : SCR_REG_VEC(T)) \
+            delete scr; \
+        SCR_REG_VEC(T).clear();
 
     // Clear scripts for every script type.
     SCR_CLEAR(SpellScriptLoader);
@@ -312,17 +308,8 @@ void ScriptMgr::Unload()
 
     #undef SCR_CLEAR
 
-    UnloadUnusedScripts();
-
     delete[] SpellSummary;
     delete[] UnitAI::AISpellInfo;
-}
-
-void ScriptMgr::UnloadUnusedScripts()
-{
-    for (size_t i = 0; i < UnusedScripts.size(); ++i)
-        delete UnusedScripts[i];
-    UnusedScripts.clear();
 }
 
 void ScriptMgr::LoadDatabase()
@@ -1622,12 +1609,12 @@ void ScriptMgr::OnPlayerSave(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnSave(player);
 }
 
-void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
+void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState)
 {
 #ifdef ELUNA
     sEluna->OnBindToInstance(player, difficulty, mapid, permanent);
 #endif
-    FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent);
+    FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent, extendState);
 }
 
 void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
@@ -1863,8 +1850,7 @@ FormulaScript::FormulaScript(const char* name)
 UnitScript::UnitScript(const char* name, bool addToScripts)
     : ScriptObject(name)
 {
-    if (addToScripts)
-        ScriptRegistry<UnitScript>::AddScript(this);
+    ScriptRegistry<UnitScript>::AddScript(this, addToScripts);
 }
 
 WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
@@ -2004,6 +1990,7 @@ GroupScript::GroupScript(const char* name)
 
 // Instantiate static members of ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
+template<class TScript> std::vector<TScript*> ScriptRegistry<TScript>::Scripts;
 template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
 
 // Specialize for each script type class like so:
