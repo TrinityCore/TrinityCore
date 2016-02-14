@@ -104,22 +104,10 @@ public:
                 case NPC_PHASE_HOUND:
                 case NPC_DREADBEAST:
                 case NPC_SHADOWBEAST:
-                    SetData(DATA_OPTIONAL_BOSS, NOT_STARTED);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void SetData(uint32 type, uint32 data) override
-        {
-            switch (type)
-            {
-                case DATA_OPTIONAL_BOSS:
-                    if (data == NOT_STARTED)
+                    if (GetBossState(DATA_OPTIONAL_BOSS) == TO_BE_DECIDED)
                     {
                         ++OptionalBossCount;
-                        if (OptionalBossCount == 50)
+                        if (OptionalBossCount == OPTIONAL_BOSS_REQUIRED_DEATH_COUNT)
                         {
                             switch (urand(NPC_HYAKISS_THE_LURKER, NPC_ROKAD_THE_RAVAGER))
                             {
@@ -136,6 +124,15 @@ public:
                         }
                     }
                     break;
+                default:
+                    break;
+            }
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            switch (type)
+            {
                 case DATA_OPERA_OZ_DEATHCOUNT:
                     if (data == SPECIAL)
                         ++OzDeathCount;
@@ -299,7 +296,6 @@ public:
         uint32 OperaEvent;
         uint32 OzDeathCount;
         uint32 OptionalBossCount;
-
         ObjectGuid CurtainGUID;
         ObjectGuid StageDoorLeftGUID;
         ObjectGuid StageDoorRightGUID;

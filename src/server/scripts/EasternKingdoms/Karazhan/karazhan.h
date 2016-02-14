@@ -98,4 +98,10 @@ enum GameObjectIds
     GO_SIDE_ENTRANCE_DOOR           = 184275,
     GO_DUST_COVERED_CHEST           = 185119
 };
+
+enum Misc
+{
+    OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
+};
+
 #endif
