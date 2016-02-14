@@ -991,6 +991,37 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
+// -33943 - Flight Form
+class spell_dru_flight_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_flight_form() : SpellScriptLoader("spell_dru_flight_form") { }
+
+        class spell_dru_flight_form_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_flight_form_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsInDisallowedMountForm())
+                    return SPELL_FAILED_NOT_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_flight_form_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dru_flight_form_SpellScript();
+        }
+};
+
 // -5217 - Tiger's Fury
 class spell_dru_tiger_s_fury : public SpellScriptLoader
 {
@@ -1196,6 +1227,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_starfall_dummy();
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
+    new spell_dru_flight_form();
     new spell_dru_tiger_s_fury();
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
