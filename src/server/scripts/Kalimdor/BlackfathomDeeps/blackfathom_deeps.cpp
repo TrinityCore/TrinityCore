@@ -24,11 +24,12 @@
 
 enum Spells
 {
-    SPELL_BLESSING_OF_BLACKFATHOM                           = 8733,
-    SPELL_RAVAGE                                            = 8391,
-    SPELL_FROST_NOVA                                        = 865,
-    SPELL_FROST_BOLT_VOLLEY                                 = 8398,
-    SPELL_TELEPORT_DARNASSUS                                = 9268
+    SPELL_FROST_NOVA              = 865,
+    SPELL_RAVAGE                  = 8391,
+    SPELL_FROST_BOLT_VOLLEY       = 8398,
+    SPELL_BLESSING_OF_BLACKFATHOM = 8733,
+    SPELL_TELEPORT_DARNASSUS      = 9268,
+    SPELL_DARKNESS_CALLS_DUMMY    = 151159
 };
 
 const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
@@ -238,10 +239,39 @@ public:
     }
 };
 
+class spell_subjugator_korul_darkness_calls : public SpellScriptLoader  // 151159
+{
+    public:
+        spell_subjugator_korul_darkness_calls() : SpellScriptLoader("spell_subjugator_korul_darkness_calls") { }
+
+        class spell_subjugator_korul_darkness_calls_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_subjugator_korul_darkness_calls_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* hitUnit = GetHitUnit())
+                    GetCaster()->CastSpell(hitUnit, uint32(GetEffectValue()));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_subjugator_korul_darkness_calls_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_subjugator_korul_darkness_calls_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_subjugator_korul_darkness_calls_SpellScript();
+        }
+};
+
 void AddSC_blackfathom_deeps()
 {
     new go_blackfathom_altar();
     new go_blackfathom_fire();
     new npc_blackfathom_deeps_event();
     new npc_morridune();
+    new spell_subjugator_korul_darkness_calls();
 }
