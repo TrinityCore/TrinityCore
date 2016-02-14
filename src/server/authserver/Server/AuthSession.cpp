@@ -355,7 +355,6 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     uint16 port = GetRemotePort();
 
     // If the IP is 'locked', check that the player comes indeed from the correct IP address
-    bool locked = false;
     if (_accountInfo.IsLockedToIP)
     {
         TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is locked to IP - '%s' is logging in from '%s'", _accountInfo.Login.c_str(), _accountInfo.LastIP.c_str(), ipAddress.c_str());
