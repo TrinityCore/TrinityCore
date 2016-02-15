@@ -615,18 +615,6 @@ void Battlenet::Session::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     TC_LOG_TRACE("session", "Accepted connection from %s", ip_address.c_str());
 
-    if (_queryCallback)
-    {
-        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
-        logonResponse->SetAuthResult(AUTH_LOGON_TOO_FAST);
-        AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("session", "[Session::Start] %s attempted to log too quick after previous attempt!", GetClientInfo().c_str());
-        return;
-    }
-
-    // Verify that this IP is not in the ip_banned table
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
@@ -826,9 +814,6 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         TC_LOG_DEBUG("session", "[Battlenet::Password] %s does not have any linked game accounts!", GetClientInfo().c_str());
         return false;
     }
-
-    //set expired game account bans to inactive
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 
     BigNumber M;
     sha.Initialize();
