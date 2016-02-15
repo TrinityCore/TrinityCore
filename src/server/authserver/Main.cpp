@@ -68,6 +68,7 @@ bool StartDB();
 void StopDB();
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
+void BanExpiryHandler(boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
 
 boost::asio::io_service* _ioService;
