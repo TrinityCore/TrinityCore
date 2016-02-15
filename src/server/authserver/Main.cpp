@@ -189,6 +189,7 @@ int main(int argc, char** argv)
     // Start the io service worker loop
     _ioService->run();
 
+    _banExpiryCheckTimer->cancel();
     _dbPingTimer->cancel();
 
     sAuthSocketMgr.StopNetwork();
