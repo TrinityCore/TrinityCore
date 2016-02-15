@@ -1358,7 +1358,7 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
                 float ap = GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
                 holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-                int32 bp = int32((ap * 0.022f + 0.044f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
+                int32 bp = int32((ap * 0.0225f + 0.0355f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
                 GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
 
