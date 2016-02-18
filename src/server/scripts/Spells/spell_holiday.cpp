@@ -29,6 +29,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "Vehicle.h"
 
 // 45102 Romantic Picnic
 enum SpellsPicnic
@@ -410,6 +411,84 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         }
 };
 
+enum FeastOnSpells
+{
+    FEAST_ON_TURKEY                     = 61784,
+    FEAST_ON_CRANBERRIES                = 61785,
+    FEAST_ON_SWEET_POTATOES             = 61786,
+    FEAST_ON_PIE                        = 61787,
+    FEAST_ON_STUFFING                   = 61788,
+    SPELL_CRANBERRY_HELPINS             = 61841,
+    SPELL_TURKEY_HELPINS                = 61842,
+    SPELL_STUFFING_HELPINS              = 61843,
+    SPELL_SWEET_POTATO_HELPINS          = 61844,
+    SPELL_PIE_HELPINS                   = 61845,
+    SPELL_ON_PLATE_EAT_VISUAL           = 61826
+};
+
+class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
+{
+    public:
+        spell_pilgrims_bounty_feast_on() : SpellScriptLoader("spell_pilgrims_bounty_feast_on") { }
+
+        class spell_pilgrims_bounty_feast_on_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pilgrims_bounty_feast_on_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+
+                uint32 _spellId = 0;
+                switch (GetSpellInfo()->Id)
+                {
+                    case FEAST_ON_TURKEY:
+                        _spellId = SPELL_TURKEY_HELPINS;
+                        break;
+                    case FEAST_ON_CRANBERRIES:
+                        _spellId = SPELL_CRANBERRY_HELPINS;
+                        break;
+                    case FEAST_ON_SWEET_POTATOES:
+                        _spellId = SPELL_SWEET_POTATO_HELPINS;
+                        break;
+                    case FEAST_ON_PIE:
+                        _spellId = SPELL_PIE_HELPINS;
+                        break;
+                    case FEAST_ON_STUFFING:
+                        _spellId = SPELL_STUFFING_HELPINS;
+                        break;
+                    default:
+                        return;
+                }
+
+                if (Vehicle* vehicle = caster->GetVehicleKit())
+                    if (Unit* target = vehicle->GetPassenger(0))
+                        if (Player* player = target->ToPlayer())
+                        {
+                            player->CastSpell(player, SPELL_ON_PLATE_EAT_VISUAL, true);
+                            caster->CastSpell(player, _spellId, true, NULL, NULL, player->GetGUID());
+                        }
+
+                if (Aura* aura = caster->GetAura(GetEffectValue()))
+                {
+                    if (aura->GetStackAmount() == 1)
+                        caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                    aura->ModStackAmount(-1);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pilgrims_bounty_feast_on_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pilgrims_bounty_feast_on_SpellScript();
+        }
+};
+
 enum TheTurkinator
 {
     SPELL_KILL_COUNTER_VISUAL       = 62015,
@@ -429,7 +508,7 @@ class spell_pilgrims_bounty_turkey_tracker : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pilgrims_bounty_turkey_tracker_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL) || !sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL_MAX))
                     return false;
@@ -472,15 +551,87 @@ class spell_pilgrims_bounty_turkey_tracker : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pilgrims_bounty_turkey_tracker_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pilgrims_bounty_turkey_tracker_SpellScript();
+        }
+};
+
+enum SpiritOfSharing
+{
+    SPELL_THE_SPIRIT_OF_SHARING    = 61849
+};
+
+class spell_pilgrims_bounty_well_fed : public SpellScriptLoader
+{
+    private:
+        uint32 _triggeredSpellId;
+
+    public:
+        spell_pilgrims_bounty_well_fed(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+
+        class spell_pilgrims_bounty_well_fed_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pilgrims_bounty_well_fed_SpellScript);
+        private:
+            uint32 _triggeredSpellId;
+
+        public:
+            spell_pilgrims_bounty_well_fed_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(_triggeredSpellId))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Player* target = GetHitPlayer();
+                if (!target)
+                    return;
+
+                if (Aura const* aura = target->GetAura(GetSpellInfo()->Id))
+                {
+                    if (aura->GetStackAmount() == 5)
+                        target->CastSpell(target, _triggeredSpellId, true);
+                }
+
+                Aura const* turkey = target->GetAura(SPELL_TURKEY_HELPINS);
+                Aura const* cranberies = target->GetAura(SPELL_CRANBERRY_HELPINS);
+                Aura const* stuffing = target->GetAura(SPELL_STUFFING_HELPINS);
+                Aura const* sweetPotatoes = target->GetAura(SPELL_SWEET_POTATO_HELPINS);
+                Aura const* pie = target->GetAura(SPELL_PIE_HELPINS);
+
+                if ((turkey && turkey->GetStackAmount() == 5) && (cranberies && cranberies->GetStackAmount() == 5) && (stuffing && stuffing->GetStackAmount() == 5)
+                    && (sweetPotatoes && sweetPotatoes->GetStackAmount() == 5) && (pie && pie->GetStackAmount() == 5))
+                {
+                    target->CastSpell(target, SPELL_THE_SPIRIT_OF_SHARING, true);
+                    target->RemoveAurasDueToSpell(SPELL_TURKEY_HELPINS);
+                    target->RemoveAurasDueToSpell(SPELL_CRANBERRY_HELPINS);
+                    target->RemoveAurasDueToSpell(SPELL_STUFFING_HELPINS);
+                    target->RemoveAurasDueToSpell(SPELL_SWEET_POTATO_HELPINS);
+                    target->RemoveAurasDueToSpell(SPELL_PIE_HELPINS);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pilgrims_bounty_well_fed_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pilgrims_bounty_well_fed_SpellScript(_triggeredSpellId);
         }
 };
 
@@ -1047,6 +1198,12 @@ void AddSC_holiday_spell_scripts()
     new spell_pilgrims_bounty_buff_food("spell_gen_spice_bread_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
+    new spell_pilgrims_bounty_feast_on();
+    new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_turkey", SPELL_WELL_FED_AP_TRIGGER);
+    new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_cranberry", SPELL_WELL_FED_ZM_TRIGGER);
+    new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_stuffing", SPELL_WELL_FED_HIT_TRIGGER);
+    new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_sweet_potatoes", SPELL_WELL_FED_HASTE_TRIGGER);
+    new spell_pilgrims_bounty_well_fed("spell_pilgrims_bounty_well_fed_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_turkey_tracker();
     // Winter Veil
     new spell_winter_veil_mistletoe();
