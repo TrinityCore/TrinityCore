@@ -6101,7 +6101,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!GetSpellHistory()->HasCooldown(34299))
                         CastCustomSpell(this, 68285, &basepoints1, 0, 0, true, 0, triggeredByAura);
 
-                    if (cooldown && GetTypeId() == TYPEID_PLAYER)
+                    if (cooldown)
                         GetSpellHistory()->AddCooldown(34299, 0, std::chrono::seconds(cooldown));
                     break;
                 }
@@ -7406,7 +7406,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         return false;
     }
 
-    if (cooldown && GetTypeId() == TYPEID_PLAYER && GetSpellHistory()->HasCooldown(dummySpell->Id))
+    if (cooldown && GetSpellHistory()->HasCooldown(dummySpell->Id))
         return false;
 
     if (basepoints0)
@@ -7414,7 +7414,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
     else
         CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
 
-    if (cooldown && GetTypeId() == TYPEID_PLAYER)
+    if (cooldown)
         GetSpellHistory()->AddCooldown(dummySpell->Id, 0, std::chrono::seconds(cooldown));
 
     return true;
