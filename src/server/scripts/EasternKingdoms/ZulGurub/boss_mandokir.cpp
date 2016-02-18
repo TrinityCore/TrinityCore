@@ -147,7 +147,12 @@ class boss_mandokir : public CreatureScript
                 instance->SetBossState(DATA_MANDOKIR, DONE);
                 instance->SaveToDB();
             }
-
+            
+            void JustReachedHome() override
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            }
+            
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
@@ -194,9 +199,9 @@ class boss_mandokir : public CreatureScript
                     me->SetWalk(false);
                     if (id == POINT_MANDOKIR_END)
                     {
-                        me->SetHomePosition(PosMandokir[0]);
+                        me->SetHomePosition(PosMandokir[1]);
+                        me->GetMotionMaster()->MoveTargetedHome();
                         instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
-                        me->DespawnOrUnsummon(6000); // No idea how to respawn on wipe.
                     }
                 }
             }
