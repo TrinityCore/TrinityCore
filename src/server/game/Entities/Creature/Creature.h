@@ -439,7 +439,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool LoadCreaturesAddon();
         void SelectLevel();
-        void LoadEquipment(int8 id = 1, bool force = false);
+        void LoadEquipment(int8 id = -1, bool force = false);
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 

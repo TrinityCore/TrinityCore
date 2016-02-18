@@ -369,13 +369,19 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
 
     // Load creature equipment
-    if (data && data->equipmentId != 0)
+    if (data)
     {
-        m_originalEquipmentId = data->equipmentId;
-        LoadEquipment(data->equipmentId);
+        if (data->equipmentId != 0)
+        {
+            // If creature exist in `creature` table we must use `creature.equipment_id` (can be -1, it means random equipment)
+            m_originalEquipmentId = data->equipmentId;
+            LoadEquipment(data->equipmentId);
+        }
+        else
+            LoadEquipment(0, true); // Line in `creature` table exist, but `creature.equipment_id` == 0. Creature must spawn without equipment.
     }
     else
-        LoadEquipment(0, true);
+        LoadEquipment(); // Creature is summoned. Use random equipment (if available)
 
     SetName(normalInfo->Name);                              // at normal entry always
 
@@ -1399,7 +1405,7 @@ void Creature::SetCanDualWield(bool value)
     UpdateDamagePhysical(OFF_ATTACK);
 }
 
-void Creature::LoadEquipment(int8 id, bool force /*= true*/)
+void Creature::LoadEquipment(int8 id /*= -1*/, bool force /*= true*/)
 {
     if (id == 0)
     {
