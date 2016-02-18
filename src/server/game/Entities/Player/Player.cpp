@@ -22482,19 +22482,37 @@ void Player::ApplyEquipCooldown(Item* pItem)
             continue;
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (spellData.SpellTrigger > ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
             continue;
+
+        uint32 equipCooldown = 30; // default equip cooldown is 30 seconds for 'On Use' spells
+
+        switch (spellData.SpellTrigger)
+        {
+            case ITEM_SPELLTRIGGER_ON_EQUIP:
+            case ITEM_SPELLTRIGGER_CHANCE_ON_HIT:
+                if (SpellProcEventEntry const* procEvent = sSpellMgr->GetSpellProcEvent(spellData.SpellId))
+                    equipCooldown = procEvent->cooldown;
+                break;
+            default:
+                break;
+        }
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->EnsureSpellInfo(spellData.SpellId)) > 30 * IN_MILLISECONDS)
+        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->EnsureSpellInfo(spellData.SpellId)) > equipCooldown * IN_MILLISECONDS)
             continue;
 
-        GetSpellHistory()->AddCooldown(spellData.SpellId, pItem->GetEntry(), std::chrono::seconds(30));
+        GetSpellHistory()->AddCooldown(spellData.SpellId, pItem->GetEntry(), std::chrono::seconds(equipCooldown));
 
-        WorldPacket data(SMSG_ITEM_COOLDOWN, 8 + 4);
-        data << uint64(pItem->GetGUID());
-        data << uint32(spellData.SpellId);
-        GetSession()->SendPacket(&data);
+        // Only send item cooldown packet for items with 'On Use' spells, 'On Equip' and 'Chance on Hit'
+        // are handled by the core, in order to track the ICD
+        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+        {
+            WorldPacket data(SMSG_ITEM_COOLDOWN, 8 + 4);
+            data << uint64(pItem->GetGUID());
+            data << uint32(spellData.SpellId);
+            GetSession()->SendPacket(&data);
+        }
     }
 }
 
