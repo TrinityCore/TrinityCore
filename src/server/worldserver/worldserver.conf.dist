@@ -1373,10 +1373,11 @@ AllowTwoSide.Trade = 0
 
 #
 #    TalentsInspecting
-#        Description: Allow inspecting characters from the opposing faction.
-#                     Doesn't affect characters in gamemaster mode.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#        Description: Allow/disallow inspecting other characters' talents.
+#                     Doesn't affect game master accounts.
+#                     2 - (Enabled for all characters)
+#        Default:     1 - (Enabled for characters of the same faction)
+#                     0 - (Talent inspecting is disabled)
 
 TalentsInspecting = 1
 

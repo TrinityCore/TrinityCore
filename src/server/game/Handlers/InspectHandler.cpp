@@ -50,7 +50,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     inspectResult.ClassID = player->getClass();
     inspectResult.GenderID = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
 
-    if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || GetPlayer()->IsGameMaster())
+    if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetTeamId() == player->GetTeamId()) > 1)
     {
         PlayerTalentMap const* talents = player->GetTalentMap(player->GetActiveTalentGroup());
         for (PlayerTalentMap::value_type const& v : *talents)
