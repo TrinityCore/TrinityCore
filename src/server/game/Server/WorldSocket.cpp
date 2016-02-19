@@ -38,6 +38,17 @@ struct CompressedWorldPacket
     uint32 CompressedAdler;
 };
 
+class EncryptablePacket : public WorldPacket
+{
+public:
+    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt) { }
+
+    bool NeedsEncryption() const { return _encrypt; }
+
+private:
+    bool _encrypt;
+};
+
 #pragma pack(pop)
 
 using boost::asio::ip::tcp;
@@ -76,11 +87,8 @@ void WorldSocket::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        _queryCallback = io_service().wrap(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1));
-        _queryFuture = LoginDatabase.AsyncQuery(stmt);
-    }
+    _queryCallback = std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1);
+    _queryFuture = LoginDatabase.AsyncQuery(stmt);
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -116,23 +124,50 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
     initializer.Write(&header, sizeof(header.Setup.Size));
     initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
-    std::unique_lock<std::mutex> guard(_writeLock);
-    QueuePacket(std::move(initializer), guard);
+    // - io_service.run thread, safe.
+    QueuePacket(std::move(initializer));
 }
 
 bool WorldSocket::Update()
 {
+    EncryptablePacket* queued;
+    MessageBuffer buffer;
+    while (_bufferQueue.Dequeue(queued))
+    {
+        uint32 sizeOfHeader = SizeOfServerHeader[queued->NeedsEncryption()];
+        uint32 packetSize = queued->size();
+        if (packetSize > MinSizeForCompression && queued->NeedsEncryption())
+            packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
+
+        if (buffer.GetRemainingSpace() < packetSize + sizeOfHeader)
+        {
+            QueuePacket(std::move(buffer));
+            buffer.Resize(4096);
+        }
+
+        if (buffer.GetRemainingSpace() >= packetSize + sizeOfHeader)
+            WritePacketToBuffer(*queued, buffer);
+        else    // single packet larger than 4096 bytes
+        {
+            MessageBuffer packetBuffer(packetSize + sizeOfHeader);
+            WritePacketToBuffer(*queued, packetBuffer);
+            QueuePacket(std::move(packetBuffer));
+        }
+
+        delete queued;
+    }
+
+    if (buffer.GetActiveSize() > 0)
+        QueuePacket(std::move(buffer));
+
     if (!BaseSocket::Update())
         return false;
 
+    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        {
-            auto callback = std::move(_queryCallback);
-            _queryCallback = nullptr;
-            callback(_queryFuture.get());
-        }
+        auto callback = _queryCallback;
+        _queryCallback = nullptr;
+        callback(_queryFuture.get());
     }
 
     return true;
@@ -428,29 +463,13 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort(), GetConnectionType());
 
-    uint32 packetSize = packet.size();
-    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
-    if (packetSize > MinSizeForCompression && _authCrypt.IsInitialized())
-        packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
-
-    std::unique_lock<std::mutex> guard(_writeLock);
-
-#ifndef TC_SOCKET_USE_IOCP
-    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packetSize)
-        WritePacketToBuffer(packet, _writeBuffer);
-    else
-#endif
-    {
-        MessageBuffer buffer(sizeOfHeader + packetSize);
-        WritePacketToBuffer(packet, buffer);
-        QueuePacket(std::move(buffer), guard);
-    }
+    _bufferQueue.Enqueue(new EncryptablePacket(packet, _authCrypt.IsInitialized()));
 }
 
-void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer)
+void WorldSocket::WritePacketToBuffer(EncryptablePacket const& packet, MessageBuffer& buffer)
 {
     ServerPktHeader header;
-    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
+    uint32 sizeOfHeader = SizeOfServerHeader[packet.NeedsEncryption()];
     uint32 opcode = packet.GetOpcode();
     uint32 packetSize = packet.size();
 
@@ -458,7 +477,7 @@ void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& 
     uint8* headerPos = buffer.GetWritePointer();
     buffer.WriteCompleted(sizeOfHeader);
 
-    if (packetSize > MinSizeForCompression && _authCrypt.IsInitialized())
+    if (packetSize > MinSizeForCompression && packet.NeedsEncryption())
     {
         CompressedWorldPacket cmp;
         cmp.UncompressedSize = packetSize + 4;
@@ -481,7 +500,7 @@ void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& 
     else if (!packet.empty())
         buffer.Write(packet.contents(), packet.size());
 
-    if (_authCrypt.IsInitialized())
+    if (packet.NeedsEncryption())
     {
         header.Normal.Size = packetSize;
         header.Normal.Command = opcode;
@@ -598,11 +617,8 @@ void WorldSocket::HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSess
     stmt->setInt32(0, int32(realm.Id.Realm));
     stmt->setString(1, authSession->Account);
 
-    {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        _queryCallback = io_service().wrap(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1));
-        _queryFuture = LoginDatabase.AsyncQuery(stmt);
-    }
+    _queryCallback = std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1);
+    _queryFuture = LoginDatabase.AsyncQuery(stmt);
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result)
@@ -768,7 +784,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     if (wardenActive)
         _worldSession->InitWarden(&account.Game.SessionKey, account.BattleNet.OS);
 
-    _queryCallback = io_service().wrap(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1));
+    _queryCallback = std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1);
     _queryFuture = _worldSession->LoadPermissionsAsync();
     AsyncRead();
 }
@@ -801,11 +817,8 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setUInt32(0, accountId);
 
-    {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        _queryCallback = io_service().wrap(std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1));
-        _queryFuture = LoginDatabase.AsyncQuery(stmt);
-    }
+    _queryCallback = std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1);
+    _queryFuture = LoginDatabase.AsyncQuery(stmt);
 }
 
 void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result)

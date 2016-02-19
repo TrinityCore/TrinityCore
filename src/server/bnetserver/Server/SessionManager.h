@@ -75,7 +75,7 @@ namespace Battlenet
         NetworkThread<Session>* CreateThreads() const override;
 
     private:
-        static void OnSocketAccept(tcp::socket&& sock);
+        static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex);
 
         SessionMap _sessions;
         SessionByAccountMap _sessionsByAccountId;
