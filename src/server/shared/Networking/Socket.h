@@ -21,15 +21,11 @@
 #include "MessageBuffer.h"
 #include "Log.h"
 #include <atomic>
-#include <vector>
-#include <mutex>
 #include <queue>
 #include <memory>
 #include <functional>
 #include <type_traits>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/write.hpp>
-#include <boost/asio/read.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -63,14 +59,10 @@ public:
             return false;
 
 #ifndef TC_SOCKET_USE_IOCP
-        std::unique_lock<std::mutex> guard(_writeLock);
-        if (!guard)
+        if (_isWritingAsync || _writeQueue.empty())
             return true;
 
-        if (_isWritingAsync || (!_writeBuffer.GetActiveSize() && _writeQueue.empty()))
-            return true;
-
-        for (; WriteHandler(guard);)
+        for (; HandleQueue();)
             ;
 #endif
 
@@ -98,14 +90,12 @@ public:
             std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
-    void QueuePacket(MessageBuffer&& buffer, std::unique_lock<std::mutex>& guard)
+    void QueuePacket(MessageBuffer&& buffer)
     {
         _writeQueue.push(std::move(buffer));
 
 #ifdef TC_SOCKET_USE_IOCP
-        AsyncProcessQueue(guard);
-#else
-        (void)guard;
+        AsyncProcessQueue();
 #endif
     }
 
@@ -135,7 +125,7 @@ protected:
 
     virtual void ReadHandler() = 0;
 
-    bool AsyncProcessQueue(std::unique_lock<std::mutex>&)
+    bool AsyncProcessQueue()
     {
         if (_isWritingAsync)
             return false;
@@ -153,14 +143,6 @@ protected:
 
         return false;
     }
-
-    std::mutex _writeLock;
-    std::queue<MessageBuffer> _writeQueue;
-#ifndef TC_SOCKET_USE_IOCP
-    MessageBuffer _writeBuffer;
-#endif
-
-    boost::asio::io_service& io_service() { return _socket.get_io_service(); }
 
 private:
     void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)
@@ -181,15 +163,13 @@ private:
     {
         if (!error)
         {
-            std::unique_lock<std::mutex> deleteGuard(_writeLock);
-
             _isWritingAsync = false;
             _writeQueue.front().ReadCompleted(transferedBytes);
             if (!_writeQueue.front().GetActiveSize())
                 _writeQueue.pop();
 
             if (!_writeQueue.empty())
-                AsyncProcessQueue(deleteGuard);
+                AsyncProcessQueue();
             else if (_closing)
                 CloseSocket();
         }
@@ -201,48 +181,15 @@ private:
 
     void WriteHandlerWrapper(boost::system::error_code /*error*/, std::size_t /*transferedBytes*/)
     {
-        std::unique_lock<std::mutex> guard(_writeLock);
         _isWritingAsync = false;
-        WriteHandler(guard);
+        HandleQueue();
     }
 
-    bool WriteHandler(std::unique_lock<std::mutex>& guard)
+    bool HandleQueue()
     {
         if (!IsOpen())
             return false;
 
-        std::size_t bytesToSend = _writeBuffer.GetActiveSize();
-
-        if (bytesToSend == 0)
-            return HandleQueue(guard);
-
-        boost::system::error_code error;
-        std::size_t bytesWritten = _socket.write_some(boost::asio::buffer(_writeBuffer.GetReadPointer(), bytesToSend), error);
-
-        if (error)
-        {
-            if (error == boost::asio::error::would_block || error == boost::asio::error::try_again)
-                return AsyncProcessQueue(guard);
-
-            return false;
-        }
-        else if (bytesWritten == 0)
-            return false;
-        else if (bytesWritten < bytesToSend)
-        {
-            _writeBuffer.ReadCompleted(bytesWritten);
-            _writeBuffer.Normalize();
-            return AsyncProcessQueue(guard);
-        }
-
-        // now bytesWritten == bytesToSend
-        _writeBuffer.Reset();
-
-        return HandleQueue(guard);
-    }
-
-    bool HandleQueue(std::unique_lock<std::mutex>& guard)
-    {
         if (_writeQueue.empty())
             return false;
 
@@ -256,7 +203,7 @@ private:
         if (error)
         {
             if (error == boost::asio::error::would_block || error == boost::asio::error::try_again)
-                return AsyncProcessQueue(guard);
+                return AsyncProcessQueue();
 
             _writeQueue.pop();
             return false;
@@ -269,7 +216,7 @@ private:
         else if (bytesSent < bytesToSend) // now n > 0
         {
             queuedMessage.ReadCompleted(bytesSent);
-            return AsyncProcessQueue(guard);
+            return AsyncProcessQueue();
         }
 
         _writeQueue.pop();
@@ -284,6 +231,7 @@ private:
     uint16 _remotePort;
 
     MessageBuffer _readBuffer;
+    std::queue<MessageBuffer> _writeQueue;
 
     std::atomic<bool> _closed;
     std::atomic<bool> _closing;
