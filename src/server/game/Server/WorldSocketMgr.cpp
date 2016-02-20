@@ -49,7 +49,7 @@ WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), 
 
 WorldSocketMgr::~WorldSocketMgr()
 {
-    delete _instanceAcceptor;
+    ASSERT(!_instanceAcceptor, "StopNetwork must be called prior to WorldSocketMgr destruction");
 }
 
 bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
@@ -85,7 +85,11 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
 
 void WorldSocketMgr::StopNetwork()
 {
+    _instanceAcceptor->Close();
     BaseSocketMgr::StopNetwork();
+
+    delete _instanceAcceptor;
+    _instanceAcceptor = nullptr;
 
     sScriptMgr->OnNetworkStop();
 }
