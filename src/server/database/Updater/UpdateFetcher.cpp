@@ -142,14 +142,12 @@ UpdateFetcher::SQLUpdate UpdateFetcher::ReadSQLUpdate(boost::filesystem::path co
     std::ifstream in(file.c_str());
     WPFatal(in.is_open(), "Could not read an update file.");
 
-    auto const start_pos = in.tellg();
-    in.ignore(std::numeric_limits<std::streamsize>::max());
-    auto const char_count = in.gcount();
-    in.seekg(start_pos);
+    auto update = [&in]  {
+        std::ostringstream ss;
+        ss << in.rdbuf();
+        return Trinity::make_unique<std::string>(ss.str());
+    }();
 
-    SQLUpdate const update(new std::string(char_count, char{}));
-
-    in.read(&(*update)[0], update->size());
     in.close();
     return update;
 }

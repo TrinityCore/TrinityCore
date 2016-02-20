@@ -161,10 +161,6 @@ void AuthSession::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     TC_LOG_TRACE("session", "Accepted connection from %s", ip_address.c_str());
 
-    // Remove expired ip ban if needed - login might fail for the first time
-    // but its better than allowing ourselves to be flooded by connections triggering blocking queries
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
@@ -278,10 +274,7 @@ void AuthSession::SendPacket(ByteBuffer& packet)
     {
         MessageBuffer buffer;
         buffer.Write(packet.contents(), packet.size());
-
-        std::unique_lock<std::mutex> guard(_writeLock);
-
-        QueuePacket(std::move(buffer), guard);
+        QueuePacket(std::move(buffer));
     }
 }
 
@@ -381,9 +374,6 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
             }
         }
     }
-
-    //set expired bans to inactive
-    LoginDatabase.DirectExecute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 
     // If the account is banned, reject the logon attempt
     if (_accountInfo.IsBanned)

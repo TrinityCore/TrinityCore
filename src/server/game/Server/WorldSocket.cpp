@@ -28,6 +28,17 @@
 
 #include <memory>
 
+class EncryptablePacket : public WorldPacket
+{
+public:
+    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt) { }
+
+    bool NeedsEncryption() const { return _encrypt; }
+
+private:
+    bool _encrypt;
+};
+
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
@@ -43,11 +54,8 @@ void WorldSocket::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        _queryCallback = io_service().wrap(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1));
-        _queryFuture = LoginDatabase.AsyncQuery(stmt);
-    }
+    _queryCallback = std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1);
+    _queryFuture = LoginDatabase.AsyncQuery(stmt);
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -81,17 +89,50 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 
 bool WorldSocket::Update()
 {
+    EncryptablePacket* queued;
+    MessageBuffer buffer;
+    while (_bufferQueue.Dequeue(queued))
+    {
+        ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
+        if (queued->NeedsEncryption())
+            _authCrypt.EncryptSend(header.header, header.getHeaderLength());
+
+        if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
+        {
+            QueuePacket(std::move(buffer));
+            buffer.Resize(4096);
+        }
+
+        if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
+        {
+            buffer.Write(header.header, header.getHeaderLength());
+            if (!queued->empty())
+                buffer.Write(queued->contents(), queued->size());
+        }
+        else    // single packet larger than 4096 bytes
+        {
+            MessageBuffer packetBuffer(queued->size() + header.getHeaderLength());
+            packetBuffer.Write(header.header, header.getHeaderLength());
+            if (!queued->empty())
+                packetBuffer.Write(queued->contents(), queued->size());
+
+            QueuePacket(std::move(packetBuffer));
+        }
+
+        delete queued;
+    }
+
+    if (buffer.GetActiveSize() > 0)
+        QueuePacket(std::move(buffer));
+
     if (!BaseSocket::Update())
         return false;
 
+    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        {
-            auto callback = std::move(_queryCallback);
-            _queryCallback = nullptr;
-            callback(_queryFuture.get());
-        }
+        auto callback = _queryCallback;
+        _queryCallback = nullptr;
+        callback(_queryFuture.get());
     }
 
     return true;
@@ -354,29 +395,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
-    ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
-
-    std::unique_lock<std::mutex> guard(_writeLock);
-
-    _authCrypt.EncryptSend(header.header, header.getHeaderLength());
-
-#ifndef TC_SOCKET_USE_IOCP
-    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= header.getHeaderLength() + packet.size())
-    {
-        _writeBuffer.Write(header.header, header.getHeaderLength());
-        if (!packet.empty())
-            _writeBuffer.Write(packet.contents(), packet.size());
-    }
-    else
-#endif
-    {
-        MessageBuffer buffer(header.getHeaderLength() + packet.size());
-        buffer.Write(header.header, header.getHeaderLength());
-        if (!packet.empty())
-            buffer.Write(packet.contents(), packet.size());
-
-        QueuePacket(std::move(buffer), guard);
-    }
+    _bufferQueue.Enqueue(new EncryptablePacket(packet, _authCrypt.IsInitialized()));
 }
 
 void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
@@ -401,11 +420,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt->setInt32(0, int32(realmID));
     stmt->setString(1, authSession->Account);
 
-    {
-        std::lock_guard<std::mutex> guard(_queryLock);
-        _queryCallback = io_service().wrap(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1));
-        _queryFuture = LoginDatabase.AsyncQuery(stmt);
-    }
+    _queryCallback = std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1);
+    _queryFuture = LoginDatabase.AsyncQuery(stmt);
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result)
@@ -562,7 +578,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     if (wardenActive)
         _worldSession->InitWarden(&account.SessionKey, account.OS);
 
-    _queryCallback = io_service().wrap(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1));
+    _queryCallback = std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1);
     _queryFuture = _worldSession->LoadPermissionsAsync();
     AsyncRead();
 }
