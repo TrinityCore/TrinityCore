@@ -28,17 +28,27 @@ StatsLogger::~StatsLogger()
 
 }
 
-void StatsLogger::LogValue(std::string category, uint32 value)
+void StatsLogger::LogValue(std::string const& category, uint32 value)
 {
-    std::string influxDbData = category + ",realm=Windows value=" + std::to_string(value) + "i";
+    std::string data = category + ",realm=Windows value=" + std::to_string(value) + "i";
+    Log(data);
+}
 
+void StatsLogger::LogEvent(std::string const& title, std::string const& description)
+{
+    std::string data = "events,realm=Windows title=\"" + title + "\",text=\"" + description + "\"";
+    Log(data);
+}
+
+void StatsLogger::Log(std::string& data)
+{
     dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
     dataStream << "Host: " << "localhost:8086" << "\r\n";
     dataStream << "Accept: */*\r\n";
     dataStream << "Content-Type: application/octet-stream\r\n";
     dataStream << "Content-Transfer-Encoding: binary\r\n";
-    dataStream << "Content-Length: " << std::to_string(influxDbData.length()) << "\r\n\r\n";
-    dataStream << influxDbData;
+    dataStream << "Content-Length: " << std::to_string(data.length()) << "\r\n\r\n";
+    dataStream << data;
     dataStream << "\r\n\r\n";
 
     std::string http_version;
@@ -47,7 +57,7 @@ void StatsLogger::LogValue(std::string category, uint32 value)
     dataStream >> status_code;
     if (status_code != 204)
     {
-        TC_LOG_ERROR("statslogger", "Error sending data '%s', returned HTTP code: %u", influxDbData.c_str(), status_code);
+        TC_LOG_ERROR("statslogger", "Error sending data '%s', returned HTTP code: %u", data.c_str(), status_code);
     }
 
     // Read and ignore teh status description

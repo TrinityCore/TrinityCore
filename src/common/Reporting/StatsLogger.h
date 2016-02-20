@@ -29,6 +29,8 @@ private:
 
     boost::asio::ip::tcp::iostream dataStream;
 
+    void Log(std::string& data);
+
 public:
     static StatsLogger* instance()
     {
@@ -36,7 +38,8 @@ public:
         return &instance;
     }
 
-    void LogValue(std::string category, uint32 value);
+    void LogValue(std::string const& category, uint32 value);
+    void LogEvent(std::string const& title, std::string const& description);
 };
 
 #define sStatsLogger StatsLogger::instance()
