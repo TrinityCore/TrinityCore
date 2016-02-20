@@ -47,7 +47,7 @@ public:
     /// Stops all network threads, It will wait for all running threads .
     void StopNetwork() override;
 
-    void OnSocketOpen(tcp::socket&& sock) override;
+    void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex) override;
 
 protected:
     WorldSocketMgr();
