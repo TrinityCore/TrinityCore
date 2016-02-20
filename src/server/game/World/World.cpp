@@ -2202,7 +2202,7 @@ void World::Update(uint32 diff)
     sScriptMgr->OnWorldUpdate(diff);
 
     // Stats logger update
-    sStatsLogger->Update(diff);
+    sStatsLogger->LogValue("update_time_diff", diff);
 }
 
 void World::ForceGameEventUpdate()

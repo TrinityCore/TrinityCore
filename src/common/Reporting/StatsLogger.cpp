@@ -28,9 +28,9 @@ StatsLogger::~StatsLogger()
 
 }
 
-void StatsLogger::Update(uint32 diff)
+void StatsLogger::LogValue(std::string category, uint32 value)
 {
-    std::string influxDbData = "update_time_diff,realm=Windows value=" + std::to_string(diff) + "i";
+    std::string influxDbData = category + ",realm=Windows value=" + std::to_string(value) + "i";
 
     dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
     dataStream << "Host: " << "localhost:8086" << "\r\n";

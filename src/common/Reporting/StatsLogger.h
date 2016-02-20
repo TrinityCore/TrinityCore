@@ -36,7 +36,7 @@ public:
         return &instance;
     }
 
-    void Update(uint32 diff);
+    void LogValue(std::string category, uint32 value);
 };
 
 #define sStatsLogger StatsLogger::instance()
