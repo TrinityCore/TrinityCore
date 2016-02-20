@@ -39,7 +39,6 @@ npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die f
 npc_locksmith            75%    list of keys needs to be confirmed
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 npc_train_wrecker       100%    Wind-Up Train Wrecker that kills train set
-npc_egbert              100%    Egbert run's around
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -58,7 +57,6 @@ EndContentData */
 #include "SpellHistory.h"
 #include "SpellAuras.h"
 #include "Pet.h"
-#include "PetAI.h"
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 
@@ -2573,170 +2571,6 @@ class npc_train_wrecker : public CreatureScript
         }
 };
 
-enum EgbertMisc
-{
-    SPELL_EGBERT = 40669,
-    EVENT_RETURN = 3
-};
-
-class npc_egbert : public CreatureScript
-{
-public:
-    npc_egbert() : CreatureScript("npc_egbert") {}
-
-    struct npc_egbertAI : public NullCreatureAI
-    {
-        npc_egbertAI(Creature* creature) : NullCreatureAI(creature)
-        {
-            if (Unit* owner = me->GetCharmerOrOwner())
-                if (owner->GetMap()->GetEntry()->addon > 1)
-                    me->SetCanFly(true);
-        }
-
-        void Reset() override
-        {
-            _events.Reset();
-            if (Unit* owner = me->GetCharmerOrOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (!_EnterEvadeMode(why))
-                return;
-
-            Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (Unit* owner = me->GetCharmerOrOwner())
-            {
-                if (!me->IsWithinDist(owner, 40.f))
-                {
-                    me->RemoveAura(SPELL_EGBERT);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-                }
-            }
-
-            if (me->HasAura(SPELL_EGBERT))
-                _events.ScheduleEvent(EVENT_RETURN, urandms(5, 20));
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_RETURN:
-                    me->RemoveAura(SPELL_EGBERT);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_egbertAI(creature);
-    }
-};
-
-enum PandarenMonkMisc
-{
-    SPELL_PANDAREN_MONK = 69800,
-    EVENT_FOCUS = 1,
-    EVENT_EMOTE = 2,
-    EVENT_FOLLOW = 3,
-    EVENT_DRINK = 4
-};
-
-class npc_pandaren_monk : public CreatureScript
-{
-public:
-    npc_pandaren_monk() : CreatureScript("npc_pandaren_monk") {}
-
-    struct npc_pandaren_monkAI : public NullCreatureAI
-    {
-        npc_pandaren_monkAI(Creature* creature) : NullCreatureAI(creature) { }
-
-        void Reset() override
-        {
-            _events.Reset();
-            _events.ScheduleEvent(EVENT_FOCUS, 1000);
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (!_EnterEvadeMode(why))
-                return;
-
-            Reset();
-        }
-
-        void ReceiveEmote(Player* /*player*/, uint32 emote) override
-        {
-            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-            me->StopMoving();
-
-            switch (emote)
-            {
-                case TEXT_EMOTE_BOW:
-                    _events.ScheduleEvent(EVENT_FOCUS, 1000);
-                    break;
-                case TEXT_EMOTE_DRINK:
-                    _events.ScheduleEvent(EVENT_DRINK, 1000);
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (Unit* owner = me->GetCharmerOrOwner())
-                if (!me->IsWithinDist(owner, 30.f))
-                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_FOCUS:
-                        if (Unit* owner = me->GetCharmerOrOwner())
-                            me->SetFacingToObject(owner);
-                        _events.ScheduleEvent(EVENT_EMOTE, 1000);
-                        break;
-                    case EVENT_EMOTE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                        _events.ScheduleEvent(EVENT_FOLLOW, 1000);
-                        break;
-                    case EVENT_FOLLOW:
-                        if (Unit* owner = me->GetCharmerOrOwner())
-                            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                        break;
-                    case EVENT_DRINK:
-                        me->CastSpell(me, SPELL_PANDAREN_MONK, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_pandaren_monkAI(creature);
-    }
-};
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2762,6 +2596,4 @@ void AddSC_npcs_special()
     new npc_imp_in_a_ball();
     new npc_stable_master();
     new npc_train_wrecker();
-    new npc_egbert();
-    new npc_pandaren_monk();
 }
