@@ -21,8 +21,6 @@
 #include "SocketMgr.h"
 #include "AuthSession.h"
 
-void OnSocketAccept(tcp::socket&& sock);
-
 class AuthSocketMgr : public SocketMgr<AuthSession>
 {
     typedef SocketMgr<AuthSession> BaseSocketMgr;
@@ -39,7 +37,7 @@ public:
         if (!BaseSocketMgr::StartNetwork(service, bindIp, port))
             return false;
 
-        _acceptor->AsyncAcceptManaged(&OnSocketAccept);
+        _acceptor->AsyncAcceptWithCallback<&AuthSocketMgr::OnSocketAccept>();
         return true;
     }
 
@@ -48,14 +46,13 @@ protected:
     {
         return new NetworkThread<AuthSession>[1];
     }
+
+    static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
+    {
+        Instance().OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    }
 };
 
 #define sAuthSocketMgr AuthSocketMgr::Instance()
-
-void OnSocketAccept(tcp::socket&& sock)
-{
-    sAuthSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock));
-}
-
 
 #endif // AuthSocketMgr_h__

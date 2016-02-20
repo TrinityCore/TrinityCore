@@ -105,7 +105,7 @@ public:
         return std::move(_storage);
     }
 
-    MessageBuffer& operator=(MessageBuffer& right)
+    MessageBuffer& operator=(MessageBuffer const& right)
     {
         if (this != &right)
         {
