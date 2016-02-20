@@ -347,10 +347,10 @@ public:
                 onlineState = "online";
                 phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
 
-                AreaTableEntry const* area = GetAreaEntryByAreaID(p->GetAreaId());
+                AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
                 {
-                    AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID);
+                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
                         zoneName = zone->AreaName_lang;
                 }

@@ -1186,6 +1186,7 @@ class npc_brann_bronzebeard_ulduar_intro : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_BRANN_BRONZEBEARD && gossipListId == GOSSIP_OPTION_BRANN_BRONZEBEARD)
                 {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     player->PlayerTalkClass->SendCloseGossip();
                     if (Creature* loreKeeper = _instance->GetCreature(DATA_LORE_KEEPER_OF_NORGANNON))
                         loreKeeper->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -1238,6 +1239,7 @@ class npc_lorekeeper : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_LORE_KEEPER && gossipListId == GOSSIP_OPTION_LORE_KEEPER)
                 {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     player->PlayerTalkClass->SendCloseGossip();
                     _instance->instance->LoadGrid(364, -16); // make sure leviathan is loaded
 
@@ -1250,6 +1252,7 @@ class npc_lorekeeper : public CreatureScript
                         {
                             if (Creature* brann = _instance->GetCreature(DATA_BRANN_BRONZEBEARD_INTRO))
                             {
+                                brann->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 delorah->GetMotionMaster()->MovePoint(0, brann->GetPositionX() - 4, brann->GetPositionY(), brann->GetPositionZ());
                                 /// @todo delorah->AI()->Talk(xxxx, brann->GetGUID()); when reached at branz
                             }

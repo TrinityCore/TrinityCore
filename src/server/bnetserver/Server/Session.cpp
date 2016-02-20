@@ -615,18 +615,6 @@ void Battlenet::Session::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     TC_LOG_TRACE("session", "Accepted connection from %s", ip_address.c_str());
 
-    if (_queryCallback)
-    {
-        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
-        logonResponse->SetAuthResult(AUTH_LOGON_TOO_FAST);
-        AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("session", "[Session::Start] %s attempted to log too quick after previous attempt!", GetClientInfo().c_str());
-        return;
-    }
-
-    // Verify that this IP is not in the ip_banned table
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
@@ -666,12 +654,37 @@ void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
 
 bool Battlenet::Session::Update()
 {
+    EncryptableBuffer* queued;
+    MessageBuffer buffer((std::size_t(BufferSizes::Read)));
+    while (_bufferQueue.Dequeue(queued))
+    {
+        std::size_t packetSize = queued->Buffer.GetActiveSize();
+        if (queued->Encrypt)
+            _crypt.EncryptSend(queued->Buffer.GetReadPointer(), packetSize);
+
+        if (buffer.GetRemainingSpace() < packetSize)
+        {
+            QueuePacket(std::move(buffer));
+            buffer.Resize(std::size_t(BufferSizes::Read));
+        }
+
+        if (buffer.GetRemainingSpace() >= packetSize)
+            buffer.Write(queued->Buffer.GetReadPointer(), packetSize);
+        else    // single packet larger than 16384 bytes - client will reject.
+            QueuePacket(std::move(queued->Buffer));
+
+        delete queued;
+    }
+
+    if (buffer.GetActiveSize() > 0)
+        QueuePacket(std::move(buffer));
+
     if (!BattlenetSocket::Update())
         return false;
 
     if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        auto callback = std::move(_queryCallback);
+        auto callback = _queryCallback;
         _queryCallback = nullptr;
         callback(_queryFuture.get());
     }
@@ -691,15 +704,12 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
 
     packet->Write();
 
-    MessageBuffer buffer;
-    buffer.Write(packet->GetData(), packet->GetSize());
+    EncryptableBuffer* buffer = new EncryptableBuffer();
+    buffer->Buffer.Write(packet->GetData(), packet->GetSize());
+    buffer->Encrypt = _crypt.IsInitialized();
     delete packet;
 
-    std::unique_lock<std::mutex> guard(_writeLock);
-
-    _crypt.EncryptSend(buffer.GetReadPointer(), buffer.GetActiveSize());
-
-    QueuePacket(std::move(buffer), guard);
+    _bufferQueue.Enqueue(buffer);
 }
 
 inline void ReplaceResponse(Battlenet::ServerPacket** oldResponse, Battlenet::ServerPacket* newResponse)
@@ -826,9 +836,6 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         TC_LOG_DEBUG("session", "[Battlenet::Password] %s does not have any linked game accounts!", GetClientInfo().c_str());
         return false;
     }
-
-    //set expired game account bans to inactive
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 
     BigNumber M;
     sha.Initialize();

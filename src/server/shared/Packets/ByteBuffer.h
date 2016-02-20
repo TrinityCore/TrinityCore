@@ -33,7 +33,6 @@
 #include <time.h>
 #include <cmath>
 #include <type_traits>
-#include <boost/asio/buffer.hpp>
 
 class MessageBuffer;
 

@@ -624,13 +624,12 @@ void Battlefield::RemovePlayerFromResurrectQueue(ObjectGuid playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid)
+void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time = m_LastResurrectTimer;  // resurrect every 30 seconds
-
-    data << guid << time;
-    player->SendDirectMessage(&data);
+    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
+    areaSpiritHealerTime.HealerGuid = guid;
+    areaSpiritHealerTime.TimeLeft = m_LastResurrectTimer;
+    player->SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
 // ----------------------

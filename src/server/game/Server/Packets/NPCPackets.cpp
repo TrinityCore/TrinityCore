@@ -191,3 +191,8 @@ WorldPacket const* WorldPackets::NPC::TrainerBuyFailed::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::NPC::RequestStabledPets::Read()
+{
+    _worldPacket >> StableMaster;
+}

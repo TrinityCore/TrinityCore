@@ -35,7 +35,7 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
         if (!channel)
             return;
 
-        AreaTableEntry const* zone = GetAreaEntryByAreaID(GetPlayer()->GetZoneId());
+        AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetPlayer()->GetZoneId());
         if (!zone || !GetPlayer()->CanJoinConstantChannelInZone(channel, zone))
             return;
     }

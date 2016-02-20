@@ -125,6 +125,8 @@ namespace WorldPackets
         class GetPVPOptionsEnabled;
         class RequestBattlefieldStatus;
         class ReportPvPPlayerAFK;
+        class RequestPVPRewards;
+        class RequestRatedBattlefieldInfo;
     }
 
     namespace BattlePet
@@ -195,6 +197,7 @@ namespace WorldPackets
         class SetFactionNotAtWar;
         class SetFactionInactive;
         class SetWatchedFaction;
+        class SetPlayerDeclinedNames;
 
         enum class LoginFailureReason : uint8;
     }
@@ -346,6 +349,7 @@ namespace WorldPackets
         class BuyBackItem;
         class DestroyItem;
         class GetItemPurchaseData;
+        class ItemPurchaseRefund;
         class RepairItem;
         class ReadItem;
         class SellItem;
@@ -411,6 +415,7 @@ namespace WorldPackets
         class SetPvP;
         class WorldTeleport;
         class MountSpecial;
+        class SetTaxiBenchmarkMode;
     }
 
     namespace Movement
@@ -433,6 +438,7 @@ namespace WorldPackets
         class GossipSelectOption;
         class SpiritHealerActivate;
         class TrainerBuySpell;
+        class RequestStabledPets;
     }
 
     namespace Party
@@ -446,6 +452,7 @@ namespace WorldPackets
         class RequestPartyMemberStats;
         class PartyMemberStats;
         class SetPartyLeader;
+        class SetPartyAssignment;
         class SetRole;
         class RoleChangedInform;
         class SetLootMethod;
@@ -474,6 +481,15 @@ namespace WorldPackets
         class SwapSubGroups;
         class RaidMarkersChanged;
         class ClearRaidMarker;
+    }
+
+    namespace Pet
+    {
+        class DismissCritter;
+        class RequestPetInfo;
+        class PetAbandon;
+        class PetStopAttack;
+        class PetSpellAutocast;
     }
 
     namespace Petition
@@ -520,6 +536,7 @@ namespace WorldPackets
         class QuestGiverAcceptQuest;
         class QuestLogRemoveQuest;
         class QuestPushResult;
+        class PushQuestToParty;
     }
 
     namespace RaF
@@ -565,6 +582,7 @@ namespace WorldPackets
         class CancelChannelling;
         class CancelGrowthAura;
         class CancelMountAura;
+        class PetCancelAura;
         class RequestCategoryCooldowns;
         class CancelCast;
         class CastSpell;
@@ -576,12 +594,15 @@ namespace WorldPackets
         class SelfRes;
         class GetMirrorImageData;
         class SpellClick;
+        class MissileTrajectoryCollision;
+        class UpdateMissileTrajectory;
     }
 
     namespace Talent
     {
         class SetSpecialization;
         class LearnTalents;
+        class ConfirmRespecWipe;
     }
 
     namespace Taxi
@@ -602,6 +623,7 @@ namespace WorldPackets
         class SupportTicketSubmitSuggestion;
         class SupportTicketSubmitComplaint;
         class BugReport;
+        class Complaint;
     }
 
     namespace Token
@@ -644,12 +666,23 @@ namespace WorldPackets
         class MoveSetVehicleRecIdAck;
     }
 
+    namespace Voice
+    {
+        class VoiceSessionEnable;
+        class SetActiveVoiceChannel;
+    }
+
     namespace VoidStorage
     {
         class UnlockVoidStorage;
         class QueryVoidStorage;
         class VoidStorageTransfer;
         class SwapVoidItem;
+    }
+
+    namespace Warden
+    {
+        class WardenData;
     }
 
     namespace Who
@@ -754,10 +787,11 @@ enum BFLeaveReason
 
 enum ChatRestrictionType
 {
-    ERR_CHAT_RESTRICTED = 0,
-    ERR_CHAT_THROTTLED  = 1,
-    ERR_USER_SQUELCHED  = 2,
-    ERR_YELL_RESTRICTED = 3
+    ERR_CHAT_RESTRICTED      = 0,
+    ERR_CHAT_THROTTLED       = 1,
+    ERR_USER_SQUELCHED       = 2,
+    ERR_YELL_RESTRICTED      = 3,
+    ERR_CHAT_RAID_RESTRICTED = 4
 };
 
 enum CharterTypes
@@ -1054,7 +1088,7 @@ class WorldSession
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request);
         void HandleCharRenameCallBack(PreparedQueryResult result, WorldPackets::Character::CharacterRenameInfo* renameInfo);
-        void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
+        void HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlayerDeclinedNames& packet);
         void HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet);
         void HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet);
         void HandleCharCustomizeCallback(PreparedQueryResult result, WorldPackets::Character::CharCustomizeInfo* customizeInfo);
@@ -1130,6 +1164,7 @@ class WorldSession
         void HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet);
         void HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet);
         void HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugReport);
+        void HandleComplaint(WorldPackets::Ticket::Complaint& packet);
 
         void HandleTogglePvP(WorldPackets::Misc::TogglePvP& packet);
         void HandleSetPvP(WorldPackets::Misc::SetPvP& packet);
@@ -1211,7 +1246,7 @@ class WorldSession
         void HandleChangeSubGroupOpcode(WorldPackets::Party::ChangeSubGroup& packet);
         void HandleSwapSubGroupsOpcode(WorldPackets::Party::SwapSubGroups& packet);
         void HandleSetAssistantLeaderOpcode(WorldPackets::Party::SetAssistantLeader& packet);
-        void HandlePartyAssignmentOpcode(WorldPacket& recvData);
+        void HandleSetPartyAssignment(WorldPackets::Party::SetPartyAssignment& packet);
         void HandleInitiateRolePoll(WorldPackets::Party::InitiateRolePoll& packet);
         void HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet);
         void HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& packet);
@@ -1281,7 +1316,7 @@ class WorldSession
         void HandleSpiritHealerActivate(WorldPackets::NPC::SpiritHealerActivate& packet);
         void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
-        void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
+        void HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPets& packet);
         void HandleStablePet(WorldPacket& recvPacket);
         void HandleStablePetCallback(PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
@@ -1367,9 +1402,11 @@ class WorldSession
         void HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura& cancelGrowthAura);
         void HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMountAura& cancelMountAura);
         void HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& cancelAutoRepeatSpell);
+        void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
+        void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
 
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
-        void HandleConfirmRespecWipeOpcode(WorldPacket& recvPacket);
+        void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
@@ -1386,7 +1423,7 @@ class WorldSession
         void HandleQuestConfirmAccept(WorldPackets::Quest::QuestConfirmAccept& packet);
         void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
-        void HandlePushQuestToParty(WorldPacket& recvPacket);
+        void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
@@ -1402,7 +1439,7 @@ class WorldSession
         void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& chatMessageEmote);
         void SendChatPlayerNotfoundNotice(std::string const& name);
         void SendPlayerAmbiguousNotice(std::string const& name);
-        void SendChatRestrictedNotice(ChatRestrictionType restriction);
+        void SendChatRestricted(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored);
 
@@ -1424,8 +1461,8 @@ class WorldSession
         template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
         void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
 
-        void HandleVoiceSessionEnableOpcode(WorldPacket& recvData);
-        void HandleSetActiveVoiceChannel(WorldPacket& recvData);
+        void HandleVoiceSessionEnable(WorldPackets::Voice::VoiceSessionEnable& packet);
+        void HandleSetActiveVoiceChannel(WorldPackets::Voice::SetActiveVoiceChannel& packet);
 
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
@@ -1436,20 +1473,20 @@ class WorldSession
 
         //Pet
         void HandlePetAction(WorldPacket& recvData);
-        void HandlePetStopAttack(WorldPacket& recvData);
+        void HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet);
         void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);
         void HandlePetSetAction(WorldPacket& recvData);
-        void HandlePetAbandon(WorldPacket& recvData);
+        void HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet);
         void HandlePetRename(WorldPacket& recvData);
-        void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
-        void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
+        void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
+        void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
-        void HandleDismissCritter(WorldPacket& recvData);
+        void HandleDismissCritter(WorldPackets::Pet::DismissCritter& dismissCritter);
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello);
@@ -1460,9 +1497,9 @@ class WorldSession
         void HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& battlefieldLeave);
         void HandleBattlemasterJoinArena(WorldPackets::Battleground::BattlemasterJoinArena& packet);
         void HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& reportPvPPlayerAFK);
-        void HandleRequestRatedBattlefieldInfo(WorldPacket& recvData);
+        void HandleRequestRatedBattlefieldInfo(WorldPackets::Battleground::RequestRatedBattlefieldInfo& packet);
         void HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& getPvPOptionsEnabled);
-        void HandleRequestPvpReward(WorldPacket& recvData);
+        void HandleRequestPvpReward(WorldPackets::Battleground::RequestPVPRewards& packet);
         void HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery);
         void HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue);
         void HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& hearthAndResurrect);
@@ -1478,7 +1515,7 @@ class WorldSession
         void HandleBfQueueInviteResponse(WorldPackets::Battlefield::BFMgrQueueInviteResponse& bfMgrQueueInviteResponse);
         void HandleBfQueueExitRequest(WorldPackets::Battlefield::BFMgrQueueExitRequest& bfMgrQueueExitRequest);
 
-        void HandleWardenDataOpcode(WorldPacket& recvData);
+        
         void HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport);
         void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
@@ -1520,8 +1557,7 @@ class WorldSession
         void SendLfgTeleportError(uint8 err);
 
         void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& packet);
-        void HandleComplainOpcode(WorldPacket& recvData);
-        void HandleRequestPetInfoOpcode(WorldPacket& recvData);
+        void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
 
         // Socket gem
         void HandleSocketGems(WorldPackets::Item::SocketGems& socketGems);
@@ -1529,9 +1565,9 @@ class WorldSession
         void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 
         void HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchaseData& packet);
-        void HandleItemRefund(WorldPacket& recvData);
+        void HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& packet);
 
-        void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
+        void HandleSetTaxiBenchmark(WorldPackets::Misc::SetTaxiBenchmarkMode& packet);
 
         // Guild Bank
         void HandleGuildPermissionsQuery(WorldPackets::Guild::GuildPermissionsQuery& packet);
@@ -1594,8 +1630,6 @@ class WorldSession
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& queryQuestCompletionNPCs);
         void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& questPoiQuery);
-        void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
-        void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
@@ -1634,6 +1668,9 @@ class WorldSession
         void HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSetFlags& battlePetSetFlags);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+
+        // Warden
+        void HandleWardenData(WorldPackets::Warden::WardenData& packet);
 
         union ConnectToKey
         {

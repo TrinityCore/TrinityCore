@@ -85,7 +85,7 @@ enum Expansions
     MAX_EXPANSIONS                     = 6
 };
 
-#define CURRENT_EXPANSION EXPANSION_WARLORDS_OF_DRAENOR;
+#define CURRENT_EXPANSION EXPANSION_WARLORDS_OF_DRAENOR
 
 enum Gender
 {

@@ -50,6 +50,7 @@
 #include "NPCPackets.h"
 #include "PacketUtilities.h"
 #include "PartyPackets.h"
+#include "PetPackets.h"
 #include "PetitionPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
@@ -67,7 +68,9 @@
 #include "ToyPackets.h"
 #include "TradePackets.h"
 #include "VehiclePackets.h"
+#include "VoicePackets.h"
 #include "VoidStoragePackets.h"
+#include "WardenPackets.h"
 #include "WhoPackets.h"
 #include "WorldStatePackets.h"
 

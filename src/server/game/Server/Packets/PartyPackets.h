@@ -362,6 +362,18 @@ namespace WorldPackets
             bool Apply = false;
         };
 
+        class SetPartyAssignment final : public ClientPacket
+        {
+        public:
+            SetPartyAssignment(WorldPacket&& packet) : ClientPacket(CMSG_SET_PARTY_ASSIGNMENT, std::move(packet)) { }
+        
+            void Read() override;
+            uint8 Assignment = 0;
+            uint8 PartyIndex = 0;
+            ObjectGuid Target;
+            bool Set = false;
+        };
+
         class DoReadyCheck final : public ClientPacket
         {
         public:

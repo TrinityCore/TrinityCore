@@ -20,6 +20,8 @@
 
 #include "Common.h"
 
+#include <G3D/Vector3.h>
+
 class ByteBuffer;
 
 struct Position
@@ -85,6 +87,11 @@ public:
     void Relocate(Position const* pos)
     {
         m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation);
+    }
+
+    void Relocate(G3D::Vector3 const& pos)
+    {
+        m_positionX = pos.x; m_positionY = pos.y; m_positionZ = pos.z;
     }
 
     void RelocateOffset(Position const &offset);

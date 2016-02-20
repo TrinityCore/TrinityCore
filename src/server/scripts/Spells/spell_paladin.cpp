@@ -912,6 +912,8 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
+                if (!eventInfo.GetActionTarget())
+                    return false;
                 if (eventInfo.GetActionTarget()->HasAura(SPELL_PALADIN_BEACON_OF_LIGHT, eventInfo.GetActor()->GetGUID()))
                     return false;
                 return true;

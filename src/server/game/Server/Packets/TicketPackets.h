@@ -193,6 +193,36 @@ namespace WorldPackets
 
         };
 
+        class Complaint final : public ClientPacket
+        {
+        public:
+            struct ComplaintOffender
+            {
+                ObjectGuid PlayerGuid;
+                uint32 RealmAddress = 0;
+                uint32 TimeSinceOffence = 0;
+            };
+
+            struct ComplaintChat
+            {
+                uint32 Command = 0;
+                uint32 ChannelID = 0;
+                std::string MessageLog;
+            };
+
+            Complaint(WorldPacket&& packet) : ClientPacket(CMSG_COMPLAINT, std::move(packet)) { }
+        
+            void Read() override;
+
+            uint8 ComplaintType = 0;
+            ComplaintOffender Offender;
+            uint32 MailID = 0;
+            ComplaintChat Chat;
+            ObjectGuid EventGuid;
+            ObjectGuid InviteGuid;
+
+        };
+
         class ComplaintResult final : public ServerPacket
         {
         public:

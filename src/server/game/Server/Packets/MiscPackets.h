@@ -801,6 +801,16 @@ namespace WorldPackets
             int32 ItemID = 0;
             int32 Threshold = 0;
         };
+
+        class SetTaxiBenchmarkMode final : public ClientPacket
+        {
+        public:
+            SetTaxiBenchmarkMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_TAXI_BENCHMARK_MODE, std::move(packet)) { }
+        
+            void Read() override;
+
+            bool Enable = false;
+        };
     }
 }
 
