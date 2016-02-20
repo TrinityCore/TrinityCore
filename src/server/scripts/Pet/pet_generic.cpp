@@ -20,9 +20,180 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_gen_".
  */
 
+ /* ContentData
+ npc_pet_gen_egbert             100%    Egbert run's around
+ npc_pet_gen_pandaren_monk      100%    Pandaren Monk drinks and bows with you
+ npc_pet_gen_mojo               100%    Mojo follows you when you kiss it
+ EndContentData */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "Player.h"
+
+enum EgbertMisc
+{
+    SPELL_EGBERT = 40669,
+    EVENT_RETURN = 3
+};
+
+class npc_pet_gen_egbert : public CreatureScript
+{
+public:
+    npc_pet_gen_egbert() : CreatureScript("npc_pet_gen_egbert") {}
+
+    struct npc_pet_gen_egbertAI : public NullCreatureAI
+    {
+        npc_pet_gen_egbertAI(Creature* creature) : NullCreatureAI(creature)
+        {
+            if (Unit* owner = me->GetCharmerOrOwner())
+                if (owner->GetMap()->GetEntry()->addon > 1)
+                    me->SetCanFly(true);
+        }
+
+        void Reset() override
+        {
+            _events.Reset();
+            if (Unit* owner = me->GetCharmerOrOwner())
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            if (!_EnterEvadeMode(why))
+                return;
+
+            Reset();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (Unit* owner = me->GetCharmerOrOwner())
+            {
+                if (!me->IsWithinDist(owner, 40.f))
+                {
+                    me->RemoveAura(SPELL_EGBERT);
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+                }
+            }
+
+            if (me->HasAura(SPELL_EGBERT))
+                _events.ScheduleEvent(EVENT_RETURN, urandms(5, 20));
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_RETURN:
+                    me->RemoveAura(SPELL_EGBERT);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_pet_gen_egbertAI(creature);
+    }
+};
+
+enum PandarenMonkMisc
+{
+    SPELL_PANDAREN_MONK = 69800,
+    EVENT_FOCUS = 1,
+    EVENT_EMOTE = 2,
+    EVENT_FOLLOW = 3,
+    EVENT_DRINK = 4
+};
+
+class npc_pet_gen_pandaren_monk : public CreatureScript
+{
+public:
+    npc_pet_gen_pandaren_monk() : CreatureScript("npc_pet_gen_pandaren_monk") {}
+
+    struct npc_pet_gen_pandaren_monkAI : public NullCreatureAI
+    {
+        npc_pet_gen_pandaren_monkAI(Creature* creature) : NullCreatureAI(creature) { }
+
+        void Reset() override
+        {
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_FOCUS, 1000);
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            if (!_EnterEvadeMode(why))
+                return;
+
+            Reset();
+        }
+
+        void ReceiveEmote(Player* /*player*/, uint32 emote) override
+        {
+            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+            me->StopMoving();
+
+            switch (emote)
+            {
+            case TEXT_EMOTE_BOW:
+                _events.ScheduleEvent(EVENT_FOCUS, 1000);
+                break;
+            case TEXT_EMOTE_DRINK:
+                _events.ScheduleEvent(EVENT_DRINK, 1000);
+                break;
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (Unit* owner = me->GetCharmerOrOwner())
+                if (!me->IsWithinDist(owner, 30.f))
+                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_FOCUS:
+                    if (Unit* owner = me->GetCharmerOrOwner())
+                        me->SetFacingToObject(owner);
+                    _events.ScheduleEvent(EVENT_EMOTE, 1000);
+                    break;
+                case EVENT_EMOTE:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                    _events.ScheduleEvent(EVENT_FOLLOW, 1000);
+                    break;
+                case EVENT_FOLLOW:
+                    if (Unit* owner = me->GetCharmerOrOwner())
+                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                    break;
+                case EVENT_DRINK:
+                    me->CastSpell(me, SPELL_PANDAREN_MONK, false);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_pet_gen_pandaren_monkAI(creature);
+    }
+};
 
 enum Mojo
 {
@@ -89,5 +260,7 @@ class npc_pet_gen_mojo : public CreatureScript
 
 void AddSC_generic_pet_scripts()
 {
+    new npc_pet_gen_egbert();
+    new npc_pet_gen_pandaren_monk();
     new npc_pet_gen_mojo();
 }
