@@ -466,6 +466,9 @@ bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 
 bool SmartAI::AssistPlayerInCombat(Unit* who)
 {
+    if (me->HasReactState(REACT_PASSIVE))
+        return;
+
     if (!who || !who->GetVictim())
         return false;
 
