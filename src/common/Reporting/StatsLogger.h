@@ -27,6 +27,8 @@ private:
     StatsLogger();
     ~StatsLogger();
 
+    boost::asio::ip::tcp::iostream dataStream;
+
 public:
     static StatsLogger* instance()
     {

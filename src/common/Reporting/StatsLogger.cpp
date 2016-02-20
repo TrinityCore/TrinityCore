@@ -16,10 +16,11 @@
 */
 
 #include "StatsLogger.h"
+#include "Log.h"
 
 StatsLogger::StatsLogger()
 {
-
+    dataStream.connect("localhost", "8086");
 }
 
 StatsLogger::~StatsLogger()
@@ -29,27 +30,31 @@ StatsLogger::~StatsLogger()
 
 void StatsLogger::Update(uint32 diff)
 {
-    boost::asio::ip::tcp::iostream influxDbStream;
-    influxDbStream.expires_from_now(boost::posix_time::seconds(60));
-    influxDbStream.connect("localhost", "8086");
-
     std::string influxDbData = "update_time_diff,realm=Windows value=" + std::to_string(diff) + "i";
 
-    influxDbStream << "POST " << "/write?db=worldserver" << " HTTP/1.0\r\n";
-    influxDbStream << "Host: " << "localhost:8086" << "\r\n";
-    influxDbStream << "Accept: */*\r\n";
-    influxDbStream << "Content-Type: application/octet-stream\r\n";
-    influxDbStream << "Content-Transfer-Encoding: binary\r\n";
-    influxDbStream << "Content-Length: " << std::to_string(influxDbData.length()) << "\r\n\r\n";
-    influxDbStream << influxDbData;
-    influxDbStream << "\r\n\r\n";
+    dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
+    dataStream << "Host: " << "localhost:8086" << "\r\n";
+    dataStream << "Accept: */*\r\n";
+    dataStream << "Content-Type: application/octet-stream\r\n";
+    dataStream << "Content-Transfer-Encoding: binary\r\n";
+    dataStream << "Content-Length: " << std::to_string(influxDbData.length()) << "\r\n\r\n";
+    dataStream << influxDbData;
+    dataStream << "\r\n\r\n";
 
     std::string http_version;
-    influxDbStream >> http_version;
-    unsigned int status_code;
-    influxDbStream >> status_code;
+    dataStream >> http_version;
+    unsigned int status_code = 0;
+    dataStream >> status_code;
     if (status_code != 204)
     {
-        printf("Something went wrong\n");
+        TC_LOG_ERROR("statslogger", "Error sending data '%s', returned HTTP code: %u", influxDbData.c_str(), status_code);
     }
+
+    // Read and ignore teh status description
+    std::string status_description;
+    std::getline(dataStream, status_description);
+    // Read and ignore any header
+    std::string header;
+    while (std::getline(dataStream, header) && header != "\r")
+        ;
 }
