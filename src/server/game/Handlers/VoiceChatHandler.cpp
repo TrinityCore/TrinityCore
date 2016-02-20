@@ -16,20 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "VoicePackets.h"
 
-void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket& recvData)
+void WorldSession::HandleVoiceSessionEnable(WorldPackets::Voice::VoiceSessionEnable& /*packet*/)
 {
-    // uint8 isVoiceEnabled, uint8 isMicrophoneEnabled
-    recvData.read_skip<uint8>();
-    recvData.read_skip<uint8>();
 }
 
-void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)
+void WorldSession::HandleSetActiveVoiceChannel(WorldPackets::Voice::SetActiveVoiceChannel& /*packet*/)
 {
-    recvData.read_skip<uint32>();
-    recvData.read_skip<char*>();
 }
 

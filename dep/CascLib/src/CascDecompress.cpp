@@ -13,9 +13,9 @@
 #include "CascCommon.h"
 
 //-----------------------------------------------------------------------------
-// Local functions
+// Public functions
 
-static int Decompress_ZLIB(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer)
+int CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer)
 {
     z_stream z;                        // Stream information for zlib
     int nResult;
@@ -43,41 +43,4 @@ static int Decompress_ZLIB(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInB
     
     // Return an error code
     return (nResult == Z_OK || nResult == Z_STREAM_END) ? ERROR_SUCCESS : ERROR_FILE_CORRUPT;
-}
-
-//-----------------------------------------------------------------------------
-// Public functions
-
-int CascDecompress(void * pvOutBuffer, PDWORD pcbOutBuffer, void * pvInBuffer, DWORD cbInBuffer)
-{
-    LPBYTE pbOutBuffer = (LPBYTE)pvOutBuffer;
-    LPBYTE pbInBuffer = (LPBYTE)pvInBuffer;
-    DWORD cbOutBuffer = *pcbOutBuffer;   // Current size of the output buffer
-    BYTE uCompression;                  // Decompressions applied to the data
-
-    // Verify buffer sizes
-    if(cbInBuffer <= 1)
-        return 0;
-
-    // Get applied compression types and decrement data length
-    uCompression = *pbInBuffer++;
-    cbInBuffer--;
-
-    // Perform the decompressions
-    switch(uCompression)
-    {
-        case 'N':   // Uncompressed
-
-            assert(cbOutBuffer == cbInBuffer);
-            memcpy(pbOutBuffer, pbInBuffer, cbInBuffer);
-            *pcbOutBuffer = cbOutBuffer;
-            return ERROR_SUCCESS;
-
-        case 'Z':   // ZLIB
-            
-            return Decompress_ZLIB(pbOutBuffer, pcbOutBuffer, pbInBuffer, cbInBuffer);
-    }
-
-    assert(false);
-    return ERROR_NOT_SUPPORTED;
 }

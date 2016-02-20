@@ -1350,80 +1350,64 @@ void WorldSession::HandleCharRenameCallBack(PreparedQueryResult result, WorldPac
     sWorld->UpdateCharacterInfo(renameInfo->Guid, renameInfo->NewName);
 }
 
-void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
+void WorldSession::HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlayerDeclinedNames& packet)
 {
-    ObjectGuid guid;
-
-    recvData >> guid;
-
     // not accept declined names for unsupported languages
     std::string name;
-    if (!ObjectMgr::GetPlayerNameByGUID(guid, name))
+    if (!ObjectMgr::GetPlayerNameByGUID(packet.Player, name))
     {
-        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
+        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, packet.Player);
         return;
     }
 
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
     {
-        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
+        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, packet.Player);
         return;
     }
 
     if (!isCyrillicCharacter(wname[0]))                      // name already stored as only single alphabet using
     {
-        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
-        return;
-    }
-
-    std::string name2;
-    DeclinedName declinedname;
-
-    recvData >> name2;
-
-    if (name2 != name)                                       // character have different name
-    {
-        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
+        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, packet.Player);
         return;
     }
 
     for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
-        recvData >> declinedname.name[i];
-        if (!normalizePlayerName(declinedname.name[i]))
+        if (!normalizePlayerName(packet.DeclinedNames.name[i]))
         {
-            SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
+            SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, packet.Player);
             return;
         }
     }
 
-    if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
+    if (!ObjectMgr::CheckDeclinedNames(wname, packet.DeclinedNames))
     {
-        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
+        SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, packet.Player);
         return;
     }
 
     for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        CharacterDatabase.EscapeString(declinedname.name[i]);
+        CharacterDatabase.EscapeString(packet.DeclinedNames.name[i]);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-    stmt->setUInt64(0, guid.GetCounter());
+    stmt->setUInt64(0, packet.Player.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_DECLINED_NAME);
-    stmt->setUInt64(0, guid.GetCounter());
+    stmt->setUInt64(0, packet.Player.GetCounter());
 
-    for (uint8 i = 0; i < 5; i++)
-        stmt->setString(i+1, declinedname.name[i]);
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
+        stmt->setString(i + 1, packet.DeclinedNames.name[i]);
 
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
 
-    SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_SUCCESS, guid);
+    SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_SUCCESS, packet.Player);
 }
 
 void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet)
@@ -2564,11 +2548,11 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
 
 void WorldSession::SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid)
 {
-    WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4 + 8);
-    data << uint32(result);
-    if (result == DECLINED_NAMES_RESULT_SUCCESS)
-        data << guid;
-    SendPacket(&data);
+    WorldPackets::Character::SetPlayerDeclinedNamesResult packet;
+    packet.ResultCode = result;
+    packet.Player = guid;
+
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendBarberShopResult(BarberShopResult result)

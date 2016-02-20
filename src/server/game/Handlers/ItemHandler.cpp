@@ -1083,20 +1083,17 @@ void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::GetItemPurchase
     GetPlayer()->SendRefundInfo(item);
 }
 
-void WorldSession::HandleItemRefund(WorldPacket &recvData)
+void WorldSession::HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;                                      // item guid
-
-    Item* item = _player->GetItemByGuid(guid);
+    Item* item = _player->GetItemByGuid(packet.ItemGUID);
     if (!item)
     {
-        TC_LOG_DEBUG("network", "Item refund: item not found!");
+        TC_LOG_DEBUG("network", "WorldSession::HandleItemRefund: Item (%s) not found!", packet.ItemGUID.ToString().c_str());
         return;
     }
 
     // Don't try to refund item currently being disenchanted
-    if (_player->GetLootGUID() == guid)
+    if (_player->GetLootGUID() == packet.ItemGUID)
         return;
 
     GetPlayer()->RefundItem(item);

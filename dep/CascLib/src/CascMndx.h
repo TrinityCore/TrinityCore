@@ -13,6 +13,9 @@
 
 class TFileNameDatabase;
 
+#define CASC_MAX_MAR_FILES           3          // Maximum of 3 MAR files are supported
+#define CASC_MNDX_SIGNATURE 0x58444E4D          // 'MNDX'
+
 #define CASC_MAX_ENTRIES(type) (0xFFFFFFFF / sizeof(type))
 
 #define CASC_SEARCH_INITIALIZING    0
@@ -352,14 +355,5 @@ inline bool IS_SINGLE_CHAR_MATCH(TGenericArray & Table, DWORD ItemIndex)
 {
     return ((Table.NameFragArray[ItemIndex].FragOffs & 0xFFFFFF00) == 0xFFFFFF00);
 }
-
-//-----------------------------------------------------------------------------
-// CASC functions related to MNDX
-
-int  LoadMndxRootFile(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
-PCASC_PACKAGE FindMndxPackage(TCascStorage * hs, const char * szFileName);
-int  SearchMndxInfo(PCASC_MNDX_INFO pMndxInfo, const char * szFileName, DWORD dwPackage, PCASC_ROOT_ENTRY_MNDX * ppFoundInfo);
-bool DoStorageSearch_MNDX(TCascSearch * pSearch, PCASC_FIND_DATA pFindData);
-void FreeMndxInfo(PCASC_MNDX_INFO pMndxInfo);
 
 #endif  // __CASC_MNDX_ROOT__

@@ -23,7 +23,7 @@
 // n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
 
 char const AnimKitfmt[] = "nxxx";
-char const AreaTablefmt[] = "iiiniixxxxxxisiiiiixxxxxxxxxx";
+char const AreaTablefmt[] = "niiiiixxxxxxisiiiiixxxxxxxxxx";
 char const AreaTriggerfmt[] = "nifffxxxfffffxxxx";
 char const ArmorLocationfmt[] = "nfffff";
 char const BankBagSlotPricesfmt[] = "ni";

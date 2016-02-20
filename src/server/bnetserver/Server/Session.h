@@ -23,6 +23,7 @@
 #include "Socket.h"
 #include "BigNumber.h"
 #include "Callback.h"
+#include "MPSCQueue.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -174,6 +175,13 @@ namespace Battlenet
 
         std::queue<ModuleType> _modulesWaitingForData;
 
+        struct EncryptableBuffer
+        {
+            MessageBuffer Buffer;
+            bool Encrypt;
+        };
+
+        MPSCQueue<EncryptableBuffer> _bufferQueue;
         PacketCrypt _crypt;
         bool _authed;
         bool _subscribedToRealmListUpdates;

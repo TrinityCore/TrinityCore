@@ -538,3 +538,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestFailed::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Quest::PushQuestToParty::Read()
+{
+    _worldPacket >> QuestID;
+}

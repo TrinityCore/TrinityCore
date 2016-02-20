@@ -548,6 +548,16 @@ namespace WorldPackets
             uint32 QuestID = 0;
             uint32 Reason  = 0;
         };
+
+        class PushQuestToParty final : public ClientPacket
+        {
+        public:
+            PushQuestToParty(WorldPacket&& packet) : ClientPacket(CMSG_PUSH_QUEST_TO_PARTY, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID = 0;
+        };
     }
 }
 

@@ -55,3 +55,17 @@ void WorldPackets::Talent::LearnTalents::Read()
         Talents.push_back(talent);
     }
 }
+
+WorldPacket const* WorldPackets::Talent::RespecWipeConfirm::Write()
+{
+    _worldPacket << int8(RespecType);
+    _worldPacket << uint32(Cost);
+    _worldPacket << RespecMaster;
+    return &_worldPacket;
+}
+
+void WorldPackets::Talent::ConfirmRespecWipe::Read()
+{
+    _worldPacket >> RespecMaster;
+    _worldPacket >> RespecType;
+}

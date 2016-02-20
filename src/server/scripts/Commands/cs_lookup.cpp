@@ -97,9 +97,9 @@ public:
         wstrToLower(wNamePart);
 
         // Search in AreaTable.dbc
-        for (uint32 areaflag = 0; areaflag < sAreaStore.GetNumRows(); ++areaflag)
+        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
         {
-            AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(areaflag);
+            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(i);
             if (areaEntry)
             {
                 std::string name = areaEntry->AreaName_lang;
@@ -118,9 +118,9 @@ public:
                 // send area in "id - [name]" format
                 std::ostringstream ss;
                 if (handler->GetSession())
-                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name<< "]|h|r";
+                    ss << i << " - |cffffffff|Harea:" << i << "|h[" << name<< "]|h|r";
                 else
-                    ss << areaEntry->ID << " - " << name;
+                    ss << i << " - " << name;
 
                 handler->SendSysMessage(ss.str().c_str());
 

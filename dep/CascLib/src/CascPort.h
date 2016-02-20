@@ -176,6 +176,7 @@
   #define _tcsrchr  strrchr
   #define _tcsstr   strstr
   #define _tcsspn   strspn
+  #define _tcsncmp  strncmp
   #define _tprintf  printf
   #define _stprintf sprintf
   #define _tremove  remove

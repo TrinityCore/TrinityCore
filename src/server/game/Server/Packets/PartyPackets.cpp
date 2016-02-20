@@ -163,6 +163,15 @@ void WorldPackets::Party::SetPartyLeader::Read()
     _worldPacket >> TargetGUID;
 }
 
+void WorldPackets::Party::SetPartyAssignment::Read()
+{
+    _worldPacket >> PartyIndex;
+    _worldPacket >> Assignment;
+    _worldPacket >> Target;
+    Set = _worldPacket.ReadBit();
+}
+
+
 void WorldPackets::Party::SetRole::Read()
 {
     _worldPacket >> PartyIndex;
@@ -503,7 +512,7 @@ void WorldPackets::Party::PartyMemberStats::Initialize(Player const* player)
     // Pet
     if (player->GetPet())
     {
-        Pet* pet = player->GetPet();
+        ::Pet* pet = player->GetPet();
 
         MemberStats.PetStats = boost::in_place();
 

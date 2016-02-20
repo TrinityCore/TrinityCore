@@ -24,9 +24,9 @@
 
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(tcp::socket&& sock)
+static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
 {
-    sWorldSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock));
+    sWorldSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
 }
 
 class WorldSocketThread : public NetworkThread<WorldSocket>
@@ -49,7 +49,7 @@ WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), 
 
 WorldSocketMgr::~WorldSocketMgr()
 {
-    delete _instanceAcceptor;
+    ASSERT(!_instanceAcceptor, "StopNetwork must be called prior to WorldSocketMgr destruction");
 }
 
 bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
@@ -73,8 +73,11 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
     BaseSocketMgr::StartNetwork(service, bindIp, port);
     _instanceAcceptor = new AsyncAcceptor(service, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
 
-    _acceptor->AsyncAcceptManaged(&OnSocketAccept);
-    _instanceAcceptor->AsyncAcceptManaged(&OnSocketAccept);
+    _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
+    _instanceAcceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
+
+    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
+    _instanceAcceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
 
     sScriptMgr->OnNetworkStart();
     return true;
@@ -82,12 +85,16 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
 
 void WorldSocketMgr::StopNetwork()
 {
+    _instanceAcceptor->Close();
     BaseSocketMgr::StopNetwork();
+
+    delete _instanceAcceptor;
+    _instanceAcceptor = nullptr;
 
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock)
+void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
 {
     // set some options here
     if (_socketSendBufferSize >= 0)
@@ -115,7 +122,7 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock)
 
     //sock->m_OutBufferSize = static_cast<size_t> (m_SockOutUBuff);
 
-    BaseSocketMgr::OnSocketOpen(std::forward<tcp::socket>(sock));
+    BaseSocketMgr::OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
 }
 
 NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const

@@ -44,16 +44,12 @@ struct WMOAreaTableTripple
     int32 adtId;
 };
 
-typedef std::map<uint16, uint32> AreaFlagByAreaID;
-typedef std::map<uint32, uint32> AreaFlagByMapID;
 typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
 typedef std::map<uint32, std::vector<uint32>> FactionTeamMap;
 typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
 DBCStorage<AnimKitEntry>                    sAnimKitStore(AnimKitfmt);
-DBCStorage<AreaTableEntry>                  sAreaStore(AreaTablefmt);
-static AreaFlagByAreaID                     sAreaFlagByAreaID;
-static AreaFlagByMapID                      sAreaFlagByMapID;   // for instances without generated *.map files
+DBCStorage<AreaTableEntry>                  sAreaTableStore(AreaTablefmt);
 DBCStorage<AreaTriggerEntry>                sAreaTriggerStore(AreaTriggerfmt);
 DBCStorage<ArmorLocationEntry>              sArmorLocationStore(ArmorLocationfmt);
 
@@ -298,7 +294,7 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
 #define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
 
     LOAD_DBC(sAnimKitStore, "AnimKit.dbc");//20444
-    LOAD_DBC(sAreaStore, "AreaTable.dbc");//20444
+    LOAD_DBC(sAreaTableStore, "AreaTable.dbc");//20444
     LOAD_DBC(sAreaTriggerStore, "AreaTrigger.dbc");//20444
     LOAD_DBC(sArmorLocationStore, "ArmorLocation.dbc");//20444
     LOAD_DBC(sBankBagSlotPricesStore, "BankBagSlotPrices.dbc");//20444
@@ -381,20 +377,6 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     LOAD_DBC(sWorldSafeLocsStore, "WorldSafeLocs.dbc"); // 20444
 
 #undef LOAD_DBC
-
-    // must be after sAreaStore loading
-    for (uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)           // areaflag numbered from 0
-    {
-        if (AreaTableEntry const* area = sAreaStore.LookupEntry(i))
-        {
-            // fill AreaId->DBC records
-            sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID), area->AreaBit));
-
-            // fill MapId->DBC records (skip sub zones and continents)
-            if (area->ParentAreaID == 0)
-                sAreaFlagByMapID.insert(AreaFlagByMapID::value_type(area->MapID, area->AreaBit));
-        }
-    }
 
     for (uint32 i = 0; i < sCharSectionsStore.GetNumRows(); ++i)
         if (CharSectionsEntry const* entry = sCharSectionsStore.LookupEntry(i))
@@ -494,7 +476,7 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(6565)          ||     // last area (areaflag) added in 6.2.2 (20444)
+    if (!sAreaTableStore.LookupEntry(7941)     ||     // last area added in 6.2.2 (20444)
         !sCharTitlesStore.LookupEntry(457)     ||     // last char title added in 6.2.2 (20444)
         !sGemPropertiesStore.LookupEntry(2544) ||     // last gem property added in 6.2.2 (20444)
         !sMapStore.LookupEntry(1497)           ||     // last map added in 6.2.2 (20444)
@@ -580,41 +562,12 @@ char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 /*locale*/)
     return pet_family->Name_lang ? pet_family->Name_lang : NULL;
 }
 
-int32 GetAreaFlagByAreaID(uint32 area_id)
-{
-    AreaFlagByAreaID::iterator i = sAreaFlagByAreaID.find(area_id);
-    if (i == sAreaFlagByAreaID.end())
-        return -1;
-
-    return i->second;
-}
-
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)
 {
     WMOAreaInfoByTripple::iterator i = sWMOAreaInfoByTripple.find(WMOAreaTableTripple(rootid, adtid, groupid));
-        if (i == sWMOAreaInfoByTripple.end())
-            return NULL;
-        return i->second;
-}
-
-AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
-{
-    int32 areaflag = GetAreaFlagByAreaID(area_id);
-    if (areaflag < 0)
+    if (i == sWMOAreaInfoByTripple.end())
         return NULL;
-
-    return sAreaStore.LookupEntry(areaflag);
-}
-
-AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id)
-{
-    if (area_flag)
-        return sAreaStore.LookupEntry(area_flag);
-
-    if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
-        return GetAreaEntryByAreaID(mapEntry->AreaTableID);
-
-    return NULL;
+    return i->second;
 }
 
 char const* GetRaceName(uint8 race, uint8 /*locale*/)
@@ -627,15 +580,6 @@ char const* GetClassName(uint8 class_, uint8 /*locale*/)
 {
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
     return classEntry ? classEntry->Name_lang : NULL;
-}
-
-uint32 GetAreaFlagByMapId(uint32 mapid)
-{
-    AreaFlagByMapID::iterator i = sAreaFlagByMapID.find(mapid);
-    if (i == sAreaFlagByMapID.end())
-        return 0;
-    else
-        return i->second;
 }
 
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)

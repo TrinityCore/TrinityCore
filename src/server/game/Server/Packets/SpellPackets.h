@@ -19,6 +19,7 @@
 #define SpellPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Spell.h"
@@ -70,6 +71,17 @@ namespace WorldPackets
             CancelMountAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOUNT_AURA, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class PetCancelAura final : public ClientPacket
+        {
+        public:
+            PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            uint32 SpellID = 0;
         };
 
         class RequestCategoryCooldowns final : public ClientPacket
@@ -812,6 +824,48 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<ResyncRune> Runes;
+        };
+
+        class MissileTrajectoryCollision final : public ClientPacket
+        {
+        public:
+            MissileTrajectoryCollision(WorldPacket&& packet) : ClientPacket(CMSG_MISSILE_TRAJECTORY_COLLISION, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid Target;
+            int32 SpellID = 0;
+            uint8 CastID = 0;
+            G3D::Vector3 CollisionPos;
+        };
+
+        class NotifyMissileTrajectoryCollision : public ServerPacket
+        {
+        public:
+            NotifyMissileTrajectoryCollision() : ServerPacket(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 8 + 1 + 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            uint8 CastID = 0;
+            G3D::Vector3 CollisionPos;
+        };
+
+        class UpdateMissileTrajectory final : public ClientPacket
+        {
+        public:
+            UpdateMissileTrajectory(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_MISSILE_TRAJECTORY, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid Guid;
+            uint16 MoveMsgID = 0;
+            int32 SpellID = 0;
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
+            G3D::Vector3 FirePos;
+            G3D::Vector3 ImpactPos;
+            Optional<MovementInfo> Status;
         };
     }
 }

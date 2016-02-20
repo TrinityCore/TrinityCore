@@ -595,13 +595,8 @@ void WorldSession::HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlaye
     reportedPlayer->ReportedAfkBy(_player);
 }
 
-void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPacket& recvData)
+void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPackets::Battleground::RequestRatedBattlefieldInfo& /*packet*/)
 {
-    uint8 unk;
-    recvData >> unk;
-
-    TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBattlefieldInfo: unk = %u", unk);
-
     /// @Todo: perfome research in this case
     /// The unk fields are related to arenas
     WorldPacket data(SMSG_RATED_BATTLEFIELD_INFO, 72);
@@ -640,7 +635,7 @@ void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVP
     SendPacket(pvpOptionsEnabled.Write());
 }
 
-void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
+void WorldSession::HandleRequestPvpReward(WorldPackets::Battleground::RequestPVPRewards& /*packet*/)
 {
     _player->SendPvpRewards();
 }
@@ -688,7 +683,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAn
         return;
     }
 
-    AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
+    AreaTableEntry const* atEntry = sAreaTableStore.LookupEntry(_player->GetAreaId());
     if (!atEntry || !(atEntry->Flags[0] & AREA_FLAG_CAN_HEARTH_AND_RESURRECT))
         return;
 
