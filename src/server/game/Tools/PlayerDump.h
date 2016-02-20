@@ -27,12 +27,12 @@
 enum DumpTableType
 {
     DTT_CHARACTER,      //                                  // characters
-
+    DTT_CHAR_DELETED,   //                                  // characters_deleted
     DTT_CHAR_TABLE,     //                                  // character_achievement, character_achievement_progress,
                                                             // character_action, character_aura, character_homebind,
                                                             // character_queststatus, character_queststatus_rewarded, character_reputation,
                                                             // character_spell, character_spell_cooldown, character_ticket, character_talent
-
+    DTT_CHAR_ATLF,      //                                  // characters_at_login
     DTT_EQSET_TABLE,    // <- guid                          // character_equipmentsets
 
     DTT_INVENTORY,      //    -> item guids collection      // character_inventory
@@ -45,6 +45,8 @@ enum DumpTableType
 
     DTT_ITEM,           // <- item guids                    // item_instance
                         //    -> item_text
+    DTT_ITEM_AUX,       // <- item guids                    // item_instance_enchantments, item_instance_charges, item_instance_creator,
+                                                            // item_instance_text, item_instance_duration, item_instance_randomPropertyId, item_instance_played_time
 
     DTT_ITEM_GIFT,      // <- item guids                    // character_gifts
 
@@ -93,9 +95,12 @@ class TC_GAME_API PlayerDumpWriter : public PlayerDump
 class TC_GAME_API PlayerDumpReader : public PlayerDump
 {
     public:
-        PlayerDumpReader() { }
+        PlayerDumpReader() : forceNameChange(false) { }
 
         DumpReturn LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid);
+
+    private:
+        bool forceNameChange;
 };
 
 #endif

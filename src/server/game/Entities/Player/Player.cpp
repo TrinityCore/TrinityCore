@@ -1647,11 +1647,19 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
         if (!(atLoginFlags & AT_LOGIN_CUSTOMIZE))
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
-            stmt->setUInt32(1, guid);
-            CharacterDatabase.Execute(stmt);
             atLoginFlags |= AT_LOGIN_CUSTOMIZE;
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+            stmt->setUInt32(0, guid);
+            stmt->setUInt16(1, atLoginFlags);
+            trans->Append(stmt);
+
+            CharacterDatabase.CommitTransaction(trans);
         }
     }
 
@@ -4287,15 +4295,13 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                ObjectGuid::LowType item_guidlow = itemFields[11].GetUInt32();
-                                uint32 item_template = itemFields[12].GetUInt32();
+                                ObjectGuid::LowType item_guidlow = itemFields[50].GetUInt32();
+                                uint32 item_template = itemFields[51].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
                                 {
-                                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                                    stmt->setUInt32(0, item_guidlow);
-                                    trans->Append(stmt);
+                                    Item::DeleteFromDB(trans, item_guidlow);
                                     continue;
                                 }
 
@@ -4518,6 +4524,46 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TRANSPORT);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DELETE_INFO);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DRUNK);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GRANTABLELEVELS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STABLE_SLOTS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TAXI_PATH);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_RESETTALENTS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TITLE);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PVP_STATS);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
             Corpse::DeleteFromDB(playerguid, trans);
 
             CharacterDatabase.CommitTransaction(trans);
@@ -4526,11 +4572,21 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
         case CHAR_DELETE_UNLINK:
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_DELETE_INFO);
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DELETE_INFO);
             stmt->setUInt32(0, guid);
+            trans->Append(stmt);
 
-            CharacterDatabase.Execute(stmt);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DELETE_INFO);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_DELETED);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+
+            CharacterDatabase.CommitTransaction(trans);
             break;
         }
         default:
@@ -4781,10 +4837,7 @@ void Player::KillPlayer()
 void Player::OfflineResurrect(ObjectGuid const& guid, SQLTransaction& trans)
 {
     Corpse::DeleteFromDB(guid, trans);
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-    stmt->setUInt16(0, uint16(AT_LOGIN_RESURRECT));
-    stmt->setUInt64(1, guid.GetCounter());
-    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+    Player::AddAtLoginFlag(guid.GetCounter(), AT_LOGIN_RESURRECT);
 }
 
 Corpse* Player::CreateCorpse()
@@ -16883,16 +16936,17 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     Object::_Create(guid.GetCounter(), 0, HighGuid::Player);
 
     m_name = fields[2].GetString();
+    m_atLoginFlags = fields[38].GetUInt16();
 
     // check name limitations
     if (ObjectMgr::CheckPlayerName(m_name, GetSession()->GetSessionDbcLocale()) != CHAR_NAME_SUCCESS ||
         (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(m_name)))
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-        stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
-        stmt->setUInt32(1, guid.GetCounter());
-        CharacterDatabase.Execute(stmt);
-        return false;
+        if (!HasAtLoginFlag(AT_LOGIN_RENAME))
+        {
+            AddAtLoginFlag(AT_LOGIN_RENAME, true);
+            return false;
+        }
     }
 
     // overwrite possible wrong/corrupted guid
@@ -17335,8 +17389,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         m_stableSlots = MAX_PET_STABLES;
     }
 
-    m_atLoginFlags = fields[38].GetUInt16();
-
     if (HasAtLoginFlag(AT_LOGIN_RENAME))
     {
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) tried to login while forced to rename, can't load.'", GetGUID().ToString().c_str());
@@ -17767,7 +17819,18 @@ void Player::LoadCorpse(PreparedQueryResult result)
 
 void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT data, text, bag, slot, item, item_template FROM character_inventory JOIN item_instance ON character_inventory.item = item_instance.guid WHERE character_inventory.guid = '%u' ORDER BY bag, slot", GetGUID().GetCounter());
+    //             0            1                2      3         4        5         6          7        8        9        10               11                 12                     13
+    // "SELECT creatorGuid, giftCreatorGuid, count, duration, charge_1, charge_2, charge_3, charge_4, charge_5, flags, EnchantmentID_1, EnchantmentDuration_1, EnchantmentCharges_1, EnchantmentID_2, "
+    //             14           15                     16                 17                    18                   19              20                       21                   22                   23                24
+    // "EnchantmentDuration_2, EnchantmentCharges_2, EnchantmentID_3, EnchantmentDuration_3, EnchantmentCharges_3, EnchantmentID_4, EnchantmentDuration_4, EnchantmentCharges_4, EnchantmentID_5, EnchantmentDuration_5, EnchantmentCharges_5, "
+    //             25           26                  27                  28               29                     30                   31                  32                  33                    34               35
+    // "EnchantmentID_6, EnchantmentDuration_6, EnchantmentCharges_6, EnchantmentID_7, EnchantmentDuration_7, EnchantmentCharges_7, EnchantmentID_8, EnchantmentDuration_8, EnchantmentCharges_8, EnchantmentID_9, EnchantmentDuration_9, "
+    //             36           37                38                      39                     40                 41                     42                    43                 44                        45
+    // "EnchantmentCharges_9, EnchantmentID_10, EnchantmentDuration_10, EnchantmentCharges_10, EnchantmentID_11, EnchantmentDuration_11, EnchantmentCharges_11, EnchantmentID_12, EnchantmentDuration_12, EnchantmentCharges_12, "
+    //   46                   47        48         49    50   51   52     53
+    // "randomPropertyId, durability, playedTime, text, bag, slot, item, itemEntry FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid LEFT JOIN item_instance_creator iic ON ci.item = iic.guid LEFT JOIN item_instance_duration iid ON ci.item = iid.guid "
+    // "LEFT JOIN item_instance_charges iich ON ci.item = iich.guid LEFT JOIN item_instance_enchantments iie ON ci.item = iie.guid LEFT JOIN item_instance_randomPropertyId iir ON ci.item = iir.guid "
+    // "LEFT JOIN item_instance_played_time iip ON ci.item = iip.guid LEFT JOIN item_instance_text iit ON ci.item = iit.guid WHERE ci.guid = ? ORDER BY bag, slot"
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17789,8 +17852,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid::LowType bagGuid = fields[11].GetUInt32();
-                uint8  slot     = fields[12].GetUInt8();
+                ObjectGuid::LowType bagGuid = fields[50].GetUInt32();
+                uint8 slot = fields[51].GetUInt8();
 
                 InventoryResult err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -17899,8 +17962,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = nullptr;
-    ObjectGuid::LowType itemGuid  = fields[13].GetUInt32();
-    uint32 itemEntry = fields[14].GetUInt32();
+    ObjectGuid::LowType itemGuid = fields[52].GetUInt32();
+    uint32 itemEntry = fields[53].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -18037,8 +18100,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType itemGuid = fields[11].GetUInt32();
-        uint32 itemTemplate = fields[12].GetUInt32();
+        ObjectGuid::LowType itemGuid = fields[50].GetUInt32();
+        uint32 itemTemplate = fields[51].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -18061,7 +18124,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, ObjectGuid(HighGuid::Player, fields[13].GetUInt32()), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, ObjectGuid(HighGuid::Player, fields[52].GetUInt32()), fields, itemTemplate))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: %u) in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
 
@@ -18977,8 +19040,48 @@ void Player::SaveToDB(bool create /*=false*/)
     if (!create)
         sScriptMgr->OnPlayerSave(this);
 
-    PreparedStatement* stmt;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = nullptr;
     uint8 index = 0;
+
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TRANSPORT);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DRUNK);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GRANTABLELEVELS);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STABLE_SLOTS);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TAXI_PATH);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_RESETTALENTS);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TITLE);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PVP_STATS);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+    }
 
     if (create)
     {
@@ -19009,18 +19112,11 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetPositionY()));
         stmt->setFloat(index++, finiteAlways(GetPositionZ()));
         stmt->setFloat(index++, finiteAlways(GetOrientation()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetX()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
-        ObjectGuid::LowType transLowGUID = 0;
-        if (GetTransport())
-            transLowGUID = GetTransport()->GetGUID().GetCounter();
-        stmt->setUInt32(index++, transLowGUID);
 
         std::ostringstream ss;
         ss << m_taxi;
         stmt->setString(index++, ss.str());
+
         stmt->setUInt8(index++, m_cinematic);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_TOTAL]);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_LEVEL]);
@@ -19029,29 +19125,12 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
-        stmt->setUInt32(index++, m_resetTalentsCost);
-        stmt->setUInt32(index++, uint32(m_resetTalentsTime));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++,  m_stableSlots);
-        stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
 
-        ss.str("");
-        ss << m_taxi.SaveTaxiDestinationsToString();
-
-        stmt->setString(index++, ss.str());
-        stmt->setUInt32(index++, GetArenaPoints());
-        stmt->setUInt32(index++, GetHonorPoints());
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 0));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 1));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_CHOSEN_TITLE));
         stmt->setUInt64(index++, GetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX));
-        stmt->setUInt8(index++, GetDrunkValue());
         stmt->setUInt32(index++, GetHealth());
 
         for (uint32 i = 0; i < MAX_POWERS; ++i)
@@ -19085,13 +19164,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_AMMO_ID));
 
-        ss.str("");
-        for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
-
-        stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
-        stmt->setUInt32(index, m_grantableLevels);
     }
     else
     {
@@ -19134,15 +19207,6 @@ void Player::SaveToDB(bool create /*=false*/)
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetOrientation()));
         }
 
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetX()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetY()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
-        stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
-        ObjectGuid::LowType transLowGUID = 0;
-        if (GetTransport())
-            transLowGUID = GetTransport()->GetGUID().GetCounter();
-        stmt->setUInt32(index++, transLowGUID);
-
         std::ostringstream ss;
         ss << m_taxi;
         stmt->setString(index++, ss.str());
@@ -19154,29 +19218,12 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
-        stmt->setUInt32(index++, m_resetTalentsCost);
-        stmt->setUInt32(index++, uint32(m_resetTalentsTime));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++,  m_stableSlots);
-        stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
 
-        ss.str("");
-        ss << m_taxi.SaveTaxiDestinationsToString();
-
-        stmt->setString(index++, ss.str());
-        stmt->setUInt32(index++, GetArenaPoints());
-        stmt->setUInt32(index++, GetHonorPoints());
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 0));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, 1));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_CHOSEN_TITLE));
         stmt->setUInt64(index++, GetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX));
-        stmt->setUInt8(index++, GetDrunkValue());
         stmt->setUInt32(index++, GetHealth());
 
         for (uint32 i = 0; i < MAX_POWERS; ++i)
@@ -19210,22 +19257,143 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_AMMO_ID));
 
-        ss.str("");
-        for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
-
-        stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
-        stmt->setUInt32(index++, m_grantableLevels);
 
         stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
         // Index
         stmt->setUInt32(index++, GetGUID().GetCounter());
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
     trans->Append(stmt);
+
+    bool append = false;
+    float transX = finiteAlways(GetTransOffsetX());
+    float transY = finiteAlways(GetTransOffsetY());
+    float transZ = finiteAlways(GetTransOffsetZ());
+    float transO = finiteAlways(GetTransOffsetO());
+    ObjectGuid::LowType transLowGUID = 0;
+    if (Transport* trans = GetTransport())
+        transLowGUID = trans->GetGUID().GetCounter();
+    append = transLowGUID || !G3D::fuzzyEq(transX, 0.f) || !G3D::fuzzyEq(transY, 0.f) || !G3D::fuzzyEq(transZ, 0.f) || !G3D::fuzzyEq(transO, 0.f);
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TRANSPORT);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setFloat(index++, transX);
+        stmt->setFloat(index++, transY);
+        stmt->setFloat(index++, transZ);
+        stmt->setFloat(index++, transO);
+        stmt->setUInt32(index++, transLowGUID);
+        trans->Append(stmt);
+    }
+
+    append = m_atLoginFlags != 0;
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt16(index++, (uint16)m_atLoginFlags);
+        trans->Append(stmt);
+    }
+
+    if (uint8 drunkVal = GetDrunkValue())
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_DRUNK);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt8(index++, drunkVal);
+        trans->Append(stmt);
+    }
+
+    append = m_grantableLevels != 0;
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GRANTABLELEVELS);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt32(index++, m_grantableLevels);
+        trans->Append(stmt);
+    }
+
+    append = m_stableSlots != 0;
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_STABLE_SLOTS);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt8(index++,  m_stableSlots);
+        trans->Append(stmt);
+    }
+
+    std::string taxiDest = m_taxi.SaveTaxiDestinationsToString();
+    append = !taxiDest.empty();
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TAXI_PATH);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setString(index++, taxiDest);
+        trans->Append(stmt);
+    }
+
+    append = m_resetTalentsCost != 0 || m_resetTalentsTime != 0;
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_RESETTALENTS);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt32(index++, m_resetTalentsCost);
+        stmt->setUInt32(index++, uint32(m_resetTalentsTime));
+        trans->Append(stmt);
+    }
+
+    uint32 chosenTitle = GetUInt32Value(PLAYER_CHOSEN_TITLE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TITLE);
+    index = 0;
+    append = chosenTitle != 0;
+    stmt->setUInt32(index++, GetGUID().GetCounter());
+    stmt->setUInt32(index++, chosenTitle);
+
+    std::ostringstream ss;
+    for (uint32 i = 0; i < KNOWN_TITLES_SIZE * 2; ++i)
+    {
+        uint32 titleField = GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i);
+        ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
+
+        if (append)
+            continue;
+
+        append = append || titleField != 0;
+    }
+    stmt->setString(index++, ss.str());
+
+    if (append)
+        trans->Append(stmt);
+
+    uint32 arenaPoints = GetArenaPoints();
+    uint32 honorPoints = GetHonorPoints();
+    uint32 todayHonorPoints = GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION);
+    uint32 yesterdayHonorPoints = GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION);
+    uint32 totalKills = GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+    uint16 todayKills = GetUInt16Value(PLAYER_FIELD_KILLS, 0);
+    uint16 yesterdayKills = GetUInt16Value(PLAYER_FIELD_KILLS, 1);
+    append = arenaPoints || honorPoints || todayHonorPoints || yesterdayHonorPoints || totalKills || todayKills || yesterdayKills;
+    if (append)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PVP_STATS);
+        index = 0;
+        stmt->setUInt32(index++, GetGUID().GetCounter());
+        stmt->setUInt32(index++, arenaPoints);
+        stmt->setUInt32(index++, honorPoints);
+        stmt->setUInt32(index++, todayHonorPoints);
+        stmt->setUInt32(index++, yesterdayHonorPoints);
+        stmt->setUInt32(index++, totalKills);
+        stmt->setUInt16(index++, todayKills);
+        stmt->setUInt16(index++, yesterdayKills);
+        trans->Append(stmt);
+    }
 
     if (m_mailsUpdated)                                     //save mails only when needed
         _SaveMail(trans);
@@ -19985,17 +20153,6 @@ void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGui
     stmt->setUInt32(6, guid.GetCounter());
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
-}
-
-void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
-{
-    char buf[11];
-    snprintf(buf, 11, "%u", value);
-
-    if (index >= tokens.size())
-        return;
-
-    tokens[index] = buf;
 }
 
 void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans)
@@ -25525,12 +25682,75 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
     if (persist)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        stmt->setUInt16(0, uint16(flags));
-        stmt->setUInt32(1, GetGUID().GetCounter());
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
 
-        CharacterDatabase.Execute(stmt);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt16(1, m_atLoginFlags);
+        trans->Append(stmt);
+
+        CharacterDatabase.CommitTransaction(trans);
+    }
+}
+
+/*static*/
+void Player::AddAtLoginFlag(ObjectGuid::LowType lowGuid, AtLoginFlags flags)
+{
+    uint16 atLoginFlags = 0;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AT_LOGIN_FLAG);
+    stmt->setUInt32(0, lowGuid);
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        atLoginFlags = (*result)[0].GetUInt16();
+
+    if ((atLoginFlags & flags) == flags)
+        return;
+
+    atLoginFlags |= flags;
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+    stmt->setUInt32(0, lowGuid);
+    trans->Append(stmt);
+
+    if (atLoginFlags)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, lowGuid);
+        stmt->setUInt16(1, atLoginFlags);
+        trans->Append(stmt);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void Player::AddAtLoginFlag(AtLoginFlags flags, bool persist /*= false */)
+{
+    if ((m_atLoginFlags & flags) == flags)
+        return;
+
+    m_atLoginFlags |= flags;
+
+    if (persist)
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        trans->Append(stmt);
+
+        if (m_atLoginFlags)
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+            stmt->setUInt32(0, GetGUID().GetCounter());
+            stmt->setUInt16(1, m_atLoginFlags);
+            trans->Append(stmt);
+        }
+
+        CharacterDatabase.CommitTransaction(trans);
     }
 }
 

@@ -171,11 +171,7 @@ public:
         }
         else
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_RESET_SPELLS));
-            stmt->setUInt32(1, targetGuid.GetCounter());
-            CharacterDatabase.Execute(stmt);
-
+            Player::AddAtLoginFlag(targetGuid.GetCounter(), AT_LOGIN_RESET_SPELLS);
             handler->PSendSysMessage(LANG_RESET_SPELLS_OFFLINE, targetName.c_str());
         }
 
@@ -245,10 +241,7 @@ public:
         }
         else if (targetGuid)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_NONE | AT_LOGIN_RESET_PET_TALENTS));
-            stmt->setUInt32(1, targetGuid.GetCounter());
-            CharacterDatabase.Execute(stmt);
+            Player::AddAtLoginFlag(targetGuid.GetCounter(), AtLoginFlags(AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS));
 
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_RESET_TALENTS_OFFLINE, nameLink.c_str());
@@ -291,14 +284,15 @@ public:
             return false;
         }
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ALL_AT_LOGIN_FLAGS);
-        stmt->setUInt16(0, uint16(atLogin));
-        CharacterDatabase.Execute(stmt);
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        trans->PAppend("INSERT IGNORE INTO characters_at_login (guid, at_login) SELECT guid, %u FROM characters", uint16(atLogin));
+        trans->PAppend("UPDATE characters_at_login SET at_login = at_login | %u", uint16(atLogin));
+        CharacterDatabase.CommitTransaction(trans);
 
         boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& plist = ObjectAccessor::GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
-            itr->second->SetAtLoginFlag(atLogin);
+            itr->second->AddAtLoginFlag(atLogin);
 
         return true;
     }

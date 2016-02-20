@@ -352,10 +352,17 @@ void GuildMgr::LoadGuilds()
         // Delete orphan guild bank items
         CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-                                                     //          0            1                2      3         4        5      6             7                 8           9           10
-        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, "
-                                                     //   11       12     13      14         15
-                                                     "guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
+                                                     //          0            1                2      3         4        5         6          7        8        9        10               11                  12                    13                14
+        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charge_1, charge_2, charge_3, charge_4, charge_5, flags, EnchantmentID_1, EnchantmentDuration_1, EnchantmentCharges_1, EnchantmentID_2, EnchantmentDuration_2, "
+                                                     //          15           16              17                     18                    19                 20                   21                     22                23                   24                    25                    26
+                                                     "EnchantmentCharges_2, EnchantmentID_3,EnchantmentDuration_3, EnchantmentCharges_3, EnchantmentID_4, EnchantmentDuration_4, EnchantmentCharges_4, EnchantmentID_5, EnchantmentDuration_5, EnchantmentCharges_5, EnchantmentID_6, EnchantmentDuration_6, "
+                                                     //          27           28              29                      30                   31                 32                   33                     34                35                   36                    37                    38
+                                                     "EnchantmentCharges_6, EnchantmentID_7, EnchantmentDuration_7, EnchantmentCharges_7, EnchantmentID_8, EnchantmentDuration_8, EnchantmentCharges_8, EnchantmentID_9, EnchantmentDuration_9, EnchantmentCharges_9, EnchantmentID_10, EnchantmentDuration_10, "
+                                                     //          39             40              41                       42                   43                 44                       45                    46                 47        48          49      50       51     52      53         54
+                                                     "EnchantmentCharges_10, EnchantmentID_11, EnchantmentDuration_11, EnchantmentCharges_11, EnchantmentID_12, EnchantmentDuration_12, EnchantmentCharges_12, randomPropertyId, durability, playedTime, text, guildid, TabId, SlotId, item_guid, itemEntry "
+                                                     "FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid LEFT JOIN item_instance_creator iic ON gbi.item_guid = iic.guid LEFT JOIN item_instance_duration iid ON gbi.item_guid = iid.guid "
+                                                     "LEFT JOIN item_instance_charges iich ON gbi.item_guid = iich.guid LEFT JOIN item_instance_enchantments iie ON gbi.item_guid = iie.guid LEFT JOIN item_instance_randomPropertyId iir ON gbi.item_guid = iir.guid "
+                                                     "LEFT JOIN item_instance_played_time iipt ON gbi.item_guid = iipt.guid LEFT JOIN item_instance_text iit ON gbi.item_guid = iit.guid");
 
         if (!result)
         {

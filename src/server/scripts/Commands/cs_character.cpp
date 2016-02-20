@@ -213,11 +213,18 @@ public:
             return;
         }
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESTORE_DELETE_INFO);
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DELETE_INFO);
+        stmt->setUInt32(0, delInfo.guid.GetCounter());
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESTORE_DELETE_INFO);
         stmt->setString(0, delInfo.name);
         stmt->setUInt32(1, delInfo.accountId);
         stmt->setUInt32(2, delInfo.guid.GetCounter());
-        CharacterDatabase.Execute(stmt);
+        trans->Append(stmt);
+
+        CharacterDatabase.CommitTransaction(trans);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
         stmt->setUInt32(0, delInfo.guid.GetCounter());
@@ -403,7 +410,7 @@ public:
                     return false;
 
                 handler->PSendSysMessage(LANG_RENAME_PLAYER, handler->GetNameLink(target).c_str());
-                target->SetAtLoginFlag(AT_LOGIN_RENAME);
+                target->AddAtLoginFlag(AT_LOGIN_RENAME);
             }
             else
             {
@@ -414,10 +421,7 @@ public:
                 std::string oldNameLink = handler->playerLink(targetName);
                 handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-                stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
-                stmt->setUInt32(1, targetGuid.GetCounter());
-                CharacterDatabase.Execute(stmt);
+                Player::AddAtLoginFlag(targetGuid.GetCounter(), AT_LOGIN_RENAME);
             }
         }
 
@@ -473,22 +477,18 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-        stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
         if (target)
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
-            target->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
-            stmt->setUInt32(1, target->GetGUID().GetCounter());
+            target->AddAtLoginFlag(AT_LOGIN_CUSTOMIZE);
         }
         else
         {
             std::string oldNameLink = handler->playerLink(targetName);
-            stmt->setUInt32(1, targetGuid.GetCounter());
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
         }
-        CharacterDatabase.Execute(stmt);
 
+        Player::AddAtLoginFlag(target ? target->GetGUID().GetCounter() : targetGuid.GetCounter(), AT_LOGIN_CUSTOMIZE);
         return true;
     }
 
@@ -501,22 +501,18 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-        stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
         if (target)
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
-            target->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
-            stmt->setUInt32(1, target->GetGUID().GetCounter());
+            target->AddAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
         }
         else
         {
             std::string oldNameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
-            stmt->setUInt32(1, targetGuid.GetCounter());
         }
-        CharacterDatabase.Execute(stmt);
 
+        Player::AddAtLoginFlag(target ? target->GetGUID().GetCounter() : targetGuid.GetCounter(), AT_LOGIN_CHANGE_FACTION);
         return true;
     }
 
@@ -528,24 +524,20 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-        stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
         if (target)
         {
             /// @todo add text into database
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
-            target->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
-            stmt->setUInt32(1, target->GetGUID().GetCounter());
+            target->AddAtLoginFlag(AT_LOGIN_CHANGE_RACE);
         }
         else
         {
             std::string oldNameLink = handler->playerLink(targetName);
             /// @todo add text into database
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
-            stmt->setUInt32(1, targetGuid.GetCounter());
         }
-        CharacterDatabase.Execute(stmt);
 
+        Player::AddAtLoginFlag(target ? target->GetGUID().GetCounter() : targetGuid.GetCounter(), AT_LOGIN_CHANGE_RACE);
         return true;
     }
 
