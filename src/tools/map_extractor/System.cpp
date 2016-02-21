@@ -918,7 +918,7 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
     // Store area data
     fwrite(&areaHeader, sizeof(areaHeader), 1, output);
     if (!(areaHeader.flags & MAP_AREA_NO_AREA))
-        fwrite(area_flags, sizeof(area_ids), 1, output);
+        fwrite(area_ids, sizeof(area_ids), 1, output);
 
     // Store height data
     fwrite(&heightHeader, sizeof(heightHeader), 1, output);
