@@ -845,7 +845,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaTableStore.LookupEntry(5995)     ||     // last area (areaflag) added in 4.3.4 (15595)
+    if (!sAreaTableStore.LookupEntry(5995)     ||     // last area added in 4.3.4 (15595)
         !sCharTitlesStore.LookupEntry(287)     ||     // last char title added in 4.3.4 (15595)
         !sGemPropertiesStore.LookupEntry(2250) ||     // last gem property added in 4.3.4 (15595)
         !sMapStore.LookupEntry(980)            ||     // last map added in 4.3.4 (15595)
