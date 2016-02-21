@@ -15,9 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
+// This is where scripts' loading functions should be declared:
+void AddSC_kezan();
+void AddSC_instance_stonecore(); // Stonecore
+void AddSC_stonecore();
+void AddSC_boss_corborus();
+void AddSC_boss_slabhide();
+void AddSC_boss_ozruk();
+void AddSC_boss_high_priestess_azil();
 
-void AddScripts();
-
-#endif
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
+void AddMaelstromScripts()
+{
+    AddSC_kezan();
+    AddSC_instance_stonecore(); // Stonecore
+    AddSC_stonecore();
+    AddSC_boss_corborus();
+    AddSC_boss_slabhide();
+    AddSC_boss_ozruk();
+    AddSC_boss_high_priestess_azil();
+}
