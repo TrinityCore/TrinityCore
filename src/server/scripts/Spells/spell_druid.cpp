@@ -1083,7 +1083,7 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
-// -33943 - Flight Form
+// 33943 - Flight Form (Shapeshift)
 class spell_dru_flight_form : public SpellScriptLoader
 {
     public:

@@ -52,6 +52,7 @@ enum RogueSpells
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED       = 51699
 };
 
 enum RogueSpellIcons
@@ -1008,6 +1009,58 @@ public:
     }
 };
 
+// -51698 - Honor Among Thieves
+class spell_rog_honor_among_thieves : public SpellScriptLoader
+{
+    public:
+        spell_rog_honor_among_thieves() : SpellScriptLoader("spell_rog_honor_among_thieves") { }
+
+        class spell_rog_honor_among_thieves_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_honor_among_thieves_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return false;
+
+                return !caster->GetSpellHistory()->HasCooldown(SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED);
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (Player* player = caster->ToPlayer())
+                    if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
+                        caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD), nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_rog_honor_among_thieves_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_honor_among_thieves_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1028,4 +1081,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
+    new spell_rog_honor_among_thieves();
 }

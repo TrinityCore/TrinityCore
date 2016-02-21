@@ -7095,7 +7095,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             target = victim;
             break;
         }
-        // Finish movies that add combo
+        // Finish moves that add combo
         case 14189: // Seal Fate (Netherblade set)
         case 14157: // Ruthlessness
         {
