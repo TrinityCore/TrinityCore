@@ -2861,7 +2861,17 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     {
         m_castItemGUID = m_CastItem->GetGUID();
         m_castItemEntry = m_CastItem->GetEntry();
-        m_castItemLevel = int32(m_CastItem->GetItemLevel(m_CastItem->GetOwner()));
+
+        if (Player* owner = m_CastItem->GetOwner())
+            m_castItemLevel = int32(m_CastItem->GetItemLevel(owner));
+        else if (m_CastItem->GetOwnerGUID() == m_caster->GetGUID())
+            m_castItemLevel = int32(m_CastItem->GetItemLevel(m_caster->ToPlayer()));
+        else
+        {
+            SendCastResult(SPELL_FAILED_EQUIPPED_ITEM);
+            finish(false);
+            return;
+        }
     }
 
     InitExplicitTargets(*targets);
