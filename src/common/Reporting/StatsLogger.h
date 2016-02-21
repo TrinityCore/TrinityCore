@@ -29,7 +29,7 @@ private:
 
     boost::asio::ip::tcp::iostream dataStream;
 
-    void Log(std::string& data);
+    void Log(std::string const& data);
 
 public:
     static StatsLogger* instance()

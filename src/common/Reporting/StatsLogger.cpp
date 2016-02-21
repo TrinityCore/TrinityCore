@@ -30,17 +30,25 @@ StatsLogger::~StatsLogger()
 
 void StatsLogger::LogValue(std::string const& category, uint32 value)
 {
-    std::string data = category + ",realm=Windows value=" + std::to_string(value) + "i";
+    using namespace std::chrono;
+
+    std::string data = category + ",realm=Windows value=" + std::to_string(value) + "i"
+        + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
+
     Log(data);
 }
 
 void StatsLogger::LogEvent(std::string const& title, std::string const& description)
 {
-    std::string data = "events,realm=Windows title=\"" + title + "\",text=\"" + description + "\"";
+    using namespace std::chrono;
+
+    std::string data = "events,realm=Windows title=\"" + title + "\",text=\"" + description + "\""
+        + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
+
     Log(data);
 }
 
-void StatsLogger::Log(std::string& data)
+void StatsLogger::Log(std::string const& data)
 {
     dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
     dataStream << "Host: " << "localhost:8086" << "\r\n";
