@@ -15,9 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
+// This is where scripts' loading functions should be declared:
+void AddSC_outdoorpvp_hp();
+void AddSC_outdoorpvp_na();
+void AddSC_outdoorpvp_si();
+void AddSC_outdoorpvp_tf();
+void AddSC_outdoorpvp_zm();
 
-void AddScripts();
-
-#endif
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
+void AddOutdoorPvPScripts()
+{
+    AddSC_outdoorpvp_hp();
+    AddSC_outdoorpvp_na();
+    AddSC_outdoorpvp_si();
+    AddSC_outdoorpvp_tf();
+    AddSC_outdoorpvp_zm();
+}

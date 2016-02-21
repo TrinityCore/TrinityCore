@@ -16,9 +16,15 @@ if (USE_SCRIPTPCH)
 endif ()
 
 message(STATUS "SCRIPT PREPARATIONS")
-include(Spells/CMakeLists.txt)
 
-include(Commands/CMakeLists.txt)
+macro(PrepareScripts name out)
+  file(GLOB_RECURSE found
+    ${name}/*.h
+    ${name}/*.cpp
+  )
+  list(APPEND ${out} ${found})
+  message(STATUS "  -> Prepared: ${name}")
+endmacro(PrepareScripts)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -27,17 +33,21 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
 )
 
+PrepareScripts(Spells scripts_STAT_SRCS)
+PrepareScripts(Commands scripts_STAT_SRCS)
+
 if(SCRIPTS)
-  include(Custom/CMakeLists.txt)
-  include(World/CMakeLists.txt)
-  include(OutdoorPvP/CMakeLists.txt)
-  include(EasternKingdoms/CMakeLists.txt)
-  include(Kalimdor/CMakeLists.txt)
-  include(Outland/CMakeLists.txt)
-  include(Northrend/CMakeLists.txt)
-  include(Maelstrom/CMakeLists.txt)
-  include(Events/CMakeLists.txt)
-  include(Pet/CMakeLists.txt)
+  PrepareScripts(Commands scripts_STAT_SRCS)
+  PrepareScripts(Custom scripts_STAT_SRCS)
+  PrepareScripts(World scripts_STAT_SRCS)
+  PrepareScripts(OutdoorPvP scripts_STAT_SRCS)
+  PrepareScripts(EasternKingdoms scripts_STAT_SRCS)
+  PrepareScripts(Kalimdor scripts_STAT_SRCS)
+  PrepareScripts(Outland scripts_STAT_SRCS)
+  PrepareScripts(Northrend scripts_STAT_SRCS)
+  PrepareScripts(Maelstrom scripts_STAT_SRCS)
+  PrepareScripts(Events scripts_STAT_SRCS)
+  PrepareScripts(Pet scripts_STAT_SRCS)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
