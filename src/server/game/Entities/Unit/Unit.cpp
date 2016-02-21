@@ -13432,7 +13432,10 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
 void Unit::PlayOneShotAnimKitId(uint16 animKitId)
 {
     if (!sAnimKitStore.LookupEntry(animKitId))
+    {
+        TC_LOG_ERROR("entities.unit", "Unit::PlayOneShotAnimKitId using invalid AnimKit ID: %u", animKitId);
         return;
+    }
 
     WorldPackets::Misc::PlayOneShotAnimKit data;
     data.Unit = GetGUID();
