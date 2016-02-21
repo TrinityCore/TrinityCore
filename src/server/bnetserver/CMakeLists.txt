@@ -87,10 +87,10 @@ if( NOT WIN32 )
 endif()
 
 target_link_libraries(bnetserver
-  common
+  shared
   database
   ipc
-  shared
+  common
   zmqpp
   format
   ${MYSQL_LIBRARY}
