@@ -407,6 +407,24 @@ CleanCharacterDB = 0
 PersistentCharacterCleanFlags = 0
 
 #
+#    Auction.GetAllScanDelay
+#        Description: Sets the minimum time in seconds, a single player character can perform a getall scan.
+#                     The value is only held in memory so a server restart will clear it.
+#                     Setting this to zero, will disable GetAll functions completely.
+#        Default:     900 - (GetAll scan limited to once every 15mins per player character)
+
+Auction.GetAllScanDelay = 900
+
+#
+#    Auction.SearchDelay
+#        Description: Sets the minimum time in milliseconds (seconds x 1000), that the client must wait between
+#                     auction search operations. This can be increased if somehow Auction House activity is causing
+#                     too much load.
+#        Default:     300 - (Time delay between auction searches set to 0.3secs)
+
+Auction.SearchDelay = 300
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1312,10 +1330,11 @@ AllowTwoSide.Trade = 0
 
 #
 #    TalentsInspecting
-#        Description: Allow inspecting characters from the opposing faction.
-#                     Doesn't affect characters in gamemaster mode.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#        Description: Allow/disallow inspecting other characters' talents.
+#                     Doesn't affect game master accounts.
+#                     2 - (Enabled for all characters)
+#        Default:     1 - (Enabled for characters of the same faction)
+#                     0 - (Talent inspecting is disabled)
 
 TalentsInspecting = 1
 

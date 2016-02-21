@@ -22,7 +22,8 @@ bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, s
     if (!BaseSocketMgr::StartNetwork(service, bindIp, port))
         return false;
 
-    _acceptor->AsyncAcceptManaged(&OnSocketAccept);
+    _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
+    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
     return true;
 }
 
@@ -31,9 +32,9 @@ NetworkThread<Battlenet::Session>* Battlenet::SessionManager::CreateThreads() co
     return new NetworkThread<Session>[GetNetworkThreadCount()];
 }
 
-void Battlenet::SessionManager::OnSocketAccept(tcp::socket&& sock)
+void Battlenet::SessionManager::OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
 {
-    sSessionMgr.OnSocketOpen(std::forward<tcp::socket>(sock));
+    sSessionMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
 }
 
 void Battlenet::SessionManager::AddSession(Session* session)
@@ -46,7 +47,11 @@ void Battlenet::SessionManager::AddSession(Session* session)
 void Battlenet::SessionManager::RemoveSession(Session* session)
 {
     std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
-    _sessions.erase({ session->GetAccountId(), session->GetGameAccountId() });
+    auto itr = _sessions.find({ session->GetAccountId(), session->GetGameAccountId() });
+    // Remove old session only if it was not overwritten by reconnecting
+    if (itr != _sessions.end() && itr->second == session)
+        _sessions.erase(itr);
+
     _sessionsByAccountId[session->GetAccountId()].remove(session);
 }
 

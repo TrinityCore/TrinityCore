@@ -360,12 +360,14 @@ class BossAI : public ScriptedAI
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
+        bool CanAIAttack(Unit const* target) const override { return CheckBoundary(target); }
+
     protected:
         void _Reset();
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
-        void _DespawnAtEvade();
+        void _DespawnAtEvade(uint32 delayToRespawn = 30);
 
         void TeleportCheaters();
 

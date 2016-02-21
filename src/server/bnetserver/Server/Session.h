@@ -22,7 +22,8 @@
 #include "BattlenetPacketCrypt.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "Database/DatabaseEnv.h"
+#include "Callback.h"
+#include "MPSCQueue.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -96,7 +97,7 @@ namespace Battlenet
 
         // Connection
         void HandlePing(Connection::Ping const& ping);
-        void HandleEnableEncryption(Connection::EnableEncryption const& enableEncryption);
+        void HandleEnableEncryption(Connection::EnableEncryption& enableEncryption);
         void HandleLogoutRequest(Connection::LogoutRequest const& logoutRequest);
         void HandleConnectionClosing(Connection::ConnectionClosing const& connectionClosing);
 
@@ -172,10 +173,18 @@ namespace Battlenet
 
         std::queue<ModuleType> _modulesWaitingForData;
 
+        struct EncryptableBuffer
+        {
+            MessageBuffer Buffer;
+            bool Encrypt;
+        };
+
+        MPSCQueue<EncryptableBuffer> _bufferQueue;
+
         PacketCrypt _crypt;
         bool _authed;
         bool _subscribedToRealmListUpdates;
-        
+
         PreparedQueryResultFuture _queryFuture;
         std::function<void(PreparedQueryResult)> _queryCallback;
     };

@@ -16,6 +16,7 @@ include_directories (
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/StormLib/src
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/src/common
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/shared
@@ -31,6 +32,7 @@ add_executable(mapextractor
 target_link_libraries(mapextractor
   common
   format
+  g3dlib
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${Boost_LIBRARIES}

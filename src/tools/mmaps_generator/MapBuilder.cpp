@@ -696,7 +696,7 @@ namespace MMAP
         iv.polyMesh = rcAllocPolyMesh();
         if (!iv.polyMesh)
         {
-            printf("%s alloc iv.polyMesh FIALED!\n", tileString.c_str());
+            printf("%s alloc iv.polyMesh FAILED!\n", tileString.c_str());
             delete[] pmmerge;
             delete[] dmmerge;
             delete[] tiles;
@@ -707,7 +707,7 @@ namespace MMAP
         iv.polyMeshDetail = rcAllocPolyMeshDetail();
         if (!iv.polyMeshDetail)
         {
-            printf("%s alloc m_dmesh FIALED!\n", tileString.c_str());
+            printf("%s alloc m_dmesh FAILED!\n", tileString.c_str());
             delete[] pmmerge;
             delete[] dmmerge;
             delete[] tiles;

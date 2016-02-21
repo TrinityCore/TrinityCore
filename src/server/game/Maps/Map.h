@@ -98,9 +98,9 @@ struct map_areaHeader
     uint16 gridArea;
 };
 
-#define MAP_HEIGHT_NO_HEIGHT  0x0001
-#define MAP_HEIGHT_AS_INT16   0x0002
-#define MAP_HEIGHT_AS_INT8    0x0004
+#define MAP_HEIGHT_NO_HEIGHT            0x0001
+#define MAP_HEIGHT_AS_INT16             0x0002
+#define MAP_HEIGHT_AS_INT8              0x0004
 
 struct map_heightHeader
 {
@@ -329,8 +329,11 @@ class Map : public GridRefManager<NGridType>
 
         ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr) const;
 
-        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=nullptr) const;
-        bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
+        uint32 GetAreaId(float x, float y, float z, bool *isOutdoors) const;
+        bool GetAreaInfo(float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId) const;
+        uint32 GetAreaId(float x, float y, float z) const;
+        uint32 GetZoneId(float x, float y, float z) const;
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const;
 
         bool IsOutdoors(float x, float y, float z) const;
 
@@ -338,25 +341,6 @@ class Map : public GridRefManager<NGridType>
         float GetWaterLevel(float x, float y) const;
         bool IsInWater(float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
-
-        static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
-        static uint32 GetZoneIdByAreaFlag(uint16 areaflag, uint32 map_id);
-        static void GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 areaflag, uint32 map_id);
-
-        uint32 GetAreaId(float x, float y, float z) const
-        {
-            return GetAreaIdByAreaFlag(GetAreaFlag(x, y, z), GetId());
-        }
-
-        uint32 GetZoneId(float x, float y, float z) const
-        {
-            return GetZoneIdByAreaFlag(GetAreaFlag(x, y, z), GetId());
-        }
-
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const
-        {
-            GetZoneAndAreaIdByAreaFlag(zoneid, areaid, GetAreaFlag(x, y, z), GetId());
-        }
 
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();
@@ -785,6 +769,9 @@ class InstanceMap : public Map
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
+        /* this checks if any players have a permanent bind (included reactivatable expired binds) to the instance ID
+        it needs a DB query, so use sparingly */
+        bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
 

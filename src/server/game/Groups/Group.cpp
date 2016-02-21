@@ -718,7 +718,8 @@ void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool swi
         for (Player::BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
         {
             if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficulty(), itr->first))
-                group->BindToInstance(itr->second.save, itr->second.perm, false);
+                if (itr->second.extendState) // not expired
+                    group->BindToInstance(itr->second.save, itr->second.perm, false);
 
             // permanent binds are not removed
             if (switchLeader && !itr->second.perm)
@@ -2322,6 +2323,8 @@ LootMethod Group::GetLootMethod() const
 
 ObjectGuid Group::GetLooterGuid() const
 {
+    if (GetLootMethod() == FREE_FOR_ALL)
+        return ObjectGuid::Empty;
     return m_looterGuid;
 }
 

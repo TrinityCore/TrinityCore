@@ -44,6 +44,16 @@ struct WayPoint
     float z;
 };
 
+enum eSmartAI
+{
+    SMART_EVENT_PARAM_COUNT = 4,
+    SMART_ACTION_PARAM_COUNT = 6,
+    SMART_SUMMON_COUNTER = 0xFFFFFF,
+    SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
+    SMART_RANDOM_POINT = 0xFFFFFE,
+    SMART_ESCORT_TARGETS = 0xFFFFFF
+};
+
 enum SMART_EVENT_PHASE
 {
     SMART_EVENT_PHASE_ALWAYS  = 0,
@@ -541,8 +551,9 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
     SMART_ACTION_RISE_UP                            = 114,    // distance
+    SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
 
-    SMART_ACTION_END                                = 115
+    SMART_ACTION_END                                = 116
 };
 
 struct SmartAction
@@ -1025,6 +1036,12 @@ struct SmartAction
             uint32 wp6;
         } closestWaypointFromList;
 
+        struct
+        {
+            std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
+            uint32 onlySelf;
+        } randomSound;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1186,16 +1203,6 @@ struct SmartTarget
             uint32 param3;
         } raw;
     };
-};
-
-enum eSmartAI
-{
-    SMART_EVENT_PARAM_COUNT     = 4,
-    SMART_ACTION_PARAM_COUNT    = 6,
-    SMART_SUMMON_COUNTER        = 0xFFFFFF,
-    SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
-    SMART_RANDOM_POINT          = 0xFFFFFE,
-    SMART_ESCORT_TARGETS        = 0xFFFFFF
 };
 
 enum SmartScriptType

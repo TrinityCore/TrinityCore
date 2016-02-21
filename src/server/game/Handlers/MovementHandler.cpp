@@ -402,7 +402,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        AreaTableEntry const* zone = GetAreaEntryByAreaID(plrMover->GetAreaId());
+        AreaTableEntry const* zone = sAreaTableStore.LookupEntry(plrMover->GetAreaId());
         float depth = zone ? zone->MaxDepth : -500.0f;
         if (movementInfo.pos.GetPositionZ() < depth)
         {
@@ -413,6 +413,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                 /// @todo discard movement packets after the player is rooted
                 if (plrMover->IsAlive())
                 {
+                    plrMover->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
                     plrMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from

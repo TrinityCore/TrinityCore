@@ -81,6 +81,12 @@ public:
         _threadCount = 0;
 
         Wait();
+
+        delete _acceptor;
+        _acceptor = nullptr;
+        delete[] _threads;
+        _threads = nullptr;
+        _threadCount = 0;
     }
 
     void Wait()
@@ -90,20 +96,14 @@ public:
                 _threads[i].Wait();
     }
 
-    virtual void OnSocketOpen(tcp::socket&& sock)
+    virtual void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
     {
-        size_t min = 0;
-
-        for (int32 i = 1; i < _threadCount; ++i)
-            if (_threads[i].GetConnectionCount() < _threads[min].GetConnectionCount())
-                min = i;
-
         try
         {
             std::shared_ptr<SocketType> newSocket = std::make_shared<SocketType>(std::move(sock));
             newSocket->Start();
 
-            _threads[min].AddSocket(newSocket);
+            _threads[threadIndex].AddSocket(newSocket);
         }
         catch (boost::system::system_error const& err)
         {
@@ -112,6 +112,23 @@ public:
     }
 
     int32 GetNetworkThreadCount() const { return _threadCount; }
+
+    uint32 SelectThreadWithMinConnections() const
+    {
+        uint32 min = 0;
+
+        for (int32 i = 1; i < _threadCount; ++i)
+            if (_threads[i].GetConnectionCount() < _threads[min].GetConnectionCount())
+                min = i;
+
+        return min;
+    }
+
+    std::pair<tcp::socket*, uint32> GetSocketForAccept()
+    {
+        uint32 threadIndex = SelectThreadWithMinConnections();
+        return std::make_pair(_threads[threadIndex].GetSocketForAccept(), threadIndex);
+    }
 
 protected:
     SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(1)

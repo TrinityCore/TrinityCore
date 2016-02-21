@@ -30,6 +30,7 @@ class WorldPacket;
 
 #define MIN_AUCTION_TIME (12*HOUR)
 #define MAX_AUCTION_ITEMS 160
+#define MAX_GETALL_RETURN 55000
 
 enum AuctionError
 {
@@ -90,7 +91,7 @@ struct AuctionEntry
     uint8 GetHouseId() const { return houseId; }
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
-    bool BuildAuctionInfo(WorldPacket & data) const;
+    bool BuildAuctionInfo(WorldPacket & data, Item* sourceItem = nullptr) const;
     void DeleteFromDB(SQLTransaction& trans) const;
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
@@ -110,6 +111,7 @@ class AuctionHouseObject
     }
 
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
+    typedef std::unordered_map<ObjectGuid, time_t> PlayerGetAllThrottleMap;
 
     uint32 Getcount() const { return AuctionsMap.size(); }
 
@@ -133,10 +135,15 @@ class AuctionHouseObject
     void BuildListAuctionItems(WorldPacket& data, Player* player,
         std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
         uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
-        uint32& count, uint32& totalcount);
+        uint32& count, uint32& totalcount, bool getall = false);
 
   private:
     AuctionEntryMap AuctionsMap;
+
+    // Map of throttled players for GetAll, and throttle expiry time
+    // Stored here, rather than player object to maintain persistence after logout
+    PlayerGetAllThrottleMap GetAllThrottleMap;
+
 };
 
 class AuctionHouseMgr

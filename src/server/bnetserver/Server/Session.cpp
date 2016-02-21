@@ -141,6 +141,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with game other than WoW (using %s)!", GetClientInfo().c_str(), logonRequest.Program.c_str());
         return;
     }
 
@@ -149,6 +150,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_OS);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in from an unsupported platform (using %s)!", GetClientInfo().c_str(), logonRequest.Platform.c_str());
         return;
     }
 
@@ -157,6 +159,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with unsupported locale (using %s)!", GetClientInfo().c_str(), logonRequest.Locale.c_str());
         return;
     }
 
@@ -166,15 +169,23 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         {
             Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             if (!sComponentMgr->HasProgram(component.Program))
+            {
                 logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component program %s!", GetClientInfo().c_str(), component.Program.c_str());
+            }
             else if (!sComponentMgr->HasPlatform(component.Platform))
+            {
                 logonResponse->SetAuthResult(AUTH_INVALID_OS);
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component platform %s!", GetClientInfo().c_str(), component.Platform.c_str());
+            }
             else
             {
                 if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
                     logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
+
+                TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is using unsupported component version %u!", GetClientInfo().c_str(), component.Build);
             }
 
             AsyncWrite(logonResponse);
@@ -204,6 +215,7 @@ void Battlenet::Session::HandleLogonRequestCallback(PreparedQueryResult result)
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         AsyncWrite(logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s is trying to log in from unknown account!", GetClientInfo().c_str());
         return;
     }
 
@@ -224,7 +236,7 @@ void Battlenet::Session::HandleLogonRequestCallback(PreparedQueryResult result)
 
     std::string ip_address = GetRemoteIpAddress().to_string();
     // If the IP is 'locked', check that the player comes indeed from the correct IP address
-    if (_accountInfo->IsLockedToIP)                  // if ip is locked
+    if (_accountInfo->IsLockedToIP)
     {
         TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] Account '%s' is locked to IP - '%s' is logging in from '%s'", _accountInfo->Login.c_str(), _accountInfo->LastIP.c_str(), ip_address.c_str());
 
@@ -417,9 +429,10 @@ void Battlenet::Session::HandlePing(Connection::Ping const& /*ping*/)
     AsyncWrite(new Connection::Pong());
 }
 
-void Battlenet::Session::HandleEnableEncryption(Connection::EnableEncryption const& /*enableEncryption*/)
+void Battlenet::Session::HandleEnableEncryption(Connection::EnableEncryption& enableEncryption)
 {
     _crypt.Init(&K);
+    _crypt.DecryptRecv(enableEncryption.GetRemainingData(), enableEncryption.GetRemainingSize());
 }
 
 void Battlenet::Session::HandleLogoutRequest(Connection::LogoutRequest const& /*logoutRequest*/)
@@ -461,12 +474,13 @@ void Battlenet::Session::HandleListSubscribeRequestCallback(PreparedQueryResult 
         } while (result->NextRow());
     }
 
-    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
-        listSubscribeResponse->RealmData.push_back(BuildListUpdate(&i.second));
-
-    listSubscribeResponse->RealmData.push_back(new WoWRealm::ListComplete());
-
     AsyncWrite(listSubscribeResponse);
+
+    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
+        AsyncWrite(BuildListUpdate(&i.second));
+
+    AsyncWrite(new WoWRealm::ListComplete());
+
     _subscribedToRealmListUpdates = true;
 }
 
@@ -486,7 +500,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
         return;
     }
 
-    joinResponse->ServerSeed = uint32(rand32());
+    joinResponse->ServerSeed = rand32();
 
     uint8 sessionKey[40];
     HmacSha1 hmac(K.GetNumBytes(), K.AsByteArray().get());
@@ -563,7 +577,7 @@ void Battlenet::Session::ReadHandler()
             if (stream.Read<bool>(1))
                 header.Channel = stream.Read<int32>(4);
 
-            if (header.Channel != AUTHENTICATION && !_authed)
+            if (header.Channel != AUTHENTICATION && (header.Channel != CONNECTION || header.Opcode != Connection::CMSG_PING) && !_authed)
             {
                 TC_LOG_DEBUG("session.packets", "%s Received not allowed %s. Client has not authed yet.", GetClientInfo().c_str(), header.ToString().c_str());
                 CloseSocket();
@@ -608,18 +622,6 @@ void Battlenet::Session::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     TC_LOG_TRACE("session", "Accepted connection from %s", ip_address.c_str());
 
-    if (_queryCallback)
-    {
-        Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
-        logonResponse->SetAuthResult(AUTH_LOGON_TOO_FAST);
-        AsyncWrite(logonResponse);
-        TC_LOG_DEBUG("session", "[Session::Start] %s attempted to log too quick after previous attempt!", GetClientInfo().c_str());
-        return;
-    }
-
-    // Verify that this IP is not in the ip_banned table
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
@@ -659,12 +661,37 @@ void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
 
 bool Battlenet::Session::Update()
 {
+    EncryptableBuffer* queued;
+    MessageBuffer buffer((std::size_t(BufferSizes::Read)));
+    while (_bufferQueue.Dequeue(queued))
+    {
+        std::size_t packetSize = queued->Buffer.GetActiveSize();
+        if (queued->Encrypt)
+            _crypt.EncryptSend(queued->Buffer.GetReadPointer(), packetSize);
+
+        if (buffer.GetRemainingSpace() < packetSize)
+        {
+            QueuePacket(std::move(buffer));
+            buffer.Resize(std::size_t(BufferSizes::Read));
+        }
+
+        if (buffer.GetRemainingSpace() >= packetSize)
+            buffer.Write(queued->Buffer.GetReadPointer(), packetSize);
+        else    // single packet larger than 16384 bytes - client will reject.
+            QueuePacket(std::move(queued->Buffer));
+
+        delete queued;
+    }
+
+    if (buffer.GetActiveSize() > 0)
+        QueuePacket(std::move(buffer));
+
     if (!BattlenetSocket::Update())
         return false;
 
     if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        auto callback = std::move(_queryCallback);
+        auto callback = _queryCallback;
         _queryCallback = nullptr;
         callback(_queryFuture.get());
     }
@@ -684,15 +711,12 @@ void Battlenet::Session::AsyncWrite(ServerPacket* packet)
 
     packet->Write();
 
-    MessageBuffer buffer;
-    buffer.Write(packet->GetData(), packet->GetSize());
+    EncryptableBuffer* buffer = new EncryptableBuffer();
+    buffer->Buffer.Write(packet->GetData(), packet->GetSize());
+    buffer->Encrypt = _crypt.IsInitialized();
     delete packet;
 
-    std::unique_lock<std::mutex> guard(_writeLock);
-
-    _crypt.EncryptSend(buffer.GetReadPointer(), buffer.GetActiveSize());
-
-    QueuePacket(std::move(buffer), guard);
+    _bufferQueue.Enqueue(buffer);
 }
 
 inline void ReplaceResponse(Battlenet::ServerPacket** oldResponse, Battlenet::ServerPacket* newResponse)
@@ -807,6 +831,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::Password] %s attempted to log in with invalid password!", GetClientInfo().c_str());
         return false;
     }
 
@@ -815,11 +840,9 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
         ReplaceResponse(response, logonResponse);
+        TC_LOG_DEBUG("session", "[Battlenet::Password] %s does not have any linked game accounts!", GetClientInfo().c_str());
         return false;
     }
-
-    //set expired game account bans to inactive
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 
     BigNumber M;
     sha.Initialize();
@@ -929,6 +952,7 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
         ReplaceResponse(response, complete);
+        TC_LOG_DEBUG("session", "[Battlenet::SelectGameAccount] %s attempted to log in with invalid game account name %s!", GetClientInfo().c_str(), account.c_str());
         return false;
     }
 
@@ -961,7 +985,7 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
 bool Battlenet::Session::HandleRiskFingerprintModule(BitStream* dataStream, ServerPacket** response)
 {
     Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
-    if (dataStream->Read<uint8>(8) == 1 && _accountInfo && _gameAccountInfo) 
+    if (dataStream->Read<uint8>(8) == 1 && _accountInfo && _gameAccountInfo)
     {
         logonResponse->AccountId = _accountInfo->Id;
         logonResponse->GameAccountName = _gameAccountInfo->Name;
@@ -1043,7 +1067,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
         stmt->setString(0, _accountInfo->Login);
         LoginDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("session", "[Battlenet::Resume] Invalid proof!");
+        TC_LOG_DEBUG("session", "[Battlenet::Resume] %s attempted to reconnect with invalid password!", GetClientInfo().c_str());
         Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
         resumeResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, resumeResponse);

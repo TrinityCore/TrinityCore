@@ -26,11 +26,13 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "MPSCQueue.h"
 #include <chrono>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
+class EncryptablePacket;
 
 #pragma pack(push, 1)
 
@@ -107,10 +109,10 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
+    MPSCQueue<EncryptablePacket> _bufferQueue;
 
     bool _initialized;
 
-    std::mutex _queryLock;
     PreparedQueryResultFuture _queryFuture;
     std::function<void(PreparedQueryResult&&)> _queryCallback;
     std::string _ipCountry;

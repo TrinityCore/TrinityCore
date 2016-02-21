@@ -224,7 +224,7 @@ public:
             if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
                 titles2 &= ~(uint64(1) << tEntry->bit_index);
 
-        titles &= ~titles2;                                     // remove not existed titles
+        titles &= ~titles2;                                     // remove non-existing titles
 
         target->SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES, titles);
         handler->SendSysMessage(LANG_DONE);

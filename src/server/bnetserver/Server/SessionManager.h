@@ -40,7 +40,7 @@ namespace Battlenet
 
 #pragma pack(pop)
 
-    class SessionManager : SocketMgr<Session>
+    class SessionManager : public SocketMgr<Session>
     {
         typedef SocketMgr<Session> BaseSocketMgr;
         typedef std::map<SessionInfo, Session*> SessionMap;
@@ -75,7 +75,7 @@ namespace Battlenet
         NetworkThread<Session>* CreateThreads() const override;
 
     private:
-        static void OnSocketAccept(tcp::socket&& sock);
+        static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex);
 
         SessionMap _sessions;
         SessionByAccountMap _sessionsByAccountId;

@@ -206,7 +206,7 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(float x, float y, float z, ObjectGuid::LowType lowGuid) : _x(x), _y(y), _z(z), _lowGuid(lowGuid)
+        StartLaunchEvent(Position const& pos, ObjectGuid::LowType lowGuid) : _pos(pos), _lowGuid(lowGuid)
         {
         }
 
@@ -218,15 +218,15 @@ class StartLaunchEvent : public BasicEvent
 
             player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
             float speedZ = 10.0f;
-            float dist = player->GetExactDist2d(_x, _y);
+            float dist = player->GetExactDist2d(&_pos);
 
             player->ExitVehicle();
-            player->GetMotionMaster()->MoveJump(_x, _y, _z, dist, speedZ);
+            player->GetMotionMaster()->MoveJump(_pos, dist, speedZ, EVENT_JUMP, true);
             return true;
         }
 
     private:
-        float _x, _y, _z;
+        Position _pos;
         ObjectGuid::LowType _lowGuid;
 };
 
@@ -244,11 +244,7 @@ class spell_ioc_launch : public SpellScriptLoader
                 if (!GetCaster()->ToCreature() || !GetExplTargetDest())
                     return;
 
-                float x, y, z;
-                x = GetExplTargetDest()->GetPositionX();
-                y = GetExplTargetDest()->GetPositionY();
-                z = GetExplTargetDest()->GetPositionZ();
-                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(x, y, z, GetHitPlayer()->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
             }
 
             void Register() override
