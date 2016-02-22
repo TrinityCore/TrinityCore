@@ -57,6 +57,14 @@ public:
         unlock();
     }
 
+    //! Adds items back to front of the queue
+    template<class Iterator>
+    void readd(Iterator begin, Iterator end)
+    {
+        std::lock_guard<std::mutex> lock(_lock);
+        _queue.insert(_queue.begin(), begin, end);
+    }
+
     //! Gets the next result in the queue, if any.
     bool next(T& result)
     {
