@@ -1,4 +1,4 @@
-UPDATE`spell_dbc` SET `Effect1`=28, `EffectMiscValueB1`=64 WHERE  `Id`IN(38953,38955,38956,38957,38958,38978);
+UPDATE `spelleffect_dbc` SET `Effect`=28, `EffectMiscValueB`=64 WHERE  `EffectSpellId` IN(38953,38955,38956,38957,38958,38978);
 UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`=''  WHERE `entry` =22355;
 DELETE FROM `smart_scripts` WHERE `entryorguid` =22355 AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `source_type`=9 AND `entryorguid` BETWEEN 2235500 AND 2235505;
