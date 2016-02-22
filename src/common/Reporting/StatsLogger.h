@@ -28,11 +28,14 @@ private:
     StatsLogger();
     ~StatsLogger();
 
-    boost::asio::ip::tcp::iostream dataStream;
-    MPSCQueue<std::string> queuedData;
+    boost::asio::ip::tcp::iostream _dataStream;
+    MPSCQueue<std::string> _queuedData;
+    boost::asio::deadline_timer* _batchTimer;
+    uint32 _updateInterval;
 
     void SendBatch();
     void Enqueue(std::string const& data);
+    void ScheduleSend();
 
 public:
     static StatsLogger* instance()
@@ -41,6 +44,7 @@ public:
         return &instance;
     }
 
+    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
     void LogValue(std::string const& category, uint32 value);
     void LogEvent(std::string const& title, std::string const& description);
 };

@@ -20,12 +20,19 @@
 
 StatsLogger::StatsLogger()
 {
-    dataStream.connect("localhost", "8086");
 }
 
 StatsLogger::~StatsLogger()
 {
+    delete _batchTimer;
+}
 
+void StatsLogger::Initialize(boost::asio::io_service& ioService, uint32 updateInterval)
+{
+    _dataStream.connect("localhost", "8086");
+    _updateInterval = updateInterval;
+    _batchTimer = new boost::asio::deadline_timer(ioService);
+    ScheduleSend();
 }
 
 void StatsLogger::LogValue(std::string const& category, uint32 value)
@@ -50,9 +57,7 @@ void StatsLogger::LogEvent(std::string const& title, std::string const& descript
 
 void StatsLogger::Enqueue(std::string const& data)
 {
-    queuedData.Enqueue(new std::string(data));
-//Warning: temporarily calling SendBatch() till asio is implemented"
-    SendBatch();
+    _queuedData.Enqueue(new std::string(data));
 }
 
 void StatsLogger::SendBatch()
@@ -60,7 +65,7 @@ void StatsLogger::SendBatch()
     std::stringstream batchedData;
     std::string* data;
     bool firstLoop = true;
-    while (queuedData.Dequeue(data))
+    while (_queuedData.Dequeue(data))
     {
         if (!firstLoop)
             batchedData << "\n";
@@ -70,24 +75,27 @@ void StatsLogger::SendBatch()
     }
 
     if (batchedData.tellp() == std::streampos(0))
+    {
+        ScheduleSend();
         return;
+    }
 
     batchedData << "\r\n";
 
-    dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
-    dataStream << "Host: " << "localhost:8086" << "\r\n";
-    dataStream << "Accept: */*\r\n";
-    dataStream << "Content-Type: application/octet-stream\r\n";
-    dataStream << "Content-Transfer-Encoding: binary\r\n";
+    _dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
+    _dataStream << "Host: " << "localhost:8086" << "\r\n";
+    _dataStream << "Accept: */*\r\n";
+    _dataStream << "Content-Type: application/octet-stream\r\n";
+    _dataStream << "Content-Transfer-Encoding: binary\r\n";
 
-    dataStream << "Content-Length: " << std::to_string(batchedData.tellp() - std::streampos(2)) << "\r\n\r\n";
-    dataStream << batchedData.rdbuf();
-    dataStream << "\r\n";
+    _dataStream << "Content-Length: " << std::to_string(batchedData.tellp() - std::streampos(2)) << "\r\n\r\n";
+    _dataStream << batchedData.rdbuf();
+    _dataStream << "\r\n";
 
     std::string http_version;
-    dataStream >> http_version;
+    _dataStream >> http_version;
     unsigned int status_code = 0;
-    dataStream >> status_code;
+    _dataStream >> status_code;
     if (status_code != 204)
     {
         TC_LOG_ERROR("statslogger", "Error sending data, returned HTTP code: %u. Request content: '%s'", status_code, batchedData.str().c_str());
@@ -95,9 +103,17 @@ void StatsLogger::SendBatch()
 
     // Read and ignore teh status description
     std::string status_description;
-    std::getline(dataStream, status_description);
+    std::getline(_dataStream, status_description);
     // Read and ignore any header
     std::string header;
-    while (std::getline(dataStream, header) && header != "\r")
+    while (std::getline(_dataStream, header) && header != "\r")
         ;
+
+    ScheduleSend();
+}
+
+void StatsLogger::ScheduleSend()
+{
+    _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
+    _batchTimer->async_wait(std::bind(&StatsLogger::SendBatch, this));
 }

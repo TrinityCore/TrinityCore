@@ -56,6 +56,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/common/Cryptography/Authentication
   ${CMAKE_SOURCE_DIR}/src/common/Debugging
   ${CMAKE_SOURCE_DIR}/src/common/Logging
+  ${CMAKE_SOURCE_DIR}/src/common/Reporting
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
