@@ -19,6 +19,7 @@
 #define STATSLOGGER_H__
 
 #include "Common.h"
+#include "Threading/MPSCQueue.h"
 #include <boost/asio/ip/tcp.hpp>
 
 class StatsLogger
@@ -28,8 +29,10 @@ private:
     ~StatsLogger();
 
     boost::asio::ip::tcp::iostream dataStream;
+    MPSCQueue<std::string> queuedData;
 
-    void Log(std::string const& data);
+    void SendBatch();
+    void Enqueue(std::string const& data);
 
 public:
     static StatsLogger* instance()
