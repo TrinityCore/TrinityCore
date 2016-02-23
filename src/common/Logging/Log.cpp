@@ -337,6 +337,13 @@ void Log::Initialize(boost::asio::io_service* ioService)
     LoadFromConfig();
 }
 
+void Log::SetSynchronous()
+{
+    delete _strand;
+    _strand = nullptr;
+    _ioService = nullptr;
+}
+
 void Log::LoadFromConfig()
 {
     Close();

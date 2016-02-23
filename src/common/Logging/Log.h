@@ -47,6 +47,7 @@ class Log
         static Log* instance();
 
         void Initialize(boost::asio::io_service* ioService);
+        void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
         bool ShouldLog(std::string const& type, LogLevel level) const;
