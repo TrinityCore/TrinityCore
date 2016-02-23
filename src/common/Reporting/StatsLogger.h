@@ -47,6 +47,7 @@ public:
     void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
     void LogValue(std::string const& category, uint32 value);
     void LogEvent(std::string const& title, std::string const& description);
+    void ForceSend();
 };
 
 #define sStatsLogger StatsLogger::instance()

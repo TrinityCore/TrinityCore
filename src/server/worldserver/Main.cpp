@@ -278,6 +278,9 @@ extern int main(int argc, char** argv)
 
     StopDB();
 
+    sStatsLogger->LogEvent("Worldserver shutdown", "");
+    sStatsLogger->ForceSend();
+
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
     ShutdownCLIThread(cliThread);

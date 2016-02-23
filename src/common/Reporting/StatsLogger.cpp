@@ -72,6 +72,7 @@ void StatsLogger::SendBatch()
 
         batchedData << *data;
         firstLoop = false;
+        delete data;
     }
 
     if (batchedData.tellp() == std::streampos(0))
@@ -116,4 +117,11 @@ void StatsLogger::ScheduleSend()
 {
     _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
     _batchTimer->async_wait(std::bind(&StatsLogger::SendBatch, this));
+}
+
+void StatsLogger::ForceSend()
+{
+    // Send what's queued only if io_service is stopped (so only on shutdown)
+    if (_batchTimer->get_io_service().stopped())
+        SendBatch();
 }
