@@ -1911,7 +1911,7 @@ public:
 
             oldAI = player->AI();
             oldAIState = player->IsAIEnabled;
-            player->SetAI(static_cast<UnitAI*>(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID())));
+            player->SetAI(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID()));
             player->IsAIEnabled = true;
         }
 
@@ -1923,7 +1923,7 @@ public:
 
             player->IsAIEnabled = oldAIState;
             PlayerAI* thisAI = player->AI();
-            player->SetAI(static_cast<UnitAI*>(oldAI));
+            player->SetAI(oldAI);
             delete thisAI;
 
             // Dismiss ghoul if necessary

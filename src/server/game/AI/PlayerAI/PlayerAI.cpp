@@ -119,8 +119,6 @@ void PlayerAI::DoRangedAttackIfReady()
         }
     }
 
-    std::cout << "Selected " << rangedAttackSpell << std::endl;
-
     if (!rangedAttackSpell)
         return;
 

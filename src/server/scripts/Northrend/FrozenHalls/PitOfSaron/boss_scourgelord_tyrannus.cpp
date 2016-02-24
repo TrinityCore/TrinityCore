@@ -442,7 +442,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 Player* pTarget = GetTarget()->ToPlayer();
                 oldAI = pTarget->AI();
                 oldAIState = pTarget->IsAIEnabled;
-                GetTarget()->SetAI(static_cast<UnitAI*>(new player_overlord_brandAI(pTarget, GetCasterGUID())));
+                GetTarget()->SetAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
                 GetTarget()->IsAIEnabled = true;
             }
 
@@ -453,7 +453,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
 
                 GetTarget()->IsAIEnabled = oldAIState;
                 PlayerAI* thisAI = GetTarget()->ToPlayer()->AI();
-                GetTarget()->SetAI(static_cast<UnitAI*>(oldAI));
+                GetTarget()->SetAI(oldAI);
                 delete thisAI;
             }
 
