@@ -150,9 +150,23 @@ void PlayerAI::DoAutoAttackIfReady()
         DoMeleeAttackIfReady();
 }
 
+struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, bool>
+{
+    bool operator()(Unit const* target) const
+    {
+        return !target->HasBreakableByDamageCrowdControlAura();
+    }
+};
+Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
+{
+    if (Unit* charmer = me->GetCharmer())
+        return charmer->IsAIEnabled ? charmer->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, UncontrolledTargetSelectPredicate()) : charmer->GetVictim();
+    return nullptr;
+}
+
 void SimpleCharmedPlayerAI::UpdateAI(const uint32 /*diff*/)
 {
-    Creature* charmer = me->GetCharmer()->ToCreature();
+    Creature* charmer = me->GetCharmer() ? me->GetCharmer()->ToCreature() : nullptr;
 
     //kill self if charm aura has infinite duration
     if (charmer->IsInEvadeMode())
@@ -169,9 +183,9 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 /*diff*/)
     if (charmer->IsInCombat())
     {
         Unit* target = me->GetVictim();
-        if (!target || !charmer->IsValidAttackTarget(target))
+        if (!target || !charmer->IsValidAttackTarget(target) || target->HasBreakableByDamageCrowdControlAura())
         {
-            target = charmer->SelectNearestTarget();
+            target = SelectAttackTarget();
             if (!target)
                 return;
 
@@ -180,15 +194,16 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 /*diff*/)
             else
                 AttackStart(target);
         }
+        DoAutoAttackIfReady();
     }
     else
     {
         me->AttackStop();
         me->CastStop();
+        me->StopMoving();
+        me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
-
-    DoAutoAttackIfReady();
 }
 
 void SimpleCharmedPlayerAI::OnCharmed(bool apply)
