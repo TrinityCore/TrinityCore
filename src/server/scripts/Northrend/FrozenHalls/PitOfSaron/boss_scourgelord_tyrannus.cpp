@@ -22,6 +22,7 @@
 #include "pit_of_saron.h"
 #include "Vehicle.h"
 #include "Player.h"
+#include "PlayerAI.h"
 
 enum Yells
 {
@@ -438,9 +439,10 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                oldAI = GetTarget()->GetAI();
-                oldAIState = GetTarget()->IsAIEnabled;
-                GetTarget()->SetAI(new player_overlord_brandAI(GetTarget()->ToPlayer(), GetCasterGUID()));
+                Player* pTarget = GetTarget()->ToPlayer();
+                oldAI = pTarget->AI();
+                oldAIState = pTarget->IsAIEnabled;
+                GetTarget()->SetAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
                 GetTarget()->IsAIEnabled = true;
             }
 
@@ -450,7 +452,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                     return;
 
                 GetTarget()->IsAIEnabled = oldAIState;
-                UnitAI* thisAI = GetTarget()->GetAI();
+                PlayerAI* thisAI = GetTarget()->ToPlayer()->AI();
                 GetTarget()->SetAI(oldAI);
                 delete thisAI;
             }
@@ -461,7 +463,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-            UnitAI* oldAI;
+            PlayerAI* oldAI;
             bool oldAIState;
         };
 
