@@ -479,7 +479,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
 
-        CreatureAI* AI() const { return (CreatureAI*)i_AI; }
+        CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
 
         bool SetWalk(bool enable) override;
         bool SetDisableGravity(bool disable, bool packetOnly = false) override;
