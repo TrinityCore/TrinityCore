@@ -39,6 +39,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         Player* const me;
         void SetIsRangedAttacker(bool state) { _isSelfRangedAttacker = state; } // this allows overriding of the default ranged attacker detection
 
+        virtual Unit* SelectAttackTarget() const { return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr; }
         void DoRangedAttackIfReady();
         void DoAutoAttackIfReady();
 
@@ -53,6 +54,7 @@ class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
         SimpleCharmedPlayerAI(Player* player) : PlayerAI(player) { }
         void UpdateAI(uint32 diff) override;
         void OnCharmed(bool apply) override;
+        Unit* SelectAttackTarget() const;
 };
 
 #endif
