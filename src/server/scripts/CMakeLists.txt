@@ -37,7 +37,6 @@ PrepareScripts(Spells scripts_STAT_SRCS)
 PrepareScripts(Commands scripts_STAT_SRCS)
 
 if(SCRIPTS)
-  PrepareScripts(Commands scripts_STAT_SRCS)
   PrepareScripts(Custom scripts_STAT_SRCS)
   PrepareScripts(World scripts_STAT_SRCS)
   PrepareScripts(OutdoorPvP scripts_STAT_SRCS)
