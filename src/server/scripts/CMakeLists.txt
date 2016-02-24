@@ -16,9 +16,15 @@ if (USE_SCRIPTPCH)
 endif ()
 
 message(STATUS "SCRIPT PREPARATIONS")
-include(Spells/CMakeLists.txt)
 
-include(Commands/CMakeLists.txt)
+macro(PrepareScripts name out)
+  file(GLOB_RECURSE found
+    ${name}/*.h
+    ${name}/*.cpp
+  )
+  list(APPEND ${out} ${found})
+  message(STATUS "  -> Prepared: ${name}")
+endmacro(PrepareScripts)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -28,16 +34,20 @@ set(scripts_STAT_SRCS
   ../game/Maps/AreaBoundary.cpp
 )
 
+PrepareScripts(Spells scripts_STAT_SRCS)
+PrepareScripts(Commands scripts_STAT_SRCS)
+
 if(SCRIPTS)
-  include(Custom/CMakeLists.txt)
-  include(World/CMakeLists.txt)
-  include(OutdoorPvP/CMakeLists.txt)
-  include(EasternKingdoms/CMakeLists.txt)
-  include(Kalimdor/CMakeLists.txt)
-  include(Outland/CMakeLists.txt)
-  include(Northrend/CMakeLists.txt)
-  include(Events/CMakeLists.txt)
-  include(Pet/CMakeLists.txt)
+  PrepareScripts(Commands scripts_STAT_SRCS)
+  PrepareScripts(Custom scripts_STAT_SRCS)
+  PrepareScripts(World scripts_STAT_SRCS)
+  PrepareScripts(OutdoorPvP scripts_STAT_SRCS)
+  PrepareScripts(EasternKingdoms scripts_STAT_SRCS)
+  PrepareScripts(Kalimdor scripts_STAT_SRCS)
+  PrepareScripts(Outland scripts_STAT_SRCS)
+  PrepareScripts(Northrend scripts_STAT_SRCS)
+  PrepareScripts(Events scripts_STAT_SRCS)
+  PrepareScripts(Pet scripts_STAT_SRCS)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
@@ -65,6 +75,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
   ${CMAKE_SOURCE_DIR}/src/server/game/AI
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/CoreAI
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/PlayerAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/SmartScripts
   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
