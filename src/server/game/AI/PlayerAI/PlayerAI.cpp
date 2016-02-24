@@ -27,62 +27,78 @@ enum Spells
     SPELL_THROW             =  2764,
     SPELL_SHOOT_WAND        =  5019,
 
+    /* Paladin */
+    PASSIVE_ILLUMINATION    = 20215,
+
     /* Priest */
+    SPELL_SOUL_WARDING      = 63574,
+    SPELL_SPIRIT_REDEMPTION = 20711,
     SPELL_SHADOWFORM        = 15473,
 
     /* Shaman */
+    SPELL_TIDAL_FORCE       = 582,
+    SPELL_MANA_TIDE_TOTEM   = 590,
+    SPELL_SHA_NATURE_SWIFT  = 591,
     SPELL_STORMSTRIKE       = 17364,
 
     /* Druid */
-    SPELL_MOONKIN_FORM      = 24858
+    SPELL_MOONKIN_FORM      = 24858,
+    SPELL_SWIFTMEND         = 18562,
+    SPELL_DRU_NATURE_SWIFT  = 17116,
+    SPELL_TREE_OF_LIFE      = 33891
 };
-PlayerAI::PlayerAI(Player* player) : UnitAI(static_cast<Unit*>(player)), me(player), _isRangedAttacker(false)
+
+bool PlayerAI::IsPlayerHealer(Player const* who)
 {
-    switch (me->getClass())
+    switch (who->getClass())
     {
         case CLASS_WARRIOR:
-            _isRangedAttacker = false;
-            break;
+        case CLASS_HUNTER:
+        case CLASS_ROGUE:
+        case CLASS_DEATH_KNIGHT:
+        case CLASS_MAGE:
+        case CLASS_WARLOCK:
+        default:
+            return false;
         case CLASS_PALADIN:
-            _isRangedAttacker = false;
-            break;
+            return who->HasSpell(PASSIVE_ILLUMINATION);
+        case CLASS_PRIEST:
+            return who->HasSpell(SPELL_SOUL_WARDING) || who->HasSpell(SPELL_SPIRIT_REDEMPTION);
+        case CLASS_SHAMAN:
+            return who->HasSpell(SPELL_MANA_TIDE_TOTEM) || who->HasSpell(SPELL_SHA_NATURE_SWIFT) || who->HasSpell(SPELL_TIDAL_FORCE);
+        case CLASS_DRUID:
+            return who->HasSpell(SPELL_SWIFTMEND) || who->HasSpell(SPELL_DRU_NATURE_SWIFT) || who->HasSpell(SPELL_TREE_OF_LIFE);
+    }
+}
+
+bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
+{
+    switch (who->getClass())
+    {
+        case CLASS_WARRIOR:
+        case CLASS_PALADIN:
+        case CLASS_ROGUE:
+        case CLASS_DEATH_KNIGHT:
+        default:
+            return false;
+        case CLASS_MAGE:
+        case CLASS_WARLOCK:
+            return true;
         case CLASS_HUNTER:
         {
             // check if we have a ranged weapon equipped
-            Item const* rangedSlot = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+            Item const* rangedSlot = who->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
             if (ItemTemplate const* rangedTemplate = rangedSlot ? rangedSlot->GetTemplate() : nullptr)
                 if ((1 << rangedTemplate->SubClass) & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
-                {
-                    _isRangedAttacker = true;
-                    break;
-                }
-            _isRangedAttacker = false;
-            break;
+                    return true;
+            return false;
         }
-        case CLASS_ROGUE:
-            _isRangedAttacker = false;
-            break;
         case CLASS_PRIEST:
-            _isRangedAttacker = me->HasSpell(SPELL_SHADOWFORM);
-            break;
-        case CLASS_DEATH_KNIGHT:
-            _isRangedAttacker = false;
-            break;
+            return who->HasSpell(SPELL_SHADOWFORM);
         case CLASS_SHAMAN:
-            _isRangedAttacker = !me->HasSpell(SPELL_STORMSTRIKE);
-            break;
-        case CLASS_MAGE:
-            _isRangedAttacker = true;
-            break;
-        case CLASS_WARLOCK:
-            _isRangedAttacker = true;
-            break;
+            return !who->HasSpell(SPELL_STORMSTRIKE);
         case CLASS_DRUID:
-            _isRangedAttacker = me->HasAura(SPELL_MOONKIN_FORM);
-            break;
-        default:
-            TC_LOG_WARN("entities.unit", "Possessed player %s (possessed by %s) does not have any recognized class (class = %u).", me->GetGUID().ToString().c_str(), me->GetCharmerGUID().ToString().c_str(), me->getClass());
-            break;
+            return who->HasSpell(SPELL_MOONKIN_FORM);
     }
 }
 
