@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_SCRIPTLOADER_H
-#define SC_SCRIPTLOADER_H
+// This is where scripts' loading functions should be declared:
+void AddSC_PWS_Transmogrification();
+void AddSC_CS_Transmogrification();
 
-void AddScripts();
 
-#endif
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
+void AddCustomScripts()
+{
+    AddSC_PWS_Transmogrification();
+    AddSC_CS_Transmogrification();
+}

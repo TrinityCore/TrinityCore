@@ -147,9 +147,9 @@ protected:
                 if (sock->IsOpen())
                     sock->CloseSocket();
 
-                SocketRemoved(sock);
+                this->SocketRemoved(sock);
 
-                --_connections;
+                --this->_connections;
                 return true;
             }
 
