@@ -22,7 +22,7 @@
  */
 
 #include "Player.h"
-#include "UnitAI.h"
+#include "PlayerAI.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -1909,9 +1909,9 @@ public:
             if (!player || player->GetGhoulResurrectGhoulGUID().IsEmpty())
                 return;
 
-            oldAI = player->GetAI();
+            oldAI = player->AI();
             oldAIState = player->IsAIEnabled;
-            player->SetAI(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID()));
+            player->SetAI(static_cast<UnitAI*>(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID())));
             player->IsAIEnabled = true;
         }
 
@@ -1922,8 +1922,8 @@ public:
                 return;
 
             player->IsAIEnabled = oldAIState;
-            UnitAI* thisAI = player->GetAI();
-            player->SetAI(oldAI);
+            PlayerAI* thisAI = player->AI();
+            player->SetAI(static_cast<UnitAI*>(oldAI));
             delete thisAI;
 
             // Dismiss ghoul if necessary
@@ -1943,7 +1943,7 @@ public:
             AfterEffectRemove += AuraEffectRemoveFn(spell_dk_raise_ally_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
 
-        UnitAI* oldAI;
+        PlayerAI* oldAI;
         bool oldAIState;
     };
 
