@@ -268,21 +268,4 @@ class UnitAI
         UnitAI& operator=(UnitAI const& right) = delete;
 };
 
-class PlayerAI : public UnitAI
-{
-    protected:
-        Player* const me;
-    public:
-        explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) { }
-
-        void OnCharmed(bool apply) override;
-};
-
-class SimpleCharmedAI : public PlayerAI
-{
-    public:
-        void UpdateAI(uint32 diff) override;
-        SimpleCharmedAI(Player* player): PlayerAI(player) { }
-};
-
 #endif
