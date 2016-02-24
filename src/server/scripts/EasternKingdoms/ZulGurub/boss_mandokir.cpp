@@ -147,7 +147,7 @@ class boss_mandokir : public CreatureScript
                 instance->SetBossState(DATA_MANDOKIR, DONE);
                 instance->SaveToDB();
             }
-            
+
             void JustReachedHome() override
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
