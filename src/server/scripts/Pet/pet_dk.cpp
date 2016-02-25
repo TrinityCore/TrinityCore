@@ -219,6 +219,35 @@ class npc_pet_dk_rune_weapon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                if (me->HasReactState(REACT_PASSIVE))
+                    return;
+
+                if (me->IsInCombat() && (!me->GetVictim() || !me->IsValidAttackTarget(me->GetVictim())))
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+
+                if (!me->IsInCombat())
+                {
+                    Unit* ownerTarget = nullptr;
+                    if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                        ownerTarget = owner->GetSelectedUnit();
+
+                    // recognize which victim will be choosen
+                    if (ownerTarget && ownerTarget->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (!ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
+                            if (me->Attack(ownerTarget, true))
+                                me->GetMotionMaster()->MoveChase(ownerTarget);
+                    }
+                    else if (ownerTarget && (ownerTarget->GetTypeId() != TYPEID_PLAYER) && IsInThreatList(ownerTarget))
+                    {
+                        if (!ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
+                            if (me->Attack(ownerTarget, true))
+                                me->GetMotionMaster()->MoveChase(ownerTarget);
+                    }
+                    else
+                        Init();
+                }
+
                 /*
                     Investigate further if these casts are done by
                     any owned aura, eitherway SMSG_SPELL_GO
@@ -249,9 +278,122 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            private:
-                ObjectGuid _targetGUID;
-                EventMap _events;
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                if (!me->IsAlive())
+                    return;
+
+                Unit* owner = me->GetCharmerOrOwner();
+
+                me->CombatStop(true);
+                if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+                {
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+                }
+                Init();
+            }
+
+            void Init()
+            {
+                Unit* owner = me->GetCharmerOrOwner();
+
+                std::list<Unit*> targets;
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                me->VisitNearbyObject(40.0f, searcher);
+
+                Unit* highestThreatUnit = nullptr;
+                float highestThreat = 0.0f;
+                Unit* nearestPlayer = nullptr;
+                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                {
+                    // Consider only units without CC
+                    if (!(*iter)->HasBreakableByDamageCrowdControlAura((*iter)))
+                    {
+                        // Take first found unit
+                        if (!highestThreatUnit && (*iter)->GetTypeId() != TYPEID_PLAYER)
+                        {
+                            highestThreatUnit = (*iter);
+                            continue;
+                        }
+                        if (!nearestPlayer && ((*iter)->GetTypeId() == TYPEID_PLAYER))
+                        {
+                            nearestPlayer = (*iter);
+                            continue;
+                        }
+                        // else compare best fit unit with current unit
+                        ThreatContainer::StorageType triggers = (*iter)->getThreatManager().getThreatList();
+                        for (ThreatContainer::StorageType::const_iterator trig_citr = triggers.begin(); trig_citr != triggers.end(); ++trig_citr)
+                        {
+                            // Try to find threat referenced to owner
+                            if ((*trig_citr)->getTarget() == owner)
+                            {
+                                // Check if best fit hostile unit hs lower threat than this current unit
+                                if (highestThreat < (*trig_citr)->getThreat())
+                                {
+                                    // If so, update best fit unit
+                                    highestThreat = (*trig_citr)->getThreat();
+                                    highestThreatUnit = (*iter);
+                                    break;
+                                }
+                            }
+                        }
+                        // In case no unit with threat was found so far, always check for nearest unit (only for players)
+                        if ((*iter)->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            // If this player is closer than the previous one, update it
+                            if (me->GetDistance((*iter)->GetPosition()) < me->GetDistance(nearestPlayer->GetPosition()))
+                                nearestPlayer = (*iter);
+                        }
+                    }
+                }
+                // Prioritize units with threat referenced to owner
+                if (highestThreat > 0.0f && highestThreatUnit)
+                {
+                    if (me->Attack(highestThreatUnit, true))
+                        me->GetMotionMaster()->MoveChase(highestThreatUnit);
+                }
+                // If there is no such target, try to attack nearest hostile unit if such exists
+                else if (nearestPlayer)
+                {
+                    if (me->Attack(nearestPlayer, true))
+                        me->GetMotionMaster()->MoveChase(nearestPlayer);
+                }
+            }
+
+            bool IsInThreatList(Unit* target)
+            {
+                Unit* owner = me->GetCharmerOrOwner();
+
+                std::list<Unit*> targets;
+                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                me->VisitNearbyObject(40.0f, searcher);
+
+                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                {
+                    if ((*iter) == target)
+                    {
+                        // Consider only units without CC
+                        if (!(*iter)->HasBreakableByDamageCrowdControlAura((*iter)))
+                        {
+                            ThreatContainer::StorageType triggers = (*iter)->getThreatManager().getThreatList();
+                            for (ThreatContainer::StorageType::const_iterator trig_citr = triggers.begin(); trig_citr != triggers.end(); ++trig_citr)
+                            {
+                                // Try to find threat referenced to owner
+                                if ((*trig_citr)->getTarget() == owner)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+
+        private:
+            ObjectGuid _targetGUID;
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
