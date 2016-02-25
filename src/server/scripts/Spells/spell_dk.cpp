@@ -2062,8 +2062,7 @@ public:
             if (!runeWeapon)
                 return;
 
-            uint32 procDamage = eventInfo.GetDamageInfo()->GetDamage() / 2;
-            runeWeapon->CastCustomSpell(procSpell->Id, SPELLVALUE_BASE_POINT0, int32(procDamage), runeWeapon->GetVictim(), false, nullptr, aurEff, runeWeapon->GetGUID());
+            runeWeapon->CastSpell(runeWeapon->GetVictim(), procSpell);
         }
 
         void Register() override

@@ -174,15 +174,8 @@ class npc_pet_dk_rune_weapon : public CreatureScript
         {
             npc_pet_dk_rune_weaponAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
-
                 // Prevent early victim engage
-                creature->SetReactState(REACT_DEFENSIVE);
-            }
-
-            void Initialize()
-            {
-                _events.Reset();
+                creature->SetReactState(REACT_PASSIVE);
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -210,6 +203,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 {
                     case DATA_INITIAL_TARGET_GUID:
                         _targetGUID = guid;
+                        me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                         {
                             if (me->Attack(target, true))
@@ -220,18 +214,6 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                         break;
                     default:
                         break;
-                }
-            }
-
-            void OwnerMeleeDamageDealt(Unit* /*owner*/, CalcDamageInfo* damageInfo) override
-            {
-                if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
-                {
-                    damageInfo->attacker = me;
-                    damageInfo->damage /= 2;
-                    me->DealDamage(target, damageInfo->damage, nullptr, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask));
-                    me->SendAttackStateUpdate(damageInfo);
-                    me->ProcDamageAndSpell(damageInfo->target, damageInfo->procAttacker, damageInfo->procVictim, damageInfo->procEx, damageInfo->damage, damageInfo->attackType);
                 }
             }
 
@@ -263,6 +245,8 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                             break;
                     }
                 }
+
+                DoMeleeAttackIfReady();
             }
 
             private:
