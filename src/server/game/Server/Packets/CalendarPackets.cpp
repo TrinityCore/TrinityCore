@@ -410,6 +410,26 @@ WorldPacket const* WorldPackets::Calendar::CalendarCommandResult::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutAdded::Write()
+{
+    _worldPacket << uint64(InstanceID);
+    _worldPacket << uint32(ServerTime);
+    _worldPacket << int32(MapID);
+    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int32(TimeRemaining);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutRemoved::Write()
+{
+    _worldPacket << uint64(InstanceID);
+    _worldPacket << int32(MapID);
+    _worldPacket << uint32(DifficultyID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutUpdated::Write()
 {
     _worldPacket << uint32(ServerTime);
