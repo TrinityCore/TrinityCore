@@ -176,6 +176,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
             {
                 // Prevent early victim engage
                 creature->SetReactState(REACT_PASSIVE);
+                _engageTimer = 0;
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -190,6 +191,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 DoCast(me, SPELL_DK_PET_SCALING_03, true);
 
                 _events.ScheduleEvent(EVENT_SPELL_CAST_2, 6 * IN_MILLISECONDS);
+                _engageTimer = 1 * IN_MILLISECONDS;
 
                 me->SetRedirectThreat(summoner->GetGUID(), 100);
             }
@@ -220,7 +222,15 @@ class npc_pet_dk_rune_weapon : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 if (me->HasReactState(REACT_PASSIVE))
-                    return;
+                {
+                    if (_engageTimer <= diff)
+                        me->SetReactState(REACT_AGGRESSIVE);
+                    else
+                    {
+                        _engageTimer -= diff;
+                        return;
+                    }
+                }
 
                 if (me->IsInCombat() && (!me->GetVictim() || !me->IsValidAttackTarget(me->GetVictim())))
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
@@ -394,6 +404,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
         private:
             ObjectGuid _targetGUID;
             EventMap _events;
+            uint32 _engageTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
