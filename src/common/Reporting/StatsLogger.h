@@ -32,6 +32,7 @@ private:
     MPSCQueue<std::string> _queuedData;
     boost::asio::deadline_timer* _batchTimer;
     uint32 _updateInterval;
+    bool _enabled;
 
     void SendBatch();
     void Enqueue(std::string const& data);
@@ -45,10 +46,43 @@ public:
     }
 
     void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
+    void LoadFromConfigs();
     void LogValue(std::string const& category, uint32 value);
     void LogEvent(std::string const& title, std::string const& description);
     void ForceSend();
+    bool IsEnabled() { return _enabled; }
 };
 
 #define sStatsLogger StatsLogger::instance()
+
+#if PLATFORM != PLATFORM_WINDOWS
+#define TC_STATS_EVENT(title, description)                              \
+        do {                                                            \
+            if (sStatsLogger->IsEnabled())                              \
+                sStatsLogger->LogEvent(title, description);             \
+        } while (0)
+#define TC_STATS_VALUE(category, value)                                 \
+        do {                                                            \
+            if (sStatsLogger->IsEnabled())                              \
+                sStatsLogger->LogValue(category, value);                \
+        } while (0)
+#else
+#define TC_STATS_EVENT(title, description)                              \
+        __pragma(warning(push))                                         \
+        __pragma(warning(disable:4127))                                 \
+        do {                                                            \
+            if (sStatsLogger->IsEnabled())                              \
+                sStatsLogger->LogEvent(title, description);             \
+        } while (0)                                                     \
+        __pragma(warning(pop))
+#define TC_STATS_VALUE(category, value)                                 \
+        __pragma(warning(push))                                         \
+        __pragma(warning(disable:4127))                                 \
+        do {                                                            \
+            if (sStatsLogger->IsEnabled())                              \
+                sStatsLogger->LogValue(category, value);                \
+        } while (0)                                                     \
+        __pragma(warning(pop))
+#endif
+
 #endif // STATSLOGGER_H__

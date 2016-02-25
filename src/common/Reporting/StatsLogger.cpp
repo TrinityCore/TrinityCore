@@ -17,8 +17,9 @@
 
 #include "StatsLogger.h"
 #include "Log.h"
+#include "Config.h"
 
-StatsLogger::StatsLogger()
+StatsLogger::StatsLogger() : _batchTimer(nullptr), _updateInterval(0), _enabled(false)
 {
 }
 
@@ -32,7 +33,18 @@ void StatsLogger::Initialize(boost::asio::io_service& ioService, uint32 updateIn
     _dataStream.connect("localhost", "8086");
     _updateInterval = updateInterval;
     _batchTimer = new boost::asio::deadline_timer(ioService);
-    ScheduleSend();
+    LoadFromConfigs();
+}
+
+void StatsLogger::LoadFromConfigs()
+{
+    bool previousValue = _enabled;
+    _enabled = sConfigMgr->GetBoolDefault("InfluxDB.Enable", false);
+
+    // Schedule a send at this point only if the config changed from Disabled to Enabled.
+    // In all other cases no further action is needed.
+    if (_enabled && !previousValue)
+        ScheduleSend();
 }
 
 void StatsLogger::LogValue(std::string const& category, uint32 value)
@@ -115,13 +127,16 @@ void StatsLogger::SendBatch()
 
 void StatsLogger::ScheduleSend()
 {
-    _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-    _batchTimer->async_wait(std::bind(&StatsLogger::SendBatch, this));
+    if (_enabled)
+    {
+        _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
+        _batchTimer->async_wait(std::bind(&StatsLogger::SendBatch, this));
+    }
 }
 
 void StatsLogger::ForceSend()
 {
     // Send what's queued only if io_service is stopped (so only on shutdown)
-    if (_batchTimer->get_io_service().stopped())
+    if (_enabled && _batchTimer->get_io_service().stopped())
         SendBatch();
 }

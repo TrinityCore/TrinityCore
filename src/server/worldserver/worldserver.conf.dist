@@ -3543,3 +3543,17 @@ PacketSpoof.BanDuration = 86400
 
 #
 ###################################################################################################
+
+###################################################################################################
+# InfluxDB Settings
+#
+# These settings control the statistics sent to InfluxDB
+#
+#    InfluxDB.Enable
+#        Description: Enables statistics sent to InfluxDB.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+InfluxDB.Enable = 0
+
+###################################################################################################
