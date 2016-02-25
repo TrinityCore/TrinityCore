@@ -103,7 +103,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Health Pct",           true, true,  false },
     { "Realm Achievement",    true, false, false },
     { "In Water",            false, false, false },
-    { "Terrain Swap",         true, false, false }
+    { "Terrain Swap",         true, false, false },
+    { "Sit/stand state",      true,  true, false }
 };
 
 // Checks if object meets the condition
@@ -440,6 +441,19 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             condMeets = object->IsInTerrainSwap(ConditionValue1);
             break;
         }
+        case CONDITION_STAND_STATE:
+        {
+            if (Unit* unit = object->ToUnit())
+            {
+                if (ConditionValue1 == 0)
+                    condMeets = (unit->getStandState() == ConditionValue2);
+                else if (ConditionValue2 == 0)
+                    condMeets = unit->IsStandState();
+                else if (ConditionValue2 == 1)
+                    condMeets = unit->IsSitState();
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -617,6 +631,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_TERRAIN_SWAP:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_STAND_STATE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2204,6 +2221,28 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_IN_WATER:
             break;
+        case CONDITION_STAND_STATE:
+        {
+            bool valid = false;
+            switch (cond->ConditionValue1)
+            {
+                case 0:
+                    valid = cond->ConditionValue2 <= UNIT_STAND_STATE_SUBMERGED;
+                    break;
+                case 1:
+                    valid = cond->ConditionValue2 <= 1;
+                    break;
+                default:
+                    valid = false;
+                    break;
+            }
+            if (!valid)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non-existing stand state (%u,%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                return false;
+            }
+            break;
+        }
         default:
             break;
     }
