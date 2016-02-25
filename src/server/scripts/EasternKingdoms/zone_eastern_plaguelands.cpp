@@ -137,10 +137,19 @@ public:
 ## npc_tirion_fordring
 ######*/
 
-#define GOSSIP_HELLO    "I am ready to hear your tale, Tirion."
-#define GOSSIP_SELECT1  "Thank you, Tirion.  What of your identity?"
-#define GOSSIP_SELECT2  "That is terrible."
-#define GOSSIP_SELECT3  "I will, Tirion."
+enum TirionFordring
+{
+    GOSSIP_MENU_OPTION_ID_DEFAULT         = 0,
+    GOSSIP_MENU_OPTION_I_AM_READY_TO_HEAR = 3502,
+    GOSSIP_MENU_OPTION_THANK_YOU_TIRION   = 3681,
+    GOSSIP_MENU_OPTION_THAT_IS_TERRIBLE   = 3682,
+    GOSSIP_MENU_OPTION_I_WILL_TIRION      = 3683,
+    NPC_TEXT_RACE_DOES_NOT_DICTATE_HONOR  = 4254,
+    NPC_TEXT_MUST_APOLOGIZE_FOR_NOT_BEING = 4493,
+    NPC_TEXT_TAELAN_WAS_ONLY_A_CHILD_WHEN = 4494,
+    NPC_TEXT_WILL_YOU_HELP_HIM_REMEMBER   = 4495,
+    QUEST_ID_REDEMPTION                   = 5742
+};
 
 class npc_tirion_fordring : public CreatureScript
 {
@@ -153,20 +162,20 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(4493, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_THANK_YOU_TIRION, GOSSIP_MENU_OPTION_ID_DEFAULT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_MUST_APOLOGIZE_FOR_NOT_BEING, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(4494, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_THAT_IS_TERRIBLE, GOSSIP_MENU_OPTION_ID_DEFAULT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_TAELAN_WAS_ONLY_A_CHILD_WHEN, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(4495, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_I_WILL_TIRION, GOSSIP_MENU_OPTION_ID_DEFAULT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_WILL_YOU_HELP_HIM_REMEMBER, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(5742);
+                player->AreaExploredOrEventHappens(QUEST_ID_REDEMPTION);
                 break;
         }
         return true;
@@ -177,8 +186,8 @@ public:
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->GetQuestStatus(5742) == QUEST_STATUS_INCOMPLETE && player->getStandState() == UNIT_STAND_STATE_SIT)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(QUEST_ID_REDEMPTION) == QUEST_STATUS_INCOMPLETE && player->getStandState() == UNIT_STAND_STATE_SIT)
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_I_AM_READY_TO_HEAR, GOSSIP_MENU_OPTION_ID_DEFAULT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
