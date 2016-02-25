@@ -207,12 +207,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                         _targetGUID = guid;
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
-                        {
-                            if (me->Attack(target, true))
-                                me->GetMotionMaster()->MoveChase(target);
-                            DoCast(target, SPELL_AGGRO_8_YD_PBAE, true);
-                            _events.ScheduleEvent(EVENT_SPELL_CAST_1, 1 * IN_MILLISECONDS);
-                        }
+                            Attack(target);
                         break;
                     default:
                         break;
@@ -245,14 +240,12 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     if (ownerTarget && ownerTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (!ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
-                            if (me->Attack(ownerTarget, true))
-                                me->GetMotionMaster()->MoveChase(ownerTarget);
+                            Attack(ownerTarget);
                     }
                     else if (ownerTarget && (ownerTarget->GetTypeId() != TYPEID_PLAYER) && IsInThreatList(ownerTarget))
                     {
                         if (!ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
-                            if (me->Attack(ownerTarget, true))
-                                me->GetMotionMaster()->MoveChase(ownerTarget);
+                            Attack(ownerTarget);
                     }
                     else
                         Init();
@@ -271,7 +264,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     {
                         case EVENT_SPELL_CAST_1:
                             // Cast every second
-                            if (Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID))
+                            if (Unit* victim = me->GetVictim())
                                 DoCast(victim, SPELL_AGGRO_8_YD_PBAE, true);
                             _events.ScheduleEvent(EVENT_SPELL_CAST_1, 1 * IN_MILLISECONDS);
                             break;
@@ -285,7 +278,18 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                     }
                 }
 
-                DoMeleeAttackIfReady();
+                if (me->IsInCombat() && me->GetVictim() && me->IsValidAttackTarget(me->GetVictim()))
+                    DoMeleeAttackIfReady();
+            }
+
+            void Attack(Unit* who)
+            {
+                if (me->Attack(who, true))
+                {
+                    me->GetMotionMaster()->MoveChase(who);
+                    DoCast(who, SPELL_AGGRO_8_YD_PBAE, true);
+                    _events.RescheduleEvent(EVENT_SPELL_CAST_1, 1 * IN_MILLISECONDS);
+                }
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -295,6 +299,7 @@ class npc_pet_dk_rune_weapon : public CreatureScript
 
                 Unit* owner = me->GetCharmerOrOwner();
 
+                _events.CancelEvent(EVENT_SPELL_CAST_1);
                 me->CombatStop(true);
                 if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
                 {
@@ -360,16 +365,10 @@ class npc_pet_dk_rune_weapon : public CreatureScript
                 }
                 // Prioritize units with threat referenced to owner
                 if (highestThreat > 0.0f && highestThreatUnit)
-                {
-                    if (me->Attack(highestThreatUnit, true))
-                        me->GetMotionMaster()->MoveChase(highestThreatUnit);
-                }
+                    Attack(highestThreatUnit);
                 // If there is no such target, try to attack nearest hostile unit if such exists
                 else if (nearestPlayer)
-                {
-                    if (me->Attack(nearestPlayer, true))
-                        me->GetMotionMaster()->MoveChase(nearestPlayer);
-                }
+                    Attack(nearestPlayer);
             }
 
             bool IsInThreatList(Unit* target)
