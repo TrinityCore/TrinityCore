@@ -558,6 +558,16 @@ namespace WorldPackets
 
             uint32 QuestID = 0;
         };
+
+        class DailyQuestsReset final : public ServerPacket
+        {
+        public:
+            DailyQuestsReset() : ServerPacket(SMSG_DAILY_QUESTS_RESET, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Count = 0;
+        };
     }
 }
 
