@@ -543,3 +543,10 @@ void WorldPackets::Quest::PushQuestToParty::Read()
 {
     _worldPacket >> QuestID;
 }
+
+WorldPacket const* WorldPackets::Quest::DailyQuestsReset::Write()
+{
+    _worldPacket << int32(Count);
+
+    return &_worldPacket;
+}

@@ -22754,6 +22754,10 @@ void Player::DailyReset()
         if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
             SetQuestCompletedBit(questBit, false);
 
+    WorldPackets::Quest::DailyQuestsReset dailyQuestsReset;
+    dailyQuestsReset.Count = int32(GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS).size());
+    SendDirectMessage(dailyQuestsReset.Write());
+
     ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
 
     m_DFQuests.clear(); // Dungeon Finder Quests.
