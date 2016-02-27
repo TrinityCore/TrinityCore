@@ -33,6 +33,7 @@ private:
     boost::asio::deadline_timer* _batchTimer;
     int32 _updateInterval;
     bool _enabled;
+    std::string _databaseName;
 
     void SendBatch();
     void Enqueue(std::string const& data);

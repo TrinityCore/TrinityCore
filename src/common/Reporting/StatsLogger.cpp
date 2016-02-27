@@ -18,6 +18,7 @@
 #include "StatsLogger.h"
 #include "Log.h"
 #include "Config.h"
+#include "Util.h"
 
 StatsLogger::StatsLogger() : _batchTimer(nullptr), _updateInterval(0), _enabled(false)
 {
@@ -30,7 +31,6 @@ StatsLogger::~StatsLogger()
 
 void StatsLogger::Initialize(boost::asio::io_service& ioService)
 {
-    _dataStream.connect("localhost", "8086");
     _batchTimer = new boost::asio::deadline_timer(ioService);
     LoadFromConfigs();
 }
@@ -47,9 +47,27 @@ void StatsLogger::LoadFromConfigs()
     }
 
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
-    // In all other cases no further action is needed.
+    // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
+    {
+        std::string connectionInfo = sConfigMgr->GetStringDefault("InfluxDB.ConnectionInfo", "");
+        if (connectionInfo.empty())
+        {
+            TC_LOG_ERROR("statslogger", "'InfluxDB.ConnectionInfo' not specified in configuration file.");
+            return;
+        }
+
+        Tokenizer tokens(connectionInfo, ';');
+        if (tokens.size() != 3)
+        {
+            TC_LOG_ERROR("statslogger", "'InfluxDB.ConnectionInfo' specified with wrong format in configuration file.");
+            return;
+        }
+
+        _dataStream.connect(tokens[0], tokens[1]);
+        _databaseName.assign(tokens[2]);
         ScheduleSend();
+    }
 }
 
 void StatsLogger::LogValue(std::string const& category, uint32 value)
@@ -92,6 +110,7 @@ void StatsLogger::SendBatch()
         delete data;
     }
 
+    // Check if there's any data to send
     if (batchedData.tellp() == std::streampos(0))
     {
         ScheduleSend();
@@ -100,7 +119,7 @@ void StatsLogger::SendBatch()
 
     batchedData << "\r\n";
 
-    _dataStream << "POST " << "/write?db=worldserver" << " HTTP/1.1\r\n";
+    _dataStream << "POST " << "/write?db=" << _databaseName << " HTTP/1.1\r\n";
     _dataStream << "Host: " << "localhost:8086" << "\r\n";
     _dataStream << "Accept: */*\r\n";
     _dataStream << "Content-Type: application/octet-stream\r\n";
@@ -136,6 +155,14 @@ void StatsLogger::ScheduleSend()
     {
         _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
         _batchTimer->async_wait(std::bind(&StatsLogger::SendBatch, this));
+    }
+    else
+    {
+        _dataStream.close();
+        std::string* data;
+        // Clear the queue
+        while (_queuedData.Dequeue(data))
+            ;
     }
 }
 

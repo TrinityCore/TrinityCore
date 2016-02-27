@@ -3564,4 +3564,12 @@ InfluxDB.Enable = 0
 
 InfluxDB.Interval = 10
 
+#
+#    InfluxDB.ConnectionInfo
+#        Description: Connection settings for InfluxDB.
+#        Example:     "hostname;port;database"
+#        Default:     "127.0.0.1;8086;worldserver"
+
+InfluxDB.ConnectionInfo = "127.0.0.1;8086;worldserver"
+
 ###################################################################################################
