@@ -219,7 +219,7 @@ void Log::ReadLoggersFromConfig()
         rootLogger.addAppender(appender->getId(), appender);
 
         Logger& serverLogger = loggers["server"];
-        serverLogger.Create("server", LOG_LEVEL_ERROR);
+        serverLogger.Create("server", LOG_LEVEL_INFO);
         serverLogger.addAppender(appender->getId(), appender);
     }
 }
