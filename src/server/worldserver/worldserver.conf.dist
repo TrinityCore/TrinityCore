@@ -3556,4 +3556,12 @@ PacketSpoof.BanDuration = 86400
 
 InfluxDB.Enable = 0
 
+#
+#    InfluxDB.Interval
+#        Description: Interval between every batch of data sent to InfluxDB in seconds
+#        Default:     10 seconds
+#
+
+InfluxDB.Interval = 10
+
 ###################################################################################################

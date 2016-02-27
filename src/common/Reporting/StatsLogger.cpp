@@ -28,10 +28,9 @@ StatsLogger::~StatsLogger()
     delete _batchTimer;
 }
 
-void StatsLogger::Initialize(boost::asio::io_service& ioService, uint32 updateInterval)
+void StatsLogger::Initialize(boost::asio::io_service& ioService)
 {
     _dataStream.connect("localhost", "8086");
-    _updateInterval = updateInterval;
     _batchTimer = new boost::asio::deadline_timer(ioService);
     LoadFromConfigs();
 }
@@ -40,6 +39,12 @@ void StatsLogger::LoadFromConfigs()
 {
     bool previousValue = _enabled;
     _enabled = sConfigMgr->GetBoolDefault("InfluxDB.Enable", false);
+    _updateInterval = sConfigMgr->GetIntDefault("InfluxDB.Interval", 10);
+    if (_updateInterval < 1)
+    {
+        TC_LOG_ERROR("statslogger", "'InfluxDB.Interval' config set to %d, overriding to 1.", _updateInterval);
+        _updateInterval = 1;
+    }
 
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
     // In all other cases no further action is needed.

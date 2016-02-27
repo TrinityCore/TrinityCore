@@ -125,7 +125,7 @@ extern int main(int argc, char** argv)
     sLog->RegisterAppender<AppenderDB>();
     // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
     sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? &_ioService : nullptr);
-    sStatsLogger->Initialize(_ioService, 10);
+    sStatsLogger->Initialize(_ioService);
     TC_STATS_EVENT("Worldserver started", "");
 
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", GitRevision::GetFullVersion());
