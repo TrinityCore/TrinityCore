@@ -22,6 +22,12 @@
 #include "Threading/MPSCQueue.h"
 #include <boost/asio/ip/tcp.hpp>
 
+enum StatsEventCategory
+{
+    STATS_EVENT_CATEGORY_GENERIC = 0,
+    STATS_EVENT_CATEGORY_MAX
+};
+
 class StatsLogger
 {
 private:
@@ -39,6 +45,11 @@ private:
     void Enqueue(std::string const& data);
     void ScheduleSend();
 
+    std::string _categories[STATS_EVENT_CATEGORY_MAX] =
+    {
+        "events"
+    };
+
 public:
     static StatsLogger* instance()
     {
@@ -49,7 +60,7 @@ public:
     void Initialize(boost::asio::io_service& ioService);
     void LoadFromConfigs();
     void LogValue(std::string const& category, uint32 value);
-    void LogEvent(std::string const& title, std::string const& description);
+    void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description);
     void ForceSend();
     bool IsEnabled() { return _enabled; }
 };
@@ -68,12 +79,12 @@ public:
                 sStatsLogger->LogValue(category, value);                \
         } while (0)
 #else
-#define TC_STATS_EVENT(title, description)                              \
+#define TC_STATS_EVENT(category, title, description)                    \
         __pragma(warning(push))                                         \
         __pragma(warning(disable:4127))                                 \
         do {                                                            \
             if (sStatsLogger->IsEnabled())                              \
-                sStatsLogger->LogEvent(title, description);             \
+                sStatsLogger->LogEvent(category, title, description);   \
         } while (0)                                                     \
         __pragma(warning(pop))
 #define TC_STATS_VALUE(category, value)                                 \

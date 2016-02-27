@@ -80,11 +80,11 @@ void StatsLogger::LogValue(std::string const& category, uint32 value)
     Enqueue(data);
 }
 
-void StatsLogger::LogEvent(std::string const& title, std::string const& description)
+void StatsLogger::LogEvent(StatsEventCategory category, std::string const& title, std::string const& description)
 {
     using namespace std::chrono;
 
-    std::string data = "events,realm=Windows title=\"" + title + "\",text=\"" + description + "\""
+    std::string data =  _categories[category] + ",realm=Windows title=\"" + title + "\",text=\"" + description + "\""
         + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
 
     Enqueue(data);
