@@ -1243,7 +1243,7 @@ void Player::Update(uint32 p_time)
     {
         UpdateCharmAI();
         NeedChangeAI = false;
-        IsAIEnabled = !!GetAI();
+        IsAIEnabled = (GetAI() != nullptr);
     }
 
     // Update items that have just a limited lifetime
