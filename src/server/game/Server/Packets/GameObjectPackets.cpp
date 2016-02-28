@@ -59,3 +59,13 @@ WorldPacket const * WorldPackets::GameObject::DestructibleBuildingDamage::Write(
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::GameObjectCustomAnim::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << uint32(CustomAnim);
+    _worldPacket.WriteBit(PlayAsDespawn);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

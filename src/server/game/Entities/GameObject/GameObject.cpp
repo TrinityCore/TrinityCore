@@ -1870,10 +1870,10 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
 
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    WorldPacket data(SMSG_GAME_OBJECT_CUSTOM_ANIM, 8 + 4);
-    data << GetGUID();
-    data << uint32(anim);
-    SendMessageToSet(&data, true);
+    WorldPackets::GameObject::GameObjectCustomAnim customAnim;
+    customAnim.ObjectGUID = GetGUID();
+    customAnim.CustomAnim = anim;
+    SendMessageToSet(customAnim.Write(), true);
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
