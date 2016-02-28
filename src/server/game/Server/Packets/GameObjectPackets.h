@@ -108,6 +108,18 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class GameObjectCustomAnim final : public ServerPacket
+        {
+        public:
+            GameObjectCustomAnim() : ServerPacket(SMSG_GAME_OBJECT_CUSTOM_ANIM, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            uint32 CustomAnim = 0;
+            bool PlayAsDespawn = false;
+        };
     }
 }
 #endif // GOPackets_h__
