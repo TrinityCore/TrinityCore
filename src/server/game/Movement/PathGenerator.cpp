@@ -25,6 +25,7 @@
 #include "DisableMgr.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
+#include "StatsLogger.h"
 
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(const Unit* owner) :
@@ -60,6 +61,8 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
         return false;
+
+    TC_STATS_EVENT(STATS_EVENT_CATEGORY_MMAP, "CalculatePath", "");
 
     G3D::Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);

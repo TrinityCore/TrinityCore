@@ -25,6 +25,7 @@
 enum StatsEventCategory
 {
     STATS_EVENT_CATEGORY_GENERIC = 0,
+    STATS_EVENT_CATEGORY_MMAP,
     STATS_EVENT_CATEGORY_MAX
 };
 
@@ -47,7 +48,8 @@ private:
 
     std::string _categories[STATS_EVENT_CATEGORY_MAX] =
     {
-        "events"
+        "events",       // STATS_EVENT_CATEGORY_GENERIC
+        "mmap_events"   // STATS_EVENT_CATEGORY_MMAP
     };
 
 public:
