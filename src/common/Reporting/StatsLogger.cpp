@@ -22,6 +22,8 @@
 
 StatsLogger::StatsLogger() : _batchTimer(nullptr), _updateInterval(0), _enabled(false)
 {
+    _categories[STATS_EVENT_CATEGORY_GENERIC]   = "events";
+    _categories[STATS_EVENT_CATEGORY_MMAP]      = "mmap_events";
 }
 
 StatsLogger::~StatsLogger()

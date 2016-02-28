@@ -46,11 +46,7 @@ private:
     void Enqueue(std::string const& data);
     void ScheduleSend();
 
-    std::string _categories[STATS_EVENT_CATEGORY_MAX] =
-    {
-        "events",       // STATS_EVENT_CATEGORY_GENERIC
-        "mmap_events"   // STATS_EVENT_CATEGORY_MMAP
-    };
+    std::string _categories[STATS_EVENT_CATEGORY_MAX];
 
 public:
     static StatsLogger* instance()
