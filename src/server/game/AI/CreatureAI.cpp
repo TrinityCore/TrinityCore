@@ -134,10 +134,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
         return;
 
     if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
-    {
-        me->AddThreat(who, 0.0f); // ensure our initial target is the first thing added to threat list so we don't randomly switch off if DoZoneInCombat is called during the EnterCombat hook
         AttackStart(who);
-    }
     //else if (who->GetVictim() && me->IsFriendlyTo(who)
     //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
     //    && me->CanStartAttack(who->GetVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
