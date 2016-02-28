@@ -24,6 +24,7 @@
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/deadline_timer.hpp>
 
 using namespace boost::asio;
 
@@ -42,10 +43,7 @@ public:
     ~RealmList();
 
     void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
-
-    void UpdateIfNeed();
-
-    void AddRealm(const Realm& NewRealm) { _realms[NewRealm.Id] = NewRealm; }
+    void Close();
 
     RealmMap const& GetRealms() const { return _realms; }
     Realm const* GetRealm(RealmHandle const& id) const;
@@ -53,13 +51,13 @@ public:
 private:
     RealmList();
 
-    void UpdateRealms(bool init = false);
+    void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
         ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     RealmMap _realms;
-    uint32   _updateInterval;
-    time_t   _nextUpdateTime;
+    uint32 _updateInterval;
+    boost::asio::deadline_timer* _updateTimer;
     boost::asio::ip::tcp::resolver* _resolver;
 };
 

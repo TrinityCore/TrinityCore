@@ -194,6 +194,8 @@ int main(int argc, char** argv)
 
     sAuthSocketMgr.StopNetwork();
 
+    sRealmList->Close();
+
     // Close the Database Pool and library
     StopDB();
 
