@@ -359,7 +359,10 @@ WorldPacket const* WorldPackets::CombatLog::SpellDispellLog::Write()
 
     _worldPacket << uint32(DispellData.size());
     for (SpellDispellData const& data : DispellData)
+    {
+        _worldPacket.FlushBits();
         _worldPacket << data;
+    }
 
     return &_worldPacket;
 }
