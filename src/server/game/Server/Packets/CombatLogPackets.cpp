@@ -346,6 +346,8 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellDispell
     if (dispellData.Needed.is_initialized())
         buffer << int32(*dispellData.Needed);
 
+    _worldPacket.FlushBits();
+
     return buffer;
 }
 
@@ -359,10 +361,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellDispellLog::Write()
 
     _worldPacket << uint32(DispellData.size());
     for (SpellDispellData const& data : DispellData)
-    {
-        _worldPacket.FlushBits();
         _worldPacket << data;
-    }
 
     return &_worldPacket;
 }
