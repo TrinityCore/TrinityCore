@@ -867,6 +867,17 @@ namespace WorldPackets
             G3D::Vector3 ImpactPos;
             Optional<MovementInfo> Status;
         };
+
+        class SpellDelayed : public ServerPacket
+        {
+        public:
+            SpellDelayed() : ServerPacket(SMSG_SPELL_DELAYED, sizeof(ObjectGuid) + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            int32 ActualDelay = 0;
+        };
     }
 }
 

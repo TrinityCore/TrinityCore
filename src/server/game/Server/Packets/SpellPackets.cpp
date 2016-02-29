@@ -836,3 +836,11 @@ void WorldPackets::Spells::UpdateMissileTrajectory::Read()
         Status = info;
     }
 }
+
+WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint32(ActualDelay);
+
+    return &_worldPacket;
+}
