@@ -30,21 +30,61 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
+enum Yells
+{
+    YELL_NALORAKK_WAVE1   =  0,
+    YELL_NALORAKK_WAVE2   =  1,
+    YELL_NALORAKK_WAVE3   =  2,
+    YELL_NALORAKK_WAVE4   =  3,
+    YELL_AGGRO            =  4,
+    YELL_SURGE            =  5,
+    YELL_SHIFTEDTOBEAR    =  6,
+    YELL_SHIFTEDTOTROLL   =  7,
+    YELL_BERSERK          =  8,
+    YELL_KILL_ONE         =  9,
+    YELL_KILL_TWO         = 10,
+    YELL_DEATH            = 11
+
+//  Not yet implemented
+//  YELL_NALORAKK_EVENT1  = 12,
+//  YELL_NALORAKK_EVENT2  = 13
+};
+
+enum Sounds
+{
+    SOUND_NALORAKK_WAVE1  = 12066,
+    SOUND_NALORAKK_WAVE2  = 12067,
+    SOUND_NALORAKK_WAVE3  = 12068,
+    SOUND_NALORAKK_WAVE4  = 12069,
+    SOUND_YELL_AGGRO      = 12070,
+    SOUND_YELL_SURGE      = 12071,
+    SOUND_YELL_TOBEAR     = 12072,
+    SOUND_YELL_TOTROLL    = 12073,
+    SOUND_YELL_BERSERK    = 12074,
+    SOUND_YELL_KILL_ONE   = 12075,
+    SOUND_YELL_KILL_TWO   = 12076,
+    SOUND_YELL_DEATH      = 12077
+
+//  Not yet implemented
+//  SOUND_NALORAKK_EVENT1 = 12078,
+//  SOUND_NALORAKK_EVENT2 = 12079
+};
+
 enum Spells
 {
-    SPELL_BERSERK           = 45078,
-
     // Troll form
-    SPELL_BRUTALSWIPE       = 42384,
-    SPELL_MANGLE            = 42389,
-    SPELL_MANGLEEFFECT      = 44955,
-    SPELL_SURGE             = 42402,
-    SPELL_BEARFORM          = 42377,
+    SPELL_BRUTALSWIPE     = 42384,
+    SPELL_MANGLE          = 42389,
+    SPELL_MANGLEEFFECT    = 44955,
+    SPELL_SURGE           = 42402,
+    SPELL_BEARFORM        = 42377,
 
     // Bear form
-    SPELL_LACERATINGSLASH   = 42395,
-    SPELL_RENDFLESH         = 42397,
-    SPELL_DEAFENINGROAR     = 42398
+    SPELL_LACERATINGSLASH = 42395,
+    SPELL_RENDFLESH       = 42397,
+    SPELL_DEAFENINGROAR   = 42398,
+
+    SPELL_BERSERK         = 45078
 };
 
 // Trash Waves
@@ -57,44 +97,8 @@ float NalorakkWay[8][3] =
     {-79.929f, 1395.958f, 27.31f},
     {-80.072f, 1374.555f, 40.87f}, // waypoint 3
     {-80.072f, 1314.398f, 40.87f},
-    {-80.072f, 1295.775f, 48.60f} // waypoint 4
+    {-80.072f, 1295.775f, 48.60f}  // waypoint 4
 };
-
-#define YELL_NALORAKK_WAVE1     "Get da move on, guards! It be killin' time!"
-#define SOUND_NALORAKK_WAVE1    12066
-#define YELL_NALORAKK_WAVE2     "Guards, go already! Who you more afraid of, dem... or me?"
-#define SOUND_NALORAKK_WAVE2    12067
-#define YELL_NALORAKK_WAVE3     "Ride now! Ride out dere and bring me back some heads!"
-#define SOUND_NALORAKK_WAVE3    12068
-#define YELL_NALORAKK_WAVE4     "I be losin' me patience! Go on: make dem wish dey was never born!"
-#define SOUND_NALORAKK_WAVE4    12069
-
-//Unimplemented SoundIDs
-/*
-#define SOUND_NALORAKK_EVENT1   12078
-#define SOUND_NALORAKK_EVENT2   12079
-*/
-
-//General defines
-#define YELL_AGGRO              "You be dead soon enough!"
-#define SOUND_YELL_AGGRO        12070
-#define YELL_KILL_ONE           "Mua-ha-ha! Now whatchoo got to say?"
-#define SOUND_YELL_KILL_ONE     12075
-#define YELL_KILL_TWO           "Da Amani gonna rule again!"
-#define SOUND_YELL_KILL_TWO     12076
-#define YELL_DEATH              "I... be waitin' on da udda side...."
-#define SOUND_YELL_DEATH        12077
-#define YELL_BERSERK            "You had your chance, now it be too late!" //Never seen this being used, so just guessing from what I hear.
-#define SOUND_YELL_BERSERK      12074
-#define YELL_SURGE              "I bring da pain!"
-#define SOUND_YELL_SURGE        12071
-
-#define YELL_SHIFTEDTOTROLL     "Make way for Nalorakk!"
-#define SOUND_YELL_TOTROLL      12073
-
-
-#define YELL_SHIFTEDTOBEAR      "You call on da beast, you gonna get more dan you bargain for!"
-#define SOUND_YELL_TOBEAR       12072
 
 class boss_nalorakk : public CreatureScript
 {
@@ -227,7 +231,7 @@ class boss_nalorakk : public CreatureScript
                                 case 0:
                                     if (me->IsWithinDistInMap(who, 50))
                                     {
-                                        me->Yell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL);
+                                        Talk(YELL_NALORAKK_WAVE1, me);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE1);
 
                                         (*me).GetMotionMaster()->MovePoint(1, NalorakkWay[1][0], NalorakkWay[1][1], NalorakkWay[1][2]);
@@ -240,7 +244,7 @@ class boss_nalorakk : public CreatureScript
                                 case 2:
                                     if (me->IsWithinDistInMap(who, 40))
                                     {
-                                        me->Yell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL);
+                                        Talk(YELL_NALORAKK_WAVE2, me);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE2);
 
                                         (*me).GetMotionMaster()->MovePoint(3, NalorakkWay[3][0], NalorakkWay[3][1], NalorakkWay[3][2]);
@@ -253,7 +257,7 @@ class boss_nalorakk : public CreatureScript
                                 case 5:
                                     if (me->IsWithinDistInMap(who, 40))
                                     {
-                                        me->Yell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL);
+                                        Talk(YELL_NALORAKK_WAVE3, me);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE3);
 
                                         (*me).GetMotionMaster()->MovePoint(6, NalorakkWay[6][0], NalorakkWay[6][1], NalorakkWay[6][2]);
@@ -268,7 +272,7 @@ class boss_nalorakk : public CreatureScript
                                     {
                                         SendAttacker(who);
 
-                                        me->Yell(YELL_NALORAKK_WAVE4, LANG_UNIVERSAL);
+                                        Talk(YELL_NALORAKK_WAVE4, me);
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE4);
 
                                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -287,7 +291,7 @@ class boss_nalorakk : public CreatureScript
             {
                 instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
 
-                me->Yell(YELL_AGGRO, LANG_UNIVERSAL);
+                Talk(YELL_AGGRO, me);
                 DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
                 DoZoneInCombat();
             }
@@ -296,7 +300,7 @@ class boss_nalorakk : public CreatureScript
             {
                 instance->SetData(DATA_NALORAKKEVENT, DONE);
 
-                me->Yell(YELL_DEATH, LANG_UNIVERSAL);
+                Talk(YELL_DEATH, me);
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);
             }
 
@@ -305,11 +309,11 @@ class boss_nalorakk : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        me->Yell(YELL_KILL_ONE, LANG_UNIVERSAL);
+                        TAlk(YELL_KILL_ONE, me);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
                         break;
                     case 1:
-                        me->Yell(YELL_KILL_TWO, LANG_UNIVERSAL);
+                        Talk(YELL_KILL_TWO, me);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
                         break;
                 }
@@ -373,7 +377,7 @@ class boss_nalorakk : public CreatureScript
                 if (Berserk_Timer <= diff)
                 {
                     DoCast(me, SPELL_BERSERK, true);
-                    me->Yell(YELL_BERSERK, LANG_UNIVERSAL);
+                    Talk(YELL_BERSERK, me);
                     DoPlaySoundToSet(me, SOUND_YELL_BERSERK);
                     Berserk_Timer = 600000;
                 } else Berserk_Timer -= diff;
@@ -383,7 +387,7 @@ class boss_nalorakk : public CreatureScript
                     if (inBearForm)
                     {
                         // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);
-                        me->Yell(YELL_SHIFTEDTOTROLL, LANG_UNIVERSAL);
+                        Talk(YELL_SHIFTEDTOTROLL, me);
                         DoPlaySoundToSet(me, SOUND_YELL_TOTROLL);
                         me->RemoveAurasDueToSpell(SPELL_BEARFORM);
                         Surge_Timer = urand(15000, 20000);
@@ -395,7 +399,7 @@ class boss_nalorakk : public CreatureScript
                     else
                     {
                         // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-                        me->Yell(YELL_SHIFTEDTOBEAR, LANG_UNIVERSAL);
+                        Talk(YELL_SHIFTEDTOBEAR, me);
                         DoPlaySoundToSet(me, SOUND_YELL_TOBEAR);
                         DoCast(me, SPELL_BEARFORM, true);
                         LaceratingSlash_Timer = 2000; // dur 18s
@@ -426,7 +430,7 @@ class boss_nalorakk : public CreatureScript
 
                     if (Surge_Timer <= diff)
                     {
-                        me->Yell(YELL_SURGE, LANG_UNIVERSAL);
+                        Talk(YELL_SURGE, me);
                         DoPlaySoundToSet(me, SOUND_YELL_SURGE);
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
                         if (target)
