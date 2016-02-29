@@ -6,9 +6,9 @@
 
 **Steps to reproduce the problem**:
 
-1.
-2.
-3.
+1. 
+2. 
+3. 
 
 **Branch(es)**: 335/6x
 
