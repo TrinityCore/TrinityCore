@@ -2373,7 +2373,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     spellDispellLog.CasterGUID = m_caster->GetGUID();
     spellDispellLog.DispelledBySpellID = m_spellInfo->Id;
 
-    for (std::pair<Aura*, uint8>& const dispellCharge : success_list)
+    for (std::pair<Aura*, uint8> const& dispellCharge : success_list)
     {
         WorldPackets::CombatLog::SpellDispellData dispellData;
         dispellData.SpellID = dispellCharge.first->GetId();
@@ -5219,7 +5219,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex /*effIndex*/)
     spellDispellLog.CasterGUID = m_caster->GetGUID();
     spellDispellLog.DispelledBySpellID = m_spellInfo->Id;
 
-    for (std::pair<uint32, ObjectGuid>& const dispell : success_list)
+    for (std::pair<uint32, ObjectGuid> const& dispell : success_list)
     {
         WorldPackets::CombatLog::SpellDispellData dispellData;
         dispellData.SpellID = dispell.first;
