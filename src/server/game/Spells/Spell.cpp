@@ -6417,11 +6417,11 @@ void Spell::Delayed() // only called in DealDamage()
 
     TC_LOG_DEBUG("spells", "Spell %u partially interrupted for (%d) ms at damage", m_spellInfo->Id, delaytime);
 
-    WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    data << m_caster->GetPackGUID();
-    data << uint32(delaytime);
+    WorldPackets::Spells::SpellDelayed spellDelayed;
+    spellDelayed.Caster = m_caster->GetGUID();
+    spellDelayed.ActualDelay = delaytime;
 
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(spellDelayed.Write(), true);
 }
 
 void Spell::DelayedChannel()
