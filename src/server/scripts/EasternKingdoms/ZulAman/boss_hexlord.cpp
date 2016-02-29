@@ -39,16 +39,6 @@ enum Yells
     YELL_DEATH                    = 5
 };
 
-enum Sounds
-{
-    SOUND_YELL_AGGRO              = 12041,
-    SOUND_YELL_KILL_ONE           = 12043,
-    SOUND_YELL_KILL_TWO           = 12044,
-    SOUND_YELL_DRAIN_POWER        = 12046,
-    SOUND_YELL_SPIRIT_BOLTS       = 12047,
-    SOUND_YELL_DEATH              = 12051
-};
-
 enum Creatures
 {
     NPC_TEMP_TRIGGER              = 23920
@@ -311,8 +301,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 instance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
 
                 DoZoneInCombat();
-                Talk(YELL_AGGRO, me);
-                DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
+                Talk(YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -332,12 +321,10 @@ class boss_hexlord_malacrass : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        Talk(YELL_KILL_ONE, me);
-                        DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
+                        Talk(YELL_KILL_ONE);
                         break;
                     case 1:
-                        Talk(YELL_KILL_TWO, me);
-                        DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
+                        Talk(YELL_KILL_TWO);
                         break;
                 }
             }
@@ -346,8 +333,7 @@ class boss_hexlord_malacrass : public CreatureScript
             {
                 instance->SetData(DATA_HEXLORDEVENT, DONE);
 
-                Talk(YELL_DEATH, me);
-                DoPlaySoundToSet(me, SOUND_YELL_DEATH);
+                Talk(YELL_DEATH);
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -420,8 +406,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (DrainPower_Timer <= diff)
                 {
                     DoCast(me, SPELL_DRAIN_POWER, true);
-                    Talk(YELL_DRAIN_POWER, me);
-                    DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
+                    Talk(YELL_DRAIN_POWER);
                     DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
                 } else DrainPower_Timer -= diff;
 
@@ -432,8 +417,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     else
                     {
                         DoCast(me, SPELL_SPIRIT_BOLTS, false);
-                        Talk(YELL_SPIRIT_BOLTS, me);
-                        DoPlaySoundToSet(me, SOUND_YELL_SPIRIT_BOLTS);
+                        Talk(YELL_SPIRIT_BOLTS);
                         SpiritBolts_Timer = 40000;
                         SiphonSoul_Timer = 10000;    // ready to drain
                         PlayerAbility_Timer = 99999;
