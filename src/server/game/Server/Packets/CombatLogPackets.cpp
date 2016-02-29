@@ -346,7 +346,7 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellDispell
     if (dispellData.Needed.is_initialized())
         buffer << int32(*dispellData.Needed);
 
-    _worldPacket.FlushBits();
+    buffer.FlushBits();
 
     return buffer;
 }
