@@ -309,7 +309,7 @@ class boss_nalorakk : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        TAlk(YELL_KILL_ONE, me);
+                        Talk(YELL_KILL_ONE, me);
                         DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
                         break;
                     case 1:
