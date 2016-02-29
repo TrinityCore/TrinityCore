@@ -264,9 +264,10 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         // check if target is globally visible for player
+        /* Remove check so Level 255 shows up in who list
         if (!target->IsVisibleGloballyFor(_player))
             continue;
-
+*/
         // check if target's level is in level range
         uint8 lvl = target->getLevel();
         if (lvl < level_min || lvl > level_max)
