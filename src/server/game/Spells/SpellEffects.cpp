@@ -2365,21 +2365,28 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + success_list.size() * 5);
-    // Send packet header
-    dataSuccess << unitTarget->GetPackGUID();         // Victim GUID
-    dataSuccess << m_caster->GetPackGUID();           // Caster GUID
-    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
-    dataSuccess << uint8(0);                               // not used
-    dataSuccess << uint32(success_list.size());            // count
-    for (DispelChargesList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
+    WorldPackets::CombatLog::SpellDispellLog spellDispellLog;
+    spellDispellLog.IsBreak = false; // TODO: use me
+    spellDispellLog.IsSteal = false;
+
+    spellDispellLog.TargetGUID = unitTarget->GetGUID();
+    spellDispellLog.CasterGUID = m_caster->GetGUID();
+    spellDispellLog.DispelledBySpellID = m_spellInfo->Id;
+
+    for (std::pair<Aura*, uint8>& const dispellCharge : success_list)
     {
-        // Send dispelled spell info
-        dataSuccess << uint32(itr->first->GetId());              // Spell Id
-        dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), m_spellInfo->Id, itr->first->GetCasterGUID(), m_caster, itr->second);
+        WorldPackets::CombatLog::SpellDispellData dispellData;
+        dispellData.SpellID = dispellCharge.first->GetId();
+        dispellData.Harmful = false;      // TODO: use me
+        dispellData.Rolled = boost::none; // TODO: use me
+        dispellData.Needed = boost::none; // TODO: use me
+
+        unitTarget->RemoveAurasDueToSpellByDispel(dispellCharge.first->GetId(), m_spellInfo->Id, dispellCharge.first->GetCasterGUID(), m_caster, dispellCharge.second);
+
+        spellDispellLog.DispellData.emplace_back(dispellData);
     }
-    m_caster->SendMessageToSet(&dataSuccess, true);
+
+    m_caster->SendMessageToSet(spellDispellLog.Write(), true);
 
     CallScriptSuccessfulDispel(effIndex);
 }
@@ -5204,19 +5211,28 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex /*effIndex*/)
     if (success_list.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + damage * 5);
-    dataSuccess << unitTarget->GetPackGUID();  // Victim GUID
-    dataSuccess << m_caster->GetPackGUID();    // Caster GUID
-    dataSuccess << uint32(m_spellInfo->Id);         // dispel spell id
-    dataSuccess << uint8(0);                        // not used
-    dataSuccess << uint32(success_list.size());     // count
-    for (DispelList::iterator itr = success_list.begin(); itr!=success_list.end(); ++itr)
+    WorldPackets::CombatLog::SpellDispellLog spellDispellLog;
+    spellDispellLog.IsBreak = false; // TODO: use me
+    spellDispellLog.IsSteal = true;
+
+    spellDispellLog.TargetGUID = unitTarget->GetGUID();
+    spellDispellLog.CasterGUID = m_caster->GetGUID();
+    spellDispellLog.DispelledBySpellID = m_spellInfo->Id;
+
+    for (std::pair<uint32, ObjectGuid>& const dispell : success_list)
     {
-        dataSuccess << uint32(itr->first);          // Spell Id
-        dataSuccess << uint8(0);                    // 0 - steals !=0 transfers
-        unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
+        WorldPackets::CombatLog::SpellDispellData dispellData;
+        dispellData.SpellID = dispell.first;
+        dispellData.Harmful = false;      // TODO: use me
+        dispellData.Rolled = boost::none; // TODO: use me
+        dispellData.Needed = boost::none; // TODO: use me
+
+        unitTarget->RemoveAurasDueToSpellBySteal(dispell.first, dispell.second, m_caster);
+
+        spellDispellLog.DispellData.emplace_back(dispellData);
     }
-    m_caster->SendMessageToSet(&dataSuccess, true);
+
+    m_caster->SendMessageToSet(spellDispellLog.Write(), true);
 }
 
 void Spell::EffectKillCreditPersonal(SpellEffIndex /*effIndex*/)
