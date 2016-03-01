@@ -61,6 +61,14 @@ float frand(float min, float max)
     return float(GetRng()->Random() * (max - min) + min);
 }
 
+Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
+{
+    long long diff = max.count() - min.count();
+    ASSERT(diff >= 0);
+    ASSERT(diff <= (uint32)-1);
+    return min + Milliseconds(urand(0, diff));
+}
+
 uint32 rand32()
 {
     return GetRng()->BRandom();
