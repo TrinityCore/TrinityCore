@@ -19,6 +19,7 @@
 #define Random_h__
 
 #include "Define.h"
+#include "Duration.h"
 #include <limits>
 #include <random>
 
@@ -33,6 +34,9 @@ TC_COMMON_API uint32 urandms(uint32 min, uint32 max);
 
 /* Return a random number in the range 0 .. UINT32_MAX. */
 TC_COMMON_API uint32 rand32();
+
+/* Return a random time in the range min..max (up to millisecond precision). Only works for values where millisecond difference is a valid uint32. */
+Milliseconds randtime(Milliseconds const& min, Milliseconds const& max);
 
 /* Return a random number in the range min..max */
 TC_COMMON_API float frand(float min, float max);
