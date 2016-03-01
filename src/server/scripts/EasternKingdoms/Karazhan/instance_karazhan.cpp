@@ -154,8 +154,8 @@ public:
                     {
                         HandleGameObject(StageDoorLeftGUID, true);
                         HandleGameObject(StageDoorRightGUID, true);
-                        if (GameObject* pSideEntrance = GetGameObject(SideEntranceDoor))
-                            pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
+                            sideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                         UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 16812, NULL);
                     }
                     break;
