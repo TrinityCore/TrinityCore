@@ -24,6 +24,7 @@ StatsLogger::StatsLogger() : _batchTimer(nullptr), _updateInterval(0), _enabled(
 {
     _categories[STATS_EVENT_CATEGORY_GENERIC]   = "events";
     _categories[STATS_EVENT_CATEGORY_MMAP]      = "mmap_events";
+    _categories[STATS_EVENT_CATEGORY_PLAYER]    = "player_events";
 }
 
 StatsLogger::~StatsLogger()
@@ -67,6 +68,7 @@ void StatsLogger::LoadFromConfigs()
         }
 
         _dataStream.connect(tokens[0], tokens[1]);
+        _hostname.assign(tokens[0]);
         _databaseName.assign(tokens[2]);
         ScheduleSend();
     }
@@ -122,7 +124,7 @@ void StatsLogger::SendBatch()
     batchedData << "\r\n";
 
     _dataStream << "POST " << "/write?db=" << _databaseName << " HTTP/1.1\r\n";
-    _dataStream << "Host: " << "localhost:8086" << "\r\n";
+    _dataStream << "Host: " << _hostname << ":8086" << "\r\n";
     _dataStream << "Accept: */*\r\n";
     _dataStream << "Content-Type: application/octet-stream\r\n";
     _dataStream << "Content-Transfer-Encoding: binary\r\n";

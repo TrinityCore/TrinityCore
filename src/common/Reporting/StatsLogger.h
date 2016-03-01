@@ -26,6 +26,7 @@ enum StatsEventCategory
 {
     STATS_EVENT_CATEGORY_GENERIC = 0,
     STATS_EVENT_CATEGORY_MMAP,
+    STATS_EVENT_CATEGORY_PLAYER,
     STATS_EVENT_CATEGORY_MAX
 };
 
@@ -40,6 +41,7 @@ private:
     boost::asio::deadline_timer* _batchTimer;
     int32 _updateInterval;
     bool _enabled;
+    std::string _hostname;
     std::string _databaseName;
 
     void SendBatch();

@@ -43,6 +43,7 @@
 #include "WardenWin.h"
 #include "MoveSpline.h"
 #include "WardenMac.h"
+#include "StatsLogger.h"
 
 #include <zlib.h>
 
@@ -553,6 +554,8 @@ void WorldSession::LogoutPlayer(bool save)
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
+
+        TC_STATS_EVENT(STATS_EVENT_CATEGORY_PLAYER, "Logout", _player->GetName());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
