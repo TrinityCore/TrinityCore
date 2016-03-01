@@ -1,4 +1,5 @@
 -- creature text 23576 Nalorakk + sound ID + broadcast_text ID
+/*
 DELETE FROM `creature_text` WHERE `entry` = 23576 AND `type` = 14;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (23576,  0,0, "Get da move on, guards! It be killin' time!",                                                             14,0,100,0,0, 12066, 22144, 1, 'Nalorakk - YELL_NALORAKK_WAVE1'),
@@ -25,3 +26,4 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (24239, 3,0, "Darkness comin' for you....",           14,0,100,0,0, 12046, 23596, 1, 'Hex Lord Malacrass - YELL_DRAIN_POWER'),
 (24239, 4,0, "Your soul gonna bleed!",                14,0,100,0,0, 12047, 23597, 1, 'Hex Lord Malacrass - YELL_SPIRIT_BOLTS'),
 (24239, 5,0, "Dis not... da end for me!",             14,0,100,0,0, 12051, 23601, 1, 'Hex Lord Malacrass - YELL_DEATH');
+*/
