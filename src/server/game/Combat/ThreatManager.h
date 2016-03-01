@@ -169,7 +169,7 @@ class ThreatContainer
 
         HostileReference* getMostHated() const
         {
-            return iThreatList.empty() ? NULL : iThreatList.front();
+            return iThreatList.empty() ? nullptr : iThreatList.front();
         }
 
         HostileReference* getReferenceByTarget(Unit* victim) const;
