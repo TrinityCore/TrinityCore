@@ -136,6 +136,19 @@ namespace WorldPackets
             int32 Delay = 0;
             uint32 Reason = 0;
         };
+
+        class PendingRaidLock final : public ServerPacket
+        {
+        public:
+            PendingRaidLock() : ServerPacket(SMSG_PENDING_RAID_LOCK, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimeUntilLock = 0;
+            uint32 CompletedMask = 0;
+            bool Extending = false;
+            bool WarningOnly = false;
+        };
     }
 }
 
