@@ -168,7 +168,7 @@ public:
 
         void StartEvent()
         {
-            instance->SetData(TYPE_OPERA, IN_PROGRESS);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, IN_PROGRESS);
 
             //resets count for this event, in case earlier failed
             if (m_uiEventId == EVENT_OZ)
@@ -377,7 +377,7 @@ public:
         if (InstanceScript* instance = creature->GetInstanceScript())
         {
             // Check for death of Moroes and if opera event is not done already
-            if (instance->GetData(TYPE_MOROES) == DONE && instance->GetData(TYPE_OPERA) != DONE)
+            if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
