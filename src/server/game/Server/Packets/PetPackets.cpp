@@ -165,7 +165,7 @@ void WorldPackets::Pet::PetSetAction::Read()
 
 void WorldPackets::Pet::PetAbandon::Read()
 {
-    _worldPacket >> PetGUID;
+    _worldPacket >> Pet;
 }
 
 void WorldPackets::Pet::PetSpellAutocast::Read()
