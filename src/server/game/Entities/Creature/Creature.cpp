@@ -222,7 +222,14 @@ void Creature::AddToWorld()
 
         GetMap()->GetObjectsStore().Insert<Creature>(GetGUID(), this);
         if (m_spawnId)
+        {
             GetMap()->GetCreatureBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
+            if (IsAlive() && !sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE, m_spawnId, this))
+            {
+                ForcedDespawn();
+                SetRespawnTime(4 * MINUTE + urand(0, 2 * MINUTE)); // 5 minutes +-1 minute to avoid slowdowns
+            }
+        }
 
         TC_LOG_DEBUG("entities.unit", "Adding creature %u with entry %u and DBGUID %u to world in map %u", GetGUID().GetCounter(), GetEntry(), m_spawnId, GetMap()->GetId());
 
@@ -508,20 +515,26 @@ void Creature::Update(uint32 diff)
             break;
         case JUST_DIED:
             // Must not be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
-            TC_LOG_ERROR("entities.unit", "Creature (GUID: %u Entry: %u) in wrong state: JUST_DEAD (1)", GetGUID().GetCounter(), GetEntry());
+            TC_LOG_ERROR("entities.unit", "Creature (GUID: %u Entry: %u) in wrong state: JUST_DIED (1)", GetGUID().GetCounter(), GetEntry());
             break;
         case DEAD:
         {
             time_t now = time(NULL);
             if (m_respawnTime <= now)
             {
+                if (m_spawnId && !sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE, m_spawnId, this))
+                {
+                    SetRespawnTime(4 * MINUTE + urand(0, 2 * MINUTE));
+                    SaveRespawnTime();
+                    break;
+                }
                 bool allowed = IsAIEnabled ? AI()->CanRespawn() : true;     // First check if there are any scripts that object to us respawning
                 if (!allowed)                                               // Will be rechecked on next Update call
                     break;
 
                 ObjectGuid dbtableHighGuid(HighGuid::Unit, GetEntry(), m_spawnId);
-                time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
-                if (!linkedRespawntime)             // Can respawn
+                time_t linkedRespawnTime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
+                if (!linkedRespawnTime)             // Can respawn
                     Respawn();
                 else                                // the master is dead
                 {
@@ -529,7 +542,7 @@ void Creature::Update(uint32 diff)
                     if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                         SetRespawnTime(DAY);
                     else
-                        m_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + urand(5, MINUTE); // else copy time from master and add a little
+                        m_respawnTime = (now > linkedRespawnTime ? now : linkedRespawnTime) + urand(5, MINUTE); // else copy time from master and add a little
                     SaveRespawnTime(); // also save to DB immediately
                 }
             }
