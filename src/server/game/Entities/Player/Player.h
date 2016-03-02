@@ -2131,7 +2131,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResummonPetTemporaryUnSummonedIfAny();
         bool IsPetNeedBeTemporaryUnsummoned() const;
 
-        void SendCinematicStart(uint32 CinematicSequenceId) const;
+        void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId) const;
 
         /*********************************************************/
@@ -2266,6 +2266,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
+
+        // Cinematic camera data and remote sight functions
+        uint32 GetActiveCinematicCamera() const { return m_activeCinematicCameraId; }
+        void SetActiveCinematicCamera(uint32 cinematicCameraId = 0) { m_activeCinematicCameraId = cinematicCameraId; }
+        bool IsOnCinematic() const { return (m_cinematicCamera != nullptr); }
+        void BeginCinematic();
+        void EndCinematic();
+        void UpdateCinematicLocation(uint32 diff);
+
+        std::string GetMapAreaAndZoneString();
+        std::string GetCoordsMapAreaAndZoneString();
 
     protected:
         // Gamemaster whisper whitelist
@@ -2592,6 +2603,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        // Remote location information
+        uint32 m_cinematicDiff;
+        uint32 m_lastCinematicCheck;
+        uint32 m_activeCinematicCameraId;
+        FlyByCameraCollection* m_cinematicCamera;
+        Position m_remoteSightPosition;
+        Creature* m_CinematicObject;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
