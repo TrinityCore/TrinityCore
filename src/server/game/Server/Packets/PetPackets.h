@@ -19,6 +19,7 @@
 #define PetPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "ObjectGuid.h"
 #include "Unit.h"
 #include "WorldSession.h"
