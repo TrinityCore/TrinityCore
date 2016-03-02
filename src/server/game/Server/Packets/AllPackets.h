@@ -52,6 +52,7 @@
 #include "PartyPackets.h"
 #include "PetPackets.h"
 #include "PetitionPackets.h"
+#include "PetPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
 #include "ReferAFriendPackets.h"

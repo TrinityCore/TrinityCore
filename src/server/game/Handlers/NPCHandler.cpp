@@ -31,6 +31,7 @@
 #include "ObjectAccessor.h"
 #include "Creature.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "ReputationMgr.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
@@ -496,29 +497,27 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     if (!GetPlayer())
         return;
 
-    WorldPacket data(SMSG_PET_STABLE_LIST, 200);           // guess size
+    WorldPackets::Pet::PetStableList packet;
 
-    data << guid;
+    packet.StableMaster = guid;
 
     Pet* pet = _player->GetPet();
 
-    size_t wpos = data.wpos();
-    data << uint8(0);                                       // place holder for slot show number
-
-    data << uint8(GetPlayer()->m_stableSlots);
-
-    uint8 num = 0;                                          // counter for place holder
-
+    int32 petSlot = 0;
     // not let move dead pet in slot
     if (pet && pet->IsAlive() && pet->getPetType() == HUNTER_PET)
     {
-        data << uint32(num);                                // 4.x unknown, some kind of order?
-        data << uint32(pet->GetCharmInfo()->GetPetNumber());
-        data << uint32(pet->GetEntry());
-        data << uint32(pet->getLevel());
-        data << pet->GetName();                             // petname
-        data << uint8(1);                                   // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
-        ++num;
+        WorldPackets::Pet::PetStableInfo stableEntry;
+        stableEntry.PetSlot = petSlot;
+        stableEntry.PetNumber = pet->GetCharmInfo()->GetPetNumber();
+        stableEntry.CreatureID = pet->GetEntry();
+        stableEntry.DisplayID = pet->GetDisplayId();
+        stableEntry.ExperienceLevel = pet->getLevel();
+        stableEntry.PetFlags = PET_STABLE_ACTIVE;
+        stableEntry.PetName = pet->GetName();                                       
+        ++petSlot;
+
+        packet.Pets.push_back(stableEntry);
     }
 
     if (result)
@@ -526,22 +525,23 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
         do
         {
             Field* fields = result->Fetch();
+            WorldPackets::Pet::PetStableInfo stableEntry;
 
-            data << uint32(num);
-            data << uint32(fields[1].GetUInt32());          // petnumber
-            data << uint32(fields[2].GetUInt32());          // creature entry
-            data << uint32(fields[3].GetUInt16());          // level
-            data << fields[4].GetString();                  // name
-            data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
+            stableEntry.PetSlot = petSlot;
+            stableEntry.PetNumber = fields[1].GetUInt32();          // petnumber
+            stableEntry.CreatureID = fields[2].GetUInt32();         // creature entry
+            stableEntry.DisplayID = fields[5].GetUInt32();          // creature displayid
+            stableEntry.ExperienceLevel = fields[3].GetUInt16();    // level
+            stableEntry.PetFlags = PET_STABLE_INACTIVE;
+            stableEntry.PetName = fields[4].GetString();            // Name
 
-            ++num;
+            ++petSlot;
+            packet.Pets.push_back(stableEntry);
         }
         while (result->NextRow());
     }
 
-    data.put<uint8>(wpos, num);                             // set real data to placeholder
-    SendPacket(&data);
-
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendPetStableResult(uint8 res)
