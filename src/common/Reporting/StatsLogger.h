@@ -68,10 +68,10 @@ public:
 #define sStatsLogger StatsLogger::instance()
 
 #if PLATFORM != PLATFORM_WINDOWS
-#define TC_STATS_EVENT(title, description)                              \
+#define TC_STATS_EVENT(category, title, description)                    \
         do {                                                            \
             if (sStatsLogger->IsEnabled())                              \
-                sStatsLogger->LogEvent(title, description);             \
+                sStatsLogger->LogEvent(category, title, description);   \
         } while (0)
 #define TC_STATS_VALUE(category, value)                                 \
         do {                                                            \
