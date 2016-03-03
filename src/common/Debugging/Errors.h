@@ -34,6 +34,8 @@ namespace Trinity
 
     void Warning(char const* file, int line, char const* function, char const* message);
 
+    DECLSPEC_NORETURN void AbortHandler(int sigval) ATTR_NORETURN;
+
 } // namespace Trinity
 
 #if COMPILER == COMPILER_MICROSOFT
