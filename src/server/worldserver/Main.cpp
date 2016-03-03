@@ -93,6 +93,8 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
+    std::signal(SIGABRT, &Trinity::AbortHandler);
+
     std::string configFile = _TRINITY_CORE_CONFIG;
     std::string configService;
 
