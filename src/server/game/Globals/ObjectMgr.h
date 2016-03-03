@@ -682,7 +682,7 @@ struct PhaseInfoStruct
     ConditionContainer Conditions;
 };
 
-typedef std::unordered_map<uint32, std::vector<PhaseInfoStruct>> TerrainPhaseInfo; // terrain swap
+typedef std::unordered_map<uint32, std::vector<uint32 /*id*/>> TerrainPhaseInfo; // terrain swap
 typedef std::unordered_map<uint32, std::vector<uint32>> TerrainUIPhaseInfo; // worldmaparea swap
 typedef std::unordered_map<uint32, std::vector<PhaseInfoStruct>> PhaseInfo; // phase
 
@@ -1311,12 +1311,12 @@ class ObjectMgr
             return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
 
-        std::vector<PhaseInfoStruct> const* GetPhaseTerrainSwaps(uint32 phaseid) const
+        std::vector<uint32> const* GetPhaseTerrainSwaps(uint32 phaseid) const
         {
             auto itr = _terrainPhaseInfoStore.find(phaseid);
             return itr != _terrainPhaseInfoStore.end() ? &itr->second : nullptr;
         }
-        std::vector<PhaseInfoStruct> const* GetDefaultTerrainSwaps(uint32 mapid) const
+        std::vector<uint32> const* GetDefaultTerrainSwaps(uint32 mapid) const
         {
             auto itr = _terrainMapDefaultStore.find(mapid);
             return itr != _terrainMapDefaultStore.end() ? &itr->second : nullptr;
@@ -1339,8 +1339,6 @@ class ObjectMgr
             auto itr = _phases.find(area);
             return itr != _phases.end() ? &itr->second : nullptr;
         }
-        TerrainPhaseInfo& GetPhaseTerrainSwapStoreForLoading() { return _terrainPhaseInfoStore; }
-        TerrainPhaseInfo& GetDefaultTerrainSwapStoreForLoading() { return _terrainMapDefaultStore; }
         PhaseInfo& GetAreaPhasesForLoading() { return _phases; }
 
         // for wintergrasp only
