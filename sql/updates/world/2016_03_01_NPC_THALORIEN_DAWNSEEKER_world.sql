@@ -10,7 +10,6 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`Op
 (@ENTRY,0,0,'Examine the remains.',37149,1,1,0,0,0,0,'',0);
 
 UPDATE `creature_template` SET `ScriptName`="npc_thalorien_dawnseeker" WHERE `entry`=@ENTRY;
-UPDATE `creature_template` SET `faction`=35 WHERE `entry`=@ENTRY;
 
 -- Thalorien Dawnseeker SAI
 SET @ENTRY := 37205;
