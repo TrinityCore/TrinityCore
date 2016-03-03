@@ -42,8 +42,10 @@ private:
     int32 _updateInterval;
     bool _enabled;
     std::string _hostname;
+    std::string _port;
     std::string _databaseName;
 
+    bool Connect();
     void SendBatch();
     void Enqueue(std::string const& data);
     void ScheduleSend();

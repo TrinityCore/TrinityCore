@@ -38,6 +38,21 @@ void StatsLogger::Initialize(boost::asio::io_service& ioService)
     LoadFromConfigs();
 }
 
+bool StatsLogger::Connect()
+{
+    _dataStream.connect(_hostname, _port);
+    auto error = _dataStream.error();
+    if (error)
+    {
+        TC_LOG_ERROR("statslogger", "Error connecting to '%s:%s', disabling StatsLogger. Error message : %s",
+            _hostname.c_str(), _port.c_str(), error.message().c_str());
+        _enabled = false;
+        return false;
+    }
+    _dataStream.clear();
+    return true;
+}
+
 void StatsLogger::LoadFromConfigs()
 {
     bool previousValue = _enabled;
@@ -67,9 +82,11 @@ void StatsLogger::LoadFromConfigs()
             return;
         }
 
-        _dataStream.connect(tokens[0], tokens[1]);
         _hostname.assign(tokens[0]);
+        _port.assign(tokens[1]);
         _databaseName.assign(tokens[2]);
+        Connect();
+
         ScheduleSend();
     }
 }
@@ -123,8 +140,11 @@ void StatsLogger::SendBatch()
 
     batchedData << "\r\n";
 
+    if (!_dataStream.good() && !Connect())
+        return;
+
     _dataStream << "POST " << "/write?db=" << _databaseName << " HTTP/1.1\r\n";
-    _dataStream << "Host: " << _hostname << ":8086" << "\r\n";
+    _dataStream << "Host: " << _hostname << ":" << _port << "\r\n";
     _dataStream << "Accept: */*\r\n";
     _dataStream << "Content-Type: application/octet-stream\r\n";
     _dataStream << "Content-Transfer-Encoding: binary\r\n";
@@ -148,7 +168,10 @@ void StatsLogger::SendBatch()
     // Read and ignore any header
     std::string header;
     while (std::getline(_dataStream, header) && header != "\r")
-        ;
+    {
+        if (header == "Connection: close\r")
+            _dataStream.close();
+    }
 
     ScheduleSend();
 }
