@@ -85,6 +85,8 @@ LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
+    std::signal(SIGABRT, &Trinity::AbortHandler);
+
     std::string configFile = _TRINITY_BNET_CONFIG;
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
