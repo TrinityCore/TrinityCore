@@ -96,7 +96,7 @@ void Abort(char const* file, int line, char const* function)
     exit(1);
 }
 
-void AbortHandler(int sigval)
+void AbortHandler(int /*sigval*/)
 {
     // nothing useful to log here, no way to pass args
     *((volatile int*)NULL) = 0;
