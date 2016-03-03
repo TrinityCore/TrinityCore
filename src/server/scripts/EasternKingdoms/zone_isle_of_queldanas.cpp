@@ -30,6 +30,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
 
@@ -127,6 +128,11 @@ enum ThalorienDawnseekerCreatures
     NPC_CRYPT_RAIDER            = 37541
 };
 
+enum Phase
+{
+    PHASE_SHIFT = 70193
+};
+
 enum ThalorienDawnseekerActions
 {
     ACTION_START_QUEST = 1
@@ -206,8 +212,8 @@ class npc_thalorien_dawnseeker : public CreatureScript
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->CLOSE_GOSSIP_MENU();
                 creature->AI()->SetGUID(player->GetGUID());
-                creature->SetPhaseMask(2, true);
-                player->SetPhaseMask(2, true); // Better handling if we find the correct Phasing-Spell
+                creature->CastSpell(creature, PHASE_SHIFT, true);
+                player->CastSpell(player, PHASE_SHIFT, true);
                 creature->AI()->DoAction(ACTION_START_QUEST);
                 break;
             default:
