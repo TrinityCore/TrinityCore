@@ -8967,9 +8967,7 @@ void ObjectMgr::LoadTerrainSwapDefaults()
             continue;
         }
 
-        PhaseInfoStruct defaultSwap;
-        defaultSwap.Id = terrainSwap;
-        _terrainMapDefaultStore[mapId].push_back(defaultSwap);
+        _terrainMapDefaultStore[mapId].push_back(terrainSwap);
 
         ++count;
     } while (result->NextRow());
@@ -9006,8 +9004,7 @@ void ObjectMgr::LoadTerrainPhaseInfo()
             continue;
         }
 
-        PhaseInfoStruct terrainSwap;
-        terrainSwap.Id = fields[1].GetUInt32();
+        uint32 terrainSwap = fields[1].GetUInt32();
 
         _terrainPhaseInfoStore[phaseId].push_back(terrainSwap);
 
