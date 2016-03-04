@@ -1,3 +1,4 @@
+/*
 SET @Pool := 370;
 
 UPDATE `quest_template_addon` SET `PrevQuestID`=0 WHERE  `ID` IN(12604,12541,12502,12509,12519,12502,12509,12519,12588,12591,12594,12557,12597,12598,12599,12564,12568,12585);
@@ -73,3 +74,4 @@ DELETE FROM `pool_template` WHERE `entry` IN (@Pool);
 
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@Pool, 1, 'Troll Patrol Daily Quests');
+*/
