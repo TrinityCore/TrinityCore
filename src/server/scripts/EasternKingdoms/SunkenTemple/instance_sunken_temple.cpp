@@ -44,15 +44,16 @@ enum CreatureIds
     NPC_ATALALARION             = 8580
 };
 
-Position const StatuePositions[]
+static Position const atalalarianPos = { -466.5134f, 95.19822f, -189.6463f, 0.03490658f };
+static uint8 const nStatues = 6;
+static Position const statuePositions[nStatues]
 {
     { -515.553f,  95.25821f, -173.707f,  0.0f },
     { -419.8487f, 94.48368f, -173.707f,  0.0f },
     { -491.4003f, 135.9698f, -173.707f,  0.0f },
     { -491.4909f, 53.48179f, -173.707f,  0.0f },
     { -443.8549f, 136.1007f, -173.707f,  0.0f },
-    { -443.4171f, 53.83124f, -173.707f,  0.0f },
-    { -466.5134f, 95.19822f, -189.6463f, 0.03490658f }
+    { -443.4171f, 53.83124f, -173.707f,  0.0f }
 };
 
 class instance_sunken_temple : public InstanceMapScript
@@ -181,10 +182,10 @@ public:
 
         void UseLastStatue(GameObject* go)
         {
-            for (uint8 i = 0; i < 6; ++i)
-                go->SummonGameObject(GO_ATALAI_LIGHT2, StatuePositions[i].GetPositionX(), StatuePositions[i].GetPositionY(), StatuePositions[i].GetPositionZ(), StatuePositions[i].GetOrientation(), 0, 0, 0, 0, 0);
+            for (uint8 i = 0; i < nStatues; ++i)
+                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i].GetPositionX(), statuePositions[i].GetPositionY(), statuePositions[i].GetPositionZ(), statuePositions[i].GetOrientation(), 0, 0, 0, 0, 0);
 
-            go->SummonCreature(NPC_ATALALARION, StatuePositions[6].GetPosition(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200);
+            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200);
         }
 
          void SetData(uint32 type, uint32 data) override
