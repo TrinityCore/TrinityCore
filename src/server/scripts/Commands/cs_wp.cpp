@@ -564,7 +564,6 @@ public:
         // -> variable lowguid is filled with the GUID of the NPC
         uint32 pathid = 0;
         uint32 point = 0;
-        ObjectGuid wpGuid;
         Creature* target = handler->getSelectedCreature();
         PreparedStatement* stmt = NULL;
 
@@ -602,7 +601,7 @@ public:
 
             if (!result)
             {
-                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, wpGuid.ToString().c_str());
+                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, target->GetGUID().ToString().c_str());
                 return true;
             }
         }
