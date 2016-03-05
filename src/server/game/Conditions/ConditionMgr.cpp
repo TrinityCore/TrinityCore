@@ -954,6 +954,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         TC_LOG_INFO("misc", "Re-Loading `gossip_menu_option` Table for Conditions!");
         sObjectMgr->LoadGossipMenuItems();
+
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
 
         TC_LOG_INFO("misc", "Re-Loading `terrain_phase_info` Table for Conditions!");
@@ -1181,17 +1182,6 @@ void ConditionMgr::LoadConditions(bool isReload)
             }
             continue;
         }
-        else if (cond->SourceType == CONDITION_SOURCE_TYPE_TERRAIN_SWAP)
-        {
-            if (!addToTerrainSwaps(cond))
-            {
-                delete cond;
-                continue;
-            }
-
-            ++count;
-            continue;
-        }
 
         //handle not grouped conditions
         //add new Condition to storage based on Type/Entry
@@ -1359,29 +1349,6 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
         }
     }
     return true;
-}
-
-static bool addToTerrainSwapStore(TerrainPhaseInfo& swaps, Condition* cond)
-{
-    bool added = false;
-    for (auto itr = swaps.begin(); itr != swaps.end(); ++itr)
-        for (auto it2 = itr->second.begin(); it2 != itr->second.end(); ++it2)
-            if (it2->Id == uint32(cond->SourceEntry))
-                it2->Conditions.push_back(cond), added = true;
-
-    return added;
-}
-
-bool ConditionMgr::addToTerrainSwaps(Condition* cond) const
-{
-    bool added = false;
-    added = addToTerrainSwapStore(sObjectMgr->GetPhaseTerrainSwapStoreForLoading(), cond);
-    added = addToTerrainSwapStore(sObjectMgr->GetDefaultTerrainSwapStoreForLoading(), cond) || added;
-    if (added)
-        return true;
-
-    TC_LOG_ERROR("sql.sql", "%s No terrain swap with map %u exists.", cond->ToString().c_str(), cond->SourceEntry);
-    return false;
 }
 
 bool ConditionMgr::addToPhases(Condition* cond) const
