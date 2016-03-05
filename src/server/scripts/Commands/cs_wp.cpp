@@ -595,9 +595,9 @@ public:
             stmt->setString(3, maxDiff);
             stmt->setFloat(4, target->GetPositionZ());
             stmt->setString(5, maxDiff);
-            PreparedQueryResult queryResult = WorldDatabase.Query(stmt);
+            result = WorldDatabase.Query(stmt);
 
-            if (!queryResult)
+            if (!result)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, target->GetSpawnId());
                 return true;
