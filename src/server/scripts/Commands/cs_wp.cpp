@@ -561,7 +561,6 @@ public:
         // -> variable lowguid is filled with the GUID of the NPC
         uint32 pathid = 0;
         uint32 point = 0;
-        uint32 wpGuid = 0;
         Creature* target = handler->getSelectedCreature();
         PreparedStatement* stmt = NULL;
 
