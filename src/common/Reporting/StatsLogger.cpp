@@ -166,7 +166,7 @@ void StatsLogger::SendBatch()
     _dataStream >> status_code;
     if (status_code != 204)
     {
-        TC_LOG_ERROR("statslogger", "Error sending data, returned HTTP code: %u. Request content: '%s'", status_code, batchedData.str().c_str());
+        TC_LOG_ERROR("statslogger", "Error sending data, returned HTTP code: %u", status_code);
     }
 
     // Read and ignore teh status description
