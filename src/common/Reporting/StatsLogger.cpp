@@ -25,6 +25,8 @@ StatsLogger::StatsLogger() : _batchTimer(nullptr), _updateInterval(0), _enabled(
     _categories[STATS_EVENT_CATEGORY_GENERIC]   = "events";
     _categories[STATS_EVENT_CATEGORY_MMAP]      = "mmap_events";
     _categories[STATS_EVENT_CATEGORY_PLAYER]    = "player_events";
+
+    _values[STATS_VALUE_UPDATE_TIME_DIFF]       = "update_time_diff";
 }
 
 StatsLogger::~StatsLogger()
@@ -89,6 +91,11 @@ void StatsLogger::LoadFromConfigs()
 
         ScheduleSend();
     }
+}
+
+void StatsLogger::LogValue(StatsValueCategory category, uint32 value)
+{
+    LogValue(_values[category], value);
 }
 
 void StatsLogger::LogValue(std::string const& category, uint32 value)

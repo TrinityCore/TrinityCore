@@ -30,6 +30,12 @@ enum StatsEventCategory
     STATS_EVENT_CATEGORY_MAX
 };
 
+enum StatsValueCategory
+{
+    STATS_VALUE_UPDATE_TIME_DIFF = 0,
+    STATS_VALUE_MAX
+};
+
 class StatsLogger
 {
 private:
@@ -51,6 +57,7 @@ private:
     void ScheduleSend();
 
     std::string _categories[STATS_EVENT_CATEGORY_MAX];
+    std::string _values[STATS_VALUE_MAX];
 
 public:
     static StatsLogger* instance()
@@ -62,6 +69,7 @@ public:
     void Initialize(boost::asio::io_service& ioService);
     void LoadFromConfigs();
     void LogValue(std::string const& category, uint32 value);
+    void LogValue(StatsValueCategory category, uint32 value);
     void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description);
     void ForceSend();
     bool IsEnabled() { return _enabled; }
