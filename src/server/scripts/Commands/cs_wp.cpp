@@ -568,20 +568,16 @@ public:
         Creature* target = handler->getSelectedCreature();
         PreparedStatement* stmt = NULL;
 
+        // User did select a visual waypoint?
         if (!target || target->GetEntry() != VISUAL_WAYPOINT)
         {
             handler->SendSysMessage("|cffff33ffERROR: You must select a waypoint.|r");
             return false;
         }
 
-        // The visual waypoint
-        wpGuid = target->GetGUID();
-
-        // User did select a visual waypoint?
-
         // Check the creature
         stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_WPGUID);
-        stmt->setUInt64(0, wpGuid.GetCounter());
+        stmt->setUInt64(0, target->GetSpawnId());
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (!result)
@@ -634,15 +630,8 @@ public:
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff%u|r", pathid);
 
-            if (!wpGuid.IsEmpty())
-            {
-                if (Creature* wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(wpGuid))
-                {
-                    wpCreature->CombatStop();
-                    wpCreature->DeleteFromDB();
-                    wpCreature->AddObjectToRemoveList();
-                }
-            }
+            target->DeleteFromDB();
+            target->AddObjectToRemoveList();
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
             stmt->setUInt32(0, pathid);
@@ -664,53 +653,41 @@ public:
 
             Player* chr = handler->GetSession()->GetPlayer();
             Map* map = chr->GetMap();
+            // What to do:
+            // Move the visual spawnpoint
+            // Respawn the owner of the waypoints
+            target->DeleteFromDB();
+            target->AddObjectToRemoveList();
+
+            // re-create
+            Creature* wpCreature = new Creature();
+            if (!wpCreature->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, chr->GetPhaseMask(), VISUAL_WAYPOINT, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
             {
-                // What to do:
-                // Move the visual spawnpoint
-                // Respawn the owner of the waypoints
-                if (!wpGuid.IsEmpty())
-                {
-                    if (Creature* wpCreature = map->GetCreature(wpGuid))
-                    {
-                        wpCreature->CombatStop();
-                        wpCreature->DeleteFromDB();
-                        wpCreature->AddObjectToRemoveList();
-                    }
-                    // re-create
-                    Creature* wpCreature2 = new Creature();
-                    if (!wpCreature2->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, chr->GetPhaseMask(), VISUAL_WAYPOINT, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
-                    {
-                        handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
-                        delete wpCreature2;
-                        wpCreature2 = NULL;
-                        return false;
-                    }
-
-                    wpCreature2->CopyPhaseFrom(chr);
-
-                    wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
-                    // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-                    /// @todo Should we first use "Create" then use "LoadFromDB"?
-                    if (!wpCreature2->LoadCreatureFromDB(wpCreature2->GetSpawnId(), map))
-                    {
-                        handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
-                        delete wpCreature2;
-                        wpCreature2 = NULL;
-                        return false;
-                    }
-                    //sMapMgr->GetMap(npcCreature->GetMapId())->Add(wpCreature2);
-                }
-
-                stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_POSITION);
-                stmt->setFloat(0, chr->GetPositionX());
-                stmt->setFloat(1, chr->GetPositionY());
-                stmt->setFloat(2, chr->GetPositionZ());
-                stmt->setUInt32(3, pathid);
-                stmt->setUInt32(4, point);
-                WorldDatabase.Execute(stmt);
-
-                handler->PSendSysMessage(LANG_WAYPOINT_CHANGED);
+                handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
+                delete wpCreature;
+                return false;
             }
+
+            wpCreature->CopyPhaseFrom(chr);
+            wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
+            // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
+            /// @todo Should we first use "Create" then use "LoadFromDB"?
+            if (!wpCreature->LoadCreatureFromDB(wpCreature->GetSpawnId(), map))
+            {
+                handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
+                delete wpCreature;
+                return false;
+            }
+
+            stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_POSITION);
+            stmt->setFloat(0, chr->GetPositionX());
+            stmt->setFloat(1, chr->GetPositionY());
+            stmt->setFloat(2, chr->GetPositionZ());
+            stmt->setUInt32(3, pathid);
+            stmt->setUInt32(4, point);
+            WorldDatabase.Execute(stmt);
+
+            handler->PSendSysMessage(LANG_WAYPOINT_CHANGED);
             return true;
         }                                                       // move
 
@@ -906,15 +883,15 @@ public:
                 }
 
                 wpCreature->CopyPhaseFrom(chr);
+                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
 
                 // Set "wpguid" column to the visual waypoint
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
-                stmt->setUInt64(0, wpCreature->GetGUID().GetCounter());
+                stmt->setUInt64(0, wpCreature->GetSpawnId());
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
                 WorldDatabase.Execute(stmt);
 
-                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMask());
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 if (!wpCreature->LoadCreatureFromDB(wpCreature->GetSpawnId(), map))
                 {
