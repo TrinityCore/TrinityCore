@@ -33,6 +33,7 @@ enum StatsEventCategory
 enum StatsValueCategory
 {
     STATS_VALUE_UPDATE_TIME_DIFF = 0,
+    STATS_VALUE_ONLINE_PLAYERS,
     STATS_VALUE_MAX
 };
 
@@ -45,16 +46,21 @@ private:
     boost::asio::ip::tcp::iostream _dataStream;
     MPSCQueue<std::string> _queuedData;
     boost::asio::deadline_timer* _batchTimer;
+    boost::asio::deadline_timer* _overallStatusTimer;
     int32 _updateInterval;
+    int32 _overallStatusTimerInterval;
     bool _enabled;
+    bool _overallStatusTimerTriggered;
     std::string _hostname;
     std::string _port;
     std::string _databaseName;
+    std::function<void()> _overallStatusLogger;
 
     bool Connect();
     void SendBatch();
     void Enqueue(std::string const& data);
     void ScheduleSend();
+    void ScheduleOverallStatusLog();
 
     std::string _categories[STATS_EVENT_CATEGORY_MAX];
     std::string _values[STATS_VALUE_MAX];
@@ -66,8 +72,9 @@ public:
         return &instance;
     }
 
-    void Initialize(boost::asio::io_service& ioService);
+    void Initialize(boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
     void LoadFromConfigs();
+    void Update();
     void LogValue(std::string const& category, uint32 value);
     void LogValue(StatsValueCategory category, uint32 value);
     void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description);

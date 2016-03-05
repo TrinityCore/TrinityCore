@@ -2205,6 +2205,7 @@ void World::Update(uint32 diff)
     sScriptMgr->OnWorldUpdate(diff);
 
     // Stats logger update
+    sStatsLogger->Update();
     TC_STATS_VALUE(STATS_VALUE_UPDATE_TIME_DIFF, diff);
 }
 

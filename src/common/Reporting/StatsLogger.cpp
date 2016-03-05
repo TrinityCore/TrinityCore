@@ -20,23 +20,28 @@
 #include "Config.h"
 #include "Util.h"
 
-StatsLogger::StatsLogger() : _batchTimer(nullptr), _updateInterval(0), _enabled(false)
+StatsLogger::StatsLogger() : _batchTimer(nullptr), _overallStatusTimer(nullptr), _updateInterval(0), _overallStatusTimerInterval(0),
+_enabled(false), _overallStatusTimerTriggered(false)
 {
     _categories[STATS_EVENT_CATEGORY_GENERIC]   = "events";
     _categories[STATS_EVENT_CATEGORY_MMAP]      = "mmap_events";
     _categories[STATS_EVENT_CATEGORY_PLAYER]    = "player_events";
 
     _values[STATS_VALUE_UPDATE_TIME_DIFF]       = "update_time_diff";
+    _values[STATS_VALUE_ONLINE_PLAYERS]         = "online_players";
 }
 
 StatsLogger::~StatsLogger()
 {
     delete _batchTimer;
+    delete _overallStatusTimer;
 }
 
-void StatsLogger::Initialize(boost::asio::io_service& ioService)
+void StatsLogger::Initialize(boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
 {
     _batchTimer = new boost::asio::deadline_timer(ioService);
+    _overallStatusTimer = new boost::asio::deadline_timer(ioService);
+    _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
 
@@ -66,6 +71,13 @@ void StatsLogger::LoadFromConfigs()
         _updateInterval = 1;
     }
 
+    _overallStatusTimerInterval = sConfigMgr->GetIntDefault("InfluxDB.OverallStatusInterval", 1);
+    if (_overallStatusTimerInterval < 1)
+    {
+        TC_LOG_ERROR("statslogger", "'InfluxDB.OverallStatusInterval' config set to %d, overriding to 1.", _overallStatusTimerInterval);
+        _overallStatusTimerInterval = 1;
+    }
+
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
     // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
@@ -90,6 +102,16 @@ void StatsLogger::LoadFromConfigs()
         Connect();
 
         ScheduleSend();
+        ScheduleOverallStatusLog();
+    }
+}
+
+void StatsLogger::Update()
+{
+    if (_overallStatusTimerTriggered)
+    {
+        _overallStatusTimerTriggered = false;
+        _overallStatusLogger();
     }
 }
 
@@ -205,4 +227,17 @@ void StatsLogger::ForceSend()
     // Send what's queued only if io_service is stopped (so only on shutdown)
     if (_enabled && _batchTimer->get_io_service().stopped())
         SendBatch();
+}
+
+void StatsLogger::ScheduleOverallStatusLog()
+{
+    if (_enabled)
+    {
+        _overallStatusTimer->expires_from_now(boost::posix_time::seconds(_overallStatusTimerInterval));
+        _overallStatusTimer->async_wait([this](const boost::system::error_code&)
+        {
+            _overallStatusTimerTriggered = true;
+            ScheduleOverallStatusLog();
+        });
+    }
 }

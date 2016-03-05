@@ -3572,4 +3572,12 @@ InfluxDB.Interval = 10
 
 InfluxDB.ConnectionInfo = "127.0.0.1;8086;worldserver"
 
+#
+#    InfluxDB.OverallStatusInterval
+#        Description: Interval between every gathering of overall worldserver status data in seconds (CPU, RAM, etc)
+#        Default:     1 second
+#
+
+InfluxDB.OverallStatusInterval = 1
+
 ###################################################################################################
