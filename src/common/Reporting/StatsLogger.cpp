@@ -24,6 +24,7 @@ StatsLogger::StatsLogger() : _batchTimer(nullptr), _overallStatusTimer(nullptr),
 _enabled(false), _overallStatusTimerTriggered(false)
 {
     _categories[STATS_EVENT_CATEGORY_GENERIC]   = "events";
+    _categories[STATS_EVENT_CATEGORY_MAP]       = "map_events";
     _categories[STATS_EVENT_CATEGORY_MMAP]      = "mmap_events";
     _categories[STATS_EVENT_CATEGORY_PLAYER]    = "player_events";
 
