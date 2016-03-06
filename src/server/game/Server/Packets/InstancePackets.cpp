@@ -104,3 +104,16 @@ WorldPacket const* WorldPackets::Instance::PendingRaidLock::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
+{
+    _worldPacket << uint8(Type);
+    _worldPacket << uint32(MapID);
+    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int32(TimeLeft);
+    _worldPacket.WriteBit(Locked);
+    _worldPacket.WriteBit(Extended);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

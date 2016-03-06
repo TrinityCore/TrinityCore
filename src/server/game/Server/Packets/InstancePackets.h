@@ -149,6 +149,21 @@ namespace WorldPackets
             bool Extending = false;
             bool WarningOnly = false;
         };
+
+        class RaidInstanceMessage final : public ServerPacket
+        {
+        public:
+            RaidInstanceMessage() : ServerPacket(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Type = 0;
+            uint32 MapID = 0;
+            uint32 DifficultyID = 0;
+            int32 TimeLeft = 0;
+            bool Locked = false;
+            bool Extended = false;
+        };
     }
 }
 
