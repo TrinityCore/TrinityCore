@@ -1,3 +1,9 @@
+services:
+  - mysql:latest
+
+variables:
+  MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
 before_script:
   - git checkout -b master
   - apt-get -yqq update
