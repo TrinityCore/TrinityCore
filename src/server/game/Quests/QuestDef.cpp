@@ -29,6 +29,8 @@ Quest::Quest(Field* questRecord)
     _reqNpcOrGoCount = 0;
     _rewItemsCount = 0;
     _rewChoiceItemsCount = 0;
+    _rewCurrencyCount = 0;
+    _reqCurrencyCount = 0;
 
     memset(DetailsEmote, 0, sizeof(DetailsEmote));
     memset(DetailsEmoteDelay, 0, sizeof(DetailsEmoteDelay));
@@ -151,13 +153,6 @@ Quest::Quest(Field* questRecord)
 
     if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
-
-    _reqItemsCount = 0;
-    _reqNpcOrGoCount = 0;
-    _rewItemsCount = 0;
-    _rewChoiceItemsCount = 0;
-    _rewCurrencyCount = 0;
-    _reqCurrencyCount = 0;
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         if (RequiredItemId[i])
