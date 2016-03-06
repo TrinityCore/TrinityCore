@@ -30,6 +30,12 @@ Quest::Quest(Field* questRecord)
     _rewItemsCount = 0;
     _rewChoiceItemsCount = 0;
 
+    memset(DetailsEmote, 0, sizeof(DetailsEmote));
+    memset(DetailsEmoteDelay, 0, sizeof(DetailsEmoteDelay));
+
+    memset(OfferRewardEmote, 0, sizeof(OfferRewardEmote));
+    memset(OfferRewardEmoteDelay, 0, sizeof(OfferRewardEmoteDelay));
+
     Id = questRecord[0].GetUInt32();
     Method = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt16();
