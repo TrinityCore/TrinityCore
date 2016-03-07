@@ -51,7 +51,7 @@ public:
 private:
     RealmList();
 
-    void UpdateRealms(boost::system::error_code const& error);
+    void UpdateRealms(bool init, boost::system::error_code const& error);
     void UpdateRealm(RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
         ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 

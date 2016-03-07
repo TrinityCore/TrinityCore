@@ -38,7 +38,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
     _resolver = new boost::asio::ip::tcp::resolver(ioService);
 
     // Get the content of the realmlist table in the database
-    UpdateRealms(boost::system::error_code());
+    UpdateRealms(true, boost::system::error_code());
 }
 
 void RealmList::Close()
@@ -67,7 +67,7 @@ void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, const std::stri
     realm.Port = port;
 }
 
-void RealmList::UpdateRealms(boost::system::error_code const& error)
+void RealmList::UpdateRealms(bool init, boost::system::error_code const& error)
 {
     if (error)
         return;
@@ -138,7 +138,8 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 UpdateRealm(id, build, name, externalAddress, localAddress, localSubmask, port, icon, flag,
                     timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
-                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
+                if (init)
+                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
             }
             catch (std::exception& ex)
             {
@@ -152,7 +153,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     if (_updateInterval)
     {
         _updateTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-        _updateTimer->async_wait(std::bind(&RealmList::UpdateRealms, this, std::placeholders::_1));
+        _updateTimer->async_wait(std::bind(&RealmList::UpdateRealms, this, false, std::placeholders::_1));
     }
 }
 
