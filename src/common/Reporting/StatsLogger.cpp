@@ -20,8 +20,9 @@
 #include "Config.h"
 #include "Util.h"
 
-void StatsLogger::Initialize(boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
+void StatsLogger::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
 {
+    _realmName = realmName;
     _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusLogger = overallStatusLogger;
@@ -102,7 +103,7 @@ void StatsLogger::LogEvent(std::string const& category, std::string const& title
 {
     using namespace std::chrono;
 
-    std::string data = category + ",realm=Windows title=\"" + title + "\",text=\"" + description + "\""
+    std::string data = category + "," + (_realmName.empty() ? "" : "realm=" + _realmName) + " title=\"" + title + "\",text=\"" + description + "\""
         + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
 
     Enqueue(data);

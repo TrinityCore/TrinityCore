@@ -67,6 +67,7 @@ private:
     std::string _port;
     std::string _databaseName;
     std::function<void()> _overallStatusLogger;
+    std::string _realmName;
 
     bool Connect();
     void SendBatch();
@@ -94,7 +95,7 @@ public:
         return &instance;
     }
 
-    void Initialize(boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
+    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
     void LoadFromConfigs();
     void Update();
 
@@ -103,7 +104,7 @@ public:
     {
         using namespace std::chrono;
 
-        std::string data = category + ",realm=Windows value=" + FormatInfluxDBValue(value)
+        std::string data = category + "," + (_realmName.empty() ? "" : "realm=" + _realmName) + " value=" + FormatInfluxDBValue(value)
             + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
 
         Enqueue(data);
