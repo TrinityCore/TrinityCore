@@ -21,6 +21,8 @@
 #include "Common.h"
 #include "Threading/MPSCQueue.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/algorithm/string.hpp>
+#include <type_traits>
 
 enum StatsEventCategory
 {
@@ -66,6 +68,26 @@ private:
     std::string _categories[STATS_EVENT_CATEGORY_MAX];
     std::string _values[STATS_VALUE_MAX];
 
+    template<class T, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
+    static std::string FormatInfluxDBValue(T value) { return std::to_string(value) + 'i'; }
+
+    static std::string FormatInfluxDBValue(std::string const& value)
+    {
+        using boost::replace_all_copy;
+
+        std::string escaped = replace_all_copy(replace_all_copy(replace_all_copy(value,
+            "\"", "\\\""), // escape quotes
+            ",", "\\,"), // escape commas
+            " ", " \\"); // escape spaces
+
+        return '"' + escaped + '"';
+    }
+
+    static std::string FormatInfluxDBValue(bool value) { return value ? "t" : "f"; }
+    static std::string FormatInfluxDBValue(const char* value) { return FormatInfluxDBValue(std::string(value)); }
+    static std::string FormatInfluxDBValue(double value) { return std::to_string(value); }
+    static std::string FormatInfluxDBValue(float value) { return FormatInfluxDBValue(double(value)); }
+
 public:
     static StatsLogger* instance()
     {
@@ -76,11 +98,24 @@ public:
     void Initialize(boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
     void LoadFromConfigs();
     void Update();
-    void LogValue(std::string const& category, uint32 value);
-    void LogValue(StatsValueCategory category, uint32 value);
+
+    template<class T>
+    void LogValue(std::string const& category, T value)
+    {
+        using namespace std::chrono;
+
+        std::string data = category + ",realm=Windows value=" + FormatInfluxDBValue(value)
+            + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
+
+        Enqueue(data);
+    }
+
+    template<class T>
+    void LogValue(StatsValueCategory category, T value) { LogValue(_values[category], value); }
+
     void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description);
     void ForceSend();
-    bool IsEnabled() { return _enabled; }
+    bool IsEnabled() const { return _enabled; }
 };
 
 #define sStatsLogger StatsLogger::instance()

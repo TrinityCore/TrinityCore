@@ -116,21 +116,6 @@ void StatsLogger::Update()
     }
 }
 
-void StatsLogger::LogValue(StatsValueCategory category, uint32 value)
-{
-    LogValue(_values[category], value);
-}
-
-void StatsLogger::LogValue(std::string const& category, uint32 value)
-{
-    using namespace std::chrono;
-
-    std::string data = category + ",realm=Windows value=" + std::to_string(value) + "i"
-        + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
-
-    Enqueue(data);
-}
-
 void StatsLogger::LogEvent(StatsEventCategory category, std::string const& title, std::string const& description)
 {
     using namespace std::chrono;
@@ -192,7 +177,7 @@ void StatsLogger::SendBatch()
         TC_LOG_ERROR("statslogger", "Error sending data, returned HTTP code: %u", status_code);
     }
 
-    // Read and ignore teh status description
+    // Read and ignore the status description
     std::string status_description;
     std::getline(_dataStream, status_description);
     // Read and ignore any header
