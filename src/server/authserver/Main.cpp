@@ -134,7 +134,7 @@ int main(int argc, char** argv)
     // Get the list of realms for the server
     sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
-    if (sRealmList->size() == 0)
+    if (sRealmList->GetRealms().empty())
     {
         TC_LOG_ERROR("server.authserver", "No valid realms specified.");
         StopDB();
@@ -193,6 +193,8 @@ int main(int argc, char** argv)
     _dbPingTimer->cancel();
 
     sAuthSocketMgr.StopNetwork();
+
+    sRealmList->Close();
 
     // Close the Database Pool and library
     StopDB();
