@@ -50,3 +50,24 @@ WorldPacket const* WorldPackets::Reputation::SetForcedReactions::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::FactionStandingData const& factionStanding)
+{
+    data << int32(factionStanding.Index);
+    data << int32(factionStanding.Standing);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Reputation::SetFactionStanding::Write()
+{
+    _worldPacket << float(ReferAFriendBonus);
+    _worldPacket << float(BonusFromAchievementSystem);
+    _worldPacket << uint32(Faction.size());
+    for (FactionStandingData const& factionStanding : Faction)
+        _worldPacket << factionStanding;
+
+    _worldPacket.WriteBit(ShowVisual);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
