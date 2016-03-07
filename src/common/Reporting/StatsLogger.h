@@ -33,6 +33,13 @@ enum StatsEventCategory
     STATS_EVENT_CATEGORY_MAX
 };
 
+static std::map<StatsEventCategory, std::string> Categories = {
+    { STATS_EVENT_CATEGORY_GENERIC, "events" },
+    { STATS_EVENT_CATEGORY_MAP, "map_events" },
+    { STATS_EVENT_CATEGORY_MMAP, "mmap_events" },
+    { STATS_EVENT_CATEGORY_PLAYER, "player_events" }
+};
+
 enum StatsValueCategory
 {
     STATS_VALUE_UPDATE_TIME_DIFF = 0,
@@ -40,20 +47,22 @@ enum StatsValueCategory
     STATS_VALUE_MAX
 };
 
+static std::map<StatsValueCategory, std::string> Values = {
+    { STATS_VALUE_UPDATE_TIME_DIFF, "update_time_diff" },
+    { STATS_VALUE_ONLINE_PLAYERS, "online_players" }
+};
+
 class StatsLogger
 {
 private:
-    StatsLogger();
-    ~StatsLogger();
-
     boost::asio::ip::tcp::iostream _dataStream;
     MPSCQueue<std::string> _queuedData;
-    boost::asio::deadline_timer* _batchTimer;
-    boost::asio::deadline_timer* _overallStatusTimer;
-    int32 _updateInterval;
-    int32 _overallStatusTimerInterval;
-    bool _enabled;
-    bool _overallStatusTimerTriggered;
+    std::unique_ptr<boost::asio::deadline_timer> _batchTimer;
+    std::unique_ptr<boost::asio::deadline_timer> _overallStatusTimer;
+    int32 _updateInterval = 0;
+    int32 _overallStatusTimerInterval = 0;
+    bool _enabled = false;
+    bool _overallStatusTimerTriggered = false;
     std::string _hostname;
     std::string _port;
     std::string _databaseName;
@@ -64,9 +73,6 @@ private:
     void Enqueue(std::string const& data);
     void ScheduleSend();
     void ScheduleOverallStatusLog();
-
-    std::string _categories[STATS_EVENT_CATEGORY_MAX];
-    std::string _values[STATS_VALUE_MAX];
 
     template<class T, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
     static std::string FormatInfluxDBValue(T value) { return std::to_string(value) + 'i'; }
@@ -104,9 +110,11 @@ public:
     }
 
     template<class T>
-    void LogValue(StatsValueCategory category, T value) { LogValue(_values[category], value); }
+    void LogValue(StatsValueCategory category, T value) { LogValue(Values[category], value); }
 
-    void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description);
+    void LogEvent(std::string const& category, std::string const& title, std::string const& description);
+    void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description) { LogEvent(Categories[category], title, description); }
+
     void ForceSend();
     bool IsEnabled() const { return _enabled; }
 };

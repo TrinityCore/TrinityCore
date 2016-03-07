@@ -20,28 +20,10 @@
 #include "Config.h"
 #include "Util.h"
 
-StatsLogger::StatsLogger() : _batchTimer(nullptr), _overallStatusTimer(nullptr), _updateInterval(0), _overallStatusTimerInterval(0),
-_enabled(false), _overallStatusTimerTriggered(false)
-{
-    _categories[STATS_EVENT_CATEGORY_GENERIC]   = "events";
-    _categories[STATS_EVENT_CATEGORY_MAP]       = "map_events";
-    _categories[STATS_EVENT_CATEGORY_MMAP]      = "mmap_events";
-    _categories[STATS_EVENT_CATEGORY_PLAYER]    = "player_events";
-
-    _values[STATS_VALUE_UPDATE_TIME_DIFF]       = "update_time_diff";
-    _values[STATS_VALUE_ONLINE_PLAYERS]         = "online_players";
-}
-
-StatsLogger::~StatsLogger()
-{
-    delete _batchTimer;
-    delete _overallStatusTimer;
-}
-
 void StatsLogger::Initialize(boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
 {
-    _batchTimer = new boost::asio::deadline_timer(ioService);
-    _overallStatusTimer = new boost::asio::deadline_timer(ioService);
+    _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
+    _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
@@ -116,11 +98,11 @@ void StatsLogger::Update()
     }
 }
 
-void StatsLogger::LogEvent(StatsEventCategory category, std::string const& title, std::string const& description)
+void StatsLogger::LogEvent(std::string const& category, std::string const& title, std::string const& description)
 {
     using namespace std::chrono;
 
-    std::string data =  _categories[category] + ",realm=Windows title=\"" + title + "\",text=\"" + description + "\""
+    std::string data = category + ",realm=Windows title=\"" + title + "\",text=\"" + description + "\""
         + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
 
     Enqueue(data);
