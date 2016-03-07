@@ -78,7 +78,7 @@ private:
         std::string escaped = replace_all_copy(replace_all_copy(replace_all_copy(value,
             "\"", "\\\""), // escape quotes
             ",", "\\,"), // escape commas
-            " ", " \\"); // escape spaces
+            " ", " \\ "); // escape spaces
 
         return '"' + escaped + '"';
     }
