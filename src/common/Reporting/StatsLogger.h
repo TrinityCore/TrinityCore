@@ -73,14 +73,7 @@ private:
 
     static std::string FormatInfluxDBValue(std::string const& value)
     {
-        using boost::replace_all_copy;
-
-        std::string escaped = replace_all_copy(replace_all_copy(replace_all_copy(value,
-            "\"", "\\\""), // escape quotes
-            ",", "\\,"), // escape commas
-            " ", " \\ "); // escape spaces
-
-        return '"' + escaped + '"';
+        return '"' + boost::replace_all_copy(value, "\"", "\\\"") + '"';
     }
 
     static std::string FormatInfluxDBValue(bool value) { return value ? "t" : "f"; }
