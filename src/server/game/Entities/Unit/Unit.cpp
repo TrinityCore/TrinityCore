@@ -13750,28 +13750,41 @@ void Unit::UpdateCharmAI()
             break;
         case TYPEID_PLAYER:
         {
-            if (Unit* charmer = GetCharmer()) // if we are currently being charmed, then we should apply charm AI
+            if (IsCharmed()) // if we are currently being charmed, then we should apply charm AI
             {
-                if (Creature* creatureCharmer = charmer->ToCreature()) // this should only ever happen for creature charmers
+                i_disabledAI = i_AI;
+
+                UnitAI* newAI = nullptr;
+                // first, we check if the creature's own AI specifies an override playerai for its owned players
+                if (Unit* charmer = GetCharmer())
                 {
-                    i_disabledAI = i_AI;
-                    // first, we check if the creature's own AI specifies an override playerai for its owned players
-                    if (PlayerAI* charmAI = creatureCharmer->IsAIEnabled ? creatureCharmer->AI()->GetAIForCharmedPlayer(ToPlayer()) : nullptr)
-                        i_AI = charmAI;
-                    else // otherwise, we default to the generic one
-                        i_AI = new SimpleCharmedPlayerAI(ToPlayer());
+                    if (Creature* creatureCharmer = charmer->ToCreature())
+                    {
+                        if (PlayerAI* charmAI = creatureCharmer->IsAIEnabled ? creatureCharmer->AI()->GetAIForCharmedPlayer(ToPlayer()) : nullptr)
+                            newAI = charmAI;
+                    }
+                    else
+                    {
+                        TC_LOG_ERROR("misc", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
+                    }
                 }
-                else
-                {
-                    TC_LOG_ERROR("misc", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), charmer->GetGUID().ToString().c_str());
-                }
+                if (!newAI) // otherwise, we default to the generic one
+                    newAI = new SimpleCharmedPlayerAI(ToPlayer());
+                i_AI = newAI;
             }
             else
             {
-                // we allow the charmed PlayerAI to clean up
-                i_AI->OnCharmed(false);
-                // then delete it
-                delete i_AI;
+                if (i_AI)
+                {
+                    // we allow the charmed PlayerAI to clean up
+                    i_AI->OnCharmed(false);
+                    // then delete it
+                    delete i_AI;
+                }
+                else
+                {
+                    TC_LOG_ERROR("misc", "Attempt to remove charm AI from player %s who doesn't currently have charm AI.", GetGUID().ToString().c_str());
+                }
                 // and restore our previous PlayerAI (if we had one)
                 i_AI = i_disabledAI;
                 i_disabledAI = nullptr;
