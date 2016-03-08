@@ -524,6 +524,14 @@ WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::PlayOneShotAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
 {
     _worldPacket << Unit;
