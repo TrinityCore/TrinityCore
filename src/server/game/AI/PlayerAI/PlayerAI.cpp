@@ -167,6 +167,8 @@ Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 void SimpleCharmedPlayerAI::UpdateAI(const uint32 /*diff*/)
 {
     Creature* charmer = me->GetCharmer() ? me->GetCharmer()->ToCreature() : nullptr;
+    if (!charmer)
+        return;
 
     //kill self if charm aura has infinite duration
     if (charmer->IsInEvadeMode())
