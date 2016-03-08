@@ -1910,7 +1910,9 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     AddToMap(summon->ToCreature());
     summon->InitSummon();
 
-    //ObjectAccessor::UpdateObjectVisibility(summon);
+    // call MoveInLineOfSight for nearby creatures
+    Trinity::AIRelocationNotifier notifier(*summon);
+    summon->VisitNearbyObject(GetVisibilityRange(), notifier);
 
     return summon;
 }
