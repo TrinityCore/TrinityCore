@@ -112,7 +112,8 @@ enum ScriptCommands
     SCRIPT_COMMAND_EQUIP                 = 31,               // soucre = Creature, datalong = equipment id
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
-    SCRIPT_COMMAND_PLAYMOVIE             = 34                // source = Player, datalong = movie id
+    SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
+    SCRIPT_COMMAND_PLAY_ANIMKIT          = 35                // source = Creature, datalong = AnimKit id
 };
 
 // Benchmarked: Faster than std::unordered_map (insert/find)
@@ -361,6 +362,11 @@ struct ScriptInfo
         {
             uint32 MovieID;         // datalong
         } PlayMovie;
+
+        struct                      // SCRIPT_COMMAND_PLAY_ANIMKIT (35)
+        {
+            uint32 AnimKitID;       // datalong
+        } PlayAnimKit;
     };
 
     std::string GetDebugInfo() const;
