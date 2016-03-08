@@ -844,7 +844,7 @@ tcp::endpoint const GetAddressForClient(Realm const& realm, ip::address const& c
             realmIp = realm.ExternalAddress;
     }
 
-    tcp::endpoint endpoint(realmIp, realm.port);
+    tcp::endpoint endpoint(realmIp, realm.Port);
 
     // Return external IP
     return endpoint;
@@ -880,22 +880,19 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
         } while (result->NextRow());
     }
 
-    // Update realm list if need
-    sRealmList->UpdateIfNeed();
-
     // Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
 
     size_t RealmListSize = 0;
-    for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
+    for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
     {
-        const Realm &realm = i->second;
+        const Realm &realm = i.second;
         // don't work with realms which not compatible with the client
-        bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
+        bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.Build == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.Build));
 
         // No SQL injection. id of realm is controlled by the database.
-        uint32 flag = realm.flag;
-        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.gamebuild);
+        uint32 flag = realm.Flags;
+        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.Build);
         if (!okBuild)
         {
             if (!buildInfo)
@@ -907,7 +904,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
         if (!buildInfo)
             flag &= ~REALM_FLAG_SPECIFYBUILD;
 
-        std::string name = i->first;
+        std::string name = realm.Name;
         if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
         {
             std::ostringstream ss;
@@ -915,19 +912,19 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
             name = ss.str();
         }
 
-        uint8 lock = (realm.allowedSecurityLevel > _accountInfo.SecurityLevel) ? 1 : 0;
+        uint8 lock = (realm.AllowedSecurityLevel > _accountInfo.SecurityLevel) ? 1 : 0;
 
-        pkt << uint8(realm.icon);                           // realm type
+        pkt << uint8(realm.Type);                           // realm type
         if (_expversion & POST_BC_EXP_FLAG)                 // only 2.x and 3.x clients
             pkt << uint8(lock);                             // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
         pkt << boost::lexical_cast<std::string>(GetAddressForClient(realm, GetRemoteIpAddress()));
-        pkt << float(realm.populationLevel);
-        pkt << uint8(characterCounts[realm.m_ID]);
-        pkt << uint8(realm.timezone);                       // realm category
+        pkt << float(realm.PopulationLevel);
+        pkt << uint8(characterCounts[realm.Id.Realm]);
+        pkt << uint8(realm.Timezone);                       // realm category
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
-            pkt << uint8(realm.m_ID);
+            pkt << uint8(realm.Id.Realm);
         else
             pkt << uint8(0x0);                              // 1.12.1 and 1.12.2 clients
 
