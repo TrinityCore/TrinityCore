@@ -36,7 +36,7 @@ RealmList::~RealmList()
 }
 
 // Load the realm list from the database
-void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval, uint16 worldListenPort)
+void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval, const std::string & bindIp, uint16 worldListenPort)
 {
     _updateInterval = updateInterval;
     _updateTimer = new boost::asio::deadline_timer(ioService);
@@ -45,7 +45,7 @@ void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInte
     // Get the content of the realmlist table in the database
     UpdateRealms(boost::system::error_code());
 
-    _worldListener = new WorldListener(worldListenPort);
+    _worldListener = new WorldListener(bindIp, worldListenPort);
     _worldListener->Start();
 }
 
