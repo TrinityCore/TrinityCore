@@ -174,35 +174,24 @@ void ReputationMgr::SendForceReactions()
 
 void ReputationMgr::SendState(FactionState const* faction)
 {
-    uint32 count = 1;
-
-    WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
-    data << float(0);
-    data << uint8(_sendFactionIncreased);
-    _sendFactionIncreased = false; // Reset
-
-    size_t p_count = data.wpos();
-    data << uint32(count);
-
-    data << uint32(faction->ReputationListID);
-    data << uint32(faction->Standing);
-
+    WorldPackets::Reputation::SetFactionStanding setFactionStanding;
+    setFactionStanding.ReferAFriendBonus = 0.0f;
+    setFactionStanding.BonusFromAchievementSystem = 0.0f;
+    setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), faction->Standing);
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
         if (itr->second.needSend)
         {
             itr->second.needSend = false;
             if (itr->second.ReputationListID != faction->ReputationListID)
-            {
-                data << uint32(itr->second.ReputationListID);
-                data << uint32(itr->second.Standing);
-                ++count;
-            }
+                setFactionStanding.Faction.emplace_back(int32(itr->second.ReputationListID), itr->second.Standing);
         }
     }
 
-    data.put<uint32>(p_count, count);
-    _player->SendDirectMessage(&data);
+    setFactionStanding.ShowVisual = _sendFactionIncreased;
+    _player->SendDirectMessage(setFactionStanding.Write());
+
+    _sendFactionIncreased = false; // Reset
 }
 
 void ReputationMgr::SendInitialReputations()

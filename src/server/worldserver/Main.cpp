@@ -101,6 +101,8 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
+    signal(SIGABRT, &Trinity::AbortHandler);
+
     std::string configFile = _TRINITY_CORE_CONFIG;
     std::string configService;
 
@@ -522,10 +524,10 @@ bool StartDB()
     // Load databases
     DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE);
     loader
-        .AddDatabase(HotfixDatabase, "Hotfix")
-        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(LoginDatabase, "Login")
         .AddDatabase(CharacterDatabase, "Character")
-        .AddDatabase(LoginDatabase, "Login");
+        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(HotfixDatabase, "Hotfix");
 
     if (!loader.Load())
         return false;

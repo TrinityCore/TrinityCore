@@ -18144,6 +18144,20 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
     return nullptr;
 }
 
+InstancePlayerBind const* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty) const
+{
+    // some instances only have one difficulty
+    MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    if (!mapDiff)
+        return nullptr;
+
+    auto itr = m_boundInstances[difficulty].find(mapid);
+    if (itr != m_boundInstances[difficulty].end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 InstanceSave* Player::GetInstanceSave(uint32 mapid)
 {
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
@@ -22374,17 +22388,17 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                             // difficulty
-    data << uint32(time);
-    if (type == RAID_INSTANCE_WELCOME)
-    {
-        data << uint8(0);                                   // is locked
-        data << uint8(0);                                   // is extended, ignored if prev field is 0
-    }
-    GetSession()->SendPacket(&data);
+    WorldPackets::Instance::RaidInstanceMessage raidInstanceMessage;
+    raidInstanceMessage.Type = type;
+    raidInstanceMessage.MapID = mapid;
+    raidInstanceMessage.DifficultyID = difficulty;
+    raidInstanceMessage.TimeLeft = int32(time);
+    if (InstancePlayerBind const* bind = GetBoundInstance(mapid, difficulty))
+        raidInstanceMessage.Locked = bind->perm;
+    else
+        raidInstanceMessage.Locked = false;
+    raidInstanceMessage.Extended = false;
+    GetSession()->SendPacket(raidInstanceMessage.Write());
 }
 
 void Player::ApplyEquipCooldown(Item* pItem)

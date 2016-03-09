@@ -111,6 +111,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         case SCRIPT_COMMAND_MODEL: res = "SCRIPT_COMMAND_MODEL"; break;
         case SCRIPT_COMMAND_CLOSE_GOSSIP: res = "SCRIPT_COMMAND_CLOSE_GOSSIP"; break;
         case SCRIPT_COMMAND_PLAYMOVIE: res = "SCRIPT_COMMAND_PLAYMOVIE"; break;
+        case SCRIPT_COMMAND_PLAY_ANIMKIT: res = "SCRIPT_COMMAND_PLAY_ANIMKIT"; break;
         default:
         {
             char sz[32];
@@ -4863,6 +4864,16 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                 }
                 break;
             }
+            case SCRIPT_COMMAND_PLAY_ANIMKIT:
+            {
+                if (!sAnimKitStore.LookupEntry(tmp.PlayAnimKit.AnimKitID))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `%s` has invalid AnimKid id (datalong = %u) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id %u",
+                        tableName.c_str(), tmp.PlayAnimKit.AnimKitID, tmp.id);
+                    continue;
+                }
+                break;
+            }
             default:
                 break;
         }
@@ -8967,9 +8978,7 @@ void ObjectMgr::LoadTerrainSwapDefaults()
             continue;
         }
 
-        PhaseInfoStruct defaultSwap;
-        defaultSwap.Id = terrainSwap;
-        _terrainMapDefaultStore[mapId].push_back(defaultSwap);
+        _terrainMapDefaultStore[mapId].push_back(terrainSwap);
 
         ++count;
     } while (result->NextRow());
@@ -9006,8 +9015,7 @@ void ObjectMgr::LoadTerrainPhaseInfo()
             continue;
         }
 
-        PhaseInfoStruct terrainSwap;
-        terrainSwap.Id = fields[1].GetUInt32();
+        uint32 terrainSwap = fields[1].GetUInt32();
 
         _terrainPhaseInfoStore[phaseId].push_back(terrainSwap);
 
