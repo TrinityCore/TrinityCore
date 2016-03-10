@@ -107,6 +107,7 @@ protected:
     ReadDataHandlerResult ReadDataHandler();
 private:
     void CheckIpCallback(PreparedQueryResult result);
+    void InitializeHandler(boost::system::error_code error, std::size_t transferedBytes);
 
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
@@ -147,8 +148,6 @@ private:
     MPSCQueue<EncryptablePacket> _bufferQueue;
 
     z_stream_s* _compressionStream;
-
-    bool _initialized;
 
     PreparedQueryResultFuture _queryFuture;
     std::function<void(PreparedQueryResult&&)> _queryCallback;
