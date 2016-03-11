@@ -37,6 +37,12 @@ void OutdoorPvPMgr::Die()
         delete itr->second;
 }
 
+OutdoorPvPMgr* OutdoorPvPMgr::instance()
+{
+    static OutdoorPvPMgr instance;
+    return &instance;
+}
+
 void OutdoorPvPMgr::InitOutdoorPvP()
 {
     uint32 oldMSTime = getMSTime();

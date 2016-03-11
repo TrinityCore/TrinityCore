@@ -140,11 +140,7 @@ class AuctionHouseMgr
         ~AuctionHouseMgr();
 
     public:
-        static AuctionHouseMgr* instance()
-        {
-            static AuctionHouseMgr instance;
-            return &instance;
-        }
+        static AuctionHouseMgr* instance();
 
         typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
 

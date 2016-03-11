@@ -211,11 +211,7 @@ private:
     ~SupportMgr();
 
 public:
-    static SupportMgr* instance()
-    {
-        static SupportMgr instance;
-        return &instance;
-    }
+    static SupportMgr* instance();
 
     template<typename T>
     T* GetTicket(uint32 ticketId);

@@ -138,11 +138,7 @@ class SocialMgr
         ~SocialMgr() { }
 
     public:
-        static SocialMgr* instance()
-        {
-            static SocialMgr instance;
-            return &instance;
-        }
+        static SocialMgr* instance();
 
         // Misc
         void RemovePlayerSocial(ObjectGuid const& guid) { _socialMap.erase(guid); }

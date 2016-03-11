@@ -38,6 +38,12 @@ InstanceSaveManager::~InstanceSaveManager()
 {
 }
 
+InstanceSaveManager* InstanceSaveManager::instance()
+{
+    static InstanceSaveManager instance;
+    return &instance;
+}
+
 void InstanceSaveManager::Unload()
 {
     lock_instLists = true;

@@ -108,11 +108,7 @@ class PoolMgr
         ~PoolMgr() { };
 
     public:
-        static PoolMgr* instance()
-        {
-            static PoolMgr instance;
-            return &instance;
-        }
+        static PoolMgr* instance();
 
         void LoadFromDB();
         void LoadQuestPools();

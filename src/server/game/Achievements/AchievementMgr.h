@@ -344,11 +344,7 @@ class AchievementGlobalMgr
         static char const* GetCriteriaTypeString(AchievementCriteriaTypes type);
         static char const* GetCriteriaTypeString(uint32 type);
 
-        static AchievementGlobalMgr* instance()
-        {
-            static AchievementGlobalMgr instance;
-            return &instance;
-        }
+        static AchievementGlobalMgr* instance();
 
         AchievementCriteriaTreeList const* GetAchievementCriteriaTreesByCriteria(uint32 criteriaId) const
         {
