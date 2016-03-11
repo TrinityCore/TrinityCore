@@ -525,6 +525,12 @@ void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
     CharacterDatabase.CommitTransaction(trans);
 }
 
+template TRINITY_GAME_API
+void AchievementMgr<Player>::DeleteFromDB(ObjectGuid /*guid*/);
+
+template TRINITY_GAME_API
+void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid /*guid*/);
+
 template<class T>
 void AchievementMgr<T>::SaveToDB(SQLTransaction& /*trans*/)
 {
@@ -2584,6 +2590,9 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(ModifierTreeNode const* 
     return true;
 }
 
+template class TC_GAME_API AchievementMgr<Player>;
+template class TC_GAME_API AchievementMgr<Guild>;
+
 char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 type)
 {
     return GetCriteriaTypeString(AchievementCriteriaTypes(type));
@@ -2886,9 +2895,6 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
     }
     return "MISSING_TYPE";
 }
-
-template class AchievementMgr<Guild>;
-template class AchievementMgr<Player>;
 
 AchievementGlobalMgr* AchievementGlobalMgr::instance()
 {

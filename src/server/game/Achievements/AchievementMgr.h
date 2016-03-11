@@ -233,7 +233,7 @@ struct AchievementCriteriaData
     bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscValue1 = 0) const;
 };
 
-struct AchievementCriteriaDataSet
+struct TC_GAME_API AchievementCriteriaDataSet
 {
         AchievementCriteriaDataSet() : criteria_id(0) { }
         typedef std::vector<AchievementCriteriaData> Storage;
@@ -285,7 +285,7 @@ enum ProgressType
 };
 
 template<class T>
-class AchievementMgr
+class TC_GAME_API AchievementMgr
 {
     public:
         AchievementMgr(T* owner);
@@ -335,7 +335,7 @@ class AchievementMgr
         uint32 _achievementPoints;
 };
 
-class AchievementGlobalMgr
+class TC_GAME_API AchievementGlobalMgr
 {
         AchievementGlobalMgr() { }
         ~AchievementGlobalMgr();

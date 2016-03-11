@@ -83,7 +83,7 @@ struct TransportTemplate
 typedef std::map<uint32, TransportAnimationEntry const*> TransportPathContainer;
 typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationContainer;
 
-struct TransportAnimation
+struct TC_GAME_API TransportAnimation
 {
     TransportAnimation() : TotalTime(0) { }
 
@@ -97,7 +97,7 @@ struct TransportAnimation
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
-class TransportMgr
+class TC_GAME_API TransportMgr
 {
         friend void DB2Manager::LoadStores(std::string const&, uint32);
 

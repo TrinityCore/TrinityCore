@@ -180,11 +180,11 @@ class PackedGuid;
 
 #pragma pack(push, 1)
 
-class ObjectGuid
+class TC_GAME_API ObjectGuid
 {
-    friend std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
-    friend ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
-    friend ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid);
+    friend TC_GAME_API std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
+    friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
+    friend TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid);
 
     public:
         static ObjectGuid const Empty;
@@ -332,9 +332,9 @@ typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
 // maximum buffer size for packed guid is 18 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 18
 
-class PackedGuid
+class TC_GAME_API PackedGuid
 {
-        friend ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+        friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
     public:
         explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid << uint16(0); }
@@ -348,7 +348,7 @@ class PackedGuid
         ByteBuffer _packedGuid;
 };
 
-class ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGeneratorBase
 {
 public:
     ObjectGuidGeneratorBase(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
@@ -363,7 +363,7 @@ protected:
 };
 
 template<HighGuid high>
-class ObjectGuidGenerator : public ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGenerator : public ObjectGuidGeneratorBase
 {
 public:
     explicit ObjectGuidGenerator(ObjectGuid::LowType start = UI64LIT(1)) : ObjectGuidGeneratorBase(start) { }
@@ -376,12 +376,12 @@ public:
     }
 };
 
-ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
-ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
-ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
-std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
+TC_GAME_API std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
 
 namespace std
 {

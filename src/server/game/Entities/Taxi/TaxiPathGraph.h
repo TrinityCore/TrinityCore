@@ -25,7 +25,7 @@
 class Player;
 struct TaxiNodesEntry;
 
-class TaxiPathGraph
+class TC_GAME_API TaxiPathGraph
 {
 public:
     static TaxiPathGraph& Instance();

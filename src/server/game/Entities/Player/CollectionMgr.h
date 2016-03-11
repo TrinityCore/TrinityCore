@@ -45,7 +45,7 @@ struct HeirloomData
 typedef std::map<uint32, bool> ToyBoxContainer;
 typedef std::map<uint32, HeirloomData> HeirloomContainer;
 
-class CollectionMgr
+class TC_GAME_API CollectionMgr
 {
 public:
     explicit CollectionMgr(WorldSession* owner) : _owner(owner) { }

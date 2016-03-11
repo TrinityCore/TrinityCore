@@ -146,7 +146,7 @@ struct OutdoorPvPData;
     event on all registered scripts of that type.
 */
 
-class ScriptObject
+class TC_GAME_API ScriptObject
 {
     friend class ScriptMgr;
 
@@ -185,7 +185,7 @@ template<class TObject> class UpdatableScript
         virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
 };
 
-class SpellScriptLoader : public ScriptObject
+class TC_GAME_API SpellScriptLoader : public ScriptObject
 {
     protected:
 
@@ -200,7 +200,7 @@ class SpellScriptLoader : public ScriptObject
         virtual AuraScript* GetAuraScript() const { return NULL; }
 };
 
-class ServerScript : public ScriptObject
+class TC_GAME_API ServerScript : public ScriptObject
 {
     protected:
 
@@ -330,14 +330,14 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
         virtual void OnPlayerLeave(TMap* /*map*/, Player* /*player*/) { }
 };
 
-class WorldMapScript : public ScriptObject, public MapScript<Map>
+class TC_GAME_API WorldMapScript : public ScriptObject, public MapScript<Map>
 {
     protected:
 
         WorldMapScript(const char* name, uint32 mapId);
 };
 
-class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
+class TC_GAME_API InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 {
     protected:
 
@@ -349,14 +349,14 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
         virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
 };
 
-class BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
+class TC_GAME_API BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
 {
     protected:
 
         BattlegroundMapScript(const char* name, uint32 mapId);
 };
 
-class ItemScript : public ScriptObject
+class TC_GAME_API ItemScript : public ScriptObject
 {
     protected:
 
@@ -380,7 +380,7 @@ class ItemScript : public ScriptObject
         virtual bool OnRemove(Player* /*player*/, Item* /*item*/) { return false; }
 };
 
-class UnitScript : public ScriptObject
+class TC_GAME_API UnitScript : public ScriptObject
 {
     protected:
 
@@ -403,7 +403,7 @@ class UnitScript : public ScriptObject
         virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
 };
 
-class CreatureScript : public UnitScript, public UpdatableScript<Creature>
+class TC_GAME_API CreatureScript : public UnitScript, public UpdatableScript<Creature>
 {
     protected:
 
@@ -439,7 +439,7 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
 };
 
-class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
+class TC_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 {
     protected:
 
@@ -484,7 +484,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return NULL; }
 };
 
-class AreaTriggerScript : public ScriptObject
+class TC_GAME_API AreaTriggerScript : public ScriptObject
 {
     protected:
 
@@ -496,7 +496,7 @@ class AreaTriggerScript : public ScriptObject
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) { return false; }
 };
 
-class BattlegroundScript : public ScriptObject
+class TC_GAME_API BattlegroundScript : public ScriptObject
 {
     protected:
 
@@ -508,7 +508,7 @@ class BattlegroundScript : public ScriptObject
         virtual Battleground* GetBattleground() const = 0;
 };
 
-class OutdoorPvPScript : public ScriptObject
+class TC_GAME_API OutdoorPvPScript : public ScriptObject
 {
     protected:
 
@@ -520,7 +520,7 @@ class OutdoorPvPScript : public ScriptObject
         virtual OutdoorPvP* GetOutdoorPvP() const = 0;
 };
 
-class CommandScript : public ScriptObject
+class TC_GAME_API CommandScript : public ScriptObject
 {
     protected:
 
@@ -532,7 +532,7 @@ class CommandScript : public ScriptObject
         virtual std::vector<ChatCommand> GetCommands() const = 0;
 };
 
-class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
+class TC_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 {
     protected:
 
@@ -544,7 +544,7 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
         virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
 };
 
-class AuctionHouseScript : public ScriptObject
+class TC_GAME_API AuctionHouseScript : public ScriptObject
 {
     protected:
 
@@ -565,7 +565,7 @@ class AuctionHouseScript : public ScriptObject
         virtual void OnAuctionExpire(AuctionHouseObject* /*ah*/, AuctionEntry* /*entry*/) { }
 };
 
-class ConditionScript : public ScriptObject
+class TC_GAME_API ConditionScript : public ScriptObject
 {
     protected:
 
@@ -577,7 +577,7 @@ class ConditionScript : public ScriptObject
         virtual bool OnConditionCheck(Condition const* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
 };
 
-class VehicleScript : public ScriptObject
+class TC_GAME_API VehicleScript : public ScriptObject
 {
     protected:
 
@@ -604,14 +604,14 @@ class VehicleScript : public ScriptObject
         virtual void OnRemovePassenger(Vehicle* /*veh*/, Unit* /*passenger*/) { }
 };
 
-class DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
+class TC_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
 {
     protected:
 
         DynamicObjectScript(const char* name);
 };
 
-class TransportScript : public ScriptObject, public UpdatableScript<Transport>
+class TC_GAME_API TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
     protected:
 
@@ -632,7 +632,7 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
         virtual void OnRelocate(Transport* /*transport*/, uint32 /*waypointId*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/) { }
 };
 
-class AchievementCriteriaScript : public ScriptObject
+class TC_GAME_API AchievementCriteriaScript : public ScriptObject
 {
     protected:
 
@@ -644,7 +644,7 @@ class AchievementCriteriaScript : public ScriptObject
         virtual bool OnCheck(Player* source, Unit* target) = 0;
 };
 
-class PlayerScript : public UnitScript
+class TC_GAME_API PlayerScript : public UnitScript
 {
     protected:
 
@@ -741,7 +741,7 @@ class PlayerScript : public UnitScript
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
 };
 
-class AccountScript : public ScriptObject
+class TC_GAME_API AccountScript : public ScriptObject
 {
     protected:
 
@@ -768,7 +768,7 @@ class AccountScript : public ScriptObject
         virtual void OnFailedPasswordChange(uint32 /*accountId*/) {}
 };
 
-class GuildScript : public ScriptObject
+class TC_GAME_API GuildScript : public ScriptObject
 {
     protected:
 
@@ -809,7 +809,7 @@ class GuildScript : public ScriptObject
         virtual void OnBankEvent(Guild* /*guild*/, uint8 /*eventType*/, uint8 /*tabId*/, ObjectGuid::LowType /*playerGuid*/, uint64 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/) { }
 };
 
-class GroupScript : public ScriptObject
+class TC_GAME_API GroupScript : public ScriptObject
 {
     protected:
 
@@ -839,11 +839,11 @@ class GroupScript : public ScriptObject
 // namespace
 // {
     typedef std::list<std::string> UnusedScriptNamesContainer;
-    extern UnusedScriptNamesContainer UnusedScriptNames;
+    TC_GAME_API extern UnusedScriptNamesContainer UnusedScriptNames;
 // }
 
 // Manages registration, loading, and execution of scripts.
-class ScriptMgr
+class TC_GAME_API ScriptMgr
 {
     friend class ScriptObject;
 

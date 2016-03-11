@@ -115,7 +115,7 @@ private:
 
 // This class handle all Selling method
 // (holder of AHB_Seller_Config data for each auction house type)
-class AuctionBotSeller : public AuctionBotAgent
+class TC_GAME_API AuctionBotSeller : public AuctionBotAgent
 {
 public:
     typedef std::vector<uint32> ItemPool;

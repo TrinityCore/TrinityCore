@@ -36,7 +36,7 @@ enum ArenaWorldStates
     ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD    = 3601
 };
 
-class Arena : public Battleground
+class TC_GAME_API Arena : public Battleground
 {
     protected:
         Arena();

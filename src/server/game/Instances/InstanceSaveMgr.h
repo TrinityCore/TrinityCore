@@ -41,7 +41,7 @@ class Group;
     - player-instance binds for permanent heroic/raid saves
     - group-instance binds (both solo and permanent) cache the player binds for the group leader
 */
-class InstanceSave
+class TC_GAME_API InstanceSave
 {
     friend class InstanceSaveManager;
     public:
@@ -147,7 +147,7 @@ class InstanceSave
 
 typedef std::unordered_map<uint64 /*PAIR64(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
-class InstanceSaveManager
+class TC_GAME_API InstanceSaveManager
 {
     friend class InstanceSave;
 

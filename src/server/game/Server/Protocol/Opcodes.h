@@ -1765,7 +1765,7 @@ class OpcodeTable
         ServerOpcodeHandler* _internalTableServer[NUM_OPCODE_HANDLERS];
 };
 
-extern OpcodeTable opcodeTable;
+TC_GAME_API extern OpcodeTable opcodeTable;
 
 #pragma pack(pop)
 

@@ -1435,7 +1435,7 @@ public:
 };
 typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
 
-class SmartWaypointMgr
+class TC_GAME_API SmartWaypointMgr
 {
     private:
         SmartWaypointMgr() { }
@@ -1467,7 +1467,7 @@ typedef std::unordered_map<int64, SmartAIEventList> SmartAIEventMap;
 typedef std::map<uint32 /*entry*/, std::pair<uint32 /*spellId*/, SpellEffIndex /*effIndex*/> > CacheSpellContainer;
 typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::const_iterator> CacheSpellContainerBounds;
 
-class SmartAIMgr
+class TC_GAME_API SmartAIMgr
 {
     private:
         SmartAIMgr() { }

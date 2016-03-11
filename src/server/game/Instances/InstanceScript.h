@@ -83,7 +83,7 @@ struct BossBoundaryEntry
     AreaBoundary const* Boundary;
 };
 
-struct BossBoundaryData
+struct TC_GAME_API BossBoundaryData
 {
     typedef std::vector<BossBoundaryEntry> StorageType;
     typedef StorageType::const_iterator const_iterator;
@@ -138,7 +138,7 @@ typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 typedef std::map<uint32 /*type*/, ObjectGuid /*guid*/> ObjectGuidMap;
 typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 
-class InstanceScript : public ZoneScript
+class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
         explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) { }

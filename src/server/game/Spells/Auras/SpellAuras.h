@@ -47,7 +47,7 @@ class ChargeDropEvent;
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
 
-class AuraApplication
+class TC_GAME_API AuraApplication
 {
     friend void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask);
     friend void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
@@ -113,7 +113,7 @@ struct AuraLoadEffectInfo
 };
 #pragma pack(pop)
 
-class Aura
+class TC_GAME_API Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
@@ -326,7 +326,7 @@ class Aura
         SpellEffectInfoVector _spelEffectInfos;
 };
 
-class UnitAura : public Aura
+class TC_GAME_API UnitAura : public Aura
 {
     friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
@@ -347,7 +347,7 @@ class UnitAura : public Aura
         DiminishingGroup m_AuraDRGroup:8;               // Diminishing
 };
 
-class DynObjAura : public Aura
+class TC_GAME_API DynObjAura : public Aura
 {
     friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
@@ -358,7 +358,7 @@ class DynObjAura : public Aura
         void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
 };
 
-class ChargeDropEvent : public BasicEvent
+class TC_GAME_API ChargeDropEvent : public BasicEvent
 {
     friend class Aura;
     protected:

@@ -67,7 +67,7 @@ namespace WorldPackets
     }
 }
 
-class BattlegroundMgr
+class TC_GAME_API BattlegroundMgr
 {
     private:
         BattlegroundMgr();

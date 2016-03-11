@@ -644,7 +644,7 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 
 class Player;
 
-struct ItemTemplate
+struct TC_GAME_API ItemTemplate
 {
     ItemEntry const* BasicData;
     ItemSparseEntry const* ExtendedData;
