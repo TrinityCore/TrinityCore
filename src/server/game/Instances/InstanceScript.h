@@ -37,6 +37,7 @@ class Unit;
 class Player;
 class GameObject;
 class Creature;
+class ModuleReference;
 
 enum EncounterFrameType
 {
@@ -141,7 +142,7 @@ typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) { }
+        explicit InstanceScript(Map* map);
 
         virtual ~InstanceScript() { }
 
@@ -296,6 +297,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+
+    #ifdef TRINITY_API_USE_DYNAMIC_LINKING
+        // Strong reference to the associated script module
+        std::shared_ptr<ModuleReference> module_reference;
+    #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 };
 
 template<class AI, class T>
