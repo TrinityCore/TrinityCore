@@ -317,6 +317,6 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     return connection;
 }
 
-template class DatabaseWorkerPool<LoginDatabaseConnection>;
-template class DatabaseWorkerPool<WorldDatabaseConnection>;
-template class DatabaseWorkerPool<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
