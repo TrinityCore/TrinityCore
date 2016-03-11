@@ -235,6 +235,12 @@ ObjectMgr::ObjectMgr():
     }
 }
 
+ObjectMgr* ObjectMgr::instance()
+{
+    static ObjectMgr instance;
+    return &instance;
+}
+
 ObjectMgr::~ObjectMgr()
 {
     for (QuestMap::iterator i = _questTemplates.begin(); i != _questTemplates.end(); ++i)

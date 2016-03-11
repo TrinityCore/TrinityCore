@@ -2246,6 +2246,12 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
     return "MISSING_TYPE";
 }
 
+AchievementGlobalMgr* AchievementGlobalMgr::instance()
+{
+    static AchievementGlobalMgr instance;
+    return &instance;
+}
+
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {

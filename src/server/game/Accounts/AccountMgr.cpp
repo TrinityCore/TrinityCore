@@ -33,6 +33,12 @@ AccountMgr::~AccountMgr()
     ClearRBAC();
 }
 
+AccountMgr* AccountMgr::instance()
+{
+    static AccountMgr instance;
+    return &instance;
+}
+
 AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email = "")
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
