@@ -57,6 +57,12 @@ bool ConfigMgr::LoadInitial(std::string const& file, std::string& error)
     return true;
 }
 
+ConfigMgr* ConfigMgr::instance()
+{
+    static ConfigMgr instance;
+    return &instance;
+}
+
 bool ConfigMgr::Reload(std::string& error)
 {
     return LoadInitial(_filename, error);
