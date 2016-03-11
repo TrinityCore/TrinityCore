@@ -177,11 +177,11 @@ bool DatabaseLoader::Process(std::queue<Predicate>& queue)
     return true;
 }
 
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(DatabaseWorkerPool<LoginDatabaseConnection>& pool, std::string const& name);
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(DatabaseWorkerPool<WorldDatabaseConnection>& pool, std::string const& name);
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(DatabaseWorkerPool<CharacterDatabaseConnection>& pool, std::string const& name);
-template
-DatabaseLoader& DatabaseLoader::AddDatabase<HotfixDatabaseConnection>(DatabaseWorkerPool<HotfixDatabaseConnection>& pool, std::string const& name);
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(LoginDatabaseWorkerPool&, std::string const&);
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(CharacterDatabaseWorkerPool&, std::string const&);
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<HotfixDatabaseConnection>(HotfixDatabaseWorkerPool&, std::string const&);
+template TC_DATABASE_API
+DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(WorldDatabaseWorkerPool&, std::string const&);
