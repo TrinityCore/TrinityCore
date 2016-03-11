@@ -3473,6 +3473,8 @@ void World::RemoveOldCorpses()
     m_timers[WUPDATE_CORPSES].SetCurrent(m_timers[WUPDATE_CORPSES].GetInterval());
 }
 
+Realm realm;
+
 uint32 GetVirtualRealmAddress()
 {
     return uint32(realm.Id.Region) << 24 | uint32(realm.Id.Site) << 16 | realm.Id.Realm;

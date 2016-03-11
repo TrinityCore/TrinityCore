@@ -898,5 +898,6 @@ extern Realm realm;
 uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
+
 #endif
 /// @}
