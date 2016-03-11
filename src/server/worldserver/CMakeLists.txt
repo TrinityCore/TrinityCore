@@ -65,6 +65,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/database/
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
   ${CMAKE_SOURCE_DIR}/src/server/game
   ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
