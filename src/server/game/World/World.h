@@ -870,5 +870,6 @@ class World
 extern Realm realm;
 
 #define sWorld World::instance()
+
 #endif
 /// @}
