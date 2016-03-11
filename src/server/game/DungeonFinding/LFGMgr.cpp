@@ -40,8 +40,6 @@ namespace lfg
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
 {
-    new LFGPlayerScript();
-    new LFGGroupScript();
 }
 
 LFGMgr::~LFGMgr()
