@@ -589,6 +589,9 @@ StrictPetNames = 0
 #                     6   - (Spanish)
 #                     7   - (Spanish Mexico)
 #                     8   - (Russian)
+#                     9   - (none)
+#                     10  - (ptBR)
+#                     11  - (itIT)
 
 DBC.Locale = 0
 
