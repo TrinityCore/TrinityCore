@@ -23,7 +23,7 @@
 #include "Utilities/ByteConverter.h"
 #include <cassert>
 
-class DBCFileLoader
+class TC_SHARED_API DBCFileLoader
 {
     public:
         DBCFileLoader();
