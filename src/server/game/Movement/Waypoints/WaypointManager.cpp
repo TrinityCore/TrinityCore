@@ -94,6 +94,12 @@ void WaypointMgr::Load()
     TC_LOG_INFO("server.loading", ">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+WaypointMgr* WaypointMgr::instance()
+{
+    static WaypointMgr instance;
+    return &instance;
+}
+
 void WaypointMgr::ReloadPath(uint32 id)
 {
     WaypointPathContainer::iterator itr = _waypointStore.find(id);

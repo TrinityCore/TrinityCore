@@ -102,11 +102,7 @@ class TransportMgr
         friend void DB2Manager::LoadStores(std::string const&, uint32);
 
     public:
-        static TransportMgr* instance()
-        {
-            static TransportMgr instance;
-            return &instance;
-        }
+        static TransportMgr* instance();
 
         void Unload();
 

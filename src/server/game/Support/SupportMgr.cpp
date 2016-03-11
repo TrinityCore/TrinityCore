@@ -362,6 +362,12 @@ SupportMgr::~SupportMgr()
         delete s.second;
 }
 
+SupportMgr* SupportMgr::instance()
+{
+    static SupportMgr instance;
+    return &instance;
+}
+
 void SupportMgr::Initialize()
 {
     SetSupportSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_ENABLED));

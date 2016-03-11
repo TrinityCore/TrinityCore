@@ -32,6 +32,12 @@ BattlefieldMgr::~BattlefieldMgr()
     _battlefieldMap.clear();
 }
 
+BattlefieldMgr* BattlefieldMgr::instance()
+{
+    static BattlefieldMgr instance;
+    return &instance;
+}
+
 void BattlefieldMgr::InitBattlefield()
 {
     Battlefield* wg = new BattlefieldWG();

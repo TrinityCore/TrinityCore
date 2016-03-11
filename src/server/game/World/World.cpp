@@ -148,6 +148,12 @@ World::~World()
     /// @todo free addSessQueue
 }
 
+World* World::instance()
+{
+    static World instance;
+    return &instance;
+}
+
 /// Find a player in a specified zone
 Player* World::FindPlayerInZone(uint32 zone)
 {

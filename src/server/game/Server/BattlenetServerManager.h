@@ -39,11 +39,7 @@ namespace IPC
             void InitializeConnection();
             void CloseConnection();
 
-            static ServerManager& Instance()
-            {
-                static ServerManager instance;
-                return instance;
-            }
+            static ServerManager& Instance();
 
             void SendChangeToonOnlineState(uint32 battlenetAccountId, uint32 gameAccountId, ObjectGuid guid, std::string const& name, bool online);
 

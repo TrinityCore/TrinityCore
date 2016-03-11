@@ -2890,6 +2890,12 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
 template class AchievementMgr<Guild>;
 template class AchievementMgr<Player>;
 
+AchievementGlobalMgr* AchievementGlobalMgr::instance()
+{
+    static AchievementGlobalMgr instance;
+    return &instance;
+}
+
 //==========================================================
 AchievementGlobalMgr::~AchievementGlobalMgr()
 {
