@@ -44,11 +44,7 @@ class Log
 
     public:
 
-        static Log* instance()
-        {
-            static Log instance;
-            return &instance;
-        }
+        static Log* instance();
 
         void Initialize(boost::asio::io_service* ioService);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
