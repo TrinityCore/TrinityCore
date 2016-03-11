@@ -37,7 +37,7 @@ enum DbcFieldFormat
     FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc
 };
 
-class DBCFileLoader
+class TC_SHARED_API DBCFileLoader
 {
     public:
         DBCFileLoader();
