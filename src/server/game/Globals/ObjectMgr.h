@@ -370,7 +370,7 @@ struct ScriptInfo
 
 typedef std::multimap<uint32, ScriptInfo> ScriptMap;
 typedef std::map<uint32, ScriptMap > ScriptMapMap;
-typedef std::multimap<uint32, uint32> SpellScriptsContainer;
+typedef std::multimap<uint32 /*spell id*/, std::pair<uint32 /*script id*/, bool /*disabled*/>> SpellScriptsContainer;
 typedef std::pair<SpellScriptsContainer::iterator, SpellScriptsContainer::iterator> SpellScriptsBounds;
 TC_GAME_API extern ScriptMapMap sSpellScripts;
 TC_GAME_API extern ScriptMapMap sEventScripts;
@@ -1272,6 +1272,7 @@ class TC_GAME_API ObjectMgr
         bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* player = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
+        ScriptNameContainer const& GetAllScriptNames() const;
         std::string const& GetScriptName(uint32 id) const;
         uint32 GetScriptId(std::string const& name);
 
