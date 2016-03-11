@@ -63,6 +63,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/database
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
   ${CMAKE_SOURCE_DIR}/src/server/ipc
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
