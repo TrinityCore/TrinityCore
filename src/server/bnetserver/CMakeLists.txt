@@ -47,9 +47,9 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
+  ${CMAKE_CURRENT_SOURCE_DIR}/Packets
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
   ${CMAKE_CURRENT_SOURCE_DIR}/Server
-  ${CMAKE_CURRENT_SOURCE_DIR}/Packets
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/zmqpp
   ${CMAKE_SOURCE_DIR}/src/common
@@ -64,9 +64,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging
   ${CMAKE_SOURCE_DIR}/src/server/ipc
+  ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Realm
   ${CMAKE_SOURCE_DIR}/src/server/shared/Service
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
@@ -86,12 +86,12 @@ if( NOT WIN32 )
 endif()
 
 target_link_libraries(bnetserver
-  common
+  shared
   database
   ipc
-  shared
-  format
+  common
   zmqpp
+  format
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${ZMQ_LIBRARY}

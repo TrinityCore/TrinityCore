@@ -19,18 +19,5 @@
 #define SC_SCRIPTLOADER_H
 
 void AddScripts();
-void AddSpellScripts();
-void AddCommandScripts();
-void AddWorldScripts();
-void AddEasternKingdomsScripts();
-void AddKalimdorScripts();
-void AddOutlandScripts();
-void AddNorthrendScripts();
-void AddMaelstromScripts();
-void AddEventScripts();
-void AddPetScripts();
-void AddBattlegroundScripts();
-void AddOutdoorPvPScripts();
-void AddCustomScripts();
 
 #endif

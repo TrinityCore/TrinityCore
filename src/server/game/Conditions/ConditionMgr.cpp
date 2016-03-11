@@ -102,7 +102,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Health Pct",           true, true, false  },
     { "Realm Achievement",    true, false, false },
     { "In Water",            false, false, false },
-    { "Terrain Swap",         true, false, false }
+    { "Terrain Swap",         true, false, false },
+    { "Sit/stand state",      true,  true, false }
 };
 
 // Checks if object meets the condition
@@ -439,6 +440,19 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = unit->IsInWater();
             break;
         }
+        case CONDITION_STAND_STATE:
+        {
+            if (Unit* unit = object->ToUnit())
+            {
+                if (ConditionValue1 == 0)
+                    condMeets = (unit->getStandState() == ConditionValue2);
+                else if (ConditionValue2 == 0)
+                    condMeets = unit->IsStandState();
+                else if (ConditionValue2 == 1)
+                    condMeets = unit->IsSitState();
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -615,6 +629,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_IN_WATER:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_STAND_STATE:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -839,7 +856,6 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
 
 bool ConditionMgr::HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const
 {
-    ConditionContainer spellCond;
     if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
         if (ConditionStore[sourceType].find(entry) != ConditionStore[sourceType].end())
             return true;
@@ -1738,7 +1754,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 {
     if (cond->ConditionType == CONDITION_NONE || cond->ConditionType >= CONDITION_MAX)
     {
-        TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString().c_str());
+        TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString(true).c_str());
         return false;
     }
 
@@ -2191,6 +2207,28 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_IN_WATER:
             break;
+        case CONDITION_STAND_STATE:
+        {
+            bool valid = false;
+            switch (cond->ConditionValue1)
+            {
+                case 0:
+                    valid = cond->ConditionValue2 <= UNIT_STAND_STATE_SUBMERGED;
+                    break;
+                case 1:
+                    valid = cond->ConditionValue2 <= 1;
+                    break;
+                default:
+                    valid = false;
+                    break;
+            }
+            if (!valid)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non-existing stand state (%u,%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                return false;
+            }
+            break;
+        }
         default:
             break;
     }
@@ -2212,17 +2250,17 @@ void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32
 
 void ConditionMgr::Clean()
 {
-    for (ConditionReferenceContainer::iterator it = ConditionReferenceStore.begin(); it != ConditionReferenceStore.end(); ++it)
-        for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-            delete *i;
+    for (ConditionReferenceContainer::iterator itr = ConditionReferenceStore.begin(); itr != ConditionReferenceStore.end(); ++itr)
+        for (ConditionContainer::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            delete *it;
 
     ConditionReferenceStore.clear();
 
     for (uint32 i = 0; i < CONDITION_SOURCE_TYPE_MAX; ++i)
     {
         for (ConditionsByEntryMap::iterator it = ConditionStore[i].begin(); it != ConditionStore[i].end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+            for (ConditionContainer::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
+                delete *itr;
 
         ConditionStore[i].clear();
     }

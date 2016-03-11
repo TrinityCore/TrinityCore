@@ -116,18 +116,18 @@ class MySQLConnection
         virtual void DoPrepareStatements() = 0;
 
     protected:
-        std::vector<MySQLPreparedStatement*> m_stmts;         //! PreparedStatements storage
+        std::vector<std::unique_ptr<MySQLPreparedStatement>> m_stmts; //! PreparedStatements storage
         PreparedStatementMap                 m_queries;       //! Query storage
         bool                                 m_reconnecting;  //! Are we reconnecting?
         bool                                 m_prepareError;  //! Was there any error while preparing statements?
 
     private:
-        bool _HandleMySQLErrno(uint32 errNo);
+        bool _HandleMySQLErrno(uint32 errNo, uint8 attempts = 5);
 
     private:
         ProducerConsumerQueue<SQLOperation*>* m_queue;      //! Queue shared with other asynchronous connections.
-        DatabaseWorker*       m_worker;                     //! Core worker task.
-        MYSQL *               m_Mysql;                      //! MySQL Handle.
+        std::unique_ptr<DatabaseWorker> m_worker;           //! Core worker task.
+        MYSQL*                m_Mysql;                      //! MySQL Handle.
         MySQLConnectionInfo&  m_connectionInfo;             //! Connection info (used for logging)
         ConnectionFlags       m_connectionFlags;            //! Connection flags (for preparing relevant statements)
         std::mutex            m_Mutex;

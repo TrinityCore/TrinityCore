@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
+#include "Realm/Realm.h"
 
 #include <atomic>
 #include <map>
@@ -464,18 +465,6 @@ enum BillingPlanFlags
     SESSION_ENABLE_CAIS     = 0x80
 };
 
-/// Type of server, this is values from second column of Cfg_Configs.dbc
-enum RealmType
-{
-    REALM_TYPE_NORMAL       = 0,
-    REALM_TYPE_PVP          = 1,
-    REALM_TYPE_NORMAL2      = 4,
-    REALM_TYPE_RP           = 6,
-    REALM_TYPE_RPPVP        = 8,
-    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
-                                                            // replaced by REALM_PVP in realm list
-};
-
 enum RealmZone
 {
     REALM_ZONE_UNKNOWN       = 0,                           // any language
@@ -904,7 +893,7 @@ class World
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
 };
 
-extern Battlenet::RealmHandle realmHandle;
+extern Realm realm;
 
 #define sWorld World::instance()
 #endif

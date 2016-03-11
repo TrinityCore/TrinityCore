@@ -115,7 +115,7 @@ namespace Battlenet
         void Start() override;
         bool Update() override;
 
-        void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms);
+        void UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmHandle>& deletedRealms);
 
         uint32 GetAccountId() const { return _accountInfo->Id; }
         uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }

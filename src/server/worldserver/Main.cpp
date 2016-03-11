@@ -30,7 +30,6 @@
 #include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
 #include "BigNumber.h"
-#include "RealmList.h"
 #include "World.h"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
@@ -83,7 +82,7 @@ uint32 _maxCoreStuckTimeInMs(0);
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
-Battlenet::RealmHandle realmHandle;                         ///< Id of the realm
+Realm realm;
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
@@ -94,6 +93,7 @@ void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
 void ShutdownThreadPool(std::vector<std::thread>& threadPool);
+bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, std::string& cfg_service);
 
 /// Launch the Trinity server
@@ -190,7 +190,9 @@ extern int main(int argc, char** argv)
     }
 
     // Set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+
+    LoadRealmInfo();
 
     // Initialize the World
     sWorld->SetInitialWorldSettings();
@@ -225,7 +227,9 @@ extern int main(int argc, char** argv)
     sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort);
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    realm.PopulationLevel = 0.0f;
+    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
@@ -269,7 +273,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->Unload();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     // Clean up threads if any
     if (soapThread != nullptr)
@@ -451,6 +455,59 @@ AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService)
     return acceptor;
 }
 
+bool LoadRealmInfo()
+{
+    boost::asio::ip::tcp::resolver resolver(_ioService);
+    boost::asio::ip::tcp::resolver::iterator end;
+
+    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = %u", realm.Id.Realm);
+    if (!result)
+        return false;
+
+    Field* fields = result->Fetch();
+    realm.Name = fields[1].GetString();
+    boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
+
+    boost::system::error_code ec;
+    boost::asio::ip::tcp::resolver::iterator endPoint = resolver.resolve(externalAddressQuery, ec);
+    if (endPoint == end || ec)
+    {
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
+        return false;
+    }
+
+    realm.ExternalAddress = (*endPoint).endpoint().address();
+
+    boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
+    endPoint = resolver.resolve(localAddressQuery, ec);
+    if (endPoint == end || ec)
+    {
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
+        return false;
+    }
+
+    realm.LocalAddress = (*endPoint).endpoint().address();
+
+    boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
+    endPoint = resolver.resolve(localSubmaskQuery, ec);
+    if (endPoint == end || ec)
+    {
+        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
+        return false;
+    }
+
+    realm.LocalSubnetMask = (*endPoint).endpoint().address();
+
+    realm.Port = fields[5].GetUInt16();
+    realm.Type = fields[6].GetUInt8();
+    realm.Flags = RealmFlags(fields[7].GetUInt8());
+    realm.Timezone = fields[8].GetUInt8();
+    realm.AllowedSecurityLevel = AccountTypes(fields[9].GetUInt8());
+    realm.PopulationLevel = fields[10].GetFloat();
+    realm.Build = fields[11].GetUInt32();
+    return true;
+}
+
 /// Initialize connection to the databases
 bool StartDB()
 {
@@ -459,32 +516,32 @@ bool StartDB()
     // Load databases
     DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE);
     loader
-        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(LoginDatabase, "Login")
         .AddDatabase(CharacterDatabase, "Character")
-        .AddDatabase(LoginDatabase, "Login");
+        .AddDatabase(WorldDatabase, "World");
 
     if (!loader.Load())
         return false;
 
     ///- Get the realm Id from the configuration file
-    realmHandle.Index = sConfigMgr->GetIntDefault("RealmID", 0);
-    if (!realmHandle.Index)
+    realm.Id.Realm = sConfigMgr->GetIntDefault("RealmID", 0);
+    if (!realm.Id.Realm)
     {
         TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
         return false;
     }
 
-    QueryResult realmIdQuery = LoginDatabase.PQuery("SELECT `Region`,`Battlegroup` FROM `realmlist` WHERE `id`=%u", realmHandle.Index);
+    QueryResult realmIdQuery = LoginDatabase.PQuery("SELECT `Region`,`Battlegroup` FROM `realmlist` WHERE `id`=%u", realm.Id.Realm);
     if (!realmIdQuery)
     {
-        TC_LOG_ERROR("server.worldserver", "Realm id %u not defined in realmlist table", realmHandle.Index);
+        TC_LOG_ERROR("server.worldserver", "Realm id %u not defined in realmlist table", realm.Id.Realm);
         return false;
     }
 
-    realmHandle.Region = (*realmIdQuery)[0].GetUInt8();
-    realmHandle.Battlegroup = (*realmIdQuery)[1].GetUInt8();
+    realm.Id.Region = (*realmIdQuery)[0].GetUInt8();
+    realm.Id.Site = (*realmIdQuery)[1].GetUInt8();
 
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %u region %u battlegroup %u", realmHandle.Index, uint32(realmHandle.Region), uint32(realmHandle.Battlegroup));
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %u region %u battlegroup %u", realm.Id.Realm, uint32(realm.Id.Region), uint32(realm.Id.Site));
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
@@ -511,7 +568,7 @@ void StopDB()
 void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realmHandle.Index);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");

@@ -79,7 +79,7 @@ namespace Battlenet
             void CallHandler(Session* session) override;
 
             uint32 ClientSeed;
-            RealmId Realm;
+            Battlenet::RealmHandle Realm;
         };
 
         class ListSubscribeResponse final : public ServerPacket
@@ -100,7 +100,7 @@ namespace Battlenet
 
             struct CharacterCountEntry
             {
-                RealmId Realm;
+                Battlenet::RealmHandle Realm;
                 uint32 CharacterCount;
             };
 
@@ -139,7 +139,8 @@ namespace Battlenet
             std::string Version;
             tcp::endpoint Address;
             uint8 Flags;
-            RealmId Id;
+            Battlenet::RealmHandle Id;
+            uint32 Build;
         };
 
         class ListComplete final : public ServerPacket
@@ -164,7 +165,7 @@ namespace Battlenet
             std::string ToString() const override;
 
             std::string Game;
-            RealmId Realm;
+            Battlenet::RealmHandle Realm;
             uint64 Guid;
             std::string Name;
         };

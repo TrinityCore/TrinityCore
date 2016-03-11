@@ -470,7 +470,7 @@ void Battlenet::Session::HandleListSubscribeRequestCallback(PreparedQueryResult 
         {
             Field* fields = result->Fetch();
             uint32 build = fields[4].GetUInt32();
-            listSubscribeResponse->CharacterCounts.push_back({ RealmId(fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32(), (_build != build ? build : 0)), fields[0].GetUInt8() });
+            listSubscribeResponse->CharacterCounts.push_back({ Battlenet::RealmHandle(fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32()), fields[0].GetUInt8() });
         } while (result->NextRow());
     }
 
@@ -493,7 +493,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
     Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
-    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
+    if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE))
     {
         joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);
@@ -1114,12 +1114,12 @@ bool Battlenet::Session::UnhandledModule(BitStream* /*dataStream*/, ServerPacket
     return false;
 }
 
-void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::vector<RealmId>& deletedRealms)
+void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::vector<Battlenet::RealmHandle>& deletedRealms)
 {
     for (Realm const* realm : realms)
         AsyncWrite(BuildListUpdate(realm));
 
-    for (RealmId& deleted : deletedRealms)
+    for (Battlenet::RealmHandle& deleted : deletedRealms)
     {
         WoWRealm::ListUpdate* listUpdate = new WoWRealm::ListUpdate();
         listUpdate->UpdateState = WoWRealm::ListUpdate::DELETED;
@@ -1131,10 +1131,10 @@ void Battlenet::Session::UpdateRealms(std::vector<Realm const*>& realms, std::ve
 Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const* realm) const
 {
     uint32 flag = realm->Flags & ~REALM_FLAG_SPECIFYBUILD;
-    RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm->Id.Build);
-    if (realm->Id.Build != _build)
+    RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm->Build);
+    if (realm->Build != _build)
     {
-        flag |= REALM_FLAG_INVALID;
+        flag |= REALM_FLAG_VERSION_MISMATCH;
         if (buildInfo)
             flag |= REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
     }
@@ -1153,6 +1153,7 @@ Battlenet::WoWRealm::ListUpdate* Battlenet::Session::BuildListUpdate(Realm const
 
         listUpdate->Version = version.str();
         listUpdate->Address = realm->GetAddressForClient(GetRemoteIpAddress());
+        listUpdate->Build = realm->Build;
     }
 
     listUpdate->Flags = flag;

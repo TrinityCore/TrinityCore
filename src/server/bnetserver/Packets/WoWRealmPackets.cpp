@@ -42,8 +42,8 @@ void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
 
 void Battlenet::WoWRealm::JoinRequestV2::Read()
 {
-    Realm.Battlegroup = _stream.Read<uint8>(8);
-    Realm.Index = _stream.Read<uint32>(32);
+    Realm.Site = _stream.Read<uint8>(8);
+    Realm.Realm = _stream.Read<uint32>(32);
     Realm.Region = _stream.Read<uint8>(8);
     ClientSeed = _stream.Read<uint32>(32);
 }
@@ -51,7 +51,7 @@ void Battlenet::WoWRealm::JoinRequestV2::Read()
 std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
 {
     std::ostringstream stream;
-    stream << "Battlenet::WoWRealm::JoinRequestV2 ClientSeed " << ClientSeed << " Region " << uint32(Realm.Region) << " Battlegroup " << uint32(Realm.Battlegroup) << " Index " << Realm.Index;
+    stream << "Battlenet::WoWRealm::JoinRequestV2 ClientSeed " << ClientSeed << " Region " << uint32(Realm.Region) << " Battlegroup " << uint32(Realm.Site) << " Index " << Realm.Realm;
     return stream.str().c_str();
 }
 
@@ -74,8 +74,8 @@ void Battlenet::WoWRealm::ListSubscribeResponse::Write()
         _stream.Write(CharacterCounts.size(), 7);
         for (CharacterCountEntry const& entry : CharacterCounts)
         {
-            _stream.Write(entry.Realm.Battlegroup, 8);
-            _stream.Write(entry.Realm.Index, 32);
+            _stream.Write(entry.Realm.Site, 8);
+            _stream.Write(entry.Realm.Realm, 32);
             _stream.Write(entry.Realm.Region, 8);
             _stream.Write(entry.CharacterCount, 16);
         }
@@ -100,7 +100,7 @@ std::string Battlenet::WoWRealm::ListSubscribeResponse::ToString() const
         stream << " Realms " << CharacterCounts.size();
 
         for (CharacterCountEntry const& entry : CharacterCounts)
-            stream << std::endl << "Region " << uint32(entry.Realm.Region) << " Battlegroup " << uint32(entry.Realm.Region) << " Index " << entry.Realm.Index << " Characters " << entry.CharacterCount;
+            stream << std::endl << "Region " << uint32(entry.Realm.Region) << " Battlegroup " << uint32(entry.Realm.Region) << " Index " << entry.Realm.Realm << " Characters " << entry.CharacterCount;
 
         for (ServerPacket* realmData : RealmData)
             stream << std::endl << realmData->ToString();
@@ -125,7 +125,7 @@ void Battlenet::WoWRealm::ListUpdate::Write()
         if (!Version.empty())
         {
             _stream.WriteString(Version, 5);
-            _stream.Write(Id.Build, 32);
+            _stream.Write(Build, 32);
 
             boost::asio::ip::address_v4::bytes_type ip = Address.address().to_v4().to_bytes();
             uint16 port = Address.port();
@@ -140,8 +140,8 @@ void Battlenet::WoWRealm::ListUpdate::Write()
         _stream.WriteString(Name, 10);
     }
 
-    _stream.Write(Id.Battlegroup, 8);
-    _stream.Write(Id.Index, 32);
+    _stream.Write(Id.Site, 8);
+    _stream.Write(Id.Realm, 32);
     _stream.Write(Id.Region, 8);
 }
 
@@ -152,13 +152,13 @@ std::string Battlenet::WoWRealm::ListUpdate::ToString() const
     if (UpdateState == UPDATE)
     {
         stream << " Timezone: " << Timezone << " Population: " << Population << " Lock: " << uint32(Lock) << " Type: " << Type << " Name: " << Name
-            << " Flags: " << uint32(Flags) << " Region: " << uint32(Id.Region) << " Battlegroup: " << uint32(Id.Battlegroup) << " Index: " << Id.Index;
+            << " Flags: " << uint32(Flags) << " Region: " << uint32(Id.Region) << " Battlegroup: " << uint32(Id.Site) << " Index: " << Id.Realm;
 
         if (!Version.empty())
             stream << " Version: " << Version;
     }
     else
-        stream << " Delete realm [Region: " << uint32(Id.Region) << " Battlegroup : " << uint32(Id.Battlegroup) << " Index : " << Id.Index << "]";
+        stream << " Delete realm [Region: " << uint32(Id.Region) << " Battlegroup : " << uint32(Id.Site) << " Index : " << Id.Realm << "]";
 
     return stream.str().c_str();
 }
@@ -167,7 +167,7 @@ void Battlenet::WoWRealm::ToonReady::Write()
 {
     _stream.Write(Realm.Region, 8);
     _stream.WriteFourCC(Game);
-    uint32 realmAddress = ((Realm.Battlegroup << 16) & 0xFF0000) | uint16(Realm.Index);
+    uint32 realmAddress = ((Realm.Site << 16) & 0xFF0000) | uint16(Realm.Realm);
     _stream.Write(realmAddress, 32);
     _stream.WriteString(Name, 7, -2);
     _stream.WriteSkip(7);
@@ -185,7 +185,7 @@ std::string Battlenet::WoWRealm::ToonReady::ToString() const
 {
     std::ostringstream stream;
     stream << "Battlenet::WoWRealm::ToonReady" << " Game: " << Game
-        << ", Region: " << uint32(Realm.Region) << ", Battlegroup: " << uint32(Realm.Battlegroup) << ", Index: " << Realm.Index
+        << ", Region: " << uint32(Realm.Region) << ", Battlegroup: " << uint32(Realm.Site) << ", Index: " << Realm.Realm
         << ", Guid: " << Guid << ", Name: " << Name;
 
     return stream.str().c_str();

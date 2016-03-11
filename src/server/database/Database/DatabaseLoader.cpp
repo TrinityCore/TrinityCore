@@ -32,7 +32,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
 {
     bool const updatesEnabledForThis = DBUpdater<T>::IsEnabled(_updateFlags);
 
-    _open.push(std::make_pair([this, name, updatesEnabledForThis, &pool]() -> bool
+    _open.push([this, name, updatesEnabledForThis, &pool]() -> bool
     {
         std::string const dbString = sConfigMgr->GetStringDefault(name + "DatabaseInfo", "");
         if (dbString.empty())
@@ -71,12 +71,13 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
                 return false;
             }
         }
+        // Add the close operation
+        _close.push([&pool]
+        {
+            pool.Close();
+        });
         return true;
-    },
-    [&pool]()
-    {
-        pool.Close();
-    }));
+    });
 
     // Populate and update only if updates are enabled for this pool
     if (updatesEnabledForThis)
@@ -137,38 +138,7 @@ bool DatabaseLoader::Load()
 
 bool DatabaseLoader::OpenDatabases()
 {
-    while (!_open.empty())
-    {
-        std::pair<Predicate, std::function<void()>> const load = _open.top();
-        if (load.first())
-            _close.push(load.second);
-        else
-        {
-            // Close all loaded databases
-            while (!_close.empty())
-            {
-                _close.top()();
-                _close.pop();
-            }
-            return false;
-        }
-
-        _open.pop();
-    }
-    return true;
-}
-
-// Processes the elements of the given stack until a predicate returned false.
-bool DatabaseLoader::Process(std::stack<Predicate>& stack)
-{
-    while (!stack.empty())
-    {
-        if (!stack.top()())
-            return false;
-
-        stack.pop();
-    }
-    return true;
+    return Process(_open);
 }
 
 bool DatabaseLoader::PopulateDatabases()
@@ -184,6 +154,27 @@ bool DatabaseLoader::UpdateDatabases()
 bool DatabaseLoader::PrepareStatements()
 {
     return Process(_prepare);
+}
+
+bool DatabaseLoader::Process(std::queue<Predicate>& queue)
+{
+    while (!queue.empty())
+    {
+        if (!queue.front()())
+        {
+            // Close all open databases which have a registered close operation
+            while (!_close.empty())
+            {
+                _close.top()();
+                _close.pop();
+            }
+
+            return false;
+        }
+
+        queue.pop();
+    }
+    return true;
 }
 
 template

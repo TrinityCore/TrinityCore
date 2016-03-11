@@ -55,6 +55,7 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
+class PlayerAI;
 
 struct CharacterCustomizeInfo;
 
@@ -1170,6 +1171,8 @@ class Player : public Unit, public GridObject<Player>
     public:
         explicit Player(WorldSession* session);
         ~Player();
+
+        PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(i_AI); }
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
@@ -2768,8 +2771,6 @@ class Player : public Unit, public GridObject<Player>
         bool IsInstanceLoginGameMasterException() const;
 
         MapReference m_mapRef;
-
-        void UpdateCharmedAI();
 
         uint32 m_lastFallTime;
         float  m_lastFallZ;

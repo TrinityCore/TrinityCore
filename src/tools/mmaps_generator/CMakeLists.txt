@@ -13,6 +13,7 @@ file(GLOB_RECURSE mmap_gen_sources *.cpp *.h)
 set(mmap_gen_Includes
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/zlib
   ${CMAKE_SOURCE_DIR}/dep/bzip2
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include

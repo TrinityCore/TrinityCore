@@ -1233,10 +1233,14 @@ void Player::Update(uint32 p_time)
 
     UpdateAfkReport(now);
 
-    if (IsCharmed())
-        if (Unit* charmer = GetCharmer())
-            if (charmer->GetTypeId() == TYPEID_UNIT && charmer->IsAlive())
-                UpdateCharmedAI();
+    if (IsAIEnabled && GetAI())
+        GetAI()->UpdateAI(p_time);
+    else if (NeedChangeAI)
+    {
+        UpdateCharmAI();
+        NeedChangeAI = false;
+        IsAIEnabled = (GetAI() != nullptr);
+    }
 
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
@@ -14067,14 +14071,14 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 if (!optionBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuId)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (!boxBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuId)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
@@ -24617,38 +24621,6 @@ bool Player::isTotalImmunity()
         }
     }
     return false;
-}
-
-void Player::UpdateCharmedAI()
-{
-    //This should only called in Player::Update
-  Creature* charmer = GetCharmer()->ToCreature();
-
-    //kill self if charm aura has infinite duration
-    if (charmer->IsInEvadeMode())
-    {
-        AuraEffectList const& auras = GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
-        for (AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
-            {
-                charmer->DealDamage(this, GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                return;
-            }
-    }
-
-    if (!charmer->IsInCombat())
-        GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-
-    Unit* target = GetVictim();
-    if (!target || !charmer->IsValidAttackTarget(target))
-    {
-        target = charmer->SelectNearestTarget();
-        if (!target)
-            return;
-
-        GetMotionMaster()->MoveChase(target);
-        Attack(target, true);
-    }
 }
 
 uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
