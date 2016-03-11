@@ -32,12 +32,6 @@ Quest::Quest(Field* questRecord)
     _rewCurrencyCount = 0;
     _reqCurrencyCount = 0;
 
-    memset(DetailsEmote, 0, sizeof(DetailsEmote));
-    memset(DetailsEmoteDelay, 0, sizeof(DetailsEmoteDelay));
-
-    memset(OfferRewardEmote, 0, sizeof(OfferRewardEmote));
-    memset(OfferRewardEmoteDelay, 0, sizeof(OfferRewardEmoteDelay));
-
     Id = questRecord[0].GetUInt32();
     Method = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt16();
@@ -108,39 +102,59 @@ Quest::Quest(Field* questRecord)
     CompletedText = questRecord[76].GetString();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredNpcOrGo[i] = questRecord[77+i].GetInt32();
+    {
+        RequiredNpcOrGo[i] = questRecord[77 + i].GetInt32();
+        RequiredNpcOrGoCount[i] = questRecord[81 + i].GetUInt16();
+        ObjectiveText[i] = questRecord[106 + i].GetString();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredNpcOrGoCount[i] = questRecord[81+i].GetUInt16();
+        if (RequiredNpcOrGo[i])
+            ++_reqNpcOrGoCount;
+    }
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        ItemDrop[i] = questRecord[85+i].GetUInt32();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        ItemDropQuantity[i] = questRecord[89+i].GetUInt16();
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        RequiredItemId[i] = questRecord[93+i].GetUInt32();
+    {
+        ItemDrop[i] = questRecord[85 + i].GetUInt32();
+        ItemDropQuantity[i] = questRecord[89 + i].GetUInt16();
+    }
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        RequiredItemCount[i] = questRecord[99+i].GetUInt16();
+    {
+        RequiredItemId[i] = questRecord[93 + i].GetUInt32();
+        RequiredItemCount[i] = questRecord[99 + i].GetUInt16();
+
+        if (RequiredItemId[i])
+            ++_reqItemsCount;
+    }
+
+    //int32 VerifiedBuild = questRecord[132].GetInt32();
+
+    for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    {
+        DetailsEmote[i] = 0;
+        DetailsEmoteDelay[i] = 0;
+        OfferRewardEmote[i] = 0;
+        OfferRewardEmoteDelay[i] = 0;
+    }
 
     RequiredSpell = questRecord[105].GetUInt32();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        ObjectiveText[i] = questRecord[106+i].GetString();
-
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyId[i] = questRecord[110+i].GetUInt16();
+    {
+        RewardCurrencyId[i] = questRecord[110 + i].GetUInt16();
+        RewardCurrencyCount[i] = questRecord[114 + i].GetUInt8();
 
-    for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyCount[i] = questRecord[114+i].GetUInt8();
+        if (RewardCurrencyId[i])
+            ++_rewCurrencyCount;
+    }
 
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyId[i] = questRecord[118+i].GetUInt16();
+    {
+        RequiredCurrencyId[i] = questRecord[118 + i].GetUInt16();
+        RequiredCurrencyCount[i] = questRecord[122 + i].GetUInt8();
 
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        RequiredCurrencyCount[i] = questRecord[122+i].GetUInt8();
+        if (RequiredCurrencyId[i])
+            ++_reqCurrencyCount;
+    }
 
     QuestGiverTextWindow = questRecord[126].GetString();
     QuestGiverTargetName = questRecord[127].GetString();
@@ -148,35 +162,6 @@ Quest::Quest(Field* questRecord)
     QuestTurnTargetName = questRecord[129].GetString();
     SoundAccept = questRecord[130].GetUInt16();
     SoundTurnIn = questRecord[131].GetUInt16();
-
-    //int32 VerifiedBuild = questRecord[132].GetInt32();
-
-    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
-        Flags |= QUEST_FLAGS_AUTO_ACCEPT;
-
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        if (RequiredItemId[i])
-            ++_reqItemsCount;
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        if (RequiredNpcOrGo[i])
-            ++_reqNpcOrGoCount;
-
-    for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        if (RewardItemId[i])
-            ++_rewItemsCount;
-
-    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        if (RewardChoiceItemId[i])
-            ++_rewChoiceItemsCount;
-
-    for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        if (RewardCurrencyId[i])
-            ++_rewCurrencyCount;
-
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-        if (RequiredCurrencyId[i])
-            ++_reqCurrencyCount;
 }
 
 void Quest::LoadQuestDetails(Field* fields)
