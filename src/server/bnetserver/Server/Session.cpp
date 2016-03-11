@@ -469,7 +469,6 @@ void Battlenet::Session::HandleListSubscribeRequestCallback(PreparedQueryResult 
         do
         {
             Field* fields = result->Fetch();
-            uint32 build = fields[4].GetUInt32();
             listSubscribeResponse->CharacterCounts.push_back({ Battlenet::RealmHandle(fields[2].GetUInt8(), fields[3].GetUInt8(), fields[1].GetUInt32()), fields[0].GetUInt8() });
         } while (result->NextRow());
     }
