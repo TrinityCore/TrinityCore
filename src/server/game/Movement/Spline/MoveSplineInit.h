@@ -35,7 +35,7 @@ namespace Movement
     };
 
     // Transforms coordinates from global to transport offsets
-    class TransportPathTransform
+    class TC_GAME_API TransportPathTransform
     {
     public:
         TransportPathTransform(Unit* owner, bool transformForTransport)
@@ -49,7 +49,7 @@ namespace Movement
 
     /*  Initializes and launches spline movement
      */
-    class MoveSplineInit
+    class TC_GAME_API MoveSplineInit
     {
     public:
 

@@ -65,7 +65,7 @@ enum SCEquip
 };
 
 typedef std::set<AreaBoundary const*> CreatureBoundary;
-class CreatureAI : public UnitAI
+class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:
         Creature* const me;

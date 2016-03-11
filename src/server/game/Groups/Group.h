@@ -188,7 +188,7 @@ struct RaidMarker
 
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
-class Group
+class TC_GAME_API Group
 {
     public:
         struct MemberSlot

@@ -64,7 +64,7 @@ enum MailAuctionAnswers
     AUCTION_SALE_PENDING        = 6
 };
 
-struct AuctionEntry
+struct TC_GAME_API AuctionEntry
 {
     uint32 Id;
     ObjectGuid::LowType auctioneer;                                      // creature low guid
@@ -97,7 +97,7 @@ struct AuctionEntry
 };
 
 //this class is used as auctionhouse instance
-class AuctionHouseObject
+class TC_GAME_API AuctionHouseObject
 {
   public:
     ~AuctionHouseObject()
@@ -135,7 +135,7 @@ class AuctionHouseObject
     AuctionEntryMap AuctionsMap;
 };
 
-class AuctionHouseMgr
+class TC_GAME_API AuctionHouseMgr
 {
     private:
         AuctionHouseMgr();

@@ -67,7 +67,7 @@ union ClientPktHeader
 
 #pragma pack(pop)
 
-class WorldSocket : public Socket<WorldSocket>
+class TC_GAME_API WorldSocket : public Socket<WorldSocket>
 {
     static std::string const ServerConnectionInitialize;
     static std::string const ClientConnectionInitialize;

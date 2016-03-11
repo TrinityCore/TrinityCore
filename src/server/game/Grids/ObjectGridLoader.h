@@ -27,7 +27,7 @@
 
 class ObjectWorldLoader;
 
-class ObjectGridLoader
+class TC_GAME_API ObjectGridLoader
 {
     friend class ObjectWorldLoader;
 
@@ -56,7 +56,7 @@ class ObjectGridLoader
 };
 
 //Stop the creatures before unloading the NGrid
-class ObjectGridStoper
+class TC_GAME_API ObjectGridStoper
 {
     public:
         void Visit(CreatureMapType &m);
@@ -64,7 +64,7 @@ class ObjectGridStoper
 };
 
 //Move the foreign creatures back to respawn positions before unloading the NGrid
-class ObjectGridEvacuator
+class TC_GAME_API ObjectGridEvacuator
 {
     public:
         void Visit(CreatureMapType &m);

@@ -74,7 +74,7 @@ enum CreatureFlagsExtra
 #define MAX_CREATURE_DIFFICULTIES 3
 
 // from `creature_template` table
-struct CreatureTemplate
+struct TC_GAME_API CreatureTemplate
 {
     uint32  Entry;
     uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
@@ -213,7 +213,7 @@ typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;
 #pragma pack(push, 1)
 
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
-struct CreatureBaseStats
+struct TC_GAME_API CreatureBaseStats
 {
     uint32 BaseHealth[MAX_EXPANSIONS];
     uint32 BaseMana;
@@ -440,7 +440,7 @@ struct TrainerSpell
 
 typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
 
-struct TrainerSpellData
+struct TC_GAME_API TrainerSpellData
 {
     TrainerSpellData() : trainerType(0) { }
     ~TrainerSpellData() { spellList.clear(); }
@@ -462,7 +462,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 typedef std::vector<uint8> CreatureTextRepeatIds;
 typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
 
-class Creature : public Unit, public GridObject<Creature>, public MapObject
+class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
 
@@ -783,7 +783,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         CreatureTextRepeatGroup m_textRepeat;
 };
 
-class AssistDelayEvent : public BasicEvent
+class TC_GAME_API AssistDelayEvent : public BasicEvent
 {
     public:
         AssistDelayEvent(ObjectGuid victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
@@ -798,7 +798,7 @@ class AssistDelayEvent : public BasicEvent
         Unit&             m_owner;
 };
 
-class ForcedDespawnDelayEvent : public BasicEvent
+class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
 {
     public:
         ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }

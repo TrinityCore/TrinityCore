@@ -128,7 +128,7 @@ enum CalendarError
 #define CALENDAR_MAX_INVITES            100
 #define CALENDAR_DEFAULT_RESPONSE_TIME  946684800 // 01/01/2000 00:00:00
 
-struct CalendarInvite
+struct TC_GAME_API CalendarInvite
 {
     public:
         CalendarInvite(CalendarInvite const& calendarInvite, uint64 inviteId, uint64 eventId)
@@ -188,7 +188,7 @@ struct CalendarInvite
         std::string _note;
 };
 
-struct CalendarEvent
+struct TC_GAME_API CalendarEvent
 {
     public:
         CalendarEvent(CalendarEvent const& calendarEvent, uint64 eventId)
@@ -268,7 +268,7 @@ typedef std::vector<CalendarInvite*> CalendarInviteStore;
 typedef std::set<CalendarEvent*> CalendarEventStore;
 typedef std::map<uint64 /* eventID */, CalendarInviteStore > CalendarEventInviteStore;
 
-class CalendarMgr
+class TC_GAME_API CalendarMgr
 {
     private:
         CalendarMgr();

@@ -207,7 +207,7 @@ namespace WorldPackets
             ObjectGuid Healer;
         };
 
-        class SpiritHealerConfirm final : public ServerPacket
+        class TC_GAME_API SpiritHealerConfirm final : public ServerPacket
         {
         public:
             SpiritHealerConfirm() : ServerPacket(SMSG_SPIRIT_HEALER_CONFIRM, 16) { }

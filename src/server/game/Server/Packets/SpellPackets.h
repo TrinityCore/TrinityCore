@@ -419,7 +419,7 @@ namespace WorldPackets
             uint8 CastID    = 0;
         };
 
-        class CastFailed final : public ServerPacket
+        class TC_GAME_API CastFailed final : public ServerPacket
         {
         public:
             CastFailed(OpcodeServer opcode) : ServerPacket(opcode, 4+4+4+4+1) { }
@@ -445,7 +445,7 @@ namespace WorldPackets
             std::vector<SpellModifierData> ModifierData;
         };
 
-        class SetSpellModifier final : public ServerPacket
+        class TC_GAME_API SetSpellModifier final : public ServerPacket
         {
         public:
             SetSpellModifier(OpcodeServer opcode) : ServerPacket(opcode, 20) { }

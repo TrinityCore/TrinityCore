@@ -31,7 +31,7 @@ enum LfgGroupEnum
 /**
     Stores all lfg data needed about a group.
 */
-class LfgGroupData
+class TC_GAME_API LfgGroupData
 {
     public:
         LfgGroupData();

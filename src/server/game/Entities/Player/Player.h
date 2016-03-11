@@ -115,7 +115,7 @@ struct PlayerSpell
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
 
-extern uint32 const MasterySpells[MAX_CLASSES];
+TC_GAME_API extern uint32 const MasterySpells[MAX_CLASSES];
 
 enum TalentSpecialization // talent tabs
 {
@@ -1012,7 +1012,7 @@ enum PlayerDelayedOperations
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
-extern uint64 const MAX_MONEY_AMOUNT;
+TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
 
 struct InstancePlayerBind
 {
@@ -1146,7 +1146,7 @@ struct ResurrectionData
 static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
 static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
 
-struct PlayerTalentInfo
+struct TC_GAME_API PlayerTalentInfo
 {
     PlayerTalentInfo() :
         ResetTalentsCost(0), ResetTalentsTime(0),
@@ -1182,7 +1182,7 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
-class Player : public Unit, public GridObject<Player>
+class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player* player);
@@ -2837,8 +2837,8 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 };
 
-void AddItemsSetItem(Player* player, Item* item);
-void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
+TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
+TC_GAME_API void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
 template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)
