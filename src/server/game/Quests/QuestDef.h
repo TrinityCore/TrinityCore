@@ -190,7 +190,7 @@ struct QuestLocale
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
-class Quest
+class TC_GAME_API Quest
 {
     friend class ObjectMgr;
     public:

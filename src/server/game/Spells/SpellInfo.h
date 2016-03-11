@@ -194,7 +194,7 @@ enum SpellCustomAttributes
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
 
-class SpellImplicitTargetInfo
+class TC_GAME_API SpellImplicitTargetInfo
 {
 private:
     Targets _target;
@@ -225,7 +225,7 @@ private:
     static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
-class SpellEffectInfo
+class TC_GAME_API SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
     uint8 _effIndex;
@@ -291,7 +291,7 @@ private:
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
-class SpellInfo
+class TC_GAME_API SpellInfo
 {
 public:
     uint32 Id;
