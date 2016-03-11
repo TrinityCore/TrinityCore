@@ -44,11 +44,13 @@ enum StatsValueCategory
 {
     STATS_VALUE_UPDATE_TIME_DIFF = 0,
     STATS_VALUE_ONLINE_PLAYERS,
+    STATS_VALUE_SESSION_PROCESSED_PACKETS,
     STATS_VALUE_MAX
 };
 
 static std::map<StatsValueCategory, std::string> Values = {
     { STATS_VALUE_UPDATE_TIME_DIFF, "update_time_diff" },
+    { STATS_VALUE_SESSION_PROCESSED_PACKETS, "processed_packets"},
     { STATS_VALUE_ONLINE_PLAYERS, "online_players" }
 };
 

@@ -401,6 +401,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
+    TC_STATS_VALUE(STATS_VALUE_SESSION_PROCESSED_PACKETS, processedPackets);
+
     if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
