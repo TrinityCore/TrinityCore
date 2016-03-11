@@ -25,6 +25,12 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/property_map/transform_value_property_map.hpp>
 
+TaxiPathGraph& TaxiPathGraph::Instance()
+{
+    static TaxiPathGraph instance;
+    return instance;
+}
+
 void TaxiPathGraph::Initialize()
 {
     if (GetVertexCount() > 0)

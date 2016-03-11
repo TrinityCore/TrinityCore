@@ -856,11 +856,7 @@ class ScriptMgr
         virtual ~ScriptMgr();
 
     public: /* Initialization */
-        static ScriptMgr* instance()
-        {
-            static ScriptMgr instance;
-            return &instance;
-        }
+        static ScriptMgr* instance();
 
         void Initialize();
         void LoadDatabase();

@@ -187,6 +187,12 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     stores[storage->GetHash()] = storage;
 }
 
+DB2Manager& DB2Manager::Instance()
+{
+    static DB2Manager instance;
+    return instance;
+}
+
 void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();

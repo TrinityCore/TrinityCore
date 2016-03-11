@@ -302,11 +302,7 @@ class LFGMgr
         ~LFGMgr();
 
     public:
-        static LFGMgr* instance()
-        {
-            static LFGMgr instance;
-            return &instance;
-        }
+        static LFGMgr* instance();
 
         // Functions used outside lfg namespace
         void Update(uint32 diff);

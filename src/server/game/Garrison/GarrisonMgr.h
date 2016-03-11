@@ -41,11 +41,7 @@ struct GarrAbilities
 class GarrisonMgr
 {
 public:
-    static GarrisonMgr& Instance()
-    {
-        static GarrisonMgr instance;
-        return instance;
-    }
+    static GarrisonMgr& Instance();
 
     void Initialize();
 

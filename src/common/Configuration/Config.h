@@ -33,11 +33,7 @@ public:
     /// Method used only for loading main configuration files
     bool LoadInitial(std::string const& file, std::string& error);
 
-    static ConfigMgr* instance()
-    {
-        static ConfigMgr instance;
-        return &instance;
-    }
+    static ConfigMgr* instance();
 
     bool Reload(std::string& error);
 

@@ -80,12 +80,6 @@ uint32 _worldLoopCounter(0);
 uint32 _lastChangeMsTime(0);
 uint32 _maxCoreStuckTimeInMs(0);
 
-WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
-CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
-HotfixDatabaseWorkerPool HotfixDatabase;                    ///< Accessor to the hotfix database
-LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
-Realm realm;
-
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
 AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService);

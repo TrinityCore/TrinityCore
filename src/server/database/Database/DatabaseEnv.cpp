@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,14 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef _WIN32
-#ifndef _WIN32_SERVICE_
-#define _WIN32_SERVICE_
+#include "DatabaseEnv.h"
 
-bool WinServiceInstall();
-bool WinServiceUninstall();
-bool WinServiceRun();
-
-#endif                                                      // _WIN32_SERVICE_
-#endif                                                      // _WIN32
-
+WorldDatabaseWorkerPool WorldDatabase;
+CharacterDatabaseWorkerPool CharacterDatabase;
+LoginDatabaseWorkerPool LoginDatabase;
+HotfixDatabaseWorkerPool HotfixDatabase;

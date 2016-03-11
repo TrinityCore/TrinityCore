@@ -27,11 +27,7 @@ private:
     ~GuildMgr();
 
 public:
-    static GuildMgr* instance()
-    {
-        static GuildMgr instance;
-        return &instance;
-    }
+    static GuildMgr* instance();
 
     Guild* GetGuildByLeader(ObjectGuid guid) const;
     Guild* GetGuildById(ObjectGuid::LowType guildId) const;

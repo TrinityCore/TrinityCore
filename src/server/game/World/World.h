@@ -558,11 +558,7 @@ struct CharacterInfo
 class World
 {
     public:
-        static World* instance()
-        {
-            static World instance;
-            return &instance;
-        }
+        static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;
 
@@ -902,5 +898,6 @@ extern Realm realm;
 uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
+
 #endif
 /// @}
