@@ -146,6 +146,11 @@ void AccountInfo::LoadResult(Field* fields)
     IsBanned = fields[6].GetUInt64() != 0;
     IsPermanenetlyBanned = fields[7].GetUInt64() != 0;
     SecurityLevel = AccountTypes(fields[8].GetUInt8());
+
+    // Use our own uppercasing of the account name instead of using UPPER() in mysql query
+    // This is how the account was created in the first place and changing it now would result in breaking
+    // login for all accounts having accented characters in their name
+    Utf8ToUpperOnlyLatin(Login);
 }
 
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
