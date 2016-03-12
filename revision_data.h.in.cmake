@@ -7,7 +7,7 @@
  #define _SOURCE_DIRECTORY          "@CMAKE_SOURCE_DIR@"
  #define _BUILD_DIRECTORY           "@BUILDDIR@"
  #define _MYSQL_EXECUTABLE          "@MYSQL_EXECUTABLE@"
- #define _FULL_DATABASE             "TDB_full_434.10_2015_07_28.sql"
+ #define _FULL_DATABASE             "TDB_full_world_434.11_2016_03_12.sql"
  #define VER_COMPANYNAME_STR        "TrinityCore Developers"
  #define VER_LEGALCOPYRIGHT_STR     "(c)2008-2016 TrinityCore"
  #define VER_FILEVERSION            0,0,0
