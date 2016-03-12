@@ -507,17 +507,6 @@ void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
 }
 
-void ScriptMgr::OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet)
-{
-    ASSERT(session);
-
-    if (SCR_REG_LST(ServerScript).empty())
-        return;
-
-    WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(session, copy);
-}
-
 void ScriptMgr::OnOpenStateChange(bool open)
 {
     FOREACH_SCRIPT(WorldScript)->OnOpenStateChange(open);
