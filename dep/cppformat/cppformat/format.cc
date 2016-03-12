@@ -207,10 +207,15 @@ void format_error_code(fmt::Writer &out, int error_code,
   out.clear();
   static const char SEP[] = ": ";
   static const char ERROR_STR[] = "error ";
-  fmt::internal::IntTraits<int>::MainType ec_value = error_code;
   // Subtract 2 to account for terminating null characters in SEP and ERROR_STR.
   std::size_t error_code_size = sizeof(SEP) + sizeof(ERROR_STR) - 2;
-  error_code_size += fmt::internal::count_digits(ec_value);
+  typedef fmt::internal::IntTraits<int>::MainType MainType;
+  MainType abs_value = static_cast<MainType>(error_code);
+  if (internal::is_negative(error_code)) {
+    abs_value = 0 - abs_value;
+    ++error_code_size;
+  }
+  error_code_size += fmt::internal::count_digits(abs_value);
   if (message.size() <= fmt::internal::INLINE_BUFFER_SIZE - error_code_size)
     out << message << SEP;
   out << ERROR_STR << error_code;
@@ -252,7 +257,7 @@ class WidthHandler : public fmt::internal::ArgVisitor<WidthHandler, unsigned> {
   template <typename T>
   unsigned visit_any_int(T value) {
     typedef typename fmt::internal::IntTraits<T>::MainType UnsignedType;
-    UnsignedType width = value;
+    UnsignedType width = static_cast<UnsignedType>(value);
     if (fmt::internal::is_negative(value)) {
       spec_.align_ = fmt::ALIGN_LEFT;
       width = 0 - width;
@@ -278,8 +283,21 @@ class PrecisionHandler :
   }
 };
 
-// Converts an integer argument to an integral type T for printf.
+template <typename T, typename U>
+struct is_same {
+  enum { value = 0 };
+};
+
 template <typename T>
+struct is_same<T, T> {
+  enum { value = 1 };
+};
+
+// An argument visitor that converts an integer argument to T for printf,
+// if T is an integral type. If T is void, the argument is converted to
+// corresponding signed or unsigned type depending on the type specifier:
+// 'd' and 'i' - signed, other - unsigned)
+template <typename T = void>
 class ArgConverter : public fmt::internal::ArgVisitor<ArgConverter<T>, void> {
  private:
   fmt::internal::Arg &arg_;
@@ -300,21 +318,25 @@ class ArgConverter : public fmt::internal::ArgVisitor<ArgConverter<T>, void> {
   void visit_any_int(U value) {
     bool is_signed = type_ == 'd' || type_ == 'i';
     using fmt::internal::Arg;
-    if (sizeof(T) <= sizeof(int)) {
+    typedef typename fmt::internal::Conditional<
+        is_same<T, void>::value, U, T>::type TargetType;
+    if (sizeof(TargetType) <= sizeof(int)) {
       // Extra casts are used to silence warnings.
       if (is_signed) {
         arg_.type = Arg::INT;
-        arg_.int_value = static_cast<int>(static_cast<T>(value));
+        arg_.int_value = static_cast<int>(static_cast<TargetType>(value));
       } else {
         arg_.type = Arg::UINT;
-        arg_.uint_value = static_cast<unsigned>(
-            static_cast<typename fmt::internal::MakeUnsigned<T>::Type>(value));
+        typedef typename fmt::internal::MakeUnsigned<TargetType>::Type Unsigned;
+        arg_.uint_value = static_cast<unsigned>(static_cast<Unsigned>(value));
       }
     } else {
       if (is_signed) {
         arg_.type = Arg::LONG_LONG;
-        arg_.long_long_value =
-            static_cast<typename fmt::internal::MakeUnsigned<U>::Type>(value);
+        // glibc's printf doesn't sign extend arguments of smaller types:
+        //   std::printf("%lld", -42);  // prints "4294967254"
+        // but we don't have to do the same because it's a UB.
+        arg_.long_long_value = static_cast<fmt::LongLong>(value);
       } else {
         arg_.type = Arg::ULONG_LONG;
         arg_.ulong_long_value =
@@ -340,6 +362,21 @@ class CharConverter : public fmt::internal::ArgVisitor<CharConverter, void> {
     arg_.int_value = static_cast<char>(value);
   }
 };
+
+// Write the content of w to os.
+void write(std::ostream &os, fmt::Writer &w) {
+  const char *data = w.data();
+  typedef internal::MakeUnsigned<std::streamsize>::Type UnsignedStreamSize;
+  UnsignedStreamSize size = w.size();
+  UnsignedStreamSize max_size =
+      internal::to_unsigned((std::numeric_limits<std::streamsize>::max)());
+  do {
+    UnsignedStreamSize n = size <= max_size ? size : max_size;
+    os.write(data, static_cast<std::streamsize>(n));
+    data += n;
+    size -= n;
+  } while (size != 0);
+}
 }  // namespace
 
 namespace internal {
@@ -551,27 +588,25 @@ FMT_FUNC void fmt::WindowsError::init(
 FMT_FUNC void fmt::internal::format_windows_error(
     fmt::Writer &out, int error_code,
     fmt::StringRef message) FMT_NOEXCEPT {
-  class String {
-   private:
-    LPWSTR str_;
-
-   public:
-    String() : str_() {}
-    ~String() { LocalFree(str_); }
-    LPWSTR *ptr() { return &str_; }
-    LPCWSTR c_str() const { return str_; }
-  };
   FMT_TRY {
-    String system_message;
-    if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0,
-        error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        reinterpret_cast<LPWSTR>(system_message.ptr()), 0, 0)) {
-      UTF16ToUTF8 utf8_message;
-      if (utf8_message.convert(system_message.c_str()) == ERROR_SUCCESS) {
-        out << message << ": " << utf8_message;
-        return;
+    MemoryBuffer<wchar_t, INLINE_BUFFER_SIZE> buffer;
+    buffer.resize(INLINE_BUFFER_SIZE);
+    for (;;) {
+      wchar_t *system_message = &buffer[0];
+      int result = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                  0, error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                  system_message, static_cast<uint32_t>(buffer.size()), 0);
+      if (result != 0) {
+        UTF16ToUTF8 utf8_message;
+        if (utf8_message.convert(system_message) == ERROR_SUCCESS) {
+          out << message << ": " << utf8_message;
+          return;
+        }
+        break;
       }
+      if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        break;  // Can't get error message, report error code instead.
+      buffer.resize(buffer.size() * 2);
     }
   } FMT_CATCH(...) {}
   fmt::format_error_code(out, error_code, message);  // 'fmt::' is for bcc32.
@@ -616,7 +651,7 @@ void fmt::internal::ArgMap<Char>::init(const ArgList &args) {
         return;
       case internal::Arg::NAMED_ARG:
         named_arg = static_cast<const NamedArg*>(args.values_[i].pointer);
-        map_.insert(Pair(named_arg->name, *named_arg));
+        map_.push_back(Pair(named_arg->name, *named_arg));
         break;
       default:
         /*nothing*/;
@@ -628,7 +663,7 @@ void fmt::internal::ArgMap<Char>::init(const ArgList &args) {
     internal::Arg::Type arg_type = args.type(i);
     if (arg_type == internal::Arg::NAMED_ARG) {
       named_arg = static_cast<const NamedArg*>(args.args_[i].pointer);
-      map_.insert(Pair(named_arg->name, *named_arg));
+      map_.push_back(Pair(named_arg->name, *named_arg));
     }
   }
   for (unsigned i = ArgList::MAX_PACKED_ARGS;/*nothing*/; ++i) {
@@ -637,7 +672,7 @@ void fmt::internal::ArgMap<Char>::init(const ArgList &args) {
       return;
     case internal::Arg::NAMED_ARG:
       named_arg = static_cast<const NamedArg*>(args.args_[i].pointer);
-      map_.insert(Pair(named_arg->name, *named_arg));
+      map_.push_back(Pair(named_arg->name, *named_arg));
       break;
     default:
       /*nothing*/;
@@ -659,6 +694,7 @@ FMT_FUNC Arg fmt::internal::FormatterBase::do_get_arg(
     break;
   case Arg::NAMED_ARG:
     arg = *static_cast<const internal::Arg*>(arg.pointer);
+    break;
   default:
     /*nothing*/;
   }
@@ -763,7 +799,7 @@ void fmt::internal::PrintfFormatter<Char>::format(
     if (*s == '.') {
       ++s;
       if ('0' <= *s && *s <= '9') {
-        spec.precision_ = parse_nonnegative_int(s);
+        spec.precision_ = static_cast<int>(parse_nonnegative_int(s));
       } else if (*s == '*') {
         ++s;
         spec.precision_ = PrecisionHandler().visit(get_arg(s));
@@ -772,7 +808,7 @@ void fmt::internal::PrintfFormatter<Char>::format(
 
     Arg arg = get_arg(s, arg_index);
     if (spec.flag(HASH_FLAG) && IsZeroInt().visit(arg))
-      spec.flags_ &= ~HASH_FLAG;
+      spec.flags_ &= ~to_unsigned<int>(HASH_FLAG);
     if (spec.fill_ == '0') {
       if (arg.type <= Arg::LAST_NUMERIC_TYPE)
         spec.align_ = ALIGN_NUMERIC;
@@ -809,7 +845,7 @@ void fmt::internal::PrintfFormatter<Char>::format(
       break;
     default:
       --s;
-      ArgConverter<int>(arg, *s).visit(arg);
+      ArgConverter<void>(arg, *s).visit(arg);
     }
 
     // Parse type.
@@ -861,10 +897,11 @@ FMT_FUNC void fmt::print(CStringRef format_str, ArgList args) {
   print(stdout, format_str, args);
 }
 
-FMT_FUNC void fmt::print(std::ostream &os, CStringRef format_str, ArgList args) {
+FMT_FUNC void fmt::print(std::ostream &os, CStringRef format_str,
+                         ArgList args) {
   MemoryWriter w;
   w.write(format_str, args);
-  os.write(w.data(), w.size());
+  write(os, w);
 }
 
 FMT_FUNC void fmt::print_colored(Color c, CStringRef format, ArgList args) {
@@ -880,6 +917,13 @@ FMT_FUNC int fmt::fprintf(std::FILE *f, CStringRef format, ArgList args) {
   printf(w, format, args);
   std::size_t size = w.size();
   return std::fwrite(w.data(), 1, size, f) < size ? -1 : static_cast<int>(size);
+}
+
+FMT_FUNC int fmt::fprintf(std::ostream &os, CStringRef format, ArgList args) {
+  MemoryWriter w;
+  printf(w, format, args);
+  write(os, w);
+  return static_cast<int>(w.size());
 }
 
 #ifndef FMT_HEADER_ONLY
