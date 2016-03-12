@@ -55,11 +55,11 @@ public:
 
     virtual bool Update()
     {
-        if (!IsOpen())
+        if (_closed)
             return false;
 
 #ifndef TC_SOCKET_USE_IOCP
-        if (_isWritingAsync || _writeQueue.empty())
+        if (_isWritingAsync || (_writeQueue.empty() && !_closing))
             return true;
 
         for (; HandleQueue();)
@@ -144,6 +144,15 @@ protected:
         return false;
     }
 
+    void SetNoDelay(bool enable)
+    {
+        boost::system::error_code err;
+        _socket.set_option(tcp::no_delay(enable), err);
+        if (err)
+            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)",
+                GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
+    }
+
 private:
     void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)
     {
@@ -187,9 +196,6 @@ private:
 
     bool HandleQueue()
     {
-        if (!IsOpen())
-            return false;
-
         if (_writeQueue.empty())
             return false;
 
@@ -206,11 +212,15 @@ private:
                 return AsyncProcessQueue();
 
             _writeQueue.pop();
+            if (_closing && _writeQueue.empty())
+                CloseSocket();
             return false;
         }
         else if (bytesSent == 0)
         {
             _writeQueue.pop();
+            if (_closing && _writeQueue.empty())
+                CloseSocket();
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
@@ -220,6 +230,8 @@ private:
         }
 
         _writeQueue.pop();
+        if (_closing && _writeQueue.empty())
+            CloseSocket();
         return !_writeQueue.empty();
     }
 
