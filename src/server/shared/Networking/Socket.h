@@ -90,6 +90,17 @@ public:
             std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
+    void AsyncReadWithCallback(void (T::*callback)(boost::system::error_code, std::size_t))
+    {
+        if (!IsOpen())
+            return;
+
+        _readBuffer.Normalize();
+        _readBuffer.EnsureFreeSpace();
+        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
+            std::bind(callback, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+    }
+
     void QueuePacket(MessageBuffer&& buffer)
     {
         _writeQueue.push(std::move(buffer));
