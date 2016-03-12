@@ -94,7 +94,7 @@ target_link_libraries(bnetserver
   ipc
   common
   zmqpp
-  format
+  cppformat
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${ZMQ_LIBRARY}

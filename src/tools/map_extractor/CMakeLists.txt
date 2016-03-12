@@ -30,7 +30,7 @@ add_executable(mapextractor
 target_link_libraries(mapextractor
   casc
   common
-  format
+  cppformat
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${Boost_LIBRARIES}
