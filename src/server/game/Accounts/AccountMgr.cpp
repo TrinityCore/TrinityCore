@@ -39,17 +39,17 @@ AccountMgr* AccountMgr::instance()
     return &instance;
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email = "")
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
-        return AOR_NAME_TOO_LONG;                           // username's too long
+        return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
 
-    normalizeString(username);
-    normalizeString(password);
-    normalizeString(email);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(password);
+    Utf8ToUpperOnlyLatin(email);
 
     if (GetId(username))
-        return AOR_NAME_ALREADY_EXIST;                       // username does already exist
+        return AccountOpResult::AOR_NAME_ALREADY_EXIST;                       // username does already exist
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
@@ -63,7 +63,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
     LoginDatabase.Execute(stmt);
 
-    return AOR_OK;                                          // everything's fine
+    return AccountOpResult::AOR_OK;                                          // everything's fine
 }
 
 AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
@@ -74,7 +74,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
-        return AOR_NAME_NOT_EXIST;
+        return AccountOpResult::AOR_NAME_NOT_EXIST;
 
     // Obtain accounts characters
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
@@ -134,7 +134,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
 
     LoginDatabase.CommitTransaction(trans);
 
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
@@ -145,16 +145,16 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
-        return AOR_NAME_NOT_EXIST;
+        return AccountOpResult::AOR_NAME_NOT_EXIST;
 
     if (utf8length(newUsername) > MAX_ACCOUNT_STR)
-        return AOR_NAME_TOO_LONG;
+        return AccountOpResult::AOR_NAME_TOO_LONG;
 
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
-        return AOR_PASS_TOO_LONG;
+    if (utf8length(newPassword) > MAX_PASS_STR)
+        return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    normalizeString(newUsername);
-    normalizeString(newPassword);
+    Utf8ToUpperOnlyLatin(newUsername);
+    Utf8ToUpperOnlyLatin(newPassword);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
 
@@ -164,7 +164,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
 
     LoginDatabase.Execute(stmt);
 
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPassword)
@@ -174,17 +174,17 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     if (!GetName(accountId, username))
     {
         sScriptMgr->OnFailedPasswordChange(accountId);
-        return AOR_NAME_NOT_EXIST;                          // account doesn't exist
+        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
     }
 
-    if (utf8length(newPassword) > MAX_ACCOUNT_STR)
+    if (utf8length(newPassword) > MAX_PASS_STR)
     {
         sScriptMgr->OnFailedPasswordChange(accountId);
-        return AOR_PASS_TOO_LONG;
+        return AccountOpResult::AOR_PASS_TOO_LONG;
     }
 
-    normalizeString(username);
-    normalizeString(newPassword);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(newPassword);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_PASSWORD);
 
@@ -202,7 +202,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     LoginDatabase.Execute(stmt);
 
     sScriptMgr->OnPasswordChange(accountId);
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 AccountOpResult AccountMgr::ChangeEmail(uint32 accountId, std::string newEmail)
@@ -212,17 +212,17 @@ AccountOpResult AccountMgr::ChangeEmail(uint32 accountId, std::string newEmail)
     if (!GetName(accountId, username))
     {
         sScriptMgr->OnFailedEmailChange(accountId);
-        return AOR_NAME_NOT_EXIST;                          // account doesn't exist
+        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
     }
 
     if (utf8length(newEmail) > MAX_EMAIL_STR)
     {
         sScriptMgr->OnFailedEmailChange(accountId);
-        return AOR_EMAIL_TOO_LONG;
+        return AccountOpResult::AOR_EMAIL_TOO_LONG;
     }
 
-    normalizeString(username);
-    normalizeString(newEmail);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(newEmail);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EMAIL);
 
@@ -232,7 +232,7 @@ AccountOpResult AccountMgr::ChangeEmail(uint32 accountId, std::string newEmail)
     LoginDatabase.Execute(stmt);
 
     sScriptMgr->OnEmailChange(accountId);
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmail)
@@ -242,17 +242,17 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     if (!GetName(accountId, username))
     {
         sScriptMgr->OnFailedEmailChange(accountId);
-        return AOR_NAME_NOT_EXIST;                          // account doesn't exist
+        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
     }
 
     if (utf8length(newEmail) > MAX_EMAIL_STR)
     {
         sScriptMgr->OnFailedEmailChange(accountId);
-        return AOR_EMAIL_TOO_LONG;
+        return AccountOpResult::AOR_EMAIL_TOO_LONG;
     }
 
-    normalizeString(username);
-    normalizeString(newEmail);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(newEmail);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REG_EMAIL);
 
@@ -262,7 +262,7 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     LoginDatabase.Execute(stmt);
 
     sScriptMgr->OnEmailChange(accountId);
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 uint32 AccountMgr::GetId(std::string const& username)
@@ -330,8 +330,8 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
     if (!GetName(accountId, username))
         return false;
 
-    normalizeString(username);
-    normalizeString(password);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(password);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);
@@ -349,8 +349,8 @@ bool AccountMgr::CheckEmail(uint32 accountId, std::string newEmail)
     if (!GetEmail(accountId, oldEmail))
         return false;
 
-    normalizeString(oldEmail);
-    normalizeString(newEmail);
+    Utf8ToUpperOnlyLatin(oldEmail);
+    Utf8ToUpperOnlyLatin(newEmail);
 
     if (strcmp(oldEmail.c_str(), newEmail.c_str()) == 0)
         return true;
@@ -366,19 +366,6 @@ uint32 AccountMgr::GetCharactersCount(uint32 accountId)
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt64() : 0;
-}
-
-bool AccountMgr::normalizeString(std::string& utf8String)
-{
-    wchar_t buffer[MAX_ACCOUNT_STR+1];
-
-    size_t maxLength = MAX_ACCOUNT_STR;
-    if (!Utf8toWStr(utf8String, buffer, maxLength))
-        return false;
-
-    std::transform(&buffer[0], buffer+maxLength, &buffer[0], wcharToUpperOnlyLatin);
-
-    return WStrToUtf8(buffer, maxLength, utf8String);
 }
 
 std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::string const& password)
