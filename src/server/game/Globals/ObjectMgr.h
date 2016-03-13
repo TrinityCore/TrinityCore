@@ -680,11 +680,13 @@ class ObjectMgr
         ~ObjectMgr();
 
     public:
-        static ObjectMgr* instance()
-        {
-            static ObjectMgr instance;
-            return &instance;
-        }
+        ObjectMgr(ObjectMgr const&) = delete;
+        ObjectMgr(ObjectMgr&&) = delete;
+
+        ObjectMgr& operator= (ObjectMgr const&) = delete;
+        ObjectMgr& operator= (ObjectMgr&&) = delete;
+
+        static ObjectMgr* instance();
 
         typedef std::unordered_map<uint32, Item*> ItemMap;
 

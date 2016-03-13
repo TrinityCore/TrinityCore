@@ -29,7 +29,7 @@ set(worldserver_SRCS
 if( WIN32 )
   set(worldserver_SRCS
     ${worldserver_SRCS}
-    ${sources_windows_Debugging}
+    ${sources_windows}
   )
   if ( MSVC )
     set(worldserver_SRCS
@@ -59,10 +59,12 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/common/Reporting
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/common/Platform
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
   ${CMAKE_SOURCE_DIR}/src/server/database/
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
   ${CMAKE_SOURCE_DIR}/src/server/game
   ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
