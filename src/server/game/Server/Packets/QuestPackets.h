@@ -194,6 +194,17 @@ namespace WorldPackets
             uint8 ObjectiveType = 0;
         };
 
+        class QuestUpdateAddPvPCredit final : public ServerPacket
+        {
+        public:
+            QuestUpdateAddPvPCredit() : ServerPacket(SMSG_QUEST_UPDATE_ADD_PVP_CREDIT, 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+            uint16 Count = 0;
+        };
+
         struct QuestChoiceItem
         {
             int32 ItemID    = 0;
@@ -288,8 +299,6 @@ namespace WorldPackets
             int32 QuestID           = 0;
             int32 TalentReward      = 0;
             bool LaunchGossip       = 0;
-
-            // Not in JAM struct
             WorldPackets::Item::ItemInstance ItemReward;
         };
 
