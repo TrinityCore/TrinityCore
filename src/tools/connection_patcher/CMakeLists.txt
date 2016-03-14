@@ -8,15 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/common
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${OPENSSL_INCLUDE_DIR}
-)
-
 set(HEADER_FILES
   Helper.hpp
   Patcher.hpp
@@ -42,10 +33,8 @@ if (MSVC)
 endif ()
 
 target_link_libraries(connection_patcher
-  common
-  ${OPENSSL_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
+  PUBLIC
+    common
 )
 
 if (UNIX)
