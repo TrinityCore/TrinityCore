@@ -56,6 +56,7 @@ endif()
 include(CheckPlatform)
 
 include(GroupSources)
+include(AutoCollect)
 
 find_package(PCHSupport)
 find_package(MySQL)
