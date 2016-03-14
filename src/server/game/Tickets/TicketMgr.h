@@ -188,11 +188,7 @@ private:
     ~TicketMgr();
 
 public:
-    static TicketMgr* instance()
-    {
-        static TicketMgr instance;
-        return &instance;
-    }
+    static TicketMgr* instance();
 
     void LoadTickets();
     void LoadSurveys();
