@@ -132,11 +132,11 @@ class OPvPCapturePointTF : public OPvPCapturePoint
     public:
         OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type);
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void ChangeState();
+        void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPacket & data) override;
 
         void UpdateTowerState();
 
@@ -151,16 +151,16 @@ class OutdoorPvPTF : public OutdoorPvP
     public:
         OutdoorPvPTF();
 
-        bool SetupOutdoorPvP();
+        bool SetupOutdoorPvP() override;
 
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        void HandlePlayerEnterZone(Player* player, uint32 zone) override;
+        void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPacket &data) override;
 
-        void SendRemoveWorldStates(Player* player);
+        void SendRemoveWorldStates(Player* player) override;
 
         uint32 GetAllianceTowersControlled() const;
         void SetAllianceTowersControlled(uint32 count);

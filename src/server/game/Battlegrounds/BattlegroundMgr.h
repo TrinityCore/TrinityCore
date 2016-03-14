@@ -62,11 +62,7 @@ class BattlegroundMgr
         ~BattlegroundMgr();
 
     public:
-        static BattlegroundMgr* instance()
-        {
-            static BattlegroundMgr instance;
-            return &instance;
-        }
+        static BattlegroundMgr* instance();
 
         void Update(uint32 diff);
 

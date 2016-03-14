@@ -21,6 +21,12 @@
 #include "Opcodes.h"
 #include "Log.h"
 
+AddonHandler* AddonHandler::instance()
+{
+    static AddonHandler instance;
+    return &instance;
+}
+
 bool AddonHandler::BuildAddonPacket(WorldPacket* source, WorldPacket* target)
 {
     ByteBuffer AddOnPacked;

@@ -82,11 +82,7 @@ class CreatureTextMgr
         ~CreatureTextMgr() { }
 
     public:
-        static CreatureTextMgr* instance()
-        {
-            static CreatureTextMgr instance;
-            return &instance;
-        }
+        static CreatureTextMgr* instance();
 
         void LoadCreatureTexts();
         void LoadCreatureTextLocales();
