@@ -264,7 +264,7 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
 
-        void SendPacket(WorldPacket* packet);
+        void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName *declinedName);

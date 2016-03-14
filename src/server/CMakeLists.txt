@@ -18,10 +18,15 @@ if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
   add_definitions(-fno-delete-null-pointer-checks)
 endif()
 
-set(sources_windows_Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
-)
+if(WIN32)
+  set(sources_windows
+    ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
+    ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.h
+  )
+endif(WIN32)
+
 add_subdirectory(database)
 add_subdirectory(shared)
 add_subdirectory(game)

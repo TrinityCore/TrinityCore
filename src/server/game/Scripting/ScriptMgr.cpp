@@ -246,6 +246,12 @@ ScriptMgr::ScriptMgr() : _scriptCount(0), _scheduledScripts(0)
 
 ScriptMgr::~ScriptMgr() { }
 
+ScriptMgr* ScriptMgr::instance()
+{
+    static ScriptMgr instance;
+    return &instance;
+}
+
 void ScriptMgr::Initialize()
 {
     uint32 oldMSTime = getMSTime();
@@ -499,17 +505,6 @@ void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
 
     WorldPacket copy(packet);
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
-}
-
-void ScriptMgr::OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet)
-{
-    ASSERT(session);
-
-    if (SCR_REG_LST(ServerScript).empty())
-        return;
-
-    WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(session, copy);
 }
 
 void ScriptMgr::OnOpenStateChange(bool open)
