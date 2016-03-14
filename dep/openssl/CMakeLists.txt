@@ -8,26 +8,19 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(Detour_STAT_SRCS
-    Source/DetourAlloc.cpp 
-    Source/DetourCommon.cpp 
-    Source/DetourNavMesh.cpp 
-    Source/DetourNavMeshBuilder.cpp 
-    Source/DetourNavMeshQuery.cpp 
-    Source/DetourNode.cpp 
-)
 
-add_library(Detour STATIC ${Detour_STAT_SRCS})
+# basic packagesearching and setup
+# (further support will be needed, this is a preliminary release!)
+set(OPENSSL_EXPECTED_VERSION 1.0.0)
 
-target_include_directories(Detour
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/Include)
+find_package(OpenSSL REQUIRED)
 
-target_link_libraries(Detour
-  PUBLIC
-    zlib)
+add_library(openssl INTERFACE)
 
-set_target_properties(Detour
-    PROPERTIES
-      FOLDER
-        "dep")
+target_link_libraries(openssl
+  INTERFACE
+    ${OPENSSL_LIBRARIES})
+
+target_include_directories(openssl
+  INTERFACE
+    ${OPENSSL_INCLUDE_DIR})

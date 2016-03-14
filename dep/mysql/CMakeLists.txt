@@ -8,30 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources_zmqpp zmqpp/*.cpp zmqpp/*.hpp zmqpp/*.h)
+if (NOT MYSQL_FOUND)
+  message(FATAL_ERROR "MySQL wasn't found on your system but it's required to build the servers!")
+endif()
 
-include_directories(${ZMQ_INCLUDE_DIR})
+add_library(mysql STATIC IMPORTED GLOBAL)
 
-add_library(zmqpp STATIC
-  ${sources_zmqpp}
-)
-
-target_link_libraries(zmqpp
-  PUBLIC
-    zmq)
-
-target_include_directories(zmqpp
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR})
-
-set_target_properties(zmqpp
+set_target_properties(mysql
   PROPERTIES
-    FOLDER
-      "dep")
-
-target_compile_definitions(zmqpp
-  PRIVATE
-    -DBUILD_VERSION_MAJOR=3
-    -DBUILD_VERSION_MINOR=2
-    -DBUILD_VERSION_REVISION=0
-    -DBUILD_VERSION="3.2.0")
+    IMPORTED_LOCATION
+      "${MYSQL_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES
+      "${MYSQL_INCLUDE_DIR}")

@@ -8,26 +8,14 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(Detour_STAT_SRCS
-    Source/DetourAlloc.cpp 
-    Source/DetourCommon.cpp 
-    Source/DetourNavMesh.cpp 
-    Source/DetourNavMeshBuilder.cpp 
-    Source/DetourNavMeshQuery.cpp 
-    Source/DetourNode.cpp 
-)
+find_package(ZMQ REQUIRED)
 
-add_library(Detour STATIC ${Detour_STAT_SRCS})
+add_library(zmq INTERFACE)
 
-target_include_directories(Detour
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/Include)
+target_link_libraries(zmq
+  INTERFACE
+    ${ZMQ_LIBRARY})
 
-target_link_libraries(Detour
-  PUBLIC
-    zlib)
-
-set_target_properties(Detour
-    PROPERTIES
-      FOLDER
-        "dep")
+target_include_directories(zmq
+  INTERFACE
+    ${ZMQ_INCLUDE_DIR})
