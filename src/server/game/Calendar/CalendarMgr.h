@@ -281,11 +281,7 @@ class CalendarMgr
         uint64 _maxInviteId;
 
     public:
-        static CalendarMgr* instance()
-        {
-            static CalendarMgr instance;
-            return &instance;
-        }
+        static CalendarMgr* instance();
 
         void LoadFromDB();
 

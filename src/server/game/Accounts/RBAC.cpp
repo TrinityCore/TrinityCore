@@ -236,10 +236,10 @@ void RBACData::AddPermissions(RBACPermissionContainer const& permsFrom, RBACPerm
         permsTo.insert(*itr);
 }
 
-void RBACData::RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo)
+void RBACData::RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove)
 {
-    for (RBACPermissionContainer::const_iterator itr = permsFrom.begin(); itr != permsFrom.end(); ++itr)
-        permsTo.erase(*itr);
+    for (RBACPermissionContainer::const_iterator itr = permsToRemove.begin(); itr != permsToRemove.end(); ++itr)
+        permsFrom.erase(*itr);
 }
 
 void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)

@@ -229,10 +229,6 @@ class ServerScript : public ScriptObject
         // Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so
         // reading and modifying it is safe. Make sure to check WorldSession pointer before usage, it might be null in case of auth packets
         virtual void OnPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
-
-        // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
-        // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
 class WorldScript : public ScriptObject
@@ -857,11 +853,7 @@ class ScriptMgr
         virtual ~ScriptMgr();
 
     public: /* Initialization */
-        static ScriptMgr* instance()
-        {
-            static ScriptMgr instance;
-            return &instance;
-        }
+        static ScriptMgr* instance();
 
         void Initialize();
         void LoadDatabase();
@@ -890,7 +882,6 @@ class ScriptMgr
         void OnSocketClose(std::shared_ptr<WorldSocket> socket);
         void OnPacketReceive(WorldSession* session, WorldPacket const& packet);
         void OnPacketSend(WorldSession* session, WorldPacket const& packet);
-        void OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet);
 
     public: /* WorldScript */
 
