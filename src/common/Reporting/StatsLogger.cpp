@@ -210,3 +210,9 @@ void StatsLogger::ScheduleOverallStatusLog()
         });
     }
 }
+
+StatsLogger* StatsLogger::instance()
+{
+    static StatsLogger instance;
+    return &instance;
+}

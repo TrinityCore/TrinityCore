@@ -91,11 +91,7 @@ private:
     static std::string FormatInfluxDBValue(float value) { return FormatInfluxDBValue(double(value)); }
 
 public:
-    static StatsLogger* instance()
-    {
-        static StatsLogger instance;
-        return &instance;
-    }
+    static StatsLogger* instance();
 
     void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
     void LoadFromConfigs();
