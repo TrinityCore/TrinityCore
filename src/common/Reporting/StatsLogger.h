@@ -102,7 +102,7 @@ public:
     {
         using namespace std::chrono;
 
-        std::string data = category + "," + (_realmName.empty() ? "" : "realm=" + _realmName) + " value=" + FormatInfluxDBValue(value)
+        std::string data = category + (_realmName.empty() ? "" : ",realm=" + _realmName) + " value=" + FormatInfluxDBValue(value)
             + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
 
         Enqueue(data);
