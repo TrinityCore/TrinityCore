@@ -81,11 +81,6 @@ uint32 _worldLoopCounter(0);
 uint32 _lastChangeMsTime(0);
 uint32 _maxCoreStuckTimeInMs(0);
 
-WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
-CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
-LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
-Realm realm;
-
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
 AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService);
@@ -101,6 +96,8 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& cfg_file, 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
+    signal(SIGABRT, &Trinity::AbortHandler);
+
     std::string configFile = _TRINITY_CORE_CONFIG;
     std::string configService;
 
@@ -250,6 +247,8 @@ extern int main(int argc, char** argv)
 
     // Shutdown starts here
     ShutdownThreadPool(threadPool);
+
+    sLog->SetSynchronous();
 
     sScriptMgr->OnShutdown();
 
