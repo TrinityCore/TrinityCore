@@ -235,6 +235,12 @@ ObjectMgr::ObjectMgr():
     }
 }
 
+ObjectMgr* ObjectMgr::instance()
+{
+    static ObjectMgr instance;
+    return &instance;
+}
+
 ObjectMgr::~ObjectMgr()
 {
     for (QuestMap::iterator i = _questTemplates.begin(); i != _questTemplates.end(); ++i)
@@ -6502,7 +6508,12 @@ uint32 ObjectMgr::GenerateMailID()
 
 uint32 ObjectMgr::GeneratePetNumber()
 {
-    return ++_hiPetNumber;
+    if (_hiPetNumber >= 0xFFFFFFFE)
+    {
+        TC_LOG_ERROR("misc", "_hiPetNumber Id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _hiPetNumber++;
 }
 
 uint32 ObjectMgr::GenerateCreatureSpawnId()
