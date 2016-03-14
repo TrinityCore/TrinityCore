@@ -8,8 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-find_package(ZMQ REQUIRED)
-
 file(GLOB_RECURSE sources_ipc *.cpp *.h)
 
 set(ipc_SRCS

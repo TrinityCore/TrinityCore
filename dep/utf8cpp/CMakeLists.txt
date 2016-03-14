@@ -8,30 +8,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources_zmqpp zmqpp/*.cpp zmqpp/*.hpp zmqpp/*.h)
+add_library(utf8cpp INTERFACE)
 
-include_directories(${ZMQ_INCLUDE_DIR})
-
-add_library(zmqpp STATIC
-  ${sources_zmqpp}
-)
-
-target_link_libraries(zmqpp
-  PUBLIC
-    zmq)
-
-target_include_directories(zmqpp
-  PUBLIC
+target_include_directories(utf8cpp
+  INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR})
-
-set_target_properties(zmqpp
-  PROPERTIES
-    FOLDER
-      "dep")
-
-target_compile_definitions(zmqpp
-  PRIVATE
-    -DBUILD_VERSION_MAJOR=3
-    -DBUILD_VERSION_MINOR=2
-    -DBUILD_VERSION_REVISION=0
-    -DBUILD_VERSION="3.2.0")
