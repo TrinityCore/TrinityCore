@@ -1447,11 +1447,7 @@ class SmartWaypointMgr
         ~SmartWaypointMgr();
 
     public:
-        static SmartWaypointMgr* instance()
-        {
-            static SmartWaypointMgr instance;
-            return &instance;
-        }
+        static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
@@ -1483,11 +1479,7 @@ class SmartAIMgr
         ~SmartAIMgr() { }
 
     public:
-        static SmartAIMgr* instance()
-        {
-            static SmartAIMgr instance;
-            return &instance;
-        }
+        static SmartAIMgr* instance();
 
         void LoadSmartAIFromDB();
 

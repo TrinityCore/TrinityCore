@@ -320,6 +320,12 @@ void Log::Close()
     appenders.clear();
 }
 
+Log* Log::instance()
+{
+    static Log instance;
+    return &instance;
+}
+
 void Log::Initialize(boost::asio::io_service* ioService)
 {
     if (ioService)
@@ -329,6 +335,13 @@ void Log::Initialize(boost::asio::io_service* ioService)
     }
 
     LoadFromConfig();
+}
+
+void Log::SetSynchronous()
+{
+    delete _strand;
+    _strand = nullptr;
+    _ioService = nullptr;
 }
 
 void Log::LoadFromConfig()

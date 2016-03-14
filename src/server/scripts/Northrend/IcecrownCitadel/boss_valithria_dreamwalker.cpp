@@ -179,7 +179,7 @@ class DelayedCastEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _trigger->CastSpell(_trigger, _spellId, false, NULL, NULL, _originalCaster);
             if (_despawnTime)
@@ -201,7 +201,7 @@ class AuraRemoveEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _trigger->RemoveAurasDueToSpell(_spellId);
             return true;
@@ -219,7 +219,7 @@ class ValithriaDespawner : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+        bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
             _creature->VisitNearbyGridObject(333.0f, worker);
