@@ -16,10 +16,45 @@
  */
 
 // This is where scripts' loading functions should be declared:
+void AddSC_Boss_SlaveWatcherCrushto();
+void AddSC_Boss_Roltall();
+void AddSC_Boss_Gugrokk();
+void AddSC_Boss_Magmolatus();
 
+void AddSC_boss_fleshrender_nokgar();
+void AddSC_boss_ahriok_dugru();
+void AddSC_boss_oshir();
+void AddSC_boss_skulloc();
+
+void AddSC_boss_vigilant_kaathar();
+void AddSC_boss_soulbinder_nyami();
+void AddSC_boss_azzakel();
+void AddSC_boss_terongor();
+
+void AddSC_boss_ranjit();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+		/* MINAS MACHACASANGRE */
+	AddSC_Boss_SlaveWatcherCrushto();
+	AddSC_Boss_Roltall();
+	AddSC_Boss_Gugrokk();
+	AddSC_Boss_Magmolatus();
+
+	/* PUERTO DE HIERRO */
+	AddSC_boss_fleshrender_nokgar();
+	AddSC_boss_ahriok_dugru();
+	AddSC_boss_oshir();
+	AddSC_boss_skulloc();
+
+	/* AUCHINDOUN */
+	AddSC_boss_vigilant_kaathar();
+	AddSC_boss_soulbinder_nyami();
+	AddSC_boss_azzakel();
+	AddSC_boss_terongor();
+
+	/* TRECHO CELESTIAL */
+	AddSC_boss_ranjit();
 }
