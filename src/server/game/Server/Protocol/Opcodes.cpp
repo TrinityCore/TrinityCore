@@ -430,7 +430,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_KEYBOUND_OVERRIDE,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_LEARN_PET_SPECIALIZATION_GROUP,                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_LEARN_TALENTS,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Talent::LearnTalents, &WorldSession::HandleLearnTalentsOpcode);
-    DEFINE_HANDLER(CMSG_LEAVE_GROUP,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Party::LeaveGroup, &WorldSession::HandleLeaveGroupOpcode);
+    DEFINE_HANDLER(CMSG_LEAVE_GROUP,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::LeaveGroup, &WorldSession::HandleLeaveGroupOpcode);
     DEFINE_HANDLER(CMSG_LEAVE_PET_BATTLE_QUEUE,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_LFG_LIST_APPLY_TO_GROUP,                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_LFG_LIST_CANCEL_APPLICATION,                        STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
