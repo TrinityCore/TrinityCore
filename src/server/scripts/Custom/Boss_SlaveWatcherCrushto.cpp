@@ -80,6 +80,8 @@ public:
 
 			if (me->HasUnitState(UNIT_STATE_CASTING))
 				return;
+			
+			Position pos = me->GetPosition();
 
 			while (uint32 eventId = events.ExecuteEvent())
 			{
@@ -99,7 +101,6 @@ public:
 					events.ScheduleEvent(EVENT_FEROCIOUSYELL, 12000);
 					break;
 				case EVENT_RAISETHEMINNERS:
-					Position pos = me->GetPosition();
 					DoCast(SPELL_RAISETHEMINNERS);
 					me->SummonCreature(CAPTURED_MINNER, pos.GetPositionX(), pos.GetPositionY(),pos.GetPositionZ(), 2.1f, TEMPSUMMON_DEAD_DESPAWN, 5000);
 					me->SummonCreature(CAPTURED_MINNER, pos.GetPositionX(), pos.GetPositionY(),pos.GetPositionZ(), 2.1f, TEMPSUMMON_DEAD_DESPAWN, 5000);
