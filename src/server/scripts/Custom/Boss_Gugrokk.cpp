@@ -35,10 +35,10 @@ enum Spells
 
 enum Events
 {
-	EVENT_MAGMAERUPTION = 1,
-	EVENT_MOLTENBLAST = 2,
-	EVENT_MOLTENCORE = 3,
-	EVENT_SUMMON_UNSTABLE_SLAG = 4,
+	EVENT_MAGMAERUPTION,
+	EVENT_MOLTENBLAST,
+	EVENT_MOLTENCORE,
+	EVENT_SUMMON_UNSTABLE_SLAG,
 };
 
 enum Slag {
@@ -88,6 +88,8 @@ public:
 			if (me->HasUnitState(UNIT_STATE_CASTING))
 				return;
 
+			Position pos = me->GetPosition();
+			
 			while (uint32 eventId = events.ExecuteEvent())
 			{
 				switch (eventId)
@@ -105,7 +107,6 @@ public:
 					events.ScheduleEvent(EVENT_MOLTENCORE, 12000);
 					break;
 				case EVENT_SUMMON_UNSTABLE_SLAG:
-					Position pos = me->GetPosition();
 					DoCast(SPELL_SUMMON_UNSTABLE_SLAG);
 					me->SummonCreature(UNSTABLE_SLAG, pos.GetPositionX(), pos.GetPositionY(),pos.GetPositionZ(), 2.1f, TEMPSUMMON_DEAD_DESPAWN, 5000);
 					events.ScheduleEvent(EVENT_SUMMON_UNSTABLE_SLAG, 16000);
