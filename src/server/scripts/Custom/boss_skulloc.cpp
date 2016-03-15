@@ -25,7 +25,8 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
-enum Spell{
+enum Spells
+{
 	SPELL_CANNON_BARRAGE = 168929,
 	SPELL_GRONN_SMASH = 168227,
 };
