@@ -81,7 +81,7 @@ public:
 					events.ScheduleEvent(EVENT_MOLTENBINDING, 12000);
 					break;
 				case EVENT_THROWEARTH:
-					DoCastVictim(SPELL_SUMMON_UNSTABLE_SLAG);
+					DoCastVictim(SPELL_THROWEARTH);
 					events.ScheduleEvent(EVENT_THROWEARTH, 16000);
 					break;
 				case EVENT_THROWFLAME:
