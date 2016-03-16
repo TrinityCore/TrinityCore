@@ -26,6 +26,6 @@ endif ()
 add_library(cppformat STATIC ${FMT_SOURCES})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-  set_target_properties(format PROPERTIES COMPILE_FLAGS
+  set_target_properties(cppformat PROPERTIES COMPILE_FLAGS
     "-Wall -Wextra -Wshadow -pedantic")
 endif ()
