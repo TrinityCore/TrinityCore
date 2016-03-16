@@ -453,7 +453,7 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
         TC_LOG_ERROR("misc", "InstanceSaveManager::GetSubsequentResetTime: not valid difficulty or no reset delay for map %u", mapid);
         return 0;
     }
-    
+
     time_t diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
     time_t period = uint32(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
     if (period < DAY)
