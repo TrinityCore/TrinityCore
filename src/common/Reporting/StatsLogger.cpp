@@ -136,8 +136,6 @@ void StatsLogger::SendBatch()
         return;
     }
 
-    batchedData << "\r\n";
-
     if (!_dataStream.good() && !Connect())
         return;
 
@@ -147,9 +145,8 @@ void StatsLogger::SendBatch()
     _dataStream << "Content-Type: application/octet-stream\r\n";
     _dataStream << "Content-Transfer-Encoding: binary\r\n";
 
-    _dataStream << "Content-Length: " << std::to_string(batchedData.tellp() - std::streampos(2)) << "\r\n\r\n";
+    _dataStream << "Content-Length: " << std::to_string(batchedData.tellp()) << "\r\n\r\n";
     _dataStream << batchedData.rdbuf();
-    _dataStream << "\r\n";
 
     std::string http_version;
     _dataStream >> http_version;
@@ -163,7 +160,7 @@ void StatsLogger::SendBatch()
     // Read and ignore the status description
     std::string status_description;
     std::getline(_dataStream, status_description);
-    // Read and ignore any header
+    // Read headers
     std::string header;
     while (std::getline(_dataStream, header) && header != "\r")
     {
