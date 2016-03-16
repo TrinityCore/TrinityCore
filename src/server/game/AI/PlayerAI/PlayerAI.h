@@ -28,7 +28,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         explicit PlayerAI(Player* player) : UnitAI(static_cast<Unit*>(player)), me(player), _isSelfHealer(PlayerAI::IsPlayerHealer(player)), _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player)) { }
 
         void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
-        
+
         // helper functions to determine player info
         static bool IsPlayerHealer(Player const* who);
         bool IsHealer(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfHealer : IsPlayerHealer(who); }

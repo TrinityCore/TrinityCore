@@ -598,7 +598,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
-    
+
     m_isDelayedInstantCast = false;
 
     m_runesState = 0;
