@@ -61,11 +61,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			_EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			BossAI::EnterCombat(victim);
+			
 			events.ScheduleEvent(EVENT_MAGMAERUPTION, 4000);
 			events.ScheduleEvent(EVENT_MOLTENBLAST, 8000);
 			events.ScheduleEvent(EVENT_MOLTENCORE, 12000);

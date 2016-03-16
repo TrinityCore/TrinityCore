@@ -16,11 +16,11 @@ enum Spells
 
 enum Events
 {
-	EVENT_MAGMABARRAGE = 1,
-	EVENT_MAGMABARRAGE_AOE = 2,
-	EVENT_MOLTENBINDING = 3,
-	EVENT_THROWEARTH = 4,
-	EVENT_THROWFLAME = 5,
+	EVENT_MAGMABARRAGE,
+	EVENT_MAGMABARRAGE_AOE,
+	EVENT_MOLTENBINDING,
+	EVENT_THROWEARTH,
+	EVENT_THROWFLAME,
 };
 
 class Boss_Magmolatus : public CreatureScript
@@ -35,11 +35,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			_EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			BossAI::EnterCombat(victim);
+			
 			events.ScheduleEvent(EVENT_MAGMABARRAGE, 4000);
 			events.ScheduleEvent(EVENT_MAGMABARRAGE_AOE, 8000);
 			events.ScheduleEvent(EVENT_MOLTENBINDING, 12000);

@@ -53,11 +53,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			 _EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			 BossAI::EnterCombat(victim);
+			 
 			events.ScheduleEvent(EVENT_CRUSHINGLEAP, 4000);
 			events.ScheduleEvent(EVENT_EARTHCRUSH, 8000);
 			events.ScheduleEvent(EVENT_FEROCIOUSYELL, 12000);

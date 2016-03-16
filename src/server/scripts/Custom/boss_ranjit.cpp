@@ -51,11 +51,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			 _EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			 BossAI::EnterCombat(victim);
+			 
 			events.ScheduleEvent(EVENT_FAN_OF_BLADES, 4000);
 			events.ScheduleEvent(EVENT_FOUR_WINDS, 8000);
 			events.ScheduleEvent(EVENT_PIERCING_RUSH, 12000);

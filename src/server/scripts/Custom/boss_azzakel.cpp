@@ -50,11 +50,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			_EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			BossAI::EnterCombat(victim);
+			
 			events.ScheduleEvent(EVENT_CLAWS_OF_ARGUS, 4000);
 			events.ScheduleEvent(EVENT_CURTAIN_OF_FLAME, 8000);
 			events.ScheduleEvent(EVENT_FEL_LASH, 12000);

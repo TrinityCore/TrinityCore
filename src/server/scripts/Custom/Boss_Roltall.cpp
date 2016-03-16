@@ -30,11 +30,11 @@ enum Spells
 
 enum Events
 {
-	EVENT_BURNINGSLAG = 1,
-	EVENT_BURNINGSLAG_INSTANT = 2,
-	EVENT_FIERYBOULDER = 3,
-	EVENT_HEATWAVE = 4,
-	EVENT_MOLTENREACH = 5,
+	EVENT_BURNINGSLAG,
+	EVENT_BURNINGSLAG_INSTANT,
+	EVENT_FIERYBOULDER,
+	EVENT_HEATWAVE,
+	EVENT_MOLTENREACH,
 };
 
 
@@ -50,11 +50,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			 _EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			 BossAI::EnterCombat(victim);
+			 
 			events.ScheduleEvent(EVENT_BURNINGSLAG, 4000);
 			events.ScheduleEvent(EVENT_BURNINGSLAG_INSTANT, 8000);
 			events.ScheduleEvent(EVENT_FIERYBOULDER, 12000);

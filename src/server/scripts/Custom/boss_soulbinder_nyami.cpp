@@ -51,11 +51,12 @@ public:
 		}
 
 		void Reset() override {
-			_Reset();
+			BossAI::Reset();
 		}
 
-		void EnterCombat(Unit* /*who*/) override {
-			_EnterCombat();
+		void EnterCombat(Unit* victim) override {
+			BossAI::EnterCombat(victim);
+			
 			events.ScheduleEvent(EVENT_MIND_SPIKE, 4000);
 			events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000);
 			events.ScheduleEvent(EVENT_SOUL_VESSEL, 12000);
