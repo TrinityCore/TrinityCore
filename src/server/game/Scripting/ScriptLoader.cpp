@@ -29,6 +29,8 @@ void AddKalimdorScripts();
 void AddOutlandScripts();
 void AddNorthrendScripts();
 void AddMaelstromScripts();
+void AddPandariaScripts();
+void AddDraenorScripts();
 void AddEventsScripts();
 void AddPetScripts();
 void AddOutdoorPvPScripts();
@@ -47,6 +49,8 @@ void AddScripts()
     AddOutlandScripts();
     AddNorthrendScripts();
     AddMaelstromScripts();
+    AddPandariaScripts();
+    AddDraenorScripts();
     AddEventsScripts();
     AddPetScripts();
     AddOutdoorPvPScripts();
