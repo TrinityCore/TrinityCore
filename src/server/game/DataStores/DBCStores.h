@@ -33,11 +33,6 @@ char* GetPetName(uint32 petfamily, uint32 dbclang);
 uint32 GetTalentSpellCost(uint32 spellId);
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 
-int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
-AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
-AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id);
-uint32 GetAreaFlagByMapId(uint32 mapid);
-
 char const* GetRaceName(uint8 race, uint8 locale);
 char const* GetClassName(uint8 class_, uint8 locale);
 
@@ -82,9 +77,11 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 
 ResponseCodes ValidateName(std::string const& name, LocaleConstant locale);
 
+EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender);
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
-extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
+extern DBCStorage <AreaTableEntry>               sAreaTableStore;
 extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaPOIEntry>                 sAreaPOIStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
@@ -113,6 +110,7 @@ extern DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore;
 extern DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore;
 extern DBCStorage <EmotesEntry>                  sEmotesStore;
 extern DBCStorage <EmotesTextEntry>              sEmotesTextStore;
+extern DBCStorage <EmotesTextSoundEntry>         sEmotesTextSoundStore;
 extern DBCStorage <FactionEntry>                 sFactionStore;
 extern DBCStorage <FactionTemplateEntry>         sFactionTemplateStore;
 extern DBCStorage <GameObjectDisplayInfoEntry>   sGameObjectDisplayInfoStore;

@@ -68,15 +68,19 @@ bool StartDB();
 void StopDB();
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
+void BanExpiryHandler(boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
 
 boost::asio::io_service* _ioService;
 boost::asio::deadline_timer* _dbPingTimer;
 uint32 _dbPingInterval;
-LoginDatabaseWorkerPool LoginDatabase;
+boost::asio::deadline_timer* _banExpiryCheckTimer;
+uint32 _banExpiryCheckInterval;
 
 int main(int argc, char** argv)
 {
+    signal(SIGABRT, &Trinity::AbortHandler);
+
     std::string configFile = _TRINITY_REALM_CONFIG;
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
@@ -131,7 +135,7 @@ int main(int argc, char** argv)
     // Get the list of realms for the server
     sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
-    if (sRealmList->size() == 0)
+    if (sRealmList->GetRealms().empty())
     {
         TC_LOG_ERROR("server.authserver", "No valid realms specified.");
         StopDB();
@@ -169,6 +173,11 @@ int main(int argc, char** argv)
     _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
 
+    _banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
+    _banExpiryCheckTimer = new boost::asio::deadline_timer(*_ioService);
+    _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
+    _banExpiryCheckTimer->async_wait(BanExpiryHandler);
+
 #if PLATFORM == PLATFORM_WINDOWS
     if (m_ServiceStatus != -1)
     {
@@ -181,9 +190,12 @@ int main(int argc, char** argv)
     // Start the io service worker loop
     _ioService->run();
 
+    _banExpiryCheckTimer->cancel();
     _dbPingTimer->cancel();
 
     sAuthSocketMgr.StopNetwork();
+
+    sRealmList->Close();
 
     // Close the Database Pool and library
     StopDB();
@@ -192,6 +204,7 @@ int main(int argc, char** argv)
 
     signals.cancel();
 
+    delete _banExpiryCheckTimer;
     delete _dbPingTimer;
     delete _ioService;
     return 0;
@@ -239,6 +252,18 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
 
         _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
         _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
+    }
+}
+
+void BanExpiryHandler(boost::system::error_code const& error)
+{
+    if (!error)
+    {
+        LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
+        LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
+
+        _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
+        _banExpiryCheckTimer->async_wait(BanExpiryHandler);
     }
 }
 

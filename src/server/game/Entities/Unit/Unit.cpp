@@ -45,6 +45,7 @@
 #include "PetAI.h"
 #include "Pet.h"
 #include "Player.h"
+#include "PlayerAI.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
@@ -156,6 +157,28 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _spellPhaseMask(spellPhaseMask), _hitMask(hitMask), _spell(spell),
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
+
+SpellInfo const* ProcEventInfo::GetSpellInfo() const
+{
+    if (_spell)
+        return _spell->GetSpellInfo();
+    if (_damageInfo)
+        return _damageInfo->GetSpellInfo();
+    if (_healInfo)
+        return _healInfo->GetSpellInfo();
+    return nullptr;
+}
+
+SpellSchoolMask ProcEventInfo::GetSchoolMask() const
+{
+    if (_spell)
+        return _spell->GetSpellInfo()->GetSchoolMask();
+    if (_damageInfo)
+        return _damageInfo->GetSchoolMask();
+    if (_healInfo)
+        return _healInfo->GetSchoolMask();
+    return SPELL_SCHOOL_MASK_NONE;
+}
 
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
@@ -1670,6 +1693,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
 
+    int32 absorbIgnoringDamage = CalculatePct(dmgInfo.GetDamage(), auraAbsorbMod);
+    dmgInfo.ModifyDamage(-absorbIgnoringDamage);
+
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
     AuraEffectList vSchoolAbsorbCopy(victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
@@ -1701,9 +1727,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         if (defaultPrevented)
             continue;
-
-        // Apply absorb mod auras
-        AddPct(currentAbsorb, -auraAbsorbMod);
 
         // absorb must be smaller than the damage itself
         currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
@@ -1753,8 +1776,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (defaultPrevented)
             continue;
 
-        AddPct(currentAbsorb, -auraAbsorbMod);
-
         // absorb must be smaller than the damage itself
         currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
 
@@ -1782,6 +1803,8 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
                 absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
     }
+
+    dmgInfo.ModifyDamage(absorbIgnoringDamage);
 
     // split damage auras - only when not damaging self
     if (victim != this)
@@ -3726,6 +3749,77 @@ void Unit::RemoveAura(Aura* aura, AuraRemoveMode mode)
         RemoveAura(aurApp, mode);
 }
 
+void Unit::RemoveAppliedAuras(std::function<bool(AuraApplication const*)> const& check)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        if (check(iter->second))
+        {
+            RemoveAura(iter);
+            continue;
+        }
+        ++iter;
+    }
+}
+
+void Unit::RemoveOwnedAuras(std::function<bool(Aura const*)> const& check)
+{
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    {
+        if (check(iter->second))
+        {
+            RemoveOwnedAura(iter);
+            continue;
+        }
+        ++iter;
+    }
+}
+
+void Unit::RemoveAppliedAuras(uint32 spellId, std::function<bool(AuraApplication const*)> const& check)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    {
+        if (check(iter->second))
+        {
+            RemoveAura(iter);
+            continue;
+        }
+        ++iter;
+    }
+}
+
+void Unit::RemoveOwnedAuras(uint32 spellId, std::function<bool(Aura const*)> const& check)
+{
+    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    {
+        if (check(iter->second))
+        {
+            RemoveOwnedAura(iter);
+            continue;
+        }
+        ++iter;
+    }
+}
+
+void Unit::RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check)
+{
+    for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
+    {
+        Aura* aura = (*iter)->GetBase();
+        AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
+        ASSERT(aurApp);
+
+        ++iter;
+        if (check(aurApp))
+        {
+            uint32 removedAuras = m_removedAurasCount;
+            RemoveAura(aurApp);
+            if (m_removedAurasCount > removedAuras + 1)
+                iter = m_modAuras[auraType].begin();
+        }
+    }
+}
+
 void Unit::RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID, uint8 reqEffMask, AuraRemoveMode removeMode)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
@@ -4333,13 +4427,10 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
 
         if (aura->GetSpellInfo()->GetDispelMask() & dispelMask)
         {
-            if (aura->GetSpellInfo()->Dispel == DISPEL_MAGIC)
-            {
-                // do not remove positive auras if friendly target
-                //               negative auras if non-friendly target
-                if (aurApp->IsPositive() == IsFriendlyTo(caster))
-                    continue;
-            }
+            // do not remove positive auras if friendly target
+            //               negative auras if non-friendly target
+            if (aurApp->IsPositive() == IsFriendlyTo(caster))
+                continue;
 
             // The charges / stack amounts don't count towards the total number of auras that can be dispelled.
             // Ie: A dispel on a target with 5 stacks of Winters Chill and a Polymorph has 1 / (1 + 1) -> 50% chance to dispell
@@ -6365,54 +6456,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_PALADIN:
         {
-            // Light's Beacon - Beacon of Light
-            if (dummySpell->Id == 53651)
-            {
-                if (!victim || !procSpell)
-                    return false;
-                triggered_spell_id = 0;
-                Unit* beaconTarget = NULL;
-                if (GetTypeId() != TYPEID_PLAYER)
-                {
-                    beaconTarget = triggeredByAura->GetBase()->GetCaster();
-                    if (!beaconTarget || beaconTarget == this || !(beaconTarget->GetAura(53563, victim->GetGUID())))
-                        return false;
-                    basepoints0 = int32(damage);
-                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
-                }
-                else
-                {    // Check Party/Raid Group
-                    if (Group* group = ToPlayer()->GetGroup())
-                    {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-                        {
-                            if (Player* member = itr->GetSource())
-                            {
-                                // check if it was heal by paladin which cast this beacon of light
-                                if (member->GetAura(53563, victim->GetGUID()))
-                                {
-                                    // do not proc when target of beacon of light is healed
-                                    if (member == this)
-                                        return false;
-
-                                    beaconTarget = member;
-                                    basepoints0 = int32(damage);
-                                    triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (triggered_spell_id && beaconTarget)
-                {
-                    victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true);
-                    return true;
-                }
-
-                return false;
-            }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
@@ -7125,9 +7168,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     float chance = 100.0f / procSpell->Effects[effIndex].ChainTarget;
                     if (!roll_chance_f(chance))
                         return false;
-
-                    // Remove cooldown (Chain Lightning - has Category Recovery time)
-                    GetSpellHistory()->ResetCooldown(spellId);
                 }
 
                 CastSpell(victim, spellId, true, castItem, triggeredByAura);
@@ -8357,8 +8397,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 52914:
         case 52915:
         case 52910:
-        // Honor Among Thieves
-        case 52916:
         {
             target = triggeredByAura->GetBase()->GetCaster();
             if (!target)
@@ -9014,10 +9052,10 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
     {
         // should not let player enter combat by right clicking target - doesn't helps
+        AddThreat(victim, 0.0f);
         SetInCombatWith(victim);
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->SetInCombatWith(this);
-        AddThreat(victim, 0.0f);
 
         ToCreature()->SendAIReaction(AI_REACTION_HOSTILE);
         ToCreature()->CallAssistance();
@@ -9261,7 +9299,7 @@ Unit* Unit::GetCharmer() const
     if (ObjectGuid charmerGUID = GetCharmerGUID())
         return ObjectAccessor::GetUnit(*this, charmerGUID);
 
-    return NULL;
+    return nullptr;
 }
 
 Player* Unit::GetCharmerOrOwnerPlayerOrPlayerItself() const
@@ -12375,7 +12413,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 if (Creature* creature = ToCreature())
                 {
                     uint32 immuneMask = creature->GetCreatureTemplate()->MechanicImmuneMask;
-                    if (immuneMask & (1 << MECHANIC_SNARE) || immuneMask & (1 << MECHANIC_DAZE))
+                    if (immuneMask & (1 << (MECHANIC_SNARE - 1)) || immuneMask & (1 << (MECHANIC_DAZE - 1)))
                         break;
                 }
 
@@ -12467,6 +12505,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
 
+        data << GetPackGUID();
         BuildMovementPacket(&data);
         data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
@@ -12779,7 +12818,7 @@ Unit* Creature::SelectVictim()
         }
     }
     else
-        return NULL;
+        return nullptr;
 
     if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
     {
@@ -12787,14 +12826,6 @@ Unit* Creature::SelectVictim()
             SetInFront(target);
         return target;
     }
-
-    // Case where mob is being kited.
-    // Mob may not be in range to attack or may have dropped target. In any case,
-    //  don't evade if damage received within the last 10 seconds
-    // Does not apply to world bosses to prevent kiting to cities
-    if (!isWorldBoss() && !GetInstanceId())
-        if (time(NULL) - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
-            return target;
 
     // last case when creature must not go to evade mode:
     // it in combat but attacker not make any damage and not enter to aggro radius to have record in threat list
@@ -12804,12 +12835,12 @@ Unit* Creature::SelectVictim()
     {
         if ((*itr) && !CanCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
         && !(*itr)->ToCreature()->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-            return NULL;
+            return nullptr;
     }
 
     /// @todo a vehicle may eat some mob, so mob should not evade
     if (GetVehicle())
-        return NULL;
+        return nullptr;
 
     // search nearby enemy before enter evade mode
     if (HasReactState(REACT_AGGRESSIVE))
@@ -12827,17 +12858,17 @@ Unit* Creature::SelectVictim()
         {
             if ((*itr)->GetBase()->IsPermanent())
             {
-                AI()->EnterEvadeMode();
+                AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
                 break;
             }
         }
-        return NULL;
+        return nullptr;
     }
 
     // enter in evade mode in other case
     AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
 
-    return NULL;
+    return nullptr;
 }
 
 //======================================================================
@@ -13694,28 +13725,76 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
 
 void Unit::UpdateCharmAI()
 {
-    if (GetTypeId() == TYPEID_PLAYER)
-        return;
-
-    if (i_disabledAI) // disabled AI must be primary AI
+    switch (GetTypeId())
     {
-        if (!IsCharmed())
-        {
-            delete i_AI;
-            i_AI = i_disabledAI;
-            i_disabledAI = NULL;
-        }
-    }
-    else
-    {
-        if (IsCharmed())
-        {
-            i_disabledAI = i_AI;
-            if (isPossessed() || IsVehicle())
-                i_AI = new PossessedAI(ToCreature());
+        case TYPEID_UNIT:
+            if (i_disabledAI) // disabled AI must be primary AI
+            {
+                if (!IsCharmed())
+                {
+                    delete i_AI;
+                    i_AI = i_disabledAI;
+                    i_disabledAI = nullptr;
+                }
+            }
             else
-                i_AI = new PetAI(ToCreature());
+            {
+                if (IsCharmed())
+                {
+                    i_disabledAI = i_AI;
+                    if (isPossessed() || IsVehicle())
+                        i_AI = new PossessedAI(ToCreature());
+                    else
+                        i_AI = new PetAI(ToCreature());
+                }
+            }
+            break;
+        case TYPEID_PLAYER:
+        {
+            if (IsCharmed()) // if we are currently being charmed, then we should apply charm AI
+            {
+                i_disabledAI = i_AI;
+
+                UnitAI* newAI = nullptr;
+                // first, we check if the creature's own AI specifies an override playerai for its owned players
+                if (Unit* charmer = GetCharmer())
+                {
+                    if (Creature* creatureCharmer = charmer->ToCreature())
+                    {
+                        if (PlayerAI* charmAI = creatureCharmer->IsAIEnabled ? creatureCharmer->AI()->GetAIForCharmedPlayer(ToPlayer()) : nullptr)
+                            newAI = charmAI;
+                    }
+                    else
+                    {
+                        TC_LOG_ERROR("misc", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
+                    }
+                }
+                if (!newAI) // otherwise, we default to the generic one
+                    newAI = new SimpleCharmedPlayerAI(ToPlayer());
+                i_AI = newAI;
+            }
+            else
+            {
+                if (i_AI)
+                {
+                    // we allow the charmed PlayerAI to clean up
+                    i_AI->OnCharmed(false);
+                    // then delete it
+                    delete i_AI;
+                }
+                else
+                {
+                    TC_LOG_ERROR("misc", "Attempt to remove charm AI from player %s who doesn't currently have charm AI.", GetGUID().ToString().c_str());
+                }
+                // and restore our previous PlayerAI (if we had one)
+                i_AI = i_disabledAI;
+                i_disabledAI = nullptr;
+                // IsAIEnabled gets handled in the caller
+            }
+            break;
         }
+        default:
+            TC_LOG_ERROR("misc", "Attempt to update charm AI for unit %s, which is neither player nor creature.", GetGUID().ToString().c_str());
     }
 }
 
@@ -14187,8 +14266,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     Unit* actionTarget = !isVictim ? target : this;
 
     DamageInfo damageInfo = DamageInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL, SPELL_DIRECT_DAMAGE);
-    HealInfo healInfo = HealInfo(damage);
-    ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, NULL, &damageInfo, &healInfo);
+    HealInfo healInfo = HealInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL);
+    ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, nullptr, &damageInfo, &healInfo);
 
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
@@ -15944,11 +16023,17 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         ToCreature()->AI()->OnCharmed(true);
         GetMotionMaster()->MoveIdle();
     }
-    else
+    else if (Player* player = ToPlayer())
     {
-        Player* player = ToPlayer();
         if (player->isAFK())
             player->ToggleAFK();
+
+        if (charmer->GetTypeId() == TYPEID_UNIT) // we are charmed by a creature
+        {
+            // change AI to charmed AI on next Update tick
+            NeedChangeAI = true;
+            IsAIEnabled = false;
+        }
         player->SetClientControl(this, false);
     }
 
@@ -16106,7 +16191,14 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     }
 
     if (Player* player = ToPlayer())
+    {
+        if (charmer->GetTypeId() == TYPEID_UNIT) // charmed by a creature, this means we had PlayerAI
+        {
+            NeedChangeAI = true;
+            IsAIEnabled = false;
+        }
         player->SetClientControl(this, true);
+    }
 
     // a guardian should always have charminfo
     if (playerCharmer && this != charmer->GetFirstControlled())
@@ -16898,12 +16990,12 @@ void Unit::JumpTo(float speedXY, float speedZ, bool forward)
     }
 }
 
-void Unit::JumpTo(WorldObject* obj, float speedZ)
+void Unit::JumpTo(WorldObject* obj, float speedZ, bool withOrientation)
 {
     float x, y, z;
     obj->GetContactPoint(this, x, y, z);
     float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
-    GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    GetMotionMaster()->MoveJump(x, y, z, GetAngle(obj), speedXY, speedZ, EVENT_JUMP, withOrientation);
 }
 
 bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)

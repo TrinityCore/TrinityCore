@@ -1103,18 +1103,11 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 
     if (apply)
     {
-        // Remove cooldown of spells triggered on stance change - they may share cooldown with stance spell
         if (spellId)
-        {
-            target->GetSpellHistory()->ResetCooldown(spellId);
             target->CastSpell(target, spellId, true, NULL, this);
-        }
 
         if (spellId2)
-        {
-            target->GetSpellHistory()->ResetCooldown(spellId2);
             target->CastSpell(target, spellId2, true, NULL, this);
-        }
 
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
@@ -4690,11 +4683,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         target->ToPlayer()->RemoveAmmo();      // not use ammo and not allow use
                     break;
-                case 52916: // Honor Among Thieves
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
-                            target->CastSpell(spellTarget, 51699, true);
-                   break;
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
@@ -5624,25 +5612,6 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                         // Need remove self if Lightning Shield not active
                         if (!target->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x400, 0, 0))
                             target->RemoveAurasDueToSpell(28820);
-                        return;
-                    }
-                    // Totemic Mastery (Skyshatter Regalia (Shaman Tier 6) - bonus)
-                    case 38443:
-                    {
-                        bool all = true;
-                        for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
-                        {
-                            if (!target->m_SummonSlot[i])
-                            {
-                                all = false;
-                                break;
-                            }
-                        }
-
-                        if (all)
-                            target->CastSpell(target, 38437, true, NULL, this);
-                        else
-                            target->RemoveAurasDueToSpell(38437);
                         return;
                     }
                 }

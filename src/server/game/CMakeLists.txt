@@ -108,6 +108,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Addons
   ${CMAKE_CURRENT_SOURCE_DIR}/AI
   ${CMAKE_CURRENT_SOURCE_DIR}/AI/CoreAI
+  ${CMAKE_CURRENT_SOURCE_DIR}/AI/PlayerAI
   ${CMAKE_CURRENT_SOURCE_DIR}/AI/ScriptedAI
   ${CMAKE_CURRENT_SOURCE_DIR}/AI/SmartScripts
   ${CMAKE_CURRENT_SOURCE_DIR}/AuctionHouse
@@ -195,6 +196,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
   ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Realm
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}

@@ -133,7 +133,7 @@ public:
                 info.name       = fields[1].GetString();
                 info.accountId  = fields[2].GetUInt32();
 
-                // account name will be empty for not existed account
+                // account name will be empty for nonexisting account
                 AccountMgr::GetName(info.accountId, info.accountName);
                 info.deleteDate = time_t(fields[3].GetUInt32());
                 foundList.push_back(info);
@@ -169,11 +169,11 @@ public:
 
             if (!handler->GetSession())
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE,
-                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existed>" : itr->accountName.c_str(),
+                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
                     itr->accountId, dateStr.c_str());
             else
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CHAT,
-                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existed>" : itr->accountName.c_str(),
+                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
                     itr->accountId, dateStr.c_str());
         }
 
@@ -193,7 +193,7 @@ public:
     */
     static void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo, ChatHandler* handler)
     {
-        if (delInfo.accountName.empty())                    // account not exist
+        if (delInfo.accountName.empty())                    // account does not exist
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
@@ -660,7 +660,7 @@ public:
 
         if (newCharName.empty())
         {
-            // Drop not existed account cases
+            // Drop nonexisting account cases
             for (DeletedInfoList::iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
                 HandleCharacterDeletedRestoreHelper(*itr, handler);
         }
@@ -810,7 +810,7 @@ public:
         if (levelStr && isalpha(levelStr[0]))
         {
             nameStr = levelStr;
-            levelStr = NULL;                                    // current level will used
+            levelStr = NULL;                                    // current level will be used
         }
 
         Player* target;
@@ -854,7 +854,7 @@ public:
             return false;
 
         std::string accountName = accountStr;
-        if (!AccountMgr::normalizeString(accountName))
+        if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
             handler->SetSentErrorMessage(true);

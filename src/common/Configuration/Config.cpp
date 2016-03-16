@@ -56,12 +56,18 @@ bool ConfigMgr::LoadInitial(std::string const& file, std::string& error)
     return true;
 }
 
+ConfigMgr* ConfigMgr::instance()
+{
+    static ConfigMgr instance;
+    return &instance;
+}
+
 bool ConfigMgr::Reload(std::string& error)
 {
     return LoadInitial(_filename, error);
 }
 
-std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def) const
 {
     std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
 
@@ -70,7 +76,7 @@ std::string ConfigMgr::GetStringDefault(std::string const& name, const std::stri
     return value;
 }
 
-bool ConfigMgr::GetBoolDefault(std::string const& name, bool def)
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
 {
     try
     {
@@ -84,12 +90,12 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def)
     }
 }
 
-int ConfigMgr::GetIntDefault(std::string const& name, int def)
+int ConfigMgr::GetIntDefault(std::string const& name, int def) const
 {
     return _config.get<int>(ptree::path_type(name, '/'), def);
 }
 
-float ConfigMgr::GetFloatDefault(std::string const& name, float def)
+float ConfigMgr::GetFloatDefault(std::string const& name, float def) const
 {
     return _config.get<float>(ptree::path_type(name, '/'), def);
 }

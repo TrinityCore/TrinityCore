@@ -228,11 +228,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (Player::BuildEnumData(result, &data))
             {
                 // Do not allow banned characters to log in
-                if (!(*result)[20].GetUInt32())
+                if (!(*result)[23].GetUInt32())
                     _legitCharacters.insert(guid);
 
                 if (!sWorld->HasCharacterInfo(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                    sWorld->AddCharacterInfo(guid, GetAccountId(), (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
+                    sWorld->AddCharacterInfo(guid, GetAccountId(), (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[10].GetUInt8());
                 ++num;
             }
         }
@@ -627,13 +627,13 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
             stmt->setUInt32(0, GetAccountId());
-            stmt->setUInt32(1, realmID);
+            stmt->setUInt32(1, realm.Id.Realm);
             trans->Append(stmt);
 
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
             stmt->setUInt32(0, createInfo->CharCount);
             stmt->setUInt32(1, GetAccountId());
-            stmt->setUInt32(2, realmID);
+            stmt->setUInt32(2, realm.Id.Realm);
             trans->Append(stmt);
 
             LoginDatabase.CommitTransaction(trans);

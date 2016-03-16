@@ -31,6 +31,7 @@
 #include "adt.h"
 #include "wdt.h"
 
+#include <G3D/Plane.h>
 #include <boost/filesystem.hpp>
 
 extern ArchiveSet gOpenArchives;
@@ -42,12 +43,10 @@ typedef struct
 } map_id;
 
 map_id *map_ids;
-uint16 *areas;
 uint16 *LiqType;
 #define MAX_PATH_LENGTH 128
 char output_path[MAX_PATH_LENGTH] = ".";
 char input_path[MAX_PATH_LENGTH] = ".";
-uint32 maxAreaId = 0;
 
 // **************************************************
 // Extractor options
@@ -231,30 +230,6 @@ uint32 ReadMapDBC()
     return map_count;
 }
 
-void ReadAreaTableDBC()
-{
-    printf("Read AreaTable.dbc file...");
-    DBCFile dbc("DBFilesClient\\AreaTable.dbc");
-
-    if(!dbc.open())
-    {
-        printf("Fatal error: Invalid AreaTable.dbc file format!\n");
-        exit(1);
-    }
-
-    size_t area_count = dbc.getRecordCount();
-    size_t maxid = dbc.getMaxId();
-    areas = new uint16[maxid + 1];
-    memset(areas, 0xff, (maxid + 1) * sizeof(uint16));
-
-    for(uint32 x = 0; x < area_count; ++x)
-        areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
-
-    maxAreaId = dbc.getMaxId();
-
-    printf("Done! (" SZFMTD " areas loaded)\n", area_count);
-}
-
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
@@ -282,7 +257,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.3";
+static char const* MAP_VERSION_MAGIC = "v1.8";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -311,9 +286,10 @@ struct map_areaHeader
     uint16 gridArea;
 };
 
-#define MAP_HEIGHT_NO_HEIGHT  0x0001
-#define MAP_HEIGHT_AS_INT16   0x0002
-#define MAP_HEIGHT_AS_INT8    0x0004
+#define MAP_HEIGHT_NO_HEIGHT            0x0001
+#define MAP_HEIGHT_AS_INT16             0x0002
+#define MAP_HEIGHT_AS_INT8              0x0004
+#define MAP_HEIGHT_HAS_FLIGHT_BOUNDS    0x0008
 
 struct map_heightHeader
 {
@@ -358,7 +334,7 @@ float selectUInt16StepStore(float maxDiff)
     return 65535 / maxDiff;
 }
 // Temporary grid data store
-uint16 area_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+uint16 area_ids[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 
 float V8[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float V9[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
@@ -371,6 +347,9 @@ uint16 liquid_entry[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 uint8 liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
+
+int16 flight_box_max[3][3];
+int16 flight_box_min[3][3];
 
 bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int /*cell_y*/, int /*cell_x*/, uint32 build)
 {
@@ -397,34 +376,20 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     map.buildMagic = build;
 
     // Get area flags data
-    for (int i=0;i<ADT_CELLS_PER_GRID;i++)
-    {
-        for(int j=0;j<ADT_CELLS_PER_GRID;j++)
-        {
-            adt_MCNK * cell = cells->getMCNK(i,j);
-            uint32 areaid = cell->areaid;
-            if(areaid && areaid <= maxAreaId)
-            {
-                if(areas[areaid] != 0xffff)
-                {
-                    area_flags[i][j] = areas[areaid];
-                    continue;
-                }
-                printf("File: %s\nCan't find area flag for areaid %u [%d, %d].\n", inputPath.c_str(), areaid, cell->ix, cell->iy);
-            }
-            area_flags[i][j] = 0xffff;
-        }
-    }
+    for (int i = 0; i < ADT_CELLS_PER_GRID; i++)
+        for (int j = 0; j < ADT_CELLS_PER_GRID; j++)
+            area_ids[i][j] = cells->getMCNK(i, j)->areaid;
+
     //============================================
     // Try pack area data
     //============================================
     bool fullAreaData = false;
-    uint32 areaflag = area_flags[0][0];
-    for (int y=0;y<ADT_CELLS_PER_GRID;y++)
+    uint32 areaId = area_ids[0][0];
+    for (int y = 0; y < ADT_CELLS_PER_GRID; ++y)
     {
-        for(int x=0;x<ADT_CELLS_PER_GRID;x++)
+        for (int x = 0; x < ADT_CELLS_PER_GRID; ++x)
         {
-            if(area_flags[y][x]!=areaflag)
+            if (area_ids[y][x] != areaId)
             {
                 fullAreaData = true;
                 break;
@@ -441,12 +406,12 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     if (fullAreaData)
     {
         areaHeader.gridArea = 0;
-        map.areaMapSize+=sizeof(area_flags);
+        map.areaMapSize += sizeof(area_ids);
     }
     else
     {
         areaHeader.flags |= MAP_AREA_NO_AREA;
-        areaHeader.gridArea = static_cast<uint16>(areaflag);
+        areaHeader.gridArea = static_cast<uint16>(areaId);
     }
 
     //
@@ -561,6 +526,14 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             maxHeight = CONF_use_minHeight;
     }
 
+    bool hasFlightBox = false;
+    if (adt_MFBO* mfbo = adt.a_grid->getMFBO())
+    {
+        memcpy(flight_box_max, &mfbo->max, sizeof(flight_box_max));
+        memcpy(flight_box_min, &mfbo->min, sizeof(flight_box_min));
+        hasFlightBox = true;
+    }
+
     map.heightMapOffset = map.areaMapOffset + map.areaMapSize;
     map.heightMapSize = sizeof(map_heightHeader);
 
@@ -576,6 +549,12 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     // Not need store if flat surface
     if (CONF_allow_float_to_int && (maxHeight - minHeight) < CONF_flat_height_delta_limit)
         heightHeader.flags |= MAP_HEIGHT_NO_HEIGHT;
+
+    if (hasFlightBox)
+    {
+        heightHeader.flags |= MAP_HEIGHT_HAS_FLIGHT_BOUNDS;
+        map.heightMapSize += sizeof(flight_box_max) + sizeof(flight_box_min);
+    }
 
     // Try store as packed in uint16 or uint8 values
     if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
@@ -875,8 +854,8 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     outFile.write(reinterpret_cast<const char*>(&map), sizeof(map));
     // Store area data
     outFile.write(reinterpret_cast<const char*>(&areaHeader), sizeof(areaHeader));
-    if (!(areaHeader.flags&MAP_AREA_NO_AREA))
-        outFile.write(reinterpret_cast<const char*>(area_flags), sizeof(area_flags));
+    if (!(areaHeader.flags & MAP_AREA_NO_AREA))
+        outFile.write(reinterpret_cast<const char*>(area_ids), sizeof(area_ids));
 
     // Store height data
     outFile.write(reinterpret_cast<const char*>(&heightHeader), sizeof(heightHeader));
@@ -897,6 +876,12 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             outFile.write(reinterpret_cast<const char*>(V9), sizeof(V9));
             outFile.write(reinterpret_cast<const char*>(V8), sizeof(V8));
         }
+    }
+
+    if (heightHeader.flags & MAP_HEIGHT_HAS_FLIGHT_BOUNDS)
+    {
+        outFile.write(reinterpret_cast<char*>(flight_box_max), sizeof(flight_box_max));
+        outFile.write(reinterpret_cast<char*>(flight_box_min), sizeof(flight_box_min));
     }
 
     // Store liquid data if need
@@ -935,7 +920,6 @@ void ExtractMapsFromMpq(uint32 build)
 
     uint32 map_count = ReadMapDBC();
 
-    ReadAreaTableDBC();
     ReadLiquidTypeTableDBC();
 
     std::string path = output_path;
@@ -972,8 +956,7 @@ void ExtractMapsFromMpq(uint32 build)
         }
     }
     printf("\n");
-    delete [] areas;
-    delete [] map_ids;
+    delete[] map_ids;
 }
 
 bool ExtractFile( char const* mpq_name, std::string const& filename )

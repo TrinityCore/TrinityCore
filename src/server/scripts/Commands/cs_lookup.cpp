@@ -97,9 +97,9 @@ public:
         wstrToLower(wNamePart);
 
         // Search in AreaTable.dbc
-        for (uint32 areaflag = 0; areaflag < sAreaStore.GetNumRows(); ++areaflag)
+        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
         {
-            AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(areaflag);
+            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(i);
             if (areaEntry)
             {
                 int locale = handler->GetSessionDbcLocale();
@@ -1343,7 +1343,7 @@ public:
         char* limitStr = strtok(NULL, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
-        if (!AccountMgr::normalizeString
+        if (!Utf8ToUpperOnlyLatin
             (account))
             return false;
 

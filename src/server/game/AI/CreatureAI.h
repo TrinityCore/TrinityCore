@@ -28,6 +28,7 @@ class WorldObject;
 class Unit;
 class Creature;
 class Player;
+class PlayerAI;
 class SpellInfo;
 
 #define TIME_INTERVAL_LOOK   5000
@@ -79,8 +80,8 @@ class CreatureAI : public UnitAI
         Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
-        bool CheckBoundary(Position* who = nullptr) const;
-        void SetBoundary(CreatureBoundary const* boundary) { _boundary = boundary; CheckInRoom(); }
+        bool CheckBoundary(Position const* who = nullptr) const;
+        void SetBoundary(CreatureBoundary const* boundary) { _boundary = boundary; me->DoImmediateBoundaryCheck(); }
     public:
         enum EvadeReason
         {
@@ -185,6 +186,11 @@ class CreatureAI : public UnitAI
         virtual void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
+
+        // Called when a player is charmed by the creature
+        // If a PlayerAI* is returned, that AI is placed on the player instead of the default charm AI
+        // Object destruction is handled by Unit::RemoveCharmedBy
+        virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
 
         // intended for encounter design/debugging. do not use for other purposes. expensive.
         int32 VisualizeBoundary(uint32 duration, Unit* owner=nullptr, bool fill=false) const;

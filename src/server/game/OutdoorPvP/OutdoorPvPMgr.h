@@ -42,11 +42,7 @@ class OutdoorPvPMgr
         ~OutdoorPvPMgr() { };
 
     public:
-        static OutdoorPvPMgr* instance()
-        {
-            static OutdoorPvPMgr instance;
-            return &instance;
-        }
+        static OutdoorPvPMgr* instance();
 
         // create outdoor pvp events
         void InitOutdoorPvP();

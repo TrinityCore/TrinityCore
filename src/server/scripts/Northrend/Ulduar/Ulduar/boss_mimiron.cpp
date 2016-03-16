@@ -444,7 +444,7 @@ class boss_mimiron : public CreatureScript
                 DoCastAOE(SPELL_DESPAWN_ASSAULT_BOTS);
                 me->ExitVehicle();
                 // ExitVehicle() offset position is not implemented, so we make up for that with MoveJump()...
-                me->GetMotionMaster()->MoveJump(me->GetPositionX() + (10.f * std::cos(me->GetOrientation())), me->GetPositionY() + (10.f * std::sin(me->GetOrientation())), me->GetPositionZ(), 10.f, 5.f);
+                me->GetMotionMaster()->MoveJump(me->GetPositionX() + (10.f * std::cos(me->GetOrientation())), me->GetPositionY() + (10.f * std::sin(me->GetOrientation())), me->GetPositionZ(), me->GetOrientation(), 10.f, 5.f);
                 events.ScheduleEvent(EVENT_OUTTRO_1, 7000);
             }
 
@@ -1634,8 +1634,11 @@ class go_mimiron_hardmode_button : public GameObjectScript
     public:
         go_mimiron_hardmode_button() : GameObjectScript("go_mimiron_hardmode_button") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
+            if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                return true;
+
             InstanceScript* instance = go->GetInstanceScript();
             if (!instance)
                 return false;
@@ -2756,7 +2759,7 @@ class achievement_setup_boom : public AchievementCriteriaScript
     public:
         achievement_setup_boom() : AchievementCriteriaScript("achievement_setup_boom") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SETUP_BOMB);
         }
@@ -2767,7 +2770,7 @@ class achievement_setup_mine : public AchievementCriteriaScript
     public:
         achievement_setup_mine() : AchievementCriteriaScript("achievement_setup_mine") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SETUP_MINE);
         }
@@ -2778,7 +2781,7 @@ class achievement_setup_rocket : public AchievementCriteriaScript
     public:
         achievement_setup_rocket() : AchievementCriteriaScript("achievement_setup_rocket") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_SETUP_ROCKET);
         }
@@ -2789,7 +2792,7 @@ class achievement_firefighter : public AchievementCriteriaScript
     public:
         achievement_firefighter() : AchievementCriteriaScript("achievement_firefighter") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             return target && target->GetAI()->GetData(DATA_FIREFIGHTER);
         }

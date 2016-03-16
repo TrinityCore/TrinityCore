@@ -284,6 +284,12 @@ void TicketMgr::ResetTickets()
     CharacterDatabase.Execute(stmt);
 }
 
+TicketMgr* TicketMgr::instance()
+{
+    static TicketMgr instance;
+    return &instance;
+}
+
 void TicketMgr::LoadTickets()
 {
     uint32 oldMSTime = getMSTime();

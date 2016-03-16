@@ -235,6 +235,12 @@ ObjectMgr::ObjectMgr():
     }
 }
 
+ObjectMgr* ObjectMgr::instance()
+{
+    static ObjectMgr instance;
+    return &instance;
+}
+
 ObjectMgr::~ObjectMgr()
 {
     for (QuestMap::iterator i = _questTemplates.begin(); i != _questTemplates.end(); ++i)
@@ -1756,7 +1762,7 @@ void ObjectMgr::LoadCreatures()
         if (!ok)
             continue;
 
-        // -1 random, 0 no equipment,
+        // -1 random, 0 no equipment
         if (data.equipmentId != 0)
         {
             if (!GetEquipmentInfo(data.id, data.equipmentId))
@@ -2773,7 +2779,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.ItemSet = 0;
         }
 
-        if (itemTemplate.Area && !GetAreaEntryByAreaID(itemTemplate.Area))
+        if (itemTemplate.Area && !sAreaTableStore.LookupEntry(itemTemplate.Area))
             TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has wrong Area (%u)", entry, itemTemplate.Area);
 
         if (itemTemplate.Map && !sMapStore.LookupEntry(itemTemplate.Map))
@@ -4143,7 +4149,7 @@ void ObjectMgr::LoadQuests()
         // client quest log visual (area case)
         if (qinfo->ZoneOrSort > 0)
         {
-            if (!GetAreaEntryByAreaID(qinfo->ZoneOrSort))
+            if (!sAreaTableStore.LookupEntry(qinfo->ZoneOrSort))
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `ZoneOrSort` = %u (zone case) but zone with this id does not exist.",
                     qinfo->GetQuestId(), qinfo->ZoneOrSort);
@@ -5956,7 +5962,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(zoneId);
+        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
         if (!areaEntry)
         {
             TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` has a record for not existing zone id (%u), skipped.", zoneId);
@@ -6502,7 +6508,12 @@ uint32 ObjectMgr::GenerateMailID()
 
 uint32 ObjectMgr::GeneratePetNumber()
 {
-    return ++_hiPetNumber;
+    if (_hiPetNumber >= 0xFFFFFFFE)
+    {
+        TC_LOG_ERROR("misc", "_hiPetNumber Id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _hiPetNumber++;
 }
 
 uint32 ObjectMgr::GenerateCreatureSpawnId()
@@ -7796,7 +7807,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
         uint32 entry  = fields[0].GetUInt32();
         int32 skill   = fields[1].GetInt16();
 
-        AreaTableEntry const* fArea = GetAreaEntryByAreaID(entry);
+        AreaTableEntry const* fArea = sAreaTableStore.LookupEntry(entry);
         if (!fArea)
         {
             TC_LOG_ERROR("sql.sql", "AreaId %u defined in `skill_fishing_base_level` does not exist", entry);

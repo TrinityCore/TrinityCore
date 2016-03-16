@@ -229,10 +229,6 @@ class ServerScript : public ScriptObject
         // Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so
         // reading and modifying it is safe. Make sure to check WorldSession pointer before usage, it might be null in case of auth packets
         virtual void OnPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
-
-        // Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the orignal
-        // packet; not a copy. This allows you to actually handle unknown packets (for whatever purpose).
-        virtual void OnUnknownPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
 class WorldScript : public ScriptObject
@@ -734,7 +730,7 @@ class PlayerScript : public UnitScript
         virtual void OnSave(Player* /*player*/) { }
 
         // Called when a player is bound to an instance
-        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { }
+        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/, uint8 /*extendState*/) { }
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
@@ -843,10 +839,7 @@ class GroupScript : public ScriptObject
 
 // namespace
 // {
-    typedef std::vector<ScriptObject*> UnusedScriptContainer;
     typedef std::list<std::string> UnusedScriptNamesContainer;
-
-    extern UnusedScriptContainer UnusedScripts;
     extern UnusedScriptNamesContainer UnusedScriptNames;
 // }
 
@@ -860,11 +853,7 @@ class ScriptMgr
         virtual ~ScriptMgr();
 
     public: /* Initialization */
-        static ScriptMgr* instance()
-        {
-            static ScriptMgr instance;
-            return &instance;
-        }
+        static ScriptMgr* instance();
 
         void Initialize();
         void LoadDatabase();
@@ -878,7 +867,6 @@ class ScriptMgr
     public: /* Unloading */
 
         void Unload();
-        void UnloadUnusedScripts();
 
     public: /* SpellScriptLoader */
 
@@ -894,7 +882,6 @@ class ScriptMgr
         void OnSocketClose(std::shared_ptr<WorldSocket> socket);
         void OnPacketReceive(WorldSession* session, WorldPacket const& packet);
         void OnPacketSend(WorldSession* session, WorldPacket const& packet);
-        void OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet);
 
     public: /* WorldScript */
 
@@ -1054,7 +1041,7 @@ class ScriptMgr
         void OnPlayerDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerSave(Player* player);
-        void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
+        void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
 

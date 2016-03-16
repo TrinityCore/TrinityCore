@@ -979,6 +979,9 @@ class go_celestial_planetarium_access : public GameObjectScript
 
             bool GossipHello(Player* player) override
             {
+                if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+                    return true;
+
                 bool hasKey = true;
                 if (LockEntry const* lock = sLockStore.LookupEntry(go->GetGOInfo()->goober.lockId))
                 {
@@ -1161,6 +1164,7 @@ class spell_algalon_trigger_3_adds : public SpellScriptLoader
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_algalon_trigger_3_adds_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget += SpellEffectFn(spell_algalon_trigger_3_adds_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

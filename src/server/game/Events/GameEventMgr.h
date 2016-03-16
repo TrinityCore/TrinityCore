@@ -100,11 +100,7 @@ class GameEventMgr
         ~GameEventMgr() { }
 
     public:
-        static GameEventMgr* instance()
-        {
-            static GameEventMgr instance;
-            return &instance;
-        }
+        static GameEventMgr* instance();
 
         typedef std::set<uint16> ActiveEvents;
         typedef std::vector<GameEventData> GameEventDataMap;

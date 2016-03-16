@@ -31,7 +31,7 @@ set(authserver_SRCS
 if( WIN32 )
   set(authserver_SRCS
     ${authserver_SRCS}
-    ${sources_windows_Debugging}
+    ${sources_windows}
   )
   if ( MSVC )
     set(authserver_SRCS
@@ -54,9 +54,12 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/common/Platform
   ${CMAKE_SOURCE_DIR}/src/server/database
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
+  ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
   ${CMAKE_SOURCE_DIR}/src/server/shared/Service
@@ -79,10 +82,10 @@ if( NOT WIN32 )
 endif()
 
 target_link_libraries(authserver
-  common
   shared
-  format
   database
+  common
+  format
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}

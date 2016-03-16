@@ -670,8 +670,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
-    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
-    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 6.x
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 6.x
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
     RBAC_PERM_COMMAND_AHBOT                                  = 778,
     RBAC_PERM_COMMAND_AHBOT_ITEMS                            = 779,
@@ -938,8 +938,8 @@ class RBACData
         /// Adds a list of permissions to another list
         void AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
 
-        /// Removes a list of permissions to another list
-        void RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+        /// Removes a list of permissions from another list
+        void RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove);
 
         /**
          * @name ExpandPermissions

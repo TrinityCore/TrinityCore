@@ -1998,7 +1998,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = (*itr)->ToCreature())
                 {
                     creature->GetMotionMaster()->Clear();
-                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
+                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, 0.0f, (float)e.action.jump.speedxy, (float)e.action.jump.speedz); // @todo add optional jump orientation support?
                 }
             }
             /// @todo Resume path when reached jump location
@@ -2303,6 +2303,46 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 delete targets;
             }
+            break;
+        }
+        case SMART_ACTION_RANDOM_SOUND:
+        {
+            std::vector<uint32> sounds;
+            std::copy_if(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(),
+                std::back_inserter(sounds), [](uint32 sound) { return sound != 0; });
+
+            bool onlySelf = e.action.randomSound.onlySelf != 0;
+
+            if (ObjectList* targets = GetTargets(e, unit))
+            {
+                for (WorldObject* const obj : *targets)
+                {
+                    if (IsUnit(obj))
+                    {
+                        uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
+                        obj->PlayDirectSound(sound, onlySelf ? obj->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %s",
+                            obj->GetName().c_str(), obj->GetGUID().ToString().c_str(), sound, onlySelf ? "true" : "false");
+                    }
+                }
+
+                delete targets;
+                break;
+            }
+        }
+        case SMART_ACTION_SET_CORPSE_DELAY:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer);
+            }
+
+            delete targets;
             break;
         }
         default:

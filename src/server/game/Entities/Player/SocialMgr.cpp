@@ -195,6 +195,12 @@ SocialMgr::SocialMgr() { }
 
 SocialMgr::~SocialMgr() { }
 
+SocialMgr* SocialMgr::instance()
+{
+    static SocialMgr instance;
+    return &instance;
+}
+
 void SocialMgr::GetFriendInfo(Player* player, ObjectGuid::LowType friendGUID, FriendInfo &friendInfo)
 {
     if (!player)

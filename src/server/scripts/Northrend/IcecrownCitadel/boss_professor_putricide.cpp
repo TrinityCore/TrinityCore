@@ -317,14 +317,12 @@ class boss_professor_putricide : public CreatureScript
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
                         summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
-                        summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_VOLATILE_OOZE:
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN19, true);
                         summon->CastSpell(summon, SPELL_OOZE_ERUPTION_SEARCH_PERIODIC, true);
-                        summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_CHOKING_GAS_BOMB:
@@ -564,7 +562,7 @@ class boss_professor_putricide : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim()))
+                if (!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -778,7 +776,7 @@ class npc_volatile_ooze : public CreatureScript
             {
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastSpell(me, SPELL_VOLATILE_OOZE_ADHESIVE, false);
             }
@@ -802,7 +800,7 @@ class npc_gas_cloud : public CreatureScript
                 _newTargetSelectTimer = 0;
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, me, false);
             }

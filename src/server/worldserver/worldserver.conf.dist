@@ -161,6 +161,45 @@ BindIP = "0.0.0.0"
 ThreadPool = 2
 
 #
+#    CMakeCommand
+#        Description: The path to your CMake binary.
+#                     If the path is left empty, the built-in CMAKE_COMMAND is used.
+#        Example:     "C:/Program Files (x86)/CMake/bin/cmake.exe"
+#                     "/usr/bin/cmake"
+#        Default:     ""
+
+CMakeCommand  = ""
+
+#
+#    BuildDirectory
+#        Description: The path to your build directory.
+#                     If the path is left empty, the built-in CMAKE_BINARY_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+BuildDirectory  = ""
+
+#
+#    SourceDirectory
+#        Description: The path to your TrinityCore source directory.
+#                     If the path is left empty, the built-in CMAKE_SOURCE_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+SourceDirectory  = ""
+
+#
+#    MySQLExecutable
+#        Description: The path to your mysql cli binary.
+#                     If the path is left empty, built-in path from cmake is used.
+#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#                     "mysql.exe"
+#                     "/usr/bin/mysql"
+#        Default:     ""
+
+MySQLExecutable = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -229,6 +268,25 @@ MaxOverspeedPings = 2
 #                     0 - (disable, Do not unload grids)
 
 GridUnload = 1
+
+#
+#    BaseMapLoadAllGrids
+#        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
+#                     This will take around 5GB of ram upon server load, and will take some time
+#                     to initially load the server.
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in all base maps upon load)
+
+BaseMapLoadAllGrids = 0
+
+#
+#    InstanceMapLoadAllGrids
+#        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
+#                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in the instance upon load)
+
+InstanceMapLoadAllGrids = 0
 
 #
 #    SocketTimeOutTime
@@ -404,6 +462,24 @@ CleanCharacterDB = 0
 #        Default:     0  - (All cleanup methods will be disabled after the next cleanup)
 
 PersistentCharacterCleanFlags = 0
+
+#
+#    Auction.GetAllScanDelay
+#        Description: Sets the minimum time in seconds, a single player character can perform a getall scan.
+#                     The value is only held in memory so a server restart will clear it.
+#                     Setting this to zero, will disable GetAll functions completely.
+#        Default:     900 - (GetAll scan limited to once every 15mins per player character)
+
+Auction.GetAllScanDelay = 900
+
+#
+#    Auction.SearchDelay
+#        Description: Sets the minimum time in milliseconds (seconds x 1000), that the client must wait between
+#                     auction search operations. This can be increased if somehow Auction House activity is causing
+#                     too much load.
+#        Default:     300 - (Time delay between auction searches set to 0.3secs)
+
+Auction.SearchDelay = 300
 
 #
 ###################################################################################################
@@ -1043,9 +1119,8 @@ BeepAtStart = 1
 
 #
 #    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
+#        Description: Message of the Day, displayed at login. Use '@' for a newline.
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
 Motd = "Welcome to a Trinity Core server."
@@ -1147,26 +1222,6 @@ BirthdayTime = 1222964635
 #                     0  - (All disabled)
 
 Updates.EnableDatabases = 7
-
-#
-#    Updates.SourcePath
-#        Description: The path to your TrinityCore source directory.
-#                     If the path is left empty, built-in CMAKE_SOURCE_DIR is used.
-#        Example:     "../TrinityCore"
-#        Default:     ""
-
-Updates.SourcePath  = ""
-
-#
-#    Updates.MySqlCLIPath
-#        Description: The path to your mysql cli binary.
-#                     If the path is left empty, built-in path from cmake is used.
-#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
-#                     "mysql.exe"
-#                     "/usr/bin/mysql"
-#        Default:     ""
-
-Updates.MySqlCLIPath = ""
 
 #
 #    Updates.AutoSetup
@@ -1336,10 +1391,11 @@ AllowTwoSide.Trade = 0
 
 #
 #    TalentsInspecting
-#        Description: Allow inspecting characters from the opposing faction.
-#                     Doesn't affect characters in gamemaster mode.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#        Description: Allow/disallow inspecting other characters' talents.
+#                     Doesn't affect game master accounts.
+#                     2 - (Enabled for all characters)
+#        Default:     1 - (Enabled for characters of the same faction)
+#                     0 - (Talent inspecting is disabled)
 
 TalentsInspecting = 1
 
@@ -3040,6 +3096,29 @@ AuctionHouseBot.Items.Orange.Price.Ratio = 100
 AuctionHouseBot.Items.Yellow.Price.Ratio = 100
 
 #
+#    AuctionHouseBot.Class.CLASS.Price.Ratio
+#       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
+#       Default:   100 - (No change)
+
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100 
+AuctionHouseBot.Class.Container.Price.Ratio = 100 
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100 
+AuctionHouseBot.Class.Gem.Price.Ratio = 100 
+AuctionHouseBot.Class.Armor.Price.Ratio = 100 
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100 
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100 
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100 
+AuctionHouseBot.Class.Generic.Price.Ratio = 100 
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100 
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100 
+AuctionHouseBot.Class.Quest.Price.Ratio = 100 
+AuctionHouseBot.Class.Key.Price.Ratio = 100 
+AuctionHouseBot.Class.Misc.Price.Ratio = 100 
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100 
+
+
+
+#
 #    AuctionHouseBot.Items.ItemLevel.*
 #       Description: Prevent seller from listing items below/above this item level
 #       Default:     0 - (Disabled)
@@ -3114,6 +3193,7 @@ AuctionHouseBot.Class.Quest = 1
 AuctionHouseBot.Class.Key = 1
 AuctionHouseBot.Class.Misc = 5
 AuctionHouseBot.Class.Glyph = 3
+
 
 #
 ###################################################################################################
@@ -3405,6 +3485,7 @@ Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
+Logger.mmaps=3,Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server

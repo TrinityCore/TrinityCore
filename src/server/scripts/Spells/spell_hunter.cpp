@@ -40,6 +40,7 @@ enum HunterSpells
     SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
     SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
     SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
+    SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT               = 61389,
     SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER       = 56851,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
@@ -192,8 +193,8 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                 {
                     uint32 spellId = 0;
                     int32 basePoint = 0;
-                    Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
+                    Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
                     {
                         Aura* aura = i->second->GetBase();
                         if (aura->GetCasterGUID() != caster->GetGUID())
@@ -296,6 +297,68 @@ class spell_hun_disengage : public SpellScriptLoader
         }
 };
 
+// 56841 - Glyph of Arcane Shot
+class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_arcane_shot() : SpellScriptLoader("spell_hun_glyph_of_arcane_shot") { }
+
+        class spell_hun_glyph_of_arcane_shot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_arcane_shot_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (Unit* procTarget = eventInfo.GetProcTarget())
+                {
+                    Unit::AuraApplicationMap const& auras = procTarget->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                    {
+                        Aura const* aura = i->second->GetBase();
+                        if (aura->GetCasterGUID() != GetTarget()->GetGUID())
+                            continue;
+                        // Search only Serpent Sting, Viper Sting, Scorpid Sting, Wyvern Sting
+                        if (aura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_HUNTER
+                            && aura->GetSpellInfo()->SpellFamilyFlags.HasFlag(0xC000, 0x1080))
+                            return true;
+                    }
+                }
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                SpellInfo const* procSpell = eventInfo.GetSpellInfo();
+                if (!procSpell)
+                    return;
+
+                int32 mana = procSpell->CalcPowerCost(GetTarget(), procSpell->GetSchoolMask());
+                ApplyPct(mana, aurEff->GetAmount());
+
+                GetTarget()->CastCustomSpell(SPELL_HUNTER_GLYPH_OF_ARCANE_SHOT, SPELLVALUE_BASE_POINT0, mana, GetTarget());
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_glyph_of_arcane_shot_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_glyph_of_arcane_shot_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_glyph_of_arcane_shot_AuraScript();
+        }
+};
+
 // -19572 - Improved Mend Pet
 class spell_hun_improved_mend_pet : public SpellScriptLoader
 {
@@ -336,6 +399,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
             return new spell_hun_improved_mend_pet_AuraScript();
         }
 };
+
 // 53412 - Invigoration
 class spell_hun_invigoration : public SpellScriptLoader
 {
@@ -952,6 +1016,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_ascpect_of_the_viper();
     new spell_hun_chimera_shot();
     new spell_hun_disengage();
+    new spell_hun_glyph_of_arcane_shot();
     new spell_hun_improved_mend_pet();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();

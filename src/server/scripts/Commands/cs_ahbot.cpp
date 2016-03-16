@@ -33,7 +33,7 @@ class ahbot_commandscript : public CommandScript
 public:
     ahbot_commandscript(): CommandScript("ahbot_commandscript") {}
 
-    std::vector<ChatCommand> GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
         static std::vector<ChatCommand> ahbotItemsAmountCommandTable =
         {

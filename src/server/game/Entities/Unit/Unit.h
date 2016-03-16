@@ -586,7 +586,7 @@ enum DamageEffectType
 };
 
 // Value masks for UNIT_FIELD_FLAGS
-enum UnitFlags
+enum UnitFlags : uint32
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
     UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
@@ -863,22 +863,30 @@ public:
 class HealInfo
 {
 private:
-    uint32 m_heal;
-    uint32 m_absorb;
+    Unit* const _healer;
+    Unit* const _target;
+    uint32 _heal;
+    uint32 _absorb;
+    SpellInfo const* const _spellInfo;
+    SpellSchoolMask const _schoolMask;
+
 public:
-    explicit HealInfo(uint32 heal)
-        : m_heal(heal)
-    {
-        m_absorb = 0;
-    }
+    explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
+        : _healer(healer), _target(target), _heal(heal), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask) { }
+
     void AbsorbHeal(uint32 amount)
     {
         amount = std::min(amount, GetHeal());
-        m_absorb += amount;
-        m_heal -= amount;
+        _absorb += amount;
+        _heal -= amount;
     }
 
-    uint32 GetHeal() const { return m_heal; }
+    Unit* GetHealer() const { return _healer; }
+    Unit* GetTarget() const { return _target; }
+    uint32 GetHeal() const { return _heal; }
+    uint32 GetAbsorb() const { return _absorb; }
+    SpellInfo const* GetSpellInfo() const { return _spellInfo; };
+    SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
 };
 
 class ProcEventInfo
@@ -897,14 +905,8 @@ public:
     uint32 GetSpellPhaseMask() const { return _spellPhaseMask; }
     uint32 GetHitMask() const { return _hitMask; }
 
-    SpellInfo const* GetSpellInfo() const { return NULL; }
-    SpellInfo const* EnsureSpellInfo() const
-    {
-        SpellInfo const* spellInfo = GetSpellInfo();
-        ASSERT(spellInfo);
-        return spellInfo;
-    }
-    SpellSchoolMask GetSchoolMask() const { return SPELL_SCHOOL_MASK_NONE; }
+    SpellInfo const* GetSpellInfo() const;
+    SpellSchoolMask GetSchoolMask() const;
 
     DamageInfo* GetDamageInfo() const { return _damageInfo; }
     HealInfo* GetHealInfo() const { return _healInfo; }
@@ -1381,7 +1383,8 @@ class Unit : public WorldObject
         bool IsContestedGuard() const;
         bool IsPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP); }
         bool IsFFAPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP); }
-        void SetPvP(bool state);
+        virtual void SetPvP(bool state);
+
         uint32 GetCreatureType() const;
         uint32 GetCreatureTypeMask() const;
 
@@ -1559,13 +1562,13 @@ class Unit : public WorldObject
         void SendTeleportPacket(Position& pos);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
-        bool UpdatePosition(const Position &pos, bool teleport = false);
+        virtual bool UpdatePosition(const Position &pos, bool teleport = false);
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
 
         void KnockbackFrom(float x, float y, float speedXY, float speedZ);
         void JumpTo(float speedXY, float speedZ, bool forward = true);
-        void JumpTo(WorldObject* obj, float speedZ);
+        void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
         //void SetFacing(float ori, WorldObject* obj = NULL);
@@ -1701,6 +1704,16 @@ class Unit : public WorldObject
         void RemoveAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(Aura* aur, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
+
+        // Convenience methods removing auras by predicate
+        void RemoveAppliedAuras(std::function<bool(AuraApplication const*)> const& check);
+        void RemoveOwnedAuras(std::function<bool(Aura const*)> const& check);
+
+        // Optimized overloads taking advantage of map key
+        void RemoveAppliedAuras(uint32 spellId, std::function<bool(AuraApplication const*)> const& check);
+        void RemoveOwnedAuras(uint32 spellId, std::function<bool(Aura const*)> const& check);
+
+        void RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check);
 
         void RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);

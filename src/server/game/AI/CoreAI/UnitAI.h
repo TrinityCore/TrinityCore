@@ -107,11 +107,11 @@ struct SpellTargetSelector : public std::unary_function<Unit*, bool>
 struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
 {
     public:
-        NonTankTargetSelector(Creature* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
+        NonTankTargetSelector(Unit* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
         bool operator()(Unit const* target) const;
 
     private:
-        Creature const* _source;
+        Unit* _source;
         bool _playerOnly;
 };
 
@@ -266,23 +266,6 @@ class UnitAI
     private:
         UnitAI(UnitAI const& right) = delete;
         UnitAI& operator=(UnitAI const& right) = delete;
-};
-
-class PlayerAI : public UnitAI
-{
-    protected:
-        Player* const me;
-    public:
-        explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) { }
-
-        void OnCharmed(bool apply) override;
-};
-
-class SimpleCharmedAI : public PlayerAI
-{
-    public:
-        void UpdateAI(uint32 diff) override;
-        SimpleCharmedAI(Player* player): PlayerAI(player) { }
 };
 
 #endif
