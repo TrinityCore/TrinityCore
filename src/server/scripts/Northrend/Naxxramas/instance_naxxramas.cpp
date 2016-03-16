@@ -20,7 +20,7 @@
 #include "InstanceScript.h"
 #include "naxxramas.h"
 
-BossBoundaryData const boundaries = 
+BossBoundaryData const boundaries =
 {
     /* Arachnid Quarter */
     { BOSS_ANUBREKHAN, new CircleBoundary(Position(3273.376709f, -3475.876709f), Position(3195.668213f, -3475.930176f)) },

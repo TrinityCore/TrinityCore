@@ -2736,7 +2736,7 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     if (target)
         SetInFront(target);
     else if (!canTurnDuringCast)
-        if(Unit* victim = GetVictim())
+        if (Unit* victim = GetVictim())
             SetInFront(victim); // ensure server-side orientation is correct at beginning of cast
 
     if (!canTurnDuringCast)

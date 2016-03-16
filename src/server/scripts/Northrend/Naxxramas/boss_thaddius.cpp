@@ -169,7 +169,7 @@ public:
             boss_thaddiusAI(Creature* creature) : BossAI(creature, BOSS_THADDIUS), stalaggAlive(true), feugenAlive(true), ballLightningEnabled(false), shockingEligibility(true)
             {
                 if (instance->GetBossState(BOSS_THADDIUS) != DONE)
-                {                    
+                {
                     events.SetPhase(PHASE_NOT_ENGAGED);
                     SetCombatMovement(false);
 
@@ -223,7 +223,7 @@ public:
                         events.SetPhase(PHASE_PETS);
 
                         shockingEligibility = true;
-                        
+
                         if (!instance->CheckRequiredBosses(BOSS_THADDIUS))
                             return BeginResetEncounter();
                         instance->SetBossState(BOSS_THADDIUS, IN_PROGRESS);
@@ -365,7 +365,7 @@ public:
                             me->RemoveAura(SPELL_THADDIUS_INACTIVE_VISUAL);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                            
+
                             DoZoneInCombat();
                             if (Unit* closest = SelectTarget(SELECT_TARGET_NEAREST, 0, 500.0f))
                                 AttackStart(closest);
@@ -521,7 +521,7 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
-                        
+
                         refreshBeam = true; // force beam refresh
 
                         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
@@ -586,7 +586,7 @@ public:
                     damage = 0;
                     return;
                 }
-                
+
                 isFeignDeath = true;
                 isOverloading = false;
 
@@ -790,7 +790,7 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
-                        
+
                         refreshBeam = true; // force beam refresh
 
                         if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
@@ -922,7 +922,7 @@ public:
                     magneticPullTimer = 20 * IN_MILLISECONDS;
                 }
                 else magneticPullTimer -= uiDiff;
-            
+
                 if (staticFieldTimer <= uiDiff)
                 {
                     DoCast(me, SPELL_FEUGEN_STATICFIELD);
@@ -971,7 +971,7 @@ public:
 
             ObjectGuid _myCoil;
             ObjectGuid _myCoilGO;
-       
+
             bool isOverloading;
             bool refreshBeam;
             bool isFeignDeath;
@@ -1169,7 +1169,7 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
                 Unit* feugen = GetCaster();
                 if (!feugen || feugen->GetEntry() != NPC_FEUGEN)
                     return;
-                
+
                 Unit* stalagg = ObjectAccessor::GetCreature(*feugen, feugen->GetInstanceScript()->GetGuidData(DATA_STALAGG));
                 if (!stalagg)
                     return;
