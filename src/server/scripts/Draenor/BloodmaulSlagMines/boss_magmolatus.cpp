@@ -26,7 +26,7 @@ enum Events
 class Boss_Magmolatus : public CreatureScript
 {
 public:
-	Boss_Magmolatus() : CreatureScript("Boss_Magmolatus") { }
+	Boss_Magmolatus() : CreatureScript("boss_magmolatus") { }
 
 	struct Boss_MagmolatusAI : public BossAI
 	{

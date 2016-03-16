@@ -44,7 +44,7 @@ enum Minners
 class Boss_SlaveWatcherCrushto : public CreatureScript
 {
 public:
-	Boss_SlaveWatcherCrushto() : CreatureScript("Boss_SlaveWatcherCrushto") { }
+	Boss_SlaveWatcherCrushto() : CreatureScript("boss_slave_watcher_crushto") { }
 
 	struct Boss_SlaveWatcherCrushtoAI : public BossAI
 	{

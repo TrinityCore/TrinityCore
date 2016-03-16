@@ -52,7 +52,7 @@ enum Slag_Spells{
 class Boss_Gugrokk : public CreatureScript
 {
 public:
-	Boss_Gugrokk() : CreatureScript("Boss_Gugrokk") { }
+	Boss_Gugrokk() : CreatureScript("boss_gugrokk") { }
 
 	struct Boss_GugrokkAI : public BossAI
 	{

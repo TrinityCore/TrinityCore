@@ -41,7 +41,7 @@ enum Events
 class Boss_Roltall : public CreatureScript
 {
 public:
-	Boss_Roltall() : CreatureScript("Boss_Roltall") { }
+	Boss_Roltall() : CreatureScript("boss_roltall") { }
 
 	struct Boss_RoltallAI : public BossAI
 	{
