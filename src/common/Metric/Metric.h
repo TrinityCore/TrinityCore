@@ -15,8 +15,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef STATSLOGGER_H__
-#define STATSLOGGER_H__
+#ifndef METRIC_H__
+#define METRIC_H__
 
 #include "Common.h"
 #include "Threading/MPSCQueue.h"
@@ -24,37 +24,37 @@
 #include <boost/algorithm/string.hpp>
 #include <type_traits>
 
-enum StatsEventCategory
+enum MetricEventCategory
 {
-    STATS_EVENT_CATEGORY_GENERIC = 0,
-    STATS_EVENT_CATEGORY_MAP,
-    STATS_EVENT_CATEGORY_MMAP,
-    STATS_EVENT_CATEGORY_PLAYER,
-    STATS_EVENT_CATEGORY_MAX
+    METRIC_EVENT_CATEGORY_GENERIC = 0,
+    METRIC_EVENT_CATEGORY_MAP,
+    METRIC_EVENT_CATEGORY_MMAP,
+    METRIC_EVENT_CATEGORY_PLAYER,
+    METRIC_EVENT_CATEGORY_MAX
 };
 
-static std::map<StatsEventCategory, std::string> Categories = {
-    { STATS_EVENT_CATEGORY_GENERIC, "events" },
-    { STATS_EVENT_CATEGORY_MAP, "map_events" },
-    { STATS_EVENT_CATEGORY_MMAP, "mmap_events" },
-    { STATS_EVENT_CATEGORY_PLAYER, "player_events" }
+static std::map<MetricEventCategory, std::string> Categories = {
+    { METRIC_EVENT_CATEGORY_GENERIC, "events" },
+    { METRIC_EVENT_CATEGORY_MAP, "map_events" },
+    { METRIC_EVENT_CATEGORY_MMAP, "mmap_events" },
+    { METRIC_EVENT_CATEGORY_PLAYER, "player_events" }
 };
 
-enum StatsValueCategory
+enum MetricValueCategory
 {
-    STATS_VALUE_UPDATE_TIME_DIFF = 0,
-    STATS_VALUE_ONLINE_PLAYERS,
-    STATS_VALUE_SESSION_PROCESSED_PACKETS,
-    STATS_VALUE_MAX
+    METRIC_VALUE_UPDATE_TIME_DIFF = 0,
+    METRIC_VALUE_ONLINE_PLAYERS,
+    METRIC_VALUE_SESSION_PROCESSED_PACKETS,
+    METRIC_VALUE_MAX
 };
 
-static std::map<StatsValueCategory, std::string> Values = {
-    { STATS_VALUE_UPDATE_TIME_DIFF, "update_time_diff" },
-    { STATS_VALUE_SESSION_PROCESSED_PACKETS, "processed_packets"},
-    { STATS_VALUE_ONLINE_PLAYERS, "online_players" }
+static std::map<MetricValueCategory, std::string> Values = {
+    { METRIC_VALUE_UPDATE_TIME_DIFF, "update_time_diff" },
+    { METRIC_VALUE_SESSION_PROCESSED_PACKETS, "processed_packets"},
+    { METRIC_VALUE_ONLINE_PLAYERS, "online_players" }
 };
 
-class StatsLogger
+class Metric
 {
 private:
     boost::asio::ip::tcp::iostream _dataStream;
@@ -91,7 +91,7 @@ private:
     static std::string FormatInfluxDBValue(float value) { return FormatInfluxDBValue(double(value)); }
 
 public:
-    static StatsLogger* instance();
+    static Metric* instance();
 
     void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger = [](){});
     void LoadFromConfigs();
@@ -109,45 +109,45 @@ public:
     }
 
     template<class T>
-    void LogValue(StatsValueCategory category, T value) { LogValue(Values[category], value); }
+    void LogValue(MetricValueCategory category, T value) { LogValue(Values[category], value); }
 
     void LogEvent(std::string const& category, std::string const& title, std::string const& description);
-    void LogEvent(StatsEventCategory category, std::string const& title, std::string const& description) { LogEvent(Categories[category], title, description); }
+    void LogEvent(MetricEventCategory category, std::string const& title, std::string const& description) { LogEvent(Categories[category], title, description); }
 
     void ForceSend();
     bool IsEnabled() const { return _enabled; }
 };
 
-#define sStatsLogger StatsLogger::instance()
+#define sMetric Metric::instance()
 
 #if PLATFORM != PLATFORM_WINDOWS
-#define TC_STATS_EVENT(category, title, description)                    \
+#define TC_METRIC_EVENT(category, title, description)                    \
         do {                                                            \
-            if (sStatsLogger->IsEnabled())                              \
-                sStatsLogger->LogEvent(category, title, description);   \
+            if (sMetric->IsEnabled())                              \
+                sMetric->LogEvent(category, title, description);   \
         } while (0)
-#define TC_STATS_VALUE(category, value)                                 \
+#define TC_METRIC_VALUE(category, value)                                 \
         do {                                                            \
-            if (sStatsLogger->IsEnabled())                              \
-                sStatsLogger->LogValue(category, value);                \
+            if (sMetric->IsEnabled())                              \
+                sMetric->LogValue(category, value);                \
         } while (0)
 #else
-#define TC_STATS_EVENT(category, title, description)                    \
+#define TC_METRIC_EVENT(category, title, description)                    \
         __pragma(warning(push))                                         \
         __pragma(warning(disable:4127))                                 \
         do {                                                            \
-            if (sStatsLogger->IsEnabled())                              \
-                sStatsLogger->LogEvent(category, title, description);   \
+            if (sMetric->IsEnabled())                              \
+                sMetric->LogEvent(category, title, description);   \
         } while (0)                                                     \
         __pragma(warning(pop))
-#define TC_STATS_VALUE(category, value)                                 \
+#define TC_METRIC_VALUE(category, value)                                 \
         __pragma(warning(push))                                         \
         __pragma(warning(disable:4127))                                 \
         do {                                                            \
-            if (sStatsLogger->IsEnabled())                              \
-                sStatsLogger->LogValue(category, value);                \
+            if (sMetric->IsEnabled())                              \
+                sMetric->LogValue(category, value);                \
         } while (0)                                                     \
         __pragma(warning(pop))
 #endif
 
-#endif // STATSLOGGER_H__
+#endif // METRIC_H__

@@ -45,7 +45,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "StatsLogger.h"
+#include "Metric.h"
 
 
 class LoginQueryHolder : public SQLQueryHolder
@@ -996,7 +996,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
-    TC_STATS_EVENT(STATS_EVENT_CATEGORY_PLAYER, "Login", pCurrChar->GetName());
+    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_PLAYER, "Login", pCurrChar->GetName());
 
     delete holder;
 }

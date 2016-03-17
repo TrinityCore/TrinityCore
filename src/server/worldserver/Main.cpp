@@ -49,7 +49,7 @@
 #include "Realm/Realm.h"
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
-#include "StatsLogger.h"
+#include "Metric.h"
 
 using namespace boost::program_options;
 
@@ -191,12 +191,12 @@ extern int main(int argc, char** argv)
 
     LoadRealmInfo();
 
-    sStatsLogger->Initialize(realm.Name, _ioService, []()
+    sMetric->Initialize(realm.Name, _ioService, []()
     {
-        TC_STATS_VALUE(STATS_VALUE_ONLINE_PLAYERS, sWorld->GetPlayerCount());
+        TC_METRIC_VALUE(METRIC_VALUE_ONLINE_PLAYERS, sWorld->GetPlayerCount());
     });
 
-    TC_STATS_EVENT(STATS_EVENT_CATEGORY_GENERIC, "Worldserver started", "");
+    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_GENERIC, "Worldserver started", "");
 
     // Initialize the World
     sWorld->SetInitialWorldSettings();
@@ -287,8 +287,8 @@ extern int main(int argc, char** argv)
 
     StopDB();
 
-    TC_STATS_EVENT(STATS_EVENT_CATEGORY_GENERIC, "Worldserver shutdown", "");
-    sStatsLogger->ForceSend();
+    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_GENERIC, "Worldserver shutdown", "");
+    sMetric->ForceSend();
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 

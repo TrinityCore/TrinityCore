@@ -22,7 +22,7 @@
 #include "VMapDefinitions.h"
 #include "Log.h"
 #include "Errors.h"
-#include "StatsLogger.h"
+#include "Metric.h"
 
 #include <string>
 #include <sstream>
@@ -416,7 +416,7 @@ namespace VMAP
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
-        TC_STATS_EVENT(STATS_EVENT_CATEGORY_MAP, "LoadMapTile",
+        TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_MAP, "LoadMapTile",
             "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
         return result;
     }
@@ -476,7 +476,7 @@ namespace VMAP
             }
         }
         iLoadedTiles.erase(tile);
-        TC_STATS_EVENT(STATS_EVENT_CATEGORY_MAP, "UnloadMapTile",
+        TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_MAP, "UnloadMapTile",
             "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
     }
 

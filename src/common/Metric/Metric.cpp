@@ -15,12 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "StatsLogger.h"
+#include "Metric.h"
 #include "Log.h"
 #include "Config.h"
 #include "Util.h"
 
-void StatsLogger::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
+void Metric::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
 {
     _realmName = realmName;
     _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
@@ -29,13 +29,13 @@ void StatsLogger::Initialize(std::string const& realmName, boost::asio::io_servi
     LoadFromConfigs();
 }
 
-bool StatsLogger::Connect()
+bool Metric::Connect()
 {
     _dataStream.connect(_hostname, _port);
     auto error = _dataStream.error();
     if (error)
     {
-        TC_LOG_ERROR("statslogger", "Error connecting to '%s:%s', disabling StatsLogger. Error message : %s",
+        TC_LOG_ERROR("metric", "Error connecting to '%s:%s', disabling Metric. Error message : %s",
             _hostname.c_str(), _port.c_str(), error.message().c_str());
         _enabled = false;
         return false;
@@ -44,21 +44,21 @@ bool StatsLogger::Connect()
     return true;
 }
 
-void StatsLogger::LoadFromConfigs()
+void Metric::LoadFromConfigs()
 {
     bool previousValue = _enabled;
     _enabled = sConfigMgr->GetBoolDefault("InfluxDB.Enable", false);
     _updateInterval = sConfigMgr->GetIntDefault("InfluxDB.Interval", 10);
     if (_updateInterval < 1)
     {
-        TC_LOG_ERROR("statslogger", "'InfluxDB.Interval' config set to %d, overriding to 1.", _updateInterval);
+        TC_LOG_ERROR("metric", "'InfluxDB.Interval' config set to %d, overriding to 1.", _updateInterval);
         _updateInterval = 1;
     }
 
     _overallStatusTimerInterval = sConfigMgr->GetIntDefault("InfluxDB.OverallStatusInterval", 1);
     if (_overallStatusTimerInterval < 1)
     {
-        TC_LOG_ERROR("statslogger", "'InfluxDB.OverallStatusInterval' config set to %d, overriding to 1.", _overallStatusTimerInterval);
+        TC_LOG_ERROR("metric", "'InfluxDB.OverallStatusInterval' config set to %d, overriding to 1.", _overallStatusTimerInterval);
         _overallStatusTimerInterval = 1;
     }
 
@@ -69,14 +69,14 @@ void StatsLogger::LoadFromConfigs()
         std::string connectionInfo = sConfigMgr->GetStringDefault("InfluxDB.ConnectionInfo", "");
         if (connectionInfo.empty())
         {
-            TC_LOG_ERROR("statslogger", "'InfluxDB.ConnectionInfo' not specified in configuration file.");
+            TC_LOG_ERROR("metric", "'InfluxDB.ConnectionInfo' not specified in configuration file.");
             return;
         }
 
         Tokenizer tokens(connectionInfo, ';');
         if (tokens.size() != 3)
         {
-            TC_LOG_ERROR("statslogger", "'InfluxDB.ConnectionInfo' specified with wrong format in configuration file.");
+            TC_LOG_ERROR("metric", "'InfluxDB.ConnectionInfo' specified with wrong format in configuration file.");
             return;
         }
 
@@ -90,7 +90,7 @@ void StatsLogger::LoadFromConfigs()
     }
 }
 
-void StatsLogger::Update()
+void Metric::Update()
 {
     if (_overallStatusTimerTriggered)
     {
@@ -99,7 +99,7 @@ void StatsLogger::Update()
     }
 }
 
-void StatsLogger::LogEvent(std::string const& category, std::string const& title, std::string const& description)
+void Metric::LogEvent(std::string const& category, std::string const& title, std::string const& description)
 {
     using namespace std::chrono;
 
@@ -109,12 +109,12 @@ void StatsLogger::LogEvent(std::string const& category, std::string const& title
     Enqueue(data);
 }
 
-void StatsLogger::Enqueue(std::string const& data)
+void Metric::Enqueue(std::string const& data)
 {
     _queuedData.Enqueue(new std::string(data));
 }
 
-void StatsLogger::SendBatch()
+void Metric::SendBatch()
 {
     std::stringstream batchedData;
     std::string* data;
@@ -154,7 +154,7 @@ void StatsLogger::SendBatch()
     _dataStream >> status_code;
     if (status_code != 204)
     {
-        TC_LOG_ERROR("statslogger", "Error sending data, returned HTTP code: %u", status_code);
+        TC_LOG_ERROR("metric", "Error sending data, returned HTTP code: %u", status_code);
     }
 
     // Read and ignore the status description
@@ -171,12 +171,12 @@ void StatsLogger::SendBatch()
     ScheduleSend();
 }
 
-void StatsLogger::ScheduleSend()
+void Metric::ScheduleSend()
 {
     if (_enabled)
     {
         _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-        _batchTimer->async_wait(std::bind(&StatsLogger::SendBatch, this));
+        _batchTimer->async_wait(std::bind(&Metric::SendBatch, this));
     }
     else
     {
@@ -188,14 +188,14 @@ void StatsLogger::ScheduleSend()
     }
 }
 
-void StatsLogger::ForceSend()
+void Metric::ForceSend()
 {
     // Send what's queued only if io_service is stopped (so only on shutdown)
     if (_enabled && _batchTimer->get_io_service().stopped())
         SendBatch();
 }
 
-void StatsLogger::ScheduleOverallStatusLog()
+void Metric::ScheduleOverallStatusLog()
 {
     if (_enabled)
     {
@@ -208,8 +208,8 @@ void StatsLogger::ScheduleOverallStatusLog()
     }
 }
 
-StatsLogger* StatsLogger::instance()
+Metric* Metric::instance()
 {
-    static StatsLogger instance;
+    static Metric instance;
     return &instance;
 }
