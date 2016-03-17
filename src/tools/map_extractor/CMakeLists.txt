@@ -37,7 +37,7 @@ add_executable(mapextractor
 
 target_link_libraries(mapextractor
   common
-  format
+  cppformat
   g3dlib
   mpq
   ${BZIP2_LIBRARIES}

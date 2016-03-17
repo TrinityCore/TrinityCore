@@ -161,8 +161,8 @@ public:
             me->SetVisible(true);
         }
 
-        void EnterCombat(Unit* /*who*/) override 
-        { 
+        void EnterCombat(Unit* /*who*/) override
+        {
             if (InstanceScript* instance = me->GetInstanceScript())
                 instance->SetBossState(DATA_ATTUMEN, IN_PROGRESS);
         }
