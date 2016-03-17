@@ -84,3 +84,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm500")
 # 'function' : member function does not override any base class virtual member function
 # 'virtual_function' : no override available for virtual member function from base 'class'; function is hidden
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4263 /we4264")
+
+# Disable incremental linking in debug builds.
+# To prevent linking getting stuck (which might be fixed in a later VS version).
+macro(DisableIncrementalLinking variable)
+  string(REGEX REPLACE "/INCREMENTAL *" "" ${variable} "${${variable}}")
+  set(${variable} "${${variable}} /INCREMENTAL:NO")
+endmacro()
+
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO)
