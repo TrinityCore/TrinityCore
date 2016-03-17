@@ -53,6 +53,9 @@ WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
 
         _worldPacket.WriteBits(c.Url.size(), 11);
         _worldPacket.WriteBits(c.WaitTimeOverrideMessage.size(), 10);
+
+        _worldPacket.WriteString(c.Url);
+        _worldPacket.WriteString(c.WaitTimeOverrideMessage);
     }
 
     _worldPacket.FlushBits();
