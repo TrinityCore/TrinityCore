@@ -18,7 +18,7 @@ file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
 file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h)
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
 file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
-file(GLOB_RECURSE sources_Reporting Reporting/*.cpp Reporting/*.h)
+file(GLOB_RECURSE sources_Metric Metric/*.cpp Metric/*.h)
 if (SERVERS)
   file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
 endif (SERVERS)
@@ -43,7 +43,7 @@ set(common_STAT_SRCS
   ${sources_Debugging}
   ${sources_Configuration}
   ${sources_Logging}
-  ${sources_Reporting}
+  ${sources_Metric}
   ${sources_Cryptography}
   ${sources_localdir}
 )
@@ -68,7 +68,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Cryptography
   ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
   ${CMAKE_CURRENT_SOURCE_DIR}/Logging
-  ${CMAKE_CURRENT_SOURCE_DIR}/Reporting
+  ${CMAKE_CURRENT_SOURCE_DIR}/Metric
   ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
