@@ -599,6 +599,18 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PRESERVE_CUSTOM_CHANNELS] = sConfigMgr->GetBoolDefault("PreserveCustomChannels", false);
     m_int_configs[CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION] = sConfigMgr->GetIntDefault("PreserveCustomChannelDuration", 14);
     m_bool_configs[CONFIG_GRID_UNLOAD] = sConfigMgr->GetBoolDefault("GridUnload", true);
+    m_bool_configs[CONFIG_BASEMAP_LOAD_GRIDS] = sConfigMgr->GetBoolDefault("BaseMapLoadAllGrids", false);
+    if (m_bool_configs[CONFIG_BASEMAP_LOAD_GRIDS] && m_bool_configs[CONFIG_GRID_UNLOAD])
+    {
+        TC_LOG_ERROR("server.loading", "BaseMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable base map pre-loading. Base map pre-loading disabled");
+        m_bool_configs[CONFIG_BASEMAP_LOAD_GRIDS] = false;
+    }
+    m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] = sConfigMgr->GetBoolDefault("InstanceMapLoadAllGrids", false);
+    if (m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] && m_bool_configs[CONFIG_GRID_UNLOAD])
+    {
+        TC_LOG_ERROR("server.loading", "InstanceMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable instance map pre-loading. Instance map pre-loading disabled");
+        m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] = false;
+    }
     m_int_configs[CONFIG_INTERVAL_SAVE] = sConfigMgr->GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfigMgr->GetIntDefault("DisconnectToleranceInterval", 0);
     m_bool_configs[CONFIG_STATS_SAVE_ONLY_ON_LOGOUT] = sConfigMgr->GetBoolDefault("PlayerSave.Stats.SaveOnlyOnLogout", true);
@@ -1892,6 +1904,19 @@ void World::SetInitialWorldSettings()
     InitGuildResetTime();
 
     LoadCharacterInfoStore();
+
+    // Preload all cells, if required for the base maps
+    if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
+    {
+        sMapMgr->DoForAllMaps([](Map* map)
+        {
+            if (!map->Instanceable())
+            {
+                TC_LOG_INFO("server.loading", "Pre-loading base map data for map %u", map->GetId());
+                map->LoadAllCells();
+            }
+        });
+    }
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
