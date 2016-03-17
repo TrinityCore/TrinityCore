@@ -85,7 +85,7 @@ target_link_libraries(authserver
   shared
   database
   common
-  format
+  cppformat
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}

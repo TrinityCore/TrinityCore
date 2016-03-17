@@ -49,7 +49,7 @@ target_link_libraries(mmaps_generator
   g3dlib
   Recast
   Detour
-  format
+  cppformat
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}

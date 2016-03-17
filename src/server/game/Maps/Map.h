@@ -308,6 +308,7 @@ class Map : public GridRefManager<NGridType>
         bool GetUnloadLock(const GridCoord &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
         void SetUnloadLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
+        void LoadAllCells();
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         virtual void UnloadAll();
 
