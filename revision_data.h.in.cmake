@@ -3,7 +3,7 @@
  #define _HASH                      "@rev_hash@"
  #define _DATE                      "@rev_date@"
  #define _BRANCH                    "@rev_branch@"
- #define _CMAKE_COMMAND             "@CMAKE_COMMAND@"
+ #define _CMAKE_COMMAND             R"(@CMAKE_COMMAND@)"
  #define _SOURCE_DIRECTORY          R"(@CMAKE_SOURCE_DIR@)"
  #define _BUILD_DIRECTORY           R"(@BUILDDIR@)"
  #define _MYSQL_EXECUTABLE          R"(@MYSQL_EXECUTABLE@)"
