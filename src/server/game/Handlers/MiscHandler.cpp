@@ -982,7 +982,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                 default:
                     break;
             }
-            
+
             if (reviveAtTrigger) // check if the player is touching the areatrigger leading to the map his corpse is on
                 if (!player->IsAlive() && player->HasCorpse())
                     if (player->GetCorpseLocation().GetMapId() == at->target_mapId)

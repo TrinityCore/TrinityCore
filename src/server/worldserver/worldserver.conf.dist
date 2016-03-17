@@ -270,6 +270,25 @@ MaxOverspeedPings = 2
 GridUnload = 1
 
 #
+#    BaseMapLoadAllGrids
+#        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
+#                     This will take around 5GB of ram upon server load, and will take some time
+#                     to initially load the server.
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in all base maps upon load)
+
+BaseMapLoadAllGrids = 0
+
+#
+#    InstanceMapLoadAllGrids
+#        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
+#                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in the instance upon load)
+
+InstanceMapLoadAllGrids = 0
+
+#
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.
@@ -3081,21 +3100,21 @@ AuctionHouseBot.Items.Yellow.Price.Ratio = 100
 #       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
 #       Default:   100 - (No change)
 
-AuctionHouseBot.Class.Consumable.Price.Ratio = 100 
-AuctionHouseBot.Class.Container.Price.Ratio = 100 
-AuctionHouseBot.Class.Weapon.Price.Ratio = 100 
-AuctionHouseBot.Class.Gem.Price.Ratio = 100 
-AuctionHouseBot.Class.Armor.Price.Ratio = 100 
-AuctionHouseBot.Class.Reagent.Price.Ratio = 100 
-AuctionHouseBot.Class.Projectile.Price.Ratio = 100 
-AuctionHouseBot.Class.TradeGood.Price.Ratio = 100 
-AuctionHouseBot.Class.Generic.Price.Ratio = 100 
-AuctionHouseBot.Class.Recipe.Price.Ratio = 100 
-AuctionHouseBot.Class.Quiver.Price.Ratio = 100 
-AuctionHouseBot.Class.Quest.Price.Ratio = 100 
-AuctionHouseBot.Class.Key.Price.Ratio = 100 
-AuctionHouseBot.Class.Misc.Price.Ratio = 100 
-AuctionHouseBot.Class.Glyph.Price.Ratio = 100 
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100
+AuctionHouseBot.Class.Container.Price.Ratio = 100
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100
+AuctionHouseBot.Class.Gem.Price.Ratio = 100
+AuctionHouseBot.Class.Armor.Price.Ratio = 100
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
+AuctionHouseBot.Class.Generic.Price.Ratio = 100
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100
+AuctionHouseBot.Class.Quest.Price.Ratio = 100
+AuctionHouseBot.Class.Key.Price.Ratio = 100
+AuctionHouseBot.Class.Misc.Price.Ratio = 100
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100
 
 
 
@@ -3494,6 +3513,7 @@ Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
+Logger.mmaps=3,Server
 Logger.eluna=1,Console Eluna
 
 #Logger.achievement=3,Console Server
