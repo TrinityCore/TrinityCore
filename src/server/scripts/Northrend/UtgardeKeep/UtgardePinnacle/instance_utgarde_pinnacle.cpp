@@ -19,7 +19,7 @@
 #include "InstanceScript.h"
 #include "utgarde_pinnacle.h"
 
-BossBoundaryData const boundaries = 
+BossBoundaryData const boundaries =
 {
     { DATA_KING_YMIRON, new RectangleBoundary(340.0f, 450.0f, -412.0f, -275.0f) }
 };
