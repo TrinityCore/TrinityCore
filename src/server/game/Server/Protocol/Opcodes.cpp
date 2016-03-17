@@ -365,8 +365,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GET_TROPHY_LIST,                                    STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,             STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::GetUndeleteCharacterCooldownStatus, &WorldSession::HandleGetUndeleteCooldownStatus);
     DEFINE_HANDLER(CMSG_GM_TICKET_ACKNOWLEDGE_SURVEY,                       STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_GM_TICKET_GET_CASE_STATUS,                          STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Ticket::GMTicketGetCaseStatus, &WorldSession::HandleGMTicketGetCaseStatusOpcode);
-    DEFINE_HANDLER(CMSG_GM_TICKET_GET_SYSTEM_STATUS,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Ticket::GMTicketGetSystemStatus, &WorldSession::HandleGMTicketSystemStatusOpcode);
+    DEFINE_HANDLER(CMSG_GM_TICKET_GET_CASE_STATUS,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Ticket::GMTicketGetCaseStatus, &WorldSession::HandleGMTicketGetCaseStatusOpcode);
+    DEFINE_HANDLER(CMSG_GM_TICKET_GET_SYSTEM_STATUS,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Ticket::GMTicketGetSystemStatus, &WorldSession::HandleGMTicketSystemStatusOpcode);
     DEFINE_HANDLER(CMSG_GOSSIP_SELECT_OPTION,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::GossipSelectOption, &WorldSession::HandleGossipSelectOptionOpcode);
     DEFINE_HANDLER(CMSG_GRANT_LEVEL,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::RaF::GrantLevel, &WorldSession::HandleGrantLevel);
     DEFINE_HANDLER(CMSG_GUILD_ADD_BATTLENET_FRIEND,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
@@ -1123,7 +1123,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GET_TROPHY_LIST_RESPONSE,                STATUS_UNHANDLED,    CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_PLAYER_INFO,                          STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_REQUEST_PLAYER_INFO,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_CASE_STATUS,                   STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_CASE_STATUS,                   STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GM_TICKET_SYSTEM_STATUS,                 STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GOD_MODE,                                STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GOSSIP_COMPLETE,                         STATUS_NEVER,        CONNECTION_TYPE_REALM);
