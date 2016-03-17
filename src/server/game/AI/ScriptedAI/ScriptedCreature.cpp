@@ -566,7 +566,7 @@ void BossAI::_DespawnAtEvade(uint32 delayToRespawn)
     me->SetCorpseDelay(corpseDelay);
     me->SetRespawnDelay(respawnDelay);
 
-    if(instance)
+    if (instance)
         instance->SetBossState(_bossId, FAIL);
 }
 

@@ -1,7 +1,7 @@
 include(CheckCXXCompilerFlag)
 include(CheckSymbolExists)
 
-set(FMT_SOURCES format.cc format.h)
+set(FMT_SOURCES cppformat/format.cc cppformat/format.h)
 
 # Use variadic templates
 add_definitions(-DFMT_VARIADIC_TEMPLATES=1)
@@ -20,12 +20,12 @@ endif ()
 
 if (HAVE_OPEN)
   add_definitions(-DFMT_USE_FILE_DESCRIPTORS=1)
-  set(FMT_SOURCES ${FMT_SOURCES} posix.cc posix.h)
+  set(FMT_SOURCES ${FMT_SOURCES} cppformat/posix.cc cppformat/posix.h)
 endif ()
 
-add_library(format STATIC ${FMT_SOURCES})
+add_library(cppformat STATIC ${FMT_SOURCES})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-  set_target_properties(format PROPERTIES COMPILE_FLAGS
+  set_target_properties(cppformat PROPERTIES COMPILE_FLAGS
     "-Wall -Wextra -Wshadow -pedantic")
 endif ()
