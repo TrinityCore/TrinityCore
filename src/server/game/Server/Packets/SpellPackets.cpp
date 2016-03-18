@@ -813,7 +813,7 @@ WorldPacket const* WorldPackets::Spells::NotifyMissileTrajectoryCollision::Write
     _worldPacket << Caster;
     _worldPacket << uint8(CastID);
     _worldPacket << CollisionPos;
-    
+
     return &_worldPacket;
 }
 
@@ -841,6 +841,18 @@ WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
 {
     _worldPacket << Caster;
     _worldPacket << uint32(ActualDelay);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << VictimGUID;
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint32(FailedSpells.size());
+    if (!FailedSpells.empty())
+        _worldPacket.append(FailedSpells.data(), FailedSpells.size());
 
     return &_worldPacket;
 }

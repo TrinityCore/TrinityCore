@@ -830,7 +830,7 @@ namespace WorldPackets
         {
         public:
             MissileTrajectoryCollision(WorldPacket&& packet) : ClientPacket(CMSG_MISSILE_TRAJECTORY_COLLISION, std::move(packet)) { }
-        
+
             void Read() override;
 
             ObjectGuid Target;
@@ -839,7 +839,7 @@ namespace WorldPackets
             G3D::Vector3 CollisionPos;
         };
 
-        class NotifyMissileTrajectoryCollision : public ServerPacket
+        class NotifyMissileTrajectoryCollision final : public ServerPacket
         {
         public:
             NotifyMissileTrajectoryCollision() : ServerPacket(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 8 + 1 + 12) { }
@@ -855,7 +855,7 @@ namespace WorldPackets
         {
         public:
             UpdateMissileTrajectory(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_MISSILE_TRAJECTORY, std::move(packet)) { }
-        
+
             void Read() override;
 
             ObjectGuid Guid;
@@ -868,7 +868,7 @@ namespace WorldPackets
             Optional<MovementInfo> Status;
         };
 
-        class SpellDelayed : public ServerPacket
+        class SpellDelayed final : public ServerPacket
         {
         public:
             SpellDelayed() : ServerPacket(SMSG_SPELL_DELAYED, sizeof(ObjectGuid) + 4) { }
@@ -877,6 +877,19 @@ namespace WorldPackets
 
             ObjectGuid Caster;
             int32 ActualDelay = 0;
+        };
+
+        class DispelFailed final : public ServerPacket
+        {
+        public:
+            DispelFailed() : ServerPacket(SMSG_DISPEL_FAILED, 16 + 16 + 4 + 4 + 4 /* predict a single failure on average */) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            ObjectGuid VictimGUID;
+            uint32 SpellID = 0;
+            std::vector<int32> FailedSpells;
         };
     }
 }
