@@ -2307,9 +2307,12 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         return;
 
     // Ok if exist some buffs for dispel try dispel it
-    uint32 failCount = 0;
     DispelChargesList success_list;
-    WorldPacket dataFail(SMSG_DISPEL_FAILED, 8+8+4+4+damage*4);
+    WorldPackets::Spells::DispelFailed dispelFailed;
+    dispelFailed.CasterGUID = m_caster->GetGUID();
+    dispelFailed.VictimGUID = unitTarget->GetGUID();
+    dispelFailed.SpellID = m_spellInfo->Id;
+
     // dispel N = damage buffs (or while exist buffs for dispel)
     for (int32 count = 0; count < damage && !dispel_list.empty();)
     {
@@ -2344,23 +2347,14 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
                     dispel_list.erase(itr);
             }
             else
-            {
-                if (!failCount)
-                {
-                    // Failed to dispell
-                    dataFail << m_caster->GetGUID();                    // Caster GUID
-                    dataFail << unitTarget->GetGUID();                  // Victim GUID
-                    dataFail << uint32(m_spellInfo->Id);                // dispel spell id
-                }
-                ++failCount;
-                dataFail << uint32(itr->first->GetId());                         // Spell Id
-            }
+                dispelFailed.FailedSpells.push_back(int32(itr->first->GetId()));
+
             ++count;
         }
     }
 
-    if (failCount)
-        m_caster->SendMessageToSet(&dataFail, true);
+    if (!dispelFailed.FailedSpells.empty())
+        m_caster->SendMessageToSet(dispelFailed.Write(), true);
 
     if (success_list.empty())
         return;
@@ -5163,9 +5157,12 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex /*effIndex*/)
         return;
 
     // Ok if exist some buffs for dispel try dispel it
-    uint32 failCount = 0;
     DispelList success_list;
-    WorldPacket dataFail(SMSG_DISPEL_FAILED, 8+8+4+4+damage*4);
+    WorldPackets::Spells::DispelFailed dispelFailed;
+    dispelFailed.CasterGUID = m_caster->GetGUID();
+    dispelFailed.VictimGUID = unitTarget->GetGUID();
+    dispelFailed.SpellID = m_spellInfo->Id;
+
     // dispel N = damage buffs (or while exist buffs for dispel)
     for (int32 count = 0; count < damage && !steal_list.empty();)
     {
@@ -5190,23 +5187,14 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex /*effIndex*/)
                     steal_list.erase(itr);
             }
             else
-            {
-                if (!failCount)
-                {
-                    // Failed to dispell
-                    dataFail << m_caster->GetGUID();                    // Caster GUID
-                    dataFail << unitTarget->GetGUID();                  // Victim GUID
-                    dataFail << uint32(m_spellInfo->Id);                // dispel spell id
-                }
-                ++failCount;
-                dataFail << uint32(itr->first->GetId());                         // Spell Id
-            }
+                dispelFailed.FailedSpells.push_back(int32(itr->first->GetId()));
+
             ++count;
         }
     }
 
-    if (failCount)
-        m_caster->SendMessageToSet(&dataFail, true);
+    if (!dispelFailed.FailedSpells.empty())
+        m_caster->SendMessageToSet(dispelFailed.Write(), true);
 
     if (success_list.empty())
         return;
