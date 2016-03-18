@@ -64,7 +64,12 @@ enum PaladinSpells
     SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
-    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379
+    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
+
+    // Blinding Light
+    SPELL_PALADIN_GLYPH_OF_BLINDING_LIGHT        = 54934,
+    SPELL_PALADIN_BLINDING_LIGHT_CONFUSE         = 105421,
+    SPELL_PALADIN_BLINDING_LIGHT_STUN            = 115752
 };
 
 enum MiscSpells
@@ -1213,6 +1218,41 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
         }
 };
 
+// Blinding Light - 115750
+class spell_pal_blinding_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_blinding_light() : SpellScriptLoader("spell_pal_blinding_light") { }
+
+        class spell_pal_blinding_light_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_blinding_light_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (_player->HasAura(SPELL_PALADIN_GLYPH_OF_BLINDING_LIGHT))
+                            _player->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_STUN, true);
+                        else
+                            _player->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_CONFUSE, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pal_blinding_light_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_blinding_light_SpellScript();
+        }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -1241,4 +1281,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_shield_of_the_righteous();
     new spell_pal_templar_s_verdict();
     new spell_pal_seal_of_righteousness();
+    // Blinding Light
+    new spell_pal_blinding_light();
 }
