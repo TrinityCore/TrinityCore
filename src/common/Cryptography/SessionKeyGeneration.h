@@ -16,17 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SHA1.h"
+#ifndef SessionKeyGeneration_h__
+#define SessionKeyGeneration_h__
 
-#include <cstring>
+#include "Common.h"
 
-#ifndef _WARDEN_KEY_GENERATION_H
-#define _WARDEN_KEY_GENERATION_H
-
-class SHA1Randx
+template<class Hash>
+class SessionKeyGenerator
 {
 public:
-    SHA1Randx(uint8* buff, uint32 size)
+    SessionKeyGenerator(uint8* buff, uint32 size)
     {
         uint32 halfSize = size / 2;
 
@@ -34,15 +33,15 @@ public:
         sh.UpdateData(buff, halfSize);
         sh.Finalize();
 
-        memcpy(o1, sh.GetDigest(), 20);
+        memcpy(o1, sh.GetDigest(), Hash::DigestLength::value);
 
         sh.Initialize();
         sh.UpdateData(buff + halfSize, size - halfSize);
         sh.Finalize();
 
-        memcpy(o2, sh.GetDigest(), 20);
+        memcpy(o2, sh.GetDigest(), Hash::DigestLength::value);
 
-        memset(o0, 0x00, 20);
+        memset(o0, 0x00, Hash::DigestLength::value);
 
         FillUp();
     }
@@ -51,7 +50,7 @@ public:
     {
         for (uint32 i = 0; i < sz; ++i)
         {
-            if (taken == 20)
+            if (taken == Hash::DigestLength::value)
                 FillUp();
 
             buf[i] = o0[taken];
@@ -63,19 +62,21 @@ private:
     void FillUp()
     {
         sh.Initialize();
-        sh.UpdateData(o1, 20);
-        sh.UpdateData(o0, 20);
-        sh.UpdateData(o2, 20);
+        sh.UpdateData(o1, Hash::DigestLength::value);
+        sh.UpdateData(o0, Hash::DigestLength::value);
+        sh.UpdateData(o2, Hash::DigestLength::value);
         sh.Finalize();
 
-        memcpy(o0, sh.GetDigest(), 20);
+        memcpy(o0, sh.GetDigest(), Hash::DigestLength::value);
 
         taken = 0;
     }
 
-    SHA1Hash sh;
+    Hash sh;
     uint32 taken;
-    uint8 o0[20], o1[20], o2[20];
+    uint8 o0[Hash::DigestLength::value];
+    uint8 o1[Hash::DigestLength::value];
+    uint8 o2[Hash::DigestLength::value];
 };
 
-#endif
+#endif // SessionKeyGeneration_h__
