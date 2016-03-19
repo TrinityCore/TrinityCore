@@ -28,6 +28,7 @@
 #include "Util.h"
 #include "WardenMac.h"
 #include "WardenModuleMac.h"
+#include "SHA1.h"
 
 #include <openssl/md5.h>
 
