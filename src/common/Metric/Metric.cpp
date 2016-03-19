@@ -47,18 +47,18 @@ bool Metric::Connect()
 void Metric::LoadFromConfigs()
 {
     bool previousValue = _enabled;
-    _enabled = sConfigMgr->GetBoolDefault("InfluxDB.Enable", false);
-    _updateInterval = sConfigMgr->GetIntDefault("InfluxDB.Interval", 10);
+    _enabled = sConfigMgr->GetBoolDefault("Metric.Enable", false);
+    _updateInterval = sConfigMgr->GetIntDefault("Metric.Interval", 10);
     if (_updateInterval < 1)
     {
-        TC_LOG_ERROR("metric", "'InfluxDB.Interval' config set to %d, overriding to 1.", _updateInterval);
+        TC_LOG_ERROR("metric", "'Metric.Interval' config set to %d, overriding to 1.", _updateInterval);
         _updateInterval = 1;
     }
 
-    _overallStatusTimerInterval = sConfigMgr->GetIntDefault("InfluxDB.OverallStatusInterval", 1);
+    _overallStatusTimerInterval = sConfigMgr->GetIntDefault("Metric.OverallStatusInterval", 1);
     if (_overallStatusTimerInterval < 1)
     {
-        TC_LOG_ERROR("metric", "'InfluxDB.OverallStatusInterval' config set to %d, overriding to 1.", _overallStatusTimerInterval);
+        TC_LOG_ERROR("metric", "'Metric.OverallStatusInterval' config set to %d, overriding to 1.", _overallStatusTimerInterval);
         _overallStatusTimerInterval = 1;
     }
 
@@ -66,17 +66,17 @@ void Metric::LoadFromConfigs()
     // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
     {
-        std::string connectionInfo = sConfigMgr->GetStringDefault("InfluxDB.ConnectionInfo", "");
+        std::string connectionInfo = sConfigMgr->GetStringDefault("Metric.ConnectionInfo", "");
         if (connectionInfo.empty())
         {
-            TC_LOG_ERROR("metric", "'InfluxDB.ConnectionInfo' not specified in configuration file.");
+            TC_LOG_ERROR("metric", "'Metric.ConnectionInfo' not specified in configuration file.");
             return;
         }
 
         Tokenizer tokens(connectionInfo, ';');
         if (tokens.size() != 3)
         {
-            TC_LOG_ERROR("metric", "'InfluxDB.ConnectionInfo' specified with wrong format in configuration file.");
+            TC_LOG_ERROR("metric", "'Metric.ConnectionInfo' specified with wrong format in configuration file.");
             return;
         }
 

@@ -3588,39 +3588,39 @@ PacketSpoof.BanDuration = 86400
 ###################################################################################################
 
 ###################################################################################################
-# InfluxDB Settings
+# Metric Settings
 #
-# These settings control the statistics sent to InfluxDB
+# These settings control the statistics sent to the metric database (currently InfluxDB)
 #
-#    InfluxDB.Enable
-#        Description: Enables statistics sent to InfluxDB.
+#    Metric.Enable
+#        Description: Enables statistics sent to the metric database.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-InfluxDB.Enable = 0
+Metric.Enable = 0
 
 #
-#    InfluxDB.Interval
-#        Description: Interval between every batch of data sent to InfluxDB in seconds
+#    Metric.Interval
+#        Description: Interval between every batch of data sent in seconds
 #        Default:     10 seconds
 #
 
-InfluxDB.Interval = 10
+Metric.Interval = 10
 
 #
-#    InfluxDB.ConnectionInfo
-#        Description: Connection settings for InfluxDB.
+#    Metric.ConnectionInfo
+#        Description: Connection settings for metric database (currently InfluxDB).
 #        Example:     "hostname;port;database"
 #        Default:     "127.0.0.1;8086;worldserver"
 
-InfluxDB.ConnectionInfo = "127.0.0.1;8086;worldserver"
+Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 
 #
-#    InfluxDB.OverallStatusInterval
-#        Description: Interval between every gathering of overall worldserver status data in seconds (CPU, RAM, etc)
+#    Metric.OverallStatusInterval
+#        Description: Interval between every gathering of overall worldserver status data in seconds
 #        Default:     1 second
 #
 
-InfluxDB.OverallStatusInterval = 1
+Metric.OverallStatusInterval = 1
 
 ###################################################################################################
