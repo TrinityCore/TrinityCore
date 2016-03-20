@@ -35,6 +35,7 @@ if(SCRIPTS)
   PrepareScripts(Maelstrom PRIVATE_SOURCES)
   PrepareScripts(Events PRIVATE_SOURCES)
   PrepareScripts(Pet PRIVATE_SOURCES)
+  PrepareScripts(Pandaria scripts_STAT_SRCS)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
