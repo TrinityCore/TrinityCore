@@ -65,8 +65,7 @@ enum PaladinSpells
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
-    SPELL_PALADIN_BLINDING_LIGHT_CONFUSE         = 105421,
-    SPELL_PALADIN_BLINDING_LIGHT_STUN            = 115752
+    SPELL_PALADIN_BLINDING_LIGHT_CONFUSE         = 105421
 };
 
 enum MiscSpells
@@ -1231,7 +1230,6 @@ class spell_pal_blinding_light : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        _player->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_STUN, true);
                         _player->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_CONFUSE, true);
                     }
                 }
