@@ -473,6 +473,32 @@ namespace WorldPackets
             std::string Name;
         };
 
+        class CalendarRaidLockoutAdded final : public ServerPacket
+        {
+        public:
+            CalendarRaidLockoutAdded() : ServerPacket(SMSG_CALENDAR_RAID_LOCKOUT_ADDED, 8 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 InstanceID = 0;
+            uint32 DifficultyID = 0;
+            int32 TimeRemaining = 0;
+            uint32 ServerTime = 0;
+            int32 MapID = 0;
+        };
+
+        class CalendarRaidLockoutRemoved final : public ServerPacket
+        {
+        public:
+            CalendarRaidLockoutRemoved() : ServerPacket(SMSG_CALENDAR_RAID_LOCKOUT_REMOVED, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 InstanceID = 0;
+            int32 MapID = 0;
+            uint32 DifficultyID = 0;
+        };
+
         class CalendarRaidLockoutUpdated final : public ServerPacket
         {
         public:

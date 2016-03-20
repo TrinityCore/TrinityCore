@@ -24,6 +24,12 @@ void WorldPackets::Spells::CancelAura::Read()
     _worldPacket >> CasterGUID;
 }
 
+void WorldPackets::Spells::PetCancelAura::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+}
+
 void WorldPackets::Spells::CancelChannelling::Read()
 {
     _worldPacket >> ChannelSpell;
@@ -790,6 +796,63 @@ WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
         _worldPacket << uint8(rune.RuneType);
         _worldPacket << uint8(rune.Cooldown);
     }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Spells::MissileTrajectoryCollision::Read()
+{
+    _worldPacket >> Target;
+    _worldPacket >> SpellID;
+    _worldPacket >> CastID;
+    _worldPacket >> CollisionPos;
+}
+
+WorldPacket const* WorldPackets::Spells::NotifyMissileTrajectoryCollision::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint8(CastID);
+    _worldPacket << CollisionPos;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Spells::UpdateMissileTrajectory::Read()
+{
+    _worldPacket >> Guid;
+    _worldPacket >> MoveMsgID;
+    _worldPacket >> SpellID;
+    _worldPacket >> Pitch;
+    _worldPacket >> Speed;
+    _worldPacket >> FirePos;
+    _worldPacket >> ImpactPos;
+    bool hasStatus = _worldPacket.ReadBit();
+
+    _worldPacket.ResetBitPos();
+    if (hasStatus)
+    {
+        MovementInfo info;
+        _worldPacket >> info;
+        Status = info;
+    }
+}
+
+WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << uint32(ActualDelay);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << VictimGUID;
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint32(FailedSpells.size());
+    if (!FailedSpells.empty())
+        _worldPacket.append(FailedSpells.data(), FailedSpells.size());
 
     return &_worldPacket;
 }

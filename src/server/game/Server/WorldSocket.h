@@ -26,11 +26,13 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "MPSCQueue.h"
 #include <chrono>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
 struct z_stream_s;
+class EncryptablePacket;
 
 namespace WorldPackets
 {
@@ -105,13 +107,14 @@ protected:
     ReadDataHandlerResult ReadDataHandler();
 private:
     void CheckIpCallback(PreparedQueryResult result);
+    void InitializeHandler(boost::system::error_code error, std::size_t transferedBytes);
 
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
     void SendPacketAndLogOpcode(WorldPacket const& packet);
-    void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
+    void WritePacketToBuffer(EncryptablePacket const& packet, MessageBuffer& buffer);
     uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
 
     void HandleSendAuthSession();
@@ -142,12 +145,10 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
+    MPSCQueue<EncryptablePacket> _bufferQueue;
 
     z_stream_s* _compressionStream;
 
-    bool _initialized;
-
-    std::mutex _queryLock;
     PreparedQueryResultFuture _queryFuture;
     std::function<void(PreparedQueryResult&&)> _queryCallback;
     std::string _ipCountry;

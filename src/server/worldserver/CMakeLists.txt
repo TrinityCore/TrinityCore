@@ -8,122 +8,29 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources_CommandLine CommandLine/*.cpp CommandLine/*.h)
-file(GLOB_RECURSE sources_RemoteAccess RemoteAccess/*.cpp RemoteAccess/*.h)
-file(GLOB_RECURSE sources_TCSoap TCSoap/*.cpp TCSoap/*.h)
-file(GLOB sources_localdir *.cpp *.h)
-
-if (USE_COREPCH)
-  set(worldserver_PCH_HDR PrecompiledHeaders/worldPCH.h)
-  set(worldserver_PCH_SRC PrecompiledHeaders/worldPCH.cpp)
-endif()
-
-set(worldserver_SRCS
-  ${worldserver_SRCS}
-  ${sources_CommandLine}
-  ${sources_RemoteAccess}
-  ${sources_TCSoap}
-  ${sources_localdir}
-)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 if( WIN32 )
-  set(worldserver_SRCS
-    ${worldserver_SRCS}
-    ${sources_windows_Debugging}
-  )
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
   if ( MSVC )
-    set(worldserver_SRCS
-      ${worldserver_SRCS}
-      worldserver.rc
-    )
+    list(APPEND PRIVATE_SOURCES worldserver.rc)
   endif()
 endif()
 
-include_directories(
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/CommandLine
-  ${CMAKE_CURRENT_SOURCE_DIR}/RemoteAccess
-  ${CMAKE_CURRENT_SOURCE_DIR}/TCSoap
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
-  ${CMAKE_SOURCE_DIR}/dep/gsoap
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
-  ${CMAKE_SOURCE_DIR}/dep/zmqpp
-  ${CMAKE_SOURCE_DIR}/src/common/
-  ${CMAKE_SOURCE_DIR}/src/common/Collision
-  ${CMAKE_SOURCE_DIR}/src/common/Collision/Maps
-  ${CMAKE_SOURCE_DIR}/src/common/Collision/Models
-  ${CMAKE_SOURCE_DIR}/src/common/Configuration
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography/Authentication
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Logging
-  ${CMAKE_SOURCE_DIR}/src/common/Threading
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
-  ${CMAKE_SOURCE_DIR}/src/server/database/
-  ${CMAKE_SOURCE_DIR}/src/server/database/Database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Logging
-  ${CMAKE_SOURCE_DIR}/src/server/game
-  ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
-  ${CMAKE_SOURCE_DIR}/src/server/game/Addons
-  ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
-  ${CMAKE_SOURCE_DIR}/src/server/game/Chat
-  ${CMAKE_SOURCE_DIR}/src/server/game/Combat
-  ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
-  ${CMAKE_SOURCE_DIR}/src/server/game/DataStores
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Corpse
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Creature
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/DynamicObject
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/GameObject
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item/Container
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object/Updates
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Pet
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Player
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Unit
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Vehicle
-  ${CMAKE_SOURCE_DIR}/src/server/game/Globals
-  ${CMAKE_SOURCE_DIR}/src/server/game/Grids
-  ${CMAKE_SOURCE_DIR}/src/server/game/Grids/Cells
-  ${CMAKE_SOURCE_DIR}/src/server/game/Groups
-  ${CMAKE_SOURCE_DIR}/src/server/game/Handlers
-  ${CMAKE_SOURCE_DIR}/src/server/game/Instances
-  ${CMAKE_SOURCE_DIR}/src/server/game/Loot
-  ${CMAKE_SOURCE_DIR}/src/server/game/Mails
-  ${CMAKE_SOURCE_DIR}/src/server/game/Maps
-  ${CMAKE_SOURCE_DIR}/src/server/game/Miscellaneous
-  ${CMAKE_SOURCE_DIR}/src/server/game/Movement
-  ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Spline
-  ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Waypoints
-  ${CMAKE_SOURCE_DIR}/src/server/game/Quests
-  ${CMAKE_SOURCE_DIR}/src/server/game/Scripting
-  ${CMAKE_SOURCE_DIR}/src/server/game/Server
-  ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol
-  ${CMAKE_SOURCE_DIR}/src/server/game/Spells
-  ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
-  ${CMAKE_SOURCE_DIR}/src/server/game/Weather
-  ${CMAKE_SOURCE_DIR}/src/server/game/World
-  ${CMAKE_SOURCE_DIR}/src/server/ipc
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/DataStores
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Service
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${VALGRIND_INCLUDE_DIR}
-  ${ZMQ_INCLUDE_DIR}
-)
+if (USE_COREPCH)
+  set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
+  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/worldPCH.cpp)
+endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(worldserver
-  ${worldserver_SRCS}
-  ${worldserver_PCH_SRC}
+  ${PRIVATE_SOURCES}
+  ${PRIVATE_PCH_SOURCE}
 )
 
 if( NOT WIN32 )
@@ -139,27 +46,27 @@ endif()
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
 target_link_libraries(worldserver
-  game
-  common
-  shared
-  database
-  scripts
-  ipc
-  g3dlib
-  gsoap
-  Detour
-  zmqpp
-  format
-  ${JEMALLOC_LIBRARY}
-  ${READLINE_LIBRARY}
-  ${TERMCAP_LIBRARY}
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${ZMQ_LIBRARY}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-)
+  PUBLIC
+    scripts
+    gsoap
+    readline)
+
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+target_include_directories(worldserver
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(worldserver
+    PROPERTIES
+      FOLDER
+        "server")
 
 if( WIN32 )
   if ( MSVC )
@@ -185,5 +92,5 @@ endif()
 
 # Generate precompiled header
 if( USE_COREPCH )
-  add_cxx_pch(worldserver ${worldserver_PCH_HDR} ${worldserver_PCH_SRC})
+  add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
 endif()

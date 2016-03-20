@@ -524,6 +524,14 @@ WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::PlayOneShotAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
 {
     _worldPacket << Unit;
@@ -601,6 +609,20 @@ WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
     _worldPacket << Guid;
     _worldPacket << int32(Threshold);
     _worldPacket << int32(ItemID);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::SetTaxiBenchmarkMode::Read()
+{
+    Enable = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
+{
+    _worldPacket << int32(AreaLightID);
+    _worldPacket << int32(OverrideLightID);
+    _worldPacket << int32(TransitionMilliseconds);
 
     return &_worldPacket;
 }

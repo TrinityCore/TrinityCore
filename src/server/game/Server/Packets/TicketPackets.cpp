@@ -18,6 +18,7 @@
 #include "LFGPackets.h"
 #include "TicketPackets.h"
 #include "PacketUtilities.h"
+#include "SupportMgr.h"
 
 using namespace WorldPackets;
 
@@ -52,6 +53,9 @@ WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
 
         _worldPacket.WriteBits(c.Url.size(), 11);
         _worldPacket.WriteBits(c.WaitTimeOverrideMessage.size(), 10);
+
+        _worldPacket.WriteString(c.Url);
+        _worldPacket.WriteString(c.WaitTimeOverrideMessage);
     }
 
     _worldPacket.FlushBits();
@@ -221,6 +225,46 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 
     if (hasLFGListApplicant)
         _worldPacket >> LFGListApplicant;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintOffender& complaintOffender)
+{
+    data >> complaintOffender.PlayerGuid;
+    data >> complaintOffender.RealmAddress;
+    data >> complaintOffender.TimeSinceOffence;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::Complaint::ComplaintChat& chat)
+{
+    data >> chat.Command;
+    data >> chat.ChannelID;
+    chat.MessageLog = data.ReadString(data.ReadBits(12));
+
+    return data;
+}
+
+void WorldPackets::Ticket::Complaint::Read()
+{
+    _worldPacket >> ComplaintType;
+    _worldPacket >> Offender;
+
+    switch (ComplaintType)
+    {
+        case SUPPORT_SPAM_TYPE_MAIL:
+            _worldPacket >> MailID;
+            break;
+        case SUPPORT_SPAM_TYPE_CHAT:
+            _worldPacket >> Chat;
+            break;
+        case SUPPORT_SPAM_TYPE_CALENDAR:
+            _worldPacket >> EventGuid;
+            _worldPacket >> InviteGuid;
+            break;
+        default:
+            break;
+    }
 }
 
 WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()

@@ -74,6 +74,7 @@
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
 #include "ReputationMgr.h"
@@ -2124,7 +2125,7 @@ bool Player::CanInteractWithQuestGiver(Object* questGiver) const
     return false;
 }
 
-Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint64 npcflagmask) const
+Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint64 npcflagmask) const
 {
     // unit checks
     if (!guid)
@@ -2168,7 +2169,21 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint64 npcflagmask) c
     return creature;
 }
 
-GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTypes type) const
+GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid) const
+{
+    if (GameObject* go = GetMap()->GetGameObject(guid))
+    {
+        if (go->IsWithinDistInMap(this, go->GetInteractionDistance()))
+            return go;
+
+        TC_LOG_DEBUG("maps", "Player::GetGameObjectIfCanInteractWith: GameObject '%s' (%s) is too far away from player '%s' (%s) to be used by him (Distance: %f, maximal %f is allowed)",
+            go->GetGOInfo()->name.c_str(), go->GetGUID().ToString().c_str(), GetName().c_str(), GetGUID().ToString().c_str(), go->GetDistance(this), go->GetInteractionDistance());
+    }
+
+    return nullptr;
+}
+
+GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid, GameobjectTypes type) const
 {
     if (GameObject* go = GetMap()->GetGameObject(guid))
     {
@@ -2177,8 +2192,8 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTy
             if (go->IsWithinDistInMap(this, go->GetInteractionDistance()))
                 return go;
 
-            TC_LOG_DEBUG("maps", "Player::GetGameObjectIfCanInteractWith: GameObject '%s' (%s) is too far away from player '%s' (%s) to be used by him (Distance: %f, maximal 10 is allowed)",
-                go->GetGOInfo()->name.c_str(), go->GetGUID().ToString().c_str(), GetName().c_str(), GetGUID().ToString().c_str(), go->GetDistance(this));
+            TC_LOG_DEBUG("maps", "Player::GetGameObjectIfCanInteractWith: GameObject '%s' (%s) is too far away from player '%s' (%s) to be used by him (Distance: %f, maximal %f is allowed)",
+                go->GetGOInfo()->name.c_str(), go->GetGUID().ToString().c_str(), GetName().c_str(), GetGUID().ToString().c_str(), go->GetDistance(this), go->GetInteractionDistance());
         }
     }
 
@@ -4221,6 +4236,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     // remove death flag + set aura
     SetByteValue(UNIT_FIELD_BYTES_1, 3, 0x00);
+    RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 
     // This must be called always even on Players with race != RACE_NIGHTELF in case of faction change
     RemoveAurasDueToSpell(20584);                           // RACE_NIGHTELF speed bonuses
@@ -4618,10 +4634,10 @@ void Player::RepopAtGraveyard()
     // note: this can be called also when the player is alive
     // for example from WorldSession::HandleMovementOpcodes
 
-    AreaTableEntry const* zone = GetAreaEntryByAreaID(GetAreaId());
+    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetAreaId());
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!IsAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < MAX_MAP_DEPTH)
+    if ((!IsAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
@@ -4656,8 +4672,10 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(packet.Write());
         }
     }
-    else if (GetPositionZ() < MAX_MAP_DEPTH)
+    else if (GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+
+    RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const
@@ -4702,7 +4720,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
     if (GetSession()->PlayerLoading() && !IsBeingTeleportedFar())
         return;                                              // The client handles it automatically after loading, but not after teleporting
 
-    AreaTableEntry const* current_zone = GetAreaEntryByAreaID(newZone);
+    AreaTableEntry const* current_zone = sAreaTableStore.LookupEntry(newZone);
     if (!current_zone)
         return;
 
@@ -5900,23 +5918,32 @@ void Player::CheckAreaExploreAndOutdoor()
         return;
 
     bool isOutdoor;
-    uint16 areaFlag = GetBaseMap()->GetAreaFlag(GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
+    uint32 areaId = GetBaseMap()->GetAreaId(GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
     if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)
         RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
 
-    if (areaFlag == 0xffff)
+    if (!areaId)
         return;
-    int offset = areaFlag / 32;
+
+    if (!areaEntry)
+    {
+        TC_LOG_ERROR("entities.player", "Player '%s' (%s) discovered unknown area (x: %f y: %f z: %f map: %u)",
+            GetName().c_str(), GetGUID().ToString().c_str(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+        return;
+    }
+
+    uint32 offset = areaEntry->AreaBit / 32;
 
     if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
     {
         TC_LOG_ERROR("entities.player", "Player::CheckAreaExploreAndOutdoor: Wrong area flag %u in map data for (X: %f Y: %f) point to field PLAYER_EXPLORED_ZONES_1 + %u ( %u must be < %u ).",
-            areaFlag, GetPositionX(), GetPositionY(), offset, offset, PLAYER_EXPLORED_ZONES_SIZE);
+            areaId, GetPositionX(), GetPositionY(), offset, offset, PLAYER_EXPLORED_ZONES_SIZE);
         return;
     }
 
-    uint32 val = (uint32)(1 << (areaFlag % 32));
+    uint32 val = (uint32)(1 << (areaEntry->AreaBit % 32));
     uint32 currFields = GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
 
     if (!(currFields & val))
@@ -5925,20 +5952,11 @@ void Player::CheckAreaExploreAndOutdoor()
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA);
 
-        AreaTableEntry const* areaEntry = GetAreaEntryByAreaFlagAndMap(areaFlag, GetMapId());
-        if (!areaEntry)
-        {
-            TC_LOG_ERROR("entities.player", "Player '%s' (%s) discovered unknown area (x: %f y: %f z: %f map: %u)",
-                GetName().c_str(), GetGUID().ToString().c_str(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
-            return;
-        }
-
         if (areaEntry->ExplorationLevel > 0)
         {
-            uint32 area = areaEntry->ID;
             if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
-                SendExplorationExperience(area, 0);
+                SendExplorationExperience(areaId, 0);
             }
             else
             {
@@ -5962,9 +5980,9 @@ void Player::CheckAreaExploreAndOutdoor()
                 }
 
                 GiveXP(XP, nullptr);
-                SendExplorationExperience(area, XP);
+                SendExplorationExperience(areaId, XP);
             }
-            TC_LOG_DEBUG("entities.player", "Player '%s' (%s) discovered a new area: %u", GetName().c_str(),GetGUID().ToString().c_str(), area);
+            TC_LOG_DEBUG("entities.player", "Player '%s' (%s) discovered a new area: %u", GetName().c_str(),GetGUID().ToString().c_str(), areaId);
         }
     }
 }
@@ -6871,11 +6889,12 @@ void Player::UpdateArea(uint32 newArea)
     // so apply them accordingly
     m_areaUpdateId = newArea;
 
-    AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(newArea);
     pvpInfo.IsInFFAPvPArea = area && (area->Flags[0] & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
+    UpdateAreaPhase();
 
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
@@ -6923,7 +6942,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // zone changed, so area changed as well, update it
     UpdateArea(newArea);
 
-    AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
+    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(newZone);
     if (!zone)
         return;
 
@@ -9045,10 +9064,11 @@ void Player::SetBindPoint(ObjectGuid guid) const
 
 void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const
 {
-    WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8 + 4);
-    data << guid;
-    data << cost;
-    GetSession()->SendPacket(&data);
+    WorldPackets::Talent::RespecWipeConfirm respecWipeConfirm;
+    respecWipeConfirm.RespecMaster = guid;
+    respecWipeConfirm.Cost = cost;
+    respecWipeConfirm.RespecType = SPEC_RESET_TALENTS;
+    GetSession()->SendPacket(respecWipeConfirm.Write());
 }
 
 void Player::ResetPetTalents()
@@ -13385,14 +13405,14 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 if (!optionBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuId)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (!boxBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuId)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
@@ -18125,6 +18145,20 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
     return nullptr;
 }
 
+InstancePlayerBind const* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty) const
+{
+    // some instances only have one difficulty
+    MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    if (!mapDiff)
+        return nullptr;
+
+    auto itr = m_boundInstances[difficulty].find(mapid);
+    if (itr != m_boundInstances[difficulty].end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 InstanceSave* Player::GetInstanceSave(uint32 mapid)
 {
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
@@ -19940,9 +19974,8 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (pet->isControlled())
     {
-        WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-        data << uint64(0);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Pet::PetSpells petSpellsPacket;
+        GetSession()->SendPacket(petSpellsPacket.Write());
 
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
@@ -20089,22 +20122,17 @@ void Player::PetSpellInitialize()
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
-    data << pet->GetGUID();
-    data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
-    data << uint32(pet->GetDuration());
-    data << uint8(pet->GetReactState());
-    data << uint8(charmInfo->GetCommandState());
-    data << uint16(0); // Flags, mostly unknown
+    WorldPackets::Pet::PetSpells petSpellsPacket;
+    petSpellsPacket.PetGUID = pet->GetGUID();
+    petSpellsPacket.CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
+    //petSpellsPacket.Specialization = pet->GetSpecialization(); NYI
+    petSpellsPacket.TimeLimit = pet->GetDuration();
+    petSpellsPacket.ReactState = pet->GetReactState();
+    petSpellsPacket.CommandState = charmInfo->GetCommandState();
 
     // action bar loop
-    charmInfo->BuildActionBar(&data);
-
-    size_t spellsCountPos = data.wpos();
-
-    // spells count
-    uint8 addlist = 0;
-    data << uint8(addlist);                                 // placeholder
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        petSpellsPacket.ActionButtons[i] = charmInfo->GetActionBarEntry(i)->packedData;
 
     if (pet->IsPermanentPetFor(this))
     {
@@ -20114,17 +20142,14 @@ void Player::PetSpellInitialize()
             if (itr->second.state == PETSPELL_REMOVED)
                 continue;
 
-            data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
-            ++addlist;
+            petSpellsPacket.Actions.push_back(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
         }
     }
 
-    data.put<uint8>(spellsCountPos, addlist);
-
     // Cooldowns
-    //pet->GetSpellHistory()->WritePacket(&petSpells);
+    pet->GetSpellHistory()->WritePacket(&petSpellsPacket);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(petSpellsPacket.Write());
 }
 
 void Player::PossessSpellInitialize()
@@ -20141,20 +20166,16 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 1);
-    data << charm->GetGUID();
-    data << uint16(0);
-    data << uint32(0);
-    data << uint32(0);
+    WorldPackets::Pet::PetSpells petSpellsPacket;
+    petSpellsPacket.PetGUID = charm->GetGUID();
 
-    charmInfo->BuildActionBar(&data);
-
-    data << uint8(0);                                       // spells count
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        petSpellsPacket.ActionButtons[i] = charmInfo->GetActionBarEntry(i)->packedData;
 
     // Cooldowns
-    //charm->GetSpellHistory()->WritePacket(&petSpells);
+    charm->GetSpellHistory()->WritePacket(&petSpellsPacket);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(petSpellsPacket.Write());
 }
 
 void Player::VehicleSpellInitialize()
@@ -20266,9 +20287,8 @@ void Player::CharmSpellInitialize()
 
 void Player::SendRemoveControlBar() const
 {
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8);
-    data << uint64(0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Pet::PetSpells packet;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell) const
@@ -22369,17 +22389,17 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                             // difficulty
-    data << uint32(time);
-    if (type == RAID_INSTANCE_WELCOME)
-    {
-        data << uint8(0);                                   // is locked
-        data << uint8(0);                                   // is extended, ignored if prev field is 0
-    }
-    GetSession()->SendPacket(&data);
+    WorldPackets::Instance::RaidInstanceMessage raidInstanceMessage;
+    raidInstanceMessage.Type = type;
+    raidInstanceMessage.MapID = mapid;
+    raidInstanceMessage.DifficultyID = difficulty;
+    raidInstanceMessage.TimeLeft = int32(time);
+    if (InstancePlayerBind const* bind = GetBoundInstance(mapid, difficulty))
+        raidInstanceMessage.Locked = bind->perm;
+    else
+        raidInstanceMessage.Locked = false;
+    raidInstanceMessage.Extended = false;
+    GetSession()->SendPacket(raidInstanceMessage.Write());
 }
 
 void Player::ApplyEquipCooldown(Item* pItem)
@@ -22735,6 +22755,10 @@ void Player::DailyReset()
     for (uint32 questId : GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS))
         if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
             SetQuestCompletedBit(questBit, false);
+
+    WorldPackets::Quest::DailyQuestsReset dailyQuestsReset;
+    dailyQuestsReset.Count = int32(GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS).size());
+    SendDirectMessage(dailyQuestsReset.Write());
 
     ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
 
@@ -25825,10 +25849,10 @@ std::string Player::GetMapAreaAndZoneString() const
     uint32 areaId = GetAreaId();
     std::string areaName = "Unknown";
     std::string zoneName = "Unknown";
-    if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
         areaName = area->AreaName_lang;
-        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->ParentAreaID))
+        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
             zoneName = zone->AreaName_lang;
     }
 

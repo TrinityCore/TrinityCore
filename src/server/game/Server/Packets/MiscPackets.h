@@ -666,6 +666,17 @@ namespace WorldPackets
             std::vector<CUFProfile const*> CUFProfiles;
         };
 
+        class PlayOneShotAnimKit final : public ServerPacket
+        {
+        public:
+            PlayOneShotAnimKit() : ServerPacket(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint16 AnimKitID = 0;
+        };
+
         class SetAIAnimKit final : public ServerPacket
         {
         public:
@@ -789,6 +800,28 @@ namespace WorldPackets
             ObjectGuid Guid;
             int32 ItemID = 0;
             int32 Threshold = 0;
+        };
+
+        class SetTaxiBenchmarkMode final : public ClientPacket
+        {
+        public:
+            SetTaxiBenchmarkMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_TAXI_BENCHMARK_MODE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Enable = false;
+        };
+
+        class OverrideLight final : public ServerPacket
+        {
+        public:
+            OverrideLight() : ServerPacket(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AreaLightID = 0;
+            int32 TransitionMilliseconds = 0;
+            int32 OverrideLightID = 0;
         };
     }
 }

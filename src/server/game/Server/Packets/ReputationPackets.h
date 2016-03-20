@@ -69,6 +69,28 @@ namespace WorldPackets
 
             std::vector<ForcedReaction> Reactions;
         };
+
+        struct FactionStandingData
+        {
+            FactionStandingData() { }
+            FactionStandingData(int32 index, int32 standing) : Index(index), Standing(standing) { }
+
+            int32 Index = 0;
+            int32 Standing = 0;
+        };
+
+        class SetFactionStanding final : public ServerPacket
+        {
+        public:
+            SetFactionStanding() : ServerPacket(SMSG_SET_FACTION_STANDING) { }
+
+            WorldPacket const* Write() override;
+
+            float ReferAFriendBonus = 0.0f;
+            float BonusFromAchievementSystem = 0.0f;
+            std::vector<FactionStandingData> Faction;
+            bool ShowVisual = false;
+        };
     }
 }
 

@@ -93,3 +93,27 @@ WorldPacket const* WorldPackets::Instance::RaidGroupOnly::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::PendingRaidLock::Write()
+{
+    _worldPacket << int32(TimeUntilLock);
+    _worldPacket << uint32(CompletedMask);
+    _worldPacket.WriteBit(Extending);
+    _worldPacket.WriteBit(WarningOnly);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
+{
+    _worldPacket << uint8(Type);
+    _worldPacket << uint32(MapID);
+    _worldPacket << uint32(DifficultyID);
+    _worldPacket << int32(TimeLeft);
+    _worldPacket.WriteBit(Locked);
+    _worldPacket.WriteBit(Extended);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

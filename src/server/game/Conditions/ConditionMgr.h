@@ -250,11 +250,7 @@ class ConditionMgr
         ~ConditionMgr();
 
     public:
-        static ConditionMgr* instance()
-        {
-            static ConditionMgr instance;
-            return &instance;
-        }
+        static ConditionMgr* instance();
 
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond) const;
@@ -292,7 +288,6 @@ class ConditionMgr
         bool addToGossipMenus(Condition* cond) const;
         bool addToGossipMenuItems(Condition* cond) const;
         bool addToSpellImplicitTargetConditions(Condition* cond) const;
-        bool addToTerrainSwaps(Condition* cond) const;
         bool addToPhases(Condition* cond) const;
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 

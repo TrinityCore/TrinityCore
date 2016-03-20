@@ -28,6 +28,12 @@
 
 #include "SmartScriptMgr.h"
 
+SmartWaypointMgr* SmartWaypointMgr::instance()
+{
+    static SmartWaypointMgr instance;
+    return &instance;
+}
+
 void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
@@ -97,6 +103,12 @@ SmartWaypointMgr::~SmartWaypointMgr()
 
         delete itr->second;
     }
+}
+
+SmartAIMgr* SmartAIMgr::instance()
+{
+    static SmartAIMgr instance;
+    return &instance;
 }
 
 void SmartAIMgr::LoadSmartAIFromDB()
@@ -469,7 +481,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent Map entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.map);
                     return false;
                 }
-                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_AREA && !GetAreaEntryByAreaID(e.event.respawn.area))
+                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_AREA && !sAreaTableStore.LookupEntry(e.event.respawn.area))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent Area entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.area);
                     return false;

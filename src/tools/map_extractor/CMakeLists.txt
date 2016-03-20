@@ -9,34 +9,38 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources *.cpp *.h)
-
-include_directories (
-  ${CMAKE_SOURCE_DIR}/dep/CascLib/src
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/src/common
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/server/shared
+CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
-)
-
-include_directories(${include_Dirs})
+  PRIVATE_SOURCES)
 
 add_executable(mapextractor
-  ${sources}
+  ${PRIVATE_SOURCES}
 )
+
+target_include_directories(mapextractor
+  PUBLIC
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib)
 
 target_link_libraries(mapextractor
-  casc
-  common
-  format
-  ${BZIP2_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
+  PUBLIC
+    common
+    casc)
 
-add_dependencies(mapextractor casc)
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES)
+
+target_include_directories(mapextractor
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(mapextractor
+    PROPERTIES
+      FOLDER
+        "tools")
 
 if( UNIX )
   install(TARGETS mapextractor DESTINATION bin)

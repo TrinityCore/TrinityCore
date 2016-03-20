@@ -57,11 +57,7 @@ class AccountMgr
         ~AccountMgr();
 
     public:
-        static AccountMgr* instance()
-        {
-            static AccountMgr instance;
-            return &instance;
-        }
+        static AccountMgr* instance();
 
         AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "", uint32 bnetAccountId = 0, uint8 bnetIndex = 0);
         static AccountOpResult DeleteAccount(uint32 accountId);

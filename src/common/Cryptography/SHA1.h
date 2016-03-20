@@ -21,6 +21,7 @@
 
 #include "Define.h"
 #include <string>
+#include <type_traits>
 #include <openssl/sha.h>
 
 class BigNumber;
@@ -28,6 +29,8 @@ class BigNumber;
 class SHA1Hash
 {
     public:
+        typedef std::integral_constant<uint32, SHA_DIGEST_LENGTH> DigestLength;
+
         SHA1Hash();
         ~SHA1Hash();
 

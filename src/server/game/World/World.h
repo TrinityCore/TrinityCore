@@ -558,17 +558,13 @@ struct CharacterInfo
 class World
 {
     public:
-        static World* instance()
-        {
-            static World instance;
-            return &instance;
-        }
+        static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
-        void AddInstanceSocket(std::shared_ptr<WorldSocket> sock, uint64 connectToKey);
+        void AddInstanceSocket(std::weak_ptr<WorldSocket> sock, uint64 connectToKey);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
@@ -878,8 +874,8 @@ class World
         void AddSession_(WorldSession* s);
         LockedQueue<WorldSession*> addSessQueue;
 
-        void ProcessLinkInstanceSocket(std::pair<std::shared_ptr<WorldSocket>, uint64> linkInfo);
-        LockedQueue<std::pair<std::shared_ptr<WorldSocket>, uint64>> _linkSocketQueue;
+        void ProcessLinkInstanceSocket(std::pair<std::weak_ptr<WorldSocket>, uint64> linkInfo);
+        LockedQueue<std::pair<std::weak_ptr<WorldSocket>, uint64>> _linkSocketQueue;
 
         // used versions
         std::string m_DBVersion;
@@ -902,5 +898,6 @@ extern Realm realm;
 uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
+
 #endif
 /// @}

@@ -889,6 +889,12 @@ void Map::ScriptsProcess()
                     player->SendMovieStart(step.script->PlayMovie.MovieID);
                 break;
 
+            case SCRIPT_COMMAND_PLAY_ANIMKIT:
+                // Source must be Creature.
+                if (Creature* cSource = _GetScriptCreature(source, true, step.script))
+                    cSource->PlayOneShotAnimKitId(step.script->PlayAnimKit.AnimKitID);
+                break;
+
             default:
                 TC_LOG_ERROR("scripts", "Unknown script command %s.", step.script->GetDebugInfo().c_str());
                 break;

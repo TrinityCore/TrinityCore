@@ -463,9 +463,7 @@ void GameObject::Update(uint32 diff)
                             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
                             {
                                 caster->ToPlayer()->RemoveGameObject(this, false);
-
-                                WorldPacket data(SMSG_FISH_ESCAPED, 0);
-                                caster->ToPlayer()->SendDirectMessage(&data);
+                                caster->ToPlayer()->SendDirectMessage(WorldPackets::GameObject::FishEscaped().Write());
                             }
                             // can be delete
                             m_lootState = GO_JUST_DEACTIVATED;
@@ -1442,7 +1440,10 @@ void GameObject::Use(Unit* user)
                 player->SendCinematicStart(info->camera.camera);
 
             if (info->camera.eventID)
+            {
                 GetMap()->ScriptsStart(sEventScripts, info->camera.eventID, player, this);
+                EventInform(info->camera.eventID, user);
+            }
 
             return;
         }
@@ -1517,9 +1518,7 @@ void GameObject::Use(Unit* user)
                 default:
                 {
                     SetLootState(GO_JUST_DEACTIVATED);
-
-                    WorldPacket data(SMSG_FISH_NOT_HOOKED, 0);
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(WorldPackets::GameObject::FishNotHooked().Write());
                     break;
                 }
             }
@@ -1871,10 +1870,10 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
 
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    WorldPacket data(SMSG_GAME_OBJECT_CUSTOM_ANIM, 8 + 4);
-    data << GetGUID();
-    data << uint32(anim);
-    SendMessageToSet(&data, true);
+    WorldPackets::GameObject::GameObjectCustomAnim customAnim;
+    customAnim.ObjectGUID = GetGUID();
+    customAnim.CustomAnim = anim;
+    SendMessageToSet(customAnim.Write(), true);
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const

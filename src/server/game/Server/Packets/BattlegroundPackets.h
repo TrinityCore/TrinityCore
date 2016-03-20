@@ -59,6 +59,17 @@ namespace WorldPackets
             ObjectGuid HealerGuid;
         };
 
+        class AreaSpiritHealerTime final : public ServerPacket
+        {
+        public:
+            AreaSpiritHealerTime() : ServerPacket(SMSG_AREA_SPIRIT_HEALER_TIME, 14 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid HealerGuid;
+            int32 TimeLeft = 0;
+        };
+
         class HearthAndResurrect final : public ClientPacket
         {
         public:
@@ -377,6 +388,22 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
+        };
+
+        class RequestPVPRewards final : public ClientPacket
+        {
+        public:
+            RequestPVPRewards(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PVP_REWARDS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestRatedBattlefieldInfo final : public ClientPacket
+        {
+        public:
+            RequestRatedBattlefieldInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_BATTLEFIELD_INFO, std::move(packet)) { }
+
+            void Read() override { }
         };
     }
 }

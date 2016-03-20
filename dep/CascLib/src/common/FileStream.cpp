@@ -16,7 +16,6 @@
 #define __CASCLIB_SELF__
 #include "../CascLib.h"
 #include "../CascCommon.h"
-#include "FileStream.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib, "wininet.lib")             // Internet functions for HTTP stream

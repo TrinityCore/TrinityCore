@@ -41,11 +41,7 @@ class PacketLog
         std::once_flag _initializeFlag;
 
     public:
-        static PacketLog* instance()
-        {
-            static PacketLog instance;
-            return &instance;
-        }
+        static PacketLog* instance();
 
         void Initialize();
         bool CanLogPacket() const { return (_file != NULL); }

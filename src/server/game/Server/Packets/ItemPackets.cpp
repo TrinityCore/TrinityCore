@@ -109,6 +109,11 @@ WorldPacket const* WorldPackets::Item::SetItemPurchaseData::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Item::ItemPurchaseRefund::Read()
+{
+    _worldPacket >> ItemGUID;
+}
+
 WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
 {
     _worldPacket << ItemGUID;

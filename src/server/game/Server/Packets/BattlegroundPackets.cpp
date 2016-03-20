@@ -35,6 +35,14 @@ void WorldPackets::Battleground::AreaSpiritHealerQueue::Read()
     _worldPacket >> HealerGuid;
 }
 
+WorldPacket const* WorldPackets::Battleground::AreaSpiritHealerTime::Write()
+{
+    _worldPacket << HealerGuid;
+    _worldPacket << int32(TimeLeft);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::RatingData const& ratingData)
 {
     data.append(ratingData.Prematch, 2);

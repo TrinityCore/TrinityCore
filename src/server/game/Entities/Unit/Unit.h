@@ -668,7 +668,7 @@ enum DamageEffectType
 };
 
 // Value masks for UNIT_FIELD_FLAGS
-enum UnitFlags
+enum UnitFlags : uint32
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
     UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
@@ -1499,13 +1499,13 @@ class Unit : public WorldObject
         MountCapabilityEntry const* GetMountCapability(uint32 mountType) const;
 
         void SendDurabilityLoss(Player* receiver, uint32 percent);
+        void PlayOneShotAnimKitId(uint16 animKitId);
         void SetAIAnimKitId(uint16 animKitId);
         uint16 GetAIAnimKitId() const override { return _aiAnimKitId; }
         void SetMovementAnimKitId(uint16 animKitId);
         uint16 GetMovementAnimKitId() const override { return _movementAnimKitId; }
         void SetMeleeAnimKitId(uint16 animKitId);
         uint16 GetMeleeAnimKitId() const override { return _meleeAnimKitId; }
-        void PlayOneShotAnimKit(uint16 animKitId);
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);

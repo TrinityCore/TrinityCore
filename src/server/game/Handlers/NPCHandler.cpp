@@ -31,6 +31,7 @@
 #include "ObjectAccessor.h"
 #include "Creature.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "ReputationMgr.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
@@ -256,7 +257,7 @@ void WorldSession::SendTrainerBuyFailed(ObjectGuid trainerGUID, uint32 spellID, 
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_GOSSIP);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
@@ -296,7 +297,6 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     unit->AI()->sGossipHello(_player);
 }
 
-
 void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
 {
     if (!_player->PlayerTalkClass->GetGossipMenu().GetItem(packet.GossipIndex))
@@ -310,20 +310,19 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     GameObject* go = nullptr;
     if (packet.GossipUnit.IsCreatureOrVehicle())
     {
-        unit = GetPlayer()->GetNPCIfCanInteractWith(packet.GossipUnit, UNIT_NPC_FLAG_NONE);
+        unit = GetPlayer()->GetNPCIfCanInteractWith(packet.GossipUnit, UNIT_NPC_FLAG_GOSSIP);
         if (!unit)
         {
-
             TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found or you can't interact with him.", packet.GossipUnit.ToString().c_str());
             return;
         }
     }
     else if (packet.GossipUnit.IsGameObject())
     {
-        go = _player->GetMap()->GetGameObject(packet.GossipUnit);
+        go = _player->GetGameObjectIfCanInteractWith(packet.GossipUnit);
         if (!go)
         {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", packet.GossipUnit.ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found or you can't interact with it.", packet.GossipUnit.ToString().c_str());
             return;
         }
     }
@@ -465,14 +464,9 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
+void WorldSession::HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPets& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS");
-    ObjectGuid npcGUID;
-
-    recvData >> npcGUID;
-
-    if (!CheckStableMaster(npcGUID))
+    if (!CheckStableMaster(packet.StableMaster))
         return;
 
     // remove fake death
@@ -483,7 +477,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
     if (GetPlayer()->IsMounted())
         GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-    SendStablePet(npcGUID);
+    SendStablePet(packet.StableMaster);
 }
 
 void WorldSession::SendStablePet(ObjectGuid guid)
@@ -503,29 +497,27 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     if (!GetPlayer())
         return;
 
-    WorldPacket data(SMSG_PET_STABLE_LIST, 200);           // guess size
+    WorldPackets::Pet::PetStableList packet;
 
-    data << guid;
+    packet.StableMaster = guid;
 
     Pet* pet = _player->GetPet();
 
-    size_t wpos = data.wpos();
-    data << uint8(0);                                       // place holder for slot show number
-
-    data << uint8(GetPlayer()->m_stableSlots);
-
-    uint8 num = 0;                                          // counter for place holder
-
+    int32 petSlot = 0;
     // not let move dead pet in slot
     if (pet && pet->IsAlive() && pet->getPetType() == HUNTER_PET)
     {
-        data << uint32(num);                                // 4.x unknown, some kind of order?
-        data << uint32(pet->GetCharmInfo()->GetPetNumber());
-        data << uint32(pet->GetEntry());
-        data << uint32(pet->getLevel());
-        data << pet->GetName();                             // petname
-        data << uint8(1);                                   // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
-        ++num;
+        WorldPackets::Pet::PetStableInfo stableEntry;
+        stableEntry.PetSlot = petSlot;
+        stableEntry.PetNumber = pet->GetCharmInfo()->GetPetNumber();
+        stableEntry.CreatureID = pet->GetEntry();
+        stableEntry.DisplayID = pet->GetDisplayId();
+        stableEntry.ExperienceLevel = pet->getLevel();
+        stableEntry.PetFlags = PET_STABLE_ACTIVE;
+        stableEntry.PetName = pet->GetName();                                       
+        ++petSlot;
+
+        packet.Pets.push_back(stableEntry);
     }
 
     if (result)
@@ -533,22 +525,23 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
         do
         {
             Field* fields = result->Fetch();
+            WorldPackets::Pet::PetStableInfo stableEntry;
 
-            data << uint32(num);
-            data << uint32(fields[1].GetUInt32());          // petnumber
-            data << uint32(fields[2].GetUInt32());          // creature entry
-            data << uint32(fields[3].GetUInt16());          // level
-            data << fields[4].GetString();                  // name
-            data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
+            stableEntry.PetSlot = petSlot;
+            stableEntry.PetNumber = fields[1].GetUInt32();          // petnumber
+            stableEntry.CreatureID = fields[2].GetUInt32();         // creature entry
+            stableEntry.DisplayID = fields[5].GetUInt32();          // creature displayid
+            stableEntry.ExperienceLevel = fields[3].GetUInt16();    // level
+            stableEntry.PetFlags = PET_STABLE_INACTIVE;
+            stableEntry.PetName = fields[4].GetString();            // Name
 
-            ++num;
+            ++petSlot;
+            packet.Pets.push_back(stableEntry);
         }
         while (result->NextRow());
     }
 
-    data.put<uint8>(wpos, num);                             // set real data to placeholder
-    SendPacket(&data);
-
+    SendPacket(packet.Write());
 }
 
 void WorldSession::SendPetStableResult(uint8 res)

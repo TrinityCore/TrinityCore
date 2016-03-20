@@ -2861,7 +2861,17 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     {
         m_castItemGUID = m_CastItem->GetGUID();
         m_castItemEntry = m_CastItem->GetEntry();
-        m_castItemLevel = int32(m_CastItem->GetItemLevel(m_CastItem->GetOwner()));
+
+        if (Player* owner = m_CastItem->GetOwner())
+            m_castItemLevel = int32(m_CastItem->GetItemLevel(owner));
+        else if (m_CastItem->GetOwnerGUID() == m_caster->GetGUID())
+            m_castItemLevel = int32(m_CastItem->GetItemLevel(m_caster->ToPlayer()));
+        else
+        {
+            SendCastResult(SPELL_FAILED_EQUIPPED_ITEM);
+            finish(false);
+            return;
+        }
     }
 
     InitExplicitTargets(*targets);
@@ -5501,7 +5511,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->IsAlive())
                 {
                     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_originalCaster->GetZoneId());
-                    if (AreaTableEntry const* area = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
+                    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_originalCaster->GetAreaId()))
                         if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE  || (Bf && !Bf->CanFlyIn()))
                             return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                 }
@@ -6407,11 +6417,11 @@ void Spell::Delayed() // only called in DealDamage()
 
     TC_LOG_DEBUG("spells", "Spell %u partially interrupted for (%d) ms at damage", m_spellInfo->Id, delaytime);
 
-    WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    data << m_caster->GetPackGUID();
-    data << uint32(delaytime);
+    WorldPackets::Spells::SpellDelayed spellDelayed;
+    spellDelayed.Caster = m_caster->GetGUID();
+    spellDelayed.ActualDelay = delaytime;
 
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(spellDelayed.Write(), true);
 }
 
 void Spell::DelayedChannel()

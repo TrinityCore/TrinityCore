@@ -100,9 +100,10 @@ struct map_areaHeader
     uint16 gridArea;
 };
 
-#define MAP_HEIGHT_NO_HEIGHT  0x0001
-#define MAP_HEIGHT_AS_INT16   0x0002
-#define MAP_HEIGHT_AS_INT8    0x0004
+#define MAP_HEIGHT_NO_HEIGHT            0x0001
+#define MAP_HEIGHT_AS_INT16             0x0002
+#define MAP_HEIGHT_AS_INT8              0x0004
+#define MAP_HEIGHT_HAS_FLIGHT_BOUNDS    0x0008
 
 struct map_heightHeader
 {
@@ -168,6 +169,8 @@ class GridMap
         uint16* m_uint16_V8;
         uint8* m_uint8_V8;
     };
+    int16* _maxHeight;
+    int16* _minHeight;
     // Height level data
     float _gridHeight;
     float _gridIntHeightMultiplier;
@@ -208,6 +211,7 @@ public:
 
     uint16 getArea(float x, float y) const;
     inline float getHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
+    float getMinHeight(float x, float y) const;
     float getLiquidLevel(float x, float y) const;
     uint8 getTerrainType(float x, float y) const;
     ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
@@ -329,11 +333,15 @@ class Map : public GridRefManager<NGridType>
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetHeight(float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
+        float GetMinHeight(float x, float y) const;
 
         ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr) const;
 
-        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=nullptr) const;
-        bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
+        uint32 GetAreaId(float x, float y, float z, bool *isOutdoors) const;
+        bool GetAreaInfo(float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId) const;
+        uint32 GetAreaId(float x, float y, float z) const;
+        uint32 GetZoneId(float x, float y, float z) const;
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const;
 
         bool IsOutdoors(float x, float y, float z) const;
 
@@ -341,25 +349,6 @@ class Map : public GridRefManager<NGridType>
         float GetWaterLevel(float x, float y) const;
         bool IsInWater(float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
-
-        static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
-        static uint32 GetZoneIdByAreaFlag(uint16 areaflag, uint32 map_id);
-        static void GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 areaflag, uint32 map_id);
-
-        uint32 GetAreaId(float x, float y, float z) const
-        {
-            return GetAreaIdByAreaFlag(GetAreaFlag(x, y, z), GetId());
-        }
-
-        uint32 GetZoneId(float x, float y, float z) const
-        {
-            return GetZoneIdByAreaFlag(GetAreaFlag(x, y, z), GetId());
-        }
-
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, float x, float y, float z) const
-        {
-            GetZoneAndAreaIdByAreaFlag(zoneid, areaid, GetAreaFlag(x, y, z), GetId());
-        }
 
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();

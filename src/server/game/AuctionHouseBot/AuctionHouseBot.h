@@ -190,11 +190,7 @@ private:
     AuctionBotConfig& operator=(const AuctionBotConfig&);
 
 public:
-    static AuctionBotConfig* instance()
-    {
-        static AuctionBotConfig instance;
-        return &instance;
-    }
+    static AuctionBotConfig* instance();
 
     bool Initialize();
     const std::string& GetAHBotIncludes() const { return _AHBotIncludes; }
@@ -268,11 +264,7 @@ private:
     AuctionHouseBot& operator=(const AuctionHouseBot&);
 
 public:
-    static AuctionHouseBot* instance()
-    {
-        static AuctionHouseBot instance;
-        return &instance;
-    }
+    static AuctionHouseBot* instance();
 
     void Update();
     void Initialize();

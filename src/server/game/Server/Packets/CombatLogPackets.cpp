@@ -334,3 +334,34 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellDispellData const& dispellData)
+{
+    buffer << int32(dispellData.SpellID);
+    buffer.WriteBit(dispellData.Harmful);
+    buffer.WriteBit(dispellData.Rolled.is_initialized());
+    buffer.WriteBit(dispellData.Needed.is_initialized());
+    if (dispellData.Rolled.is_initialized())
+        buffer << int32(*dispellData.Rolled);
+    if (dispellData.Needed.is_initialized())
+        buffer << int32(*dispellData.Needed);
+
+    buffer.FlushBits();
+
+    return buffer;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellDispellLog::Write()
+{
+    _worldPacket.WriteBit(IsSteal);
+    _worldPacket.WriteBit(IsBreak);
+    _worldPacket << TargetGUID;
+    _worldPacket << CasterGUID;
+    _worldPacket << int32(DispelledBySpellID);
+
+    _worldPacket << uint32(DispellData.size());
+    for (SpellDispellData const& data : DispellData)
+        _worldPacket << data;
+
+    return &_worldPacket;
+}

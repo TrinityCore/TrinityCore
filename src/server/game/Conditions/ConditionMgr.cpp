@@ -926,6 +926,12 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
     return true;
 }
 
+ConditionMgr* ConditionMgr::instance()
+{
+    static ConditionMgr instance;
+    return &instance;
+}
+
 void ConditionMgr::LoadConditions(bool isReload)
 {
     uint32 oldMSTime = getMSTime();
@@ -954,6 +960,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         TC_LOG_INFO("misc", "Re-Loading `gossip_menu_option` Table for Conditions!");
         sObjectMgr->LoadGossipMenuItems();
+
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
 
         TC_LOG_INFO("misc", "Re-Loading `terrain_phase_info` Table for Conditions!");
@@ -1181,17 +1188,6 @@ void ConditionMgr::LoadConditions(bool isReload)
             }
             continue;
         }
-        else if (cond->SourceType == CONDITION_SOURCE_TYPE_TERRAIN_SWAP)
-        {
-            if (!addToTerrainSwaps(cond))
-            {
-                delete cond;
-                continue;
-            }
-
-            ++count;
-            continue;
-        }
 
         //handle not grouped conditions
         //add new Condition to storage based on Type/Entry
@@ -1359,29 +1355,6 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
         }
     }
     return true;
-}
-
-static bool addToTerrainSwapStore(TerrainPhaseInfo& swaps, Condition* cond)
-{
-    bool added = false;
-    for (auto itr = swaps.begin(); itr != swaps.end(); ++itr)
-        for (auto it2 = itr->second.begin(); it2 != itr->second.end(); ++it2)
-            if (it2->Id == uint32(cond->SourceEntry))
-                it2->Conditions.push_back(cond), added = true;
-
-    return added;
-}
-
-bool ConditionMgr::addToTerrainSwaps(Condition* cond) const
-{
-    bool added = false;
-    added = addToTerrainSwapStore(sObjectMgr->GetPhaseTerrainSwapStoreForLoading(), cond);
-    added = addToTerrainSwapStore(sObjectMgr->GetDefaultTerrainSwapStoreForLoading(), cond) || added;
-    if (added)
-        return true;
-
-    TC_LOG_ERROR("sql.sql", "%s No terrain swap with map %u exists.", cond->ToString().c_str(), cond->SourceEntry);
-    return false;
 }
 
 bool ConditionMgr::addToPhases(Condition* cond) const
@@ -1768,7 +1741,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         }
         case CONDITION_SOURCE_TYPE_PHASE:
         {
-            if (cond->SourceEntry && !GetAreaEntryByAreaID(cond->SourceEntry))
+            if (cond->SourceEntry && !sAreaTableStore.LookupEntry(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in AreaTable.dbc, ignoring.", cond->ToString().c_str());
                 return false;
@@ -1845,7 +1818,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_ZONEID:
         {
-            AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(cond->ConditionValue1);
+            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(cond->ConditionValue1);
             if (!areaEntry)
             {
                 TC_LOG_ERROR("sql.sql", "%s Area (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
@@ -2592,12 +2565,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
 
         for (std::size_t i = 0; i < ExploredCount::value; ++i)
         {
-            if (condition->Explored[i])
-            {
-                int32 exploreFlag = GetAreaFlagByAreaID(condition->Explored[i]);
-                if (exploreFlag != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + exploreFlag / 32) & (1 << (uint32(exploreFlag) % 32))))
+            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(condition->Explored[i]))
+                if (area->AreaBit != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + area->AreaBit / 32) & (1 << (uint32(area->AreaBit) % 32))))
                     return false;
-            }
         }
     }
 

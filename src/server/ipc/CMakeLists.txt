@@ -8,20 +8,26 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-find_package(ZMQ REQUIRED)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES)
 
-file(GLOB_RECURSE sources_ipc *.cpp *.h)
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-set(ipc_SRCS
-  ${sources_ipc}
-)
+add_library(ipc ${PRIVATE_SOURCES})
 
-include_directories(
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/dep/zmqpp
-  ${CMAKE_SOURCE_DIR}/src/common
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${ZMQ_INCLUDE_DIR}
-)
+target_include_directories(ipc
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(ipc STATIC ${ipc_SRCS})
+target_link_libraries(ipc
+  PUBLIC
+    shared
+    zmqpp)
+
+set_target_properties(ipc
+    PROPERTIES
+      FOLDER
+        "server")

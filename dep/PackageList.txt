@@ -1,6 +1,6 @@
 TrinityCore uses (parts of or in whole) the following opensource software :
 
-Boost
+Boost (external)
   http://www.boost.org
   Version: 1.55
 
@@ -14,7 +14,7 @@ bzip2 (a freely available, patent free, high-quality data compressor)
 
 cppformat (type safe format library)
   https://github.com/cppformat/cppformat
-  Version: 5c76d107cbaf5e851bd66b6c563e4fc7c90be7ad
+  Version: 5174b8ca281426af604b85fdf53be8a748b33f56
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -23,6 +23,14 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
   Version: 3.6.0
+
+libreadline (command line editing library)
+  https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+  Version: external
+
+OpenSSL (general-purpose cryptography library)
+  https://www.openssl.org/
+  Version: external
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
@@ -46,7 +54,7 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib
-  Version: d1d617d4feecd39bae049e19b0e217a1a84bedc6
+  Version: 919a2d670cb749c501ee15887a88e9b9a538961b
 
 zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core 0mq provides.)
   https://github.com/zeromq/zmqpp

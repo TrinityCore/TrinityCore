@@ -240,6 +240,16 @@ namespace WorldPackets
             int32 SpellID               = 0;
             int32 TrainerFailedReason   = 0;
         };
+
+        class RequestStabledPets final : public ClientPacket
+        {
+        public:
+            RequestStabledPets(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_STABLED_PETS, std::move(packet)) { }
+        
+            void Read() override;
+
+            ObjectGuid StableMaster;
+        };
     }
 }
 

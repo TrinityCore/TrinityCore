@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -1427,9 +1428,9 @@ bool Pet::learnSpell(uint32 spell_id)
 
     if (!m_loading)
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
-        data << uint32(spell_id);
-        GetOwner()->GetSession()->SendPacket(&data);
+        WorldPackets::Pet::PetLearnedSpells packet;
+        packet.Spells.push_back(spell_id);
+        GetOwner()->GetSession()->SendPacket(packet.Write());
         GetOwner()->PetSpellInitialize();
     }
     return true;
@@ -1478,9 +1479,9 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     {
         if (!m_loading)
         {
-            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
-            data << uint32(spell_id);
-            GetOwner()->GetSession()->SendPacket(&data);
+            WorldPackets::Pet::PetUnlearnedSpells packet;
+            packet.Spells.push_back(spell_id);
+            GetOwner()->GetSession()->SendPacket(packet.Write());
         }
         return true;
     }
@@ -1726,25 +1727,22 @@ uint8 Pet::GetMaxTalentPointsForLevel(uint8 level) const
 
 void Pet::ToggleAutocast(SpellInfo const* spellInfo, bool apply)
 {
+    ASSERT(spellInfo);
+
     if (!spellInfo->IsAutocastable())
         return;
 
-    uint32 spellid = spellInfo->Id;
-
-    PetSpellMap::iterator itr = m_spells.find(spellid);
+    PetSpellMap::iterator itr = m_spells.find(spellInfo->Id);
     if (itr == m_spells.end())
         return;
 
-    uint32 i;
+    auto autospellItr = std::find(m_autospells.begin(), m_autospells.end(), spellInfo->Id);
 
     if (apply)
     {
-        for (i = 0; i < m_autospells.size() && m_autospells[i] != spellid; ++i)
-            ;                                               // just search
-
-        if (i == m_autospells.size())
+        if (autospellItr == m_autospells.end())
         {
-            m_autospells.push_back(spellid);
+            m_autospells.push_back(spellInfo->Id);
 
             if (itr->second.active != ACT_ENABLED)
             {
@@ -1756,13 +1754,10 @@ void Pet::ToggleAutocast(SpellInfo const* spellInfo, bool apply)
     }
     else
     {
-        AutoSpellList::iterator itr2 = m_autospells.begin();
-        for (i = 0; i < m_autospells.size() && m_autospells[i] != spellid; ++i, ++itr2)
-            ;                                               // just search
-
-        if (i < m_autospells.size())
+        if (autospellItr != m_autospells.end())
         {
-            m_autospells.erase(itr2);
+            m_autospells.erase(autospellItr);
+
             if (itr->second.active != ACT_DISABLED)
             {
                 itr->second.active = ACT_DISABLED;

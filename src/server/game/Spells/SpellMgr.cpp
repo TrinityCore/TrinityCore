@@ -472,6 +472,12 @@ SpellMgr::~SpellMgr()
     UnloadSpellInfoStore();
 }
 
+SpellMgr* SpellMgr::instance()
+{
+    static SpellMgr instance;
+    return &instance;
+}
+
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
 bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg)
 {
@@ -2625,7 +2631,7 @@ void SpellMgr::LoadSpellAreas()
             }
         }
 
-        if (spellArea.areaId && !GetAreaEntryByAreaID(spellArea.areaId))
+        if (spellArea.areaId && !sAreaTableStore.LookupEntry(spellArea.areaId))
         {
             TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong area (%u) requirement", spell, spellArea.areaId);
             continue;

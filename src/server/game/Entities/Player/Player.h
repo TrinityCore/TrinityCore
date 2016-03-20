@@ -155,6 +155,14 @@ enum TalentSpecialization // talent tabs
     TALENT_SPEC_MONK_MISTWEAVER         = 270
 };
 
+enum SpecResetType
+{
+    SPEC_RESET_TALENTS = 0,
+    SPEC_RESET_SPECIALIZATION = 1,
+    SPEC_RESET_GLYPHS = 2,
+    SPEC_RESET_PET_TALENTS = 3
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1221,8 +1229,9 @@ class Player : public Unit, public GridObject<Player>
         void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const;
 
         bool CanInteractWithQuestGiver(Object* questGiver) const;
-        Creature* GetNPCIfCanInteractWith(ObjectGuid guid, uint64 npcflagmask) const;
-        GameObject* GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTypes type) const;
+        Creature* GetNPCIfCanInteractWith(ObjectGuid const& guid, uint64 npcflagmask) const;
+        GameObject* GetGameObjectIfCanInteractWith(ObjectGuid const& guid) const;
+        GameObject* GetGameObjectIfCanInteractWith(ObjectGuid const& guid, GameobjectTypes type) const;
 
         void ToggleAFK();
         void ToggleDND();
@@ -2334,6 +2343,7 @@ class Player : public Unit, public GridObject<Player>
         // permanent binds and solo binds by difficulty
         BoundInstancesMap m_boundInstances[MAX_DIFFICULTY];
         InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
+        InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
         InstanceSave* GetInstanceSave(uint32 mapid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);

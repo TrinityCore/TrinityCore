@@ -162,11 +162,7 @@ public:
     typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
     typedef std::unordered_set<uint32> ToyItemIdsContainer;
 
-    static DB2Manager& Instance()
-    {
-        static DB2Manager instance;
-        return instance;
-    }
+    static DB2Manager& Instance();
 
     void LoadStores(std::string const& dataPath, uint32 defaultLocale);
     DB2StorageBase const* GetStorage(uint32 type) const;

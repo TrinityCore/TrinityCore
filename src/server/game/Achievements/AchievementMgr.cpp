@@ -2275,17 +2275,18 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteria const* achieve
             bool matchFound = false;
             for (int j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
             {
-                uint32 area_id = worldOverlayEntry->AreaID[j];
-                if (!area_id)                            // array have 0 only in empty tail
+                AreaTableEntry const* area = sAreaTableStore.LookupEntry(worldOverlayEntry->AreaID[j]);
+                if (!area)
                     break;
 
-                int32 exploreFlag = GetAreaFlagByAreaID(area_id);
-                if (exploreFlag < 0)
+                if (area->AreaBit < 0)
                     continue;
 
-                uint32 playerIndexOffset = uint32(exploreFlag) / 32;
-                uint32 mask = 1 << (uint32(exploreFlag) % 32);
+                uint32 playerIndexOffset = uint32(area->AreaBit) / 32;
+                if (playerIndexOffset >= PLAYER_EXPLORED_ZONES_SIZE)
+                    continue;
 
+                uint32 mask = 1 << (uint32(area->AreaBit) % 32);
                 if (referencePlayer->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + playerIndexOffset) & mask)
                 {
                     matchFound = true;
@@ -2888,6 +2889,12 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
 
 template class AchievementMgr<Guild>;
 template class AchievementMgr<Player>;
+
+AchievementGlobalMgr* AchievementGlobalMgr::instance()
+{
+    static AchievementGlobalMgr instance;
+    return &instance;
+}
 
 //==========================================================
 AchievementGlobalMgr::~AchievementGlobalMgr()
