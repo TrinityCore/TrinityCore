@@ -65,8 +65,6 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_PRESENCE_TRIGGERED          = 49772,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
-    SPELL_DK_RAISE_ALLY_INITIAL                 = 61999,
-    SPELL_DK_RAISE_ALLY                         = 46619,
     SPELL_DK_GHOUL_THRASH                       = 47480
 };
 

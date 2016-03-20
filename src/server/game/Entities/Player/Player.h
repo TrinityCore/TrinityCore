@@ -1023,10 +1023,7 @@ struct ResurrectionData
     uint32 Aura;
 };
 
-enum Spells
-{
-    SPELL_DK_RAISE_ALLY = 46619
-};
+#define SPELL_DK_RAISE_ALLY 46619
 
 class Player : public Unit, public GridObject<Player>
 {
