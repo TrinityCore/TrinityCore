@@ -43,8 +43,7 @@ endif()
 
 target_link_libraries(bnetserver
   PUBLIC
-    shared
-    ipc)
+    shared)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}

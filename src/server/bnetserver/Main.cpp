@@ -36,7 +36,6 @@
 #include "RealmList.h"
 #include "GitRevision.h"
 #include "Util.h"
-#include "ZmqContext.h"
 #include "DatabaseLoader.h"
 #include <cstdlib>
 #include <iostream>
@@ -136,23 +135,14 @@ int main(int argc, char** argv)
         }
     }
 
-    int32 worldListenPort = sConfigMgr->GetIntDefault("WorldserverListenPort", 1118);
-    if (worldListenPort < 0 || worldListenPort > 0xFFFF)
-    {
-        TC_LOG_ERROR("server.bnetserver", "Specified worldserver listen port (%d) out of allowed range (1-65535)", worldListenPort);
-        return 1;
-    }
-
     // Initialize the database connection
     if (!StartDB())
         return 1;
 
-    sIpcContext->Initialize();
-
     _ioService = new boost::asio::io_service();
 
     // Get the list of realms for the server
-    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), worldListenPort);
+    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
@@ -208,8 +198,6 @@ int main(int argc, char** argv)
     _dbPingTimer->cancel();
 
     sSessionMgr.StopNetwork();
-
-    sIpcContext->Close();
 
     sRealmList->Close();
 
