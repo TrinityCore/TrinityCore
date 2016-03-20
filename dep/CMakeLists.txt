@@ -34,8 +34,6 @@ if(SERVERS)
   add_subdirectory(process)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
-  add_subdirectory(zmq)
-  add_subdirectory(zmqpp)
 endif()
 
 if(TOOLS)

@@ -21,8 +21,6 @@
 /// \file
 
 #include "Common.h"
-#include "Commands.h"
-#include "ZmqContext.h"
 #include "DatabaseEnv.h"
 #include "AsyncAcceptor.h"
 #include "RASession.h"
@@ -43,7 +41,6 @@
 #include "GitRevision.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "BattlenetServerManager.h"
 #include "Realm/Realm.h"
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
@@ -240,10 +237,6 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
-    sIpcContext->Initialize();
-
-    sBattlenetServer.InitializeConnection();
-
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
@@ -256,10 +249,6 @@ extern int main(int argc, char** argv)
     sLog->SetSynchronous();
 
     sScriptMgr->OnShutdown();
-
-    sIpcContext->Close();
-
-    sBattlenetServer.CloseConnection();
 
     sWorld->KickAll();                                       // save and kick all players
     sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call

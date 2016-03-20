@@ -27,7 +27,6 @@ endif(WIN32)
 
 add_subdirectory(database)
 add_subdirectory(shared)
-add_subdirectory(ipc)
 add_subdirectory(bnetserver)
 add_subdirectory(game)
 add_subdirectory(scripts)

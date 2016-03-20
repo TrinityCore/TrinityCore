@@ -21,7 +21,6 @@
 #include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
-#include "BattlenetServerManager.h"
 #include "BattlePetPackets.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
@@ -1137,8 +1136,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
-
-    sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), true);
 
     delete holder;
 }
