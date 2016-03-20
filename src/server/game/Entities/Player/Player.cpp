@@ -332,8 +332,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
-    clearResurrectRequestData();
-
     memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
 
     m_social = nullptr;
@@ -1565,7 +1563,7 @@ void Player::setDeathState(DeathState s)
         // lost combo points at any target (targeted combo points clear in Unit::setDeathState)
         ClearComboPoints();
 
-        clearResurrectRequestData();
+        ClearResurrectRequestData();
 
         //FIXME: is pet dismissed at dying or releasing spirit? if second, add setDeathState(DEAD) to HandleRepopRequestOpcode and define pet unsummon here with (s == DEAD)
         RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
@@ -2056,24 +2054,7 @@ void Player::ProcessDelayedOperations()
         return;
 
     if (m_DelayedOperations & DELAYED_RESURRECT_PLAYER)
-    {
-        ResurrectPlayer(0.0f, false);
-
-        if (GetMaxHealth() > m_resurrectHealth)
-            SetHealth(m_resurrectHealth);
-        else
-            SetFullHealth();
-
-        if (GetMaxPower(POWER_MANA) > m_resurrectMana)
-            SetPower(POWER_MANA, m_resurrectMana);
-        else
-            SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-
-        SetPower(POWER_RAGE, 0);
-        SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-
-        SpawnCorpseBones();
-    }
+        ResurrectUsingRequestDataImpl();
 
     if (m_DelayedOperations & DELAYED_SAVE_PLAYER)
         SaveToDB();
@@ -4758,30 +4739,9 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     }
 }
 
-void Player::SendGhoulResurrectRequest(Player* target)
-{
-    target->m_ghoulResurrectPlayerGUID = GetGUID();
-
-    WorldPacket data(SMSG_RESURRECT_REQUEST, 8 + 4 + 1 + 1);
-    data << uint64(GetGUID());
-    data << uint32(0);
-    data << uint8(0);
-    data << uint8(0);
-    target->GetSession()->SendPacket(&data);
-}
-
-void Player::GhoulResurrect()
-{
-    CastSpell(this, 46619 /*SPELL_DK_RAISE_ALLY*/, true, nullptr, nullptr, m_ghoulResurrectPlayerGUID);
-
-    m_ghoulResurrectPlayerGUID = ObjectGuid::Empty;
-}
-
 void Player::RemoveGhoul()
 {
-    if (IsGhouled())
-        if (Creature* ghoul = ObjectAccessor::GetCreature(*this, m_ghoulResurrectGhoulGUID))
-            ghoul->DespawnOrUnsummon(); // Raise Ally aura will handle unauras
+    RemoveAura(SPELL_DK_RAISE_ALLY);
 }
 
 void Player::KillPlayer()
@@ -7010,6 +6970,7 @@ void Player::SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
     SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
     SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
 }
+
 void Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
 {
     SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
@@ -21664,24 +21625,17 @@ void Player::UpdatePotionCooldown(Spell* spell)
     m_lastPotionId = 0;
 }
 
-void Player::setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana)
+void Player::SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
 {
-    m_resurrectGUID = guid;
-    m_resurrectMap = mapId;
-    m_resurrectX = X;
-    m_resurrectY = Y;
-    m_resurrectZ = Z;
-    m_resurrectHealth = health;
-    m_resurrectMana = mana;
+    ASSERT(!IsResurrectRequested());
+    _resurrectionData.reset(new ResurrectionData());
+    _resurrectionData->GUID = caster->GetGUID();
+    _resurrectionData->Location.WorldRelocate(*caster);
+    _resurrectionData->Health = health;
+    _resurrectionData->Mana = mana;
+    _resurrectionData->Aura = appliedAura;
 }
 
-void Player::clearResurrectRequestData()
-{
-    setResurrectRequestData(ObjectGuid::Empty, 0, 0.0f, 0.0f, 0.0f, 0, 0);
-
-    m_ghoulResurrectPlayerGUID = ObjectGuid::Empty;
-    m_ghoulResurrectGhoulGUID = ObjectGuid::Empty;
-}
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const
 {
@@ -23588,8 +23542,14 @@ void Player::ResurrectUsingRequestData()
 {
     RemoveGhoul();
 
+    if (uint32 aura = _resurrectionData->Aura)
+    {
+        CastSpell(this, _resurrectionData->Aura, true, nullptr, nullptr, _resurrectionData->GUID);
+        return;
+    }
+
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
-    TeleportTo(m_resurrectMap, m_resurrectX, m_resurrectY, m_resurrectZ, GetOrientation());
+    TeleportTo(_resurrectionData->Location);
 
     if (IsBeingTeleported())
     {
@@ -23597,15 +23557,20 @@ void Player::ResurrectUsingRequestData()
         return;
     }
 
+    ResurrectUsingRequestDataImpl();
+}
+
+void Player::ResurrectUsingRequestDataImpl()
+{
     ResurrectPlayer(0.0f, false);
 
-    if (GetMaxHealth() > m_resurrectHealth)
-        SetHealth(m_resurrectHealth);
+    if (GetMaxHealth() > _resurrectionData->Health)
+        SetHealth(_resurrectionData->Health);
     else
         SetFullHealth();
 
-    if (GetMaxPower(POWER_MANA) > m_resurrectMana)
-        SetPower(POWER_MANA, m_resurrectMana);
+    if (GetMaxPower(POWER_MANA) > _resurrectionData->Mana)
+        SetPower(POWER_MANA, _resurrectionData->Mana);
     else
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
 
