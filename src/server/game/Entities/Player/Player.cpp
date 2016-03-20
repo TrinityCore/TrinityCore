@@ -23544,7 +23544,7 @@ void Player::ResurrectUsingRequestData()
 
     if (uint32 aura = _resurrectionData->Aura)
     {
-        CastSpell(this, _resurrectionData->Aura, true, nullptr, nullptr, _resurrectionData->GUID);
+        CastSpell(this, aura, true, nullptr, nullptr, _resurrectionData->GUID);
         return;
     }
 
