@@ -1757,7 +1757,6 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
             if (Player* target = GetHitPlayer())
             {
                 if (target->IsResurrectRequested()) // already have one active request
