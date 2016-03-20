@@ -167,8 +167,6 @@ Player::Player(WorldSession* session) : Unit(true)
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
-    _resurrectionData = nullptr;
-
     memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
 
     m_social = nullptr;
@@ -402,8 +400,6 @@ Player::~Player()
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
-
-    ClearResurrectRequestData();
 
     sWorld->DecreasePlayerCount();
 }
@@ -1706,28 +1702,7 @@ void Player::ProcessDelayedOperations()
         return;
 
     if (m_DelayedOperations & DELAYED_RESURRECT_PLAYER)
-    {
-        ResurrectPlayer(0.0f, false);
-
-        if (GetMaxHealth() > _resurrectionData->Health)
-            SetHealth(_resurrectionData->Health);
-        else
-            SetFullHealth();
-
-        if (uint32(GetMaxPower(POWER_MANA)) > _resurrectionData->Mana)
-            SetPower(POWER_MANA, _resurrectionData->Mana);
-        else
-            SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-
-        SetPower(POWER_RAGE, 0);
-        SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-        SetPower(POWER_ECLIPSE, 0);
-
-        if (uint32 aura = _resurrectionData->Aura)
-            CastSpell(this, aura, true, nullptr, nullptr, _resurrectionData->GUID);
-
-        SpawnCorpseBones();
-    }
+        ResurrectUsingRequestDataImpl();
 
     if (m_DelayedOperations & DELAYED_SAVE_PLAYER)
         SaveToDB();
@@ -21512,13 +21487,14 @@ void Player::UpdatePotionCooldown(Spell* spell)
 void Player::SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
 {
     ASSERT(!IsResurrectRequested());
-    _resurrectionData = new ResurrectionData();
+    _resurrectionData.reset(new ResurrectionData());
     _resurrectionData->GUID = caster->GetGUID();
     _resurrectionData->Location.WorldRelocate(*caster);
     _resurrectionData->Health = health;
     _resurrectionData->Mana = mana;
     _resurrectionData->Aura = appliedAura;
 }
+
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const
 {
@@ -23430,9 +23406,7 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
 void Player::ResurrectUsingRequestData()
 {
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
-    float x, y, z, o;
-    _resurrectionData->Location.GetPosition(x, y, z, o);
-    TeleportTo(_resurrectionData->Location.GetMapId(), x, y, z, o);
+    TeleportTo(_resurrectionData->Location);
 
     if (IsBeingTeleported())
     {
@@ -23440,6 +23414,11 @@ void Player::ResurrectUsingRequestData()
         return;
     }
 
+    ResurrectUsingRequestDataImpl();
+}
+
+void Player::ResurrectUsingRequestDataImpl()
+{
     ResurrectPlayer(0.0f, false);
 
     if (GetMaxHealth() > _resurrectionData->Health)
