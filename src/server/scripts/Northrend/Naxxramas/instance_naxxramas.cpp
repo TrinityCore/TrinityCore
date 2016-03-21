@@ -182,6 +182,9 @@ class instance_naxxramas : public InstanceMapScript
                     case NPC_SIR:
                         SirGUID = creature->GetGUID();
                         break;
+                    case NPC_GLUTH:
+                        GluthGUID = creature->GetGUID();
+                        break;
                     case NPC_HEIGAN:
                         HeiganGUID = creature->GetGUID();
                         break;
@@ -393,6 +396,8 @@ class instance_naxxramas : public InstanceMapScript
                         return SirGUID;
                     case DATA_HEIGAN:
                         return HeiganGUID;
+                    case DATA_GLUTH:
+                        return GluthGUID;
                     case DATA_FEUGEN:
                         return FeugenGUID;
                     case DATA_STALAGG:
@@ -670,6 +675,8 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid HorsemenChestGUID;
 
             /* The Construct Quarter */
+            // Gluth
+            ObjectGuid GluthGUID;
             // Thaddius
             ObjectGuid ThaddiusGUID;
             ObjectGuid FeugenGUID;
