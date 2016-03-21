@@ -1,4 +1,4 @@
-UPDATE `spell_dbc` SET `Effect1`=28, `EffectMiscValueB1`=64 WHERE  `Id`=33903;
+-- UPDATE `spell_dbc` SET `Effect1`=28, `EffectMiscValueB1`=64 WHERE  `Id`=33903;
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=19188 AND `source_type`=0 AND `id`>3;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=21504 AND `source_type`=0 AND `id`>0;
