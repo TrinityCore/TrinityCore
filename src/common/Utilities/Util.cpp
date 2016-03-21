@@ -219,22 +219,29 @@ bool IsIPAddress(char const* ipaddress)
 }
 
 /// create PID file
-uint32 CreatePIDFile(const std::string& filename)
+uint32 CreatePIDFile(std::string const& filename)
 {
-    FILE* pid_file = fopen (filename.c_str(), "w" );
+    FILE* pid_file = fopen(filename.c_str(), "w");
     if (pid_file == NULL)
         return 0;
 
+    uint32 pid = GetPID();
+
+    fprintf(pid_file, "%u", pid);
+    fclose(pid_file);
+
+    return pid;
+}
+
+uint32 GetPID()
+{
 #ifdef _WIN32
     DWORD pid = GetCurrentProcessId();
 #else
     pid_t pid = getpid();
 #endif
 
-    fprintf(pid_file, "%u", pid );
-    fclose(pid_file);
-
-    return (uint32)pid;
+    return uint32(pid);
 }
 
 size_t utf8length(std::string& utf8str)
