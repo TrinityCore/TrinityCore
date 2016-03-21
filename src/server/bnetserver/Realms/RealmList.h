@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "Realm/Realm.h"
-#include "WorldListener.h"
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/io_service.hpp>
@@ -43,7 +42,7 @@ public:
 
     ~RealmList();
 
-    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval, uint16 worldListenPort);
+    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
     void Close();
 
     RealmMap const& GetRealms() const { return _realms; }
@@ -60,7 +59,6 @@ private:
     uint32 _updateInterval;
     boost::asio::deadline_timer* _updateTimer;
     boost::asio::ip::tcp::resolver* _resolver;
-    WorldListener* _worldListener;
 };
 
 #define sRealmList RealmList::instance()

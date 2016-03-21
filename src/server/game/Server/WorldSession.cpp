@@ -42,7 +42,6 @@
 #include "SocialMgr.h"
 #include "ScriptMgr.h"
 #include "WardenWin.h"
-#include "BattlenetServerManager.h"
 #include "AuthenticationPackets.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
@@ -611,8 +610,6 @@ void WorldSession::LogoutPlayer(bool save)
         _player->CleanupsBeforeDelete();
         TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Logout Character:[%s] (%s) Level: %d",
             GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->getLevel());
-
-        sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), false);
 
         if (Map* _map = _player->FindMap())
             _map->RemovePlayerFromMap(_player, true);

@@ -1813,11 +1813,10 @@ class Player : public Unit, public GridObject<Player>
         void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura);
         void ClearResurrectRequestData()
         {
-            delete _resurrectionData;
-            _resurrectionData = nullptr;
+            _resurrectionData.reset();
         }
 
-        bool IsResurrectRequestedBy(ObjectGuid guid) const
+        bool IsResurrectRequestedBy(ObjectGuid const& guid) const
         {
             if (!IsResurrectRequested())
                 return false;
@@ -1825,8 +1824,9 @@ class Player : public Unit, public GridObject<Player>
             return !_resurrectionData->GUID.IsEmpty() && _resurrectionData->GUID == guid;
         }
 
-        bool IsResurrectRequested() const { return _resurrectionData != nullptr; }
+        bool IsResurrectRequested() const { return _resurrectionData.get() != nullptr; }
         void ResurrectUsingRequestData();
+        void ResurrectUsingRequestDataImpl();
 
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
@@ -2685,7 +2685,7 @@ class Player : public Unit, public GridObject<Player>
         void ResetTimeSync();
         void SendTimeSync();
 
-        ResurrectionData* _resurrectionData;
+        std::unique_ptr<ResurrectionData> _resurrectionData;
 
         WorldSession* m_session;
 

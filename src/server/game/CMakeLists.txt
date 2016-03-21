@@ -40,7 +40,7 @@ target_include_directories(game
 
 target_link_libraries(game
   PUBLIC
-    ipc
+    shared
     Detour)
 
 set_target_properties(game
