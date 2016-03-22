@@ -2652,17 +2652,17 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
             )
         )
         {
-            const MapRefManager& mapPlayers = GetMap()->GetPlayers();
-            for (MapRefManager::const_iterator it = mapPlayers.begin(); it != mapPlayers.end(); ++it)
-                if (Player* player = (*it).GetSource())
+            std::list<Player*> playersNearby;
+            GetPlayerListInGrid(playersNearby, GetVisibilityRange());
+            for (Player* player : playersNearby)
+            {
+                // only update players that are known to the client (have already been created)
+                if (player->HaveAtClient(this))
                 {
-                    // only update players that can both see us, and are actually in combat with us (this is a performance tradeoff)
-                    if (player->CanSeeOrDetect(this, false, true) && IsInCombatWith(player))
-                    {
-                        SendUpdateToPlayer(player);
-                        shouldDelay = true;
-                    }
+                    SendUpdateToPlayer(player);
+                    shouldDelay = true;
                 }
+            }
             if (shouldDelay)
                 shouldDelay = !(focusSpell->IsTriggered() || focusSpell->GetCastTime() || focusSpell->GetSpellInfo()->IsChanneled());
 
