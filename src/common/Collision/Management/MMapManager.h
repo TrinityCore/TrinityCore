@@ -33,7 +33,7 @@ namespace MMAP
     typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
 
     // dummy struct to hold map's mmap data
-    struct MMapData
+    struct TC_COMMON_API MMapData
     {
         MMapData(dtNavMesh* mesh) : navMesh(mesh) { }
         ~MMapData()

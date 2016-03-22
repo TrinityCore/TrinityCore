@@ -46,7 +46,7 @@ namespace VMAP
     //==============================================================
     //==============================================================
 
-    class MyCollisionDetection
+    class TC_COMMON_API MyCollisionDetection
     {
     private:
     public:
