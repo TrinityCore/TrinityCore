@@ -739,7 +739,7 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
 // Determines the stack size to use for the item
 uint32 AuctionBotSeller::GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const
 {
-    if (config.GetRandomStackRatioPerClass(ItemClass(itemProto->GetClass)) > urand(0, 99))
+    if (config.GetRandomStackRatioPerClass(ItemClass(itemProto->GetClass())) > urand(0, 99))
         return urand(1, itemProto->GetMaxStackSize());
     else
         return 1;
