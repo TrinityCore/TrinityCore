@@ -3100,21 +3100,21 @@ AuctionHouseBot.Items.Yellow.Price.Ratio = 100
 #       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
 #       Default:   100 - (No change)
 
-AuctionHouseBot.Class.Consumable.Price.Ratio = 100 
-AuctionHouseBot.Class.Container.Price.Ratio = 100 
-AuctionHouseBot.Class.Weapon.Price.Ratio = 100 
-AuctionHouseBot.Class.Gem.Price.Ratio = 100 
-AuctionHouseBot.Class.Armor.Price.Ratio = 100 
-AuctionHouseBot.Class.Reagent.Price.Ratio = 100 
-AuctionHouseBot.Class.Projectile.Price.Ratio = 100 
-AuctionHouseBot.Class.TradeGood.Price.Ratio = 100 
-AuctionHouseBot.Class.Generic.Price.Ratio = 100 
-AuctionHouseBot.Class.Recipe.Price.Ratio = 100 
-AuctionHouseBot.Class.Quiver.Price.Ratio = 100 
-AuctionHouseBot.Class.Quest.Price.Ratio = 100 
-AuctionHouseBot.Class.Key.Price.Ratio = 100 
-AuctionHouseBot.Class.Misc.Price.Ratio = 100 
-AuctionHouseBot.Class.Glyph.Price.Ratio = 100 
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100
+AuctionHouseBot.Class.Container.Price.Ratio = 100
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100
+AuctionHouseBot.Class.Gem.Price.Ratio = 100
+AuctionHouseBot.Class.Armor.Price.Ratio = 100
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
+AuctionHouseBot.Class.Generic.Price.Ratio = 100
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100
+AuctionHouseBot.Class.Quest.Price.Ratio = 100
+AuctionHouseBot.Class.Key.Price.Ratio = 100
+AuctionHouseBot.Class.Misc.Price.Ratio = 100
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100
 
 
 

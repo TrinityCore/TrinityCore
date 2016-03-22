@@ -773,17 +773,11 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 
     if (status == 0)
     {
-        GetPlayer()->clearResurrectRequestData();           // reject
+        GetPlayer()->ClearResurrectRequestData();           // reject
         return;
     }
 
-    if (GetPlayer()->IsValidGhoulResurrectRequest(guid))
-    {
-        GetPlayer()->GhoulResurrect();
-        return;
-    }
-
-    if (!GetPlayer()->isResurrectRequestedBy(guid))
+    if (!GetPlayer()->IsResurrectRequestedBy(guid))
         return;
 
     GetPlayer()->ResurrectUsingRequestData();
@@ -933,7 +927,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                 default:
                     break;
             }
-            
+
             if (reviveAtTrigger) // check if the player is touching the areatrigger leading to the map his corpse is on
                 if (!player->IsAlive() && player->HasCorpse())
                     if (player->GetCorpseLocation().GetMapId() == at->target_mapId)

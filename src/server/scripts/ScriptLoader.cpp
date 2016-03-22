@@ -19,7 +19,6 @@
 #include "World.h"
 
 void AddSpellsScripts();
-void AddSC_SmartScripts();
 void AddCommandsScripts();
 
 #ifdef SCRIPTS
@@ -37,7 +36,6 @@ void AddCustomScripts();
 void AddScripts()
 {
     AddSpellsScripts();
-    AddSC_SmartScripts();
     AddCommandsScripts();
 #ifdef SCRIPTS
     AddWorldScripts();

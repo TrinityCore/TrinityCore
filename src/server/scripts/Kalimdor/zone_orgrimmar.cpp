@@ -162,7 +162,7 @@ enum ThrallWarchief
     GOSSIP_NOW_PAY_ATTENTION    = 5738,
 
     QUEST_WHAT_THE_WIND_CARRIES = 6566,
-    
+
     SPELL_CHAIN_LIGHTNING       = 16033,
     SPELL_SHOCK                 = 16034
 };

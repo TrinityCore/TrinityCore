@@ -1045,7 +1045,8 @@ public:
             return false;
 
         uint32 animId = atoi((char*)args);
-        handler->GetSession()->GetPlayer()->HandleEmoteCommand(animId);
+        if (Unit* unit = handler->getSelectedUnit())
+            unit->HandleEmoteCommand(animId);
         return true;
     }
 
@@ -1433,7 +1434,7 @@ public:
             duration = 3 * MINUTE;
 
         bool doFill = fill_str ? (stricmp(fill_str, "FILL") == 0) : false;
-        
+
         int32 errMsg = target->AI()->VisualizeBoundary(duration, player, doFill);
         if (errMsg > 0)
             handler->PSendSysMessage(errMsg);
