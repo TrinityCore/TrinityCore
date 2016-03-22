@@ -1026,6 +1026,17 @@ struct TradeStatusInfo
     uint8 Slot;
 };
 
+struct ResurrectionData
+{
+    ObjectGuid GUID;
+    WorldLocation Location;
+    uint32 Health;
+    uint32 Mana;
+    uint32 Aura;
+};
+
+#define SPELL_DK_RAISE_ALLY 46619
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1602,11 +1613,24 @@ class Player : public Unit, public GridObject<Player>
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = nullptr);
 
-        void setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana);
-        void clearResurrectRequestData();
-        bool isResurrectRequestedBy(ObjectGuid guid) const { return !m_resurrectGUID.IsEmpty() && m_resurrectGUID == guid; }
-        bool isResurrectRequested() const { return !m_resurrectGUID.IsEmpty(); }
+        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura);
+
+        void ClearResurrectRequestData()
+        {
+            _resurrectionData.reset();
+        }
+
+        bool IsResurrectRequestedBy(uint64 guid) const
+        {
+            if (!IsResurrectRequested())
+                return false;
+
+            return !_resurrectionData->GUID.IsEmpty() && _resurrectionData->GUID == guid;
+        }
+
+        bool IsResurrectRequested() const { return _resurrectionData.get() != nullptr; }
         void ResurrectUsingRequestData();
+        void ResurrectUsingRequestDataImpl();
 
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
@@ -1797,14 +1821,7 @@ class Player : public Unit, public GridObject<Player>
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
-        void SendGhoulResurrectRequest(Player* target);
-        bool IsValidGhoulResurrectRequest(ObjectGuid guid)
-        {
-            return !m_ghoulResurrectPlayerGUID.IsEmpty() && m_ghoulResurrectPlayerGUID == guid;
-        }
-        void GhoulResurrect();
-        void SetGhoulResurrectGhoulGUID(ObjectGuid guid) { m_ghoulResurrectGhoulGUID = guid; }
-        ObjectGuid GetGhoulResurrectGhoulGUID() { return m_ghoulResurrectGhoulGUID; }
+
         void RemoveGhoul();
 
         void DurabilityLossAll(double percent, bool inventory);
@@ -2439,13 +2456,7 @@ class Player : public Unit, public GridObject<Player>
         void ResetTimeSync();
         void SendTimeSync();
 
-        ObjectGuid m_resurrectGUID;
-        uint32 m_resurrectMap;
-        float m_resurrectX, m_resurrectY, m_resurrectZ;
-        uint32 m_resurrectHealth, m_resurrectMana;
-
-        ObjectGuid m_ghoulResurrectPlayerGUID;
-        ObjectGuid m_ghoulResurrectGhoulGUID;
+        std::unique_ptr<ResurrectionData> _resurrectionData;
 
         WorldSession* m_session;
 

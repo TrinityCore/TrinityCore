@@ -12565,6 +12565,11 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
     }
 }
 
+bool Unit::IsGhouled() const
+{
+    return HasAura(SPELL_DK_RAISE_ALLY);
+}
+
 void Unit::setDeathState(DeathState s)
 {
     // Death state needs to be updated before RemoveAllAurasOnDeath() is called, to prevent entering combat
