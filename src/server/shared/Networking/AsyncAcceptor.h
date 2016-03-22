@@ -21,6 +21,7 @@
 #include "Log.h"
 #include <boost/asio.hpp>
 #include <functional>
+#include <atomic>
 
 using boost::asio::ip::tcp;
 
