@@ -488,13 +488,7 @@ void AchievementMgr<Guild>::ResetAchievementCriteria(AchievementCriteriaTypes /*
     // Not needed
 }
 
-template<class T>
-void AchievementMgr<T>::DeleteFromDB(ObjectGuid /*guid*/)
-{
-}
-
-template<>
-void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
+void DeletePlayerAchievementsFromDB(ObjectGuid guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -509,8 +503,7 @@ void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-template<>
-void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
+void DeleteGuildAchievementsFromDB(ObjectGuid guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -525,16 +518,11 @@ void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-template TRINITY_GAME_API
-void AchievementMgr<Player>::DeleteFromDB(ObjectGuid /*guid*/);
-
-template TRINITY_GAME_API
-void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid /*guid*/);
-
 template<class T>
 void AchievementMgr<T>::SaveToDB(SQLTransaction& /*trans*/)
 {
 }
+
 template<>
 void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 {

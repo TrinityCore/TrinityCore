@@ -284,15 +284,41 @@ enum ProgressType
     PROGRESS_HIGHEST
 };
 
+// Hackfix to solve an unresolved issue in clang that the visibility
+// flag is ignored in some explicit template specializations,
+// which prevents clang from exporting the `DeleteFromDB` symbol.
+// https://llvm.org/bugs/show_bug.cgi?id=24815
+// https://llvm.org/bugs/show_bug.cgi?id=23667
+TC_GAME_API void DeletePlayerAchievementsFromDB(ObjectGuid guid);
+TC_GAME_API void DeleteGuildAchievementsFromDB(ObjectGuid guid);
+
+template<typename T>
+struct AchievementMgrDeleterBase;
+
+template<>
+struct AchievementMgrDeleterBase<Player>
+{
+    static void DeleteFromDB(ObjectGuid lowguid) { DeletePlayerAchievementsFromDB(lowguid); }
+};
+
+template<>
+struct AchievementMgrDeleterBase<Guild>
+{
+    static void DeleteFromDB(ObjectGuid lowguid) { DeleteGuildAchievementsFromDB(lowguid); }
+};
+
 template<class T>
 class TC_GAME_API AchievementMgr
+    : public AchievementMgrDeleterBase<T>
 {
     public:
         AchievementMgr(T* owner);
         ~AchievementMgr();
 
         void Reset();
-        static void DeleteFromDB(ObjectGuid lowguid);
+
+        using AchievementMgrDeleterBase<T>::DeleteFromDB;
+
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
