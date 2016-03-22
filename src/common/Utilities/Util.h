@@ -314,7 +314,8 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
 bool IsIPAddress(char const* ipaddress);
 
-uint32 CreatePIDFile(const std::string& filename);
+uint32 CreatePIDFile(std::string const& filename);
+uint32 GetPID();
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
 

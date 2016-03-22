@@ -1,6 +1,6 @@
 TrinityCore uses (parts of or in whole) the following opensource software :
 
-Boost
+Boost (external)
   http://www.boost.org
   Version: 1.55
 
@@ -23,10 +23,18 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
   Version: 3.6.0
-  
+
 libMPQ (a library for reading MPQ files)
   https://github.com/mbroemme/libmpq/
   Version: d59b4cf1d107b5f6a0f67d6bc545c6c6ebef3d74
+
+libreadline (command line editing library)
+  https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+  Version: external
+
+OpenSSL (general-purpose cryptography library)
+  https://www.openssl.org/
+  Version: external
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
