@@ -4,8 +4,8 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 (8718, 0, 0, 'Yes, I''d love a ride to Blackwind Landing.',21550,1,1,0,0,0,0,'',0);
 
 DELETE FROM `npc_text` WHERE `ID` = 10977;
-INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `BroadcastTextID0`, `lang0`, `Probability0`, `em0_0`, `em0_1`, `em0_2`, `em0_3`, `em0_4`, `em0_5`) VALUES
-(10977, '', 'Hey, comrade.  If you get yourself in good with the Skyguard, I can offer you a direct flight to our base, Blackwind Landing, in the Skethyl Mountains.$B$BDo you like my beautiful nether ray?  It is lovely.', 21547, 0, 1, 0, 1, 0, 6, 0, 0);
+INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextID0`, `BroadcastTextID1`, `BroadcastTextID2`, `BroadcastTextID3`, `BroadcastTextID4`, `BroadcastTextID5`, `BroadcastTextID6`, `BroadcastTextID7`, `VerifiedBuild`) VALUES
+(10977, 1, 0, 0, 0, 0, 0, 0, 0, 21547, 0, 0, 0, 0, 0, 0, 0, -15354);
 -- Other npc_text (10978) is already set in DB
 
 -- Migrate NPC to use SmartAI
