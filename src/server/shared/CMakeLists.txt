@@ -40,7 +40,8 @@ target_include_directories(shared
 
 target_link_libraries(shared
   PUBLIC
-    database)
+    database
+    rapidjson)
 
 set_target_properties(shared
     PROPERTIES
