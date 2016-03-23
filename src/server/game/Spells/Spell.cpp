@@ -3870,6 +3870,9 @@ void Spell::SendSpellStart()
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
+        castFlags |= CAST_FLAG_PROJECTILE;
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsPet()))
         && std::find_if(m_powerCost.begin(), m_powerCost.end(), [](SpellInfo::CostData const& cost) { return cost.Power != POWER_HEALTH; }) != m_powerCost.end())
@@ -3934,12 +3937,8 @@ void Spell::SendSpellStart()
         }
     }
 
-    /** @todo implement spell ammo packet data
     if (castFlags & CAST_FLAG_PROJECTILE)
-    {
-        castData.Ammo.DisplayID = 0;
-        castData.Ammo.InventoryType = 0;
-    }**/
+        UpdateSpellCastDataAmmo(castData.Ammo);
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
@@ -3971,6 +3970,9 @@ void Spell::SendSpellGo()
     // triggered spells with spell visual != 0
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
+        castFlags |= CAST_FLAG_PROJECTILE;                        // arrows/bullets visual
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsPet()))
@@ -4098,6 +4100,65 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data
     // Reset m_needAliveTargetMask for non channeled spell
     if (!m_spellInfo->IsChanneled())
         m_channelTargetEffectMask = 0;
+}
+
+void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
+{
+    uint32 ammoInventoryType = 0;
+    uint32 ammoDisplayID = 0;
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
+        if (pItem)
+        {
+            ammoInventoryType = pItem->GetTemplate()->GetInventoryType();
+            if (ammoInventoryType == INVTYPE_THROWN)
+                ammoDisplayID = pItem->GetDisplayId();
+            else if (m_caster->HasAura(46699))      // Requires No Ammo
+            {
+                ammoDisplayID = 5996;                   // normal arrow
+                ammoInventoryType = INVTYPE_AMMO;
+            }
+        }
+    }
+    else
+    {
+        for (uint8 i = 0; i < 3; ++i)
+        {
+            if (uint32 item_id = m_caster->GetVirtualItemId(i))
+            {
+                if (ItemEntry const* itemEntry = sItemStore.LookupEntry(item_id))
+                {
+                    if (itemEntry->Class == ITEM_CLASS_WEAPON)
+                    {
+                        switch (itemEntry->SubClass)
+                        {
+                            case ITEM_SUBCLASS_WEAPON_THROWN:
+                                ammoDisplayID = sDB2Manager.GetItemDisplayId(item_id, m_caster->GetVirtualItemAppearanceMod(i));
+                                ammoInventoryType = itemEntry->InventoryType;
+                                break;
+                            case ITEM_SUBCLASS_WEAPON_BOW:
+                            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                                ammoDisplayID = 5996;       // is this need fixing?
+                                ammoInventoryType = INVTYPE_AMMO;
+                                break;
+                            case ITEM_SUBCLASS_WEAPON_GUN:
+                                ammoDisplayID = 5998;       // is this need fixing?
+                                ammoInventoryType = INVTYPE_AMMO;
+                                break;
+                        }
+
+                        if (ammoDisplayID)
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    ammo.DisplayID = ammoDisplayID;
+    ammo.InventoryType = ammoInventoryType;
 }
 
 void Spell::SendSpellExecuteLog()

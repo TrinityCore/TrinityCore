@@ -16483,6 +16483,14 @@ uint32 Unit::GetVirtualItemId(uint32 slot) const
     return GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot * 2);
 }
 
+uint16 Unit::GetVirtualItemAppearanceMod(uint32 slot) const
+{
+    if (slot >= MAX_EQUIPMENT_ITEMS)
+        return 0;
+
+    return GetUInt16Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot * 2 + 1, 0);
+}
+
 void Unit::SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId /*= 0*/, uint16 itemVisual /*= 0*/)
 {
     if (slot >= MAX_EQUIPMENT_ITEMS)
