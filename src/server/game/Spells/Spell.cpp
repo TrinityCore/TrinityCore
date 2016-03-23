@@ -5810,29 +5810,38 @@ bool Spell::CanAutoCast(Unit* target)
 {
     ObjectGuid targetguid = target->GetGUID();
 
+    // check if target already has the same or a more powerful aura
     for (SpellEffectInfo const* effect : GetEffects())
     {
         if (!effect)
             continue;
 
-        if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
+        if (!effect->IsAura())
+            continue;
+
+        AuraType const& auraType = AuraType(effect->ApplyAuraName);
+        Unit::AuraEffectList const& auras = target->GetAuraEffectsByType(auraType);
+        for (Unit::AuraEffectList::const_iterator auraIt = auras.begin(); auraIt != auras.end(); ++auraIt)
         {
-            if (m_spellInfo->StackAmount <= 1)
-            {
-                if (target->HasAuraEffect(m_spellInfo->Id, effect->EffectIndex))
-                    return false;
-            }
-            else
-            {
-                if (AuraEffect* aureff = target->GetAuraEffect(m_spellInfo->Id, effect->EffectIndex))
-                    if (aureff->GetBase()->GetStackAmount() >= m_spellInfo->StackAmount)
-                        return false;
-            }
-        }
-        else if (effect->IsAreaAuraEffect())
-        {
-            if (target->HasAuraEffect(m_spellInfo->Id, effect->EffectIndex))
+            if (GetSpellInfo()->Id == (*auraIt)->GetSpellInfo()->Id)
                 return false;
+
+            switch (sSpellMgr->CheckSpellGroupStackRules(GetSpellInfo(), (*auraIt)->GetSpellInfo()))
+            {
+                case SPELL_GROUP_STACK_RULE_DEFAULT:
+                    break;
+                case SPELL_GROUP_STACK_RULE_EXCLUSIVE:
+                    return false;
+                case SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER:
+                    if (GetCaster() == (*auraIt)->GetCaster())
+                        return false;
+                    break;
+                case SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT: // this one has further checks, but i don't think they're necessary for autocast logic
+                case SPELL_GROUP_STACK_RULE_EXCLUSIVE_HIGHEST:
+                    if (abs(effect->BasePoints) <= abs((*auraIt)->GetAmount()))
+                        return false;
+                    break;
+            }
         }
     }
 
