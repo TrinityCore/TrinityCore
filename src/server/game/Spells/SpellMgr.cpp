@@ -3056,6 +3056,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 48246: // Ball of Flame
             case 36327: // Shoot Arcane Explosion Arrow
             case 55479: // Force Obedience
+            case 28560: // Summon Blizzard (Sapphiron)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
