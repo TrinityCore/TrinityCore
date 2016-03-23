@@ -258,7 +258,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         AH->buyout = packet.BuyoutPrice;
         AH->expire_time = time(NULL) + auctionTime;
         AH->deposit = deposit;
-        AH->etime = etime;
+        AH->etime = packet.RunTime;
         AH->auctionHouseEntry = auctionHouseEntry;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: %s %s is selling item %s %s to auctioneer " UI64FMTD " with count %u with initial bid " UI64FMTD " with buyout " UI64FMTD " and with time %u (in sec) in auctionhouse %u",
@@ -309,7 +309,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         AH->buyout = packet.BuyoutPrice;
         AH->expire_time = time(NULL) + auctionTime;
         AH->deposit = deposit;
-        AH->etime = etime;
+        AH->etime = packet.RunTime;
         AH->auctionHouseEntry = auctionHouseEntry;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: %s %s is selling %s %s to auctioneer " UI64FMTD " with count %u with initial bid " UI64FMTD " with buyout " UI64FMTD " and with time %u (in sec) in auctionhouse %u",
