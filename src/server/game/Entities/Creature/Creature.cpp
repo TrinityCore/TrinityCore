@@ -2729,7 +2729,9 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     }
 
     // tell the creature that it should reacquire its current target after the cast is done (this is handled in ::Attack)
-    MustReacquireTarget();
+    // player pets don't need to do this, as they automatically reacquire their target on focus release
+    if (!IsPet())
+        MustReacquireTarget();
 
     bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
@@ -2779,13 +2781,16 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
     if (focusSpell && focusSpell != _focusSpell)
         return;
 
-    SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
+    if (IsPet() && GetVictim()) // player pets do not use delay system
+        SetGuidValue(UNIT_FIELD_TARGET, EnsureVictim()->GetGUID());
+    else
+        SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
 
     if (_focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
         ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
     _focusSpell = nullptr;
-    _focusDelay = withDelay ? getMSTime() : 0; // don't allow re-target right away to prevent visual bugs
+    _focusDelay = (!IsPet() && withDelay) ? getMSTime() : 0; // don't allow re-target right away to prevent visual bugs
 }
 
 void Creature::StartPickPocketRefillTimer()
