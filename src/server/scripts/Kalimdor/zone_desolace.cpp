@@ -123,35 +123,7 @@ public:
 
 };
 
-/*######
-## go_demon_portal
-######*/
-
-enum DemonPortal
-{
-    NPC_DEMON_GUARDIAN          = 11937,
-    QUEST_PORTAL_OF_THE_LEGION  = 5581
-};
-
-class go_demon_portal : public GameObjectScript
-{
-    public:
-        go_demon_portal() : GameObjectScript("go_demon_portal") { }
-
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION) == QUEST_STATUS_INCOMPLETE && !go->FindNearestCreature(NPC_DEMON_GUARDIAN, 5.0f, true))
-            {
-                if (Creature* guardian = player->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
-                    guardian->AI()->AttackStart(player);
-            }
-
-            return true;
-        }
-};
-
 void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
-    new go_demon_portal();
 }
