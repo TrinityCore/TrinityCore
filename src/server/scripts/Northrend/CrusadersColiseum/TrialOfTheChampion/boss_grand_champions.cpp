@@ -323,7 +323,7 @@ struct boss_grand_championAI : BossAI
         return !UpdateVictim() || me->GetVehicleBase() || LookingForMount || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) || !MountedPhaseDone;
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
     {
         if (LookingForMount || !MountedPhaseDone)
             return;
@@ -345,7 +345,7 @@ struct boss_grand_championAI : BossAI
                 }
             }
         }
-        BossAI::EnterEvadeMode();
+        BossAI::EnterEvadeMode(why);
     }
 
     void JustReachedHome() override
@@ -815,7 +815,7 @@ public:
                 Start(false, true); // Grand Champions run to their positions
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
             // Evade is handled in UpdateAI for Grand Champions' vehicles
             // "Cosmetic" vehicles are no longer grand champions' vehicles when champions are
@@ -825,7 +825,7 @@ public:
                 me->GetEntry() == VEHICLE_ARGENT_WARHORSE_COSMETIC)
                 return;
 
-            npc_escortAI::EnterEvadeMode();
+            npc_escortAI::EnterEvadeMode(why);
         }
 
         void WaypointReached(uint32 waypointId) override 

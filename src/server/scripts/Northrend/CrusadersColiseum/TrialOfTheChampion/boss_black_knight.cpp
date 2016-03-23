@@ -280,9 +280,9 @@ public:
             Initialize();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
         {
-            _EnterEvadeMode();
+            BossAI::EnterEvadeMode(why);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
         }
 

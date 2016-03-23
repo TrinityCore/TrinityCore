@@ -443,7 +443,7 @@ UPDATE `creature_template` SET `mingold`=4921,`maxgold`=10294 WHERE `entry`=@KNI
 UPDATE `creature_template` SET `mingold`=14691,`maxgold`=21952 WHERE `entry`=@KNIGHT_H;
 
 -- Achievement criteria script for achievement id 3804
-DELETE FROM `achievement_criteria_data` WHERE `type` IN (11, 18) `criteria_id`=11789;
+DELETE FROM `achievement_criteria_data` WHERE `type` IN (11, 18) AND `criteria_id`=11789;
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
 (11789,11,'achievement_ive_had_worse');
 
