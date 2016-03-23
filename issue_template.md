@@ -10,8 +10,6 @@
 2. 
 3. 
 
-**Branch(es)**: 335/6x
-
 **TC hash/commit**:
 
 **TDB version**:
