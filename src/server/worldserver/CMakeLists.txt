@@ -67,6 +67,11 @@ set_target_properties(worldserver
       FOLDER
         "server")
 
+# Add all dynamic projects as dependency to the worldserver
+if (WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
+  add_dependencies(worldserver ${WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES})
+endif()
+
 if( WIN32 )
   if ( MSVC )
     add_custom_command(TARGET worldserver
