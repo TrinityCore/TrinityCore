@@ -268,6 +268,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
+    me->SetCannotReachTarget(false);
 
     if (me->IsInEvadeMode())
         return false;
@@ -275,11 +276,11 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     return true;
 }
 
-#define BOUNDARY_VISUALIZE_CREATURE 15425
-#define BOUNDARY_VISUALIZE_CREATURE_SCALE 0.25f
-#define BOUNDARY_VISUALIZE_STEP_SIZE 1
-#define BOUNDARY_VISUALIZE_FAILSAFE_LIMIT 750
-#define BOUNDARY_VISUALIZE_SPAWN_HEIGHT 5
+const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;
+const float BOUNDARY_VISUALIZE_CREATURE_SCALE = 0.25f;
+const int8 BOUNDARY_VISUALIZE_STEP_SIZE = 1;
+const int32 BOUNDARY_VISUALIZE_FAILSAFE_LIMIT = 750;
+const float BOUNDARY_VISUALIZE_SPAWN_HEIGHT = 5.0f;
 int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) const
 {
     typedef std::pair<int32, int32> coordinate;
@@ -295,13 +296,13 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     std::unordered_set<coordinate> outOfBounds;
 
     Position startPosition = owner->GetPosition();
-    if (!CheckBoundary(&startPosition)) // fall back to creature position
-    {
+    if (!CheckBoundary(&startPosition))
+    { // fall back to creature position
         startPosition = me->GetPosition();
         if (!CheckBoundary(&startPosition))
-        {
+        { // fall back to creature home position
             startPosition = me->GetHomePosition();
-            if (!CheckBoundary(&startPosition)) // fall back to creature home position
+            if (!CheckBoundary(&startPosition))
                 return LANG_CREATURE_NO_INTERIOR_POINT_FOUND;
         }
     }
