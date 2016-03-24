@@ -30,6 +30,7 @@
 
 class Unit;
 class Player;
+class Guild;
 class WorldPacket;
 
 struct ModifierTreeNode
