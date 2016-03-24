@@ -96,7 +96,7 @@ namespace Connection_Patcher
         }
 
         template<typename PATCH, typename PATTERN>
-        void do_patches(Patcher* patcher, boost::filesystem::path output, bool patchVersionPath, uint32_t buildNumber)
+        void do_patches(Patcher* patcher, boost::filesystem::path output, uint32_t buildNumber)
         {
             std::cout << "patching Portal\n";
             // '.logon.battle.net' -> '' to allow for set portal 'host'
@@ -117,18 +117,16 @@ namespace Connection_Patcher
             // Creep::Instance::LoadModule() to allow for unsigned auth module
             patcher->Patch(PATCH::Signature(), PATTERN::Signature());
 
-            if (patchVersionPath)
-            {
-                std::cout << "patching Versions\n";
-                // sever the connection to blizzard's versions file to stop it from updating and replace with custom version
-                // hardcode %s.patch.battle.net:1119/%s/versions to trinity6.github.io/%s/%s/build/versi
-                std::string verPatch(Patches::Common::VersionsFile());
-                std::string buildPattern = "build";
+            std::cout << "patching Versions\n";
+            // sever the connection to blizzard's versions file to stop it from updating and replace with custom version
+            // this is good practice with or without the retail version, just to stop the exe from auto-patching randomly
+            // hardcode %s.patch.battle.net:1119/%s/versions to trinity6.github.io/%s/%s/build/versi
+            std::string verPatch(Patches::Common::VersionsFile());
+            std::string buildPattern = "build";
 
-                boost::algorithm::replace_all(verPatch, buildPattern, std::to_string(buildNumber));
-                std::vector<unsigned char> verVec(verPatch.begin(), verPatch.end());
-                patcher->Patch(verVec, Patterns::Common::VersionsFile());
-            }
+            boost::algorithm::replace_all(verPatch, buildPattern, std::to_string(buildNumber));
+            std::vector<unsigned char> verVec(verPatch.begin(), verPatch.end());
+            patcher->Patch(verVec, Patterns::Common::VersionsFile());
 
             patcher->Finish(output);
 
@@ -142,7 +140,6 @@ namespace Connection_Patcher
         all.add_options()
             ("help,h", "print usage message")
             ("path", po::value<std::string>()->required(), "Path to the Wow.exe")
-            ("extra,e", po::value<uint32_t>()->implicit_value(0), "Enable patching of versions file download path. Version can be specified explicitly.")
             ("modulePath,m", po::value<std::string>(), "Path to the Battle.net module download destination.")
             ;
 
@@ -176,9 +173,6 @@ int main(int argc, char** argv)
 
     try
     {
-        bool patchVersionPath = false;
-        int wowBuild = 0;
-
         auto vm = GetConsoleArguments(argc, argv);
 
         // exit if help is enabled
@@ -211,19 +205,14 @@ int main(int argc, char** argv)
 
         Patcher patcher(binary_path);
 
-        if (vm.count("extra"))
-        {
-            patchVersionPath = true;
-            wowBuild = vm["extra"].as<uint32_t>();
+        // always set wowBuild to current build of the .exe files
+        int wowBuild = Helper::GetBuildNumber(patcher.GetBinary());
 
-            if (wowBuild == 0)
-                wowBuild = Helper::GetBuildNumber(patcher.GetBinary());
+        // define logical limits in case the exe was tinkered with and the build number was changed
+        if (wowBuild == 0 || wowBuild < 10000 || wowBuild > 65535) // Build number has to be exactly 5 characters long
+            throw std::runtime_error("Build number was out of range. Build: " + std::to_string(wowBuild));
 
-            if (wowBuild == 0 || wowBuild < 10000 || wowBuild > 65535) // Build number has to be exactly 5 characters long
-                throw std::runtime_error("Could not retrieve build number or it was out of range. Build: " + std::to_string(wowBuild));
-
-            std::cout << "Determined build number: " << std::to_string(wowBuild) << std::endl;
-        }
+        std::cout << "Determined build number: " << std::to_string(wowBuild) << std::endl;
 
         switch (patcher.GetType())
         {
@@ -232,7 +221,7 @@ int main(int argc, char** argv)
 
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
                 do_patches<Patches::Windows::x86, Patterns::Windows::x86>
-                    (&patcher, renamed_binary_path, patchVersionPath, wowBuild);
+                    (&patcher, renamed_binary_path, wowBuild);
 
                 do_module<Patches::Windows::x86, Patterns::Windows::x86>
                     ( "8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
@@ -245,7 +234,7 @@ int main(int argc, char** argv)
 
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
                 do_patches<Patches::Windows::x64, Patterns::Windows::x64>
-                    (&patcher, renamed_binary_path, patchVersionPath, wowBuild);
+                    (&patcher, renamed_binary_path, wowBuild);
 
                 do_module<Patches::Windows::x64, Patterns::Windows::x64>
                     ( "0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
@@ -262,7 +251,7 @@ int main(int argc, char** argv)
                         );
 
                 do_patches<Patches::Mac::x64, Patterns::Mac::x64>
-                    (&patcher, renamed_binary_path, patchVersionPath, wowBuild);
+                    (&patcher, renamed_binary_path, wowBuild);
 
                 {
                     namespace fs = boost::filesystem;
