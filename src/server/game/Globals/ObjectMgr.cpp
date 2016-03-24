@@ -461,7 +461,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
 
     creatureTemplate.Entry = entry;
 
-    for (uint8 i = 0; i < MAX_CREATURE_DIFFICULTIES; ++i)
+    for (uint32 i = 0; i < MAX_CREATURE_DIFFICULTIES; ++i)
         creatureTemplate.DifficultyEntry[i] = fields[1 + i].GetUInt32();
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
@@ -510,7 +510,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         creatureTemplate.resistance[i]      = fields[45 + i - 1].GetInt16();
 
-    for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         creatureTemplate.spells[i]          = fields[51 + i].GetUInt32();
 
     creatureTemplate.VehicleId              = fields[59].GetUInt32();
@@ -860,7 +860,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (!displayScaleEntry)
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) does not have any existing display id in Modelid1/Modelid2/Modelid3/Modelid4.", cInfo->Entry);
 
-    for (int k = 0; k < MAX_KILL_CREDIT; ++k)
+    for (uint8 k = 0; k < MAX_KILL_CREDIT; ++k)
     {
         if (cInfo->KillCredit[k])
         {
@@ -940,7 +940,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         }
     }
 
-    for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
+    for (uint8 j = 0; j < MAX_CREATURE_SPELLS; ++j)
     {
         if (cInfo->spells[j] && !sSpellMgr->GetSpellInfo(cInfo->spells[j]))
         {
