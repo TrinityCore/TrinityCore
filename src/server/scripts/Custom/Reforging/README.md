@@ -6,7 +6,7 @@ Change 40% of your item stats to something else
 Sends item packets so you can see the changes on item tooltips
 Simple and easy to use interface
 Made for 3.3.5a.<br />
-Source: https://rochet2.github.io/?page=Reforging
+Source: http://rochet2.github.io/Reforging.html
 
 Video: https://youtu.be/84EtvKTfqQM
 
