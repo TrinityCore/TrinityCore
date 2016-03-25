@@ -68,3 +68,7 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 argon2
   https://github.com/P-H-C/phc-winner-argon2
   Version: 62358ba
+
+protobuf (Protocol Buffers - Google's data interchange format https://developers.google.com/protocol-buffers/)
+  https://github.com/google/protobuf
+  Version: v2.6.1

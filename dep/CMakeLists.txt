@@ -30,6 +30,7 @@ if (SERVERS)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
+  add_subdirectory(protobuf)
 endif()
 
 if (TOOLS)
