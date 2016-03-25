@@ -5,7 +5,7 @@ You can make an NPC, set the displays or items you want him to have and his race
 All this is done in the database.
 The values for skins and features range from 0 to 12 or something .. not quite sure how many there are. (it varies for races)<br />
 ***Note*** The items can use positive value as item entry and negative for displayid.<br />
-Source: http://rochet2.github.io/Dress%20NPCs.html
+Source: http://rochet2.github.io/Dress-NPCs.html
 
 Known bugs: Portraits dont work properly - a client side visual bug
 
