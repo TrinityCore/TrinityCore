@@ -30,7 +30,7 @@ inline UsedPosType operator ~(UsedPosType uptype)
     return uptype==USED_POS_PLUS ? USED_POS_MINUS : USED_POS_PLUS;
 }
 
-struct ObjectPosSelector
+struct TC_GAME_API ObjectPosSelector
 {
     struct UsedPos
     {

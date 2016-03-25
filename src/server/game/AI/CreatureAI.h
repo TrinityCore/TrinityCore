@@ -66,7 +66,7 @@ enum SCEquip
 };
 
 typedef std::set<AreaBoundary const*> CreatureBoundary;
-class CreatureAI : public UnitAI
+class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:
         Creature* const me;
@@ -137,8 +137,8 @@ class CreatureAI : public UnitAI
         virtual void AttackedBy(Unit* /*attacker*/) { }
         virtual bool IsEscorted() const { return false; }
 
-        // Called when creature is spawned or respawned (for reseting variables)
-        virtual void JustRespawned() { Reset(); }
+        // Called when creature is spawned or respawned
+        virtual void JustRespawned() { }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }

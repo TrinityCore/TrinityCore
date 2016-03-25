@@ -1,7 +1,3 @@
-# Package overloads
-set(BZIP2_LIBRARIES "bzip2")
-set(ZLIB_LIBRARIES "zlib")
-
 # check the CMake preload parameters (commented out by default)
 
 # overload CMAKE_INSTALL_PREFIX if not being set properly
@@ -12,6 +8,10 @@ set(ZLIB_LIBRARIES "zlib")
 #    endif()
 #  endif()
 #endif()
+
+if (WIN32)
+  add_definitions(-D_WIN32_WINNT=0x0601)
+endif()
 
 if ( MSVC )
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/msvc/settings.cmake)

@@ -59,7 +59,7 @@ enum AppenderFlags
     APPENDER_FLAGS_MAKE_FILE_BACKUP              = 0x10  // only used by FileAppender
 };
 
-struct LogMessage
+struct TC_COMMON_API LogMessage
 {
     LogMessage(LogLevel _level, std::string const& _type, std::string&& _text)
         : level(_level), type(_type), text(std::forward<std::string>(_text)), mtime(time(NULL))
@@ -85,7 +85,7 @@ struct LogMessage
     }
 };
 
-class Appender
+class TC_COMMON_API Appender
 {
     public:
         Appender(uint8 _id, std::string const& name, LogLevel level = LOG_LEVEL_DISABLED, AppenderFlags flags = APPENDER_FLAGS_NONE);
@@ -123,7 +123,7 @@ Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, Appe
     return new AppenderImpl(id, name, level, flags, std::forward<ExtraAppenderArgs>(extraArgs));
 }
 
-class InvalidAppenderArgsException : public std::length_error
+class TC_COMMON_API InvalidAppenderArgsException : public std::length_error
 {
 public:
     explicit InvalidAppenderArgsException(std::string const& message) : std::length_error(message) { }

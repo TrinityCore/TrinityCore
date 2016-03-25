@@ -45,7 +45,7 @@ struct ScriptPointMove
 
 typedef std::vector<ScriptPointMove> ScriptPointVector;
 
-class SystemMgr
+class TC_GAME_API SystemMgr
 {
     private:
         SystemMgr() { }

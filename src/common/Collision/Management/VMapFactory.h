@@ -29,7 +29,7 @@ namespace VMAP
 {
     //===========================================================
 
-    class VMapFactory
+    class TC_COMMON_API VMapFactory
     {
         public:
             static IVMapManager* createOrGetVMapManager();
