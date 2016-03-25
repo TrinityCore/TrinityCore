@@ -28,8 +28,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     // "characters.hairColor, characters.facialStyle, characters.level, characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
     //  16                    17                      18                   19                   20                     21                   22
     // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  23                     24               25
-    // "character_banned.guid, characters.slot, character_declinedname.genitive"
+    //  23                     24               25                      26
+    // "character_banned.guid, characters.slot, characters.logout_time, character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     Name              = fields[1].GetString();
@@ -72,7 +72,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (fields[23].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[25].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[26].GetString().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -102,6 +102,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
     Tokenizer equipment(fields[22].GetString(), ' ');
     ListPosition = fields[24].GetUInt8();
+    LastPlayedTime = fields[25].GetUInt32();
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
@@ -155,6 +156,7 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
             _worldPacket << uint8(charInfo.VisualItems[slot].InventoryType);
         }
 
+        _worldPacket << uint32(charInfo.LastPlayedTime);
         _worldPacket.WriteBits(charInfo.Name.length(), 6);
         _worldPacket.WriteBit(charInfo.FirstLogin);
         _worldPacket.WriteBit(charInfo.BoostInProgress);
