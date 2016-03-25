@@ -20,7 +20,7 @@
 
 #include <future>
 
-class SQLQueryHolder
+class TC_DATABASE_API SQLQueryHolder
 {
     friend class SQLQueryHolderTask;
     private:
@@ -46,7 +46,7 @@ class SQLQueryHolder
 typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
 typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
 
-class SQLQueryHolderTask : public SQLOperation
+class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
 {
     private:
         SQLQueryHolder* m_holder;
