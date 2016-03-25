@@ -54,7 +54,7 @@ static std::map<MetricValueCategory, std::string> Values = {
     { METRIC_VALUE_ONLINE_PLAYERS, "online_players" }
 };
 
-class Metric
+class TC_COMMON_API Metric
 {
 private:
     boost::asio::ip::tcp::iostream _dataStream;
