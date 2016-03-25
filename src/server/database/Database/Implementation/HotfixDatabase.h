@@ -281,7 +281,7 @@ enum HotfixDatabaseStatements
     MAX_HOTFIXDATABASE_STATEMENTS
 };
 
-class HotfixDatabaseConnection : public MySQLConnection
+class TC_DATABASE_API HotfixDatabaseConnection : public MySQLConnection
 {
 public:
     typedef HotfixDatabaseStatements Statements;

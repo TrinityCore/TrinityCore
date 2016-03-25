@@ -409,6 +409,10 @@ SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32 suggestionId)
 
 }
 
+template TC_GAME_API BugTicket* SupportMgr::GetTicket<BugTicket>(uint32);
+template TC_GAME_API ComplaintTicket* SupportMgr::GetTicket<ComplaintTicket>(uint32);
+template TC_GAME_API SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32);
+
 template<>
 uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const { return _openBugTicketCount; }
 
@@ -417,6 +421,10 @@ uint32 SupportMgr::GetOpenTicketCount<ComplaintTicket>() const { return _openCom
 
 template<>
 uint32 SupportMgr::GetOpenTicketCount<SuggestionTicket>() const { return _openSuggestionTicketCount; }
+
+template TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const;
+template TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<ComplaintTicket>() const;
+template TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<SuggestionTicket>() const;
 
 void SupportMgr::LoadBugTickets()
 {
@@ -613,6 +621,10 @@ void SupportMgr::RemoveTicket<SuggestionTicket>(uint32 ticketId)
     }
 }
 
+template TC_GAME_API void SupportMgr::RemoveTicket<BugTicket>(uint32);
+template TC_GAME_API void SupportMgr::RemoveTicket<ComplaintTicket>(uint32);
+template TC_GAME_API void SupportMgr::RemoveTicket<SuggestionTicket>(uint32);
+
 template<>
 void SupportMgr::CloseTicket<BugTicket>(uint32 ticketId, ObjectGuid closedBy)
 {
@@ -648,6 +660,10 @@ void SupportMgr::CloseTicket<SuggestionTicket>(uint32 ticketId, ObjectGuid close
         ticket->SaveToDB();
     }
 }
+
+template TC_GAME_API void SupportMgr::CloseTicket<BugTicket>(uint32, ObjectGuid);
+template TC_GAME_API void SupportMgr::CloseTicket<ComplaintTicket>(uint32, ObjectGuid);
+template TC_GAME_API void SupportMgr::CloseTicket<SuggestionTicket>(uint32, ObjectGuid);
 
 template<>
 void SupportMgr::ResetTickets<BugTicket>()
@@ -690,6 +706,10 @@ void SupportMgr::ResetTickets<SuggestionTicket>()
     CharacterDatabase.Execute(stmt);
 }
 
+template TC_GAME_API void SupportMgr::ResetTickets<BugTicket>();
+template TC_GAME_API void SupportMgr::ResetTickets<ComplaintTicket>();
+template TC_GAME_API void SupportMgr::ResetTickets<SuggestionTicket>();
+
 template<>
 void SupportMgr::ShowList<BugTicket>(ChatHandler& handler) const
 {
@@ -717,6 +737,10 @@ void SupportMgr::ShowList<SuggestionTicket>(ChatHandler& handler) const
             handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
 }
 
+template TC_GAME_API void SupportMgr::ShowList<BugTicket>(ChatHandler&) const;
+template TC_GAME_API void SupportMgr::ShowList<ComplaintTicket>(ChatHandler&) const;
+template TC_GAME_API void SupportMgr::ShowList<SuggestionTicket>(ChatHandler&) const;
+
 template<>
 void SupportMgr::ShowClosedList<BugTicket>(ChatHandler& handler) const
 {
@@ -743,3 +767,7 @@ void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handler) const
         if (itr->second->IsClosed())
             handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
 }
+
+template TC_GAME_API void SupportMgr::ShowClosedList<BugTicket>(ChatHandler&) const;
+template TC_GAME_API void SupportMgr::ShowClosedList<ComplaintTicket>(ChatHandler&) const;
+template TC_GAME_API void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler&) const;

@@ -43,7 +43,7 @@ class Pool                                                  // for Pool of Pool 
 typedef std::set<uint64> ActivePoolObjects;
 typedef std::map<uint64, uint32> ActivePoolPools;
 
-class ActivePoolData
+class TC_GAME_API ActivePoolData
 {
     public:
         template<typename T>
@@ -66,7 +66,7 @@ class ActivePoolData
 };
 
 template <class T>
-class PoolGroup
+class TC_GAME_API PoolGroup
 {
     typedef std::vector<PoolObject> PoolObjectList;
     public:
@@ -101,7 +101,7 @@ typedef std::multimap<uint32, uint32> PooledQuestRelation;
 typedef std::pair<PooledQuestRelation::const_iterator, PooledQuestRelation::const_iterator> PooledQuestRelationBounds;
 typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> PooledQuestRelationBoundsNC;
 
-class PoolMgr
+class TC_GAME_API PoolMgr
 {
     private:
         PoolMgr();

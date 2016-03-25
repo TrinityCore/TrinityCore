@@ -430,7 +430,7 @@ enum EffectRadiusIndex
 };
 
 // Spell pet auras
-class PetAura
+class TC_GAME_API PetAura
 {
     private:
         typedef std::unordered_map<uint32, uint32> PetAuraMap;
@@ -477,7 +477,7 @@ class PetAura
 };
 typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
-struct SpellArea
+struct TC_GAME_API SpellArea
 {
     uint32 spellId;
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
@@ -590,14 +590,14 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
-DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
-DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
+TC_GAME_API DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
+TC_GAME_API DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
+TC_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
+TC_GAME_API int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
 
-extern PetFamilySpellsStore                         sPetFamilySpellsStore;
+TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpellsStore;
 
-class SpellMgr
+class TC_GAME_API SpellMgr
 {
     // Constructors
     private:

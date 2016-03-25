@@ -30,7 +30,7 @@
 class WorldSocket;
 
 /// Manages all sockets connected to peers and network threads
-class WorldSocketMgr : public SocketMgr<WorldSocket>
+class TC_GAME_API WorldSocketMgr : public SocketMgr<WorldSocket>
 {
     typedef SocketMgr<WorldSocket> BaseSocketMgr;
 

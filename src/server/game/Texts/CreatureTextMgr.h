@@ -76,7 +76,7 @@ typedef std::unordered_map<uint32, CreatureTextHolder> CreatureTextMap;     // a
 
 typedef std::map<CreatureTextId, CreatureTextLocale> LocaleCreatureTextMap;
 
-class CreatureTextMgr
+class TC_GAME_API CreatureTextMgr
 {
     private:
         CreatureTextMgr() { }

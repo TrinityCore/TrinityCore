@@ -24,6 +24,7 @@
 #include "DBCStructure.h"
 #include "ObjectGuid.h"
 #include "AuctionHousePackets.h"
+#include <set>
 
 class Item;
 class Player;
@@ -63,7 +64,7 @@ enum MailAuctionAnswers
     AUCTION_SALE_PENDING        = 6
 };
 
-struct AuctionEntry
+struct TC_GAME_API AuctionEntry
 {
     uint32 Id;
     ObjectGuid::LowType auctioneer;                                      // creature low guid
@@ -77,6 +78,7 @@ struct AuctionEntry
     time_t expire_time;
     ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
+    uint32 etime;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
 
@@ -95,7 +97,7 @@ struct AuctionEntry
 };
 
 //this class is used as auctionhouse instance
-class AuctionHouseObject
+class TC_GAME_API AuctionHouseObject
 {
   public:
     ~AuctionHouseObject()
@@ -133,7 +135,7 @@ class AuctionHouseObject
     AuctionEntryMap AuctionsMap;
 };
 
-class AuctionHouseMgr
+class TC_GAME_API AuctionHouseMgr
 {
     private:
         AuctionHouseMgr();
@@ -143,6 +145,8 @@ class AuctionHouseMgr
         static AuctionHouseMgr* instance();
 
         typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
+        typedef std::vector<AuctionEntry*> PlayerAuctions;
+        typedef std::pair<PlayerAuctions*, uint32> AuctionPair;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
@@ -175,7 +179,10 @@ class AuctionHouseMgr
 
         void AddAItem(Item* it);
         bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false);
-
+        void PendingAuctionAdd(Player* player, AuctionEntry* aEntry);
+        uint32 PendingAuctionCount(const Player* player) const;
+        void PendingAuctionProcess(Player* player);
+        void UpdatePendingAuctions();
         void Update();
 
     private:
@@ -183,6 +190,8 @@ class AuctionHouseMgr
         AuctionHouseObject mHordeAuctions;
         AuctionHouseObject mAllianceAuctions;
         AuctionHouseObject mNeutralAuctions;
+
+        std::map<ObjectGuid, AuctionPair> pendingAuctionMap;
 
         ItemMap mAitems;
 };

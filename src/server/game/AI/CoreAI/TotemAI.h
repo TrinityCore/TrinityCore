@@ -25,7 +25,7 @@
 class Creature;
 class Totem;
 
-class TotemAI : public CreatureAI
+class TC_GAME_API TotemAI : public CreatureAI
 {
     public:
 
@@ -33,7 +33,7 @@ class TotemAI : public CreatureAI
 
         void MoveInLineOfSight(Unit* who) override;
         void AttackStart(Unit* victim) override;
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason /*why*/) override;
 
         void UpdateAI(uint32 diff) override;
         static int Permissible(Creature const* creature);

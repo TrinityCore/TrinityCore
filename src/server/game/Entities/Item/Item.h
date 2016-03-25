@@ -256,7 +256,7 @@ struct BonusData
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };
 
-class Item : public Object
+class TC_GAME_API Item : public Object
 {
     public:
         static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);

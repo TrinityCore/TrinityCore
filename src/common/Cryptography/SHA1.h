@@ -26,7 +26,7 @@
 
 class BigNumber;
 
-class SHA1Hash
+class TC_COMMON_API SHA1Hash
 {
     public:
         typedef std::integral_constant<uint32, SHA_DIGEST_LENGTH> DigestLength;

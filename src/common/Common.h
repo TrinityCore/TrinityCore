@@ -135,15 +135,15 @@ const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 
 #define MAX_LOCALES 11
 
-extern char const* localeNames[TOTAL_LOCALES];
+extern "C" TC_COMMON_API char const* localeNames[TOTAL_LOCALES];
 
-LocaleConstant GetLocaleByName(const std::string& name);
+TC_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
 #pragma pack(push, 1)
 
-struct LocalizedString
+struct TC_COMMON_API LocalizedString
 {
     char const* Str[TOTAL_LOCALES];
 };

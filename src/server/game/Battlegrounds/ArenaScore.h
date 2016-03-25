@@ -23,7 +23,7 @@
 #include "Player.h"
 #include "ObjectAccessor.h"
 
-struct ArenaScore : public BattlegroundScore
+struct TC_GAME_API ArenaScore : public BattlegroundScore
 {
     friend class Arena;
 
@@ -43,7 +43,7 @@ struct ArenaScore : public BattlegroundScore
         uint8 TeamId; // BattlegroundTeamId
 };
 
-struct ArenaTeamScore
+struct TC_GAME_API ArenaTeamScore
 {
     friend class Arena;
     friend class Battleground;

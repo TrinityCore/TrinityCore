@@ -60,6 +60,11 @@ bool ActivePoolData::IsActiveObject<Quest>(uint64 quest_id) const
     return mActiveQuests.find(quest_id) != mActiveQuests.end();
 }
 
+template TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint64) const;
+template TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint64) const;
+template TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint64) const;
+template TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint64) const;
+
 template<>
 void ActivePoolData::ActivateObject<Creature>(uint64 db_guid, uint32 pool_id)
 {

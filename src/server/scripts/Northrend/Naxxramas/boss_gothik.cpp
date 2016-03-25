@@ -391,7 +391,7 @@ class boss_gothik : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -537,11 +537,11 @@ class npc_gothik_minion : public CreatureScript
                         CombatAI::JustDied(owner);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 if (!gateClose)
                 {
-                    CombatAI::EnterEvadeMode();
+                    CombatAI::EnterEvadeMode(why);
                     return;
                 }
 
@@ -566,7 +566,7 @@ class npc_gothik_minion : public CreatureScript
             {
                 if (gateClose && (!isOnSameSide(me) || (me->GetVictim() && !isOnSameSide(me->GetVictim()))))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return;
                 }
 

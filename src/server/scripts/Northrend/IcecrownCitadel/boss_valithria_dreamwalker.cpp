@@ -557,6 +557,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 if (!me->IsInCombat())
                     return;
 
+                // @TODO check out of bounds on all encounter creatures, evade if matched
+
                 std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
                 if (threatList.empty())
                 {

@@ -488,13 +488,7 @@ void AchievementMgr<Guild>::ResetAchievementCriteria(AchievementCriteriaTypes /*
     // Not needed
 }
 
-template<class T>
-void AchievementMgr<T>::DeleteFromDB(ObjectGuid /*guid*/)
-{
-}
-
-template<>
-void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
+void DeletePlayerAchievementsFromDB(ObjectGuid guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -509,8 +503,7 @@ void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-template<>
-void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid)
+void DeleteGuildAchievementsFromDB(ObjectGuid guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -529,6 +522,7 @@ template<class T>
 void AchievementMgr<T>::SaveToDB(SQLTransaction& /*trans*/)
 {
 }
+
 template<>
 void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 {
@@ -2584,6 +2578,9 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(ModifierTreeNode const* 
     return true;
 }
 
+template class TC_GAME_API AchievementMgr<Player>;
+template class TC_GAME_API AchievementMgr<Guild>;
+
 char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 type)
 {
     return GetCriteriaTypeString(AchievementCriteriaTypes(type));
@@ -2886,9 +2883,6 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
     }
     return "MISSING_TYPE";
 }
-
-template class AchievementMgr<Guild>;
-template class AchievementMgr<Player>;
 
 AchievementGlobalMgr* AchievementGlobalMgr::instance()
 {

@@ -20,7 +20,7 @@
 
 #include "Appender.h"
 
-class Logger
+class TC_COMMON_API Logger
 {
     public:
         Logger();

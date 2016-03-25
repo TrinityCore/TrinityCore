@@ -177,3 +177,29 @@ void ObjectGuidGeneratorBase::HandleCounterOverflow(HighGuid high)
     TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
     World::StopNow(ERROR_EXIT_CODE);
 }
+
+#define GUID_TRAIT_INSTANTIATE_GUID( HIGH_GUID ) \
+    template class TC_GAME_API ObjectGuidGenerator< HIGH_GUID >;
+
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Player)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Item)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Transport)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Guild)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Conversation)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Creature)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Vehicle)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Pet)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::GameObject)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::DynamicObject)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AreaTrigger)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Corpse)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::LootObject)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::SceneObject)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Scenario)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AIGroup)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::DynamicDoor)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Vignette)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::CallForHelp)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AIResource)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AILock)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AILockTicket)

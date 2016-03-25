@@ -23,7 +23,7 @@
 class Unit;
 class SpellInfo;
 
-class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
+class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 {
     public:
         AreaTrigger();

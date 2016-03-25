@@ -42,7 +42,7 @@ namespace WorldPackets
             MovementInfo movementInfo;
         };
 
-        class MoveUpdate final : public ServerPacket
+        class TC_GAME_API MoveUpdate final : public ServerPacket
         {
         public:
             MoveUpdate() : ServerPacket(SMSG_MOVE_UPDATE) { }
@@ -427,7 +427,7 @@ namespace WorldPackets
             ObjectGuid SummonerGUID;
         };
 
-        class ControlUpdate final : public ServerPacket
+        class TC_GAME_API ControlUpdate final : public ServerPacket
         {
         public:
             ControlUpdate() : ServerPacket(SMSG_CONTROL_UPDATE, 16 + 1) { }

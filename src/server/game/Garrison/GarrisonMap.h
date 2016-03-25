@@ -23,7 +23,7 @@
 class Garrison;
 class Player;
 
-class GarrisonMap : public Map
+class TC_GAME_API GarrisonMap : public Map
 {
 public:
     GarrisonMap(uint32 id, time_t, uint32 instanceId, Map* parent, ObjectGuid const& owner);
