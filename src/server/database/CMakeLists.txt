@@ -52,7 +52,6 @@ add_definitions(-DTRINITY_API_EXPORT_DATABASE)
 target_link_libraries(database
   PUBLIC
     common
-    process
     mysql)
 
 set_target_properties(database
