@@ -20,7 +20,7 @@
 
 /*
 Reforging by Rochet2
-http://rochet2.github.io/Transmogrification.html
+http://rochet2.github.io/
 
 Rules of thumb:
 Item can be reforged once.
