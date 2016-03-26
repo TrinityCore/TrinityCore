@@ -12455,6 +12455,11 @@ float Unit::GetSpeed(UnitMoveType mtype) const
     return m_speed_rate[mtype]*(IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
 }
 
+void Unit::SetSpeed(UnitMoveType mtype, float newValue)
+{
+    SetSpeedRate(mtype, newValue / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]));
+}
+
 void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 {
     if (rate < 0)
