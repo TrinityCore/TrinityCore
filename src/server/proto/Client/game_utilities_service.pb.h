@@ -1332,8 +1332,8 @@ class TC_SHARED_API GameUtilitiesService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit GameUtilitiesService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit GameUtilitiesService(bool use_original_hash);
+  virtual ~GameUtilitiesService();
 
   typedef std::integral_constant<uint32, 0x3FC1274Du> OriginalHash;
   typedef std::integral_constant<uint32, 0x51923A28u> NameHash;

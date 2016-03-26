@@ -274,8 +274,8 @@ class TC_SHARED_API ReportService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ReportService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ReportService(bool use_original_hash);
+  virtual ~ReportService();
 
   typedef std::integral_constant<uint32, 0x7CAF61C9u> OriginalHash;
   typedef std::integral_constant<uint32, 0x724F5F47u> NameHash;

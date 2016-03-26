@@ -2422,12 +2422,18 @@ void OwnershipRequest::Swap(OwnershipRequest* other) {
 
 // ===================================================================
 
+PresenceService::PresenceService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+PresenceService::~PresenceService() {
+}
+
 google::protobuf::ServiceDescriptor const* PresenceService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return PresenceService_descriptor_;
 }
 
-void PresenceService::Subscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void PresenceService::Subscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceService.Subscribe(bgs.protocol.presence.v1.SubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -2438,7 +2444,7 @@ void PresenceService::Subscribe(::bgs::protocol::presence::v1::SubscribeRequest 
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void PresenceService::Unsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void PresenceService::Unsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceService.Unsubscribe(bgs.protocol.presence.v1.UnsubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -2449,7 +2455,7 @@ void PresenceService::Unsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequ
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void PresenceService::Update(::bgs::protocol::presence::v1::UpdateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void PresenceService::Update(::bgs::protocol::presence::v1::UpdateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceService.Update(bgs.protocol.presence.v1.UpdateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -2460,7 +2466,7 @@ void PresenceService::Update(::bgs::protocol::presence::v1::UpdateRequest const*
   SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
-void PresenceService::Query(::bgs::protocol::presence::v1::QueryRequest const* request, std::function<void(::bgs::protocol::presence::v1::QueryResponse const*)> responseCallback) { 
+void PresenceService::Query(::bgs::protocol::presence::v1::QueryRequest const* request, std::function<void(::bgs::protocol::presence::v1::QueryResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceService.Query(bgs.protocol.presence.v1.QueryRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -2471,7 +2477,7 @@ void PresenceService::Query(::bgs::protocol::presence::v1::QueryRequest const* r
   SendRequest(service_hash_, 4, request, std::move(callback));
 }
 
-void PresenceService::Ownership(::bgs::protocol::presence::v1::OwnershipRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void PresenceService::Ownership(::bgs::protocol::presence::v1::OwnershipRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceService.Ownership(bgs.protocol.presence.v1.OwnershipRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -2482,7 +2488,7 @@ void PresenceService::Ownership(::bgs::protocol::presence::v1::OwnershipRequest 
   SendRequest(service_hash_, 5, request, std::move(callback));
 }
 
-void PresenceService::SubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void PresenceService::SubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceService.SubscribeNotification(bgs.protocol.presence.v1.SubscribeNotificationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {

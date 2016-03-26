@@ -10726,12 +10726,18 @@ void GameAccountSessionNotification::Swap(GameAccountSessionNotification* other)
 
 // ===================================================================
 
+AccountService::AccountService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+AccountService::~AccountService() {
+}
+
 google::protobuf::ServiceDescriptor const* AccountService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return AccountService_descriptor_;
 }
 
-void AccountService::GetGameAccount(::bgs::protocol::account::v1::GameAccountHandle const* request, std::function<void(::bgs::protocol::account::v1::GameAccountBlob const*)> responseCallback) { 
+void AccountService::GetGameAccount(::bgs::protocol::account::v1::GameAccountHandle const* request, std::function<void(::bgs::protocol::account::v1::GameAccountBlob const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameAccount(bgs.protocol.account.v1.GameAccountHandle{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10742,7 +10748,7 @@ void AccountService::GetGameAccount(::bgs::protocol::account::v1::GameAccountHan
   SendRequest(service_hash_, 12, request, std::move(callback));
 }
 
-void AccountService::GetAccount(::bgs::protocol::account::v1::GetAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAccountResponse const*)> responseCallback) { 
+void AccountService::GetAccount(::bgs::protocol::account::v1::GetAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAccountResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetAccount(bgs.protocol.account.v1.GetAccountRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10753,7 +10759,7 @@ void AccountService::GetAccount(::bgs::protocol::account::v1::GetAccountRequest 
   SendRequest(service_hash_, 13, request, std::move(callback));
 }
 
-void AccountService::CreateGameAccount(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::GameAccountHandle const*)> responseCallback) { 
+void AccountService::CreateGameAccount(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::GameAccountHandle const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.CreateGameAccount(bgs.protocol.account.v1.CreateGameAccountRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10764,7 +10770,7 @@ void AccountService::CreateGameAccount(::bgs::protocol::account::v1::CreateGameA
   SendRequest(service_hash_, 14, request, std::move(callback));
 }
 
-void AccountService::IsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AccountService::IsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.IsIgrAddress(bgs.protocol.account.v1.IsIgrAddressRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10781,7 +10787,7 @@ void AccountService::CacheExpire(::bgs::protocol::account::v1::CacheExpireReques
   SendRequest(service_hash_, 20, request);
 }
 
-void AccountService::CredentialUpdate(::bgs::protocol::account::v1::CredentialUpdateRequest const* request, std::function<void(::bgs::protocol::account::v1::CredentialUpdateResponse const*)> responseCallback) { 
+void AccountService::CredentialUpdate(::bgs::protocol::account::v1::CredentialUpdateRequest const* request, std::function<void(::bgs::protocol::account::v1::CredentialUpdateResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.CredentialUpdate(bgs.protocol.account.v1.CredentialUpdateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10792,7 +10798,7 @@ void AccountService::CredentialUpdate(::bgs::protocol::account::v1::CredentialUp
   SendRequest(service_hash_, 21, request, std::move(callback));
 }
 
-void AccountService::Subscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::account::v1::SubscriptionUpdateResponse const*)> responseCallback) { 
+void AccountService::Subscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::account::v1::SubscriptionUpdateResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.Subscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10803,7 +10809,7 @@ void AccountService::Subscribe(::bgs::protocol::account::v1::SubscriptionUpdateR
   SendRequest(service_hash_, 25, request, std::move(callback));
 }
 
-void AccountService::Unsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AccountService::Unsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.Unsubscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10814,7 +10820,7 @@ void AccountService::Unsubscribe(::bgs::protocol::account::v1::SubscriptionUpdat
   SendRequest(service_hash_, 26, request, std::move(callback));
 }
 
-void AccountService::GetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAccountStateResponse const*)> responseCallback) { 
+void AccountService::GetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAccountStateResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetAccountState(bgs.protocol.account.v1.GetAccountStateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10825,7 +10831,7 @@ void AccountService::GetAccountState(::bgs::protocol::account::v1::GetAccountSta
   SendRequest(service_hash_, 30, request, std::move(callback));
 }
 
-void AccountService::GetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameAccountStateResponse const*)> responseCallback) { 
+void AccountService::GetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameAccountStateResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameAccountState(bgs.protocol.account.v1.GetGameAccountStateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10836,7 +10842,7 @@ void AccountService::GetGameAccountState(::bgs::protocol::account::v1::GetGameAc
   SendRequest(service_hash_, 31, request, std::move(callback));
 }
 
-void AccountService::GetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, std::function<void(::bgs::protocol::account::v1::GetLicensesResponse const*)> responseCallback) { 
+void AccountService::GetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, std::function<void(::bgs::protocol::account::v1::GetLicensesResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetLicenses(bgs.protocol.account.v1.GetLicensesRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10847,7 +10853,7 @@ void AccountService::GetLicenses(::bgs::protocol::account::v1::GetLicensesReques
   SendRequest(service_hash_, 32, request, std::move(callback));
 }
 
-void AccountService::GetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse const*)> responseCallback) { 
+void AccountService::GetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameTimeRemainingInfo(bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10858,7 +10864,7 @@ void AccountService::GetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetG
   SendRequest(service_hash_, 33, request, std::move(callback));
 }
 
-void AccountService::GetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameSessionInfoResponse const*)> responseCallback) { 
+void AccountService::GetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameSessionInfoResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameSessionInfo(bgs.protocol.account.v1.GetGameSessionInfoRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10869,7 +10875,7 @@ void AccountService::GetGameSessionInfo(::bgs::protocol::account::v1::GetGameSes
   SendRequest(service_hash_, 34, request, std::move(callback));
 }
 
-void AccountService::GetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetCAISInfoResponse const*)> responseCallback) { 
+void AccountService::GetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetCAISInfoResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetCAISInfo(bgs.protocol.account.v1.GetCAISInfoRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10880,7 +10886,7 @@ void AccountService::GetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoReques
   SendRequest(service_hash_, 35, request, std::move(callback));
 }
 
-void AccountService::ForwardCacheExpire(::bgs::protocol::account::v1::ForwardCacheExpireRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AccountService::ForwardCacheExpire(::bgs::protocol::account::v1::ForwardCacheExpireRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.ForwardCacheExpire(bgs.protocol.account.v1.ForwardCacheExpireRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -10891,7 +10897,7 @@ void AccountService::ForwardCacheExpire(::bgs::protocol::account::v1::ForwardCac
   SendRequest(service_hash_, 36, request, std::move(callback));
 }
 
-void AccountService::GetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAuthorizedDataResponse const*)> responseCallback) { 
+void AccountService::GetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAuthorizedDataResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetAuthorizedData(bgs.protocol.account.v1.GetAuthorizedDataRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -11347,6 +11353,12 @@ uint32 AccountService::HandleGameAccountFlagUpdate(::bgs::protocol::account::v1:
 }
 
 // ===================================================================
+
+AccountListener::AccountListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+AccountListener::~AccountListener() {
+}
 
 google::protobuf::ServiceDescriptor const* AccountListener::descriptor() {
   protobuf_AssignDescriptorsOnce();

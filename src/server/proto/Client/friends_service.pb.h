@@ -1344,8 +1344,8 @@ class TC_SHARED_API FriendsService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit FriendsService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit FriendsService(bool use_original_hash);
+  virtual ~FriendsService();
 
   typedef std::integral_constant<uint32, 0xA3DDB1BDu> OriginalHash;
   typedef std::integral_constant<uint32, 0xABDFED63u> NameHash;
@@ -1396,8 +1396,8 @@ class TC_SHARED_API FriendsListener : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit FriendsListener(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit FriendsListener(bool use_original_hash);
+  virtual ~FriendsListener();
 
   typedef std::integral_constant<uint32, 0x6F259A13u> OriginalHash;
   typedef std::integral_constant<uint32, 0xA6717548u> NameHash;

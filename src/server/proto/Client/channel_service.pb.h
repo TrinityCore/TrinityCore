@@ -1770,8 +1770,8 @@ class TC_SHARED_API ChannelService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ChannelService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ChannelService(bool use_original_hash);
+  virtual ~ChannelService();
 
   typedef std::integral_constant<uint32, 0xB732DB32u> OriginalHash;
   typedef std::integral_constant<uint32, 0xA913A87Bu> NameHash;
@@ -1814,8 +1814,8 @@ class TC_SHARED_API ChannelListener : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ChannelListener(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ChannelListener(bool use_original_hash);
+  virtual ~ChannelListener();
 
   typedef std::integral_constant<uint32, 0xBF8C8094u> OriginalHash;
   typedef std::integral_constant<uint32, 0xDA660990u> NameHash;

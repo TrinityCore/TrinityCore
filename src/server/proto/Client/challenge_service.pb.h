@@ -1357,8 +1357,8 @@ class TC_SHARED_API ChallengeService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ChallengeService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ChallengeService(bool use_original_hash);
+  virtual ~ChallengeService();
 
   typedef std::integral_constant<uint32, 0xDBBF6F19u> OriginalHash;
   typedef std::integral_constant<uint32, 0x71BB6833u> NameHash;
@@ -1393,8 +1393,8 @@ class TC_SHARED_API ChallengeListener : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ChallengeListener(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ChallengeListener(bool use_original_hash);
+  virtual ~ChallengeListener();
 
   typedef std::integral_constant<uint32, 0xBBDA171Fu> OriginalHash;
   typedef std::integral_constant<uint32, 0xC6D90AB8u> NameHash;

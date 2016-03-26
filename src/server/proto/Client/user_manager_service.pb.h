@@ -1296,8 +1296,8 @@ class TC_SHARED_API UserManagerService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit UserManagerService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit UserManagerService(bool use_original_hash);
+  virtual ~UserManagerService();
 
   typedef std::integral_constant<uint32, 0x3E19268Au> OriginalHash;
   typedef std::integral_constant<uint32, 0x8EE5694Eu> NameHash;
@@ -1340,8 +1340,8 @@ class TC_SHARED_API UserManagerListener : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit UserManagerListener(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit UserManagerListener(bool use_original_hash);
+  virtual ~UserManagerListener();
 
   typedef std::integral_constant<uint32, 0xBC872C22u> OriginalHash;
   typedef std::integral_constant<uint32, 0xB3426BB3u> NameHash;

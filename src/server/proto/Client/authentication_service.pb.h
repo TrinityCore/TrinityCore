@@ -2172,8 +2172,8 @@ class TC_SHARED_API AuthenticationListener : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit AuthenticationListener(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit AuthenticationListener(bool use_original_hash);
+  virtual ~AuthenticationListener();
 
   typedef std::integral_constant<uint32, 0x71240E35u> OriginalHash;
   typedef std::integral_constant<uint32, 0x4DA86228u> NameHash;
@@ -2220,8 +2220,8 @@ class TC_SHARED_API AuthenticationService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit AuthenticationService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit AuthenticationService(bool use_original_hash);
+  virtual ~AuthenticationService();
 
   typedef std::integral_constant<uint32, 0xDECFC01u> OriginalHash;
   typedef std::integral_constant<uint32, 0xFF5A6AC3u> NameHash;

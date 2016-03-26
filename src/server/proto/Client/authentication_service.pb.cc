@@ -7134,6 +7134,12 @@ void VerifyWebCredentialsRequest::Swap(VerifyWebCredentialsRequest* other) {
 
 // ===================================================================
 
+AuthenticationListener::AuthenticationListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+AuthenticationListener::~AuthenticationListener() {
+}
+
 google::protobuf::ServiceDescriptor const* AuthenticationListener::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return AuthenticationListener_descriptor_;
@@ -7145,7 +7151,7 @@ void AuthenticationListener::OnModuleLoad(::bgs::protocol::authentication::v1::M
   SendRequest(service_hash_, 1, request);
 }
 
-void AuthenticationListener::OnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationListener::OnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationListener.OnModuleMessage(bgs.protocol.authentication.v1.ModuleMessageRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7168,7 +7174,7 @@ void AuthenticationListener::OnLogonComplete(::bgs::protocol::authentication::v1
   SendRequest(service_hash_, 5, request);
 }
 
-void AuthenticationListener::OnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, std::function<void(::bgs::protocol::authentication::v1::MemModuleLoadResponse const*)> responseCallback) { 
+void AuthenticationListener::OnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, std::function<void(::bgs::protocol::authentication::v1::MemModuleLoadResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationListener.OnMemModuleLoad(bgs.protocol.authentication.v1.MemModuleLoadRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7436,12 +7442,18 @@ uint32 AuthenticationListener::HandleOnGameAccountSelected(::bgs::protocol::auth
 
 // ===================================================================
 
+AuthenticationService::AuthenticationService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+AuthenticationService::~AuthenticationService() {
+}
+
 google::protobuf::ServiceDescriptor const* AuthenticationService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return AuthenticationService_descriptor_;
 }
 
-void AuthenticationService::Logon(::bgs::protocol::authentication::v1::LogonRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationService::Logon(::bgs::protocol::authentication::v1::LogonRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.Logon(bgs.protocol.authentication.v1.LogonRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7452,7 +7464,7 @@ void AuthenticationService::Logon(::bgs::protocol::authentication::v1::LogonRequ
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void AuthenticationService::ModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationService::ModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.ModuleNotify(bgs.protocol.authentication.v1.ModuleNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7463,7 +7475,7 @@ void AuthenticationService::ModuleNotify(::bgs::protocol::authentication::v1::Mo
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void AuthenticationService::ModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationService::ModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.ModuleMessage(bgs.protocol.authentication.v1.ModuleMessageRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7474,7 +7486,7 @@ void AuthenticationService::ModuleMessage(::bgs::protocol::authentication::v1::M
   SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
-void AuthenticationService::SelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationService::SelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.SelectGameAccount_DEPRECATED(bgs.protocol.EntityId{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7485,7 +7497,7 @@ void AuthenticationService::SelectGameAccount_DEPRECATED(::bgs::protocol::Entity
   SendRequest(service_hash_, 4, request, std::move(callback));
 }
 
-void AuthenticationService::GenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, std::function<void(::bgs::protocol::authentication::v1::GenerateSSOTokenResponse const*)> responseCallback) { 
+void AuthenticationService::GenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, std::function<void(::bgs::protocol::authentication::v1::GenerateSSOTokenResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.GenerateSSOToken(bgs.protocol.authentication.v1.GenerateSSOTokenRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7496,7 +7508,7 @@ void AuthenticationService::GenerateSSOToken(::bgs::protocol::authentication::v1
   SendRequest(service_hash_, 5, request, std::move(callback));
 }
 
-void AuthenticationService::SelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationService::SelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.SelectGameAccount(bgs.protocol.authentication.v1.SelectGameAccountRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7507,7 +7519,7 @@ void AuthenticationService::SelectGameAccount(::bgs::protocol::authentication::v
   SendRequest(service_hash_, 6, request, std::move(callback));
 }
 
-void AuthenticationService::VerifyWebCredentials(::bgs::protocol::authentication::v1::VerifyWebCredentialsRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void AuthenticationService::VerifyWebCredentials(::bgs::protocol::authentication::v1::VerifyWebCredentialsRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.VerifyWebCredentials(bgs.protocol.authentication.v1.VerifyWebCredentialsRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -7518,7 +7530,7 @@ void AuthenticationService::VerifyWebCredentials(::bgs::protocol::authentication
   SendRequest(service_hash_, 7, request, std::move(callback));
 }
 
-void AuthenticationService::GenerateWebCredentials(::bgs::protocol::authentication::v1::GenerateWebCredentialsRequest const* request, std::function<void(::bgs::protocol::authentication::v1::GenerateWebCredentialsResponse const*)> responseCallback) { 
+void AuthenticationService::GenerateWebCredentials(::bgs::protocol::authentication::v1::GenerateWebCredentialsRequest const* request, std::function<void(::bgs::protocol::authentication::v1::GenerateWebCredentialsResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AuthenticationService.GenerateWebCredentials(bgs.protocol.authentication.v1.GenerateWebCredentialsRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {

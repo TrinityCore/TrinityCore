@@ -4443,12 +4443,18 @@ void InvitationNotification::Swap(InvitationNotification* other) {
 
 // ===================================================================
 
+FriendsService::FriendsService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+FriendsService::~FriendsService() {
+}
+
 google::protobuf::ServiceDescriptor const* FriendsService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return FriendsService_descriptor_;
 }
 
-void FriendsService::Subscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::friends::v1::SubscribeResponse const*)> responseCallback) { 
+void FriendsService::Subscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::friends::v1::SubscribeResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.Subscribe(bgs.protocol.friends.v1.SubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4459,7 +4465,7 @@ void FriendsService::Subscribe(::bgs::protocol::friends::v1::SubscribeRequest co
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void FriendsService::SendInvitation(::bgs::protocol::SendInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::SendInvitation(::bgs::protocol::SendInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.SendInvitation(bgs.protocol.SendInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4470,7 +4476,7 @@ void FriendsService::SendInvitation(::bgs::protocol::SendInvitationRequest const
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void FriendsService::AcceptInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::AcceptInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.AcceptInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4481,7 +4487,7 @@ void FriendsService::AcceptInvitation(::bgs::protocol::GenericInvitationRequest 
   SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
-void FriendsService::RevokeInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::RevokeInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.RevokeInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4492,7 +4498,7 @@ void FriendsService::RevokeInvitation(::bgs::protocol::GenericInvitationRequest 
   SendRequest(service_hash_, 4, request, std::move(callback));
 }
 
-void FriendsService::DeclineInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::DeclineInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.DeclineInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4503,7 +4509,7 @@ void FriendsService::DeclineInvitation(::bgs::protocol::GenericInvitationRequest
   SendRequest(service_hash_, 5, request, std::move(callback));
 }
 
-void FriendsService::IgnoreInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::IgnoreInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.IgnoreInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4514,7 +4520,7 @@ void FriendsService::IgnoreInvitation(::bgs::protocol::GenericInvitationRequest 
   SendRequest(service_hash_, 6, request, std::move(callback));
 }
 
-void FriendsService::AssignRole(::bgs::protocol::friends::v1::AssignRoleRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::AssignRole(::bgs::protocol::friends::v1::AssignRoleRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.AssignRole(bgs.protocol.friends.v1.AssignRoleRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4525,7 +4531,7 @@ void FriendsService::AssignRole(::bgs::protocol::friends::v1::AssignRoleRequest 
   SendRequest(service_hash_, 7, request, std::move(callback));
 }
 
-void FriendsService::RemoveFriend(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::friends::v1::GenericFriendResponse const*)> responseCallback) { 
+void FriendsService::RemoveFriend(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::friends::v1::GenericFriendResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.RemoveFriend(bgs.protocol.friends.v1.GenericFriendRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4536,7 +4542,7 @@ void FriendsService::RemoveFriend(::bgs::protocol::friends::v1::GenericFriendReq
   SendRequest(service_hash_, 8, request, std::move(callback));
 }
 
-void FriendsService::ViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, std::function<void(::bgs::protocol::friends::v1::ViewFriendsResponse const*)> responseCallback) { 
+void FriendsService::ViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, std::function<void(::bgs::protocol::friends::v1::ViewFriendsResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.ViewFriends(bgs.protocol.friends.v1.ViewFriendsRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4547,7 +4553,7 @@ void FriendsService::ViewFriends(::bgs::protocol::friends::v1::ViewFriendsReques
   SendRequest(service_hash_, 9, request, std::move(callback));
 }
 
-void FriendsService::UpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::UpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.UpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4558,7 +4564,7 @@ void FriendsService::UpdateFriendState(::bgs::protocol::friends::v1::UpdateFrien
   SendRequest(service_hash_, 10, request, std::move(callback));
 }
 
-void FriendsService::Unsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::Unsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.Unsubscribe(bgs.protocol.friends.v1.UnsubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4569,7 +4575,7 @@ void FriendsService::Unsubscribe(::bgs::protocol::friends::v1::UnsubscribeReques
   SendRequest(service_hash_, 11, request, std::move(callback));
 }
 
-void FriendsService::RevokeAllInvitations(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void FriendsService::RevokeAllInvitations(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.RevokeAllInvitations(bgs.protocol.friends.v1.GenericFriendRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4878,6 +4884,12 @@ uint32 FriendsService::HandleRevokeAllInvitations(::bgs::protocol::friends::v1::
 }
 
 // ===================================================================
+
+FriendsListener::FriendsListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+FriendsListener::~FriendsListener() {
+}
 
 google::protobuf::ServiceDescriptor const* FriendsListener::descriptor() {
   protobuf_AssignDescriptorsOnce();

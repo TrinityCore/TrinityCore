@@ -430,12 +430,18 @@ void ContentHandleRequest::Swap(ContentHandleRequest* other) {
 
 // ===================================================================
 
+ResourcesService::ResourcesService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ResourcesService::~ResourcesService() {
+}
+
 google::protobuf::ServiceDescriptor const* ResourcesService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return ResourcesService_descriptor_;
 }
 
-void ResourcesService::GetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, std::function<void(::bgs::protocol::ContentHandle const*)> responseCallback) { 
+void ResourcesService::GetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, std::function<void(::bgs::protocol::ContentHandle const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ResourcesService.GetContentHandle(bgs.protocol.resources.v1.ContentHandleRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {

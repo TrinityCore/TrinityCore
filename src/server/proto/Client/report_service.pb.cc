@@ -853,12 +853,18 @@ void SendReportRequest::Swap(SendReportRequest* other) {
 
 // ===================================================================
 
+ReportService::ReportService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ReportService::~ReportService() {
+}
+
 google::protobuf::ServiceDescriptor const* ReportService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return ReportService_descriptor_;
 }
 
-void ReportService::SendReport(::bgs::protocol::report::v1::SendReportRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ReportService::SendReport(::bgs::protocol::report::v1::SendReportRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ReportService.SendReport(bgs.protocol.report.v1.SendReportRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
