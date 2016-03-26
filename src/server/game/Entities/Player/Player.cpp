@@ -3202,10 +3202,9 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
             }
         }
 
-        PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
         PlayerTalent* newtalent = new PlayerTalent();
 
-        newtalent->state = state;
+        newtalent->state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
         newtalent->spec = spec;
 
         (*m_talents[spec])[spellId] = newtalent;
