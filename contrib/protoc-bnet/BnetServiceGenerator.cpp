@@ -173,11 +173,12 @@ void BnetServiceGenerator::GenerateClientMethodImplementations(pb::io::Printer* 
                 "void $classname$::$name$($input_type$ const* request, std::function<void($output_type$ const*)> responseCallback) { \n"
                 "  TC_LOG_DEBUG(\"service.protobuf\", \"%s Server called client method $full_name$($input_type_name${ %s })\",\n"
                 "    GetCallerInfo().c_str(), request->ShortDebugString().c_str());\n"
-                "  SendRequest(service_hash_, $method_id$, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {\n"
+                "  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {\n"
                 "    $output_type$ response;\n"
                 "    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))\n"
-                "      callback(&response);\n"
-                "  });\n"
+                "      responseCallback(&response);\n"
+                "  };\n"
+                "  SendRequest(service_hash_, $method_id$, request, std::move(callback));\n"
                 "}\n"
                 "\n");
         }

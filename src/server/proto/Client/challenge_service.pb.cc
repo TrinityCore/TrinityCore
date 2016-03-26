@@ -4469,41 +4469,45 @@ google::protobuf::ServiceDescriptor const* ChallengeService::descriptor() {
 void ChallengeService::ChallengePicked(::bgs::protocol::challenge::v1::ChallengePickedRequest const* request, std::function<void(::bgs::protocol::challenge::v1::ChallengePickedResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.ChallengePicked(bgs.protocol.challenge.v1.ChallengePickedRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::challenge::v1::ChallengePickedResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void ChallengeService::ChallengeAnswered(::bgs::protocol::challenge::v1::ChallengeAnsweredRequest const* request, std::function<void(::bgs::protocol::challenge::v1::ChallengeAnsweredResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.ChallengeAnswered(bgs.protocol.challenge.v1.ChallengeAnsweredRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 2, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::challenge::v1::ChallengeAnsweredResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
 void ChallengeService::ChallengeCancelled(::bgs::protocol::challenge::v1::ChallengeCancelledRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.ChallengeCancelled(bgs.protocol.challenge.v1.ChallengeCancelledRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 3, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
 void ChallengeService::SendChallengeToUser(::bgs::protocol::challenge::v1::SendChallengeToUserRequest const* request, std::function<void(::bgs::protocol::challenge::v1::SendChallengeToUserResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.SendChallengeToUser(bgs.protocol.challenge.v1.SendChallengeToUserRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 4, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::challenge::v1::SendChallengeToUserResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 4, request, std::move(callback));
 }
 
 void ChallengeService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {

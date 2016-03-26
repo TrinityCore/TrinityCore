@@ -24,7 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "Define.h" // for TRINITY_SHARED_API
+#include "Define.h" // for TC_SHARED_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
