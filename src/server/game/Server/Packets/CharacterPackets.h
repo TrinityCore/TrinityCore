@@ -133,6 +133,7 @@ namespace WorldPackets
                 uint32 Flags3            = 0; ///< Character flags 3 @todo research
                 bool FirstLogin      = false;
                 uint8 unkWod61x          = 0;
+                uint32 LastPlayedTime    = 0;
 
                 struct PetInfo
                 {
@@ -721,7 +722,7 @@ namespace WorldPackets
         {
         public:
             SetPlayerDeclinedNames(WorldPacket&& packet) : ClientPacket(CMSG_SET_PLAYER_DECLINED_NAMES, std::move(packet)) { }
-        
+
             void Read() override;
 
             ObjectGuid Player;

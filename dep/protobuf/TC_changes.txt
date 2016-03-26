@@ -1,0 +1,10 @@
+Removed everything except the sources listed in CMakeLists.txt and files included by them
+* Tests
+* Build scripts
+* Examples
+* Non C++ sources
+
+The only modification made is silencing warnings in headers included from src/server directories.
+
+file config.h is completely custom that forces protobuf to emulate hash_* structures using std::set and std::map to avoid compatibility issues
+otherwise it would be looking for old deprecated std::hash_set and std::hash_map and we would have to detect them based on platform
