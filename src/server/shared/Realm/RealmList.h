@@ -29,7 +29,7 @@
 using namespace boost::asio;
 
 /// Storage object for the list of realms on the server
-class RealmList
+class TC_SHARED_API RealmList
 {
 public:
     typedef std::map<Battlenet::RealmHandle, Realm> RealmMap;
