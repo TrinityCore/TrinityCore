@@ -54,11 +54,31 @@ static std::map<MetricValueCategory, std::string> Values = {
     { METRIC_VALUE_ONLINE_PLAYERS, "online_players" }
 };
 
+enum MetricDataType
+{
+    METRIC_DATA_VALUE,
+    METRIC_DATA_EVENT
+};
+
+struct MetricData
+{
+    std::string category;
+    std::chrono::time_point<std::chrono::system_clock> timestamp;
+    MetricDataType type;
+
+    // LogValue-specific fields
+    std::string value;
+
+    // LogEvent-specific fields
+    std::string title;
+    std::string text;
+};
+
 class TC_COMMON_API Metric
 {
 private:
     boost::asio::ip::tcp::iostream _dataStream;
-    MPSCQueue<std::string> _queuedData;
+    MPSCQueue<MetricData> _queuedData;
     std::unique_ptr<boost::asio::deadline_timer> _batchTimer;
     std::unique_ptr<boost::asio::deadline_timer> _overallStatusTimer;
     int32 _updateInterval = 0;
@@ -73,7 +93,6 @@ private:
 
     bool Connect();
     void SendBatch();
-    void Enqueue(std::string const& data);
     void ScheduleSend();
     void ScheduleOverallStatusLog();
 
@@ -102,10 +121,13 @@ public:
     {
         using namespace std::chrono;
 
-        std::string data = category + (_realmName.empty() ? "" : ",realm=" + _realmName) + " value=" + FormatInfluxDBValue(value)
-            + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
+        MetricData* data = new MetricData;
+        data->category = category;
+        data->timestamp = system_clock::now();
+        data->type = METRIC_DATA_VALUE;
+        data->value = FormatInfluxDBValue(value);
 
-        Enqueue(data);
+        _queuedData.Enqueue(data);
     }
 
     template<class T>

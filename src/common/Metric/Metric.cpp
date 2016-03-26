@@ -103,28 +103,48 @@ void Metric::LogEvent(std::string const& category, std::string const& title, std
 {
     using namespace std::chrono;
 
-    std::string data = category + (_realmName.empty() ? "" : ",realm=" + _realmName) + " title=\"" + title + "\",text=\"" + description + "\""
-        + " " + std::to_string(duration_cast<nanoseconds>(system_clock::now().time_since_epoch()).count());
+    MetricData* data = new MetricData;
+    data->category = category;
+    data->timestamp = system_clock::now();
+    data->type = METRIC_DATA_EVENT;
+    data->title = title;
+    data->text = description;
 
-    Enqueue(data);
-}
-
-void Metric::Enqueue(std::string const& data)
-{
-    _queuedData.Enqueue(new std::string(data));
+    _queuedData.Enqueue(data);
 }
 
 void Metric::SendBatch()
 {
+    using namespace std::chrono;
+
     std::stringstream batchedData;
-    std::string* data;
+    MetricData* data;
     bool firstLoop = true;
     while (_queuedData.Dequeue(data))
     {
         if (!firstLoop)
             batchedData << "\n";
 
-        batchedData << *data;
+        batchedData << data->category;
+        if (!_realmName.empty())
+            batchedData << ",realm=" << _realmName;
+
+        batchedData << " ";
+
+        switch (data->type)
+        {
+            case METRIC_DATA_VALUE:
+                batchedData << "value=" << data->value;
+                break;
+            case METRIC_DATA_EVENT:
+                batchedData << "title=\"" << data->title << "\",text=\"" << data->text << "\"";
+                break;
+        }
+
+        batchedData << " ";
+
+        batchedData << std::to_string(duration_cast<nanoseconds>(data->timestamp.time_since_epoch()).count());
+
         firstLoop = false;
         delete data;
     }
@@ -181,7 +201,7 @@ void Metric::ScheduleSend()
     else
     {
         _dataStream.close();
-        std::string* data;
+        MetricData* data;
         // Clear the queue
         while (_queuedData.Dequeue(data))
             ;
