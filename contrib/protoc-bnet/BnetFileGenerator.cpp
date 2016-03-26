@@ -173,6 +173,9 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
         printer->Print("#include <functional>\n");
         printer->Print("#include <type_traits>\n");
     }
+    else
+        printer->Print("#include \"Define.h\" // for TC_SHARED_API\n");
+
 
     printer->Print("// @@protoc_insertion_point(includes)\n");
 
@@ -355,6 +358,11 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
 
     printer->Print(
         "// @@protoc_insertion_point(includes)\n");
+
+    printer->Print("\n// Fix stupid windows.h included from Log.h->Common.h\n");
+    printer->Print("#ifdef SendMessage\n");
+    printer->Print("#undef SendMessage\n");
+    printer->Print("#endif\n");
 
     GenerateNamespaceOpeners(printer);
 
