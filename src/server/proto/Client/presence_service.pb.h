@@ -762,8 +762,8 @@ class TC_SHARED_API PresenceService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit PresenceService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit PresenceService(bool use_original_hash);
+  virtual ~PresenceService();
 
   typedef std::integral_constant<uint32, 0xFA0796FFu> OriginalHash;
   typedef std::integral_constant<uint32, 0xD8F94B3Bu> NameHash;

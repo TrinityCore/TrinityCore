@@ -3634,12 +3634,18 @@ void EncryptRequest::Swap(EncryptRequest* other) {
 
 // ===================================================================
 
+ConnectionService::ConnectionService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ConnectionService::~ConnectionService() {
+}
+
 google::protobuf::ServiceDescriptor const* ConnectionService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return ConnectionService_descriptor_;
 }
 
-void ConnectionService::Connect(::bgs::protocol::connection::v1::ConnectRequest const* request, std::function<void(::bgs::protocol::connection::v1::ConnectResponse const*)> responseCallback) { 
+void ConnectionService::Connect(::bgs::protocol::connection::v1::ConnectRequest const* request, std::function<void(::bgs::protocol::connection::v1::ConnectResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Connect(bgs.protocol.connection.v1.ConnectRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -3650,7 +3656,7 @@ void ConnectionService::Connect(::bgs::protocol::connection::v1::ConnectRequest 
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void ConnectionService::Bind(::bgs::protocol::connection::v1::BindRequest const* request, std::function<void(::bgs::protocol::connection::v1::BindResponse const*)> responseCallback) { 
+void ConnectionService::Bind(::bgs::protocol::connection::v1::BindRequest const* request, std::function<void(::bgs::protocol::connection::v1::BindResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Bind(bgs.protocol.connection.v1.BindRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -3661,7 +3667,7 @@ void ConnectionService::Bind(::bgs::protocol::connection::v1::BindRequest const*
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void ConnectionService::Echo(::bgs::protocol::connection::v1::EchoRequest const* request, std::function<void(::bgs::protocol::connection::v1::EchoResponse const*)> responseCallback) { 
+void ConnectionService::Echo(::bgs::protocol::connection::v1::EchoRequest const* request, std::function<void(::bgs::protocol::connection::v1::EchoResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Echo(bgs.protocol.connection.v1.EchoRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -3684,7 +3690,7 @@ void ConnectionService::KeepAlive(::bgs::protocol::NoData const* request) {
   SendRequest(service_hash_, 5, request);
 }
 
-void ConnectionService::Encrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ConnectionService::Encrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Encrypt(bgs.protocol.connection.v1.EncryptRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {

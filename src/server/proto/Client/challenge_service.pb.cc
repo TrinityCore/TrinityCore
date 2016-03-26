@@ -4461,12 +4461,18 @@ void ChallengeExternalResult::Swap(ChallengeExternalResult* other) {
 
 // ===================================================================
 
+ChallengeService::ChallengeService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ChallengeService::~ChallengeService() {
+}
+
 google::protobuf::ServiceDescriptor const* ChallengeService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return ChallengeService_descriptor_;
 }
 
-void ChallengeService::ChallengePicked(::bgs::protocol::challenge::v1::ChallengePickedRequest const* request, std::function<void(::bgs::protocol::challenge::v1::ChallengePickedResponse const*)> responseCallback) { 
+void ChallengeService::ChallengePicked(::bgs::protocol::challenge::v1::ChallengePickedRequest const* request, std::function<void(::bgs::protocol::challenge::v1::ChallengePickedResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.ChallengePicked(bgs.protocol.challenge.v1.ChallengePickedRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4477,7 +4483,7 @@ void ChallengeService::ChallengePicked(::bgs::protocol::challenge::v1::Challenge
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void ChallengeService::ChallengeAnswered(::bgs::protocol::challenge::v1::ChallengeAnsweredRequest const* request, std::function<void(::bgs::protocol::challenge::v1::ChallengeAnsweredResponse const*)> responseCallback) { 
+void ChallengeService::ChallengeAnswered(::bgs::protocol::challenge::v1::ChallengeAnsweredRequest const* request, std::function<void(::bgs::protocol::challenge::v1::ChallengeAnsweredResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.ChallengeAnswered(bgs.protocol.challenge.v1.ChallengeAnsweredRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4488,7 +4494,7 @@ void ChallengeService::ChallengeAnswered(::bgs::protocol::challenge::v1::Challen
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void ChallengeService::ChallengeCancelled(::bgs::protocol::challenge::v1::ChallengeCancelledRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChallengeService::ChallengeCancelled(::bgs::protocol::challenge::v1::ChallengeCancelledRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.ChallengeCancelled(bgs.protocol.challenge.v1.ChallengeCancelledRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4499,7 +4505,7 @@ void ChallengeService::ChallengeCancelled(::bgs::protocol::challenge::v1::Challe
   SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
-void ChallengeService::SendChallengeToUser(::bgs::protocol::challenge::v1::SendChallengeToUserRequest const* request, std::function<void(::bgs::protocol::challenge::v1::SendChallengeToUserResponse const*)> responseCallback) { 
+void ChallengeService::SendChallengeToUser(::bgs::protocol::challenge::v1::SendChallengeToUserRequest const* request, std::function<void(::bgs::protocol::challenge::v1::SendChallengeToUserResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeService.SendChallengeToUser(bgs.protocol.challenge.v1.SendChallengeToUserRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4616,6 +4622,12 @@ uint32 ChallengeService::HandleSendChallengeToUser(::bgs::protocol::challenge::v
 }
 
 // ===================================================================
+
+ChallengeListener::ChallengeListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ChallengeListener::~ChallengeListener() {
+}
 
 google::protobuf::ServiceDescriptor const* ChallengeListener::descriptor() {
   protobuf_AssignDescriptorsOnce();

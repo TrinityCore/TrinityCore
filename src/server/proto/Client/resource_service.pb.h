@@ -149,8 +149,8 @@ class TC_SHARED_API ResourcesService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ResourcesService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ResourcesService(bool use_original_hash);
+  virtual ~ResourcesService();
 
   typedef std::integral_constant<uint32, 0xECBE75BAu> OriginalHash;
   typedef std::integral_constant<uint32, 0x4B104C53u> NameHash;

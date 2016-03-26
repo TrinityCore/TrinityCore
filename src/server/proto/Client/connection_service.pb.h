@@ -1138,8 +1138,8 @@ class TC_SHARED_API ConnectionService : public ServiceBase
 {
  public:
 
-  template<typename HashSelector>
-  explicit ConnectionService(HashSelector) : service_hash_(HashSelector::Result::value) { }
+  explicit ConnectionService(bool use_original_hash);
+  virtual ~ConnectionService();
 
   typedef std::integral_constant<uint32, 0x65446991u> OriginalHash;
   typedef std::integral_constant<uint32, 0x2782094Bu> NameHash;

@@ -4245,12 +4245,18 @@ void GetAllValuesForAttributeResponse::Swap(GetAllValuesForAttributeResponse* ot
 
 // ===================================================================
 
+GameUtilitiesService::GameUtilitiesService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+GameUtilitiesService::~GameUtilitiesService() {
+}
+
 google::protobuf::ServiceDescriptor const* GameUtilitiesService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return GameUtilitiesService_descriptor_;
 }
 
-void GameUtilitiesService::ProcessClientRequest(::bgs::protocol::game_utilities::v1::ClientRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::ClientResponse const*)> responseCallback) { 
+void GameUtilitiesService::ProcessClientRequest(::bgs::protocol::game_utilities::v1::ClientRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::ClientResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.ProcessClientRequest(bgs.protocol.game_utilities.v1.ClientRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4261,7 +4267,7 @@ void GameUtilitiesService::ProcessClientRequest(::bgs::protocol::game_utilities:
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void GameUtilitiesService::PresenceChannelCreated(::bgs::protocol::game_utilities::v1::PresenceChannelCreatedRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void GameUtilitiesService::PresenceChannelCreated(::bgs::protocol::game_utilities::v1::PresenceChannelCreatedRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.PresenceChannelCreated(bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4272,7 +4278,7 @@ void GameUtilitiesService::PresenceChannelCreated(::bgs::protocol::game_utilitie
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void GameUtilitiesService::GetPlayerVariables(::bgs::protocol::game_utilities::v1::GetPlayerVariablesRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetPlayerVariablesResponse const*)> responseCallback) { 
+void GameUtilitiesService::GetPlayerVariables(::bgs::protocol::game_utilities::v1::GetPlayerVariablesRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetPlayerVariablesResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.GetPlayerVariables(bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4283,7 +4289,7 @@ void GameUtilitiesService::GetPlayerVariables(::bgs::protocol::game_utilities::v
   SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
-void GameUtilitiesService::ProcessServerRequest(::bgs::protocol::game_utilities::v1::ServerRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::ServerResponse const*)> responseCallback) { 
+void GameUtilitiesService::ProcessServerRequest(::bgs::protocol::game_utilities::v1::ServerRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::ServerResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.ProcessServerRequest(bgs.protocol.game_utilities.v1.ServerRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4306,7 +4312,7 @@ void GameUtilitiesService::OnGameAccountOffline(::bgs::protocol::game_utilities:
   SendRequest(service_hash_, 8, request);
 }
 
-void GameUtilitiesService::GetAchievementsFile(::bgs::protocol::game_utilities::v1::GetAchievementsFileRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAchievementsFileResponse const*)> responseCallback) { 
+void GameUtilitiesService::GetAchievementsFile(::bgs::protocol::game_utilities::v1::GetAchievementsFileRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAchievementsFileResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.GetAchievementsFile(bgs.protocol.game_utilities.v1.GetAchievementsFileRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -4317,7 +4323,7 @@ void GameUtilitiesService::GetAchievementsFile(::bgs::protocol::game_utilities::
   SendRequest(service_hash_, 9, request, std::move(callback));
 }
 
-void GameUtilitiesService::GetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse const*)> responseCallback) { 
+void GameUtilitiesService::GetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.GetAllValuesForAttribute(bgs.protocol.game_utilities.v1.GetAllValuesForAttributeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {

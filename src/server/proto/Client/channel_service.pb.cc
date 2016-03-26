@@ -5985,12 +5985,18 @@ void UpdateMemberStateNotification::Swap(UpdateMemberStateNotification* other) {
 
 // ===================================================================
 
+ChannelService::ChannelService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ChannelService::~ChannelService() {
+}
+
 google::protobuf::ServiceDescriptor const* ChannelService::descriptor() {
   protobuf_AssignDescriptorsOnce();
   return ChannelService_descriptor_;
 }
 
-void ChannelService::AddMember(::bgs::protocol::channel::v1::AddMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::AddMember(::bgs::protocol::channel::v1::AddMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.AddMember(bgs.protocol.channel.v1.AddMemberRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6001,7 +6007,7 @@ void ChannelService::AddMember(::bgs::protocol::channel::v1::AddMemberRequest co
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void ChannelService::RemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::RemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.RemoveMember(bgs.protocol.channel.v1.RemoveMemberRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6012,7 +6018,7 @@ void ChannelService::RemoveMember(::bgs::protocol::channel::v1::RemoveMemberRequ
   SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
-void ChannelService::SendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::SendMessage(::bgs::protocol::channel::v1::SendMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.SendMessage(bgs.protocol.channel.v1.SendMessageRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6023,7 +6029,7 @@ void ChannelService::SendMessage(::bgs::protocol::channel::v1::SendMessageReques
   SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
-void ChannelService::UpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::UpdateChannelState(::bgs::protocol::channel::v1::UpdateChannelStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.UpdateChannelState(bgs.protocol.channel.v1.UpdateChannelStateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6034,7 +6040,7 @@ void ChannelService::UpdateChannelState(::bgs::protocol::channel::v1::UpdateChan
   SendRequest(service_hash_, 4, request, std::move(callback));
 }
 
-void ChannelService::UpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::UpdateMemberState(::bgs::protocol::channel::v1::UpdateMemberStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.UpdateMemberState(bgs.protocol.channel.v1.UpdateMemberStateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6045,7 +6051,7 @@ void ChannelService::UpdateMemberState(::bgs::protocol::channel::v1::UpdateMembe
   SendRequest(service_hash_, 5, request, std::move(callback));
 }
 
-void ChannelService::Dissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::Dissolve(::bgs::protocol::channel::v1::DissolveRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.Dissolve(bgs.protocol.channel.v1.DissolveRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6056,7 +6062,7 @@ void ChannelService::Dissolve(::bgs::protocol::channel::v1::DissolveRequest cons
   SendRequest(service_hash_, 6, request, std::move(callback));
 }
 
-void ChannelService::SetRoles(::bgs::protocol::channel::v1::SetRolesRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::SetRoles(::bgs::protocol::channel::v1::SetRolesRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.SetRoles(bgs.protocol.channel.v1.SetRolesRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6067,7 +6073,7 @@ void ChannelService::SetRoles(::bgs::protocol::channel::v1::SetRolesRequest cons
   SendRequest(service_hash_, 7, request, std::move(callback));
 }
 
-void ChannelService::UnsubscribeMember(::bgs::protocol::channel::v1::UnsubscribeMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
+void ChannelService::UnsubscribeMember(::bgs::protocol::channel::v1::UnsubscribeMemberRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChannelService.UnsubscribeMember(bgs.protocol.channel.v1.UnsubscribeMemberRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
@@ -6280,6 +6286,12 @@ uint32 ChannelService::HandleUnsubscribeMember(::bgs::protocol::channel::v1::Uns
 }
 
 // ===================================================================
+
+ChannelListener::ChannelListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+}
+
+ChannelListener::~ChannelListener() {
+}
 
 google::protobuf::ServiceDescriptor const* ChannelListener::descriptor() {
   protobuf_AssignDescriptorsOnce();
