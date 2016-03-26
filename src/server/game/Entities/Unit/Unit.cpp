@@ -12493,15 +12493,13 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
                 pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
     }
 
-    if (m_movedPlayer) 
+    if (m_movedPlayer) // unit controlled by a player.
     {
-        // unit controlled by a player.
-
         // Send notification to self. this packet is only sent to one client (the client of the player concerned by the change).
         WorldPacket self;
         self.Initialize(moveTypeToOpcode[mtype][1], mtype != MOVE_RUN ? 8 + 4 + 4 : 8 + 4 + 1 + 4);
         self << GetPackGUID();
-        self << (uint32)0;                                  // Movement event encounter. Unimplemented at the moment! NUM_PMOVE_EVTS = 0x39Z. 
+        self << (uint32)0;                                  // Movement counter. Unimplemented at the moment! NUM_PMOVE_EVTS = 0x39Z. 
         if (mtype == MOVE_RUN)
             self << uint8(1);                               // unknown byte added in 2.1.0
         self << float(GetSpeed(mtype));
@@ -12515,9 +12513,9 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         data << float(GetSpeed(mtype));
         SendMessageToSet(&data, false);
     }
-    else
+    else // unit controlled by AI.
     {
-        // unit controlled by AI. send notification to every clients.
+        // send notification to every clients.
         WorldPacket data;
         data.Initialize(moveTypeToOpcode[mtype][0], 8 + 4);
         data << GetPackGUID();
