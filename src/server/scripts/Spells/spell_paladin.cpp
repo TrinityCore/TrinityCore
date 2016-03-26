@@ -1227,10 +1227,8 @@ class spell_pal_blinding_light : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                {
                     if (Unit* target = GetHitUnit())
                         _player->CastSpell(target, SPELL_PALADIN_BLINDING_LIGHT_CONFUSE, true);
-                }
             }
             
             void Register()
