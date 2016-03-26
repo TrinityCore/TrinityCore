@@ -9411,8 +9411,11 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         && (!ToCreature() || !(ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)))
         return false;
 
+    // Controlled player case, we can assist creatures (reaction already checked above, our faction == charmer faction)
+    if (GetTypeId() == TYPEID_PLAYER && IsCharmed() && GetCharmerGUID().IsCreature())
+        return true;
     // PvP case
-    if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
+    else if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
     {
         Player const* targetPlayerOwner = target->GetAffectingPlayer();
         if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
@@ -11066,6 +11069,7 @@ void Unit::UpdateCharmAI()
                 if (!newAI) // otherwise, we default to the generic one
                     newAI = new SimpleCharmedPlayerAI(ToPlayer());
                 i_AI = newAI;
+                newAI->OnCharmed(true);
             }
             else
             {
@@ -13462,7 +13466,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         {
             // change AI to charmed AI on next Update tick
             NeedChangeAI = true;
-            IsAIEnabled = false;
+            if (IsAIEnabled)
+            {
+                IsAIEnabled = false;
+                player->AI()->OnCharmed(true);
+            }
         }
         player->SetClientControl(this, false);
     }
