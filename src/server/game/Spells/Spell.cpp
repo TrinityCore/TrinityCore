@@ -2959,7 +2959,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
-    // Fill cost data (not use power for item casts
+    // Fill cost data (do not use power for item casts)
     if (!m_CastItem)
         m_powerCost = m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3043,7 +3043,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() &&
+    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && (!m_caster->IsCharmed() || !m_caster->GetCharmerGUID().IsCreature()) && m_caster->isMoving() &&
         m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
     {
         // 1. Is a channel spell, 2. Has no casttime, 3. And has flag to allow movement during channel
@@ -3603,7 +3603,13 @@ void Spell::update(uint32 difftime)
     {
         // don't cancel for melee, autorepeat, triggered and instant spells
         if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered() && !(IsChannelActive() && m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING)))
-            cancel();
+        {
+            // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
+            // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
+            // however, checking what type of movement the spline is for every single spline would be really expensive
+            if (!m_caster->GetCharmerGUID().IsCreature())
+                cancel();
+        }
     }
 
     switch (m_spellState)
@@ -4861,7 +4867,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
     // Do not cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving() && (!m_caster->IsCharmed() || !m_caster->GetCharmerGUID().IsCreature()) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
         SpellEffectInfo const* effect = GetEffect(EFFECT_0);
@@ -5703,7 +5709,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
         m_targets.SetUnitTarget(target);
     }
 
-    // cooldown
+    // check cooldown
     if (Creature* creatureCaster = m_caster->ToCreature())
         if (!creatureCaster->GetSpellHistory()->IsReady(m_spellInfo))
             return SPELL_FAILED_NOT_READY;
@@ -5893,6 +5899,9 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 
 bool Spell::CanAutoCast(Unit* target)
 {
+    if (!target)
+        return (CheckPetCast(target) == SPELL_CAST_OK);
+
     ObjectGuid targetguid = target->GetGUID();
 
     // check if target already has the same or a more powerful aura
@@ -5932,16 +5941,19 @@ bool Spell::CanAutoCast(Unit* target)
     }
 
     SpellCastResult result = CheckPetCast(target);
-
     if (result == SPELL_CAST_OK || result == SPELL_FAILED_UNIT_NOT_INFRONT)
     {
+        // do not check targets for ground-targeted spells (we target them on top of the intended target anyway)
+        if (GetSpellInfo()->ExplicitTargetMask & TARGET_FLAG_DEST_LOCATION)
+            return true;
         SelectSpellTargets();
         //check if among target units, our WANTED target is as well (->only self cast spells return false)
         for (std::vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             if (ihit->targetGUID == targetguid)
                 return true;
     }
-    return false;                                           //target invalid
+    // either the cast failed or the intended target wouldn't be hit
+    return false;
 }
 
 SpellCastResult Spell::CheckRange(bool strict)
