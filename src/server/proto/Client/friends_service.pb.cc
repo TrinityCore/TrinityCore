@@ -4451,121 +4451,133 @@ google::protobuf::ServiceDescriptor const* FriendsService::descriptor() {
 void FriendsService::Subscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::friends::v1::SubscribeResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.Subscribe(bgs.protocol.friends.v1.SubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::friends::v1::SubscribeResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void FriendsService::SendInvitation(::bgs::protocol::SendInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.SendInvitation(bgs.protocol.SendInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 2, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
 void FriendsService::AcceptInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.AcceptInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 3, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
 void FriendsService::RevokeInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.RevokeInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 4, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 4, request, std::move(callback));
 }
 
 void FriendsService::DeclineInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.DeclineInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 5, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 5, request, std::move(callback));
 }
 
 void FriendsService::IgnoreInvitation(::bgs::protocol::GenericInvitationRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.IgnoreInvitation(bgs.protocol.GenericInvitationRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 6, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 6, request, std::move(callback));
 }
 
 void FriendsService::AssignRole(::bgs::protocol::friends::v1::AssignRoleRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.AssignRole(bgs.protocol.friends.v1.AssignRoleRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 7, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 7, request, std::move(callback));
 }
 
 void FriendsService::RemoveFriend(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::friends::v1::GenericFriendResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.RemoveFriend(bgs.protocol.friends.v1.GenericFriendRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 8, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::friends::v1::GenericFriendResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 8, request, std::move(callback));
 }
 
 void FriendsService::ViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, std::function<void(::bgs::protocol::friends::v1::ViewFriendsResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.ViewFriends(bgs.protocol.friends.v1.ViewFriendsRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 9, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::friends::v1::ViewFriendsResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 9, request, std::move(callback));
 }
 
 void FriendsService::UpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.UpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 10, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 10, request, std::move(callback));
 }
 
 void FriendsService::Unsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.Unsubscribe(bgs.protocol.friends.v1.UnsubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 11, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 11, request, std::move(callback));
 }
 
 void FriendsService::RevokeAllInvitations(::bgs::protocol::friends::v1::GenericFriendRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsService.RevokeAllInvitations(bgs.protocol.friends.v1.GenericFriendRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 12, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 12, request, std::move(callback));
 }
 
 void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {

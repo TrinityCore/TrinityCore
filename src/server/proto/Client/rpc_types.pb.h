@@ -27,7 +27,7 @@
 #include "global_extensions/method_options.pb.h"  // IWYU pragma: export
 #include "global_extensions/service_options.pb.h"  // IWYU pragma: export
 #include "global_extensions/field_options.pb.h"  // IWYU pragma: export
-#include "Define.h" // for TRINITY_SHARED_API
+#include "Define.h" // for TC_SHARED_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {

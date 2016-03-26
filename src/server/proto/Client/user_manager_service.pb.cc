@@ -4107,81 +4107,89 @@ google::protobuf::ServiceDescriptor const* UserManagerService::descriptor() {
 void UserManagerService::Subscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::SubscribeResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.Subscribe(bgs.protocol.user_manager.v1.SubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::user_manager::v1::SubscribeResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void UserManagerService::AddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::AddRecentPlayersResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.AddRecentPlayers(bgs.protocol.user_manager.v1.AddRecentPlayersRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 10, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 10, request, std::move(callback));
 }
 
 void UserManagerService::ClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.ClearRecentPlayers(bgs.protocol.user_manager.v1.ClearRecentPlayersRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 11, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 11, request, std::move(callback));
 }
 
 void UserManagerService::BlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.BlockPlayer(bgs.protocol.user_manager.v1.BlockPlayerRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 20, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 20, request, std::move(callback));
 }
 
 void UserManagerService::UnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.UnblockPlayer(bgs.protocol.user_manager.v1.UnblockPlayerRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 21, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 21, request, std::move(callback));
 }
 
 void UserManagerService::BlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.BlockPlayerForSession(bgs.protocol.user_manager.v1.BlockPlayerRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 40, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 40, request, std::move(callback));
 }
 
 void UserManagerService::LoadBlockList(::bgs::protocol::EntityId const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.LoadBlockList(bgs.protocol.EntityId{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 50, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 50, request, std::move(callback));
 }
 
 void UserManagerService::Unsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.Unsubscribe(bgs.protocol.user_manager.v1.UnsubscribeRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 51, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 51, request, std::move(callback));
 }
 
 void UserManagerService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {

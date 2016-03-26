@@ -861,11 +861,12 @@ google::protobuf::ServiceDescriptor const* ReportService::descriptor() {
 void ReportService::SendReport(::bgs::protocol::report::v1::SendReportRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ReportService.SendReport(bgs.protocol.report.v1.SendReportRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void ReportService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {

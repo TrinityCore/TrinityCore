@@ -28,7 +28,7 @@
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "channel_types.pb.h"
-#include "Define.h" // for TRINITY_SHARED_API
+#include "Define.h" // for TC_SHARED_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {

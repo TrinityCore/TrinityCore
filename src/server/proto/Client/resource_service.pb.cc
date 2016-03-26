@@ -438,11 +438,12 @@ google::protobuf::ServiceDescriptor const* ResourcesService::descriptor() {
 void ResourcesService::GetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, std::function<void(::bgs::protocol::ContentHandle const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ResourcesService.GetContentHandle(bgs.protocol.resources.v1.ContentHandleRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::ContentHandle response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void ResourcesService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {

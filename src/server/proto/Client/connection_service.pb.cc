@@ -3642,31 +3642,34 @@ google::protobuf::ServiceDescriptor const* ConnectionService::descriptor() {
 void ConnectionService::Connect(::bgs::protocol::connection::v1::ConnectRequest const* request, std::function<void(::bgs::protocol::connection::v1::ConnectResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Connect(bgs.protocol.connection.v1.ConnectRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::connection::v1::ConnectResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
 void ConnectionService::Bind(::bgs::protocol::connection::v1::BindRequest const* request, std::function<void(::bgs::protocol::connection::v1::BindResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Bind(bgs.protocol.connection.v1.BindRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 2, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::connection::v1::BindResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 2, request, std::move(callback));
 }
 
 void ConnectionService::Echo(::bgs::protocol::connection::v1::EchoRequest const* request, std::function<void(::bgs::protocol::connection::v1::EchoResponse const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Echo(bgs.protocol.connection.v1.EchoRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 3, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::connection::v1::EchoResponse response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 3, request, std::move(callback));
 }
 
 void ConnectionService::ForceDisconnect(::bgs::protocol::connection::v1::DisconnectNotification const* request) { 
@@ -3684,11 +3687,12 @@ void ConnectionService::KeepAlive(::bgs::protocol::NoData const* request) {
 void ConnectionService::Encrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) { 
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ConnectionService.Encrypt(bgs.protocol.connection.v1.EncryptRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 6, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
     ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      callback(&response);
-  });
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 6, request, std::move(callback));
 }
 
 void ConnectionService::RequestDisconnect(::bgs::protocol::connection::v1::DisconnectRequest const* request) { 
