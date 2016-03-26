@@ -9106,7 +9106,7 @@ bool Unit::AttackStop()
         if (creature->HasSearchedAssistance())
         {
             creature->SetNoSearchAssistance(false);
-            UpdateSpeed(MOVE_RUN, false);
+            UpdateSpeed(MOVE_RUN);
         }
     }
 
@@ -11870,9 +11870,9 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
         if (IsPet())
         {
-            UpdateSpeed(MOVE_RUN, true);
-            UpdateSpeed(MOVE_SWIM, true);
-            UpdateSpeed(MOVE_FLIGHT, true);
+            UpdateSpeed(MOVE_RUN);
+            UpdateSpeed(MOVE_SWIM);
+            UpdateSpeed(MOVE_FLIGHT);
         }
 
         if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
@@ -12302,7 +12302,7 @@ void Unit::SetVisible(bool x)
     UpdateObjectVisibility();
 }
 
-void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
+void Unit::UpdateSpeed(UnitMoveType mtype)
 {
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
@@ -12365,7 +12365,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
             // Update speed for vehicle if available
             if (GetTypeId() == TYPEID_PLAYER && GetVehicle())
-                GetVehicleBase()->UpdateSpeed(MOVE_FLIGHT, true);
+                GetVehicleBase()->UpdateSpeed(MOVE_FLIGHT);
             break;
         }
         default:

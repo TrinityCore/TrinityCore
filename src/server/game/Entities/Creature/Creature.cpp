@@ -782,7 +782,7 @@ void Creature::DoFleeToGetAssistance()
         cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
 
         SetNoSearchAssistance(true);
-        UpdateSpeed(MOVE_RUN, false);
+        UpdateSpeed(MOVE_RUN);
 
         if (!creature)
             //SetFeared(true, EnsureVictim()->GetGUID(), 0, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
@@ -1620,7 +1620,7 @@ void Creature::setDeathState(DeathState s)
         if (HasSearchedAssistance())
         {
             SetNoSearchAssistance(false);
-            UpdateSpeed(MOVE_RUN, false);
+            UpdateSpeed(MOVE_RUN);
         }
 
         //Dismiss group if is leader
