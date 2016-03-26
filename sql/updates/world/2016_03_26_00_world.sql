@@ -1,6 +1,6 @@
 -- Fix moving phantom guest who should be sitting.
 UPDATE `creature` SET `MovementType`=0 AND `spawndist`=0, `position_x`=-10997.400391, `position_y`=-1893.040039, `orientation`=3.572645 WHERE `guid`=135230;
-UPDATE `creature_addon` SET `bytes1`=1 WHERE `entry`=135230 AND `bytes1`=5;
+UPDATE `creature_addon` SET `bytes1`=1, `bytes2`=5 WHERE `guid`=135230;
 
 SET @NPC := 135151;
 SET @PATH := @NPC * 10;
