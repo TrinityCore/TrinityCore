@@ -12493,9 +12493,11 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
     }
 
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
+    if (m_movedPlayer) 
     {
-        // Send notification to self. only sent to one client (the client of the player concerned by the change).
+        // unit controlled by a player.
+
+        // Send notification to self. this packet is only sent to one client (the client of the player concerned by the change).
         WorldPacket self;
         self.Initialize(moveTypeToOpcode[mtype][1], mtype != MOVE_RUN ? 8 + 4 + 4 : 8 + 4 + 1 + 4);
         self << GetPackGUID();
@@ -12503,7 +12505,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         if (mtype == MOVE_RUN)
             self << uint8(1);                               // unknown byte added in 2.1.0
         self << float(GetSpeed(mtype));
-        ToPlayer()->GetSession()->SendPacket(&self); // this is a hack. technically, players can control some NPcs (like 19405) and it will result in a SMSG_FORCE_RUN_SPEED_CHANGE).
+        m_movedPlayer->GetSession()->SendPacket(&self);
 
         // Send notification to other players. sent to every clients (if in range) except one: the client of the player concerned by the change.
         WorldPacket data;
