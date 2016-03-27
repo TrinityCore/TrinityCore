@@ -32,6 +32,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#include "GOMove.h"
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(NULL), m_goValue(), m_AI(NULL)
@@ -146,13 +147,12 @@ void GameObject::AddToWorld()
     }
 }
 
-extern void GOMoveRemoveGO(ObjectGuid const & guid);
 void GameObject::RemoveFromWorld()
 {
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
-        GOMoveRemoveGO(GetGUID());
+        GOMove::GOMoveRemoveGO(GetGUID());
 
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
