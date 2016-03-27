@@ -48,7 +48,7 @@ struct ClientPktHeader
 
 struct AuthSession;
 
-class WorldSocket : public Socket<WorldSocket>
+class TC_GAME_API WorldSocket : public Socket<WorldSocket>
 {
     typedef Socket<WorldSocket> BaseSocket;
 

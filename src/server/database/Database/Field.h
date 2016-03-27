@@ -53,7 +53,7 @@
     | SUM, AVG | DECIMAL           |
     | COUNT    | BIGINT            |
 */
-class Field
+class TC_DATABASE_API Field
 {
     friend class ResultSet;
     friend class PreparedResultSet;
