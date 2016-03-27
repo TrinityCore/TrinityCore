@@ -24,7 +24,7 @@
 
 struct bignum_st;
 
-class BigNumber
+class TC_COMMON_API BigNumber
 {
     public:
         BigNumber();

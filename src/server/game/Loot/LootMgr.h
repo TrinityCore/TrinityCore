@@ -122,7 +122,7 @@ enum LootSlotType
 class Player;
 class LootStore;
 
-struct LootStoreItem
+struct TC_GAME_API LootStoreItem
 {
     uint32  itemid;                                         // id of the item
     uint32  reference;                                      // referenced TemplateleId
@@ -148,7 +148,7 @@ struct LootStoreItem
 
 typedef std::set<ObjectGuid::LowType> AllowedLooterSet;
 
-struct LootItem
+struct TC_GAME_API LootItem
 {
     uint32  itemid;
     uint32  randomSuffix;
@@ -203,7 +203,7 @@ typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
 
-class LootStore
+class TC_GAME_API LootStore
 {
     public:
         explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
@@ -239,7 +239,7 @@ class LootStore
         bool m_ratesAllowed;
 };
 
-class LootTemplate
+class TC_GAME_API LootTemplate
 {
     class LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
     typedef std::vector<LootGroup*> LootGroups;
@@ -307,7 +307,7 @@ struct LootView;
 ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
 ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
-struct Loot
+struct TC_GAME_API Loot
 {
     friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
@@ -409,48 +409,33 @@ struct LootView
         : loot(_loot), viewer(_viewer), permission(_permission) { }
 };
 
-extern LootStore LootTemplates_Creature;
-extern LootStore LootTemplates_Fishing;
-extern LootStore LootTemplates_Gameobject;
-extern LootStore LootTemplates_Item;
-extern LootStore LootTemplates_Mail;
-extern LootStore LootTemplates_Milling;
-extern LootStore LootTemplates_Pickpocketing;
-extern LootStore LootTemplates_Reference;
-extern LootStore LootTemplates_Skinning;
-extern LootStore LootTemplates_Disenchant;
-extern LootStore LootTemplates_Prospecting;
-extern LootStore LootTemplates_Spell;
+TC_GAME_API extern LootStore LootTemplates_Creature;
+TC_GAME_API extern LootStore LootTemplates_Fishing;
+TC_GAME_API extern LootStore LootTemplates_Gameobject;
+TC_GAME_API extern LootStore LootTemplates_Item;
+TC_GAME_API extern LootStore LootTemplates_Mail;
+TC_GAME_API extern LootStore LootTemplates_Milling;
+TC_GAME_API extern LootStore LootTemplates_Pickpocketing;
+TC_GAME_API extern LootStore LootTemplates_Reference;
+TC_GAME_API extern LootStore LootTemplates_Skinning;
+TC_GAME_API extern LootStore LootTemplates_Disenchant;
+TC_GAME_API extern LootStore LootTemplates_Prospecting;
+TC_GAME_API extern LootStore LootTemplates_Spell;
 
-void LoadLootTemplates_Creature();
-void LoadLootTemplates_Fishing();
-void LoadLootTemplates_Gameobject();
-void LoadLootTemplates_Item();
-void LoadLootTemplates_Mail();
-void LoadLootTemplates_Milling();
-void LoadLootTemplates_Pickpocketing();
-void LoadLootTemplates_Skinning();
-void LoadLootTemplates_Disenchant();
-void LoadLootTemplates_Prospecting();
+TC_GAME_API void LoadLootTemplates_Creature();
+TC_GAME_API void LoadLootTemplates_Fishing();
+TC_GAME_API void LoadLootTemplates_Gameobject();
+TC_GAME_API void LoadLootTemplates_Item();
+TC_GAME_API void LoadLootTemplates_Mail();
+TC_GAME_API void LoadLootTemplates_Milling();
+TC_GAME_API void LoadLootTemplates_Pickpocketing();
+TC_GAME_API void LoadLootTemplates_Skinning();
+TC_GAME_API void LoadLootTemplates_Disenchant();
+TC_GAME_API void LoadLootTemplates_Prospecting();
 
-void LoadLootTemplates_Spell();
-void LoadLootTemplates_Reference();
+TC_GAME_API void LoadLootTemplates_Spell();
+TC_GAME_API void LoadLootTemplates_Reference();
 
-inline void LoadLootTables()
-{
-    LoadLootTemplates_Creature();
-    LoadLootTemplates_Fishing();
-    LoadLootTemplates_Gameobject();
-    LoadLootTemplates_Item();
-    LoadLootTemplates_Mail();
-    LoadLootTemplates_Milling();
-    LoadLootTemplates_Pickpocketing();
-    LoadLootTemplates_Skinning();
-    LoadLootTemplates_Disenchant();
-    LoadLootTemplates_Prospecting();
-    LoadLootTemplates_Spell();
-
-    LoadLootTemplates_Reference();
-}
+TC_GAME_API void LoadLootTables();
 
 #endif

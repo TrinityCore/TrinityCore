@@ -833,7 +833,7 @@ enum PlayerDelayedOperations
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
-extern uint32 const MAX_MONEY_AMOUNT;
+TC_GAME_API extern uint32 const MAX_MONEY_AMOUNT;
 
 enum BindExtensionState
 {
@@ -919,7 +919,7 @@ enum PlayerCommandStates
     CHEAT_WATERWALK = 0x10
 };
 
-class PlayerTaxi
+class TC_GAME_API PlayerTaxi
 {
     public:
         PlayerTaxi();
@@ -1025,7 +1025,7 @@ struct ResurrectionData
 
 #define SPELL_DK_RAISE_ALLY 46619
 
-class Player : public Unit, public GridObject<Player>
+class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player* player);
@@ -1608,7 +1608,7 @@ class Player : public Unit, public GridObject<Player>
             _resurrectionData.reset();
         }
 
-        bool IsResurrectRequestedBy(uint64 guid) const
+        bool IsResurrectRequestedBy(ObjectGuid const& guid) const
         {
             if (!IsResurrectRequested())
                 return false;
@@ -2594,8 +2594,8 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 };
 
-void AddItemsSetItem(Player* player, Item* item);
-void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
+TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
+TC_GAME_API void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
 template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)
