@@ -47,6 +47,8 @@ target_include_directories(database
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
+add_definitions(-DTRINITY_API_EXPORT_DATABASE)
+
 target_link_libraries(database
   PUBLIC
     common
@@ -57,6 +59,18 @@ set_target_properties(database
     PROPERTIES
       FOLDER
         "server")
+
+if( BUILD_SHARED_LIBS )
+  if( UNIX )
+    install(TARGETS database
+      LIBRARY
+        DESTINATION lib)
+  elseif( WIN32 )
+    install(TARGETS database
+      RUNTIME
+        DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  endif()
+endif()
 
 # Generate precompiled header
 if (USE_COREPCH)

@@ -57,10 +57,10 @@ class boss_grobbulus : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-                events.ScheduleEvent(EVENT_CLOUD, 15000);
-                events.ScheduleEvent(EVENT_INJECT, 20000);
-                events.ScheduleEvent(EVENT_SPRAY, urand(15000, 30000)); // not sure
-                events.ScheduleEvent(EVENT_BERSERK, 12 * 60000);
+                events.ScheduleEvent(EVENT_CLOUD, Seconds(15));
+                events.ScheduleEvent(EVENT_INJECT, Seconds(20));
+                events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure
+                events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -82,19 +82,19 @@ class boss_grobbulus : public CreatureScript
                     {
                         case EVENT_CLOUD:
                             DoCastAOE(SPELL_POISON_CLOUD);
-                            events.ScheduleEvent(EVENT_CLOUD, 15000);
+                            events.Repeat(Seconds(15));
                             return;
                         case EVENT_BERSERK:
                             DoCastAOE(SPELL_BERSERK, true);
                             return;
                         case EVENT_SPRAY:
                             DoCastAOE(SPELL_SLIME_SPRAY);
-                            events.ScheduleEvent(EVENT_SPRAY, urand(15000, 30000));
+                            events.Repeat(randtime(Seconds(15), Seconds(30)));
                             return;
                         case EVENT_INJECT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MUTATING_INJECTION))
                                 DoCast(target, SPELL_MUTATING_INJECTION);
-                            events.ScheduleEvent(EVENT_INJECT, 8000 + uint32(120 * me->GetHealthPct()));
+                            events.Repeat(Seconds(8) + Milliseconds(uint32(std::round(120 * me->GetHealthPct()))));
                             return;
                         default:
                             break;

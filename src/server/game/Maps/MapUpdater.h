@@ -28,7 +28,7 @@
 class MapUpdateRequest;
 class Map;
 
-class MapUpdater
+class TC_GAME_API MapUpdater
 {
     public:
 

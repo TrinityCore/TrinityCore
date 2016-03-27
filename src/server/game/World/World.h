@@ -537,7 +537,7 @@ struct CharacterInfo
 };
 
 /// The World
-class World
+class TC_GAME_API World
 {
     public:
         static World* instance();
@@ -869,7 +869,7 @@ class World
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
 };
 
-extern Realm realm;
+TC_GAME_API extern Realm realm;
 
 #define sWorld World::instance()
 
