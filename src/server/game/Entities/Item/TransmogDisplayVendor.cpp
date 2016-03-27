@@ -73,7 +73,7 @@ const std::set<uint32> TransmogDisplayVendorMgr::NotAllowedItems = { };
 std::vector<uint32> TransmogDisplayVendorMgr::Allowed;
 std::vector<uint32> TransmogDisplayVendorMgr::NotAllowed;
 SelectionStore TransmogDisplayVendorMgr::selectionStore;
-TransmogDisplayVendorMgr::EntryVector* TransmogDisplayVendorMgr::optionMap[MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR][MAX_INVTYPE][MAX_ITEM_QUALITY] = {nullptr};
+TransmogDisplayVendorMgr::EntryVector* TransmogDisplayVendorMgr::optionMap[MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR][MAX_INVTYPE][MAX_ITEM_QUALITY];
 
 uint32 TransmogDisplayVendorMgr::GetFakeEntry(const Item* item)
 {
