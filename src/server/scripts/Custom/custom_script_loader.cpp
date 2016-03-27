@@ -16,14 +16,12 @@
  */
 
 // This is where scripts' loading functions should be declared:
-void AddSC_PWS_Transmogrification();
-void AddSC_CS_Transmogrification();
+void AddSC_Transmogrification();
 
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-    AddSC_PWS_Transmogrification();
-    AddSC_CS_Transmogrification();
+    AddSC_Transmogrification();
 }

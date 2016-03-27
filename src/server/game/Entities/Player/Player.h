@@ -29,7 +29,7 @@
 #include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "Unit.h"
-#include "../../scripts/Custom/Transmog/Transmogrification.h"
+#include "Transmogrification.h"
 #include "TradeData.h"
 
 #include <limits>

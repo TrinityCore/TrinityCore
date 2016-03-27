@@ -32,7 +32,7 @@ enum TransmogTrinityStrings // Language.h might have same entries, appears when 
 #endif
 };
 
-class Transmogrification
+class TC_GAME_API Transmogrification
 {
 private:
     Transmogrification() { };
@@ -41,12 +41,7 @@ private:
     Transmogrification& operator=(const Transmogrification&);
 
 public:
-    static Transmogrification* instance()
-    {
-        // Thread safe in C++11 standard
-        static Transmogrification instance;
-        return &instance;
-    }
+    static Transmogrification* instance();
 
 #ifdef PRESETS
 

@@ -26,7 +26,7 @@
 #include "Opcodes.h"
 #include "Spell.h"
 #include "Totem.h"
-#include "../../scripts/Custom/Transmog/Transmogrification.h"
+#include "Transmogrification.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "SpellAuraEffects.h"

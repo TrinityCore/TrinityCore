@@ -96,6 +96,13 @@ void Transmogrification::LoadPlayerSets(Player* player)
 }
 #endif
 
+Transmogrification* Transmogrification::instance()
+{
+    // Thread safe in C++11 standard
+    static Transmogrification instance;
+    return &instance;
+}
+
 const char* Transmogrification::GetSlotName(uint8 slot, WorldSession* /*session*/) const
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::GetSlotName");
@@ -745,128 +752,4 @@ std::vector<ObjectGuid> Transmogrification::GetItemList(const Player* player) co
                     itemlist.push_back(pItem->GetGUID());
 
     return itemlist;
-}
-
-namespace
-{
-    class PS_Transmogrification : public PlayerScript
-    {
-    public:
-        PS_Transmogrification() : PlayerScript("PS_Transmogrification") { }
-
-        void OnSave(Player* player) override
-        {
-            uint32 lowguid = player->GetGUID().GetCounter();
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
-#ifdef PRESETS
-            trans->PAppend("DELETE FROM `custom_transmogrification_sets` WHERE `Owner` = %u", lowguid);
-#endif
-
-            if (!player->transmogMap.empty())
-            {
-                // Only save items that are in inventory / bank / etc
-                std::vector<ObjectGuid> items = sTransmogrification->GetItemList(player);
-                for (std::vector<ObjectGuid>::const_iterator it = items.begin(); it != items.end(); ++it)
-                {
-                    TransmogMapType::const_iterator it2 = player->transmogMap.find(*it);
-                    if (it2 == player->transmogMap.end())
-                        continue;
-
-                    trans->PAppend("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", it2->first.GetCounter(), it2->second, lowguid);
-                }
-            }
-
-#ifdef PRESETS
-            if (!player->presetMap.empty())
-            {
-                for (PresetMapType::const_iterator it = player->presetMap.begin(); it != player->presetMap.end(); ++it)
-                {
-                    std::ostringstream ss;
-                    for (PresetslotMapType::const_iterator it2 = it->second.slotMap.begin(); it2 != it->second.slotMap.end(); ++it2)
-                        ss << uint32(it2->first) << ' ' << it2->second << ' ';
-                    trans->PAppend("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES (%u, %u, \"%s\", \"%s\")", lowguid, uint32(it->first), it->second.name.c_str(), ss.str().c_str());
-                }
-            }
-#endif
-
-            if (trans->GetSize()) // basically never false
-                CharacterDatabase.CommitTransaction(trans);
-        }
-
-        void OnLogin(Player* player, bool /*firstLogin*/) override
-        {
-            QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = %u", player->GetGUID().GetCounter());
-
-            if (result)
-            {
-                do
-                {
-                    Field* field = result->Fetch();
-                    ObjectGuid itemGUID(HighGuid::Item, 0, field[0].GetUInt32());
-                    uint32 fakeEntry = field[1].GetUInt32();
-                    // Only load items that are in inventory / bank / etc
-                    if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
-                    {
-                        player->transmogMap[itemGUID] = fakeEntry;
-                    }
-                    else
-                    {
-                        // Ignore, will be erased on next save.
-                        // Additionally this can happen if an item was deleted from DB but still exists for the player
-                        // TC_LOG_ERROR("custom.transmog", "Item entry (Entry: %u, itemGUID: %u, playerGUID: %u) does not exist, ignoring.", fakeEntry, GUID_LOPART(itemGUID), player->GetGUID().GetCounter());
-                        // CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE FakeEntry = %u", fakeEntry);
-                    }
-                } while (result->NextRow());
-
-                if (!player->transmogMap.empty())
-                {
-                    for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-                    {
-                        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                        {
-                            player->SetVisibleItemSlot(slot, item);
-                            if (player->IsInWorld())
-                                item->SendUpdateToPlayer(player);
-                        }
-                    }
-                }
-            }
-
-#ifdef PRESETS
-            if (sTransmogrification->EnableSets)
-                sTransmogrification->LoadPlayerSets(player);
-#endif
-        }
-    };
-
-    class WS_Transmogrification : public WorldScript
-    {
-    public:
-        WS_Transmogrification() : WorldScript("WS_Transmogrification") { }
-
-        void OnConfigLoad(bool reload) override
-        {
-            sTransmogrification->LoadConfig(reload);
-        }
-
-        void OnStartup() override
-        {
-            TC_LOG_INFO("custom.transmog", "Deleting non-existing transmogrification entries...");
-            CharacterDatabase.DirectExecute("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
-
-#ifdef PRESETS
-            // Clean even if disabled
-            // Dont delete even if player has more presets than should
-            CharacterDatabase.DirectExecute("DELETE FROM `custom_transmogrification_sets` WHERE NOT EXISTS(SELECT 1 FROM characters WHERE characters.guid = custom_transmogrification_sets.Owner)");
-#endif
-            sTransmogrification->LoadConfig(false);
-        }
-    };
-}
-
-void AddSC_PWS_Transmogrification()
-{
-    new WS_Transmogrification();
-    new PS_Transmogrification();
 }
