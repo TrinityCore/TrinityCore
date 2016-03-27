@@ -1,5 +1,5 @@
 {
-  "id": 4,
+  "id": 2,
   "title": "Maps, vmaps and mmaps",
   "originalTitle": "Maps, vmaps and mmaps",
   "tags": [],
@@ -305,13 +305,18 @@
         "name": "realm",
         "options": [
           {
-            "selected": true,
+            "text": "Ubuntu",
+            "value": "Ubuntu",
+            "selected": false
+          },
+          {
             "text": "Windows",
-            "value": "Windows"
+            "value": "Windows",
+            "selected": true
           }
         ],
         "query": "show tag values from events with key = realm",
-        "refresh": false,
+        "refresh": true,
         "type": "query"
       }
     ]
@@ -332,8 +337,8 @@
       }
     ]
   },
-  "refresh": false,
+  "refresh": "1m",
   "schemaVersion": 8,
-  "version": 0,
+  "version": 11,
   "links": []
 }

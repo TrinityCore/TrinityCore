@@ -1,5 +1,5 @@
 {
-  "id": 3,
+  "id": 1,
   "title": "General infos",
   "originalTitle": "General infos",
   "tags": [],
@@ -384,7 +384,7 @@
     }
   ],
   "time": {
-    "from": "now-30m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
@@ -418,7 +418,6 @@
       {
         "allFormat": "regex values",
         "current": {
-          "tags": [],
           "text": "Windows",
           "value": "Windows"
         },
@@ -429,13 +428,18 @@
         "name": "realm",
         "options": [
           {
-            "selected": true,
+            "text": "Ubuntu",
+            "value": "Ubuntu",
+            "selected": false
+          },
+          {
             "text": "Windows",
-            "value": "Windows"
+            "value": "Windows",
+            "selected": true
           }
         ],
         "query": "show tag values from events with key = realm",
-        "refresh": false,
+        "refresh": true,
         "regex": "",
         "type": "query"
       }
@@ -457,8 +461,8 @@
       }
     ]
   },
-  "refresh": false,
+  "refresh": "1m",
   "schemaVersion": 8,
-  "version": 2,
+  "version": 41,
   "links": []
 }

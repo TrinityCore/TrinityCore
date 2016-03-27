@@ -1,5 +1,5 @@
 {
-  "id": 5,
+  "id": 3,
   "title": "Network",
   "originalTitle": "Network",
   "tags": [],
@@ -164,10 +164,11 @@
     }
   ],
   "time": {
-    "from": "now-6h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
+    "now": true,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -207,13 +208,18 @@
         "name": "realm",
         "options": [
           {
-            "selected": true,
+            "text": "Ubuntu",
+            "value": "Ubuntu",
+            "selected": false
+          },
+          {
             "text": "Windows",
-            "value": "Windows"
+            "value": "Windows",
+            "selected": true
           }
         ],
         "query": "show tag values from events with key = realm",
-        "refresh": false,
+        "refresh": true,
         "type": "query"
       }
     ]
@@ -234,7 +240,8 @@
       }
     ]
   },
+  "refresh": "1m",
   "schemaVersion": 8,
-  "version": 0,
+  "version": 7,
   "links": []
 }
