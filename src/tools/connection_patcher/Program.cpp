@@ -45,77 +45,27 @@ namespace Connection_Patcher
     namespace
     {
         template<typename PATCH, typename PATTERN>
-        void PatchModule(boost::filesystem::path file, boost::filesystem::path path)
-        {
-            namespace fs = boost::filesystem;
-
-            std::cout << "Patching module...\n";
-
-            Patcher patcher(file);
-
-            std::cout << "patching Password\n";
-            // if (Authentication::ServerSignature::ClientValidateProof(x)) to if (true)
-            patcher.Patch(PATCH::Password(), PATTERN::Password());
-
-            std::string const moduleName(Helper::GetFileChecksum(patcher.GetBinary()) + ".auth");
-            fs::path const modulePath
-                (path / std::string(&moduleName[0], 2) / std::string(&moduleName[2], 2));
-
-            if (!fs::exists(modulePath))
-                fs::create_directories(modulePath);
-
-            if (fs::exists(modulePath / moduleName))
-                fs::permissions(modulePath / moduleName, fs::add_perms | fs::others_write | fs::group_write | fs::owner_write);
-            patcher.Finish(modulePath / moduleName);
-            fs::permissions(modulePath / moduleName, fs::remove_perms | fs::others_write | fs::group_write | fs::owner_write);
-
-            std::cout << "Patching module finished.\n";
-        }
-
-        template<typename PATCH, typename PATTERN>
-        void do_module(const std::string& moduleName, const boost::filesystem::path& path)
-        {
-            boost::filesystem::path const modulePath
-                (path / std::string(&moduleName[0], 2) / std::string(&moduleName[2], 2));
-            boost::filesystem::path const module(modulePath / moduleName);
-
-            if (!boost::filesystem::exists(module))
-            {
-                std::cout << "Base module doesn't exist, downloading it...\n";
-
-                if (!boost::filesystem::exists(modulePath))
-                    boost::filesystem::create_directories(modulePath);
-
-                std::ofstream outFile(module.string(), std::ofstream::out | std::ofstream::binary);
-                Helper::DownloadFile("xx.depot.battle.net", 1119, "/" + moduleName, outFile);
-                outFile.close();
-                std::cout << "Done.\n";
-            }
-
-            PatchModule<PATCH, PATTERN>(module, path);
-        }
-
-        template<typename PATCH, typename PATTERN>
         void do_patches(Patcher* patcher, boost::filesystem::path output, uint32_t buildNumber)
         {
             std::cout << "patching Portal\n";
-            // '.logon.battle.net' -> '' to allow for set portal 'host'
+            // '.actual.battle.net' -> '' to allow for set portal 'host'
             patcher->Patch(Patches::Common::Portal(), Patterns::Common::Portal());
 
             std::cout << "patching redirect RSA Modulus\n";
             // public component of connection signing key to use known key pair
             patcher->Patch(Patches::Common::Modulus(), Patterns::Common::Modulus());
 
-            std::cout << "patching BNet\n";
-            // hardcode 213.248.127.130 in IP6::Address::Address(IP4::Address::Address const&)
-            // used in Creep::Layer::Authentication::Online(), which overwrites GameStream::Connection::GetAddressRemote()
-            // to avoid CRYPT_SERVER_ADDRESS_IPV6 check in module
-            patcher->Patch(PATCH::BNet(), PATTERN::BNet());
+            std::cout << "patching BNet certificate file location\n";
+            // replace name of the file with certificates
+            patcher->Patch(Patches::Common::CertFileName(), Patterns::Common::CertFileName());
 
-            std::cout << "patching Signature\n";
-            // if (Authentication::ModuleSignature::Validator::IsValid(x)) to if (true) in
-            // Creep::Instance::LoadModule() to allow for unsigned auth module
-            patcher->Patch(PATCH::Signature(), PATTERN::Signature());
+            std::cout << "patching BNet certificate file to load from local path instead of CASC\n";
+            // force loading tc_bundle.txt from local directory instead of CASC
+            patcher->Patch(PATCH::CertBundleCASCLocalFile(), PATTERN::CertBundleCASCLocalFile());
+
+            std::cout << "patching BNet certificate file signature check\n";
+            // remove signature check from certificate bundle
+            patcher->Patch(PATCH::CertBundleSignatureCheck(), PATTERN::CertBundleSignatureCheck());
 
             std::cout << "patching Versions\n";
             // sever the connection to blizzard's versions file to stop it from updating and replace with custom version
@@ -132,6 +82,15 @@ namespace Connection_Patcher
 
             std::cout << "Patching done.\n";
         }
+
+        void WriteCertificateBundle(boost::filesystem::path const& dest)
+        {
+            std::ofstream ofs(dest.string(), std::ofstream::binary);
+            if (!ofs)
+                throw std::runtime_error("could not open " + dest.string());
+
+            ofs << std::noskipws << Patches::Common::CertificateBundle();
+        }
     }
 
     po::variables_map GetConsoleArguments(int argc, char** argv)
@@ -140,7 +99,6 @@ namespace Connection_Patcher
         all.add_options()
             ("help,h", "print usage message")
             ("path", po::value<std::string>()->required(), "Path to the Wow.exe")
-            ("modulePath,m", po::value<std::string>(), "Path to the Battle.net module download destination.")
             ;
 
         po::positional_options_description pos;
@@ -184,22 +142,6 @@ int main(int argc, char** argv)
 
         std::string const binary_path(std::move(vm["path"].as<std::string>()));
         std::string renamed_binary_path(binary_path);
-        std::wstring appDataPath;
-
-#if PLATFORM == PLATFORM_WINDOWS
-        wchar_t* tempPath(nullptr);
-        SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &tempPath);
-        appDataPath = std::wstring(tempPath);
-#elif PLATFORM == PLATFORM_UNIX
-        char* tempPath(nullptr);
-        if ((tempPath = getenv("HOME")) == nullptr)
-            tempPath = getpwuid(getuid())->pw_dir;
-        std::string tempPathStr(tempPath);
-        appDataPath.assign(tempPathStr.begin(), tempPathStr.end());
-        appDataPath += std::wstring(L"/.wine/drive_c/users/Public/Application Data");
-#endif
-        if (vm.count("modulePath"))
-            appDataPath.assign(vm["modulePath"].as<std::string>().begin(), vm["modulePath"].as<std::string>().end());
 
         std::cout << "Creating patched binary..." << std::endl;
 
@@ -222,12 +164,7 @@ int main(int argc, char** argv)
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
                 do_patches<Patches::Windows::x86, Patterns::Windows::x86>
                     (&patcher, renamed_binary_path, wowBuild);
-
-                do_module<Patches::Windows::x86, Patterns::Windows::x86>
-                    ( "8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
-                    , std::wstring(appDataPath) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
-                    );
-
+                WriteCertificateBundle(boost::filesystem::path(binary_path).remove_filename() / "tc_bundle.txt");
                 break;
             case Constants::BinaryTypes::Pe64:
                 std::cout << "Win64 client...\n";
@@ -235,17 +172,12 @@ int main(int argc, char** argv)
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
                 do_patches<Patches::Windows::x64, Patterns::Windows::x64>
                     (&patcher, renamed_binary_path, wowBuild);
-
-                do_module<Patches::Windows::x64, Patterns::Windows::x64>
-                    ( "0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
-                    , std::wstring(appDataPath) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
-                    );
-
+                WriteCertificateBundle(boost::filesystem::path(binary_path).remove_filename() / "tc_bundle.txt");
                 break;
             case Constants::BinaryTypes::Mach64:
                 std::cout << "Mac client...\n";
 
-                boost::algorithm::replace_all (renamed_binary_path, ".app", " Patched.app");
+                boost::algorithm::replace_all(renamed_binary_path, ".app", " Patched.app");
                 Helper::CopyDir(boost::filesystem::path(binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
                         , boost::filesystem::path(renamed_binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
                         );
@@ -257,12 +189,7 @@ int main(int argc, char** argv)
                     namespace fs = boost::filesystem;
                     fs::permissions(renamed_binary_path, fs::add_perms | fs::others_exe | fs::group_exe | fs::owner_exe);
                 }
-
-                do_module<Patches::Mac::x64, Patterns::Mac::x64>
-                    ( "97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
-                    , "/Users/Shared/Blizzard/Battle.net/Cache/"
-                    );
-
+                WriteCertificateBundle(boost::filesystem::path(binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()/*World of Warcraft.app*/.parent_path() / "tc_bundle.txt");
                 break;
             default:
                 throw std::runtime_error("Type: " + std::to_string(static_cast<uint32_t>(patcher.GetType())) + " not supported!");
