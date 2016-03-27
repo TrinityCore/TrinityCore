@@ -231,7 +231,7 @@ class TC_GAME_API ServerScript : public ScriptObject
         virtual void OnPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
-class WorldScript : public ScriptObject
+class TC_GAME_API WorldScript : public ScriptObject
 {
     protected:
 
@@ -264,7 +264,7 @@ class WorldScript : public ScriptObject
         virtual void OnShutdown() { }
 };
 
-class FormulaScript : public ScriptObject
+class TC_GAME_API FormulaScript : public ScriptObject
 {
     protected:
 
