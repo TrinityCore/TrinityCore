@@ -33,7 +33,7 @@ namespace VMAP
     struct AreaInfo;
     struct LocationInfo;
 
-    class MeshTriangle
+    class TC_COMMON_API MeshTriangle
     {
         public:
             MeshTriangle() : idx0(0), idx1(0), idx2(0) { }
@@ -44,7 +44,7 @@ namespace VMAP
             uint32 idx2;
     };
 
-    class WmoLiquid
+    class TC_COMMON_API WmoLiquid
     {
         public:
             WmoLiquid(uint32 width, uint32 height, const G3D::Vector3 &corner, uint32 type);
@@ -70,7 +70,7 @@ namespace VMAP
     };
 
     /*! holding additional info for WMO group files */
-    class GroupModel
+    class TC_COMMON_API GroupModel
     {
         public:
             GroupModel() : iBound(), iMogpFlags(0), iGroupWMOID(0), iLiquid(NULL) { }
@@ -103,7 +103,7 @@ namespace VMAP
     };
 
     /*! Holds a model (converted M2 or WMO) in its original coordinate space */
-    class WorldModel
+    class TC_COMMON_API WorldModel
     {
         public:
             WorldModel(): RootWMOID(0) { }

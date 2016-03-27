@@ -34,3 +34,15 @@ if( WITH_COREDEBUG )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
+
+if (WITH_DYNAMIC_LINKING)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fvisibility=hidden -Wno-attributes")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fvisibility=hidden -Wno-attributes")
+
+  # Should break the build when there are TRINITY_*_API macros missing
+  # but it complains about missing references in precompiled headers.
+  # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--no-undefined")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-undefined")
+
+  message(STATUS "GCC: Enabled shared linking")
+endif()
