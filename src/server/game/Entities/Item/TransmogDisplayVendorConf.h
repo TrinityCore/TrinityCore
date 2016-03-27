@@ -21,6 +21,10 @@ http://rochet2.github.io/Transmogrification
 #include "ItemPrototype.h"
 #include "SharedDefines.h"
 #include <set>
+#include <vector>
+#include <unordered_map>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 class Creature;
 class Item;
@@ -39,9 +43,68 @@ enum TransmogDisplayVendorSenders
     SENDER_END,
 };
 
-class TransmogDisplayVendorMgr
+namespace
+{
+    class RWLockable
+    {
+    public:
+        typedef boost::shared_mutex LockType;
+        typedef boost::shared_lock<boost::shared_mutex> ReadGuard;
+        typedef boost::unique_lock<boost::shared_mutex> WriteGuard;
+        LockType& GetLock() { return _lock; }
+    private:
+        LockType _lock;
+    };
+};
+
+class TC_GAME_API SelectionStore : public RWLockable
 {
 public:
+    struct Selection { uint32 item; uint8 slot; uint32 offset; uint32 quality; };
+    typedef std::unordered_map<uint32, Selection> PlayerLowToSelection;
+
+    void SetSelection(uint32 playerLow, const Selection& selection)
+    {
+        WriteGuard guard(GetLock());
+        hashmap[playerLow] = selection;
+    }
+
+    bool GetSelection(uint32 playerLow, Selection& returnVal)
+    {
+        ReadGuard guard(GetLock());
+
+        PlayerLowToSelection::iterator it = hashmap.find(playerLow);
+        if (it == hashmap.end())
+            return false;
+
+        returnVal = it->second;
+        return true;
+    }
+
+    void RemoveSelection(uint32 playerLow)
+    {
+        WriteGuard guard(GetLock());
+        hashmap.erase(playerLow);
+    }
+
+private:
+    PlayerLowToSelection hashmap;
+};
+
+class TC_GAME_API TransmogDisplayVendorMgr
+{
+public:
+    // Selection store
+    static SelectionStore selectionStore; // selectionStore[lowGUID] = Selection
+
+    // Vendor data store
+    // optionMap[Class? + SubClass][invtype][Quality] = EntryVector
+    typedef std::vector<uint32> EntryVector;
+    static EntryVector* optionMap[MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR][MAX_INVTYPE][MAX_ITEM_QUALITY];
+
+    static const std::set<uint32> AllowedItems;
+    static const std::set<uint32> NotAllowedItems;
+
     static const float ScaledCostModifier;
     static const int32 CopperCost;
 
@@ -70,10 +133,14 @@ public:
     static const bool IgnoreReqEvent;
     static const bool IgnoreReqStats;
 
-    static std::set<uint32> Allowed;
-    static std::set<uint32> NotAllowed;
+    static std::vector<uint32> Allowed;
+    static std::vector<uint32> NotAllowed;
 
     static void HandleTransmogrify(Player* player, Creature* creature, uint32 vendorslot, uint32 itemEntry, bool no_cost = false);
+
+    static const char* getQualityName(uint32 quality);
+    static std::string getItemName(const ItemTemplate* itemTemplate, WorldSession* session);
+    static uint32 getCorrectInvType(uint32 inventorytype);
 
     // From Transmogrification
     static uint32 GetFakeEntry(const Item* item);

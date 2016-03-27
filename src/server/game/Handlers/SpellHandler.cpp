@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../scripts/Custom/TransmogDisplayVendor/TransmogDisplayVendorConf.h"
+#include "TransmogDisplayVendorConf.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "WorldPacket.h"
