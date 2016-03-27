@@ -43,12 +43,11 @@ enum Encounter
 
 enum Data
 {
-    DATA_HEIGAN_ERUPT,
     DATA_GOTHIK_GATE,
-    DATA_SAPPHIRON_BIRTH,
     DATA_HAD_ANUBREKHAN_GREET,
     DATA_HAD_FAERLINA_GREET,
     DATA_HAD_THADDIUS_GREET,
+    DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
     DATA_ABOMINATION_KILLED,
@@ -73,6 +72,7 @@ enum Data64
     DATA_HEIGAN,
     DATA_FEUGEN,
     DATA_STALAGG,
+    DATA_SAPPHIRON,
     DATA_KELTHUZAD,
     DATA_KELTHUZAD_PORTAL01,
     DATA_KELTHUZAD_PORTAL02,
@@ -158,12 +158,6 @@ enum GameObjectsIds
     GO_NAXX_PORTAL_MILITARY     = 181578
 };
 
-enum SpellIds
-{
-    SPELL_ERUPTION              = 29371,
-    SPELL_SLIME                 = 28801
-};
-
 enum InstanceEvents
 {
     // Dialogue that happens after Gothik's death.
@@ -175,10 +169,6 @@ enum InstanceEvents
     EVENT_DIALOGUE_GOTHIK_ZELIEK2,
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
     EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
-
-    // Thaddius AI requesting timed encounter (re-)spawn
-    EVENT_THADDIUS_BEGIN_RESET,
-    EVENT_THADDIUS_RESET,
 
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
