@@ -104,11 +104,11 @@ void Metric::LogEvent(std::string const& category, std::string const& title, std
     using namespace std::chrono;
 
     MetricData* data = new MetricData;
-    data->category = category;
-    data->timestamp = system_clock::now();
-    data->type = METRIC_DATA_EVENT;
-    data->title = title;
-    data->text = description;
+    data->Category = category;
+    data->Timestamp = system_clock::now();
+    data->Type = METRIC_DATA_EVENT;
+    data->Title = title;
+    data->Text = description;
 
     _queuedData.Enqueue(data);
 }
@@ -125,25 +125,25 @@ void Metric::SendBatch()
         if (!firstLoop)
             batchedData << "\n";
 
-        batchedData << data->category;
+        batchedData << data->Category;
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
 
         batchedData << " ";
 
-        switch (data->type)
+        switch (data->Type)
         {
             case METRIC_DATA_VALUE:
-                batchedData << "value=" << data->value;
+                batchedData << "value=" << data->Value;
                 break;
             case METRIC_DATA_EVENT:
-                batchedData << "title=\"" << data->title << "\",text=\"" << data->text << "\"";
+                batchedData << "title=\"" << data->Title << "\",text=\"" << data->Text << "\"";
                 break;
         }
 
         batchedData << " ";
 
-        batchedData << std::to_string(duration_cast<nanoseconds>(data->timestamp.time_since_epoch()).count());
+        batchedData << std::to_string(duration_cast<nanoseconds>(data->Timestamp.time_since_epoch()).count());
 
         firstLoop = false;
         delete data;

@@ -62,16 +62,16 @@ enum MetricDataType
 
 struct MetricData
 {
-    std::string category;
-    std::chrono::time_point<std::chrono::system_clock> timestamp;
-    MetricDataType type;
+    std::string Category;
+    std::chrono::time_point<std::chrono::system_clock> Timestamp;
+    MetricDataType Type;
 
     // LogValue-specific fields
-    std::string value;
+    std::string Value;
 
     // LogEvent-specific fields
-    std::string title;
-    std::string text;
+    std::string Title;
+    std::string Text;
 };
 
 class TC_COMMON_API Metric
@@ -122,10 +122,10 @@ public:
         using namespace std::chrono;
 
         MetricData* data = new MetricData;
-        data->category = category;
-        data->timestamp = system_clock::now();
-        data->type = METRIC_DATA_VALUE;
-        data->value = FormatInfluxDBValue(value);
+        data->Category = category;
+        data->Timestamp = system_clock::now();
+        data->Type = METRIC_DATA_VALUE;
+        data->Value = FormatInfluxDBValue(value);
 
         _queuedData.Enqueue(data);
     }
