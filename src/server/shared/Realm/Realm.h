@@ -92,8 +92,6 @@ struct TC_SHARED_API Realm
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
     float PopulationLevel;
-    bool Updated;
-    bool Keep;
 
     ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
     uint32 GetConfigId() const;
