@@ -25,7 +25,7 @@
 #include "Item.h"
 #include "ItemPrototype.h"
 
-class Bag : public Item
+class TC_GAME_API Bag : public Item
 {
     public:
 

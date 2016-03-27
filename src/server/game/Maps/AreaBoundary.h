@@ -20,7 +20,7 @@
 
 #include "Position.h"
 
-class AreaBoundary
+class TC_GAME_API AreaBoundary
 {
     public:
         enum BoundaryType
@@ -66,7 +66,7 @@ class AreaBoundary
         bool m_isInvertedBoundary;
 };
 
-class RectangleBoundary : public AreaBoundary
+class TC_GAME_API RectangleBoundary : public AreaBoundary
 {
     public:
         // X axis is north/south, Y axis is east/west, larger values are northwest
@@ -79,7 +79,7 @@ class RectangleBoundary : public AreaBoundary
         const float _minX, _maxX, _minY, _maxY;
 };
 
-class CircleBoundary : public AreaBoundary
+class TC_GAME_API CircleBoundary : public AreaBoundary
 {
     public:
         CircleBoundary(Position const& center, double radius, bool isInverted = false);
@@ -95,7 +95,7 @@ class CircleBoundary : public AreaBoundary
         const double _radiusSq;
 };
 
-class EllipseBoundary : public AreaBoundary
+class TC_GAME_API EllipseBoundary : public AreaBoundary
 {
     public:
         EllipseBoundary(Position const& center, double radiusX, double radiusY, bool isInverted = false);
@@ -109,7 +109,7 @@ class EllipseBoundary : public AreaBoundary
         const double _radiusYSq, _scaleXSq;
 };
 
-class TriangleBoundary : public AreaBoundary
+class TC_GAME_API TriangleBoundary : public AreaBoundary
 {
     public:
         TriangleBoundary(Position const& pointA, Position const& pointB, Position const& pointC, bool isInverted = false);
@@ -123,7 +123,7 @@ class TriangleBoundary : public AreaBoundary
         const double _abx, _bcx, _cax, _aby, _bcy, _cay;
 };
 
-class ParallelogramBoundary : public AreaBoundary
+class TC_GAME_API ParallelogramBoundary : public AreaBoundary
 {
     public:
         // Note: AB must be orthogonal to AD
@@ -138,7 +138,7 @@ class ParallelogramBoundary : public AreaBoundary
         const double _abx, _dax, _aby, _day;
 };
 
-class ZRangeBoundary : public AreaBoundary
+class TC_GAME_API ZRangeBoundary : public AreaBoundary
 {
     public:
         ZRangeBoundary(float minZ, float maxZ, bool isInverted = false);

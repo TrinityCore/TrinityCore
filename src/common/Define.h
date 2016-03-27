@@ -95,6 +95,45 @@
 #endif
 #endif //COMPILER == COMPILER_GNU
 
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#  if COMPILER == COMPILER_MICROSOFT
+#    define TC_API_EXPORT __declspec(dllexport)
+#    define TC_API_IMPORT __declspec(dllimport)
+#  elif COMPILER == COMPILER_GNU
+#    define TC_API_EXPORT __attribute__((visibility("default")))
+#    define TC_API_IMPORT
+#  else
+#    error compiler not supported!
+#  endif
+#else
+#  define TC_API_EXPORT
+#  define TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_COMMON
+#  define TC_COMMON_API TC_API_EXPORT
+#else
+#  define TC_COMMON_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_DATABASE
+#  define TC_DATABASE_API TC_API_EXPORT
+#else
+#  define TC_DATABASE_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_SHARED
+#  define TC_SHARED_API TC_API_EXPORT
+#else
+#  define TC_SHARED_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_GAME
+#  define TC_GAME_API TC_API_EXPORT
+#else
+#  define TC_GAME_API TC_API_IMPORT
+#endif
+
 #define UI64FMTD "%" PRIu64
 #define UI64LIT(N) UINT64_C(N)
 
