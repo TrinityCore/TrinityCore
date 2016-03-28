@@ -38,8 +38,8 @@ void BnetServiceGenerator::GenerateInterface(pb::io::Printer* printer)
         "{\n"
         " public:\n"
         "\n"
-        "  template<typename HashSelector>\n"
-        "  explicit $classname$(HashSelector) : service_hash_(HashSelector::Result::value) { }\n"
+        "  explicit $classname$(bool use_original_hash);\n"
+        "  virtual ~$classname$();\n"
         "\n"
         "$original_hash$"
         "$name_hash$");
@@ -139,6 +139,12 @@ void BnetServiceGenerator::GenerateDescriptorInitializer(pb::io::Printer* printe
 void BnetServiceGenerator::GenerateImplementation(pb::io::Printer* printer)
 {
     printer->Print(vars_,
+        "$classname$::$classname$(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {\n"
+        "}\n"
+        "\n"
+        "$classname$::~$classname$() {\n"
+        "}\n"
+        "\n"
         "google::protobuf::ServiceDescriptor const* $classname$::descriptor() {\n"
         "  protobuf_AssignDescriptorsOnce();\n"
         "  return $classname$_descriptor_;\n"
@@ -170,14 +176,15 @@ void BnetServiceGenerator::GenerateClientMethodImplementations(pb::io::Printer* 
         if (method->output_type()->name() != "NO_RESPONSE")
         {
             printer->Print(sub_vars,
-                "void $classname$::$name$($input_type$ const* request, std::function<void($output_type$ const*)> responseCallback) { \n"
+                "void $classname$::$name$($input_type$ const* request, std::function<void($output_type$ const*)> responseCallback) {\n"
                 "  TC_LOG_DEBUG(\"service.protobuf\", \"%s Server called client method $full_name$($input_type_name${ %s })\",\n"
                 "    GetCallerInfo().c_str(), request->ShortDebugString().c_str());\n"
-                "  SendRequest(service_hash_, $method_id$, request, [callback{ std::move(responseCallback) }](MessageBuffer buffer) {\n"
+                "  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {\n"
                 "    $output_type$ response;\n"
                 "    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))\n"
-                "      callback(&response);\n"
-                "  });\n"
+                "      responseCallback(&response);\n"
+                "  };\n"
+                "  SendRequest(service_hash_, $method_id$, request, std::move(callback));\n"
                 "}\n"
                 "\n");
         }

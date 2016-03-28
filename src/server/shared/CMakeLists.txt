@@ -43,7 +43,8 @@ target_include_directories(shared
 target_link_libraries(shared
   PUBLIC
     database
-    rapidjson)
+    rapidjson
+    proto)
 
 set_target_properties(shared
     PROPERTIES
