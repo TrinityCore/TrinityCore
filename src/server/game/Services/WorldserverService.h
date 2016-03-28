@@ -45,7 +45,7 @@ namespace Battlenet
     protected:
         void SendRequest(uint32 serviceHash, uint32 methodId, google::protobuf::Message const* request, std::function<void(MessageBuffer)> callback) override { _session->SendBattlenetRequest(serviceHash, methodId, request, std::move(callback)); }
         void SendRequest(uint32 serviceHash, uint32 methodId, google::protobuf::Message const* request) override { _session->SendBattlenetRequest(serviceHash, methodId, request); }
-        void SendResponse(uint32 serviceHash, uint32 methodId, uint32 token, uint32 status) { _session->SendBattlenetResponse(serviceHash, methodId, token, status); }
+        void SendResponse(uint32 serviceHash, uint32 methodId, uint32 token, uint32 status) override { _session->SendBattlenetResponse(serviceHash, methodId, token, status); }
         void SendResponse(uint32 serviceHash, uint32 methodId, uint32 token, google::protobuf::Message const* response) override { _session->SendBattlenetResponse(serviceHash, methodId, token, response); }
         std::string GetCallerInfo() const override { return _session->GetPlayerInfo(); }
 

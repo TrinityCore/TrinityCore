@@ -146,9 +146,9 @@ void LoginRESTService::Run()
         { nullptr, nullptr }
     };
 
-    soap_register_plugin_arg(&soapServer, &http_get, handle_get_plugin);
+    soap_register_plugin_arg(&soapServer, &http_get, (void*)&handle_get_plugin);
     soap_register_plugin_arg(&soapServer, &http_post, handlers);
-    soap_register_plugin_arg(&soapServer, &ContentTypePlugin::Init, "application/json;charset=utf-8");
+    soap_register_plugin_arg(&soapServer, &ContentTypePlugin::Init, (void*)"application/json;charset=utf-8");
 
     // Use our already ready ssl context
     soapServer.ctx = Battlenet::SslContext::instance().native_handle();
@@ -159,7 +159,7 @@ void LoginRESTService::Run()
         if (!soap_valid_socket(soap_accept(&soapServer)))
             continue;   // ran into an accept timeout
 
-        std::unique_ptr<soap> soapClient = Trinity::make_unique<soap>(soapServer);
+        std::shared_ptr<soap> soapClient = std::make_shared<soap>(soapServer);
         boost::asio::ip::address_v4 address(soapClient->ip);
         if (soap_ssl_accept(soapClient.get()) != SOAP_OK)
         {
@@ -169,7 +169,7 @@ void LoginRESTService::Run()
 
         TC_LOG_DEBUG("server.rest", "Accepted connection from IP=%s", address.to_string().c_str());
 
-        std::thread([soapClient{ std::move(soapClient) }]
+        std::thread([soapClient]
         {
             soap_serve(soapClient.get());
         }).detach();
