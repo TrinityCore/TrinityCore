@@ -94,7 +94,7 @@ public:
 
     ConnectionType GetConnectionType() const { return _type; }
 
-    void SendAuthResponseError(uint8 code);
+    void SendAuthResponseError(uint32 code);
     void SetWorldSession(WorldSession* session);
 
 protected:

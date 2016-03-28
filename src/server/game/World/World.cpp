@@ -27,6 +27,7 @@
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
+#include "BattlenetRpcErrorCodes.h"
 #include "BattlePetMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
@@ -319,7 +320,7 @@ void World::ProcessLinkInstanceSocket(std::pair<std::weak_ptr<WorldSocket>, uint
         WorldSession* session = FindSession(uint32(key.Fields.AccountId));
         if (!session || session->GetConnectToInstanceKey() != linkInfo.second)
         {
-            sock->SendAuthResponseError(AUTH_SESSION_EXPIRED);
+            sock->SendAuthResponseError(ERROR_TIMED_OUT);
             sock->DelayedCloseSocket();
             return;
         }
@@ -369,7 +370,7 @@ void World::AddQueuedPlayer(WorldSession* sess)
     m_QueuedPlayer.push_back(sess);
 
     // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
-    sess->SendAuthResponse(AUTH_WAIT_QUEUE, true, GetQueuePos(sess));
+    sess->SendAuthResponse(ERROR_OK, true, GetQueuePos(sess));
 }
 
 bool World::RemoveQueuedPlayer(WorldSession* sess)

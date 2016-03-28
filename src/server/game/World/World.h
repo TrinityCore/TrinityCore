@@ -448,20 +448,6 @@ enum Rates
     MAX_RATES
 };
 
-/// Can be used in SMSG_AUTH_RESPONSE packet
-enum BillingPlanFlags
-{
-    SESSION_NONE            = 0x00,
-    SESSION_UNUSED          = 0x01,
-    SESSION_RECURRING_BILL  = 0x02,
-    SESSION_FREE_TRIAL      = 0x04,
-    SESSION_IGR             = 0x08,
-    SESSION_USAGE           = 0x10,
-    SESSION_TIME_MIXTURE    = 0x20,
-    SESSION_RESTRICTED      = 0x40,
-    SESSION_ENABLE_CAIS     = 0x80
-};
-
 enum RealmZone
 {
     REALM_ZONE_UNKNOWN       = 0,                           // any language
