@@ -361,6 +361,18 @@ void LoginRESTService::CleanupLoginTickets(boost::system::error_code const& erro
     _loginTicketCleanupTimer->async_wait(std::bind(&LoginRESTService::CleanupLoginTickets, this, std::placeholders::_1));
 }
 
+LoginRESTService::LoginTicket& LoginRESTService::LoginTicket::operator=(LoginTicket&& right)
+{
+    if (this != &right)
+    {
+        Id = std::move(right.Id);
+        Account = std::move(right.Account);
+        ExpiryTime = right.ExpiryTime;
+    }
+
+    return *this;
+}
+
 Namespace namespaces[] =
 {
     { NULL, NULL, NULL, NULL }
