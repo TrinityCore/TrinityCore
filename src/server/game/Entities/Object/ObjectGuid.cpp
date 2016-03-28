@@ -22,60 +22,78 @@
 #include <sstream>
 #include <iomanip>
 
-char const* TypeNames[] =
+namespace
 {
-    "Null",
-    "Uniq",
-    "Player",
-    "Item",
-    "StaticDoor",
-    "Transport",
-    "Conversation",
-    "Creature",
-    "Vehicle",
-    "Pet",
-    "GameObject",
-    "DynamicObject",
-    "AreaTrigger",
-    "Corpse",
-    "LootObject",
-    "SceneObject",
-    "Scenario",
-    "AIGroup",
-    "DynamicDoor",
-    "ClientActor",
-    "Vignette",
-    "CallForHelp",
-    "AIResource",
-    "AILock",
-    "AILockTicket",
-    "ChatChannel",
-    "Party",
-    "Guild",
-    "WowAccount",
-    "BNetAccount",
-    "GMTask",
-    "MobileSession",
-    "RaidGroup",
-    "Spell",
-    "Mail",
-    "WebObj",
-    "LFGObject",
-    "LFGList",
-    "UserRouter",
-    "PVPQueueGroup",
-    "UserClient",
-    "PetBattle",
-    "UniqueUserClient",
-    "BattlePet",
-};
+    struct GuidTypeNames
+    {
+        char const* Values[uint32(HighGuid::Count)];
+
+        GuidTypeNames();
+    } Names;
+
+    GuidTypeNames::GuidTypeNames()
+    {
+#define SET_GUID_NAME(type) Values[uint32(HighGuid::type)] = #type;
+
+        SET_GUID_NAME(Null);
+        SET_GUID_NAME(Uniq);
+        SET_GUID_NAME(Player);
+        SET_GUID_NAME(Item);
+        SET_GUID_NAME(WorldTransaction);
+        SET_GUID_NAME(StaticDoor);
+        SET_GUID_NAME(Transport);
+        SET_GUID_NAME(Conversation);
+        SET_GUID_NAME(Creature);
+        SET_GUID_NAME(Vehicle);
+        SET_GUID_NAME(Pet);
+        SET_GUID_NAME(GameObject);
+        SET_GUID_NAME(DynamicObject);
+        SET_GUID_NAME(AreaTrigger);
+        SET_GUID_NAME(Corpse);
+        SET_GUID_NAME(LootObject);
+        SET_GUID_NAME(SceneObject);
+        SET_GUID_NAME(Scenario);
+        SET_GUID_NAME(AIGroup);
+        SET_GUID_NAME(DynamicDoor);
+        SET_GUID_NAME(ClientActor);
+        SET_GUID_NAME(Vignette);
+        SET_GUID_NAME(CallForHelp);
+        SET_GUID_NAME(AIResource);
+        SET_GUID_NAME(AILock);
+        SET_GUID_NAME(AILockTicket);
+        SET_GUID_NAME(ChatChannel);
+        SET_GUID_NAME(Party);
+        SET_GUID_NAME(Guild);
+        SET_GUID_NAME(WowAccount);
+        SET_GUID_NAME(BNetAccount);
+        SET_GUID_NAME(GMTask);
+        SET_GUID_NAME(MobileSession);
+        SET_GUID_NAME(RaidGroup);
+        SET_GUID_NAME(Spell);
+        SET_GUID_NAME(Mail);
+        SET_GUID_NAME(WebObj);
+        SET_GUID_NAME(LFGObject);
+        SET_GUID_NAME(LFGList);
+        SET_GUID_NAME(UserRouter);
+        SET_GUID_NAME(PVPQueueGroup);
+        SET_GUID_NAME(UserClient);
+        SET_GUID_NAME(PetBattle);
+        SET_GUID_NAME(UniqUserClient);
+        SET_GUID_NAME(BattlePet);
+        SET_GUID_NAME(CommerceObj);
+        SET_GUID_NAME(ClientSession);
+
+#undef SET_GUID_NAME
+    }
+
+}
 
 char const* ObjectGuid::GetTypeName(HighGuid high)
 {
     if (high >= HighGuid::Count)
         return "<unknown>";
 
-    return TypeNames[uint32(high)];
+    return Names.Values[uint32(high)];
 }
 
 std::string ObjectGuid::ToString() const

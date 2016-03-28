@@ -71,8 +71,6 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     {
         _worldPacket << uint32(SuccessInfo->VirtualRealmAddress);
         _worldPacket << uint32(SuccessInfo->VirtualRealms.size());
-        _worldPacket << uint32(SuccessInfo->TimeRemain);
-        _worldPacket << uint32(SuccessInfo->TimeOptions);
         _worldPacket << uint32(SuccessInfo->TimeRested);
         _worldPacket << uint8(SuccessInfo->ActiveExpansionLevel);
         _worldPacket << uint8(SuccessInfo->AccountExpansionLevel);
@@ -81,6 +79,16 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->AvailableClasses->size());
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
+
+        {
+            _worldPacket << uint32(SuccessInfo->Billing.BillingPlan);
+            _worldPacket << uint32(SuccessInfo->Billing.TimeRemain);
+            // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
+            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
+            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
+            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // not used anywhere in the client
+            _worldPacket.FlushBits();
+        }
 
         for (auto& virtualRealm : SuccessInfo->VirtualRealms)
         {
@@ -129,7 +137,6 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
         _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
         _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
-        _worldPacket.WriteBit(SuccessInfo->IsVeteranTrial);
         _worldPacket.FlushBits();
 
         if (SuccessInfo->NumPlayersHorde)
@@ -142,6 +149,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     if (WaitInfo)
     {
         _worldPacket << uint32(WaitInfo->WaitCount);
+        _worldPacket << uint32(WaitInfo->WaitTime);
         _worldPacket.WriteBit(WaitInfo->HasFCM);
         _worldPacket.FlushBits();
     }
