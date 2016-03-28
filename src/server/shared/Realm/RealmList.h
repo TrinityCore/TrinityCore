@@ -28,6 +28,38 @@
 
 using namespace boost::asio;
 
+struct RealmBuildInfo
+{
+    uint32 Build;
+    uint32 MajorVersion;
+    uint32 MinorVersion;
+    uint32 BugfixVersion;
+    uint32 HotfixVersion;
+};
+
+namespace bgs
+{
+    namespace protocol
+    {
+        namespace game_utilities
+        {
+            namespace v1
+            {
+                class ClientResponse;
+                class GetAllValuesForAttributeResponse;
+            }
+        }
+    }
+}
+
+namespace JSON
+{
+    namespace RealmList
+    {
+        class RealmListUpdates;
+    }
+}
+
 /// Storage object for the list of realms on the server
 class TC_SHARED_API RealmList
 {
@@ -44,6 +76,14 @@ public:
     RealmMap const& GetRealms() const { return _realms; }
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
 
+    RealmBuildInfo const* GetBuildInfo(uint32 build) const;
+    std::unordered_set<std::string> const& GetSubRegions() const { return _subRegions; }
+    void WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const;
+    std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build) const;
+    std::vector<uint8> GetRealmList(uint32 build, std::string const& subRegion) const;
+    uint32 JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::address const& clientAddress, std::array<uint8, 32> const& clientSecret,
+        LocaleConstant locale, std::string const& os, std::string accountName, bgs::protocol::game_utilities::v1::ClientResponse* response) const;
+
 private:
     RealmList();
 
@@ -52,6 +92,7 @@ private:
         ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     RealmMap _realms;
+    std::unordered_set<std::string> _subRegions;
     uint32 _updateInterval;
     boost::asio::deadline_timer* _updateTimer;
     boost::asio::ip::tcp::resolver* _resolver;

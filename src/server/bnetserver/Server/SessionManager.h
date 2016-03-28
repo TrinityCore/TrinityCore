@@ -18,68 +18,25 @@
 #ifndef SessionManager_h__
 #define SessionManager_h__
 
-#include "Session.h"
 #include "SocketMgr.h"
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include "Session.h"
 
 namespace Battlenet
 {
-#pragma pack(push, 1)
-
-    struct SessionInfo
-    {
-        uint32 AccountId;
-        uint32 GameAccountId;
-
-        bool operator<(SessionInfo const& right) const
-        {
-            return memcmp(this, &right, sizeof(SessionInfo)) < 0;
-        }
-    };
-
-#pragma pack(pop)
-
     class SessionManager : public SocketMgr<Session>
     {
         typedef SocketMgr<Session> BaseSocketMgr;
-        typedef std::map<SessionInfo, Session*> SessionMap;
-        typedef std::map<uint32, std::list<Session*>> SessionByAccountMap;
 
     public:
-        static SessionManager& Instance()
-        {
-            static SessionManager instance;
-            return instance;
-        }
+        static SessionManager& Instance();
 
         bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount = 1) override;
-
-        // noop for now, will be needed later to broadcast realmlist updates for example
-        void AddSession(Session* /*session*/);
-
-        void RemoveSession(Session* /*session*/);
-
-        Session* GetSession(uint32 accountId, uint32 gameAccountId) const;
-        std::list<Session*> GetSessions(uint32 accountId) const;
-
-        template<typename Iterator>
-        void LockedForEach(Iterator iterator) const
-        {
-            boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
-            for (SessionMap::value_type const& pair : _sessions)
-                iterator(pair.second);
-        }
 
     protected:
         NetworkThread<Session>* CreateThreads() const override;
 
     private:
         static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex);
-
-        SessionMap _sessions;
-        SessionByAccountMap _sessionsByAccountId;
-        mutable boost::shared_mutex _sessionMutex;
     };
 }
 
