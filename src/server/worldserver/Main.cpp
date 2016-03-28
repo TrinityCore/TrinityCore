@@ -41,7 +41,7 @@
 #include "GitRevision.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "Realm/Realm.h"
+#include "RealmList.h"
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
 #include <openssl/opensslv.h>
@@ -49,6 +49,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/program_options.hpp>
+#include <google/protobuf/stubs/common.h>
 
 using namespace boost::program_options;
 
@@ -102,6 +103,8 @@ extern int main(int argc, char** argv)
     // exit if help or version is enabled
     if (vm.count("help") || vm.count("version"))
         return 0;
+
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 #ifdef _WIN32
     if (configService.compare("install") == 0)
@@ -188,6 +191,8 @@ extern int main(int argc, char** argv)
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
+    sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
+
     LoadRealmInfo();
 
     // Initialize the World
@@ -273,6 +278,7 @@ extern int main(int argc, char** argv)
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    sRealmList->Close();
 
     // Clean up threads if any
     if (soapThread != nullptr)
@@ -293,6 +299,8 @@ extern int main(int argc, char** argv)
     ShutdownCLIThread(cliThread);
 
     OpenSSLCrypto::threadsCleanup();
+
+    google::protobuf::ShutdownProtobufLibrary();
 
     // 0 - normal shutdown
     // 1 - shutdown at error

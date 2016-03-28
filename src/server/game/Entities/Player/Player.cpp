@@ -18869,6 +18869,23 @@ void Player::SaveToDB(bool create /*=false*/)
     GetSession()->GetCollectionMgr()->SaveAccountToys(trans);
     GetSession()->GetBattlePetMgr()->SaveToDB(trans);
     GetSession()->GetCollectionMgr()->SaveAccountHeirlooms(trans);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_LAST_PLAYER_CHARACTERS);
+    stmt->setUInt32(0, GetSession()->GetAccountId());
+    stmt->setUInt8(1, realm.Id.Region);
+    stmt->setUInt8(2, realm.Id.Site);
+    trans->Append(stmt);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_LAST_PLAYER_CHARACTERS);
+    stmt->setUInt32(0, GetSession()->GetAccountId());
+    stmt->setUInt8(1, realm.Id.Region);
+    stmt->setUInt8(2, realm.Id.Site);
+    stmt->setUInt32(3, realm.Id.Realm);
+    stmt->setString(4, GetName());
+    stmt->setUInt64(5, GetGUID().GetCounter());
+    stmt->setUInt32(6, time(nullptr));
+    trans->Append(stmt);
+
     LoginDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
