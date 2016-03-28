@@ -1333,7 +1333,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_ice_tomb_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
-    
+
         AuraScript* GetAuraScript() const override
         {
             return new spell_sindragosa_ice_tomb_AuraScript();
