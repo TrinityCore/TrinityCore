@@ -61,3 +61,13 @@ uint32 const Realm::ConfigIdByType[MAX_CLIENT_REALM_TYPE] =
 {
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 };
+
+std::string Battlenet::RealmHandle::GetAddressString() const
+{
+    return Trinity::StringFormat("%u-%u-%u", Region, Site, Realm);
+}
+
+std::string Battlenet::RealmHandle::GetSubRegionAddress() const
+{
+    return Trinity::StringFormat("%u-%u-0", Region, Site);
+}

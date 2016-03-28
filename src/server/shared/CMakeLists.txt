@@ -44,7 +44,9 @@ target_link_libraries(shared
   PUBLIC
     database
     rapidjson
-    proto)
+    proto
+    zlib
+    gsoap)
 
 set_target_properties(shared
     PROPERTIES

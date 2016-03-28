@@ -43,7 +43,7 @@
 #include "ScriptMgr.h"
 #include "WardenWin.h"
 #include "AuthenticationPackets.h"
-#include "BattlenetRpcErrorCodes.h"
+#include "BattlenetPackets.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
@@ -1151,13 +1151,14 @@ public:
         BATTLE_PETS,
         BATTLE_PET_SLOTS,
         GLOBAL_ACCOUNT_HEIRLOOMS,
+        GLOBAL_REALM_CHARACTER_COUNTS,
 
         MAX_QUERIES
     };
 
     AccountInfoQueryHolder() { SetSize(MAX_QUERIES); }
 
-    bool Initialize(uint32 /*accountId*/, uint32 battlenetAccountId)
+    bool Initialize(uint32 accountId, uint32 battlenetAccountId)
     {
         bool ok = true;
 
@@ -1176,6 +1177,10 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_HEIRLOOMS);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(GLOBAL_ACCOUNT_HEIRLOOMS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID);
+        stmt->setUInt32(0, accountId);
+        ok = SetPreparedQuery(GLOBAL_REALM_CHARACTER_COUNTS, stmt) && ok;
 
         return ok;
     }
@@ -1224,6 +1229,20 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendAddonsInfo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendTutorialsData();
+
+    if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
+    {
+        do
+        {
+            Field* fields = characterCountsResult->Fetch();
+            _realmCharacterCounts[Battlenet::RealmHandle{ fields[3].GetUInt8(), fields[4].GetUInt8(), fields[2].GetUInt32() }.GetAddress()] = fields[1].GetUInt8();
+
+        } while (characterCountsResult->NextRow());
+    }
+
+    WorldPackets::Battlenet::SetSessionState bnetConnected;
+    bnetConnected.State = 1;
+    SendPacket(bnetConnected.Write());
 
     _battlePetMgr->LoadFromDB(holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
                               holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));

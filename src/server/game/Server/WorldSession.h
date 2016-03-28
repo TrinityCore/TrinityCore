@@ -129,6 +129,12 @@ namespace WorldPackets
         class RequestRatedBattlefieldInfo;
     }
 
+    namespace Battlenet
+    {
+        class Request;
+        class RequestRealmListTicket;
+    }
+
     namespace BattlePet
     {
         class BattlePetRequestJournal;
@@ -704,6 +710,16 @@ namespace WorldPackets
     };
 }
 
+namespace google
+{
+    namespace protobuf
+    {
+        class Message;
+    }
+}
+
+namespace pb = google::protobuf;
+
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
@@ -916,6 +932,7 @@ class TC_GAME_API WorldSession
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
         uint8 GetExpansion() const { return m_expansion; }
+        std::string const& GetOS() const { return _os; }
 
         void InitWarden(BigNumber* k);
 
@@ -1678,6 +1695,20 @@ class TC_GAME_API WorldSession
         // Warden
         void HandleWardenData(WorldPackets::Warden::WardenData& packet);
 
+        // Battlenet
+        void HandleBattlenetRequest(WorldPackets::Battlenet::Request& request);
+        void HandleBattlenetRequestRealmListTicket(WorldPackets::Battlenet::RequestRealmListTicket& requestRealmListTicket);
+
+        void SendBattlenetResponse(uint32 serviceHash, uint32 methodId, uint32 token, pb::Message const* response);
+        void SendBattlenetResponse(uint32 serviceHash, uint32 methodId, uint32 token, uint32 status);
+        void SendBattlenetRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request, std::function<void(MessageBuffer)> callback);
+        void SendBattlenetRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request);
+
+        std::array<uint8, 32> const& GetRealmListSecret() const { return _realmListSecret; }
+        void SetRealmListSecret(std::array<uint8, 32> const& secret) { memcpy(_realmListSecret.data(), secret.data(), secret.size()); }
+
+        std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
+
         union ConnectToKey
         {
             struct
@@ -1774,6 +1805,11 @@ class TC_GAME_API WorldSession
         uint32 _battlenetAccountId;
         uint8 m_expansion;
         std::string _os;
+
+        std::array<uint8, 32> _realmListSecret;
+        std::unordered_map<uint32 /*realmAddress*/, uint8> _realmCharacterCounts;
+        std::unordered_map<uint32, std::function<void(MessageBuffer)>> _battlenetResponseCallbacks;
+        uint32 _battlenetRequestToken;
 
         typedef std::list<AddonInfo> AddonsList;
 
