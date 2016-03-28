@@ -19,7 +19,6 @@
 #define SocketMgr_h__
 
 #include "AsyncAcceptor.h"
-#include "Config.h"
 #include "Errors.h"
 #include "NetworkThread.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -36,15 +35,9 @@ public:
         ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction");
     }
 
-    virtual bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
+    virtual bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
     {
-        _threadCount = sConfigMgr->GetIntDefault("Network.Threads", 1);
-
-        if (_threadCount <= 0)
-        {
-            TC_LOG_ERROR("misc", "Network.Threads is wrong in your config file");
-            return false;
-        }
+        ASSERT(threadCount > 0);
 
         try
         {
@@ -56,6 +49,7 @@ public:
             return false;
         }
 
+        _threadCount = threadCount;
         _threads = CreateThreads();
 
         ASSERT(_threads);
