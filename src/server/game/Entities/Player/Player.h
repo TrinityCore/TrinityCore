@@ -845,39 +845,26 @@ typedef std::vector<ItemPosCount> ItemPosCountVec;
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                          = 0,
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 1,   // You are already locked to %s
-    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 2,   // Map cannot be entered at this time.
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 3,   // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
-    TRANSFER_ABORT_NOT_FOUND                     = 4,   // Transfer Aborted: instance not found
-    TRANSFER_ABORT_NEED_GROUP                    = 5,   // Transfer Aborted: you must be in a raid group to enter this instance
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 6,   // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_DIFFICULTY                    = 7,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_REALM_ONLY                    = 8,   // All players in the party must be from the same realm to enter %s.
-    TRANSFER_ABORT_NOT_FOUND_2                   = 13,  // Transfer Aborted: instance not found
-    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 15,  // This instance is already in progress. You may only switch difficulties from inside the instance.
-    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 16,  // You have entered too many instances recently.
-    TRANSFER_ABORT_MAX_PLAYERS                   = 17,  // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND_3                   = 19,  // Transfer Aborted: instance not found
-    TRANSFER_ABORT_ERROR                         = 21,
-    TRANSFER_ABORT_NOT_FOUND_4                   = 23,  // Transfer Aborted: instance not found
-    TRANSFER_ABORT_UNIQUE_MESSAGE                = 24,  // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 27,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
-    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 28,  // Transfer Aborted: cross-realm zone is down
-    TRANSFER_ABORT_ZONE_IN_COMBAT                = 29,  // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 31,  // You must have <TBC, WotLK> expansion installed to access this area.
-
-    /*
-    // Unknown values - not used by the client to display any error
-    TRANSFER_ABORT_MANY_REALM_INSTANCES
-    TRANSFER_ABORT_AREA_NOT_ZONED
-    TRANSFER_ABORT_TIMEOUT
-    TRANSFER_ABORT_SHUTTING_DOWN
-    TRANSFER_ABORT_PLAYER_CONDITION
-    TRANSFER_ABORT_BUSY
-    TRANSFER_ABORT_DISCONNECTED
-    TRANSFER_ABORT_LOGGING_OUT
-    TRANSFER_ABORT_NEED_SERVER
-    */
+    TRANSFER_ABORT_ERROR                         = 1,
+    TRANSFER_ABORT_MAX_PLAYERS                   = 2,   // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND                     = 3,   // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 4,   // You have entered too many instances recently.
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 6,   // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 7,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY                    = 8,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 9,   // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 10,  // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NEED_GROUP                    = 11,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_NOT_FOUND_2                   = 12,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_3                   = 13,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_4                   = 14,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_REALM_ONLY                    = 15,  // All players in the party must be from the same realm to enter %s.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 16,  // Map cannot be entered at this time.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 18,  // You are already locked to %s
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 19,  // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 22,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
+    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 24,  // Transfer Aborted: cross-realm zone is down
+    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 26,  // This instance is already in progress. You may only switch difficulties from inside the instance.
 };
 
 enum NewWorldReason

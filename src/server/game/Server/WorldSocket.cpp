@@ -18,6 +18,7 @@
 
 #include "WorldSocket.h"
 #include "AuthenticationPackets.h"
+#include "BattlenetRpcErrorCodes.h"
 #include "BigNumber.h"
 #include "CharacterPackets.h"
 #include "HmacHash.h"
@@ -57,7 +58,7 @@ using boost::asio::ip::tcp;
 
 uint32 const WorldSocket::ConnectionInitializeMagic = 0xF5EB1CE;
 std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT");
-std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
+std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER", 48);
 uint32 const WorldSocket::MinSizeForCompression = 0x400;
 
 uint32 const SizeOfClientHeader[2] = { sizeof(uint16) + sizeof(uint16), sizeof(uint32) + sizeof(uint16) };
@@ -113,14 +114,13 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 
         if (banned)
         {
-            SendAuthResponseError(AUTH_REJECT);
             TC_LOG_ERROR("network", "WorldSocket::CheckIpCallback: Sent Auth Response (IP %s banned).", GetRemoteIpAddress().to_string().c_str());
             DelayedCloseSocket();
             return;
         }
     }
 
-    _packetBuffer.Resize(4 + 2 + ClientConnectionInitialize.length() + 1);
+    _packetBuffer.Resize(4 + 2 + ClientConnectionInitialize.length());
 
     AsyncReadWithCallback(&WorldSocket::InitializeHandler);
 
@@ -688,6 +688,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     hmac.UpdateData(AuthCheckSeed, 16);
     hmac.Finalize();
 
+    // Check that Key and account name are the same on client and server
     if (memcmp(hmac.GetDigest(), authSession->Digest.data(), authSession->Digest.size()) != 0)
     {
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", account.Game.Id, authSession->RealmJoinTicket.c_str(), address.c_str());
@@ -708,8 +709,6 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     BigNumber K;
     K.SetBinary(sessionKey, 40);
 
-    // Check that Key and account name are the same on client and server
-    // only do this after verifying credentials - no error message is better than bad encryption making the client crash
     _authCrypt.Init(&K);
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
@@ -719,10 +718,15 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     LoginDatabase.Execute(stmt);
     // This also allows to check for possible "hack" attempts on account
 
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION);
+    stmt->setString(0, K.AsHexStr());
+    stmt->setUInt32(1, account.Game.Id);
+    LoginDatabase.Execute(stmt);
+
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())
     {
-        SendAuthResponseError(AUTH_REJECT);
+        SendAuthResponseError(ERROR_DENIED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteIpAddress().to_string().c_str());
         DelayedCloseSocket();
         return;
@@ -730,7 +734,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     if (authSession->RealmID != realm.Id.Realm)
     {
-        SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
+        SendAuthResponseError(ERROR_DENIED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s requested connecting with realm id %u but this realm has id %u set in config.",
             GetRemoteIpAddress().to_string().c_str(), authSession->RealmID, realm.Id.Realm);
         DelayedCloseSocket();
@@ -741,7 +745,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
     if (wardenActive && account.Game.OS != "Win" && account.Game.OS != "Wn64" && account.Game.OS != "Mc64")
     {
-        SendAuthResponseError(AUTH_REJECT);
+        SendAuthResponseError(ERROR_DENIED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), account.Game.OS.c_str());
         DelayedCloseSocket();
         return;
@@ -752,7 +756,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     {
         if (account.BattleNet.LastIP != address)
         {
-            SendAuthResponseError(AUTH_FAILED);
+            SendAuthResponseError(ERROR_DENIED);
             TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", account.BattleNet.LastIP.c_str(), address.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
             sScriptMgr->OnFailedAccountLogin(account.Game.Id);
@@ -764,7 +768,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     {
         if (account.BattleNet.LockCountry != _ipCountry)
         {
-            SendAuthResponseError(AUTH_FAILED);
+            SendAuthResponseError(ERROR_DENIED);
             TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account country differs. Original country: %s, new country: %s).", account.BattleNet.LockCountry.c_str(), _ipCountry.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
             sScriptMgr->OnFailedAccountLogin(account.Game.Id);
@@ -787,7 +791,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     if (account.IsBanned())
     {
-        SendAuthResponseError(AUTH_BANNED);
+        SendAuthResponseError(ERROR_DENIED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         sScriptMgr->OnFailedAccountLogin(account.Game.Id);
         DelayedCloseSocket();
@@ -799,7 +803,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     TC_LOG_DEBUG("network", "Allowed Level: %u Player Level %u", allowedAccountType, account.Game.Security);
     if (allowedAccountType > SEC_PLAYER && account.Game.Security < allowedAccountType)
     {
-        SendAuthResponseError(AUTH_UNAVAILABLE);
+        SendAuthResponseError(ERROR_DENIED);
         TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         sScriptMgr->OnFailedAccountLogin(account.Game.Id);
         DelayedCloseSocket();
@@ -821,12 +825,12 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _authed = true;
     _worldSession = new WorldSession(account.Game.Id, std::move(authSession->RealmJoinTicket), account.BattleNet.Id, shared_from_this(), account.Game.Security,
-        account.Game.Expansion, mutetime, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
+        account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
     _worldSession->ReadAddonsInfo(authSession->AddonInfo);
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
-        _worldSession->InitWarden(&account.Game.SessionKey, account.Game.OS);
+        _worldSession->InitWarden(&account.Game.SessionKey);
 
     _queryCallback = std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1);
     _queryFuture = _worldSession->LoadPermissionsAsync();
@@ -849,7 +853,7 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
     _type = ConnectionType(key.Fields.ConnectionType);
     if (_type != CONNECTION_TYPE_INSTANCE)
     {
-        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
+        SendAuthResponseError(ERROR_DENIED);
         DelayedCloseSocket();
         return;
     }
@@ -869,7 +873,7 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
 {
     if (!result)
     {
-        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
+        SendAuthResponseError(ERROR_DENIED);
         DelayedCloseSocket();
         return;
     }
@@ -894,7 +898,6 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
 
     if (memcmp(hmac.GetDigest(), authSession->Digest.data(), authSession->Digest.size()))
     {
-        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthContinuedSession: Authentication failed for account: %u ('%s') address: %s", accountId, login.c_str(), GetRemoteIpAddress().to_string().c_str());
         DelayedCloseSocket();
         return;
@@ -942,7 +945,7 @@ void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& con
     }
 }
 
-void WorldSocket::SendAuthResponseError(uint8 code)
+void WorldSocket::SendAuthResponseError(uint32 code)
 {
     WorldPackets::Auth::AuthResponse response;
     response.Result = code;
