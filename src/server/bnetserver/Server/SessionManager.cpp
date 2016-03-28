@@ -17,9 +17,9 @@
 
 #include "SessionManager.h"
 
-bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
+bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
 {
-    if (!BaseSocketMgr::StartNetwork(service, bindIp, port))
+    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, 1))
         return false;
 
     _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
