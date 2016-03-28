@@ -50,7 +50,7 @@ if (MSVC)
     src/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
   )
   add_compile_options(/wd4800)
-elseif(CMAKE_COMPILER_IS_GNUCXX)
+else()
   set(protobuf_STAT_SRCS
     ${protobuf_STAT_SRCS}
     src/google/protobuf/stubs/atomicops_internals_x86_gcc.cc

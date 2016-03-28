@@ -16,6 +16,7 @@
  */
 
 #include "Realm.h"
+#include "StringFormat.h"
 
 ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
 {

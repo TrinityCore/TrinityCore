@@ -143,7 +143,7 @@ void LoginRESTService::Run()
     {
         { "application/json;charset=utf-8", handle_post_plugin },
         { "application/json", handle_post_plugin },
-        { NULL }
+        { nullptr, nullptr }
     };
 
     soap_register_plugin_arg(&soapServer, &http_get, handle_get_plugin);
