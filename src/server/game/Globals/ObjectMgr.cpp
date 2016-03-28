@@ -9340,6 +9340,13 @@ std::string ObjectMgr::GetRealmName(uint32 realmId) const
     return iter != _realmNameStore.end() ? iter->second : "";
 }
 
+std::string ObjectMgr::GetNormalizedRealmName(uint32 realmId) const
+{
+    std::string name = GetRealmName(realmId);
+    name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+    return name;
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();

@@ -1369,6 +1369,7 @@ class TC_GAME_API ObjectMgr
         void LoadRealmNames();
 
         std::string GetRealmName(uint32 realm) const;
+        std::string GetNormalizedRealmName(uint32 realm) const;
 
         ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
         uint8 GetRaceExpansionRequirement(uint8 race) const
