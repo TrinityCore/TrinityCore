@@ -25,7 +25,7 @@ bool Battlenet::SslContext::Initialize()
 #define LOAD_CHECK(fn) do { fn; \
     if (err) \
     { \
-        TC_LOG_ERROR("server.ssl", #fn ## "failed: %s", err.message().c_str()); \
+        TC_LOG_ERROR("server.ssl", #fn " failed: %s", err.message().c_str()); \
         return false; \
     } } while (0)
 
