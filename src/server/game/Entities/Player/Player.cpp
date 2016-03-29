@@ -5025,6 +5025,14 @@ void Player::UpdateRating(CombatRating cr)
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
+    // Apply bonus from SPELL_AURA_MOD_RATING_PCT
+    // stat used stored in miscValueA for this aura
+    AuraEffectList const& modRatingPct = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT);
+    for (AuraEffectList::const_iterator i = modRatingPct.begin(); i != modRatingPct.end(); ++i)
+        if ((*i)->GetMiscValue() & (1 << cr))
+            amount += int32(CalculatePct(amount, (*i)->GetAmount()));
+
     if (amount < 0)
         amount = 0;
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
