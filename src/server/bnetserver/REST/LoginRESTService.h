@@ -64,6 +64,8 @@ private:
 
     struct LoginTicket
     {
+        LoginTicket& operator=(LoginTicket&& right);
+
         std::string Id;
         std::unique_ptr<Battlenet::Session::AccountInfo> Account;
         std::time_t ExpiryTime;

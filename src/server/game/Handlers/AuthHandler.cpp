@@ -40,10 +40,9 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
 
-        std::string realmName = sObjectMgr->GetRealmName(realm.Id.Realm);
-
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
+        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false,
+            sObjectMgr->GetRealmName(realm.Id.Realm), sObjectMgr->GetNormalizedRealmName(realm.Id.Realm));
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
             for (auto& templ : sObjectMgr->GetCharacterTemplates())
