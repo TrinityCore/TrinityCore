@@ -240,6 +240,14 @@ UseProcessors = 0
 ProcessPriority = 0
 
 #
+#    RealmsStateUpdateDelay
+#        Description: Time (in seconds) between realm list updates.
+#        Default:     10
+#                     0  - (Disabled)
+
+RealmsStateUpdateDelay = 10
+
+#
 #    Compression
 #        Description: Compression level for client update packages.
 #        Range:       1-9
@@ -2967,6 +2975,27 @@ AuctionHouseBot.MinTime = 1
 AuctionHouseBot.MaxTime = 72
 
 #
+#    AuctionHouseBot.Class.CLASS.Allow.Zero = 0
+#       Description: Include items without a sell or buy price.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Class.Consumable.Allow.Zero = 0
+AuctionHouseBot.Class.Container.Allow.Zero = 0
+AuctionHouseBot.Class.Weapon.Allow.Zero = 0
+AuctionHouseBot.Class.Gem.Allow.Zero = 0
+AuctionHouseBot.Class.Armor.Allow.Zero = 0
+AuctionHouseBot.Class.Reagent.Allow.Zero = 0
+AuctionHouseBot.Class.Projectile.Allow.Zero = 0
+AuctionHouseBot.Class.TradeGood.Allow.Zero = 0
+AuctionHouseBot.Class.Recipe.Allow.Zero = 0
+AuctionHouseBot.Class.Quiver.Allow.Zero = 0
+AuctionHouseBot.Class.Quest.Allow.Zero = 0
+AuctionHouseBot.Class.Key.Allow.Zero = 0
+AuctionHouseBot.Class.Misc.Allow.Zero = 0
+AuctionHouseBot.Class.Glyph.Allow.Zero = 0
+
+#
 #    AuctionHouseBot.Items.Vendor
 #       Description: Include items that can be bought from vendors.
 #       Default:     0 - (Disabled)
@@ -3093,8 +3122,6 @@ AuctionHouseBot.Class.Quest.Price.Ratio = 100
 AuctionHouseBot.Class.Key.Price.Ratio = 100 
 AuctionHouseBot.Class.Misc.Price.Ratio = 100 
 AuctionHouseBot.Class.Glyph.Price.Ratio = 100 
-
-
 
 #
 #    AuctionHouseBot.Items.ItemLevel.*

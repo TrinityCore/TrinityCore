@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,25 +23,17 @@
 * authentication server
 */
 
-#include "ComponentManager.h"
-#include "ModuleManager.h"
 #include "SessionManager.h"
-#include "Common.h"
-#include "Config.h"
-#include "DatabaseEnv.h"
-#include "Log.h"
 #include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "GitRevision.h"
-#include "Util.h"
+#include "SslContext.h"
 #include "DatabaseLoader.h"
-#include <cstdlib>
+#include "LoginRESTService.h"
 #include <iostream>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/program_options.hpp>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
+#include <google/protobuf/stubs/common.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
@@ -92,6 +83,8 @@ int main(int argc, char** argv)
     if (vm.count("help") || vm.count("version"))
         return 0;
 
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
 #if PLATFORM == PLATFORM_WINDOWS
     if (configService.compare("install") == 0)
         return WinServiceInstall() ? 0 : 1;
@@ -135,14 +128,17 @@ int main(int argc, char** argv)
         }
     }
 
+    if (!Battlenet::SslContext::Initialize())
+    {
+        TC_LOG_ERROR("server.bnetserver", "Failed to initialize SSL context");
+        return 1;
+    }
+
     // Initialize the database connection
     if (!StartDB())
         return 1;
 
     _ioService = new boost::asio::io_service();
-
-    // Get the list of realms for the server
-    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
@@ -153,6 +149,17 @@ int main(int argc, char** argv)
         delete _ioService;
         return 1;
     }
+
+    if (!sLoginService.Start(*_ioService))
+    {
+        StopDB();
+        delete _ioService;
+        TC_LOG_ERROR("server.bnetserver", "Failed to initialize login service");
+        return 1;
+    }
+
+    // Get the list of realms for the server
+    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
@@ -179,9 +186,6 @@ int main(int argc, char** argv)
     _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
     _banExpiryCheckTimer->async_wait(BanExpiryHandler);
 
-    sComponentMgr->Load();
-    sModuleMgr->Load();
-
 #if PLATFORM == PLATFORM_WINDOWS
     if (m_ServiceStatus != -1)
     {
@@ -197,6 +201,8 @@ int main(int argc, char** argv)
     _banExpiryCheckTimer->cancel();
     _dbPingTimer->cancel();
 
+    sLoginService.Stop();
+
     sSessionMgr.StopNetwork();
 
     sRealmList->Close();
@@ -211,6 +217,7 @@ int main(int argc, char** argv)
     delete _banExpiryCheckTimer;
     delete _dbPingTimer;
     delete _ioService;
+    google::protobuf::ShutdownProtobufLibrary();
     return 0;
 }
 

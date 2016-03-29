@@ -22,6 +22,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include "Config.h"
 #include "Errors.h"
+#include "Log.h"
 
 using namespace boost::property_tree;
 
@@ -70,11 +71,18 @@ bool ConfigMgr::Reload(std::string& error)
 
 std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def) const
 {
-    std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
-
-    value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
-
-    return value;
+    try
+    {
+        std::string value = _config.get<std::string>(ptree::path_type(name, '/'));
+        value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
+        return value;
+    }
+    catch (boost::property_tree::ptree_bad_path)
+    {
+        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
+            name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
+        return def;
+    }
 }
 
 bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
@@ -85,20 +93,40 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
         val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
         return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
     }
-    catch (std::exception const&  /*ex*/)
+    catch (boost::property_tree::ptree_bad_path)
     {
+        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %d\" to this file",
+            name.c_str(), _filename.c_str(), name.c_str(), def ? 1 : 0);
         return def;
     }
 }
 
 int ConfigMgr::GetIntDefault(std::string const& name, int def) const
 {
-    return _config.get<int>(ptree::path_type(name, '/'), def);
+    try
+    {
+        return _config.get<int>(ptree::path_type(name, '/'));
+    }
+    catch (boost::property_tree::ptree_bad_path)
+    {
+        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %d\" to this file",
+            name.c_str(), _filename.c_str(), name.c_str(), def);
+        return def;
+    }
 }
 
 float ConfigMgr::GetFloatDefault(std::string const& name, float def) const
 {
-    return _config.get<float>(ptree::path_type(name, '/'), def);
+    try
+    {
+        return _config.get<float>(ptree::path_type(name, '/'));
+    }
+    catch (boost::property_tree::ptree_bad_path)
+    {
+        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %f\" to this file",
+            name.c_str(), _filename.c_str(), name.c_str(), def);
+        return def;
+    }
 }
 
 std::string const& ConfigMgr::GetFilename()

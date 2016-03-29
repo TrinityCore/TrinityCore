@@ -16,9 +16,9 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-if( WIN32 )
+if (WIN32)
   list(APPEND PRIVATE_SOURCES ${sources_windows})
-  if ( MSVC )
+  if (MSVC)
     list(APPEND PRIVATE_SOURCES bnetserver.rc)
   endif()
 endif()
@@ -35,7 +35,7 @@ add_executable(bnetserver
   ${PRIVATE_PCH_SOURCE}
 )
 
-if( NOT WIN32 )
+if (NOT WIN32)
   set_target_properties(bnetserver PROPERTIES
     COMPILE_DEFINITIONS _TRINITY_BNET_CONFIG="${CONF_DIR}/bnetserver.conf"
   )
@@ -62,26 +62,32 @@ set_target_properties(bnetserver
       FOLDER
         "server")
 
-if( WIN32 )
-  if ( MSVC )
+if (WIN32)
+  if (MSVC)
     add_custom_command(TARGET bnetserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.cert.pem ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.key.pem ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
-  elseif ( MINGW )
+  elseif (MINGW)
     add_custom_command(TARGET bnetserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.cert.pem ${CMAKE_BINARY_DIR}/bin/
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/bnetserver.key.pem ${CMAKE_BINARY_DIR}/bin/
     )
   endif()
 endif()
 
-if( UNIX )
+if (UNIX)
   install(TARGETS bnetserver DESTINATION bin)
-  install(FILES  bnetserver.conf.dist DESTINATION ${CONF_DIR})
-elseif( WIN32 )
+  install(FILES bnetserver.conf.dist DESTINATION ${CONF_DIR})
+  install(FILES bnetserver.cert.pem bnetserver.key.pem DESTINATION bin)
+elseif (WIN32)
   install(TARGETS bnetserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES bnetserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES bnetserver.cert.pem bnetserver.key.pem DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Generate precompiled header

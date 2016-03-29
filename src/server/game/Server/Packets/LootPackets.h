@@ -38,8 +38,8 @@ namespace WorldPackets
 
         struct LootItemData
         {
-            uint8 Type              = 2;
-            uint8 UIType            = 7;
+            uint8 Type              = 0;
+            uint8 UIType            = 0;
             uint32 Quantity         = 0;
             uint8 LootItemType      = 0;
             uint8 LootListID        = 0;

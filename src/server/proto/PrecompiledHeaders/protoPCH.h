@@ -11,3 +11,5 @@
 #include "report_service.pb.h"
 #include "resource_service.pb.h"
 #include "user_manager_service.pb.h"
+#include "Login.pb.h"
+#include "RealmList.pb.h"
