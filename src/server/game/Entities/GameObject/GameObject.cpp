@@ -571,6 +571,10 @@ void GameObject::Update(uint32 diff)
                     }
                     else if (Unit* target = ObjectAccessor::GetUnit(*this, m_lootStateUnitGUID))
                     {
+					     // If player is spectator do not activate.
+						if (Player *tmpPlayer = target->ToPlayer())
+                            if (tmpPlayer->IsSpectator())
+                                return;
                         // Some traps do not have a spell but should be triggered
                         if (goInfo->trap.spellId)
                             CastSpell(target, goInfo->trap.spellId);
@@ -1785,6 +1789,11 @@ void GameObject::Use(Unit* user)
 
 void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true*/)
 {
+	if (target)
+        if (Player *tmpPlayer = target->ToPlayer())
+            if (tmpPlayer->IsSpectator())
+                return;
+			
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
         return;

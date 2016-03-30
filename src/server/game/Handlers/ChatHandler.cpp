@@ -574,6 +574,12 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     recvData >> text_emote;
     recvData >> emoteNum;
     recvData >> guid;
+	
+	if (GetPlayer()->IsSpectator())
+    {
+        SendNotification(LANG_SPEC_CAN_NOT_CHAT);
+        return;
+    }
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
