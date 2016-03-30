@@ -538,7 +538,12 @@ enum CharacterDatabaseStatements
     // Prepatch by LordPsyan
     // 01
     // 02
-    // 03
+    //Guild-Level-System
+    CHAR_SEL_GUILD_BONUS_INFO,
+    CHAR_SEL_GUILD_LEVEL_INFO,
+    CHAR_SEL_GUILD_XP_FOR_NEXT_LEVEL,
+    CHAR_UPD_GUILD_LEVEL,
+    CHAR_UPD_GUILD_XP,
     // 04
     // 05
     // 06

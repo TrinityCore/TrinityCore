@@ -907,6 +907,11 @@ class TC_GAME_API World
 
         void RemoveOldCorpses();
 
+        //Guild-Level-System
+        void LoadGuildBonusInfo();
+        uint8 GetReqGuildLevelForBonus(uint8 guildBonus);
+        uint8 SelectReqGuildLevelForBonus(uint8 guildBonus);
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -1018,6 +1023,21 @@ class TC_GAME_API World
 
         void ProcessQueryCallbacks();
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+
+        //Guild-Level-System
+        uint8 m_req_guildLevel_gold_1;
+        uint8 m_req_guildLevel_xp_1;
+        uint8 m_req_guildLevel_schneller_geist;
+        uint8 m_req_guildLevel_reperatur_1;
+        uint8 m_req_guildLevel_gold_2;
+        uint8 m_req_guildLevel_reittempo_1;
+        uint8 m_req_guildLevel_reputation_1;
+        uint8 m_req_guildLevel_xp_2;
+        uint8 m_req_guildLevel_reperatur_2;
+        uint8 m_req_guildLevel_reittempo_2;
+        uint8 m_req_guildLevel_reputation_2;
+        uint8 m_req_guildLevel_honor_1;
+        uint8 m_req_guildLevel_honor_2;
 };
 
 TC_GAME_API extern Realm realm;

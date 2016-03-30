@@ -73,7 +73,8 @@ enum ConditionTypes
     CONDITION_IN_WATER              = 40,                   // 0                0              0                  true if unit in water
     CONDITION_TERRAIN_SWAP          = 41,                   //                                                    only for 6.x
     CONDITION_STAND_STATE           = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
-    CONDITION_MAX                   = 43                    // MAX
+    CONDITION_GUILD_LEVEL           = 43,                   // Guildlevel       Level          match_type
+    CONDITION_MAX                   = 44                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:

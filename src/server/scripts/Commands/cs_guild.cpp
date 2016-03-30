@@ -45,6 +45,9 @@ public:
             { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "" },
             { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "" },
             { "info",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildInfoCommand,             "" },
+            { "linfo",    rbac::RBAC_PERM_COMMAND_GUILD_LINFO,    true, &HandleGuildLInfoCommand,            "" },
+            { "setlevel", rbac::RBAC_PERM_COMMAND_GUILD_SET_LEVEL,true, &HandleGuildSetLevelCommand,         "" },
+            { "givexp",   rbac::RBAC_PERM_COMMAND_GUILD_GIVE_XP,  true, &HandleGuildGiveXpCommand,           "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -284,6 +287,124 @@ public:
         handler->PSendSysMessage(LANG_GUILD_INFO_BANK_GOLD, guild->GetBankMoney() / 100 / 100); // Bank Gold (in gold coins)
         handler->PSendSysMessage(LANG_GUILD_INFO_MOTD, guild->GetMOTD().c_str()); // Message of the Day
         handler->PSendSysMessage(LANG_GUILD_INFO_EXTRA_INFO, guild->GetInfo().c_str()); // Extra Information
+        return true;
+    }
+
+    //Guild-Level-System
+    static bool HandleGuildLInfoCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Guild* guild = handler->GetSession()->GetPlayer()->GetGuild();
+
+        if (guild)
+        {
+            handler->PSendSysMessage(LANG_GUILDINFO_LEVEL, guild->GetLevel());
+
+            if (guild->GetLevel() >= GUILD_MAX_LEVEL)
+                handler->PSendSysMessage(LANG_GUILDINFO_XP_INFO, 0, 0);
+            else
+                handler->PSendSysMessage(LANG_GUILDINFO_XP_INFO, guild->GetCurrentXP(), guild->GetXpForNextLevel());
+
+            handler->PSendSysMessage("Active Bonus:");
+
+            if (guild->GetLevel() > 0)
+            {
+                if (guild->HasLevelForBonus(GUILD_BONUS_GOLD_1))
+                    handler->PSendSysMessage("Gold bonus [Rank 1]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_XP_1))
+                    handler->PSendSysMessage("Bonus Experience [Rank 1]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_SCHNELLER_GEIST))
+                    handler->PSendSysMessage("Faster Ghost");
+                if (guild->HasLevelForBonus(GUILD_BONUS_REPERATUR_1))
+                    handler->PSendSysMessage("Cheaper Repairs [Rank 1]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_GOLD_2))
+                    handler->PSendSysMessage("Gold bonus [Rank 2]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_REITTEMPO_1))
+                    handler->PSendSysMessage("Mount Speed [Rank 1]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_RUF_1))
+                    handler->PSendSysMessage("Reputation [Rank 1]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_XP_2))
+                    handler->PSendSysMessage("Bonus Experience [Rank 2]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_REPERATUR_2))
+                    handler->PSendSysMessage("Cheaper Repairs [Rank 2]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_REITTEMPO_2))
+                    handler->PSendSysMessage("Mount Speed [Rank 2]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_REPERATUR_2))
+                    handler->PSendSysMessage("Reputation [Rank 2]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_EHRE_1))
+                    handler->PSendSysMessage("Bonus Honor [Rank 1]");
+                if (guild->HasLevelForBonus(GUILD_BONUS_EHRE_2))
+                    handler->PSendSysMessage("Bonus Honor [Rank 2]");
+            }
+            else
+                handler->PSendSysMessage("None");
+
+            return true;
+        }
+        else
+        {
+            handler->PSendSysMessage("You are not in a guild");
+            return false;
+        }
+    }
+
+    static bool HandleGuildSetLevelCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* guildNameStr;
+        char* levelStr;
+        handler->extractOptFirstArg((char*)args, &guildNameStr, &levelStr);
+
+        if (!levelStr)
+            return false;
+
+        uint8 newLevel = uint8(atoi(levelStr));
+        Guild* guild = sGuildMgr->GetGuildByName(guildNameStr);
+
+        if (guild)
+        {
+            if (newLevel > GUILD_MAX_LEVEL)
+            {
+                handler->PSendSysMessage("Your guild is max level");
+                return false;
+            }
+            else
+                guild->SetLevel(newLevel, true);
+        }
+        else
+        {
+            handler->PSendSysMessage("There is no guild named [%s] found.", guildNameStr);
+            return false;
+        }
+
+        return true;
+    }
+
+    static bool HandleGuildGiveXpCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* guildNameStr;
+        char* xpStr;
+        handler->extractOptFirstArg((char*)args, &guildNameStr, &xpStr);
+
+        if (!xpStr)
+            return false;
+
+        uint32 value = uint32(atoi(xpStr));
+
+        Guild* guild = sGuildMgr->GetGuildByName(guildNameStr);
+
+        if (guild)
+            guild->GiveXp(value);
+        else
+        {
+            handler->PSendSysMessage("There was no guild with the name [%s] found.", guildNameStr);
+            return false;
+        }
+
         return true;
     }
 };
