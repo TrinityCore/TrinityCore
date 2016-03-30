@@ -3644,6 +3644,36 @@ External.Mail.Interval = 5
 #
 ###################################################################################################
 
+###################################################################################################
+# GuildHouse
+#
+# Settings for the GuildHouse Keeper.
+#
+#    Guildhouse.TokenOrGold
+#        Description: Use tokens or money to buy guild houses.
+#        Default:     0 - Use Money
+#                     1 - Use Token
+#
+
+Guildhouse.TokenOrGold = 0
+
+#    GuildHouse.BuyCost
+#        Description: Amount of gold or quantity of tokens to buy guildhouse.
+#        Default:     1000 - 1000 gold
+#
+
+Guildhouse.BuyCost = 1000
+
+#    GuildHouse.BuyCost
+#        Description: Amount of gold or quantity of tokens gained when selling guildhouse.
+#        Default:     5000000 - 500 gold
+#
+
+Guildhouse.SellCost = 500
+
+#
+###################################################################################################
+
 #
 # Prepatch by LordPsyan.
 # See http://www.realmsofwarcraft.com/bb for forums and information.
