@@ -47,8 +47,11 @@ class spell_summon_troublemaker : public SpellScriptLoader
                 float angle = M_PI * (urand(0, 7) / 7.f);
                 float x = 1181.75f + radius * sin(angle);
                 float y = 3444.5f + radius * cos(angle);
+                float z = 102.9385f;
 
-                Position const SpawnPosition = { x, y, 102.9385f, 3.285759f };
+                GetHitDest()->Relocate(x, y, z);
+
+                Position const SpawnPosition = { x, y, z, 3.285759f };
 
                 if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition, properties, duration, GetCaster()))
                     summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
