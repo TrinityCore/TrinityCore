@@ -705,8 +705,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid const& guid) override;
-        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
-        void ReleaseFocus(Spell const* focusSpell);
+        bool FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
+        void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
@@ -779,6 +780,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool TriggerJustRespawned;
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
+        uint32 _focusDelay;
 
         CreatureTextRepeatGroup m_textRepeat;
 };
