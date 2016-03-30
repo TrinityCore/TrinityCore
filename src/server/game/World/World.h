@@ -840,7 +840,15 @@ class TC_GAME_API World
         static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
         static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
         static int32 GetVisibilityNotifyPeriodInBGArenas()  { return m_visibility_notify_periodInBGArenas;   }
-
+        // movement anticheat
+        static bool GetEnableMvAnticheat()       { return m_EnableMvAnticheat;     }
+        static uint32 GetTeleportToPlaneAlarms() { return m_TeleportToPlaneAlarms; }
+        static uint32 GetMistimingDelta()        { return m_MistimingDelta;        }
+        static uint32 GetMistimingAlarms()       { return m_MistimingAlarms;       }
+        static uint32 GetTeleportToPlanePenalty() { return m_TeleportToPlanePenalty;}
+        static uint32 GetMovementPenalty()        { return m_MovementPenalty;       }
+        // end movement anticheat
+		
         void ProcessCliCommands();
         void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
 
@@ -948,6 +956,13 @@ class TC_GAME_API World
         static int32 m_visibility_notify_periodInInstances;
         static int32 m_visibility_notify_periodInBGArenas;
 
+        // movement anticheat enable flag
+        static bool m_EnableMvAnticheat;
+        static uint32 m_TeleportToPlaneAlarms;
+        static uint32 m_TeleportToPlanePenalty;
+        static uint32 m_MovementPenalty;
+        static uint32 m_MistimingDelta;
+        static uint32 m_MistimingAlarms;		
         // CLI command holder to be thread safe
         LockedQueue<CliCommandHolder*> cliCmdQueue;
 

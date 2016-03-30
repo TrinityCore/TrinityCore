@@ -103,6 +103,11 @@ TC_GAME_API int32 World::m_visibility_notify_periodOnContinents = DEFAULT_VISIBI
 TC_GAME_API int32 World::m_visibility_notify_periodInInstances  = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 TC_GAME_API int32 World::m_visibility_notify_periodInBGArenas   = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 
+// movement anticheat
+bool World::m_EnableMvAnticheat = true;
+uint32 World::m_TeleportToPlaneAlarms = 50;
+uint32 World::m_MistimingAlarms = 200;
+uint32 World::m_MistimingDelta = 15000;
 /// World constructor
 World::World()
 {
@@ -593,6 +598,41 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_ERROR("server.loading", "Rate.Quest.Money.Max.Level.Reward (%f) must be >=0. Using 0 instead.", rate_values[RATE_MONEY_MAX_LEVEL_QUEST]);
         rate_values[RATE_MONEY_MAX_LEVEL_QUEST] = 0.0f;
     }
+    // movement anticheat
+    m_EnableMvAnticheat = sConfigMgr->GetBoolDefault("Anticheat.Movement.Enable", true);
+    m_TeleportToPlaneAlarms = sConfigMgr->GetIntDefault("Anticheat.Movement.TeleportToPlaneAlarms", 50);
+    if (m_TeleportToPlaneAlarms < 20)
+    {
+        TC_LOG_INFO("server.loading", "Anticheat.Movement.TeleportToPlaneAlarms (%d) must be >= 20. Using 20 instead.", m_TeleportToPlaneAlarms);
+        m_TeleportToPlaneAlarms = 20;
+    }
+    if (m_TeleportToPlaneAlarms > 100)
+    {
+        TC_LOG_INFO("server.loading", "Anticheat.Movement.TeleportToPlaneAlarms (%d) must be <= 100. Using 100 instead.", m_TeleportToPlaneAlarms);
+        m_TeleportToPlaneAlarms = 100;
+    }
+    m_MistimingDelta = sConfigMgr->GetIntDefault("Anticheat.Movement.MistimingDelta", 15000);
+    if (m_MistimingDelta < 5000)
+    {
+        TC_LOG_INFO("server.loading", "Anticheat.Movement.m_MistimingDelta (%d) must be >= 5000ms. Using 5000ms instead.", m_MistimingDelta);
+        m_MistimingDelta = 5000;
+    }
+    if (m_MistimingDelta > 50000)
+    {
+        TC_LOG_INFO("server.loading", "Anticheat.Movement.m_MistimingDelta (%d) must be <= 50000ms. Using 50000ms instead.", m_MistimingDelta);
+        m_MistimingDelta = 50000;
+    }
+    m_MistimingAlarms = sConfigMgr->GetIntDefault("Anticheat.Movement.MistimingAlarms", 200);
+    if (m_MistimingAlarms < 100)
+    {
+        TC_LOG_INFO("server.loading", "Anticheat.Movement.MistimingAlarms (%d) must be >= 100. Using 100 instead.", m_MistimingAlarms);
+        m_MistimingAlarms = 100;
+    }
+    if (m_MistimingAlarms > 500)
+    {
+        TC_LOG_INFO("server.loading", "Anticheat.Movement.m_MistimingAlarms (%d) must be <= 500. Using 500 instead.", m_MistimingAlarms);
+        m_MistimingAlarms = 500;
+    }	
     ///- Read other configuration items from the config file
 
     m_bool_configs[CONFIG_DURABILITY_LOSS_IN_PVP] = sConfigMgr->GetBoolDefault("DurabilityLoss.InPvP", false);

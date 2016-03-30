@@ -1200,6 +1200,35 @@ DungeonFinder.OptionsMask = 1
 DBC.EnforceItemAttributes = 1
 
 #
+#    Anticheat.Movement.Enable
+#        Enable Movement Anticheat
+#        Default: 1 - on
+#                 0 - off
+#
+
+Anticheat.Movement.Enable = 1
+
+#
+#    Anticheat.Movement.TeleportToPlaneAlarms
+#        maximum alarms before logging mode will be switched from debug to error (default 50, allowed 20 - 100)
+#
+
+Anticheat.Movement.TeleportToPlaneAlarms = 50
+
+#
+#    Anticheat.Movement.MistimingDelta
+#        mistiming intelval between client and serverside (default 15000 ms, allowed 5000 - 50000 ms)
+#
+
+Anticheat.Movement.MistimingDelta = 15000
+
+#
+#    Anticheat.Movement.MistimingAlarms
+#        mistiming alarms before logging mode will be switched from debug to error (default 200, allowed 100 - 500)
+#
+
+Anticheat.Movement.MistimingAlarms = 200
+
 #   AccountInstancesPerHour
 #        Description: Controls the max amount of different instances player can enter within hour.
 #        Default:     5
@@ -3502,6 +3531,7 @@ Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
+Appender.Cheat=2,4,1,Cheat.log
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3527,6 +3557,7 @@ Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
+Logger.cheat=3,Console Cheat
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server

@@ -792,7 +792,7 @@ class TC_GAME_API ObjectMgr
         uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
         uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
 
-        uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
+        uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team, uint32 searched_node);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
         uint32 GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team = false);
 
