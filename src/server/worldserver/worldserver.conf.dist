@@ -349,6 +349,13 @@ PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
+#    DisconnectToleranceInterval
+#        Description: Tolerance (in seconds) for disconnected players before reentering the queue.
+#        Default: 0 (disabled)
+
+DisconnectToleranceInterval = 0
+
+#
 #    mmap.enablePathFinding
 #        Description: Enable/Disable pathfinding using mmaps - recommended.
 #        Default:     0 - (Disabled)
@@ -1835,6 +1842,20 @@ Visibility.Notify.Period.InInstances  = 1000
 Visibility.Notify.Period.InBGArenas   = 1000
 
 #
+#    GuarderSight
+#        Description: Guard creature sight distance
+#        Default:     50.0
+
+GuarderSight = 50.0
+
+#
+#    MonsterSight
+#        Description: Monster creature sight distance
+#        Default:     50.0
+
+MonsterSight = 50.0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2297,16 +2318,16 @@ Battleground.InvitationType = 0
 #        Default:     300000 - (Enabled, 5 minutes)
 #                     0      - (Disabled, Not recommended)
 
-BattleGround.PrematureFinishTimer = 300000
+Battleground.PrematureFinishTimer = 300000
 
 #
-#    BattleGround.PremadeGroupWaitForMatch
+#    Battleground.PremadeGroupWaitForMatch
 #        Description: Time (in milliseconds) a pre-made group has to wait for matching group of the
 #                     other faction.
 #        Default:     1800000 - (Enabled, 30 minutes)
 #                     0       - (Disabled, Not recommended)
 
-BattleGround.PremadeGroupWaitForMatch = 1800000
+Battleground.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
