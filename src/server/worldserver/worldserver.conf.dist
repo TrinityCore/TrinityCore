@@ -3,6 +3,28 @@
 ################################################
 [worldserver]
 
+################################################
+#         Prepatch config by LordPsyan         #
+#       http://www.realmsofwarcraft.com/       #
+################################################
+
+###################################################################################################
+#
+# Prepatch Configuration
+#
+#
+# If you add GuildLevelSystem or Individual XP Rate patches, you must
+# set this to 1.
+#
+# PrepatchGI Added
+#         default = 0 (GuildLevelSystem and Individual XP Rate not added)
+#                 = 1 (GuildLevelSystem and/or Individual XP Rate added)
+
+PrepatchGI.Added = 0
+
+#
+###################################################################################################
+
 ###################################################################################################
 # SECTION INDEX
 #
@@ -3605,3 +3627,8 @@ PacketSpoof.BanDuration = 86400
 
 #
 ###################################################################################################
+
+#
+# Prepatch by LordPsyan.
+# See http://www.realmsofwarcraft.com/bb for forums and information.
+#

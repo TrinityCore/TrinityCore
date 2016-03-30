@@ -160,6 +160,50 @@ enum WorldBoolConfigs
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
     CONFIG_IP_BASED_ACTION_LOGGING,
+    // Prepatch by LordPsyan
+    // 01
+    // 02
+    // 03
+    // 04
+    // 05
+    // 06
+    // 07
+    // 08
+    // 09
+    // 10
+    // 11
+    // 12
+    // 13
+    // 14
+    // 15
+    // 16
+    // 17
+    // 18
+    // 19
+    // 20
+    // 21
+    // 22
+    // 23
+    // 24
+    // 25
+    // 26
+    // 27
+    // 28
+    // 29
+    // 30
+    // 31
+    // 32
+    // 33
+    // 34
+    // 35
+    // 36
+    // 37
+    // 38
+    // 39
+    // 40
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
     CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
@@ -191,6 +235,50 @@ enum WorldFloatConfigs
     CONFIG_ARENA_WIN_RATING_MODIFIER_2,
     CONFIG_ARENA_LOSE_RATING_MODIFIER,
     CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER,
+    // Prepatch by LordPsyan
+    // 41
+    // 42
+    // 43
+    // 44
+    // 45
+    // 46
+    // 47
+    // 48
+    // 49
+    // 50
+    // 51
+    // 52
+    // 53
+    // 54
+    // 55
+    // 56
+    // 57
+    // 58
+    // 59
+    // 60
+    // 61
+    // 62
+    // 63
+    // 64
+    // 65
+    // 66
+    // 67
+    // 68
+    // 69
+    // 70
+    // 71
+    // 72
+    // 73
+    // 74
+    // 75
+    // 76
+    // 77
+    // 78
+    // 79
+    // 80
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
     FLOAT_CONFIG_VALUE_COUNT
 };
 
@@ -360,6 +448,30 @@ enum WorldIntConfigs
     CONFIG_AUCTION_GETALL_DELAY,
     CONFIG_AUCTION_SEARCH_DELAY,
     CONFIG_TALENTS_INSPECTING,
+    // Prepatch by LordPsyan
+    // 81
+    // 82
+    // 83
+    // 84
+    // 85
+    // 86
+    // 87
+    // 88
+    // 89
+    // 90
+    // 91
+    // 92
+    // 93
+    // 94
+    // 95
+    // 96
+    // 97
+    // 98
+    // 99
+    // 100
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
     INT_CONFIG_VALUE_COUNT
 };
 
