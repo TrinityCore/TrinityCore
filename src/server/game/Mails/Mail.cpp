@@ -20,6 +20,7 @@
 #include "Mail.h"
 #include "Log.h"
 #include "World.h"
+#include "WorldSession.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "BattlegroundMgr.h"
@@ -280,4 +281,65 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         SQLTransaction temp = SQLTransaction(NULL);
         deleteIncludedItems(temp);
     }
+}
+
+void WorldSession::SendExternalMails()
+{
+    TC_LOG_DEBUG("entities.player.character", "External Mail> Sending mails in queue...");
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXTERNAL_MAIL);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+    {
+        TC_LOG_DEBUG("entities.player.character", "External Mail> No mails in queue...");
+        return;
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    MailDraft* mail = NULL;
+
+    do
+    {
+        Field *fields = result->Fetch();
+        uint32 id = fields[0].GetUInt32();
+        uint32 receiver_guid = fields[1].GetUInt32();
+        std::string subject = fields[2].GetString();
+        std::string body = fields[3].GetString();
+        uint32 money = fields[4].GetUInt32();
+        uint32 itemId = fields[5].GetUInt32();
+        uint32 itemCount = fields[6].GetUInt32();
+
+        Player *receiver = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, 0, (receiver_guid)));
+
+        mail = new MailDraft(subject, body);
+
+        if (money)
+        {
+            TC_LOG_DEBUG("entities.player.character", "External Mail> Adding money");
+            mail->AddMoney(money);
+        }
+
+        if (itemId)
+        {
+             TC_LOG_DEBUG("entities.player.character", "External Mail> Adding %u of item with id %u", itemCount, itemId);
+             if(Item* mailItem = Item::CreateItem(itemId, itemCount))
+             {
+                 mailItem->SaveToDB(trans);
+                 mail->AddItem(mailItem);
+             }
+        }
+
+        mail->SendMailTo(trans, receiver ? receiver : MailReceiver(receiver_guid), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_RETURNED);
+        delete mail;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXTERNAL_MAIL);
+        stmt->setUInt32(0, id);
+        trans->Append(stmt);
+
+        TC_LOG_DEBUG("entities.player.character", "External Mail> Mail sent");
+   } while (result->NextRow());
+
+   CharacterDatabase.CommitTransaction(trans);
+   TC_LOG_DEBUG("entities.player.character", "External Mail> All Mails Sent...");
 }
