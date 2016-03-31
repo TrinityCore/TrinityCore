@@ -230,7 +230,7 @@ extern int main(int argc, char** argv)
 
     if (networkThreads <= 0)
     {
-        TC_LOG_ERROR("server.worldserver", "Network.Threads cannot be less than 0");
+        TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
         return false;
     }
 
