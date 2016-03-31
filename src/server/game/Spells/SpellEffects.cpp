@@ -510,25 +510,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (Player* player = m_caster->ToPlayer())
                     {
-                        // consume from stack dozes not more that have combo-points
                         if (uint32 combo = player->GetComboPoints())
                         {
-                            // Lookup for Deadly poison (only attacker applied)
-                            if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00010000, 0, 0), m_caster->GetGUID()))
-                            {
-                                // count consumed deadly poison doses at target
-                                uint32 spellId = aurEff->GetId();
-
-                                uint32 doses = aurEff->GetBase()->GetStackAmount();
-                                if (doses > combo)
-                                    doses = combo;
-
-                                for (uint32 i = 0; i < doses; ++i)
-                                    unitTarget->RemoveAuraFromStack(spellId, m_caster->GetGUID());
-
-                                damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
-                            }
+                            damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.417f * combo);
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
                             if (m_caster->HasAura(37169))
