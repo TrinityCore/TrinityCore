@@ -5287,8 +5287,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
     uint32 triggered_spell_id = 0;
-    uint32 cooldown_spell_id = 0; // for random trigger, will be one of the triggered spell to avoid repeatable triggers
-                                  // otherwise, it's the triggered_spell_id by default
+
     Unit* target = victim;
     int32 basepoints0 = 0;
     ObjectGuid originalCaster;
@@ -5364,24 +5363,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         case CLASS_PALADIN:                 // 39511, 40997, 40998, 40999, 41002, 41005, 41009, 41011, 41409
                         case CLASS_DRUID:                   // 39511, 40997, 40998, 40999, 41002, 41005, 41009, 41011, 41409
                             triggered_spell_id = RAND(39511, 40997, 40998, 40999, 41002, 41005, 41009, 41011, 41409);
-                            cooldown_spell_id = 39511;
                             break;
                         case CLASS_ROGUE:                   // 39511, 40997, 40998, 41002, 41005, 41011
                         case CLASS_WARRIOR:                 // 39511, 40997, 40998, 41002, 41005, 41011
                         case CLASS_DEATH_KNIGHT:
                             triggered_spell_id = RAND(39511, 40997, 40998, 41002, 41005, 41011);
-                            cooldown_spell_id = 39511;
                             break;
                         case CLASS_PRIEST:                  // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                         case CLASS_SHAMAN:                  // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                         case CLASS_MAGE:                    // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                         case CLASS_WARLOCK:                 // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                             triggered_spell_id = RAND(40999, 41002, 41005, 41009, 41011, 41406, 41409);
-                            cooldown_spell_id = 40999;
                             break;
                         case CLASS_HUNTER:                  // 40997, 40999, 41002, 41005, 41009, 41011, 41406, 41409
                             triggered_spell_id = RAND(40997, 40999, 41002, 41005, 41009, 41011, 41406, 41409);
-                            cooldown_spell_id = 40997;
                             break;
                         default:
                             return false;
@@ -5577,7 +5572,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    std::vector<uint32> RandomSpells;
+                    std::vector<uint32> RandomSpells(3);
                     switch (getClass())
                     {
                         case CLASS_WARRIOR:
@@ -5610,12 +5605,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     uint8 rand_spell = urand(0, (RandomSpells.size() - 1));
-                    CastSpell(target, RandomSpells[rand_spell], true, castItem, triggeredByAura, originalCaster);
-                    for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
-                    {
-                        if (!GetSpellHistory()->HasCooldown(*itr))
-                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::seconds(cooldown));
-                    }
+                    triggered_spell_id = RandomSpells[rand_spell];
                     break;
                 }
                 case 71562: // Deathbringer's Will Heroic
@@ -5623,7 +5613,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    std::vector<uint32> RandomSpells;
+                    std::vector<uint32> RandomSpells(3);
                     switch (getClass())
                     {
                         case CLASS_WARRIOR:
@@ -5656,12 +5646,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     uint8 rand_spell = urand(0, (RandomSpells.size() - 1));
-                    CastSpell(target, RandomSpells[rand_spell], true, castItem, triggeredByAura, originalCaster);
-                    for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
-                    {
-                        if (!GetSpellHistory()->HasCooldown(*itr))
-                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::seconds(cooldown));
-                    }
+                    triggered_spell_id = RandomSpells[rand_spell];
                     break;
                 }
                 case 65032: // Boom aura (321 Boombot)
@@ -6187,6 +6172,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // Check cooldown of heal spell cooldown
                     if (!GetSpellHistory()->HasCooldown(34299))
                         CastCustomSpell(this, 68285, &basepoints1, 0, 0, true, 0, triggeredByAura);
+
+                    if (cooldown)
+                        GetSpellHistory()->AddCooldown(34299, 0, std::chrono::seconds(cooldown));
                     break;
                 }
                 // Healing Touch (Dreamwalker Raiment set)
@@ -6488,19 +6476,27 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Sacred Shield
                 case 53601:
                 {
-                    if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
+                    if (!damage || (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS) != 0)
                         return false;
 
-                    if (damage > 0)
-                        triggered_spell_id = 58597;
+                    triggered_spell_id = 58597;
 
                     // Item - Paladin T8 Holy 4P Bonus
                     if (Unit* caster = triggeredByAura->GetCaster())
                         if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
                             cooldown = aurEff->GetAmount();
 
-                    target = this;
-                    break;
+                    // Normally we would check cooldown on the dummy aura, but in this case the dummy is casted by player
+                    // and adding a bogus cd on a player spell is no-no, so we instead check cooldown on the triggered spell
+                    // like on the previous system
+                    if (cooldown && GetSpellHistory()->HasCooldown(triggered_spell_id))
+                        return false;
+
+                    CastSpell(this, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
+
+                    if (cooldown)
+                        GetSpellHistory()->AddCooldown(triggered_spell_id, 0, std::chrono::seconds(cooldown));
+                    return true;
                 }
                 // Heart of the Crusader
                 case 20335: // rank 1
@@ -7111,7 +7107,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (AuraEffect const* aurEff = GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0, 0x00000020, 0))
                 {
                     uint32 spell = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                    if (GetSpellHistory()->HasCooldown(spell))
+                        return false;
+
                     CastSpell(this, spell, true, castItem, triggeredByAura);
+
+                    if (cooldown && GetTypeId() == TYPEID_PLAYER)
+                        GetSpellHistory()->AddCooldown(spell, 0, std::chrono::seconds(cooldown));
                     return true;
                 }
                 return false;
@@ -7476,10 +7478,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         return false;
     }
 
-    if (cooldown_spell_id == 0)
-        cooldown_spell_id = triggered_spell_id;
-
-    if (cooldown && GetTypeId() == TYPEID_PLAYER && GetSpellHistory()->HasCooldown(cooldown_spell_id))
+    if (cooldown && GetSpellHistory()->HasCooldown(dummySpell->Id))
         return false;
 
     if (basepoints0)
@@ -7487,8 +7486,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
     else
         CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
 
-    if (cooldown && GetTypeId() == TYPEID_PLAYER)
-        GetSpellHistory()->AddCooldown(cooldown_spell_id, 0, std::chrono::seconds(cooldown));
+    if (cooldown)
+        GetSpellHistory()->AddCooldown(dummySpell->Id, 0, std::chrono::seconds(cooldown));
 
     return true;
 }
@@ -15215,6 +15214,11 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const* & spellProcEvent)
 {
     SpellInfo const* spellProto = aura->GetSpellInfo();
+
+    // Check cooldown for passive aura dummy, if the trigger aura has cooldown
+    // it means it has recently procced, and now we must wait ICD
+    if (spellProto->IsPassive() && GetSpellHistory()->HasCooldown(spellProto))
+        return false;
 
     // let the aura be handled by new proc system if it has new entry
     if (sSpellMgr->GetSpellProcEntry(spellProto->Id))
