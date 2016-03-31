@@ -121,7 +121,7 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
 {
     std::string val = GetValueDefault(name, std::string(def ? "1" : "0"));
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
-    return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
+    return (val == "1" || val == "true" || val == "TRUE" || val == "yes" || val == "YES");
 }
 
 int ConfigMgr::GetIntDefault(std::string const& name, int def) const
