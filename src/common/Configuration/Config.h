@@ -19,15 +19,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "Define.h"
+
 #include <string>
 #include <list>
 #include <mutex>
 #include <boost/property_tree/ptree.hpp>
 
-class ConfigMgr
+class TC_COMMON_API ConfigMgr
 {
-    ConfigMgr() { }
-    ~ConfigMgr() { }
+    ConfigMgr() = default;
+    ConfigMgr(ConfigMgr const&) = delete;
+    ConfigMgr& operator=(ConfigMgr const&) = delete;
+    ~ConfigMgr() = default;
 
 public:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
@@ -50,8 +54,8 @@ private:
     boost::property_tree::ptree _config;
     std::mutex _configLock;
 
-    ConfigMgr(ConfigMgr const&);
-    ConfigMgr& operator=(ConfigMgr const&);
+    template<class T>
+    T GetValueDefault(std::string const& name, T def) const;
 };
 
 #define sConfigMgr ConfigMgr::instance()

@@ -349,6 +349,13 @@ PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
+#    DisconnectToleranceInterval
+#        Description: Tolerance (in seconds) for disconnected players before reentering the queue.
+#        Default: 0 (disabled)
+
+DisconnectToleranceInterval = 0
+
+#
 #    mmap.enablePathFinding
 #        Description: Enable/Disable pathfinding using mmaps - recommended.
 #        Default:     0 - (Disabled)
@@ -2297,16 +2304,16 @@ Battleground.InvitationType = 0
 #        Default:     300000 - (Enabled, 5 minutes)
 #                     0      - (Disabled, Not recommended)
 
-BattleGround.PrematureFinishTimer = 300000
+Battleground.PrematureFinishTimer = 300000
 
 #
-#    BattleGround.PremadeGroupWaitForMatch
+#    Battleground.PremadeGroupWaitForMatch
 #        Description: Time (in milliseconds) a pre-made group has to wait for matching group of the
 #                     other faction.
 #        Default:     1800000 - (Enabled, 30 minutes)
 #                     0       - (Disabled, Not recommended)
 
-BattleGround.PremadeGroupWaitForMatch = 1800000
+Battleground.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
@@ -2989,6 +2996,27 @@ AuctionHouseBot.MinTime = 1
 AuctionHouseBot.MaxTime = 72
 
 #
+#    AuctionHouseBot.Class.CLASS.Allow.Zero = 0
+#       Description: Include items without a sell or buy price.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Class.Consumable.Allow.Zero = 0
+AuctionHouseBot.Class.Container.Allow.Zero = 0
+AuctionHouseBot.Class.Weapon.Allow.Zero = 0
+AuctionHouseBot.Class.Gem.Allow.Zero = 0
+AuctionHouseBot.Class.Armor.Allow.Zero = 0
+AuctionHouseBot.Class.Reagent.Allow.Zero = 0
+AuctionHouseBot.Class.Projectile.Allow.Zero = 0
+AuctionHouseBot.Class.TradeGood.Allow.Zero = 0
+AuctionHouseBot.Class.Recipe.Allow.Zero = 0
+AuctionHouseBot.Class.Quiver.Allow.Zero = 0
+AuctionHouseBot.Class.Quest.Allow.Zero = 0
+AuctionHouseBot.Class.Key.Allow.Zero = 0
+AuctionHouseBot.Class.Misc.Allow.Zero = 0
+AuctionHouseBot.Class.Glyph.Allow.Zero = 0
+
+#
 #    AuctionHouseBot.Items.Vendor
 #       Description: Include items that can be bought from vendors.
 #       Default:     0 - (Disabled)
@@ -3115,8 +3143,6 @@ AuctionHouseBot.Class.Quest.Price.Ratio = 100
 AuctionHouseBot.Class.Key.Price.Ratio = 100
 AuctionHouseBot.Class.Misc.Price.Ratio = 100
 AuctionHouseBot.Class.Glyph.Price.Ratio = 100
-
-
 
 #
 #    AuctionHouseBot.Items.ItemLevel.*

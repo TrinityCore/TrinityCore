@@ -39,6 +39,7 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
+#include "ScriptLoader.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
 #include "BattlegroundMgr.h"
 #include "TCSoap.h"
@@ -194,6 +195,7 @@ extern int main(int argc, char** argv)
     LoadRealmInfo();
 
     // Initialize the World
+    sScriptMgr->SetScriptLoader(AddScripts);
     sWorld->SetInitialWorldSettings();
 
     // Launch CliRunnable thread
@@ -223,7 +225,15 @@ extern int main(int argc, char** argv)
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort);
+    int networkThreads = sConfigMgr->GetIntDefault("Network.Threads", 1);
+
+    if (networkThreads <= 0)
+    {
+        TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        return false;
+    }
+
+    sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort, networkThreads);
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);

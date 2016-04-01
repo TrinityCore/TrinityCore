@@ -154,7 +154,7 @@ struct LiquidData
     float  depth_level;
 };
 
-class GridMap
+class TC_GAME_API GridMap
 {
     uint32  _flags;
     union{
@@ -253,7 +253,7 @@ typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHol
 
 typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
 
-class Map : public GridRefManager<NGridType>
+class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
@@ -277,6 +277,7 @@ class Map : public GridRefManager<NGridType>
 
         virtual bool AddPlayerToMap(Player*);
         virtual void RemovePlayerFromMap(Player*, bool);
+
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
 
@@ -292,7 +293,8 @@ class Map : public GridRefManager<NGridType>
         void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
         void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
 
-        template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
+        template<class T, class CONTAINER>
+        void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
         bool IsRemovalGrid(float x, float y) const
         {
@@ -754,7 +756,7 @@ enum InstanceResetMethod
     INSTANCE_RESET_RESPAWN_DELAY
 };
 
-class InstanceMap : public Map
+class TC_GAME_API InstanceMap : public Map
 {
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
@@ -786,7 +788,7 @@ class InstanceMap : public Map
         uint32 i_script_id;
 };
 
-class BattlegroundMap : public Map
+class TC_GAME_API BattlegroundMap : public Map
 {
     public:
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);

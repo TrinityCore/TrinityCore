@@ -2795,17 +2795,17 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
             )
         )
         {
-            const MapRefManager& mapPlayers = GetMap()->GetPlayers();
-            for (MapRefManager::const_iterator it = mapPlayers.begin(); it != mapPlayers.end(); ++it)
-                if (Player* player = (*it).GetSource())
+            std::list<Player*> playersNearby;
+            GetPlayerListInGrid(playersNearby, GetVisibilityRange());
+            for (Player* player : playersNearby)
+            {
+                // only update players that are known to the client (have already been created)
+                if (player->HaveAtClient(this))
                 {
-                    // only update players that can both see us, and are actually in combat with us (this is a performance tradeoff)
-                    if (player->CanSeeOrDetect(this, false, true) && IsInCombatWith(player))
-                    {
-                        SendUpdateToPlayer(player);
-                        shouldDelay = true;
-                    }
+                    SendUpdateToPlayer(player);
+                    shouldDelay = true;
                 }
+            }
             if (shouldDelay)
                 shouldDelay = !(focusSpell->IsTriggered() || focusSpell->GetCastTime() || focusSpell->GetSpellInfo()->IsChanneled());
 
@@ -2813,7 +2813,9 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     }
 
     // tell the creature that it should reacquire its current target after the cast is done (this is handled in ::Attack)
-    MustReacquireTarget();
+    // player pets don't need to do this, as they automatically reacquire their target on focus release
+    if (!IsPet())
+        MustReacquireTarget();
 
     bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
@@ -2863,13 +2865,16 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
     if (focusSpell && focusSpell != _focusSpell)
         return;
 
-    SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
+    if (IsPet() && GetVictim()) // player pets do not use delay system
+        SetGuidValue(UNIT_FIELD_TARGET, EnsureVictim()->GetGUID());
+    else
+        SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
 
     if (_focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
         ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
     _focusSpell = nullptr;
-    _focusDelay = withDelay ? getMSTime() : 0; // don't allow re-target right away to prevent visual bugs
+    _focusDelay = (!IsPet() && withDelay) ? getMSTime() : 0; // don't allow re-target right away to prevent visual bugs
 }
 
 void Creature::StartPickPocketRefillTimer()

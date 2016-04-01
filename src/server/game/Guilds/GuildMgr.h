@@ -20,7 +20,7 @@
 
 #include "Guild.h"
 
-class GuildMgr
+class TC_GAME_API GuildMgr
 {
 private:
     GuildMgr();

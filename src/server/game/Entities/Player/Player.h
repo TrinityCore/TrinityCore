@@ -833,7 +833,7 @@ enum PlayerDelayedOperations
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
-extern uint32 const MAX_MONEY_AMOUNT;
+TC_GAME_API extern uint32 const MAX_MONEY_AMOUNT;
 
 enum BindExtensionState
 {
@@ -919,7 +919,7 @@ enum PlayerCommandStates
     CHEAT_WATERWALK = 0x10
 };
 
-class PlayerTaxi
+class TC_GAME_API PlayerTaxi
 {
     public:
         PlayerTaxi();
@@ -1014,7 +1014,18 @@ struct TradeStatusInfo
     uint8 Slot;
 };
 
-class Player : public Unit, public GridObject<Player>
+struct ResurrectionData
+{
+    ObjectGuid GUID;
+    WorldLocation Location;
+    uint32 Health;
+    uint32 Mana;
+    uint32 Aura;
+};
+
+#define SPELL_DK_RAISE_ALLY 46619
+
+class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player* player);
@@ -1590,11 +1601,24 @@ class Player : public Unit, public GridObject<Player>
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = nullptr);
 
-        void setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana);
-        void clearResurrectRequestData();
-        bool isResurrectRequestedBy(ObjectGuid guid) const { return !m_resurrectGUID.IsEmpty() && m_resurrectGUID == guid; }
-        bool isResurrectRequested() const { return !m_resurrectGUID.IsEmpty(); }
+        void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura);
+
+        void ClearResurrectRequestData()
+        {
+            _resurrectionData.reset();
+        }
+
+        bool IsResurrectRequestedBy(ObjectGuid const& guid) const
+        {
+            if (!IsResurrectRequested())
+                return false;
+
+            return !_resurrectionData->GUID.IsEmpty() && _resurrectionData->GUID == guid;
+        }
+
+        bool IsResurrectRequested() const { return _resurrectionData.get() != nullptr; }
         void ResurrectUsingRequestData();
+        void ResurrectUsingRequestDataImpl();
 
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
@@ -1785,14 +1809,7 @@ class Player : public Unit, public GridObject<Player>
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
-        void SendGhoulResurrectRequest(Player* target);
-        bool IsValidGhoulResurrectRequest(ObjectGuid guid)
-        {
-            return !m_ghoulResurrectPlayerGUID.IsEmpty() && m_ghoulResurrectPlayerGUID == guid;
-        }
-        void GhoulResurrect();
-        void SetGhoulResurrectGhoulGUID(ObjectGuid guid) { m_ghoulResurrectGhoulGUID = guid; }
-        ObjectGuid GetGhoulResurrectGhoulGUID() { return m_ghoulResurrectGhoulGUID; }
+
         void RemoveGhoul();
 
         void DurabilityLossAll(double percent, bool inventory);
@@ -2080,7 +2097,7 @@ class Player : public Unit, public GridObject<Player>
         // currently visible objects at player client
         GuidUnorderedSet m_clientGUIDs;
 
-        bool HaveAtClient(WorldObject const* u) const;
+        bool HaveAtClient(Object const* u) const;
 
         bool IsNeverVisible() const override;
 
@@ -2422,13 +2439,7 @@ class Player : public Unit, public GridObject<Player>
         void ResetTimeSync();
         void SendTimeSync();
 
-        ObjectGuid m_resurrectGUID;
-        uint32 m_resurrectMap;
-        float m_resurrectX, m_resurrectY, m_resurrectZ;
-        uint32 m_resurrectHealth, m_resurrectMana;
-
-        ObjectGuid m_ghoulResurrectPlayerGUID;
-        ObjectGuid m_ghoulResurrectGhoulGUID;
+        std::unique_ptr<ResurrectionData> _resurrectionData;
 
         WorldSession* m_session;
 
@@ -2583,8 +2594,8 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 };
 
-void AddItemsSetItem(Player* player, Item* item);
-void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
+TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
+TC_GAME_API void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
 template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)

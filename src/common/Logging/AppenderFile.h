@@ -21,7 +21,7 @@
 #include <atomic>
 #include "Appender.h"
 
-class AppenderFile : public Appender
+class TC_COMMON_API AppenderFile : public Appender
 {
     public:
         typedef std::integral_constant<AppenderType, APPENDER_FILE>::type TypeIndex;
