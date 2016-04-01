@@ -2740,13 +2740,13 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_gen_pvp_trinket_SpellScript::TriggerAnimation);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_pvp_trinket_SpellScript();
         }
