@@ -21,15 +21,73 @@
  */
 
  /* ContentData
- npc_pet_gen_egbert             100%    Egbert run's around
- npc_pet_gen_pandaren_monk      100%    Pandaren Monk drinks and bows with you
- npc_pet_gen_mojo               100%    Mojo follows you when you kiss it
+ npc_pet_gen_baby_blizzard_bear     100%    Baby Blizzard Bear sits down occasionally
+ npc_pet_gen_egbert                 100%    Egbert run's around
+ npc_pet_gen_pandaren_monk          100%    Pandaren Monk drinks and bows with you
+ npc_pet_gen_mojo                   100%    Mojo follows you when you kiss it
  EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "Player.h"
+
+enum BabyBlizzardBearMisc
+{
+    SPELL_BBB_PET_SIT = 61853,
+    EVENT_BBB_PET_SIT = 1,
+    EVENT_BBB_PET_SIT_INTER = 2
+};
+
+class npc_pet_gen_baby_blizzard_bear : public CreatureScript
+{
+public:
+    npc_pet_gen_baby_blizzard_bear() : CreatureScript("npc_pet_gen_baby_blizzard_bear") {}
+
+    struct npc_pet_gen_baby_blizzard_bearAI : public NullCreatureAI
+    {
+        npc_pet_gen_baby_blizzard_bearAI(Creature* creature) : NullCreatureAI(creature)
+        {
+            if (Unit* owner = me->GetCharmerOrOwner())
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+            _events.ScheduleEvent(EVENT_BBB_PET_SIT, urandms(10, 30));
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (Unit* owner = me->GetCharmerOrOwner())
+                if (!me->IsWithinDist(owner, 25.f))
+                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_BBB_PET_SIT:
+                    me->CastSpell(me, SPELL_BBB_PET_SIT, false);
+                    _events.ScheduleEvent(EVENT_BBB_PET_SIT_INTER, urandms(15, 30));
+                    break;
+                case EVENT_BBB_PET_SIT_INTER:
+                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                    _events.ScheduleEvent(EVENT_BBB_PET_SIT, urandms(10, 30));
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_pet_gen_baby_blizzard_bearAI(creature);
+    }
+};
 
 enum EgbertMisc
 {
@@ -260,6 +318,7 @@ class npc_pet_gen_mojo : public CreatureScript
 
 void AddSC_generic_pet_scripts()
 {
+    new npc_pet_gen_baby_blizzard_bear();
     new npc_pet_gen_egbert();
     new npc_pet_gen_pandaren_monk();
     new npc_pet_gen_mojo();
