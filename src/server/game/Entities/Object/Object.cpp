@@ -221,7 +221,10 @@ void Object::SendUpdateToPlayer(Player* player)
     UpdateData upd;
     WorldPacket packet;
 
-    BuildCreateUpdateBlockForPlayer(&upd, player);
+    if (player->HaveAtClient(this))
+        BuildValuesUpdateBlockForPlayer(&upd, player);
+    else
+        BuildCreateUpdateBlockForPlayer(&upd, player);
     upd.BuildPacket(&packet);
     player->GetSession()->SendPacket(&packet);
 }
