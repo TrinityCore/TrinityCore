@@ -503,55 +503,55 @@ public:
                         DoCastVictim(SPELL_TAILLASH);
                         events.ScheduleEvent(EVENT_TAILLASH, 10000);
                         break;
-                    case EVENT_CLASSCALL:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            switch (target->getClass())
-                        {
-                            case CLASS_MAGE:
-                                Talk(SAY_MAGE);
-                                DoCast(me, SPELL_MAGE);
-                                break;
-                            case CLASS_WARRIOR:
-                                Talk(SAY_WARRIOR);
-                                DoCast(me, SPELL_WARRIOR);
-                                break;
-                            case CLASS_DRUID:
-                                Talk(SAY_DRUID);
-                                DoCast(target, SPELL_DRUID);
-                                break;
-                            case CLASS_PRIEST:
-                                Talk(SAY_PRIEST);
-                                DoCast(me, SPELL_PRIEST);
-                                break;
-                            case CLASS_PALADIN:
-                                Talk(SAY_PALADIN);
-                                DoCast(me, SPELL_PALADIN);
-                                break;
-                            case CLASS_SHAMAN:
-                                Talk(SAY_SHAMAN);
-                                DoCast(me, SPELL_SHAMAN);
-                                break;
-                            case CLASS_WARLOCK:
-                                Talk(SAY_WARLOCK);
-                                DoCast(me, SPELL_WARLOCK);
-                                break;
-                            case CLASS_HUNTER:
-                                Talk(SAY_HUNTER);
-                                DoCast(me, SPELL_HUNTER);
-                                break;
-                            case CLASS_ROGUE:
-                                Talk(SAY_ROGUE);
-                                DoCast(me, SPELL_ROGUE);
-                                break;
-                            case CLASS_DEATH_KNIGHT:
-                                Talk(SAY_DEATH_KNIGHT);
-                                DoCast(me, SPELL_DEATH_KNIGHT);
-                                break;
-                            default:
-                                break;
-                        }
-                        events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
-                        break;
+                    // case EVENT_CLASSCALL:
+                        // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            // switch (target->getClass())
+                        // {
+                            // case CLASS_MAGE:
+                                // Talk(SAY_MAGE);
+                                // DoCast(me, SPELL_MAGE);
+                                // break;
+                            // case CLASS_WARRIOR:
+                                // Talk(SAY_WARRIOR);
+                                // DoCast(me, SPELL_WARRIOR);
+                                // break;
+                            // case CLASS_DRUID:
+                                // Talk(SAY_DRUID);
+                                // DoCast(target, SPELL_DRUID);
+                                // break;
+                            // case CLASS_PRIEST:
+                                // Talk(SAY_PRIEST);
+                                // DoCast(me, SPELL_PRIEST);
+                                // break;
+                            // case CLASS_PALADIN:
+                                // Talk(SAY_PALADIN);
+                                // DoCast(me, SPELL_PALADIN);
+                                // break;
+                            // case CLASS_SHAMAN:
+                                // Talk(SAY_SHAMAN);
+                                // DoCast(me, SPELL_SHAMAN);
+                                // break;
+                            // case CLASS_WARLOCK:
+                                // Talk(SAY_WARLOCK);
+                                // DoCast(me, SPELL_WARLOCK);
+                                // break;
+                            // case CLASS_HUNTER:
+                                // Talk(SAY_HUNTER);
+                                // DoCast(me, SPELL_HUNTER);
+                                // break;
+                            // case CLASS_ROGUE:
+                                // Talk(SAY_ROGUE);
+                                // DoCast(me, SPELL_ROGUE);
+                                // break;
+                            // case CLASS_DEATH_KNIGHT:
+                                // Talk(SAY_DEATH_KNIGHT);
+                                // DoCast(me, SPELL_DEATH_KNIGHT);
+                                // break;
+                            // default:
+                                // break;
+                        // }
+                        // events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
+                        // break;
                 }
             }
 
