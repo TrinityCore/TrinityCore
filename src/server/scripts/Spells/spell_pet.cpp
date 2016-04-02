@@ -916,7 +916,7 @@ public:
 
                         if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                         {
-                            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
+                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                             AddPct(mod, spellInfo->Effects[EFFECT_0].CalcValue());
                         }
 
@@ -959,7 +959,7 @@ public:
 
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePct(1.0f, spellInfo->Effects[EFFECT_1].CalcValue());
                 }
 
@@ -989,7 +989,7 @@ public:
 
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePct(1.0f, spellInfo->Effects[EFFECT_1].CalcValue());
                 }
 
