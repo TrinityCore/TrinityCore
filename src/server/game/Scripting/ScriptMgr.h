@@ -1093,19 +1093,9 @@ class TC_GAME_API ScriptMgr
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
 
-    public: /* Scheduled scripts */
-
-        uint64 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }
-        uint64 DecreaseScheduledScriptCount() { return --_scheduledScripts; }
-        uint64 DecreaseScheduledScriptCount(uint64 count) { return _scheduledScripts -= count; }
-        bool IsScriptScheduled() const { return _scheduledScripts > 0; }
-
     private:
 
         uint32 _scriptCount;
-
-        //atomic op counter for active scripts amount
-        std::atomic<uint64> _scheduledScripts;
 
         ScriptLoaderCallbackType _script_loader_callback;
 };
