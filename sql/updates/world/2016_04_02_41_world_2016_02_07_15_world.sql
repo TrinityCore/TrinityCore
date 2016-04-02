@@ -1,10 +1,10 @@
 SET @Guid := 52030;
 
 DELETE FROM `creature` WHERE `id` IN(37964,37981,36817);
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES 
-(@Guid, 37964, 0, 0, 0, 1, 1, 0, 0, 1484.662, 348.019, -64.54687, 0.8377581, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0),
-(@Guid+1, 37981, 1, 0, 0, 1, 1, 0, 0, 9843.134, 2430.733, 1313.6, 5.5676, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0),
-(@Guid+2, 36817, 0, 0, 0, 1, 1, 0, 0, -8796.021, 775.0364, 95.22309, 0.01745329, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES 
+(@Guid, 37964, 0, 0, 0, 1, 0, 0, 0, 1484.662, 348.019, -64.54687, 0.8377581, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+(@Guid+1, 37981, 1, 0, 0, 1, 0, 0, 0, 9843.134, 2430.733, 1313.6, 5.5676, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+(@Guid+2, 36817, 0, 0, 0, 1, 0, 0, 0, -8796.021, 775.0364, 95.22309, 0.01745329, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0);
 
 DELETE FROM `game_event_creature` WHERE `eventEntry`=8 AND `guid` BETWEEN @Guid AND @Guid+2;
 INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES 
