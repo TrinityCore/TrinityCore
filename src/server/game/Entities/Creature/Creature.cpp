@@ -1333,13 +1333,13 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
             {
                 if (itr->second->IsAlive())
                 {
-                    TC_LOG_DEBUG("maps", "Would have spawned %u but %s already exists", spawnId, creatureBounds.first->second->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("maps", "Would have spawned " UI64FMTD " but %s already exists", spawnId, creatureBounds.first->second->GetGUID().ToString().c_str());
                     return false;
                 }
                 else
                 {
                     despawnList.push_back(itr->second);
-                    TC_LOG_DEBUG("maps", "Despawned dead instance of spawn %u (%s)", spawnId, itr->second->GetGUID().ToString().c_str());
+                    TC_LOG_DEBUG("maps", "Despawned dead instance of spawn " UI64FMTD " (%s)", spawnId, itr->second->GetGUID().ToString().c_str());
                 }
             }
 
