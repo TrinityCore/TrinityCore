@@ -844,7 +844,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (std::all_of(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(), [](uint32 sound) { return sound == 0; }))
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u does not have any non-zero sound",
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u does not have any non-zero sound",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
