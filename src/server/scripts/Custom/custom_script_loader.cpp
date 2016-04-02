@@ -73,10 +73,7 @@
 // start54
 // start55
 // start56
-// Transmogrification with Vendor
-void AddSC_PWS_Transmogrification();
-void AddSC_CS_Transmogrification();
-void AddSC_NPC_TransmogDisplayVendor();
+// start57
 // start58
 // start59
 // start60
@@ -283,10 +280,7 @@ void AddCustomScripts()
 // end54
 // end55
 // end56
-// Transmogrification with Vendor
-    AddSC_PWS_Transmogrification();
-    AddSC_CS_Transmogrification();
-    AddSC_NPC_TransmogDisplayVendor();
+// end57
 // end58
 // end59
 // end60
