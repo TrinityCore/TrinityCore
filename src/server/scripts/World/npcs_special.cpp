@@ -2529,7 +2529,7 @@ public:
         npc_egbertAI(Creature* creature) : PetAI(creature)
         {
             if (Unit* owner = me->GetCharmerOrOwner())
-                if (owner->GetMap()->GetEntry()->addon > 1)
+                if (owner->GetMap()->GetEntry()->ExpansionID > 1)
                     me->SetCanFly(true);
         }
 
