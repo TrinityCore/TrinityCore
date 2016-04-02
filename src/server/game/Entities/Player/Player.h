@@ -2097,7 +2097,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // currently visible objects at player client
         GuidUnorderedSet m_clientGUIDs;
 
-        bool HaveAtClient(WorldObject const* u) const;
+        bool HaveAtClient(Object const* u) const;
 
         bool IsNeverVisible() const override;
 

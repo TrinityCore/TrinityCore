@@ -763,7 +763,7 @@ class spell_hun_readiness : public SpellScriptLoader
                 // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
                 GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
 
                     ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&

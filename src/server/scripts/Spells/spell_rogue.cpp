@@ -450,7 +450,7 @@ class spell_rog_preparation : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 caster->GetSpellHistory()->ResetCooldowns([caster](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
                     if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
                         return false;
 
