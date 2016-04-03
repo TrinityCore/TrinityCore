@@ -28,7 +28,7 @@ LPBYTE RootHandler_Search(TRootHandler * pRootHandler, struct _TCascSearch * pSe
     // Check if the root structure is valid at all
     if(pRootHandler == NULL)
         return NULL;
-    
+
     return pRootHandler->Search(pRootHandler, pSearch, PtrFileSize, PtrLocaleFlags);
 }
 
@@ -46,7 +46,7 @@ LPBYTE RootHandler_GetKey(TRootHandler * pRootHandler, const char * szFileName)
     // Check if the root structure is valid at all
     if(pRootHandler == NULL)
         return NULL;
-    
+
     return pRootHandler->GetKey(pRootHandler, szFileName);
 }
 
@@ -59,7 +59,7 @@ void RootHandler_Dump(TCascStorage * hs, LPBYTE pbRootHandler, DWORD cbRootHandl
     {
         // Create the dump file
         dc = CreateDumpContext(hs, szNameFormat);
-        if(dc != NULL)                      
+        if(dc != NULL)
         {
             // Dump the content and close the file
             hs->pRootHandler->Dump(hs, dc, pbRootHandler, cbRootHandler, szListFile, nDumpLevel);

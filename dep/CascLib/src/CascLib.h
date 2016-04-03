@@ -16,9 +16,9 @@
 #define __CASCLIB_H__
 
 #ifdef _MSC_VER
-#pragma warning(disable:4668)       // 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif' 
+#pragma warning(disable:4668)       // 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 #pragma warning(disable:4820)       // 'XXX' : '2' bytes padding added after data member 'XXX::yyy'
-#endif                                             
+#endif
 
 #include "CascPort.h"
 
@@ -65,20 +65,20 @@ extern "C" {
 #define CASC_LOCALE_NONE            0x00000000
 #define CASC_LOCALE_UNKNOWN1        0x00000001
 #define CASC_LOCALE_ENUS            0x00000002
-#define CASC_LOCALE_KOKR            0x00000004 
-#define CASC_LOCALE_RESERVED        0x00000008 
-#define CASC_LOCALE_FRFR            0x00000010 
-#define CASC_LOCALE_DEDE            0x00000020 
-#define CASC_LOCALE_ZHCN            0x00000040 
-#define CASC_LOCALE_ESES            0x00000080 
-#define CASC_LOCALE_ZHTW            0x00000100  
-#define CASC_LOCALE_ENGB            0x00000200 
-#define CASC_LOCALE_ENCN            0x00000400 
-#define CASC_LOCALE_ENTW            0x00000800 
-#define CASC_LOCALE_ESMX            0x00001000 
-#define CASC_LOCALE_RURU            0x00002000 
-#define CASC_LOCALE_PTBR            0x00004000  
-#define CASC_LOCALE_ITIT            0x00008000 
+#define CASC_LOCALE_KOKR            0x00000004
+#define CASC_LOCALE_RESERVED        0x00000008
+#define CASC_LOCALE_FRFR            0x00000010
+#define CASC_LOCALE_DEDE            0x00000020
+#define CASC_LOCALE_ZHCN            0x00000040
+#define CASC_LOCALE_ESES            0x00000080
+#define CASC_LOCALE_ZHTW            0x00000100
+#define CASC_LOCALE_ENGB            0x00000200
+#define CASC_LOCALE_ENCN            0x00000400
+#define CASC_LOCALE_ENTW            0x00000800
+#define CASC_LOCALE_ESMX            0x00001000
+#define CASC_LOCALE_RURU            0x00002000
+#define CASC_LOCALE_PTBR            0x00004000
+#define CASC_LOCALE_ITIT            0x00008000
 #define CASC_LOCALE_PTPT            0x00010000
 
 #define CASC_LOCALE_BIT_ENUS        0x01
@@ -88,13 +88,13 @@ extern "C" {
 #define CASC_LOCALE_BIT_DEDE        0x05
 #define CASC_LOCALE_BIT_ZHCN        0x06
 #define CASC_LOCALE_BIT_ESES        0x07
-#define CASC_LOCALE_BIT_ZHTW        0x08 
+#define CASC_LOCALE_BIT_ZHTW        0x08
 #define CASC_LOCALE_BIT_ENGB        0x09
 #define CASC_LOCALE_BIT_ENCN        0x0A
 #define CASC_LOCALE_BIT_ENTW        0x0B
 #define CASC_LOCALE_BIT_ESMX        0x0C
 #define CASC_LOCALE_BIT_RURU        0x0D
-#define CASC_LOCALE_BIT_PTBR        0x0E 
+#define CASC_LOCALE_BIT_PTBR        0x0E
 #define CASC_LOCALE_BIT_ITIT        0x0F
 #define CASC_LOCALE_BIT_PTPT        0x10
 

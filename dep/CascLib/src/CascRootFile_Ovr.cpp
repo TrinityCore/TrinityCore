@@ -140,6 +140,7 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
     char szOneLine[0x200];
     char szFileName[MAX_PATH+1];
     DWORD dwFileCountMax = hs->pEncodingMap->TableSize;
+    int nFileNameIndex;
     int nError = ERROR_SUCCESS;
 
     // Allocate the root handler object
@@ -177,20 +178,26 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
     pTextFile = ListFile_FromBuffer(pbRootFile, cbRootFile);
     if(pTextFile != NULL)
     {
-        // Skip the first line, containing "#MD5|CHUNK_ID|FILENAME|INSTALLPATH"
-        ListFile_GetNextLine(pTextFile, szOneLine, _maxchars(szOneLine));
-
-        // Parse the next lines
-        while((nLength = ListFile_GetNextLine(pTextFile, szOneLine, _maxchars(szOneLine))) > 0)
+        // Get the initial line, containing variable names
+        nLength = ListFile_GetNextLine(pTextFile, szOneLine, _maxchars(szOneLine));
+        
+        // Determine the index of the "FILENAME" variable
+        nError = GetRootVariableIndex(szOneLine, szOneLine + nLength, "FILENAME", &nFileNameIndex);
+        if(nError == ERROR_SUCCESS)
         {
-            // Parse the line
-            nError = ParseRootFileLine(szOneLine, szOneLine + nLength, &EncodingKey, szFileName, _maxchars(szFileName));
-            if(nError == ERROR_SUCCESS)
+            // Parse the next lines
+            while((nLength = ListFile_GetNextLine(pTextFile, szOneLine, _maxchars(szOneLine))) > 0)
             {
-                InsertFileEntry(pRootHandler, szFileName, KeyBuffer.Value);
+                // Parse the line
+                nError = ParseRootFileLine(szOneLine, szOneLine + nLength, nFileNameIndex, &EncodingKey, szFileName, _maxchars(szFileName));
+                if(nError == ERROR_SUCCESS)
+                {
+                    InsertFileEntry(pRootHandler, szFileName, KeyBuffer.Value);
+                }
             }
         }
 
+        // Free the listfile
         ListFile_Free(pTextFile);
     }
 

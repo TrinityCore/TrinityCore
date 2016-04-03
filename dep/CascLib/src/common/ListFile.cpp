@@ -37,7 +37,7 @@ static PLISTFILE_CACHE CreateListFileCache(DWORD dwFileSize)
     if(pCache != NULL)
     {
         // Set the initial pointers
-        pCache->pBegin = 
+        pCache->pBegin =
         pCache->pPos   = (char *)(pCache + 1);
         pCache->pEnd   = pCache->pBegin + dwFileSize;
     }
@@ -114,7 +114,7 @@ size_t ListFile_GetNextLine(void * pvListFile, const char ** pszLineBegin, const
     char * szExtraString = NULL;
     char * szLineBegin;
     char * szLineEnd;
-    
+
     // Skip newlines, spaces, tabs and another non-printable stuff
     while(pCache->pPos < pCache->pEnd && pCache->pPos[0] <= 0x20)
         pCache->pPos++;
@@ -215,7 +215,7 @@ static PLISTFILE_MAP ListMap_Create()
 {
     PLISTFILE_MAP pListMap;
     size_t cbToAllocate;
-    
+
     // Create buffer for the listfile
     // Note that because the listfile is quite big and CASC_REALLOC
     // is a costly operation, we want to have as few reallocs as possible.
@@ -273,7 +273,7 @@ static PLISTFILE_MAP ListMap_Finish(PLISTFILE_MAP pListMap)
 
     // Sanity check
     assert(pListMap->pNameMap == NULL);
-    
+
     // Create the map
     pListMap->pNameMap = pMap = Map_Create((DWORD)pListMap->nEntries, sizeof(ULONGLONG), 0);
     if(pListMap->pNameMap == NULL)

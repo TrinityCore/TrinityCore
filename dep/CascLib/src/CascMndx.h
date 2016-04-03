@@ -59,8 +59,8 @@ typedef union _ARRAY_POINTER
 } ARRAY_POINTER, *PARRAY_POINTER;
 
 // Simple access to various tables within TGenericArray
-#define ByteArray     ArrayPointer.Bytes  
-#define CharArray     ArrayPointer.Chars  
+#define ByteArray     ArrayPointer.Bytes
+#define CharArray     ArrayPointer.Chars
 #define Uint32Array   ArrayPointer.Uint32s
 #define TripletArray  ArrayPointer.Triplets
 #define NameFragArray ArrayPointer.NameFrags
@@ -90,7 +90,7 @@ class TByteStream
     HANDLE hMap;
 };
 
-class TGenericArray 
+class TGenericArray
 {
     public:
 
@@ -131,7 +131,7 @@ class TGenericArray
     bool  bIsValidArray;
 };
 
-class TBitEntryArray : public TGenericArray 
+class TBitEntryArray : public TGenericArray
 {
     public:
 
@@ -247,16 +247,16 @@ class TNameIndexStruct
     int LoadFromStream(TByteStream & InStream);
     int LoadFromStream_Exchange(TByteStream & InStream);
 
-    TGenericArray NameFragments;  
-    TSparseArray Struct68;  
+    TGenericArray NameFragments;
+    TSparseArray Struct68;
 };
 
 class TStruct10
 {
     public:
-    
+
     TStruct10();
-    
+
     void CopyFrom(TStruct10 & Target);
     int sub_1956FD0(DWORD dwBitMask);
     int sub_1957050(DWORD dwBitMask);
@@ -289,7 +289,7 @@ class TFileNameDatabasePtr
 class TFileNameDatabase
 {
     public:
-    
+
     TFileNameDatabase();
 
     void ExchangeWith(TFileNameDatabase & Target);
