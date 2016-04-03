@@ -72,7 +72,7 @@
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
     #include <stdint.h>
     #include <CoreFoundation/CFByteOrder.h>
-  #endif 
+  #endif
 
   #define    PKEXPORT
   #define    __SYS_ZLIB
@@ -160,7 +160,7 @@
     #define MAX_PATH 1024
   #endif
 
-  #define WINAPI 
+  #define WINAPI
 
   #define FILE_BEGIN    SEEK_SET
   #define FILE_CURRENT  SEEK_CUR
@@ -198,7 +198,7 @@
   #define off64_t off_t
   #define O_LARGEFILE 0
 #endif
-                                                
+
 // Platform-specific error codes for UNIX-based platforms
 #if defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
   #define ERROR_SUCCESS                  0

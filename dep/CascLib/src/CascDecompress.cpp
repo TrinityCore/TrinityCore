@@ -40,7 +40,7 @@ int CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, D
         // Give the size of the uncompressed data
         *pcbOutBuffer = z.total_out;
     }
-    
+
     // Return an error code
     return (nResult == Z_OK || nResult == Z_STREAM_END) ? ERROR_SUCCESS : ERROR_FILE_CORRUPT;
 }
