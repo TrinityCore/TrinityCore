@@ -72,8 +72,8 @@ class instance_deadmines : public InstanceMapScript
             ObjectGuid MrSmiteGUID;
 
             uint32 State;
-            uint32 CannonBlast_Timer;
-            uint32 PiratesDelay_Timer;
+            uint32 CannonBlast_Timer =0;
+            uint32 PiratesDelay_Timer =0;
             uint32 SmiteAlarmDelay_Timer;
             ObjectGuid uiSmiteChestGUID;
 

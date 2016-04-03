@@ -134,9 +134,9 @@ namespace Battlenet
             void CallHandler(Session* session) override;
 
             PacketHeader Header;
-            ClosingReason Reason;
+            ClosingReason Reason = PACKET_CORRUPT;
             std::vector<PacketInfo> Packets;
-            time_t Now;
+            time_t Now = 0;
         };
 
         class Pong final : public ServerPacket

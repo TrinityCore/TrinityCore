@@ -183,7 +183,7 @@ class spell_argaloth_meteor_slash : public SpellScriptLoader
             }
 
         private:
-            uint32 _targetCount;
+            uint32 _targetCount =0;
         };
 
         SpellScript* GetSpellScript() const override

@@ -213,7 +213,7 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
             ObjectGuid      _flamecaller1GUID;
             ObjectGuid      _flamecaller2GUID;
             SummonList      _summons;
-            bool            _combatPhase;
+            bool _combatPhase =false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

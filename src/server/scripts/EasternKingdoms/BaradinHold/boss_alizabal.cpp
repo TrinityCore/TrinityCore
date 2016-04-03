@@ -251,9 +251,9 @@ class boss_alizabal : public CreatureScript
             }
 
         private:
-            bool _intro;
-            bool _hate;
-            bool _skewer;
+            bool _intro =false;
+            bool _hate =false;
+            bool _skewer =false;
 
         };
 
