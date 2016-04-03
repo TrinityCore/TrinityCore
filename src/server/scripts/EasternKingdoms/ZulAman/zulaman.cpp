@@ -208,7 +208,7 @@ class npc_voljin_zulaman : public CreatureScript
         private:
             InstanceScript* _instance;
             EventMap _events;
-            uint8 _gongCount;
+            uint8 _gongCount =0;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

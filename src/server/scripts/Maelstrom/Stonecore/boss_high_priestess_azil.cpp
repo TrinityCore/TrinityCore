@@ -291,7 +291,7 @@ class boss_high_priestess_azil : public CreatureScript
             }
 
         private:
-            uint8 countSeismicShard;
+            uint8 countSeismicShard =3;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

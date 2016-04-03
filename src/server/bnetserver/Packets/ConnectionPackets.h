@@ -91,8 +91,8 @@ namespace Battlenet
             void Read() override;
             std::string ToString() const override;
 
-            uint16 Timeout;
-            uint32 Tick;
+            uint16 Timeout =0;
+            uint32 Tick =0;
         };
 
         class ConnectionClosing final : public ClientPacket

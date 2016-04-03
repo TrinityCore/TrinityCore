@@ -228,7 +228,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
             }
 
         private:
-            uint32 _targetCount;
+            uint32 _targetCount =0;
         };
 
         SpellScript* GetSpellScript() const override
