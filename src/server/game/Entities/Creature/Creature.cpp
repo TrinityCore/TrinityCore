@@ -370,13 +370,13 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
 
     // Load creature equipment
-    if (!data || data->equipmentId == 0)
-        LoadEquipment(); // use default equipment (if available)
-    else if (data && data->equipmentId != 0)                // override, 0 means no equipment
+    if (data && data->equipmentId != 0)
     {
         m_originalEquipmentId = data->equipmentId;
         LoadEquipment(data->equipmentId);
     }
+    else
+        LoadEquipment(0, true);
 
     SetName(normalInfo->Name);                              // at normal entry always
 
@@ -914,6 +914,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
     if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
         AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
 
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
+    {
+        ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+        ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+    }
+
     return true;
 }
 
@@ -1318,8 +1324,38 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     return true;
 }
 
-bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap)
+bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate)
 {
+    if (!allowDuplicate)
+    {
+        // If an alive instance of this spawnId is already found, skip creation
+        // If only dead instance(s) exist, despawn them and spawn a new (maybe also dead) version
+        const auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(spawnId);
+        std::vector <Creature*> despawnList;
+
+        if (creatureBounds.first != creatureBounds.second)
+        {
+            for (auto itr = creatureBounds.first; itr != creatureBounds.second; ++itr)
+            {
+                if (itr->second->IsAlive())
+                {
+                    TC_LOG_DEBUG("maps", "Would have spawned " UI64FMTD " but %s already exists", spawnId, creatureBounds.first->second->GetGUID().ToString().c_str());
+                    return false;
+                }
+                else
+                {
+                    despawnList.push_back(itr->second);
+                    TC_LOG_DEBUG("maps", "Despawned dead instance of spawn " UI64FMTD " (%s)", spawnId, itr->second->GetGUID().ToString().c_str());
+                }
+            }
+
+            for (Creature* despawnCreature : despawnList)
+            {
+                despawnCreature->AddObjectToRemoveList();
+            }
+        }
+    }
+
     CreatureData const* data = sObjectMgr->GetCreatureData(spawnId);
     if (!data)
     {
@@ -1400,6 +1436,7 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
                 SetVirtualItem(i, 0);
             m_equipmentId = 0;
         }
+
         return;
     }
 
@@ -1631,10 +1668,26 @@ void Creature::setDeathState(DeathState s)
 
         UpdateMovementFlags();
 
-        CreatureTemplate const* cinfo = GetCreatureTemplate();
-        SetUInt64Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
-        SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
+
+        if (!IsPet())
+        {
+            CreatureData const* creatureData = GetCreatureData();
+            CreatureTemplate const* cinfo = GetCreatureTemplate();
+
+            uint64 npcflag;
+            uint32 unit_flags, dynamicflags;
+            ObjectMgr::ChooseCreatureFlags(cinfo, npcflag, unit_flags, dynamicflags, creatureData);
+
+            SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
+            SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
+            SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicflags);
+
+            RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+            SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
+        }
+
         Motion_Initialize();
         Unit::setDeathState(ALIVE);
         LoadCreaturesAddon();
@@ -2641,12 +2694,12 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
         SetGuidValue(UNIT_FIELD_TARGET, newTarget);
         if (target)
             SetFacingToObject(target);
-        
+
         if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
             ( // only require instant update for spells that actually have a visual
                 focusSpell->GetSpellInfo()->SpellVisual[0] ||
                 focusSpell->GetSpellInfo()->SpellVisual[1]
-            ) && ( 
+            ) && (
                 !focusSpell->GetCastTime() || // if the spell is instant cast
                 focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet
             )

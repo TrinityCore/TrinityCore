@@ -41,7 +41,7 @@ typedef struct _FILE_MAR_INFO
 
 typedef struct _CASC_MNDX_INFO
 {
-    BYTE  RootFileName[MD5_HASH_SIZE];              // Name (aka MD5) of the root file 
+    BYTE  RootFileName[MD5_HASH_SIZE];              // Name (aka MD5) of the root file
     DWORD HeaderVersion;                            // Must be <= 2
     DWORD FormatVersion;
     DWORD field_1C;
@@ -101,7 +101,7 @@ void TestMndxRootFile(PCASC_MNDX_INFO pMndxInfo);
 //-----------------------------------------------------------------------------
 // Local variables
 
-unsigned char table_1BA1818[0x800] = 
+unsigned char table_1BA1818[0x800] =
 {
     0x07, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00,
     0x04, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00,
@@ -242,7 +242,7 @@ DWORD GetNumberOfSetBits(DWORD Value32)
     Value32 = ((Value32 >> 1) & 0x55555555) + (Value32 & 0x55555555);
     Value32 = ((Value32 >> 2) & 0x33333333) + (Value32 & 0x33333333);
     Value32 = ((Value32 >> 4) & 0x0F0F0F0F) + (Value32 & 0x0F0F0F0F);
-    
+
     return (Value32 * 0x01010101);
 }
 
@@ -313,40 +313,40 @@ int TMndxFindResult::SetSearchPath(
 
     if(pStruct40 != NULL)
         pStruct40->SearchPhase = CASC_SEARCH_INITIALIZING;
-    
+
     szSearchMask = szNewSearchMask;
     cchSearchMask = cchNewSearchMask;
     return ERROR_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
-// TByteStream functions               
-                                       
-// HOTS: 01959990                      
-TByteStream::TByteStream()             
-{                                      
-    pbByteData = NULL;                 
-    pvMappedFile = NULL;               
-    cbByteData = 0;                    
-    field_C  = 0;                      
-    hFile    = 0;                      
-    hMap     = 0;                      
-}                                      
-                                       
-// HOTS: 19599F0                       
+// TByteStream functions
+
+// HOTS: 01959990
+TByteStream::TByteStream()
+{
+    pbByteData = NULL;
+    pvMappedFile = NULL;
+    cbByteData = 0;
+    field_C  = 0;
+    hFile    = 0;
+    hMap     = 0;
+}
+
+// HOTS: 19599F0
 void TByteStream::ExchangeWith(TByteStream & Target)
-{                                      
-    TByteStream WorkBuff;              
-                                       
-    WorkBuff = *this;                  
-    *this    = Target;                 
-    Target   = WorkBuff;               
-}                                      
-                                       
-// HOTS: 19599F0                       
+{
+    TByteStream WorkBuff;
+
+    WorkBuff = *this;
+    *this    = Target;
+    Target   = WorkBuff;
+}
+
+// HOTS: 19599F0
 int TByteStream::GetBytes(DWORD cbByteCount, PARRAY_POINTER PtrArray)
-{                                      
-    if(cbByteData < cbByteCount)       
+{
+    if(cbByteData < cbByteCount)
         return ERROR_BAD_FORMAT;
 
     // Give the buffer to the caller
@@ -453,7 +453,7 @@ int TByteStream::GetValue_ItemCount(DWORD & NumberOfBytes, DWORD & ItemCount, DW
     ByteCount = Pointer.Int64Ptr[0];
     if(ByteCount > 0xFFFFFFFF || (ByteCount % ItemSize) != 0)
         return ERROR_BAD_FORMAT;
-    
+
     // Give the result to the caller
     NumberOfBytes = (DWORD)ByteCount;
     ItemCount = (DWORD)(ByteCount / ItemSize);
@@ -619,7 +619,7 @@ void TGenericArray::sub_19583A0(DWORD NewItemCount)
     if(NewItemCount > MaxItemCount)
     {
         DWORD NewMaxItemCount = NewItemCount;
-        
+
         if(MaxItemCount > (NewItemCount / 2))
         {
             if(MaxItemCount <= (CASC_MAX_ENTRIES(PATH_STOP) / 2))
@@ -702,7 +702,7 @@ int TGenericArray::LoadByteArray(TByteStream & InStream)
     nError = InStream.GetArray_BYTES(&ArrayPointer, ItemCount);
     if(nError != ERROR_SUCCESS)
         return nError;
-    
+
     nError = InStream.SkipBytes((0 - (DWORD)NumberOfBytes) & 0x07);
     if(nError != ERROR_SUCCESS)
         return nError;
@@ -746,7 +746,7 @@ int TGenericArray::LoadStrings(TByteStream & InStream)
     nError = InStream.GetArray_BYTES(&ArrayPointer, ItemCount);
     if(nError != ERROR_SUCCESS)
         return nError;
-    
+
     nError = InStream.SkipBytes((0 - (DWORD)NumberOfBytes) & 0x07);
     if(nError != ERROR_SUCCESS)
         return nError;
@@ -854,14 +854,14 @@ int TBitEntryArray::LoadFromStream(TByteStream & InStream)
     ULONGLONG Value = 0;
     int nError;
 
-    nError = LoadDwordsArray_Copy(InStream);    
+    nError = LoadDwordsArray_Copy(InStream);
     if(nError != ERROR_SUCCESS)
         return nError;
 
     nError = InStream.GetBytes(sizeof(DWORD), &Pointer);
     if(nError != ERROR_SUCCESS)
         return nError;
-    
+
     BitsPerEntry = Pointer.Uint32s[0];
     if(BitsPerEntry > 0x20)
         return ERROR_BAD_FORMAT;
@@ -913,13 +913,13 @@ void TStruct40::InitSearchBuffers()
     DWORD NewMaxItemCount;
 
     array_00.ItemCount = 0;
-    
+
     // HOTS: 19586BD
     if(array_00.MaxItemCount < 0x40)
     {
         // HOTS: 19586C2
         NewMaxItemCount = 0x40;
-        
+
         if(array_00.MaxItemCount > 0x20)
         {
             if(array_00.MaxItemCount <= 0x7FFFFFFF)
@@ -948,7 +948,7 @@ void TStruct40::InitSearchBuffers()
             else
                 NewMaxItemCount = CASC_MAX_ENTRIES(PATH_STOP);
         }
-                
+
         // HOTS: 195870B
         PathStops.SetMaxItems_PATH_STOP(NewMaxItemCount);
     }
@@ -997,7 +997,7 @@ int TSparseArray::LoadFromStream(TByteStream & InStream)
     if(nError != ERROR_SUCCESS)
         return nError;
     ValidItemCount = Pointer.Uint32s[0];
-    
+
     if(ValidItemCount > TotalItemCount)
         return ERROR_FILE_CORRUPT;
 
@@ -1025,7 +1025,7 @@ int TSparseArray::LoadFromStream_Exchange(TByteStream & InStream)
     nError = NewStruct68.LoadFromStream(InStream);
     if(nError != ERROR_SUCCESS)
         return nError;
-              
+
     ExchangeWith(NewStruct68);
     return ERROR_SUCCESS;
 }
@@ -1038,7 +1038,7 @@ DWORD TSparseArray::GetItemValue(DWORD ItemIndex)
     DWORD BaseValue;
     DWORD BitMask;
 
-    // 
+    //
     // Divide the low-8-bits index to four parts:
     //
     // |-----------------------|---|------------|
@@ -1057,7 +1057,7 @@ DWORD TSparseArray::GetItemValue(DWORD ItemIndex)
     //
     // C (32 bits): Number of bits to be checked (up to 0x3F bits).
     //              Number of set bits is then added to the values obtained from A and B
-    
+
     // Upper 23 bits contain index to the table
     pTriplet = BaseValues.TripletArray + (ItemIndex >> 0x09);
     BaseValue = pTriplet->BaseValue;
@@ -1169,7 +1169,7 @@ bool TNameIndexStruct::CheckNameFragment(TMndxFindResult * pStruct1C, DWORD dwFr
             if(dwFragOffs >= pStruct1C->cchSearchMask)
                 return false;
         }
-        
+
         return false;
     }
 }
@@ -1407,7 +1407,7 @@ int TStruct10::sub_19572E0(DWORD dwBitMask)
 
     nError = sub_1956FD0(dwBitMask);
     if(nError != ERROR_SUCCESS)
-        return nError;                                        
+        return nError;
 
     dwSubMask = dwBitMask & 0xF000;
     if(dwSubMask == 0 || dwSubMask == 0x1000)
@@ -1496,7 +1496,7 @@ DWORD TFileNameDatabase::sub_1959CB0(DWORD dwItemIndex)
     eax = Struct68_00.ArrayDwords_38.Uint32Array[dwKeyShifted] >> 9;
     esi = (Struct68_00.ArrayDwords_38.Uint32Array[dwKeyShifted + 1] + 0x1FF) >> 9;
     dwItemIndex = esi;
-    
+
     if((eax + 0x0A) >= esi)
     {
         // HOTS: 1959CF7
@@ -1638,7 +1638,7 @@ DWORD TFileNameDatabase::sub_1959CB0(DWORD dwItemIndex)
         eax = GetNumberOfSetBits(ecx);
     }
 
-    // HOTS: 1959eea 
+    // HOTS: 1959eea
     // ESI gets the number of set bits in the lower 16 bits of ECX
     esi = (eax >> 0x08) & 0xFF;
     edi = edi << 0x05;
@@ -1699,7 +1699,7 @@ DWORD TFileNameDatabase::sub_1959F50(DWORD arg_0)
     ItemArray = Struct68_00.ArrayDwords_50.Uint32Array + eax;
     eax = (ItemArray[0] >> 0x09);
     edi = (ItemArray[1] + 0x1FF) >> 0x09;
-    
+
     if((eax + 0x0A) > edi)
     {
         // HOTS: 01959F94
@@ -1883,7 +1883,7 @@ bool TFileNameDatabase::CheckNextPathFragment(TMndxFindResult * pStruct1C)
 
     // Calculate index of the next name fragment in the name fragment table
     NameFragIndex = ((pStruct40->ItemIndex << 0x05) ^ pStruct40->ItemIndex ^ pbPathName[pStruct40->CharIndex]) & NameFragIndexMask;
-    
+
     // Does the hash value match?
     if(NameFragTable.NameFragArray[NameFragIndex].ItemIndex == pStruct40->ItemIndex)
     {
@@ -1931,7 +1931,7 @@ bool TFileNameDatabase::CheckNextPathFragment(TMndxFindResult * pStruct1C)
     {
         // HOTS: 1957A41
         // Check if the low 8 bits if the fragment offset contain a single character
-        // or an offset to a name fragment 
+        // or an offset to a name fragment
         if(Struct68_D0.IsItemPresent(pStruct40->ItemIndex))
         {
             if(HiBitsIndex == 0xFFFFFFFF)
@@ -1947,7 +1947,7 @@ bool TFileNameDatabase::CheckNextPathFragment(TMndxFindResult * pStruct1C)
 
             // HOTS: 1957A83
             SaveCharIndex = pStruct40->CharIndex;
-            
+
             // Get the name fragment offset as combined value from lower 8 bits and upper bits
             FragOffs = GetNameFragmentOffsetEx(pStruct40->ItemIndex, HiBitsIndex);
 
@@ -2031,7 +2031,7 @@ bool TFileNameDatabase::sub_1957B80(TMndxFindResult * pStruct1C, DWORD arg_4)
 
             // HOTS: 1957C05
             edi = pNameEntry->ItemIndex;
-            if(edi == 0) 
+            if(edi == 0)
                 return true;
 
             if(pStruct40->CharIndex >= pStruct1C->cchSearchMask)
@@ -2231,7 +2231,7 @@ bool TFileNameDatabase::sub_1959010(TMndxFindResult * pStruct1C, DWORD arg_4)
 
             arg_4 = 0xFFFFFFFF - arg_4 + sub_1959F50(arg_4);
         }
-        
+
         // HOTS: 19592D5
         if(pStruct40->CharIndex >= pStruct1C->cchSearchMask)
             break;
@@ -2295,7 +2295,7 @@ bool TFileNameDatabase::sub_1959460(TMndxFindResult * pStruct1C)
         {
             PPATH_STOP pLastStop;
             DWORD CollisionIndex;
-            
+
             pLastStop = pStruct40->PathStops.FirstValid.PathStopPtr + pStruct40->PathStops.ItemCount - 1;
             CollisionIndex = sub_1959CB0(pLastStop->ItemIndex) + 1;
 
@@ -2384,7 +2384,7 @@ bool TFileNameDatabase::sub_1959460(TMndxFindResult * pStruct1C)
 
             pPathStop = pStruct40->PathStops.FirstValid.PathStopPtr + pStruct40->ItemCount - 2;
             edi = pPathStop->field_8;
-            
+
             if(edi > pStruct40->array_00.MaxItemCount)
             {
                 // HOTS: 1959717
@@ -2482,7 +2482,7 @@ bool TFileNameDatabase::sub_1958B00(TMndxFindResult * pStruct1C)
 
             // HOTS: 1958C62
             SaveCharIndex = pStruct40->CharIndex;
-            
+
             FragOffs = GetNameFragmentOffsetEx(pStruct40->ItemIndex, var_4);
             if(NextDB.pDB != NULL)
             {
@@ -2579,7 +2579,7 @@ int TFileNameDatabase::LoadFromStream(TByteStream & InStream)
     nError = FrgmDist_HiBits.LoadFromStream_Exchange(InStream);
     if(nError != ERROR_SUCCESS)
         return nError;
-    
+
     // HOTS: 019597F5
     nError = IndexStruct_174.LoadFromStream_Exchange(InStream);
     if(nError != ERROR_SUCCESS)
@@ -2596,7 +2596,7 @@ int TFileNameDatabase::LoadFromStream(TByteStream & InStream)
 
         if(NextDB.pDB == NULL)
             return ERROR_NOT_ENOUGH_MEMORY;
-        
+
         nError = NextDB.pDB->LoadFromStream(InStream);
         if(nError != ERROR_SUCCESS)
             return nError;
@@ -2632,7 +2632,7 @@ int TFileNameDatabase::LoadFromStream_Exchange(TByteStream & InStream)
     nError = InStream.GetBytes(sizeof(DWORD), &Pointer);
     if(nError != ERROR_SUCCESS)
         return nError;
-    
+
     // Verify the signature
     dwSignature = Pointer.Uint32s[0];
     if(dwSignature != CASC_MAR_SIGNATURE)
@@ -2746,7 +2746,7 @@ int TFileNameDatabasePtr::SetDatabase(TFileNameDatabase * pNewDB)
     if(pDB != NULL)
         delete pDB;
     pDB = pNewDB;
-    return ERROR_SUCCESS;           
+    return ERROR_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -2824,7 +2824,7 @@ static PCASC_MNDX_PACKAGES InsertToPackageList(
         nNewNameEntries = nNewNameEntries + CASC_PACKAGES_DELTA;
     if((pPackages->NameBufferUsed + cchFileName + 1) > nNewNameBufferMax)
         nNewNameBufferMax = nNewNameBufferMax + 0x1000;
-    
+
     // If any of the two variables overflowed, we need to reallocate the name list
     if(nNewNameEntries > pPackages->NameEntries || nNewNameBufferMax > pPackages->NameBufferMax)
     {
@@ -3015,7 +3015,7 @@ static LPBYTE FillFindData(TRootHandler_MNDX * pRootHandler, TCascSearch * pSear
     // Fill the file name
     memcpy(pSearch->szFileName, pStruct1C->szFoundPath, pStruct1C->cchFoundPath);
     pSearch->szFileName[pStruct1C->cchFoundPath] = 0;
-    
+
     // Fill the file size
     pPackage = FindMndxPackage(pRootHandler, pSearch->szFileName);
     if(pPackage == NULL)
@@ -3051,7 +3051,7 @@ static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch *
     PCASC_MNDX_INFO pMndxInfo = &pRootHandler->MndxInfo;
     PMAR_FILE pMarFile = pMndxInfo->pMarFile3;
     bool bFindResult = false;
-        
+
     // If the first time, allocate the structure for the search result
     if(pSearch->pRootContext == NULL)
     {
@@ -3140,7 +3140,7 @@ int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
 {
     PFILE_MNDX_HEADER pMndxHeader = (PFILE_MNDX_HEADER)pbRootFile;
     PCASC_MNDX_INFO pMndxInfo;
-    TRootHandler_MNDX * pRootHandler;    
+    TRootHandler_MNDX * pRootHandler;
     FILE_MAR_INFO MarInfo;
     PMAR_FILE pMarFile;
     LPBYTE pbRootFileEnd = pbRootFile + cbRootFile;
@@ -3520,7 +3520,7 @@ static void TestMndxFunctions(PMAR_FILE pMarFile)
         {
             DWORD dwResult1 = sub_19573D0_x86(pDB, arg_0, arg_4);
             DWORD dwResult2 = pDB->GetNameFragmentOffsetEx(arg_0, arg_4);
-  
+
             assert(dwResult1 == dwResult2);
         }
     }
@@ -3530,7 +3530,7 @@ static void TestMndxFunctions(PMAR_FILE pMarFile)
     {
         DWORD dwResult1 = GetItemValue_x86(&pDB->Struct68_D0, i);
         DWORD dwResult2 = pDB->Struct68_D0.GetItemValue(i);
-  
+
         assert(dwResult1 == dwResult2);
     }
 
@@ -3539,7 +3539,7 @@ static void TestMndxFunctions(PMAR_FILE pMarFile)
     {
         DWORD dwResult1 = sub_1959CB0_x86(pDB, i);
         DWORD dwResult2 = pDB->sub_1959CB0(i);
-  
+
         assert(dwResult1 == dwResult2);
     }
 
@@ -3548,7 +3548,7 @@ static void TestMndxFunctions(PMAR_FILE pMarFile)
     {
         DWORD dwResult1 = sub_1959F50_x86(pDB, i);
         DWORD dwResult2 = pDB->sub_1959F50(i);
-  
+
         assert(dwResult1 == dwResult2);
     }
 }
@@ -3568,7 +3568,7 @@ void TestMndxRootFile(PCASC_MNDX_INFO pMndxInfo)
     // Find a "mods" in the package array
     TestFindPackage(pMndxInfo->pMarFile3, "mods/heroes.stormmod/base.stormassets/assets/textures/glow_green2.dds");
     TestMarFile(pMndxInfo->pMarFile3, "mods/heroes.stormmod/base.stormassets/assets/textures/glow_green2.dds", 69);
-                                           
+
     // Search the package MAR file aith a path shorter than a fragment
     TestFileSearch(pMndxInfo->pMarFile1, "mods/heroes.s");
 

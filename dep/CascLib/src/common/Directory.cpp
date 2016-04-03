@@ -26,7 +26,7 @@ bool DirectoryExists(const TCHAR * szDirectory)
 #else // PLATFORM_WINDOWS
 
     DIR * dir = opendir(szDirectory);
-    
+
     if(dir != NULL)
     {
         closedir(dir);
@@ -70,7 +70,7 @@ int ScanIndexDirectory(
                 pfnOnFileFound(wf.cFileName, MainIndexes, OldIndexArray, pvContext);
             }
         }
-        
+
         // Close the search handle
         FindClose(hFind);
     }
@@ -81,7 +81,7 @@ int ScanIndexDirectory(
 
     struct dirent * dir_entry;
     DIR * dir;
-    
+
     dir = opendir(szIndexPath);
     if(dir != NULL)
     {
@@ -90,9 +90,9 @@ int ScanIndexDirectory(
             if(dir_entry->d_type != DT_DIR)
             {
                 pfnOnFileFound(dir_entry->d_name, MainIndexes, OldIndexArray, pvContext);
-            }        
+            }
         }
-        
+
         closedir(dir);
     }
 

@@ -75,6 +75,9 @@ DBCStorage<DurabilityCostsEntry>            sDurabilityCostsStore(DurabilityCost
 
 DBCStorage<EmotesEntry>                     sEmotesStore(Emotesfmt);
 DBCStorage<EmotesTextEntry>                 sEmotesTextStore(EmotesTextfmt);
+typedef std::tuple<uint32, uint32, uint32> EmotesTextSoundKey;
+static std::map<EmotesTextSoundKey, EmotesTextSoundEntry const*> sEmotesTextSoundMap;
+DBCStorage <EmotesTextSoundEntry> sEmotesTextSoundStore(EmotesTextSoundEntryfmt);
 
 DBCStorage<FactionEntry>                    sFactionStore(Factionfmt);
 static FactionTeamMap                       sFactionTeamMap;
@@ -314,6 +317,7 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     LOAD_DBC(sDurabilityCostsStore, "DurabilityCosts.dbc");//20444
     LOAD_DBC(sEmotesStore, "Emotes.dbc");//20444
     LOAD_DBC(sEmotesTextStore, "EmotesText.dbc");//20444
+    LOAD_DBC(sEmotesTextSoundStore, "EmotesTextSound.dbc");
     LOAD_DBC(sFactionStore, "Faction.dbc");//20444
     LOAD_DBC(sFactionTemplateStore, "FactionTemplate.dbc");//20444
     LOAD_DBC(sGameObjectDisplayInfoStore, "GameObjectDisplayInfo.dbc");//20444
@@ -391,6 +395,10 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
         "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",
         MAX_DIFFICULTY, sDifficultyStore.GetNumRows());
+
+    for (uint32 i = 0; i < sEmotesTextSoundStore.GetNumRows(); ++i)
+        if (EmotesTextSoundEntry const* entry = sEmotesTextSoundStore.LookupEntry(i))
+            sEmotesTextSoundMap[EmotesTextSoundKey(entry->EmotesTextId, entry->RaceId, entry->SexId)] = entry;
 
     for (uint32 i = 0; i < sFactionStore.GetNumRows(); ++i)
     {
@@ -560,6 +568,12 @@ char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 /*locale*/)
         return nullptr;
 
     return pet_family->Name_lang ? pet_family->Name_lang : NULL;
+}
+
+EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender)
+{
+    auto itr = sEmotesTextSoundMap.find(EmotesTextSoundKey(emote, race, gender));
+    return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
 }
 
 WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid, int32 groupid)

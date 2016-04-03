@@ -61,6 +61,8 @@ class instance_deadmines : public InstanceMapScript
                 SetHeaders(DataHeader);
 
                 State = CANNON_NOT_USED;
+                CannonBlast_Timer = 0;
+                PiratesDelay_Timer = 0;
             }
 
             ObjectGuid FactoryDoorGUID;
