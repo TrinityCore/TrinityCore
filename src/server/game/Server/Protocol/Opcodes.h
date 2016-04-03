@@ -1643,7 +1643,7 @@ enum OpcodeServer : uint32
     SMSG_ZONE_UNDER_ATTACK                            = 0x2B38,
 
     // Opcodes that are not generated automatically
-    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0xBADD, // no client handler
+    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x254B, // no client handler
     SMSG_COMPRESSED_PACKET                            = 0x2FCF,
     SMSG_MULTIPLE_PACKETS                             = 0x2FCE,
 
