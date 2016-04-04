@@ -107,7 +107,7 @@ namespace MMAP
             dtNavMesh const* GetNavMesh(uint32 mapId, TerrainSet swaps);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
-            uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
+            uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
 
             typedef std::unordered_map<uint32, std::vector<uint32>> PhaseChildMapContainer;
             void LoadPhaseTiles(PhaseChildMapContainer::const_iterator phasedMapData, int32 x, int32 y);
