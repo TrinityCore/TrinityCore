@@ -426,7 +426,7 @@ bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
         return false;
 
     conStr.resize(wstr.size());
-    CharToOemBuffW(&wstr[0], &conStr[0], wstr.size());
+    CharToOemBuffW(&wstr[0], &conStr[0], uint32(wstr.size()));
 #else
     // not implemented yet
     conStr = utf8str;
@@ -440,7 +440,7 @@ bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
 #if PLATFORM == PLATFORM_WINDOWS
     std::wstring wstr;
     wstr.resize(conStr.size());
-    OemToCharBuffW(&conStr[0], &wstr[0], conStr.size());
+    OemToCharBuffW(&conStr[0], &wstr[0], uint32(conStr.size()));
 
     return WStrToUtf8(wstr, utf8str);
 #else
@@ -458,7 +458,7 @@ bool Utf8FitTo(const std::string& str, std::wstring const& search)
         return false;
 
     // converting to lower case
-    wstrToLower( temp );
+    wstrToLower(temp);
 
     if (temp.find(search) == std::wstring::npos)
         return false;
@@ -477,10 +477,10 @@ void utf8printf(FILE* out, const char *str, ...)
 void vutf8printf(FILE* out, const char *str, va_list* ap)
 {
 #if PLATFORM == PLATFORM_WINDOWS
-    char temp_buf[32*1024];
-    wchar_t wtemp_buf[32*1024];
+    char temp_buf[32 * 1024];
+    wchar_t wtemp_buf[32 * 1024];
 
-    size_t temp_len = vsnprintf(temp_buf, 32*1024, str, *ap);
+    size_t temp_len = vsnprintf(temp_buf, 32 * 1024, str, *ap);
     //vsnprintf returns -1 if the buffer is too small
     if (temp_len == size_t(-1))
         temp_len = 32*1024-1;
@@ -488,7 +488,7 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
     size_t wtemp_len = 32*1024-1;
     Utf8toWStr(temp_buf, temp_len, wtemp_buf, wtemp_len);
 
-    CharToOemBuffW(&wtemp_buf[0], &temp_buf[0], wtemp_len+1);
+    CharToOemBuffW(&wtemp_buf[0], &temp_buf[0], uint32(wtemp_len + 1));
     fprintf(out, "%s", temp_buf);
 #else
     vfprintf(out, str, *ap);
@@ -537,12 +537,12 @@ void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= fals
         return;
 
     int32 init = 0;
-    int32 end = str.length();
+    int32 end = int32(str.length());
     int8 op = 1;
 
     if (reverse)
     {
-        init = str.length() - 2;
+        init = int32(str.length() - 2);
         end = -2;
         op = -1;
     }
@@ -551,7 +551,7 @@ void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= fals
     for (int32 i = init; i != end; i += 2 * op)
     {
         char buffer[3] = { str[i], str[i + 1], '\0' };
-        out[j++] = strtoul(buffer, NULL, 16);
+        out[j++] = uint8(strtoul(buffer, NULL, 16));
     }
 }
 
