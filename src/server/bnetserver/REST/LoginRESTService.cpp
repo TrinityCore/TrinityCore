@@ -116,6 +116,8 @@ boost::asio::ip::tcp::endpoint const& LoginRESTService::GetAddressForClient(boos
 {
     if (address.is_loopback())
         return _localAddress;
+    else if (_localAddress.address().is_loopback())
+        return _externalAddress;
 
     if (boost::asio::ip::address_v4::netmask(_localAddress.address().to_v4()).to_ulong() & address.to_v4().to_ulong())
         return _localAddress;
