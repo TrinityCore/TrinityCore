@@ -24,6 +24,21 @@
 
 DB2FileLoader::DB2FileLoader()
 {
+    recordSize = 0;
+    recordCount = 0;
+    fieldCount = 0;
+    stringSize = 0;
+    stringTable = nullptr;
+
+    tableHash = 0;
+    build = 0;
+
+    unk1 = 0;
+    minIndex = 0;
+    maxIndex = 0;
+    locale = 0;
+    unk5 = 0;
+
     data = NULL;
     fieldsOffset = NULL;
 }
