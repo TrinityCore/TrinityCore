@@ -488,8 +488,8 @@ int main(int argc, char ** argv)
 #endif
                     ))
             success = (errno == EEXIST);
-    int defaultFirstLocale = -1;
-    int FirstLocale = defaultFirstLocale;
+
+    int FirstLocale = -1;
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
         if (i == LOCALE_none)
@@ -510,7 +510,7 @@ int main(int argc, char ** argv)
         break;
     }
 
-    if (FirstLocale == defaultFirstLocale)
+    if (FirstLocale == -1)
     {
         printf("FATAL ERROR: No locales defined, unable to continue.\n");
         return 1;
