@@ -488,8 +488,8 @@ int main(int argc, char ** argv)
 #endif
                     ))
             success = (errno == EEXIST);
-
-    int FirstLocale = -1;
+    int defaultFirstLocale = -1;
+    int FirstLocale = defaultFirstLocale;
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
         if (i == LOCALE_none)
@@ -508,6 +508,12 @@ int main(int argc, char ** argv)
 
         printf("Detected client build: %u\n\n", build);
         break;
+    }
+
+    if (FirstLocale == defaultFirstLocale)
+    {
+        printf("FATAL ERROR: No locales defined, unable to continue.\n");
+        return 1;
     }
 
     if (!OpenCascStorage(FirstLocale))
