@@ -31,7 +31,11 @@ else()
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)
-add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+if(CMAKE_MAKE_PROGRAM MATCHES "nmake")
+  add_definitions(-D_BUILD_DIRECTIVE=\\"${CMAKE_BUILD_TYPE}\\")
+else()
+  add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+endif()
 
 # multithreaded compiling on VS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
