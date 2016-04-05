@@ -21,3 +21,8 @@ INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `BroadcastTextID0`, `Probabi
 (18618, '', 'Oh, a visitor.  I don''t get many visitors out here.$B$BHungry? I''ve cooked MANY delightful things, my dear.$B$BNo, no, not the fish. Those are for when I can''t catch anything tastier, sweetling.', 54664, 1, 397, 396, 17658);
 
 DELETE FROM `conditions` WHERE  `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=47320;
+
+UPDATE `smart_scripts` SET `action_param1`=56332 WHERE `entryorguid`=4421 AND `id`=6 AND `source_type`=0;
+UPDATE `smart_scripts` SET `action_param1`=21562 WHERE `entryorguid`=4517 AND `id`=0 AND `source_type`=0;
+UPDATE `smart_scripts` SET `action_param1`=10577 WHERE `entryorguid`=4517 AND `id`=2 AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=11937 AND `id`=1 AND `source_type`=0;
