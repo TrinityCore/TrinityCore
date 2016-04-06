@@ -35,7 +35,7 @@ enum BattlefieldIDs
     BATTLEFIELD_BATTLEID_ASHRAN                  = 24       // Ashran
 };
 
-enum BattlefieldState
+enum BattlefieldState : int8
 {
     BATTLEFIELD_INACTIVE = 0,
     BATTLEFIELD_WARMUP = 1,
