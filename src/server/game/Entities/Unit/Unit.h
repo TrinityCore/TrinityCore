@@ -536,7 +536,7 @@ enum UnitMoveType
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
-enum WeaponAttackType
+enum WeaponAttackType : uint8
 {
     BASE_ATTACK   = 0,
     OFF_ATTACK    = 1,
@@ -1043,7 +1043,7 @@ enum ReactStates
     REACT_AGGRESSIVE = 2
 };
 
-enum CommandStates
+enum CommandStates : uint8
 {
     COMMAND_STAY    = 0,
     COMMAND_FOLLOW  = 1,

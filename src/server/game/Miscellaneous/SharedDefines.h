@@ -23,7 +23,7 @@
 #include "DetourNavMesh.h"
 #include <cassert>
 
-enum SpellEffIndex
+enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,
     EFFECT_1 = 1,
