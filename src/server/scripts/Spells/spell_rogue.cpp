@@ -52,6 +52,8 @@ enum RogueSpells
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699
 };
 
 enum RogueSpellIcons
@@ -661,7 +663,7 @@ class spell_rog_rupture : public SpellScriptLoader
                         0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 8} damage over 16 secs
                     };
 
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
+                    uint32 cp = caster->ToPlayer()->GetComboPoints();
                     if (cp > 5)
                         cp = 5;
 
@@ -891,7 +893,7 @@ public:
         {
             if (AuraEffect* blade = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_ROGUE_SERRATED_BLADES_R1, EFFECT_0))
             {
-                uint8 combo = GetCaster()->ToPlayer()->GetComboPoints();
+                uint32 combo = GetCaster()->ToPlayer()->GetComboPoints();
 
                 if (roll_chance_i(blade->GetAmount() * combo))
                     if (Aura* dot = GetHitUnit()->GetAura(SPELL_ROGUE_RUPTURE, GetCaster()->GetGUID()))
@@ -909,6 +911,36 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_rog_serrated_blades_SpellScript();
+    }
+};
+
+// 51701 - Honor Among Thieves
+class spell_rog_honor_among_thieves : public SpellScriptLoader
+{
+public:
+    spell_rog_honor_among_thieves() : SpellScriptLoader("spell_rog_honor_among_thieves") { }
+
+    class spell_rog_honor_among_thieves_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_honor_among_thieves_AuraScript);
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+        {
+            PreventDefaultAction();
+
+            Unit* target = GetUnitOwner();
+            target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rog_honor_among_thieves_AuraScript();
     }
 };
 
@@ -930,4 +962,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
+    new spell_rog_honor_among_thieves();
 }

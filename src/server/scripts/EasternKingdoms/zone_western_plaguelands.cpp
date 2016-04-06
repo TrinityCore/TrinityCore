@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npcs_dithers_and_arbington
-npc_myranda_the_hag
 npc_the_scourge_cauldron
 npc_andorhal_tower
 EndContentData */
@@ -33,7 +32,6 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "WorldSession.h"
 
@@ -120,55 +118,6 @@ public:
 };
 
 /*######
-## npc_myranda_the_hag
-######*/
-
-enum Myranda
-{
-    QUEST_SUBTERFUGE        = 5862,
-    QUEST_IN_DREAMS         = 5944,
-    SPELL_SCARLET_ILLUSION  = 17961
-};
-
-#define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
-
-class npc_myranda_the_hag : public CreatureScript
-{
-public:
-    npc_myranda_the_hag() : CreatureScript("npc_myranda_the_hag") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, SPELL_SCARLET_ILLUSION, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_SUBTERFUGE) == QUEST_STATUS_COMPLETE &&
-            player->GetQuestStatus(QUEST_IN_DREAMS) != QUEST_STATUS_COMPLETE &&
-            !player->HasAura(SPELL_SCARLET_ILLUSION))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ILLUSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(4773, creature->GetGUID());
-            return true;
-        }
-        else
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
 ## npc_the_scourge_cauldron
 ######*/
 
@@ -196,7 +145,7 @@ public:
             me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             //override any database `spawntimesecs` to prevent duplicated summons
             uint32 rTime = me->GetRespawnDelay();
-            if (rTime<600)
+            if (rTime < 600)
                 me->SetRespawnDelay(600);
         }
 
@@ -275,7 +224,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!who || who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -287,14 +235,9 @@ public:
     };
 };
 
-/*######
-##
-######*/
-
 void AddSC_western_plaguelands()
 {
     new npcs_dithers_and_arbington();
-    new npc_myranda_the_hag();
     new npc_the_scourge_cauldron();
     new npc_andorhal_tower();
 }

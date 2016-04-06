@@ -120,7 +120,7 @@ void Corpse::SaveToDB()
     {
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
-        stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
+        stmt->setUInt64(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
         stmt->setUInt32(index++, phaseId);                                            // PhaseId
         trans->Append(stmt);
     }
