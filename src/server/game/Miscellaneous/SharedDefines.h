@@ -23,7 +23,7 @@
 #include "DetourNavMesh.h"
 #include <cassert>
 
-enum SpellEffIndex
+enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,
     EFFECT_1 = 1,
@@ -4903,7 +4903,7 @@ enum RaidGroupReason
     RAID_GROUP_ERR_REQUIREMENTS_UNMATCH = 4  // "You do not meet the requirements to enter this instance."
 };
 
-enum ResetFailedReason
+enum ResetFailedReason : uint8
 {
     INSTANCE_RESET_FAILED           = 0, // "Cannot reset %s.  There are players still inside the instance."
     INSTANCE_RESET_FAILED_ZONING    = 1, // "Cannot reset %s.  There are players in your party attempting to zone into an instance."

@@ -68,7 +68,7 @@ enum QuestFailedReason
     QUEST_ERR_HAS_IN_PROGRESS                   = 30        // "Progress Bar objective not completed"
 };
 
-enum QuestPushReason
+enum QuestPushReason : uint8
 {
     QUEST_PUSH_SUCCESS                  = 0,    // "Sharing quest with %s..."
     QUEST_PUSH_INVALID                  = 1,    // "%s is not eligible for that quest"
