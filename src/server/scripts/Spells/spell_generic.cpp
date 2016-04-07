@@ -1261,7 +1261,7 @@ class spell_gen_defend : public SpellScriptLoader
 
             void Register() override
             {
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 // Defend spells cast by NPCs (add visuals)
                 if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
@@ -2164,7 +2164,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
 
             void Register() override
             {
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
                     OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
