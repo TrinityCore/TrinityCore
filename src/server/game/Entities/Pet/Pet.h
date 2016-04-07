@@ -34,7 +34,6 @@ struct PetSpell
 
 typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
-typedef std::vector<std::pair<Unit*, Spell*>> TargetSpellList;
 
 class Player;
 
