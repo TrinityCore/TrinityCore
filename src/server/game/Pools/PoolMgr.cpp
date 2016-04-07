@@ -60,6 +60,11 @@ bool ActivePoolData::IsActiveObject<Quest>(uint32 quest_id) const
     return mActiveQuests.find(quest_id) != mActiveQuests.end();
 }
 
+template TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint32) const;
+template TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint32) const;
+template TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint32) const;
+template TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint32) const;
+
 template<>
 void ActivePoolData::ActivateObject<Creature>(uint32 db_guid, uint32 pool_id)
 {
@@ -568,6 +573,12 @@ void PoolMgr::Initialize()
     mQuestSearchMap.clear();
     mGameobjectSearchMap.clear();
     mCreatureSearchMap.clear();
+}
+
+PoolMgr* PoolMgr::instance()
+{
+    static PoolMgr instance;
+    return &instance;
 }
 
 void PoolMgr::LoadFromDB()

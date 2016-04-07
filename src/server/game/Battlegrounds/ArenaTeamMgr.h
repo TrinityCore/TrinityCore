@@ -20,18 +20,14 @@
 
 #include "ArenaTeam.h"
 
-class ArenaTeamMgr
+class TC_GAME_API ArenaTeamMgr
 {
 private:
     ArenaTeamMgr();
     ~ArenaTeamMgr();
 
 public:
-    static ArenaTeamMgr* instance()
-    {
-        static ArenaTeamMgr instance;
-        return &instance;
-    }
+    static ArenaTeamMgr* instance();
 
     typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamContainer;
 

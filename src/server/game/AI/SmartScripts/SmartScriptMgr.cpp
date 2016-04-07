@@ -27,6 +27,12 @@
 
 #include "SmartScriptMgr.h"
 
+SmartWaypointMgr* SmartWaypointMgr::instance()
+{
+    static SmartWaypointMgr instance;
+    return &instance;
+}
+
 void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
@@ -96,6 +102,12 @@ SmartWaypointMgr::~SmartWaypointMgr()
 
         delete itr->second;
     }
+}
+
+SmartAIMgr* SmartAIMgr::instance()
+{
+    static SmartAIMgr instance;
+    return &instance;
 }
 
 void SmartAIMgr::LoadSmartAIFromDB()
@@ -847,7 +859,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
 
-            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
             for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
                 if (spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellInfo->Effects[j].IsEffect(SPELL_EFFECT_KILL_CREDIT2))
@@ -1214,6 +1226,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         case SMART_ACTION_RISE_UP:
+        case SMART_ACTION_SET_CORPSE_DELAY:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

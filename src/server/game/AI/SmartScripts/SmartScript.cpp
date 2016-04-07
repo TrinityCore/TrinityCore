@@ -489,7 +489,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             // unless target is outside spell range, out of mana, or LOS.
 
                             bool _allowMove = false;
-                            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
+                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
                             int32 mana = me->GetPower(POWER_MANA);
 
                             if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
@@ -2329,6 +2329,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 delete targets;
                 break;
             }
+        }
+        case SMART_ACTION_SET_CORPSE_DELAY:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer);
+            }
+
+            delete targets;
+            break;
         }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());

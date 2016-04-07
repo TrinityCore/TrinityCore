@@ -56,22 +56,22 @@ class OutdoorPvPSI : public OutdoorPvP
     public:
         OutdoorPvPSI();
 
-        bool SetupOutdoorPvP();
+        bool SetupOutdoorPvP() override;
 
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        void HandlePlayerEnterZone(Player* player, uint32 zone) override;
+        void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPacket &data) override;
 
-        void SendRemoveWorldStates(Player* player);
+        void SendRemoveWorldStates(Player* player) override;
 
-        bool HandleAreaTrigger(Player* player, uint32 trigger);
+        bool HandleAreaTrigger(Player* player, uint32 trigger) override;
 
-        bool HandleDropFlag(Player* player, uint32 spellId);
+        bool HandleDropFlag(Player* player, uint32 spellId) override;
 
-        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
+        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
 
         void UpdateWorldState();
 

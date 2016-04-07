@@ -82,7 +82,7 @@ struct TransportTemplate
 typedef std::map<uint32, TransportAnimationEntry const*> TransportPathContainer;
 typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationContainer;
 
-struct TransportAnimation
+struct TC_GAME_API TransportAnimation
 {
     TransportAnimation() : TotalTime(0) { }
 
@@ -96,16 +96,12 @@ struct TransportAnimation
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
-class TransportMgr
+class TC_GAME_API TransportMgr
 {
-        friend void LoadDBCStores(std::string const&);
+        friend TC_GAME_API void LoadDBCStores(std::string const&);
 
     public:
-        static TransportMgr* instance()
-        {
-            static TransportMgr instance;
-            return &instance;
-        }
+        static TransportMgr* instance();
 
         void Unload();
 

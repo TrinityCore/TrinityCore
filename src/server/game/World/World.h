@@ -29,6 +29,7 @@
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
+#include "Realm/Realm.h"
 
 #include <atomic>
 #include <map>
@@ -128,7 +129,6 @@ enum WorldBoolConfigs
     CONFIG_BG_XP_FOR_KILL,
     CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
     CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE,
-    CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY,
     CONFIG_ARENA_SEASON_IN_PROGRESS,
     CONFIG_ARENA_LOG_EXTENDED_INFO,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
@@ -165,6 +165,8 @@ enum WorldBoolConfigs
     CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
     CONFIG_RESET_DUEL_COOLDOWNS,
     CONFIG_RESET_DUEL_HEALTH_MANA,
+    CONFIG_BASEMAP_LOAD_GRIDS,
+    CONFIG_INSTANCEMAP_LOAD_GRIDS,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -446,18 +448,6 @@ enum BillingPlanFlags
     SESSION_ENABLE_CAIS     = 0x80
 };
 
-/// Type of server, this is values from second column of Cfg_Configs.dbc
-enum RealmType
-{
-    REALM_TYPE_NORMAL       = 0,
-    REALM_TYPE_PVP          = 1,
-    REALM_TYPE_NORMAL2      = 4,
-    REALM_TYPE_RP           = 6,
-    REALM_TYPE_RPPVP        = 8,
-    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
-                                                            // replaced by REALM_PVP in realm list
-};
-
 enum RealmZone
 {
     REALM_ZONE_UNKNOWN       = 0,                           // any language
@@ -546,14 +536,10 @@ struct CharacterInfo
 };
 
 /// The World
-class World
+class TC_GAME_API World
 {
     public:
-        static World* instance()
-        {
-            static World instance;
-            return &instance;
-        }
+        static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;
 
@@ -882,8 +868,9 @@ class World
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
 };
 
-extern uint32 realmID;
+TC_GAME_API extern Realm realm;
 
 #define sWorld World::instance()
+
 #endif
 /// @}

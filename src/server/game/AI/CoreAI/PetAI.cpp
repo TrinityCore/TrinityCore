@@ -150,14 +150,14 @@ void PetAI::UpdateAI(uint32 diff)
             if (me->GetCharmInfo() && me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
                 continue;
 
+            // check spell cooldown
+            if (!me->GetSpellHistory()->IsReady(spellInfo))
+                continue;
+
             if (spellInfo->IsPositive())
             {
                 if (spellInfo->CanBeUsedInCombat())
                 {
-                    // check spell cooldown & school lock
-                    if (!me->GetSpellHistory()->IsReady(spellInfo))
-                        continue;
-
                     // Check if we're in combat or commanded to attack
                     if (!me->IsInCombat() && !me->GetCharmInfo()->IsCommandAttack())
                         continue;
@@ -225,25 +225,16 @@ void PetAI::UpdateAI(uint32 diff)
         //found units to cast on to
         if (!targetSpellStore.empty())
         {
-            uint32 index = urand(0, targetSpellStore.size() - 1);
+            TargetSpellList::iterator it = targetSpellStore.begin();
+            std::advance(it, urand(0, targetSpellStore.size() - 1));
 
-            Spell* spell  = targetSpellStore[index].second;
-            Unit*  target = targetSpellStore[index].first;
+            Spell* spell  = (*it).second;
+            Unit*  target = (*it).first;
 
-            targetSpellStore.erase(targetSpellStore.begin() + index);
+            targetSpellStore.erase(it);
 
             SpellCastTargets targets;
             targets.SetUnitTarget(target);
-
-            if (!me->HasInArc(float(M_PI), target))
-            {
-                me->SetInFront(target);
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
-                    me->SendUpdateToPlayer(target->ToPlayer());
-
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    me->SendUpdateToPlayer(owner->ToPlayer());
-            }
 
             spell->prepare(&targets);
         }

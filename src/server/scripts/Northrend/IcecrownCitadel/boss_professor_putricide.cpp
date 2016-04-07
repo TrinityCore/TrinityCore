@@ -562,7 +562,7 @@ class boss_professor_putricide : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim()))
+                if (!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -776,7 +776,7 @@ class npc_volatile_ooze : public CreatureScript
             {
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastSpell(me, SPELL_VOLATILE_OOZE_ADHESIVE, false);
             }
@@ -800,7 +800,7 @@ class npc_gas_cloud : public CreatureScript
                 _newTargetSelectTimer = 0;
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, me, false);
             }
@@ -1257,7 +1257,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                     return;
 
                 uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(triggerSpell);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(triggerSpell);
                 spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, caster);
 
                 int32 damage = spell->Effects[EFFECT_0].CalcValue(caster);

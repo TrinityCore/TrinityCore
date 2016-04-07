@@ -28,14 +28,10 @@
 class Transport;
 struct TransportCreatureProto;
 
-class MapManager
+class TC_GAME_API MapManager
 {
     public:
-        static MapManager* instance()
-        {
-            static MapManager instance;
-            return &instance;
-        }
+        static MapManager* instance();
 
         Map* CreateBaseMap(uint32 mapId);
         Map* FindBaseNonInstanceMap(uint32 mapId) const;

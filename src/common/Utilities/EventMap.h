@@ -22,7 +22,7 @@
 #include "Duration.h"
 #include "Util.h"
 
-class EventMap
+class TC_COMMON_API EventMap
 {
     /**
     * Internal storage type.

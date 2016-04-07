@@ -193,8 +193,8 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                 {
                     uint32 spellId = 0;
                     int32 basePoint = 0;
-                    Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
+                    Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
                     {
                         Aura* aura = i->second->GetBase();
                         if (aura->GetCasterGUID() != caster->GetGUID())
@@ -318,12 +318,15 @@ class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
             {
                 if (Unit* procTarget = eventInfo.GetProcTarget())
                 {
-                    Unit::AuraApplicationMap& auras = procTarget->GetAppliedAuras();
+                    Unit::AuraApplicationMap const& auras = procTarget->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
                     {
-                        SpellInfo const* spellInfo = i->second->GetBase()->GetSpellInfo();
+                        Aura const* aura = i->second->GetBase();
+                        if (aura->GetCasterGUID() != GetTarget()->GetGUID())
+                            continue;
                         // Search only Serpent Sting, Viper Sting, Scorpid Sting, Wyvern Sting
-                        if (spellInfo->SpellFamilyFlags.HasFlag(0xC000, 0x1080) && spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER)
+                        if (aura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_HUNTER
+                            && aura->GetSpellInfo()->SpellFamilyFlags.HasFlag(0xC000, 0x1080))
                             return true;
                     }
                 }
@@ -760,7 +763,7 @@ class spell_hun_readiness : public SpellScriptLoader
                 // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
                 GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
 
                     ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&

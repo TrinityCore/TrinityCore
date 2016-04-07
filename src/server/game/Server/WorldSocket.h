@@ -29,7 +29,6 @@
 #include "MPSCQueue.h"
 #include <chrono>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
 class EncryptablePacket;
@@ -49,7 +48,7 @@ struct ClientPktHeader
 
 struct AuthSession;
 
-class WorldSocket : public Socket<WorldSocket>
+class TC_GAME_API WorldSocket : public Socket<WorldSocket>
 {
     typedef Socket<WorldSocket> BaseSocket;
 

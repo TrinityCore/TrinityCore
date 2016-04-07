@@ -30,20 +30,20 @@ namespace CharacterDatabaseCleaner
         CLEANING_FLAG_QUESTSTATUS           = 0x10
     };
 
-    void CleanDatabase();
+    TC_GAME_API void CleanDatabase();
 
-    void CheckUnique(const char* column, const char* table, bool (*check)(uint32));
+    TC_GAME_API void CheckUnique(const char* column, const char* table, bool (*check)(uint32));
 
-    bool AchievementProgressCheck(uint32 criteria);
-    bool SkillCheck(uint32 skill);
-    bool SpellCheck(uint32 spell_id);
-    bool TalentCheck(uint32 talent_id);
+    TC_GAME_API bool AchievementProgressCheck(uint32 criteria);
+    TC_GAME_API bool SkillCheck(uint32 skill);
+    TC_GAME_API bool SpellCheck(uint32 spell_id);
+    TC_GAME_API bool TalentCheck(uint32 talent_id);
 
-    void CleanCharacterAchievementProgress();
-    void CleanCharacterSkills();
-    void CleanCharacterSpell();
-    void CleanCharacterTalent();
-    void CleanCharacterQuestStatus();
+    TC_GAME_API void CleanCharacterAchievementProgress();
+    TC_GAME_API void CleanCharacterSkills();
+    TC_GAME_API void CleanCharacterSpell();
+    TC_GAME_API void CleanCharacterTalent();
+    TC_GAME_API void CleanCharacterQuestStatus();
 }
 
 #endif

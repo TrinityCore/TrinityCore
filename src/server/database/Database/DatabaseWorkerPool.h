@@ -32,9 +32,7 @@
 
 #include <mysqld_error.h>
 #include <memory>
-
-#define MIN_MYSQL_SERVER_VERSION 50100u
-#define MIN_MYSQL_CLIENT_VERSION 50100u
+#include <array>
 
 class PingOperation : public SQLOperation
 {
@@ -59,97 +57,21 @@ class DatabaseWorkerPool
 
     public:
         /* Activity state */
-        DatabaseWorkerPool() : _queue(new ProducerConsumerQueue<SQLOperation*>()),
-            _async_threads(0), _synch_threads(0)
-        {
-            memset(_connectionCount, 0, sizeof(_connectionCount));
-            _connections.resize(IDX_SIZE);
-
-            WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-            WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-            WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s).",
-                mysql_get_client_info(), MYSQL_SERVER_VERSION);
-        }
+        DatabaseWorkerPool();
 
         ~DatabaseWorkerPool()
         {
             _queue->Cancel();
         }
 
-        void SetConnectionInfo(std::string const& infoString, uint8 const asyncThreads, uint8 const synchThreads)
-        {
-            _connectionInfo.reset(new MySQLConnectionInfo(infoString));
+        void SetConnectionInfo(std::string const& infoString, uint8 const asyncThreads, uint8 const synchThreads);
 
-            _async_threads = asyncThreads;
-            _synch_threads = synchThreads;
-        }
+        uint32 Open();
 
-        uint32 Open()
-        {
-            WPFatal(_connectionInfo.get(), "Connection info was not set!");
-
-            TC_LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
-                GetDatabaseName(), _async_threads, _synch_threads);
-
-            uint32 error = OpenConnections(IDX_ASYNC, _async_threads);
-
-            if (error)
-                return error;
-
-            error = OpenConnections(IDX_SYNCH, _synch_threads);
-
-            if (!error)
-            {
-                TC_LOG_INFO("sql.driver", "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
-                    (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
-            }
-
-            return error;
-        }
-
-        void Close()
-        {
-            TC_LOG_INFO("sql.driver", "Closing down DatabasePool '%s'.", GetDatabaseName());
-
-            for (uint8 i = 0; i < _connectionCount[IDX_ASYNC]; ++i)
-            {
-                T* t = _connections[IDX_ASYNC][i];
-                t->Close();         //! Closes the actualy MySQL connection.
-            }
-
-            TC_LOG_INFO("sql.driver", "Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
-                GetDatabaseName());
-
-            //! Shut down the synchronous connections
-            //! There's no need for locking the connection, because DatabaseWorkerPool<>::Close
-            //! should only be called after any other thread tasks in the core have exited,
-            //! meaning there can be no concurrent access at this point.
-            for (uint8 i = 0; i < _connectionCount[IDX_SYNCH]; ++i)
-                _connections[IDX_SYNCH][i]->Close();
-
-            TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
-        }
+        void Close();
 
         //! Prepares all prepared statements
-        bool PrepareStatements()
-        {
-            for (uint8 i = 0; i < IDX_SIZE; ++i)
-                for (uint32 c = 0; c < _connectionCount[i]; ++c)
-                {
-                    T* t = _connections[i][c];
-                    t->LockIfReady();
-                    if (!t->PrepareStatements())
-                    {
-                        t->Unlock();
-                        Close();
-                        return false;
-                    }
-                    else
-                        t->Unlock();
-                }
-
-            return true;
-        }
+        bool PrepareStatements();
 
         inline MySQLConnectionInfo const* GetConnectionInfo() const
         {
@@ -201,9 +123,9 @@ class DatabaseWorkerPool
             if (!sql)
                 return;
 
-            T* t = GetFreeConnection();
-            t->Execute(sql);
-            t->Unlock();
+            T* connection = GetFreeConnection();
+            connection->Execute(sql);
+            connection->Unlock();
         }
 
         //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
@@ -221,9 +143,9 @@ class DatabaseWorkerPool
         //! Statement must be prepared with the CONNECTION_SYNCH flag.
         void DirectExecute(PreparedStatement* stmt)
         {
-            T* t = GetFreeConnection();
-            t->Execute(stmt);
-            t->Unlock();
+            T* connection = GetFreeConnection();
+            connection->Execute(stmt);
+            connection->Unlock();
 
             //! Delete proxy-class. Not needed anymore
             delete stmt;
@@ -235,21 +157,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult Query(const char* sql, T* conn = nullptr)
-        {
-            if (!conn)
-                conn = GetFreeConnection();
-
-            ResultSet* result = conn->Query(sql);
-            conn->Unlock();
-            if (!result || !result->GetRowCount() || !result->NextRow())
-            {
-                delete result;
-                return QueryResult(NULL);
-            }
-
-            return QueryResult(result);
-        }
+        QueryResult Query(const char* sql, T* connection = nullptr);
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
@@ -276,23 +184,7 @@ class DatabaseWorkerPool
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
         //! Statement must be prepared with CONNECTION_SYNCH flag.
-        PreparedQueryResult Query(PreparedStatement* stmt)
-        {
-            T* t = GetFreeConnection();
-            PreparedResultSet* ret = t->Query(stmt);
-            t->Unlock();
-
-            //! Delete proxy-class. Not needed anymore
-            delete stmt;
-
-            if (!ret || !ret->GetRowCount())
-            {
-                delete ret;
-                return PreparedQueryResult(NULL);
-            }
-
-            return PreparedQueryResult(ret);
-        }
+        PreparedQueryResult Query(PreparedStatement* stmt);
 
         /**
             Asynchronous query (with resultset) methods.
@@ -300,14 +192,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a query in string format that will set the value of the QueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
-        QueryResultFuture AsyncQuery(const char* sql)
-        {
-            BasicStatementTask* task = new BasicStatementTask(sql, true);
-            // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-            QueryResultFuture result = task->GetFuture();
-            Enqueue(task);
-            return result;
-        }
+        QueryResultFuture AsyncQuery(const char* sql);
 
         //! Enqueues a query in string format -with variable args- that will set the value of the QueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
@@ -320,27 +205,13 @@ class DatabaseWorkerPool
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Statement must be prepared with CONNECTION_ASYNC flag.
-        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt)
-        {
-            PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
-            // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-            PreparedQueryResultFuture result = task->GetFuture();
-            Enqueue(task);
-            return result;
-        }
+        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt);
 
         //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder)
-        {
-            SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
-            // Store future result before enqueueing - task might get already processed and deleted before returning from this method
-            QueryResultHolderFuture result = task->GetFuture();
-            Enqueue(task);
-            return result;
-        }
+        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder);
 
         /**
             Transaction context methods.
@@ -354,57 +225,11 @@ class DatabaseWorkerPool
 
         //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void CommitTransaction(SQLTransaction transaction)
-        {
-            #ifdef TRINITY_DEBUG
-            //! Only analyze transaction weaknesses in Debug mode.
-            //! Ideally we catch the faults in Debug mode and then correct them,
-            //! so there's no need to waste these CPU cycles in Release mode.
-            switch (transaction->GetSize())
-            {
-                case 0:
-                    TC_LOG_DEBUG("sql.driver", "Transaction contains 0 queries. Not executing.");
-                    return;
-                case 1:
-                    TC_LOG_DEBUG("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
-                    break;
-                default:
-                    break;
-            }
-            #endif // TRINITY_DEBUG
-
-            Enqueue(new TransactionTask(transaction));
-        }
+        void CommitTransaction(SQLTransaction transaction);
 
         //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void DirectCommitTransaction(SQLTransaction& transaction)
-        {
-            T* con = GetFreeConnection();
-            int errorCode = con->ExecuteTransaction(transaction);
-            if (!errorCode)
-            {
-                con->Unlock();      // OK, operation succesful
-                return;
-            }
-
-            //! Handle MySQL Errno 1213 without extending deadlock to the core itself
-            /// @todo More elegant way
-            if (errorCode == ER_LOCK_DEADLOCK)
-            {
-                uint8 loopBreaker = 5;
-                for (uint8 i = 0; i < loopBreaker; ++i)
-                {
-                    if (!con->ExecuteTransaction(transaction))
-                        break;
-                }
-            }
-
-            //! Clean up now.
-            transaction->Cleanup();
-
-            con->Unlock();
-        }
+        void DirectCommitTransaction(SQLTransaction& transaction);
 
         //! Method used to execute prepared statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
@@ -441,90 +266,21 @@ class DatabaseWorkerPool
         }
 
         //! Apply escape string'ing for current collation. (utf8)
-        void EscapeString(std::string& str)
-        {
-            if (str.empty())
-                return;
-
-            char* buf = new char[str.size() * 2 + 1];
-            EscapeString(buf, str.c_str(), str.size());
-            str = buf;
-            delete[] buf;
-        }
+        void EscapeString(std::string& str);
 
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
-        void KeepAlive()
-        {
-            //! Ping synchronous connections
-            for (uint8 i = 0; i < _connectionCount[IDX_SYNCH]; ++i)
-            {
-                T* t = _connections[IDX_SYNCH][i];
-                if (t->LockIfReady())
-                {
-                    t->Ping();
-                    t->Unlock();
-                }
-            }
-
-            //! Assuming all worker threads are free, every worker thread will receive 1 ping operation request
-            //! If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter
-            //! as the sole purpose is to prevent connections from idling.
-            for (size_t i = 0; i < _connections[IDX_ASYNC].size(); ++i)
-                Enqueue(new PingOperation);
-        }
+        void KeepAlive();
 
     private:
-        uint32 OpenConnections(InternalIndex type, uint8 numConnections)
-        {
-            _connections[type].resize(numConnections);
-            for (uint8 i = 0; i < numConnections; ++i)
-            {
-                T* t;
-
-                if (type == IDX_ASYNC)
-                    t = new T(_queue.get(), *_connectionInfo);
-                else if (type == IDX_SYNCH)
-                    t = new T(*_connectionInfo);
-                else
-                    ABORT();
-
-                _connections[type][i] = t;
-                ++_connectionCount[type];
-
-                uint32 error = t->Open();
-
-                if (!error)
-                {
-                    if (mysql_get_server_version(t->GetHandle()) < MIN_MYSQL_SERVER_VERSION)
-                    {
-                        TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below 5.1");
-                        error = 1;
-                    }
-                }
-
-                // Failed to open a connection or invalid version, abort and cleanup
-                if (error)
-                {
-                    while (_connectionCount[type] != 0)
-                    {
-                        t = _connections[type][i--];
-                        delete t;
-                        --_connectionCount[type];
-                    }
-                    return error;
-                }
-            }
-
-            // Everything is fine
-            return 0;
-        }
+        uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
         unsigned long EscapeString(char *to, const char *from, unsigned long length)
         {
             if (!to || !from || !length)
                 return 0;
 
-            return mysql_real_escape_string(_connections[IDX_SYNCH][0]->GetHandle(), to, from, length);
+            return mysql_real_escape_string(
+                _connections[IDX_SYNCH].front()->GetHandle(), to, from, length);
         }
 
         void Enqueue(SQLOperation* op)
@@ -534,22 +290,7 @@ class DatabaseWorkerPool
 
         //! Gets a free connection in the synchronous connection pool.
         //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
-        T* GetFreeConnection()
-        {
-            uint8 i = 0;
-            size_t num_cons = _connectionCount[IDX_SYNCH];
-            T* t = NULL;
-            //! Block forever until a connection is free
-            for (;;)
-            {
-                t = _connections[IDX_SYNCH][++i % num_cons];
-                //! Must be matched with t->Unlock() or you will get deadlocks
-                if (t->LockIfReady())
-                    break;
-            }
-
-            return t;
-        }
+        T* GetFreeConnection();
 
         char const* GetDatabaseName() const
         {
@@ -558,9 +299,7 @@ class DatabaseWorkerPool
 
         //! Queue shared by async worker threads.
         std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;
-        std::vector<std::vector<T*>> _connections;
-        //! Counter of MySQL connections;
-        uint32 _connectionCount[IDX_SIZE];
+        std::array<std::vector<std::unique_ptr<T>>, IDX_SIZE> _connections;
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         uint8 _async_threads, _synch_threads;
 };

@@ -196,7 +196,7 @@ enum AuctionBotConfigFloatValues
 };
 
 // All basic config data used by other AHBot classes for self-configure.
-class AuctionBotConfig
+class TC_GAME_API AuctionBotConfig
 {
 private:
     AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20) {}
@@ -205,11 +205,7 @@ private:
     AuctionBotConfig& operator=(const AuctionBotConfig&);
 
 public:
-    static AuctionBotConfig* instance()
-    {
-        static AuctionBotConfig instance;
-        return &instance;
-    }
+    static AuctionBotConfig* instance();
 
     bool Initialize();
     const std::string& GetAHBotIncludes() const { return _AHBotIncludes; }
@@ -274,7 +270,7 @@ typedef AuctionHouseBotStatusInfoPerType AuctionHouseBotStatusInfo[MAX_AUCTION_H
 
 // This class handle both Selling and Buying method
 // (holder of AuctionBotBuyer and AuctionBotSeller objects)
-class AuctionHouseBot
+class TC_GAME_API AuctionHouseBot
 {
 private:
     AuctionHouseBot();
@@ -283,11 +279,7 @@ private:
     AuctionHouseBot& operator=(const AuctionHouseBot&);
 
 public:
-    static AuctionHouseBot* instance()
-    {
-        static AuctionHouseBot instance;
-        return &instance;
-    }
+    static AuctionHouseBot* instance();
 
     void Update();
     void Initialize();

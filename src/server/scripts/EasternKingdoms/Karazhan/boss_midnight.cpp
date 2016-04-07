@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "karazhan.h"
 
 enum Midnight
 {
@@ -109,6 +110,9 @@ public:
             Talk(SAY_DEATH);
             if (Unit* midnight = ObjectAccessor::GetUnit(*me, Midnight))
                 midnight->KillSelf();
+
+            if (InstanceScript* instance = me->GetInstanceScript())
+                instance->SetBossState(DATA_ATTUMEN, DONE);
         }
 
         void UpdateAI(uint32 diff) override;
@@ -157,7 +161,11 @@ public:
             me->SetVisible(true);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override
+        {
+            if (InstanceScript* instance = me->GetInstanceScript())
+                instance->SetBossState(DATA_ATTUMEN, IN_PROGRESS);
+        }
 
         void KilledUnit(Unit* /*victim*/) override
         {

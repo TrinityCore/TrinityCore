@@ -36,6 +36,7 @@
 #include "MMapFactory.h"
 #include "DisableMgr.h"
 #include "SpellHistory.h"
+#include "Transport.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -237,6 +238,10 @@ public:
             areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
+        if (Transport* transport = object->GetTransport())
+            handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
+                transport->GetGOInfo()->moTransport.mapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
+                transport->GetEntry(), transport->GetName().c_str());
         handler->PSendSysMessage(LANG_GRID_POSITION,
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
             zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
@@ -1588,7 +1593,7 @@ public:
 
         // Query the prepared statement for login data
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        stmt->setInt32(0, int32(realmID));
+        stmt->setInt32(0, int32(realm.Id.Realm));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -1964,7 +1969,7 @@ public:
             return false;
 
         std::string accountName = nameStr;
-        if (!AccountMgr::normalizeString(accountName))
+        if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
             handler->SetSentErrorMessage(true);

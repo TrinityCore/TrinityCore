@@ -66,8 +66,6 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_PRESENCE_TRIGGERED          = 49772,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
-    SPELL_DK_RAISE_ALLY_INITIAL                 = 61999,
-    SPELL_DK_RAISE_ALLY                         = 46619,
     SPELL_DK_GHOUL_THRASH                       = 47480,
     SPELL_DK_DANCING_RUNE_WEAPON                = 49028
 };
@@ -230,7 +228,7 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                SpellInfo const* talentSpell = sSpellMgr->EnsureSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
+                SpellInfo const* talentSpell = sSpellMgr->AssertSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
                 amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
                 if (Player* player = GetCaster()->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
@@ -1638,7 +1636,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
             {
                 // min pct of hp is stored in effect 0 of talent spell
                 uint8 rank = GetSpellInfo()->GetRank();
-                SpellInfo const* talentProto = sSpellMgr->EnsureSpellInfo(sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank));
+                SpellInfo const* talentProto = sSpellMgr->AssertSpellInfo(sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank));
 
                 int32 remainingHp = int32(GetTarget()->GetHealth() - dmgInfo.GetDamage());
                 int32 minHp = int32(GetTarget()->CountPctFromMaxHealth(talentProto->Effects[EFFECT_0].CalcValue(GetCaster())));
@@ -1735,36 +1733,39 @@ public:
     {
         PrepareSpellScript(spell_dk_raise_ally_initial_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        bool Validate(SpellInfo const* spellInfo) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY_INITIAL))
+            if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_0].CalcValue())))
                 return false;
             return true;
         }
 
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
         SpellCastResult CheckCast()
         {
-            // Raise Ally cannot be casted on alive players
             Unit* target = GetExplTargetUnit();
             if (!target)
                 return SPELL_FAILED_NO_VALID_TARGETS;
             if (target->IsAlive())
                 return SPELL_FAILED_TARGET_NOT_DEAD;
-            if (Player* playerCaster = GetCaster()->ToPlayer())
-                if (playerCaster->InArena())
-                    return SPELL_FAILED_NOT_IN_ARENA;
             if (target->IsGhouled())
                 return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
             return SPELL_CAST_OK;
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Player* caster = GetCaster()->ToPlayer();
-            Player* target = GetHitPlayer();
-            if (caster && target)
-                caster->SendGhoulResurrectRequest(target);
+            if (Player* target = GetHitPlayer())
+            {
+                if (target->IsResurrectRequested()) // already have one active request
+                    return;
+                target->SetResurrectRequestData(GetCaster(), 0, 0, uint32(GetEffectValue()));
+                GetSpell()->SendResurrectRequest(target);
+            }
         }
 
         void Register() override
@@ -1787,12 +1788,8 @@ class player_ghoulAI : public PlayerAI
 
         void UpdateAI(uint32 /*diff*/) override
         {
-            if (Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID))
-            {
-                if (!ghoul->IsAlive())
-                    me->RemoveAura(SPELL_DK_RAISE_ALLY);
-            }
-            else
+            Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID);
+            if (!ghoul || !ghoul->IsAlive())
                 me->RemoveAura(SPELL_DK_RAISE_ALLY);
         }
 
@@ -1801,28 +1798,25 @@ class player_ghoulAI : public PlayerAI
 };
 
 // 46619 - Raise Ally
+#define DkRaiseAllyScriptName "spell_dk_raise_ally"
 class spell_dk_raise_ally : public SpellScriptLoader
 {
 public:
-    spell_dk_raise_ally() : SpellScriptLoader("spell_dk_raise_ally") { }
+    spell_dk_raise_ally() : SpellScriptLoader(DkRaiseAllyScriptName) { }
 
     class spell_dk_raise_ally_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dk_raise_ally_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        bool Load() override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY))
-                return false;
-            return true;
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
 
         void SendText()
         {
-            Player* caster = GetCaster()->ToPlayer();
-            Unit* original = GetOriginalCaster();
-            if (caster && original)
-                original->Whisper(TEXT_RISE_ALLY, caster, true);
+            if (Unit* original = GetOriginalCaster())
+                original->Whisper(TEXT_RISE_ALLY, GetCaster()->ToPlayer(), true);
         }
 
         void HandleSummon(SpellEffIndex effIndex)
@@ -1841,9 +1835,8 @@ public:
             SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(829);
 
             uint32 duration = uint32(GetSpellInfo()->GetDuration());
-            Position pos = caster->GetPosition();
 
-            TempSummon* summon = originalCaster->GetMap()->SummonCreature(entry, pos, properties, duration, originalCaster, GetSpellInfo()->Id);
+            TempSummon* summon = originalCaster->GetMap()->SummonCreature(entry, *GetHitDest(), properties, duration, originalCaster, GetSpellInfo()->Id);
             if (!summon)
                 return;
 
@@ -1870,15 +1863,25 @@ public:
             // SMSG_POWER_UPDATE is sent
             summon->SetMaxPower(POWER_ENERGY, 100);
 
-            if (Player* player = GetCaster()->ToPlayer())
-                player->SetGhoulResurrectGhoulGUID(summon->GetGUID());
+            _ghoulGuid = summon->GetGUID();
+        }
+
+        void SetGhoul(SpellEffIndex /*effIndex*/)
+        {
+            if (Aura* aura = GetHitAura())
+                if (spell_dk_raise_ally_AuraScript* script = dynamic_cast<spell_dk_raise_ally_AuraScript*>(aura->GetScriptByName(DkRaiseAllyScriptName)))
+                    script->SetGhoulGuid(_ghoulGuid);
         }
 
         void Register() override
         {
             AfterHit += SpellHitFn(spell_dk_raise_ally_SpellScript::SendText);
             OnEffectHit += SpellEffectFn(spell_dk_raise_ally_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_raise_ally_SpellScript::SetGhoul, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
         }
+
+    private:
+        ObjectGuid _ghoulGuid;
     };
 
     SpellScript* GetSpellScript() const override
@@ -1897,31 +1900,32 @@ public:
             oldAIState = false;
         }
 
-    private:
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        void SetGhoulGuid(ObjectGuid guid)
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY))
-                return false;
-            return true;
+            ghoulGuid = guid;
+        }
+
+    private:
+        bool Load() override
+        {
+            return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
-            if (!player || player->GetGhoulResurrectGhoulGUID().IsEmpty())
+            if (ghoulGuid.IsEmpty())
                 return;
 
             oldAI = player->AI();
             oldAIState = player->IsAIEnabled;
-            player->SetAI(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID()));
+            player->SetAI(new player_ghoulAI(player, ghoulGuid));
             player->IsAIEnabled = true;
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
-            if (!player)
-                return;
 
             player->IsAIEnabled = oldAIState;
             PlayerAI* thisAI = player->AI();
@@ -1929,13 +1933,12 @@ public:
             delete thisAI;
 
             // Dismiss ghoul if necessary
-            if (Creature* ghoul = ObjectAccessor::GetCreature(*player, player->GetGhoulResurrectGhoulGUID()))
+            if (Creature* ghoul = ObjectAccessor::GetCreature(*player, ghoulGuid))
             {
-                ghoul->RemoveCharmedBy(nullptr);
+                ghoul->RemoveCharmedBy(player);
                 ghoul->DespawnOrUnsummon(1000);
             }
 
-            player->SetGhoulResurrectGhoulGUID(ObjectGuid::Empty);
             player->RemoveAura(SPELL_GHOUL_FRENZY);
         }
 
@@ -1945,6 +1948,7 @@ public:
             AfterEffectRemove += AuraEffectRemoveFn(spell_dk_raise_ally_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
 
+        ObjectGuid ghoulGuid;
         PlayerAI* oldAI;
         bool oldAIState;
     };
@@ -1967,7 +1971,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_GHOUL_THRASH))
+            if (!sSpellMgr->GetSpellInfo(SPELL_GHOUL_FRENZY))
                 return false;
             return true;
         }

@@ -49,7 +49,7 @@ class rbac_commandscript : public CommandScript
 public:
     rbac_commandscript() : CommandScript("rbac_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
         static std::vector<ChatCommand> rbacAccountCommandTable =
         {
@@ -139,7 +139,7 @@ public:
         {
             accountName = param1;
 
-            if (AccountMgr::normalizeString(accountName))
+            if (Utf8ToUpperOnlyLatin(accountName))
                 accountId = AccountMgr::GetId(accountName);
 
             if (!accountId)
@@ -157,7 +157,7 @@ public:
 
         if (!rdata)
         {
-            data->rbac = new rbac::RBACData(accountId, accountName, realmID, AccountMgr::GetSecurity(accountId, realmID));
+            data->rbac = new rbac::RBACData(accountId, accountName, realm.Id.Realm, AccountMgr::GetSecurity(accountId, realm.Id.Realm));
             data->rbac->LoadFromDB();
             data->needDelete = true;
         }

@@ -270,6 +270,25 @@ MaxOverspeedPings = 2
 GridUnload = 1
 
 #
+#    BaseMapLoadAllGrids
+#        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
+#                     This will take around 5GB of ram upon server load, and will take some time
+#                     to initially load the server.
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in all base maps upon load)
+
+BaseMapLoadAllGrids = 0
+
+#
+#    InstanceMapLoadAllGrids
+#        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
+#                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in the instance upon load)
+
+InstanceMapLoadAllGrids = 0
+
+#
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.
@@ -328,6 +347,13 @@ PlayerSave.Stats.MinLevel = 0
 #                     0 - (Disabled, Save on every player save)
 
 PlayerSave.Stats.SaveOnlyOnLogout = 1
+
+#
+#    DisconnectToleranceInterval
+#        Description: Tolerance (in seconds) for disconnected players before reentering the queue.
+#        Default: 0 (disabled)
+
+DisconnectToleranceInterval = 0
 
 #
 #    mmap.enablePathFinding
@@ -1100,9 +1126,8 @@ BeepAtStart = 1
 
 #
 #    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
+#        Description: Message of the Day, displayed at login. Use '@' for a newline.
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
 Motd = "Welcome to a Trinity Core server."
@@ -2279,16 +2304,16 @@ Battleground.InvitationType = 0
 #        Default:     300000 - (Enabled, 5 minutes)
 #                     0      - (Disabled, Not recommended)
 
-BattleGround.PrematureFinishTimer = 300000
+Battleground.PrematureFinishTimer = 300000
 
 #
-#    BattleGround.PremadeGroupWaitForMatch
+#    Battleground.PremadeGroupWaitForMatch
 #        Description: Time (in milliseconds) a pre-made group has to wait for matching group of the
 #                     other faction.
 #        Default:     1800000 - (Enabled, 30 minutes)
 #                     0       - (Disabled, Not recommended)
 
-BattleGround.PremadeGroupWaitForMatch = 1800000
+Battleground.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
@@ -2971,6 +2996,27 @@ AuctionHouseBot.MinTime = 1
 AuctionHouseBot.MaxTime = 72
 
 #
+#    AuctionHouseBot.Class.CLASS.Allow.Zero = 0
+#       Description: Include items without a sell or buy price.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Class.Consumable.Allow.Zero = 0
+AuctionHouseBot.Class.Container.Allow.Zero = 0
+AuctionHouseBot.Class.Weapon.Allow.Zero = 0
+AuctionHouseBot.Class.Gem.Allow.Zero = 0
+AuctionHouseBot.Class.Armor.Allow.Zero = 0
+AuctionHouseBot.Class.Reagent.Allow.Zero = 0
+AuctionHouseBot.Class.Projectile.Allow.Zero = 0
+AuctionHouseBot.Class.TradeGood.Allow.Zero = 0
+AuctionHouseBot.Class.Recipe.Allow.Zero = 0
+AuctionHouseBot.Class.Quiver.Allow.Zero = 0
+AuctionHouseBot.Class.Quest.Allow.Zero = 0
+AuctionHouseBot.Class.Key.Allow.Zero = 0
+AuctionHouseBot.Class.Misc.Allow.Zero = 0
+AuctionHouseBot.Class.Glyph.Allow.Zero = 0
+
+#
 #    AuctionHouseBot.Items.Vendor
 #       Description: Include items that can be bought from vendors.
 #       Default:     0 - (Disabled)
@@ -3078,6 +3124,27 @@ AuctionHouseBot.Items.Orange.Price.Ratio = 100
 AuctionHouseBot.Items.Yellow.Price.Ratio = 100
 
 #
+#    AuctionHouseBot.Class.CLASS.Price.Ratio
+#       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
+#       Default:   100 - (No change)
+
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100
+AuctionHouseBot.Class.Container.Price.Ratio = 100
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100
+AuctionHouseBot.Class.Gem.Price.Ratio = 100
+AuctionHouseBot.Class.Armor.Price.Ratio = 100
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
+AuctionHouseBot.Class.Generic.Price.Ratio = 100
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100
+AuctionHouseBot.Class.Quest.Price.Ratio = 100
+AuctionHouseBot.Class.Key.Price.Ratio = 100
+AuctionHouseBot.Class.Misc.Price.Ratio = 100
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100
+
+#
 #    AuctionHouseBot.Items.ItemLevel.*
 #       Description: Prevent seller from listing items below/above this item level
 #       Default:     0 - (Disabled)
@@ -3152,6 +3219,7 @@ AuctionHouseBot.Class.Quest = 1
 AuctionHouseBot.Class.Key = 1
 AuctionHouseBot.Class.Misc = 5
 AuctionHouseBot.Class.Glyph = 3
+
 
 #
 ###################################################################################################
@@ -3443,6 +3511,7 @@ Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
+Logger.mmaps=3,Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server

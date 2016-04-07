@@ -533,8 +533,8 @@ enum UnitMoveType
 
 #define MAX_MOVE_TYPE     9
 
-extern float baseMoveSpeed[MAX_MOVE_TYPE];
-extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
+TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
+TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
 enum WeaponAttackType
 {
@@ -586,7 +586,7 @@ enum DamageEffectType
 };
 
 // Value masks for UNIT_FIELD_FLAGS
-enum UnitFlags
+enum UnitFlags : uint32
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
     UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
@@ -826,7 +826,7 @@ struct CleanDamage
 
 struct CalcDamageInfo;
 
-class DamageInfo
+class TC_GAME_API DamageInfo
 {
 private:
     Unit* const m_attacker;
@@ -889,7 +889,7 @@ public:
     SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
 };
 
-class ProcEventInfo
+class TC_GAME_API ProcEventInfo
 {
 public:
     ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget, uint32 typeMask,
@@ -947,7 +947,7 @@ struct CalcDamageInfo
 };
 
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
-struct SpellNonMeleeDamage
+struct TC_GAME_API SpellNonMeleeDamage
 {
     SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
@@ -1108,7 +1108,7 @@ enum ActionBarIndex
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
-struct CharmInfo
+struct TC_GAME_API CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
@@ -1210,7 +1210,7 @@ enum PlayerTotemType
 
 struct SpellProcEventEntry;                                 // used only privately
 
-class Unit : public WorldObject
+class TC_GAME_API Unit : public WorldObject
 {
     public:
         typedef std::set<Unit*> AttackerSet;
@@ -1276,7 +1276,7 @@ class Unit : public WorldObject
         void _removeAttacker(Unit* pAttacker);               // must be called only from Unit::AttackStop()
         Unit* getAttackerForHelper() const;                 // If someone wants to help, who to give them
         bool Attack(Unit* victim, bool meleeAttack);
-        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Unit for forced target reacquisition in the next ::Attack call
+        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Unit for forced (client displayed) target reacquisition in the next ::Attack call
         void CastStop(uint32 except_spellid = 0);
         bool AttackStop();
         void RemoveAllAttackers();
@@ -1383,7 +1383,8 @@ class Unit : public WorldObject
         bool IsContestedGuard() const;
         bool IsPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP); }
         bool IsFFAPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP); }
-        void SetPvP(bool state);
+        virtual void SetPvP(bool state);
+
         uint32 GetCreatureType() const;
         uint32 GetCreatureTypeMask() const;
 
@@ -1561,7 +1562,7 @@ class Unit : public WorldObject
         void SendTeleportPacket(Position& pos);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
-        bool UpdatePosition(const Position &pos, bool teleport = false);
+        virtual bool UpdatePosition(const Position &pos, bool teleport = false);
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
 
@@ -1601,7 +1602,7 @@ class Unit : public WorldObject
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }
         bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); }
-        bool IsGhouled() const { return HasAura(46619 /*SPELL_DK_RAISE_ALLY*/); }
+        bool IsGhouled() const;
         DeathState getDeathState() const { return m_deathState; }
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
@@ -1703,6 +1704,16 @@ class Unit : public WorldObject
         void RemoveAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(Aura* aur, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
+
+        // Convenience methods removing auras by predicate
+        void RemoveAppliedAuras(std::function<bool(AuraApplication const*)> const& check);
+        void RemoveOwnedAuras(std::function<bool(Aura const*)> const& check);
+
+        // Optimized overloads taking advantage of map key
+        void RemoveAppliedAuras(uint32 spellId, std::function<bool(AuraApplication const*)> const& check);
+        void RemoveOwnedAuras(uint32 spellId, std::function<bool(Aura const*)> const& check);
+
+        void RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check);
 
         void RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
