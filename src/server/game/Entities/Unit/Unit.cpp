@@ -16421,13 +16421,14 @@ uint32 Unit::GetVirtualItemId(uint32 slot) const
     return GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot * 2);
 }
 
-void Unit::SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId /*= 0*/)
+void Unit::SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId /*= 0*/, uint16 itemVisual /*= 0*/)
 {
     if (slot >= MAX_EQUIPMENT_ITEMS)
         return;
 
     SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot * 2, itemId);
     SetUInt16Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot * 2 + 1, 0, appearanceModId);
+    SetUInt16Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot * 2 + 1, 1, itemVisual);
 }
 
 void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject const* target)

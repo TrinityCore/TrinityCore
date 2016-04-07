@@ -11378,7 +11378,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     {
         SetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (slot * 2), pItem->GetVisibleEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 0, pItem->GetVisibleAppearanceModId());
-        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 1, pItem->GetVisibleItemVisual());
     }
     else
     {
@@ -13115,7 +13115,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (item->GetSlot() * 2), 1, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (item->GetSlot() * 2), 1, item->GetVisibleItemVisual());
 
     if (apply_dur)
     {
@@ -18664,7 +18664,7 @@ void Player::SaveToDB(bool create /*=false*/)
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
                 ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId() << ' ';
-                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)))
+                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetVisibleEnchantmentId()))
                     ss << enchant->ItemVisual;
                 else
                     ss << '0';
@@ -18808,7 +18808,7 @@ void Player::SaveToDB(bool create /*=false*/)
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
                 ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId() << ' ';
-                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)))
+                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetVisibleEnchantmentId()))
                     ss << enchant->ItemVisual;
                 else
                     ss << '0';
