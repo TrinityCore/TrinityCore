@@ -29,14 +29,21 @@ enum BattlePetMisc
     DEFAULT_SUMMON_BATTLE_PET_SPELL = 118301
 };
 
-// TODO: fix undefined values in this enum
+// 6.2.4
+enum FlagsControlType
+{
+    FLAGS_CONTROL_TYPE_APPLY        = 1,
+    FLAGS_CONTROL_TYPE_REMOVE       = 2
+};
+
+// 6.2.4
 enum BattlePetError
 {
-    BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE = 9,
-    BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE         = 12,
-    BATTLEPETRESULT_CANT_HAVE_MORE_PETS              = 13,
+    BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE = 3,
+    BATTLEPETRESULT_CANT_HAVE_MORE_PETS              = 4,
+    BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE         = 7,
 
-    // wrong order
+    // TODO: find correct values if possible and needed (also wrong order)
     BATTLEPETRESULT_DUPLICATE_CONVERTED_PET,
     BATTLEPETRESULT_NEED_TO_UNLOCK,
     BATTLEPETRESULT_BAD_PARAM,
