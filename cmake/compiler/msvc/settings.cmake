@@ -32,7 +32,7 @@ endif()
 
 # Set build-directive (used in core to tell which buildtype we used)
 # msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
-if("${CMAKE_MAKE_PROGRAM}" STREQUAL "")
+if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
   add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
 else()
   # while all make-like generators do (nmake, ninja)
