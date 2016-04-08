@@ -359,9 +359,9 @@ static bool IsEncounterFinished(Unit* who)
     if (!mkii || !vx001 || !aerial)
         return false;
 
-    if (mkii->SetStandState() == UNIT_STAND_STATE_DEAD &&
-        vx001->SetStandState() == UNIT_STAND_STATE_DEAD &&
-        aerial->SetStandState() == UNIT_STAND_STATE_DEAD)
+    if (mkii->GetStandState() == UNIT_STAND_STATE_DEAD &&
+        vx001->GetStandState() == UNIT_STAND_STATE_DEAD &&
+        aerial->GetStandState() == UNIT_STAND_STATE_DEAD)
     {
         who->Kill(mkii);
         who->Kill(vx001);
