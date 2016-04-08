@@ -31,10 +31,12 @@ else()
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)
-if(CMAKE_MAKE_PROGRAM MATCHES "nmake")
-  add_definitions(-D_BUILD_DIRECTIVE=\\"${CMAKE_BUILD_TYPE}\\")
-else()
+# msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
+if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
   add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+else()
+  # while all make-like generators do (nmake, ninja)
+  add_definitions(-D_BUILD_DIRECTIVE=\\"${CMAKE_BUILD_TYPE}\\")
 endif()
 
 # multithreaded compiling on VS
