@@ -472,7 +472,8 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
                 if (Aura* aura = caster->GetAura(GetEffectValue()))
                 {
                     if (aura->GetStackAmount() == 1)
-                        caster->RemoveAurasDueToSpell(aura->GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                        if (SpellEffectInfo const* effect = aura->GetSpellInfo()->GetEffect(EFFECT_0))
+                            caster->RemoveAurasDueToSpell(effect->CalcValue());
                     aura->ModStackAmount(-1);
                 }
             }
