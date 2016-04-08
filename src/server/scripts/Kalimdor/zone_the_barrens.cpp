@@ -552,7 +552,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                if (me->getStandState() == UNIT_STAND_STATE_DEAD)
+                if (me->SetStandState() == UNIT_STAND_STATE_DEAD)
                      me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 IsPostEvent = false;
