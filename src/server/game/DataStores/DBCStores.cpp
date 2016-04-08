@@ -1017,5 +1017,6 @@ ResponseCodes ValidateName(std::string const& name, LocaleConstant locale)
 
 EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender)
 {
-    return sEmotesTextSoundMap[EmotesTextSoundKey(emote, race, gender)];
+    auto itr = sEmotesTextSoundMap.find(EmotesTextSoundKey(emote, race, gender));
+    return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
 }
