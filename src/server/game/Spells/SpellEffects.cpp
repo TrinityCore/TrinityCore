@@ -6006,7 +6006,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex /*effIndex*/)
             collectionMgr->UpgradeHeirloom(m_misc.Raw.Data[0], m_castItemEntry);
 }
 
-void Spell::EffectApplyEnchantIllusion(SpellEffIndex effIndex)
+void Spell::EffectApplyEnchantIllusion(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
