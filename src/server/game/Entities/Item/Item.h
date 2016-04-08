@@ -433,7 +433,9 @@ class TC_GAME_API Item : public Object
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
         uint32 GetVisibleEntry() const;
-        uint32 GetVisibleAppearanceModId() const;
+        uint16 GetVisibleAppearanceModId() const;
+        uint32 GetVisibleEnchantmentId() const;
+        uint16 GetVisibleItemVisual() const;
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 

@@ -439,6 +439,7 @@ class TC_GAME_API Spell
         void EffectUncageBattlePet(SpellEffIndex effIndex);
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
+        void EffectApplyEnchantIllusion(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 

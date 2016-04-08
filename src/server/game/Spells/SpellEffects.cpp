@@ -308,7 +308,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectApplyEnchantIllusion,                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
@@ -1995,8 +1995,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
     else if (player->IsBankPos(pos))
     {
         ItemPosCountVec dest;
-        uint8 msg = player->CanBankItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), dest, pNewItem, true);
-        if (msg == EQUIP_ERR_OK)
+        if (player->CanBankItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), dest, pNewItem, true) == EQUIP_ERR_OK)
         {
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
@@ -2019,7 +2018,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
 
         player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
-        uint8 msg = player->CanEquipItem(m_CastItem->GetSlot(), dest, pNewItem, true);
+        InventoryResult msg = player->CanEquipItem(m_CastItem->GetSlot(), dest, pNewItem, true);
 
         if (msg == EQUIP_ERR_OK || msg == EQUIP_ERR_CLIENT_LOCKED_OUT)
         {
@@ -6005,4 +6004,25 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex /*effIndex*/)
     if (Player* player = m_caster->ToPlayer())
         if (CollectionMgr* collectionMgr = player->GetSession()->GetCollectionMgr())
             collectionMgr->UpgradeHeirloom(m_misc.Raw.Data[0], m_castItemEntry);
+}
+
+void Spell::EffectApplyEnchantIllusion(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!itemTarget)
+        return;
+
+    Player* player = m_caster->ToPlayer();
+    if (!player || player->GetGUID() != itemTarget->GetOwnerGUID())
+        return;
+
+    itemTarget->SetState(ITEM_CHANGED, player);
+    itemTarget->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION, effectInfo->MiscValue);
+    if (itemTarget->IsEquipped())
+        player->SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (itemTarget->GetSlot() * 2), 1, itemTarget->GetVisibleItemVisual());
+
+    player->RemoveTradeableItem(itemTarget);
+    itemTarget->ClearSoulboundTradeable(player);
 }

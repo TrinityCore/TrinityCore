@@ -456,7 +456,7 @@ enum RuneCooldowns
     RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
 };
 
-enum RuneType
+enum RuneType : uint8
 {
     RUNE_BLOOD      = 0,
     RUNE_UNHOLY     = 1,
@@ -739,7 +739,7 @@ enum PlayerSlots
 
 #define INVENTORY_SLOT_BAG_0    255
 
-enum EquipmentSlots                                         // 19 slots
+enum EquipmentSlots : uint8                                 // 19 slots
 {
     EQUIPMENT_SLOT_START        = 0,
     EQUIPMENT_SLOT_HEAD         = 0,
@@ -767,13 +767,13 @@ enum EquipmentSlots                                         // 19 slots
 #define VISIBLE_ITEM_ENTRY_OFFSET 0
 #define VISIBLE_ITEM_ENCHANTMENT_OFFSET 1
 
-enum InventorySlots                                         // 4 slots
+enum InventorySlots : uint8                                 // 4 slots
 {
     INVENTORY_SLOT_BAG_START    = 19,
     INVENTORY_SLOT_BAG_END      = 23
 };
 
-enum InventoryPackSlots                                     // 16 slots
+enum InventoryPackSlots : uint8                             // 16 slots
 {
     INVENTORY_SLOT_ITEM_START   = 23,
     INVENTORY_SLOT_ITEM_END     = 39
@@ -915,7 +915,7 @@ enum TeleportToOptions
 };
 
 /// Type of environmental damages
-enum EnviromentalDamage
+enum EnviromentalDamage : uint8
 {
     DAMAGE_EXHAUSTED = 0,
     DAMAGE_DROWNING  = 1,
@@ -1063,7 +1063,7 @@ enum ReferAFriendError
     ERR_REFER_A_FRIEND_MAP_INCOMING_TRANSFER_NOT_ALLOWED = 15
 };
 
-enum PlayerRestState
+enum PlayerRestState : uint8
 {
     REST_STATE_RESTED                                = 0x01,
     REST_STATE_NOT_RAF_LINKED                        = 0x02,
@@ -1080,7 +1080,7 @@ enum PlayerCommandStates
     CHEAT_WATERWALK = 0x10
 };
 
-enum PlayerLogXPReason
+enum PlayerLogXPReason : uint8
 {
     LOG_XP_REASON_KILL    = 0,
     LOG_XP_REASON_NO_KILL = 1

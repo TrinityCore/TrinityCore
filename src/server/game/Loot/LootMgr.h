@@ -62,7 +62,7 @@ enum RollMask
 #define MAX_NR_QUEST_ITEMS 32
 // unrelated to the number of quest items shown, just for reserve
 
-enum LootMethod
+enum LootMethod : uint8
 {
     FREE_FOR_ALL      = 0,
     ROUND_ROBIN       = 1,
@@ -83,7 +83,7 @@ enum PermissionTypes
     NONE_PERMISSION             = 6
 };
 
-enum LootType
+enum LootType : uint8
 {
     LOOT_NONE                   = 0,
 

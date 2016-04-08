@@ -612,7 +612,7 @@ enum UnitMoveType
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
-enum WeaponAttackType : uint16
+enum WeaponAttackType : uint8
 {
     BASE_ATTACK   = 0,
     OFF_ATTACK    = 1,
@@ -1132,7 +1132,7 @@ enum ReactStates
     REACT_ASSIST     = 3
 };
 
-enum CommandStates
+enum CommandStates : uint8
 {
     COMMAND_STAY    = 0,
     COMMAND_FOLLOW  = 1,
@@ -2231,7 +2231,7 @@ class TC_GAME_API Unit : public WorldObject
         void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
         uint32 GetVirtualItemId(uint32 slot) const;
-        void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0);
+        void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0, uint16 itemVisual = 0);
 
     protected:
         explicit Unit (bool isWorldObject);
