@@ -26,26 +26,6 @@ enum Spells
     SPELL_SHOOT             =  3018,
     SPELL_THROW             =  2764,
     SPELL_SHOOT_WAND        =  5019,
-
-    /* Paladin */
-    PASSIVE_ILLUMINATION    = 20215,
-
-    /* Priest */
-    SPELL_SOUL_WARDING      = 63574,
-    SPELL_SPIRIT_REDEMPTION = 20711,
-    SPELL_SHADOWFORM        = 15473,
-
-    /* Shaman */
-    SPELL_TIDAL_FORCE       = 582,
-    SPELL_MANA_TIDE_TOTEM   = 590,
-    SPELL_SHA_NATURE_SWIFT  = 591,
-    SPELL_STORMSTRIKE       = 17364,
-
-    /* Druid */
-    SPELL_MOONKIN_FORM      = 24858,
-    SPELL_SWIFTMEND         = 18562,
-    SPELL_DRU_NATURE_SWIFT  = 17116,
-    SPELL_TREE_OF_LIFE      = 33891
 };
 
 bool PlayerAI::IsPlayerHealer(Player const* who)
@@ -61,13 +41,13 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
         default:
             return false;
         case CLASS_PALADIN:
-            return who->HasSpell(PASSIVE_ILLUMINATION);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PALADIN_HOLY;
         case CLASS_PRIEST:
-            return who->HasSpell(SPELL_SOUL_WARDING) || who->HasSpell(SPELL_SPIRIT_REDEMPTION);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PRIEST_DISCIPLINE || who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PRIEST_HOLY;
         case CLASS_SHAMAN:
-            return who->HasSpell(SPELL_MANA_TIDE_TOTEM) || who->HasSpell(SPELL_SHA_NATURE_SWIFT) || who->HasSpell(SPELL_TIDAL_FORCE);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_RESTORATION;
         case CLASS_DRUID:
-            return who->HasSpell(SPELL_SWIFTMEND) || who->HasSpell(SPELL_DRU_NATURE_SWIFT) || who->HasSpell(SPELL_TREE_OF_LIFE);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_DRUID_RESTORATION;
     }
 }
 
@@ -94,11 +74,11 @@ bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
             return false;
         }
         case CLASS_PRIEST:
-            return who->HasSpell(SPELL_SHADOWFORM);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PRIEST_SHADOW;
         case CLASS_SHAMAN:
-            return !who->HasSpell(SPELL_STORMSTRIKE);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_ELEMENTAL;
         case CLASS_DRUID:
-            return who->HasSpell(SPELL_MOONKIN_FORM);
+            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_DRUID_BALANCE;
     }
 }
 
