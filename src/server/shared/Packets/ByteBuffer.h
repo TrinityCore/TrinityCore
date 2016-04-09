@@ -23,7 +23,7 @@
 #include "Errors.h"
 #include "ByteConverter.h"
 #include "Util.h"
-
+#include <cstring>
 
 class MessageBuffer;
 
