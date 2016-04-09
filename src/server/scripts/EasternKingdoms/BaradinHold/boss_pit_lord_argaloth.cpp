@@ -49,6 +49,13 @@ class boss_pit_lord_argaloth : public CreatureScript
         {
             boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH) { }
 
+            void Reset() override
+            {
+                _Reset();
+                first_fel_firestorm = false;
+                second_fel_firestorm = false;
+            }
+            
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
@@ -58,18 +65,17 @@ class boss_pit_lord_argaloth : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
             }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                me->GetMotionMaster()->MoveTargetedHome();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _DespawnAtEvade();
-            }
-
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HealthBelowPctDamaged(33, damage) ||
-                    me->HealthBelowPctDamaged(66, damage))
+                if (me->HealthBelowPctDamaged(66) && !first_fel_firestorm)
                 {
+                    first_fel_firestorm = true;
+                    DoCastAOE(SPELL_FEL_FIRESTORM);
+                }
+                else
+                if(me->HealthBelowPctDamaged(3) && !second_fel_firestorm)
+                {
+                    second_fel_firestorm = true;
                     DoCastAOE(SPELL_FEL_FIRESTORM);
                 }
             }
@@ -112,6 +118,9 @@ class boss_pit_lord_argaloth : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+        private:
+            bool first_fel_firestorm;
+            bool second_fel_firestorm;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
