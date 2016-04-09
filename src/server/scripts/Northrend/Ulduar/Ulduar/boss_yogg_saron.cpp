@@ -230,6 +230,9 @@ enum Spells
 
     // Descend Into Madness
     SPELL_TELEPORT_PORTAL_VISUAL            = 64416,
+    SPELL_TELEPORT_TO_STORMWIND_ILLUSION    = 63989,
+    SPELL_TELEPORT_TO_CHAMBER_ILLUSION      = 63997,
+    SPELL_TELEPORT_TO_ICECROWN_ILLUSION     = 63998,
 
     // Illusions
     SPELL_GRIM_REPRISAL                     = 63305,
@@ -395,6 +398,14 @@ enum MiscData
 {
     ACHIEV_TIMED_START_EVENT                = 21001,
     SOUND_LUNATIC_GAZE                      = 15757,
+    MAX_ILLUSION_ROOMS                      = 3
+};
+
+uint32 const IllusionSpells[MAX_ILLUSION_ROOMS]
+{
+    SPELL_TELEPORT_TO_CHAMBER_ILLUSION,
+    SPELL_TELEPORT_TO_ICECROWN_ILLUSION,
+    SPELL_TELEPORT_TO_STORMWIND_ILLUSION
 };
 
 class StartAttackEvent : public BasicEvent
@@ -1419,7 +1430,11 @@ class npc_descend_into_madness : public CreatureScript
             {
                 if (!result)
                     return;
+
                 clicker->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
+                uint32 illusion = _instance->GetData(DATA_ILLUSION);
+                if (illusion < MAX_ILLUSION_ROOMS)
+                    DoCast(clicker, IllusionSpells[illusion], true);
                 me->DespawnOrUnsummon();
             }
 

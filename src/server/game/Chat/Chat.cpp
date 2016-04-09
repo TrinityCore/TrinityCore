@@ -360,7 +360,7 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
         // expected subcommand by full name DB content
         else if (*text)
         {
-            TC_LOG_ERROR("sql.sql", "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` contains an unexpected subcommand '%s' in command '%s', skipped.", text, fullcommand.c_str());
             return false;
         }
 
@@ -376,9 +376,9 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
     if (!cmd.empty())
     {
         if (&table == &getCommandTable())
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed command '%s', skip.", cmd.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` contains a non-existing command '%s', skipped.", cmd.c_str());
         else
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` contains a non-existing subcommand '%s' in command '%s', skipped.", cmd.c_str(), fullcommand.c_str());
     }
 
     return false;
@@ -486,7 +486,7 @@ bool ChatHandler::ShowHelpForSubCommands(std::vector<ChatCommand> const& table, 
     std::string list;
     for (uint32 i = 0; i < table.size(); ++i)
     {
-        // must be available (ignore handler existence for show command with possible available subcommands)
+        // must be available (ignore handler existence to show command with possible available subcommands)
         if (!isAvailable(table[i]))
             continue;
 
@@ -525,7 +525,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
     {
         for (uint32 i = 0; i < table.size(); ++i)
         {
-            // must be available (ignore handler existence for show command with possible available subcommands)
+            // must be available (ignore handler existence to show command with possible available subcommands)
             if (!isAvailable(table[i]))
                 continue;
 
@@ -555,7 +555,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
     {
         for (uint32 i = 0; i < table.size(); ++i)
         {
-            // must be available (ignore handler existence for show command with possible available subcommands)
+            // must be available (ignore handler existence to show command with possible available subcommands)
             if (!isAvailable(table[i]))
                 continue;
 
@@ -984,7 +984,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             *player_name = pl ? pl->GetName() : "";
     }
 
-    // some from req. data must be provided (note: name is empty if player not exist)
+    // some from req. data must be provided (note: name is empty if player does not exist)
     if ((!player || !*player) && (!player_guid || !*player_guid) && (!player_name || player_name->empty()))
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);

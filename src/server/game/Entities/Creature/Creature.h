@@ -522,7 +522,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
 
-        CreatureAI* AI() const { return (CreatureAI*)i_AI; }
+        CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
 
         SpellSchoolMask GetMeleeDamageSchoolMask() const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
