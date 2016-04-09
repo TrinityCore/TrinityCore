@@ -48,12 +48,6 @@ class boss_pit_lord_argaloth : public CreatureScript
         struct boss_pit_lord_argalothAI : public BossAI
         {
             boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH) { }
-
-            void Reset() override
-            {
-                first_fel_firestorm = false;
-                second_fel_firestorm = false;
-            }
             
             void EnterCombat(Unit* /*who*/) override
             {
@@ -66,6 +60,8 @@ class boss_pit_lord_argaloth : public CreatureScript
             
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                first_fel_firestorm = false;
+                second_fel_firestorm = false;
                 me->GetMotionMaster()->MoveTargetedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _DespawnAtEvade();
