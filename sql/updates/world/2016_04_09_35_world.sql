@@ -13,7 +13,7 @@ DELETE FROM `pool_template` WHERE `entry` = @pool_id;
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@pool_id, 1, 'Bro''Gaz the Clanless');
 
-DELETE FROM `pool_creature` WHERE `guid` BETWEEN @GUID AND @GUID+5;
+DELETE FROM `pool_creature` WHERE `guid` BETWEEN @GUID AND @GUID+3;
 INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES
 (@GUID+0, @pool_id, 0, 'Bro''Gaz the Clanless - Spawn 1'),
 (@GUID+1, @pool_id, 0, 'Bro''Gaz the Clanless - Spawn 2'),
