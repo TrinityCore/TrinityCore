@@ -51,7 +51,6 @@ class boss_pit_lord_argaloth : public CreatureScript
 
             void Reset() override
             {
-                _Reset();
                 first_fel_firestorm = false;
                 second_fel_firestorm = false;
             }
@@ -63,6 +62,13 @@ class boss_pit_lord_argaloth : public CreatureScript
                 events.ScheduleEvent(EVENT_METEOR_SLASH, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
+            }
+            
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                me->GetMotionMaster()->MoveTargetedHome();
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                _DespawnAtEvade();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
