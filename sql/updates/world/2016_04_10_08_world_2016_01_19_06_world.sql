@@ -38,20 +38,20 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`auras`) VALUES
 UPDATE `creature_template` SET `ScriptName`="npc_gothik_trigger",`InhabitType`=7 WHERE `entry`=16137;
 -- re-do spawn locations for triggers
 DELETE FROM `creature` WHERE `id`=16137;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`movementtype`) VALUES
-(@CGUID+00,16137,533,3,1,2643.731,-3399.681,284.1829,0,0,0,0), -- living   side soul  trigger (south)
-(@CGUID+01,16137,533,3,1,2739.995,-3399.779,284.2946,0,0,0,0), -- living   side soul  trigger (north)
-(@CGUID+02,16137,533,3,1,2643.731,-3321.727,284.2327,0,0,0,0), -- spectral side soul  trigger (south)
-(@CGUID+03,16137,533,3,1,2739.995,-3321.727,284.2316,0,0,0,0), -- spectral side soul  trigger (north)
-(@CGUID+04,16137,533,3,1,2692.161,-3430.746,268.6462,0,0,0,0), -- living   side spawn trigger (center back)
-(@CGUID+05,16137,533,3,1,2714.562,-3430.61 ,268.6462,0,0,0,0), -- living   side spawn trigger (north)
-(@CGUID+06,16137,533,3,1,2692.213,-3428.783,268.6462,0,0,0,0), -- living   side spawn trigger (center front)
-(@CGUID+07,16137,533,3,1,2669.581,-3428.859,268.6462,0,0,0,0), -- living   side spawn trigger (south)
-(@CGUID+08,16137,533,3,1,2733.457,-3349.388,267.7677,0,0,0,0), -- spectral side spawn trigger (northeast)
-(@CGUID+09,16137,533,3,1,2725.818,-3309.567,267.7686,0,0,0,0), -- spectral side spawn trigger (northwest)
-(@CGUID+10,16137,533,3,1,2700.269,-3322.354,267.7678,0,0,0,0), -- spectral side spawn trigger (center)
-(@CGUID+11,16137,533,3,1,2664.872,-3340.749,267.7674,0,0,0,0), -- spectral side spawn trigger (southeast)
-(@CGUID+12,16137,533,3,1,2683.886,-3304.213,267.768 ,0,0,0,0); -- spectral side spawn trigger (southwest)
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseId`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`movementtype`) VALUES
+(@CGUID+00,16137,533,3,169,2643.731,-3399.681,284.1829,0,0,0,0), -- living   side soul  trigger (south)
+(@CGUID+01,16137,533,3,169,2739.995,-3399.779,284.2946,0,0,0,0), -- living   side soul  trigger (north)
+(@CGUID+02,16137,533,3,169,2643.731,-3321.727,284.2327,0,0,0,0), -- spectral side soul  trigger (south)
+(@CGUID+03,16137,533,3,169,2739.995,-3321.727,284.2316,0,0,0,0), -- spectral side soul  trigger (north)
+(@CGUID+04,16137,533,3,169,2692.161,-3430.746,268.6462,0,0,0,0), -- living   side spawn trigger (center back)
+(@CGUID+05,16137,533,3,169,2714.562,-3430.61 ,268.6462,0,0,0,0), -- living   side spawn trigger (north)
+(@CGUID+06,16137,533,3,169,2692.213,-3428.783,268.6462,0,0,0,0), -- living   side spawn trigger (center front)
+(@CGUID+07,16137,533,3,169,2669.581,-3428.859,268.6462,0,0,0,0), -- living   side spawn trigger (south)
+(@CGUID+08,16137,533,3,169,2733.457,-3349.388,267.7677,0,0,0,0), -- spectral side spawn trigger (northeast)
+(@CGUID+09,16137,533,3,169,2725.818,-3309.567,267.7686,0,0,0,0), -- spectral side spawn trigger (northwest)
+(@CGUID+10,16137,533,3,169,2700.269,-3322.354,267.7678,0,0,0,0), -- spectral side spawn trigger (center)
+(@CGUID+11,16137,533,3,169,2664.872,-3340.749,267.7674,0,0,0,0), -- spectral side spawn trigger (southeast)
+(@CGUID+12,16137,533,3,169,2683.886,-3304.213,267.768 ,0,0,0,0); -- spectral side spawn trigger (southwest)
 
 -- make visuals target proper triggers
 -- to anchor 1: 27892 (Trainee), 27928 (DK), 27935 (Rider)
