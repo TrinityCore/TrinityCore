@@ -87,12 +87,12 @@ BindIP = "0.0.0.0"
 PidFile = ""
 
 #
-#    PublicKeyFile
-#        Description: Public key file.
+#    CertificatesFile
+#        Description: Certificates file.
 #        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
 #        Default:     "./bnetserver.cert.pem"
 
-PublicKeyFile = "./bnetserver.cert.pem"
+CertificatesFile = "./bnetserver.cert.pem"
 
 #
 #    PrivateKeyFile
