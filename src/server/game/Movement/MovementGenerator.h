@@ -43,6 +43,8 @@ class TC_GAME_API MovementGenerator
 
         virtual void unitSpeedChanged() { }
 
+        virtual void unitRootOrStun(Unit*) { }
+
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
 };

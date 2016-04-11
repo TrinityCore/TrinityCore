@@ -15810,6 +15810,8 @@ void Unit::SetStunned(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
 
+        propagateRootOrStun();
+
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -15855,6 +15857,8 @@ void Unit::SetRooted(bool apply)
         RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
+
+        propagateRootOrStun();
 
         if (GetTypeId() == TYPEID_PLAYER)
         {

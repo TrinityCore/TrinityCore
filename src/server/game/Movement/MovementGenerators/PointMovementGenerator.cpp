@@ -26,17 +26,21 @@
 #include "Player.h"
 #include "CreatureGroups.h"
 
-//----- Point Movement Generator
 template<class T>
 void PointMovementGenerator<T>::DoInitialize(T* unit)
 {
     if (!unit->IsStopped())
         unit->StopMoving();
 
-    unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    unit->AddUnitState(UNIT_STATE_ROAMING);
 
-    if (id == EVENT_CHARGE_PREPATH)
+    if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+    {
+        _rootOrStun = true;
         return;
+    }
+
+    unit->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
@@ -44,10 +48,13 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
         init.SetVelocity(speed);
     init.Launch();
 
+    /* Figure out a better way */
+    /*
     // Call for creature group update
     if (Creature* creature = unit->ToCreature())
         if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
             creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
+    */
 }
 
 template<class T>
@@ -64,19 +71,24 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
 
     unit->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
-    if (id != EVENT_CHARGE_PREPATH && i_recalculateSpeed && !unit->movespline->Finalized())
+    /* Is this needed at this point? -> id != EVENT_CHARGE_PREPATH */
+    if (_rootOrStun || (i_recalculateSpeed && !unit->movespline->Finalized()))
     {
         i_recalculateSpeed = false;
+        _rootOrStun = false;
         Movement::MoveSplineInit init(unit);
         init.MoveTo(i_x, i_y, i_z, m_generatePath);
         if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
             init.SetVelocity(speed);
         init.Launch();
 
+        /* Figure out a better way */
+        /*
         // Call for creature group update
         if (Creature* creature = unit->ToCreature())
             if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
                 creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
+        */
     }
 
     return !unit->movespline->Finalized();
@@ -98,16 +110,31 @@ void PointMovementGenerator<T>::DoReset(T* unit)
     if (!unit->IsStopped())
         unit->StopMoving();
 
-    unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    unit->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
 }
 
 template<class T>
-void PointMovementGenerator<T>::MovementInform(T* /*unit*/) { }
+void PointMovementGenerator<T>::MovementInform(T*) { }
 
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
     if (unit->AI())
         unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
+}
+
+template<class T>
+void PointMovementGenerator<T>::DoRootOrStun(T*) { }
+
+template <> void PointMovementGenerator<Creature>::DoRootOrStun(Creature* unit)
+{
+    if (!_rootOrStun && !unit->movespline->Finalized())
+    {
+        unit->ClearUnitState(UNIT_STATE_MOVING);
+        Movement::MoveSplineInit init(unit);
+        init.Stop();
+    }
+
+    _rootOrStun = true;
 }
 
 template void PointMovementGenerator<Player>::DoInitialize(Player*);

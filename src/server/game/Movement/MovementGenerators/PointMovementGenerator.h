@@ -27,7 +27,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 {
     public:
         PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
+            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false), _rootOrStun(false) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -37,6 +37,8 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         void MovementInform(T*);
 
         void unitSpeedChanged() override { i_recalculateSpeed = true; }
+        void unitRootOrStun(Unit* unit) override { DoRootOrStun(static_cast<T*>(unit)); }
+        void DoRootOrStun(T*);
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
@@ -47,6 +49,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         float speed;
         bool m_generatePath;
         bool i_recalculateSpeed;
+        bool _rootOrStun;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
@@ -59,7 +62,6 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
         void Finalize(Unit*) override;
 };
 
-// Does almost nothing - just doesn't allows previous movegen interrupt current effect.
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
