@@ -63,7 +63,7 @@ WorldPacket const* WorldPackets::BlackMarket::BlackMarketOpenResult::Write()
 void WorldPackets::BlackMarket::BlackMarketRequestItems::Read()
 {
     _worldPacket >> Guid;
-    _worldPacket >> uint32(LastUpdateID);
+    _worldPacket >> LastUpdateID;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BlackMarket::BlackMarketItem const& blackMarketItem)
