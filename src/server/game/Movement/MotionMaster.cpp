@@ -532,7 +532,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), x, y, z);
         _owner->AttackStop();
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);
-        Mutate(new AssistanceMovementGenerator(x, y, z), MOTION_SLOT_ACTIVE);
+        Mutate(new AssistanceMovementGenerator<Creature>(x, y, z), MOTION_SLOT_ACTIVE);
     }
 }
 

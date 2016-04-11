@@ -52,14 +52,14 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         bool _rootOrStun;
 };
 
-class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
+template<class T>
+class AssistanceMovementGenerator : public PointMovementGenerator<T>
 {
     public:
-        AssistanceMovementGenerator(float _x, float _y, float _z) :
-            PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
+        AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<T>(0, _x, _y, _z, true) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
-        void Finalize(Unit*) override;
+        void DoFinalize(T*) override;
 };
 
 class EffectMovementGenerator : public MovementGenerator
