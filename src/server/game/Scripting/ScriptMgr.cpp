@@ -1043,6 +1043,7 @@ std::shared_ptr<ModuleReference>
     return ScriptReloadMgr::AcquireModuleReferenceOfContext(
         sScriptRegistryCompositum->GetScriptContextOfScriptName(scriptname));
 #else
+    (void)scriptname;
     // Something went wrong when this function is used in
     // a static linked context.
     WPAbort();
