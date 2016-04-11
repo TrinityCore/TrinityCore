@@ -61,9 +61,12 @@ BattlenetPort = 1119
 #
 #    LoginREST.ExternalAddress
 #        Description: IP address sent to clients connecting from outside the network where bnetserver runs
+#                     Set it to your external IP address
 #
 #    LoginREST.LocalAddress
 #        Description: IP address sent to clients connecting from inside the network where bnetserver runs
+#                     Set it to your local IP address (common 192.168.x.x network)
+#                     or leave it at default value 127.0.0.1 if connecting directly to the internet without a router
 #
 
 LoginREST.Port = 8081
