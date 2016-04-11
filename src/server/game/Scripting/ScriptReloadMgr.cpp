@@ -22,7 +22,7 @@
 
 // This method should never be called
 std::shared_ptr<ModuleReference>
-    ScriptReloadMgr::AcquireModuleReferenceOfContext(std::string const& context)
+    ScriptReloadMgr::AcquireModuleReferenceOfContext(std::string const& /*context*/)
 {
     WPAbort();
 }
