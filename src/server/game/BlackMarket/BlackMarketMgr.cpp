@@ -99,7 +99,6 @@ void BlackMarketMgr::LoadAuctions()
         return;
     }
 
-    uint32 count = 0;
     _lastUpdate = time(nullptr); //Set update time before loading
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
