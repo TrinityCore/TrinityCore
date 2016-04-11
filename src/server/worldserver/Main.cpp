@@ -39,6 +39,7 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "ScriptLoader.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
 #include "BattlegroundMgr.h"
@@ -279,6 +280,7 @@ extern int main(int argc, char** argv)
     sOutdoorPvPMgr->Die();
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sScriptMgr->Unload();
+    sScriptReloadMgr->Unload();
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);

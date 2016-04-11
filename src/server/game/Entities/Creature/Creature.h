@@ -476,6 +476,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
 
+        bool AIM_Destroy();
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
 

@@ -924,7 +924,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
             pkt << uint8(lock);                             // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << boost::lexical_cast<std::string>(GetAddressForClient(realm, GetRemoteIpAddress()));
+        pkt << boost::lexical_cast<std::string>(realm.GetAddressForClient(GetRemoteIpAddress()));
         pkt << float(realm.PopulationLevel);
         pkt << uint8(characterCounts[realm.Id.Realm]);
         pkt << uint8(realm.Timezone);                       // realm category
