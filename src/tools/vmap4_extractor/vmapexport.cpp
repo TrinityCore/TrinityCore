@@ -510,6 +510,12 @@ int main(int argc, char ** argv)
         break;
     }
 
+    if (FirstLocale == -1)
+    {
+        printf("FATAL ERROR: No locales defined, unable to continue.\n");
+        return 1;
+    }
+
     if (!OpenCascStorage(FirstLocale))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
