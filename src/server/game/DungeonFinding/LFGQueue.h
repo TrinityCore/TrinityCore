@@ -89,7 +89,7 @@ class LFGQueue
 
         // Add/Remove from queue
         std::string GetDetailedMatchRoles(GuidList const& check) const;
-        void AddToQueue(ObjectGuid guid);
+        void AddToQueue(ObjectGuid guid, bool reAdd = false);
         void RemoveFromQueue(ObjectGuid guid);
         void AddQueueData(ObjectGuid guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap);
         void RemoveQueueData(ObjectGuid guid);
@@ -116,6 +116,7 @@ class LFGQueue
 
         void AddToNewQueue(ObjectGuid guid);
         void AddToCurrentQueue(ObjectGuid guid);
+        void AddToFrontCurrentQueue(ObjectGuid guid);
         void RemoveFromNewQueue(ObjectGuid guid);
         void RemoveFromCurrentQueue(ObjectGuid guid);
 
