@@ -372,6 +372,7 @@ namespace WorldPackets
         class TransmogrifyItems;
         class UseCritterItem;
         class SocketGems;
+        struct ItemInstance;
     }
 
     namespace Loot
