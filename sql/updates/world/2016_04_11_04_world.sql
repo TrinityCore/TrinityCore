@@ -118,7 +118,7 @@ INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`auras`) VALUES
 (42496,0,1, "39199"),
 (42495,0,1, "39199"),
 (42571,0,1, "79377"),
-(39294,0,1, "0");
+(39294,0,1, "");
 
 -- Ground Siege Stalker
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40030;
