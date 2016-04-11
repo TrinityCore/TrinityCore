@@ -979,7 +979,7 @@ CREATE TABLE `character_instance` (
   `guid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `instance` int(10) unsigned NOT NULL DEFAULT '0',
   `permanent` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `extendState` TINYINT(2) UNSIGNED NOT NULL DEFAULT '1',
+  `extendState` tinyint(2) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`guid`,`instance`),
   KEY `instance` (`instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -3168,4 +3168,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-11-08  1:52:10
+-- Dump completed on 2016-04-11  2:02:46

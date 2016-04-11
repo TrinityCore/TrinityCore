@@ -127,11 +127,11 @@ CREATE TABLE `account_last_played_character` (
   `accountId` int(10) unsigned NOT NULL,
   `region` tinyint(3) unsigned NOT NULL,
   `battlegroup` tinyint(3) unsigned NOT NULL,
-  `realmId` int(10) unsigned,
-  `characterName` varchar(12),
-  `characterGUID` bigint(20) unsigned,
-  `lastPlayedTime` int(10) unsigned,
-  PRIMARY KEY(`accountId`,`region`,`battlegroup`)
+  `realmId` int(10) unsigned DEFAULT NULL,
+  `characterName` varchar(12) DEFAULT NULL,
+  `characterGUID` bigint(20) unsigned DEFAULT NULL,
+  `lastPlayedTime` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`accountId`,`region`,`battlegroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -747,4 +747,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-11-08  1:52:10
+-- Dump completed on 2016-04-11  2:02:45
