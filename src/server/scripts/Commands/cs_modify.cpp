@@ -51,6 +51,8 @@ public:
         {
             { "arenapoints",  rbac::RBAC_PERM_COMMAND_MODIFY_ARENAPOINTS,  false, &HandleModifyArenaCommand,         "" },
             { "bit",          rbac::RBAC_PERM_COMMAND_MODIFY_BIT,          false, &HandleModifyBitCommand,           "" },
+            { "boundingradius",  rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,        false, &HandleModifyBoundingRadiusCommand,         "" },
+            { "combatreach",  rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,        false, &HandleModifyCombatReachCommand,         "" },
             { "drunk",        rbac::RBAC_PERM_COMMAND_MODIFY_DRUNK,        false, &HandleModifyDrunkCommand,         "" },
             { "energy",       rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,       false, &HandleModifyEnergyCommand,        "" },
             { "faction",      rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,      false, &HandleModifyFactionCommand,       "" },
@@ -1398,6 +1400,100 @@ public:
 
         // we can run the command
         target->GiveXP(xp, nullptr);
+        return true;
+    }
+
+    //Edit Combat Reach of the unit
+    static bool HandleModifyCombatReachCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float Scale = (float)atof((char*)args);
+        if (Scale > 100.0f || Scale < 0.01f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        //if (Player* player = target->ToPlayer())
+        //{
+        //    // check online security
+        //    if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
+        //        return false;
+
+        //    handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, handler->GetNameLink(player).c_str(), Scale);
+        //    if (handler->needReportToTarget(player))
+        //        ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
+        //}
+
+        
+        std::string output(". modifying Combat Reach to: ");
+        std::string newValue=std::to_string(Scale);
+
+        std::string total = target->GetName() + output + newValue;
+        
+
+        handler->SendGlobalGMSysMessage(total.c_str());
+
+        target->SetFloatValue(UNIT_FIELD_COMBATREACH, Scale);
+
+        return true;
+    }
+
+    //Edit Bounding Radius of the unit
+    static bool HandleModifyBoundingRadiusCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float Scale = (float)atof((char*)args);
+        if (Scale > 100.0f || Scale < 0.01f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        //if (Player* player = target->ToPlayer())
+        //{
+        //    // check online security
+        //    if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
+        //        return false;
+
+        //    handler->PSendSysMessage(LANG_YOU_CHANGE_SIZE, handler->GetNameLink(player).c_str(), Scale);
+        //    if (handler->needReportToTarget(player))
+        //        ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_SIZE_CHANGED, handler->GetNameLink().c_str(), Scale);
+        //}
+
+
+        std::string output(". modifying Bounding Radius to: ");
+        std::string newValue = std::to_string(Scale);
+
+        std::string total = target->GetName() + output + newValue;
+
+
+        handler->SendGlobalGMSysMessage(total.c_str());
+
+        target->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, Scale);
+
         return true;
     }
 };
