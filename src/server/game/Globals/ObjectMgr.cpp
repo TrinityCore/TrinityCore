@@ -5104,7 +5104,10 @@ void ObjectMgr::ValidateSpellScripts()
                     spellScript->_Register();
 
                     if (!spellScript->_Validate(spellEntry))
+                    {
                         itr->second.second = false;
+                        continue;
+                    }
                 }
 
                 if (auraScript)
@@ -5113,9 +5116,17 @@ void ObjectMgr::ValidateSpellScripts()
                     auraScript->_Register();
 
                     if (!auraScript->_Validate(spellEntry))
+                    {
                         itr->second.second = false;
+                        continue;
+                    }
                 }
+
+                // Enable the script when all checks passed
+                itr->second.second = true;
             }
+            else
+                itr->second.second = false;
         }
     }
 
