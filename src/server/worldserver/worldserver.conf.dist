@@ -34,6 +34,7 @@
 #    AUCTION HOUSE BOT BUYER CONFIG
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
+#    METRIC SETTINGS
 #
 ###################################################################################################
 
@@ -3688,7 +3689,7 @@ PacketSpoof.BanDuration = 86400
 ###################################################################################################
 
 ###################################################################################################
-# Metric Settings
+# METRIC SETTINGS
 #
 # These settings control the statistics sent to the metric database (currently InfluxDB)
 #
