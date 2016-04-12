@@ -108,6 +108,9 @@ void PointMovementGenerator<T>::DoFinalize(T* owner)
 
     if (owner->movespline->Finalized())
         MovementInform(owner);
+
+    Movement::MoveSplineInit init(owner);
+    init.Stop();
 }
 
 template<class T>
@@ -166,6 +169,11 @@ void AssistanceMovementGenerator<T>::DoFinalize(T* owner)
         if (owner->IsAlive())
             owner->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
     }
+    else
+    {
+        Movement::MoveSplineInit init(owner);
+        init.Stop();
+    }
 }
 
 template void AssistanceMovementGenerator<Creature>::DoFinalize(Creature*);
@@ -192,6 +200,9 @@ void EffectMovementGenerator::Finalize(Unit* owner)
 
     if (owner->movespline->Finalized())
         MovementInform(owner);
+
+    Movement::MoveSplineInit init(owner);
+    init.Stop();
 }
 
 void EffectMovementGenerator::MovementInform(Unit* owner)

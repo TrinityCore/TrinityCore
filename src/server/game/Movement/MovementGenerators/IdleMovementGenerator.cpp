@@ -22,8 +22,6 @@
 
 IdleMovementGenerator si_idleMovement;
 
-// StopMoving is needed to make unit stop if its last movement generator expires
-// But it should not be sent otherwise there are many redundent packets
 void IdleMovementGenerator::Initialize(Unit* owner)
 {
     Reset(owner);
@@ -31,6 +29,8 @@ void IdleMovementGenerator::Initialize(Unit* owner)
 
 void IdleMovementGenerator::Reset(Unit* owner)
 {
+    // Check for any manual spline creation
+    // MotionMaster deletes all the related UNIT_STATES on each MovementGenerator Finalize()
     if (!owner->IsStopped())
         owner->StopMoving();
 }

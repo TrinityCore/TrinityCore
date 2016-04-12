@@ -231,6 +231,8 @@ template<class T>
 void ChaseMovementGenerator<T>::DoFinalize(T* owner)
 {
     owner->ClearUnitState(UNIT_STATE_CHASE | UNIT_STATE_CHASE_MOVE);
+    Movement::MoveSplineInit init(owner);
+    init.Stop();
 }
 
 template<class T>
@@ -310,6 +312,9 @@ void FollowMovementGenerator<T>::DoFinalize(T* owner)
 {
     owner->ClearUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
     UpdateSpeed(owner);
+
+    Movement::MoveSplineInit init(owner);
+    init.Stop();
 }
 
 template<class T>
