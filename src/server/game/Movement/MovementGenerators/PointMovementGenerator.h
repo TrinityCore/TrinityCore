@@ -58,8 +58,8 @@ class AssistanceMovementGenerator : public PointMovementGenerator<T>
     public:
         AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<T>(0, _x, _y, _z, true) { }
 
+        void DoFinalize(T*);
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
-        void DoFinalize(T*) override;
 };
 
 class EffectMovementGenerator : public MovementGenerator

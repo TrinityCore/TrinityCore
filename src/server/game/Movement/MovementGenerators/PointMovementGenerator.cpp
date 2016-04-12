@@ -158,7 +158,7 @@ template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 //---- AssistanceMovementGenerator
 
 template<class T>
-void AssistanceMovementGenerator<T>::DoFinalize(T*)
+void AssistanceMovementGenerator<T>::DoFinalize(T* unit)
 {
     if (unit->HasUnitState(UNIT_STATE_CHARGING))
         unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);

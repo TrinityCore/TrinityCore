@@ -55,7 +55,7 @@ enum Events
     EVENT_FROST_ATTACK             = 1,
     EVENT_ARCANE_BLAST             = 2,
     EVENT_DRAGONS_BREATH           = 3,
-    EVENT_KNOCKBACK                = 4,
+    EVENT_TIMED_KNOCKBACK          = 4,
     EVENT_SOLARBURN                = 5
 };
 
@@ -73,7 +73,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
-                events.ScheduleEvent(EVENT_KNOCKBACK, urand(22000, 28000));
+                events.ScheduleEvent(EVENT_TIMED_KNOCKBACK, urand(22000, 28000));
                 events.ScheduleEvent(EVENT_SOLARBURN, 30000);
                 Talk(SAY_AGGRO);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
@@ -119,9 +119,9 @@ class boss_nethermancer_sepethrea : public CreatureScript
                             if (roll_chance_i(50))
                                 Talk(SAY_DRAGONS_BREATH);
                             break;
-                        case EVENT_KNOCKBACK:
+                        case EVENT_TIMED_KNOCKBACK:
                             DoCastVictim(SPELL_KNOCKBACK, true);
-                            events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 25000));
+                            events.ScheduleEvent(EVENT_TIMED_KNOCKBACK, urand(15000, 25000));
                             break;
                         case EVENT_SOLARBURN:
                             DoCastVictim(SPELL_SOLARBURN, true);

@@ -39,7 +39,7 @@ enum Events
     EVENT_CLEAVE            = 1,
     EVENT_BLASTWAVE         = 2,
     EVENT_MORTALSTRIKE      = 3,
-    EVENT_KNOCKBACK         = 4,
+    EVENT_TIMED_KNOCKBACK   = 4,
     EVENT_CHECK             = 5
 };
 
@@ -60,7 +60,7 @@ public:
             events.ScheduleEvent(EVENT_CLEAVE, 8000);
             events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
             events.ScheduleEvent(EVENT_MORTALSTRIKE, 20000);
-            events.ScheduleEvent(EVENT_KNOCKBACK, 30000);
+            events.ScheduleEvent(EVENT_TIMED_KNOCKBACK, 30000);
             events.ScheduleEvent(EVENT_CHECK, 1000);
         }
 
@@ -87,11 +87,11 @@ public:
                         DoCastVictim(SPELL_MORTALSTRIKE);
                         events.ScheduleEvent(EVENT_MORTALSTRIKE, urand(25000, 35000));
                         break;
-                    case EVENT_KNOCKBACK:
+                    case EVENT_TIMED_KNOCKBACK:
                         DoCastVictim(SPELL_KNOCKBACK);
                         if (DoGetThreat(me->GetVictim()))
                             DoModifyThreatPercent(me->GetVictim(), -50);
-                        events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 30000));
+                        events.ScheduleEvent(EVENT_TIMED_KNOCKBACK, urand(15000, 30000));
                         break;
                     case EVENT_CHECK:
                         if (me->GetDistance(me->GetHomePosition()) > 150.0f)
