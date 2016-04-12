@@ -132,9 +132,7 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit
 }
 
 template<class T>
-void PointMovementGenerator<T>::DoRootOrStun(T*) { }
-
-template <> void PointMovementGenerator<Creature>::DoRootOrStun(Creature* unit)
+void PointMovementGenerator<T>::DoRootOrStun(T* unit)
 {
     if (!_rootOrStun && !unit->movespline->Finalized())
     {
@@ -154,6 +152,8 @@ template void PointMovementGenerator<Player>::DoReset(Player*);
 template void PointMovementGenerator<Creature>::DoReset(Creature*);
 template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
+template void PointMovementGenerator<Player>::DoRootOrStun(Player*);
+template void PointMovementGenerator<Creature>::DoRootOrStun(Creature*);
 
 //---- AssistanceMovementGenerator
 
