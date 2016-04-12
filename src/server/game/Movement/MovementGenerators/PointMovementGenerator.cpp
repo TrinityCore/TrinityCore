@@ -165,7 +165,7 @@ void AssistanceMovementGenerator<T>::DoFinalize(T* unit)
 
     if (unit->movespline->Finalized())
     {
-        MovementInform(unit);
+        PointMovementGenerator<T>::MovementInform(unit);
         unit->ToCreature()->SetNoCallAssistance(false);
         unit->ToCreature()->CallAssistance();
         if (unit->IsAlive())
