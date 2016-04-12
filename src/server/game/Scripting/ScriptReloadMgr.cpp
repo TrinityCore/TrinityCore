@@ -117,7 +117,7 @@ public:
 
         if (!success)
         {
-            TC_LOG_ERROR("scripts.hotswap", "Failed to close the shared library \"%s\".",
+            TC_LOG_ERROR("scripts.hotswap", "Failed to unload (syscall) the shared library \"%s\".",
                 _path.generic_string().c_str());
 
             return;
@@ -893,8 +893,10 @@ private:
         if (!ref->second.unique())
         {
             TC_LOG_INFO("scripts.hotswap",
-                "Script module %s is still used by %lu scripts. "
-                "Will lazy unload the module once all scripts stopped using it.",
+                "Script module %s is still used by %lu spell, aura or instance scripts. "
+                "Will lazy unload the module once all scripts stopped using it, "
+                "to use the latest version of an edited script unbind yourself from "
+                "the instance or re-cast the spell.",
                 ref->second->GetScriptModule(), ref->second.use_count() - 1);
         }
 
