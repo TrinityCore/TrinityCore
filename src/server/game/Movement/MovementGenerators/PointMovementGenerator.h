@@ -27,7 +27,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 {
     public:
         PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) :
-            id(_id), i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false), _rootOrStun(false) { }
+            m_id(_id), m_x(_x), m_y(_y), m_z(_z), m_speed(_speed), m_generatePath(_generatePath), m_recalculateSpeed(false), m_interrupt(false) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -35,21 +35,21 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         bool DoUpdate(T*, uint32);
 
         void MovementInform(T*);
+        void DoInterrupt(T*);
 
         void unitSpeedChanged() override { i_recalculateSpeed = true; }
-        void unitRootOrStun(Unit* unit) override { DoRootOrStun(static_cast<T*>(unit)); }
-        void DoRootOrStun(T*);
+        void unitRootOrStun(Unit* unit) override { DoInterrupt(static_cast<T*>(unit)); }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
-        void GetDestination(float& x, float& y, float& z) const { x = i_x; y = i_y; z = i_z; }
+        void GetDestination(float& x, float& y, float& z) const { x = m_x; y = m_y; z = m_z; }
     private:
-        uint32 id;
-        float i_x, i_y, i_z;
-        float speed;
+        uint32 m_id;
+        float m_x, m_y, m_z;
+        float m_speed;
         bool m_generatePath;
-        bool i_recalculateSpeed;
-        bool _rootOrStun;
+        bool m_recalculateSpeed;
+        bool m_interrupt;
 };
 
 template<class T>
@@ -65,7 +65,7 @@ class AssistanceMovementGenerator : public PointMovementGenerator<T>
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        explicit EffectMovementGenerator(uint32 Id) : m_Id(Id) { }
+        explicit EffectMovementGenerator(uint32 Id) : m_id(Id) { }
         void Initialize(Unit*) override { }
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
@@ -74,7 +74,7 @@ class EffectMovementGenerator : public MovementGenerator
 
         void MovementInform(Unit*);
     private:
-        uint32 m_Id;
+        uint32 m_id;
 };
 
 #endif
