@@ -166,7 +166,8 @@ class ScriptRegistryCompositum
 public:
     void SetScriptNameInContext(std::string const& scriptname, std::string const& context)
     {
-        ASSERT(_scriptnames_to_context.find(scriptname) == _scriptnames_to_context.end());
+        ASSERT(_scriptnames_to_context.find(scriptname) == _scriptnames_to_context.end(),
+               "Scriptname was assigned to this context already!");
         _scriptnames_to_context.insert(std::make_pair(scriptname, context));
     }
 
@@ -180,15 +181,18 @@ public:
 
     void ReleaseContext(std::string const& context) final override
     {
+        for (auto const registry : _registries)
+            registry->ReleaseContext(context);
+
+        // Clear the script names in context after calling the release hooks
+        // since it's possible that new references to a shared library
+        // are acquired when releasing.
         for (auto itr = _scriptnames_to_context.begin();
                         itr != _scriptnames_to_context.end();)
             if (itr->second == context)
                 itr = _scriptnames_to_context.erase(itr);
             else
                 ++itr;
-
-        for (auto const registry : _registries)
-            registry->ReleaseContext(context);
     }
 
     void SwapContext(bool initialize) final override
@@ -604,7 +608,7 @@ public:
             swapped = true;
     }
 
-    void BeforeSwapContext(bool initialize) override
+    void BeforeSwapContext(bool /*initialize*/) override
     {
         swapped = false;
     }
@@ -634,7 +638,7 @@ public:
             swapped = true;
     }
 
-    void BeforeSwapContext(bool initialize) override
+    void BeforeSwapContext(bool /*initialize*/) override
     {
         if (swapped)
         {
