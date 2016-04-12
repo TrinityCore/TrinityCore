@@ -137,7 +137,7 @@ void PointMovementGenerator<T>::DoInterrupt(T* owner)
 {
     if (!m_interrupt && !owner->movespline->Finalized())
     {
-        owner->ClearUnitState(UNIT_STATE_MOVING);
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         Movement::MoveSplineInit init(owner);
         init.Stop();
     }

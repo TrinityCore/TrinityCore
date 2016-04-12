@@ -39,18 +39,20 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
 {
     public:
         TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target),
-            m_path(nullptr), m_recheckDistance(0), m_offset(offset), m_angle(angle), m_recalculateTravel(false), m_targetReached(false) { }
+            m_path(nullptr), m_recheckDistance(0), m_offset(offset), m_angle(angle), m_recalculateTravel(false), m_targetReached(false), m_interrupt(false) { }
 
         ~TargetedMovementGeneratorMedium();
 
         bool DoUpdate(T*, uint32);
         Unit* GetTarget() const { return m_target.getTarget(); }
+        void DoInterrupt(T*);
 
         void UnitSpeedChanged() override { m_recalculateTravel = true; }
-        bool IsReachable() const { return (m_path) ? (m_path->GetPathType() & PATHFIND_NORMAL) : true; }
+        void UnitMovementInterrupted(Unit* unit) override { DoInterrupt(static_cast<T*>(unit)); }
 
         virtual void ClearUnitStateMove(T*) { }
         virtual void AddUnitStateMove(T*) { }
+        bool IsReachable() const { return (m_path) ? (m_path->GetPathType() & PATHFIND_NORMAL) : true; }
     protected:
         void SetTargetLocation(T* owner, bool updateDestination);
 
@@ -60,6 +62,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         float m_angle;
         bool m_recalculateTravel;
         bool m_targetReached;
+        bool m_interrupt;
 };
 
 template<class T>

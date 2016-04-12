@@ -141,14 +141,6 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         return true;
     }
 
-    // prevent movement while casting spells with cast time or channel time
-    if (owner->HasUnitState(UNIT_STATE_CASTING))
-    {
-        if (!owner->IsStopped())
-            owner->StopMoving();
-        return true;
-    }
-
     // prevent crash after creature killed pet
     if (static_cast<D*>(this)->HasLostTarget(owner))
     {
@@ -156,6 +148,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         return true;
     }
 
+    m_interrupt = false;
     bool targetMoved = false;
     m_recheckDistance.Update(time_diff);
     if (m_recheckDistance.Passed())
@@ -198,6 +191,19 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     return true;
 }
 
+template<class T, typename D>
+void TargetedMovementGeneratorMedium<T, D>::DoInterrupt(T* owner)
+{
+    if (!m_interrupt && !owner->movespline->Finalized())
+    {
+        ClearUnitStateMove(owner);
+        Movement::MoveSplineInit init(owner);
+        init.Stop();
+    }
+
+    m_interrupt = true;
+}
+
 //---- ChaseMovementGenerator
 
 template<class T>
@@ -208,7 +214,7 @@ void ChaseMovementGenerator<T>::HasReachedTarget(T* owner)
 }
 
 template<class T>
-void ChaseMovementGenerator<T>::DoInitialize(T *) { }
+void ChaseMovementGenerator<T>::DoInitialize(T*) { }
 
 template<>
 void ChaseMovementGenerator<Player>::DoInitialize(Player* owner)
@@ -249,7 +255,7 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature* owner)
 }
 
 template<>
-void ChaseMovementGenerator<Player>::MovementInform(Player* owner) { }
+void ChaseMovementGenerator<Player>::MovementInform(Player* /*owner*/) { }
 
 //---- FollowMovementGenerator
 
@@ -266,7 +272,7 @@ bool FollowMovementGenerator<Player>::EnableWalking() const
 }
 
 template<class T>
-void FollowMovementGenerator<T>::UpdateSpeed(T * owner) { }
+void FollowMovementGenerator<T>::UpdateSpeed(T*) { }
 
 template<>
 void FollowMovementGenerator<Player>::UpdateSpeed(Player* /*owner*/) { }
@@ -285,7 +291,7 @@ void FollowMovementGenerator<Creature>::UpdateSpeed(Creature* owner)
 }
 
 template<class T>
-void FollowMovementGenerator<T>::DoInitialize(T *) { }
+void FollowMovementGenerator<T>::DoInitialize(T*) { }
 
 template<>
 void FollowMovementGenerator<Player>::DoInitialize(Player* owner)
@@ -328,7 +334,7 @@ void FollowMovementGenerator<Creature>::MovementInform(Creature* unit)
 }
 
 template<>
-void FollowMovementGenerator<Player>::MovementInform(Player* owner) { }
+void FollowMovementGenerator<Player>::MovementInform(Player* /*owner*/) { }
 
 //---- Templates
 
@@ -344,6 +350,10 @@ template bool TargetedMovementGeneratorMedium<Player, ChaseMovementGenerator<Pla
 template bool TargetedMovementGeneratorMedium<Player, FollowMovementGenerator<Player> >::DoUpdate(Player*, uint32);
 template bool TargetedMovementGeneratorMedium<Creature, ChaseMovementGenerator<Creature> >::DoUpdate(Creature*, uint32);
 template bool TargetedMovementGeneratorMedium<Creature, FollowMovementGenerator<Creature> >::DoUpdate(Creature*, uint32);
+template void TargetedMovementGeneratorMedium<Player, ChaseMovementGenerator<Player> >::DoInterrupt(Player*);
+template void TargetedMovementGeneratorMedium<Player, FollowMovementGenerator<Player> >::DoInterrupt(Player*);
+template void TargetedMovementGeneratorMedium<Creature, ChaseMovementGenerator<Creature> >::DoInterrupt(Creature*);
+template void TargetedMovementGeneratorMedium<Creature, FollowMovementGenerator<Creature> >::DoInterrupt(Creature*);
 
 template void ChaseMovementGenerator<Player>::HasReachedTarget(Player*);
 template void ChaseMovementGenerator<Creature>::HasReachedTarget(Creature*);

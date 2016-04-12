@@ -3045,7 +3045,10 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
                 m_AutoRepeatFirstCast = true;
             }
             if (pSpell->GetCastTime() > 0)
+            {
                 AddUnitState(UNIT_STATE_CASTING);
+                PropagateMovementInterruption();
+            }
 
             break;
         }
@@ -3056,10 +3059,11 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
             InterruptSpell(CURRENT_CHANNELED_SPELL);
 
             // it also does break autorepeat if not Auto Shot
-            if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
-                m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
+            if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
                 InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+
             AddUnitState(UNIT_STATE_CASTING);
+            PropagateMovementInterruption();
 
             break;
         }
