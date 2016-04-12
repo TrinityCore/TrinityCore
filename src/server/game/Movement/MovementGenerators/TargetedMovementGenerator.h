@@ -28,50 +28,46 @@
 class TargetedMovementGeneratorBase
 {
     public:
-        TargetedMovementGeneratorBase(Unit* target) { i_target.link(target, this); }
-        void stopFollowing() { }
+        TargetedMovementGeneratorBase(Unit* target) { m_target.link(target, this); }
+        void StopFollowing() { }
     protected:
-        FollowerReference i_target;
+        FollowerReference m_target;
 };
 
 template<class T, typename D>
 class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
-    protected:
-        TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) :
-            TargetedMovementGeneratorBase(target), i_path(NULL),
-            i_recheckDistance(0), i_offset(offset), i_angle(angle),
-            i_recalculateTravel(false), i_targetReached(false)
-        {
-        }
-        ~TargetedMovementGeneratorMedium() { delete i_path; }
-
     public:
+        TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target),
+            m_path(nullptr), m_recheckDistance(0), m_offset(offset), m_angle(angle), m_recalculateTravel(false), m_targetReached(false) { }
+
+        ~TargetedMovementGeneratorMedium();
+
         bool DoUpdate(T*, uint32);
-        Unit* GetTarget() const { return i_target.getTarget(); }
+        Unit* GetTarget() const { return m_target.getTarget(); }
 
-        void UnitSpeedChanged() override { i_recalculateTravel = true; }
-        bool IsReachable() const { return (i_path) ? (i_path->GetPathType() & PATHFIND_NORMAL) : true; }
+        void UnitSpeedChanged() override { m_recalculateTravel = true; }
+        bool IsReachable() const { return (m_path) ? (m_path->GetPathType() & PATHFIND_NORMAL) : true; }
+
+        virtual void ClearUnitStateMove(T*) { }
+        virtual void AddUnitStateMove(T*) { }
     protected:
-        void _setTargetLocation(T* owner, bool updateDestination);
+        void SetTargetLocation(T* owner, bool updateDestination);
 
-        PathGenerator* i_path;
-        TimeTrackerSmall i_recheckDistance;
-        float i_offset;
-        float i_angle;
-        bool i_recalculateTravel : 1;
-        bool i_targetReached : 1;
+        PathGenerator* m_path;
+        TimeTrackerSmall m_recheckDistance;
+        float m_offset;
+        float m_angle;
+        bool m_recalculateTravel;
+        bool m_targetReached;
 };
 
 template<class T>
 class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >
 {
     public:
-        ChaseMovementGenerator(Unit* target)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) { }
-        ChaseMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
-        ~ChaseMovementGenerator() { }
+        ChaseMovementGenerator(Unit* target) : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) { }
+        ChaseMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
@@ -80,22 +76,20 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
         void DoReset(T*);
         void MovementInform(T*);
 
-        static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_CHASE_MOVE); }
-        static void _addUnitStateMove(T* u)  { u->AddUnitState(UNIT_STATE_CHASE_MOVE); }
+        void ClearUnitStateMove(T* owner) override { owner->ClearUnitState(UNIT_STATE_CHASE_MOVE); }
+        void AddUnitStateMove(T* owner) override { owner->AddUnitState(UNIT_STATE_CHASE_MOVE); }
+
         bool EnableWalking() const { return false;}
-        bool _lostTarget(T* u) const { return u->GetVictim() != this->GetTarget(); }
-        void _reachTarget(T*);
+        bool HasLostTarget(T* u) const { return u->GetVictim() != this->GetTarget(); }
+        void HasReachedTarget(T*);
 };
 
 template<class T>
 class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >
 {
     public:
-        FollowMovementGenerator(Unit* target)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target){ }
-        FollowMovementGenerator(Unit* target, float offset, float angle)
-            : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
-        ~FollowMovementGenerator() { }
+        FollowMovementGenerator(Unit* target) : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target) { }
+        FollowMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
@@ -104,13 +98,14 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
         void DoReset(T*);
         void MovementInform(T*);
 
-        static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_FOLLOW_MOVE); }
-        static void _addUnitStateMove(T* u)  { u->AddUnitState(UNIT_STATE_FOLLOW_MOVE); }
+        void ClearUnitStateMove(T* owner) override { owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE); }
+        void AddUnitStateMove(T* owner) override { owner->AddUnitState(UNIT_STATE_FOLLOW_MOVE); }
+
         bool EnableWalking() const;
-        bool _lostTarget(T*) const { return false; }
-        void _reachTarget(T*) { }
+        bool HasLostTarget(T*) const { return false; }
+        void HasReachedTarget(T*) { }
     private:
-        void _updateSpeed(T* owner);
+        void UpdateSpeed(T* owner);
 };
 
 #endif

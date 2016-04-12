@@ -125,7 +125,8 @@ void PointMovementGenerator<T>::DoReset(T* owner)
 template<class T>
 void PointMovementGenerator<T>::MovementInform(T*) { }
 
-template <> void PointMovementGenerator<Creature>::MovementInform(Creature* owner)
+template<>
+void PointMovementGenerator<Creature>::MovementInform(Creature* owner)
 {
     if (owner->AI())
         owner->AI()->MovementInform(POINT_MOTION_TYPE, m_id);
