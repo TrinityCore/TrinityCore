@@ -8,6 +8,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+# Returns the base path to the script directory in the source directory
+function(GetScriptsBasePath variable)
+  set(${variable} "${CMAKE_SOURCE_DIR}/src/server/scripts" PARENT_SCOPE)
+endfunction()
+
+# Stores the absolut path of the given module in the variable
+function(GetPathToScriptModule module variable)
+  GetScriptsBasePath(SCRIPTS_BASE_PATH)
+  set(${variable} "${SCRIPTS_BASE_PATH}/${module}" PARENT_SCOPE)
+endfunction()
+
 # Stores the project name of the given module in the variable
 function(GetProjectNameOfScriptModule module variable)
   string(TOLOWER "scripts_${SCRIPT_MODULE}" GENERATED_NAME)
@@ -17,7 +28,7 @@ endfunction()
 # Creates a list of all script modules
 # and stores it in the given variable.
 function(GetScriptModuleList variable)
-  GetPathToScriptModule("" BASE_PATH)
+  GetScriptsBasePath(BASE_PATH)
   file(GLOB LOCALE_SCRIPT_MODULE_LIST RELATIVE
     ${BASE_PATH}
     ${BASE_PATH}/*)
@@ -57,11 +68,6 @@ function(IsDynamicLinkingRequired variable)
     endif()
   endforeach()
   set(${variable} ${IS_REQUIRED} PARENT_SCOPE)
-endfunction()
-
-# Stores the absolut path of the given module in the variable
-function(GetPathToScriptModule module variable)
-  set(${variable} "${CMAKE_SOURCE_DIR}/src/server/scripts/${module}" PARENT_SCOPE)
 endfunction()
 
 # Stores the native variable name 
