@@ -52,6 +52,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
 
         virtual void ClearUnitStateMove(T*) { }
         virtual void AddUnitStateMove(T*) { }
+
         bool IsReachable() const { return (m_path) ? (m_path->GetPathType() & PATHFIND_NORMAL) : true; }
     protected:
         void SetTargetLocation(T* owner, bool updateDestination);

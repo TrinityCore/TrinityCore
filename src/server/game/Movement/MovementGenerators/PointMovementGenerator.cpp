@@ -29,9 +29,6 @@
 template<class T>
 void PointMovementGenerator<T>::DoInitialize(T* owner)
 {
-    if (!owner->IsStopped())
-        owner->StopMoving();
-
     if (m_id == EVENT_CHARGE_PREPATH)
     {
         owner->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);

@@ -16,9 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ByteBuffer.h"
 #include "TargetedMovementGenerator.h"
-#include "Errors.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "World.h"
@@ -99,8 +97,7 @@ void TargetedMovementGeneratorMedium<T, D>::SetTargetLocation(T* owner, bool upd
         m_path = new PathGenerator(owner);
 
     // allow pets to use shortcut if no path found when following their master
-    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet()
-        && owner->HasUnitState(UNIT_STATE_FOLLOW));
+    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet() && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = m_path->CalculatePath(x, y, z, forceDest);
     if (!result || (m_path->GetPathType() & PATHFIND_NOPATH))
@@ -113,11 +110,10 @@ void TargetedMovementGeneratorMedium<T, D>::SetTargetLocation(T* owner, bool upd
     AddUnitStateMove(owner);
     m_targetReached = false;
     m_recalculateTravel = false;
-    owner->AddUnitState(UNIT_STATE_CHASE);
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(m_path->GetPath());
-    init.SetWalk(((D*)this)->EnableWalking());
+    init.SetWalk(static_cast<D*>(this)->EnableWalking());
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly
     if (m_angle == 0.f)
@@ -219,7 +215,7 @@ void ChaseMovementGenerator<T>::DoInitialize(T*) { }
 template<>
 void ChaseMovementGenerator<Player>::DoInitialize(Player* owner)
 {
-    owner->AddUnitState(UNIT_STATE_CHASE | UNIT_STATE_CHASE_MOVE);
+    owner->AddUnitState(UNIT_STATE_CHASE);
     SetTargetLocation(owner, true);
 }
 
@@ -227,7 +223,7 @@ template<>
 void ChaseMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     owner->SetWalk(false);
-    owner->AddUnitState(UNIT_STATE_CHASE | UNIT_STATE_CHASE_MOVE);
+    owner->AddUnitState(UNIT_STATE_CHASE);
     SetTargetLocation(owner, true);
 }
 
@@ -296,7 +292,7 @@ void FollowMovementGenerator<T>::DoInitialize(T*) { }
 template<>
 void FollowMovementGenerator<Player>::DoInitialize(Player* owner)
 {
-    owner->AddUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
+    owner->AddUnitState(UNIT_STATE_FOLLOW);
     UpdateSpeed(owner);
     SetTargetLocation(owner, true);
 }
@@ -304,7 +300,7 @@ void FollowMovementGenerator<Player>::DoInitialize(Player* owner)
 template<>
 void FollowMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
-    owner->AddUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
+    owner->AddUnitState(UNIT_STATE_FOLLOW);
     UpdateSpeed(owner);
     SetTargetLocation(owner, true);
 }
