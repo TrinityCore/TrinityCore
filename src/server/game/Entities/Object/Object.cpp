@@ -928,6 +928,11 @@ bool Object::HasByteFlag(uint16 index, uint8 offset, uint8 flag) const
     return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
 }
 
+void Object::ApplyModByteFlag(uint16 index, uint8 offset, uint8 flag, bool apply)
+{
+    if (apply) SetByteFlag(index, offset, flag); else RemoveByteFlag(index, offset, flag);
+}
+
 void Object::SetFlag64(uint16 index, uint64 newFlag)
 {
     uint64 oldval = GetUInt64Value(index);
