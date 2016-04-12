@@ -37,7 +37,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         void MovementInform(T*);
         void DoInterrupt(T*);
 
-        void unitSpeedChanged() override { i_recalculateSpeed = true; }
+        void unitSpeedChanged() override { m_recalculateSpeed = true; }
         void unitRootOrStun(Unit* unit) override { DoInterrupt(static_cast<T*>(unit)); }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }

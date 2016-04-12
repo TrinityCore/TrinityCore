@@ -32,7 +32,7 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     if (!owner->IsStopped())
         owner->StopMoving();
 
-    if (id == EVENT_CHARGE_PREPATH)
+    if (m_id == EVENT_CHARGE_PREPATH)
     {
         owner->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
         return;
@@ -77,7 +77,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
 
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
-    if (id == EVENT_CHARGE_PREPATH)
+    if (m_id == EVENT_CHARGE_PREPATH)
         return !owner->movespline->Finalized();
 
     if (m_interrupt || (m_recalculateSpeed && !owner->movespline->Finalized()))
