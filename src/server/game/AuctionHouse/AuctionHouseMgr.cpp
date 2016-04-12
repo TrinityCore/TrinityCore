@@ -581,6 +581,15 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
+    // Clear expired throttled players
+    for (PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.begin(); itr != GetAllThrottleMap.end();)
+    {
+        if (itr->second.NextAllowedReplication <= curTime)
+            itr = GetAllThrottleMap.erase(itr);
+        else
+            ++itr;
+    }
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     for (AuctionEntryMap::iterator it = AuctionsMap.begin(); it != AuctionsMap.end();)
@@ -736,16 +745,61 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
 
         // Add the item if no search term or if entered search term was found
         if (packet.Items.size() < 50 && totalcount >= listfrom)
-            Aentry->BuildAuctionInfo(packet.Items, true);
+            Aentry->BuildAuctionInfo(packet.Items, true, item);
 
         ++totalcount;
     }
 }
 
-//this function inserts to WorldPacket auction's data
-void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems) const
+void AuctionHouseObject::BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& auctionReplicateResult, Player* player,
+    uint32 global, uint32 cursor, uint32 tombstone, uint32 count)
 {
-    Item* item = sAuctionMgr->GetAItem(itemGUIDLow);
+    time_t curTime = sWorld->GetGameTime();
+
+    auto throttleItr = GetAllThrottleMap.find(player->GetGUID());
+    if (throttleItr != GetAllThrottleMap.end())
+    {
+        if (throttleItr->second.Global != global || throttleItr->second.Cursor != cursor || throttleItr->second.Tombstone != tombstone)
+            return;
+
+        if (!throttleItr->second.IsReplicationInProgress() && throttleItr->second.NextAllowedReplication > curTime)
+            return;
+    }
+    else
+    {
+        throttleItr = GetAllThrottleMap.insert({ player->GetGUID(), PlayerGetAllThrottleData{} }).first;
+        throttleItr->second.NextAllowedReplication = curTime + sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY);
+        throttleItr->second.Global = uint32(curTime);
+    }
+
+    if (AuctionsMap.empty() || !count)
+        return;
+
+    auto itr = AuctionsMap.upper_bound(cursor);
+    for (; itr != AuctionsMap.end(); ++itr)
+    {
+        AuctionEntry* auction = itr->second;
+        if (auction->expire_time < curTime)
+            continue;
+
+        Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
+        if (!item)
+            continue;
+
+        auction->BuildAuctionInfo(auctionReplicateResult.Items, true, item);
+        if (!--count)
+            break;
+    }
+
+    auctionReplicateResult.ChangeNumberGlobal = throttleItr->second.Global;
+    auctionReplicateResult.ChangeNumberCursor = throttleItr->second.Cursor = !auctionReplicateResult.Items.empty() ? auctionReplicateResult.Items.back().AuctionItemID : 0;
+    auctionReplicateResult.ChangeNumberTombstone = throttleItr->second.Tombstone = !count ? AuctionsMap.rbegin()->first : 0;
+}
+
+//this function inserts to WorldPacket auction's data
+void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems, Item* sourceItem /*= nullptr*/) const
+{
+    Item* item = (sourceItem) ? sourceItem : sAuctionMgr->GetAItem(itemGUIDLow);
     if (!item)
     {
         TC_LOG_ERROR("misc", "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: " UI64FMTD, Id, itemGUIDLow);

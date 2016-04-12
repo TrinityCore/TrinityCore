@@ -47,6 +47,7 @@ void AddSC_boss_meathook();
 void AddSC_culling_of_stratholme();
 void AddSC_instance_culling_of_stratholme();
 void AddSC_instance_dire_maul();             //Dire Maul
+void AddSC_instance_ragefire_chasm();        //Ragefire Chasm
 void AddSC_boss_celebras_the_cursed();       //Maraudon
 void AddSC_boss_landslide();
 void AddSC_boss_noxxion();
@@ -54,7 +55,6 @@ void AddSC_boss_ptheradras();
 void AddSC_instance_maraudon();
 void AddSC_boss_onyxia();                    //Onyxia's Lair
 void AddSC_instance_onyxias_lair();
-void AddSC_instance_ragefire_chasm();         //Ragefire Chasm
 void AddSC_boss_tuten_kash();                 //Razorfen Downs
 void AddSC_boss_mordresh_fire_eye();
 void AddSC_boss_glutton();
@@ -150,6 +150,7 @@ void AddKalimdorScripts()
     AddSC_culling_of_stratholme();
     AddSC_instance_culling_of_stratholme();
     AddSC_instance_dire_maul();             //Dire Maul
+    AddSC_instance_ragefire_chasm();        //Ragefire Chasm
     AddSC_boss_celebras_the_cursed();       //Maraudon
     AddSC_boss_landslide();
     AddSC_boss_noxxion();
@@ -157,7 +158,6 @@ void AddKalimdorScripts()
     AddSC_instance_maraudon();
     AddSC_boss_onyxia();                    //Onyxia's Lair
     AddSC_instance_onyxias_lair();
-    AddSC_instance_ragefire_chasm();        //Ragefire Chasm
     AddSC_boss_tuten_kash();                //Razorfen Downs
     AddSC_boss_mordresh_fire_eye();
     AddSC_boss_glutton();

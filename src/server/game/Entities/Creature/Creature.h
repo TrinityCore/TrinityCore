@@ -519,6 +519,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
 
+        bool AIM_Destroy();
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
 
@@ -779,10 +780,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         //Formation var
         CreatureGroup* m_formation;
-        bool TriggerJustRespawned;
+        bool m_TriggerJustRespawned;
 
-        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
-        uint32 _focusDelay;
+        Spell const* m_focusSpell;   ///> Locks the target during spell cast for proper facing
+        uint32 m_focusDelay;
 
         CreatureTextRepeatGroup m_textRepeat;
 };

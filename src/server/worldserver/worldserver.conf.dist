@@ -12,6 +12,7 @@
 #    SERVER LOGGING
 #    SERVER SETTINGS
 #    UPDATE SETTINGS
+#    HOTSWAP SETTINGS
 #    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
@@ -32,6 +33,7 @@
 #    AUCTION HOUSE BOT SETTINGS
 #    AUCTION HOUSE BOT ITEM FINE TUNING
 #    AUCTION HOUSE BOT BUYER CONFIG
+#    BLACK MARKET SETTINGS
 #    LOGGING SYSTEM SETTINGS
 #    CURRENCIES SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
@@ -293,6 +295,25 @@ MaxOverspeedPings = 2
 GridUnload = 1
 
 #
+#    BaseMapLoadAllGrids
+#        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
+#                     This will take around 5GB of ram upon server load, and will take some time
+#                     to initially load the server.
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in all base maps upon load)
+
+BaseMapLoadAllGrids = 0
+
+#
+#    InstanceMapLoadAllGrids
+#        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
+#                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in the instance upon load)
+
+InstanceMapLoadAllGrids = 0
+
+#
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.
@@ -473,6 +494,24 @@ CleanCharacterDB = 0
 #        Default:     0  - (All cleanup methods will be disabled after the next cleanup)
 
 PersistentCharacterCleanFlags = 0
+
+#
+#    Auction.GetAllScanDelay
+#        Description: Sets the minimum time in seconds, a single player character can perform a getall scan.
+#                     The value is only held in memory so a server restart will clear it.
+#                     Setting this to zero, will disable GetAll functions completely.
+#        Default:     900 - (GetAll scan limited to once every 15mins per player character)
+
+Auction.GetAllScanDelay = 900
+
+#
+#    Auction.SearchDelay
+#        Description: Sets the minimum time in milliseconds (seconds x 1000), that the client must wait between
+#                     auction search operations. This can be increased if somehow Auction House activity is causing
+#                     too much load.
+#        Default:     300 - (Time delay between auction searches set to 0.3secs)
+
+Auction.SearchDelay = 300
 
 #
 ###################################################################################################
@@ -1250,6 +1289,78 @@ Updates.AllowRehash = 1
 #                    -1 - (Enabled - unlimited)
 
 Updates.CleanDeadRefMaxCount = 3
+
+#
+###################################################################################################
+
+###################################################################################################
+# HOTSWAP SETTINGS
+#
+#    HotSwap.Enabled (Requires compilation with DYNAMIC_LINKING=1)
+#        Description: Enables dynamic script hotswapping.
+#                     Reloads scripts on changes.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.Enabled = 1
+
+#
+#    HotSwap.ScriptDir
+#        Description: Directory containing the script shared libraries (.dll/.so).
+#        Example:     "/usr/local/scripts"
+#        Default:     "scripts"
+
+HotSwap.ScriptDir = "scripts"
+
+#    HotSwap.EnableReCompiler
+#        Description: Enables the dynamic script recompiler.
+#                     Watches your script source directories and recompiles the
+#                     script modules on changes.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+HotSwap.EnableReCompiler = 1
+
+#    HotSwap.EnableEarlyTermination
+#        Description: Terminate the build of a module when an associated
+#                     source file was changed meanwhile.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableEarlyTermination = 1
+
+#    HotSwap.EnableBuildFileRecreation
+#        Description: Recreate build files when sources to a module
+#                     were added or removed.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableBuildFileRecreation = 1
+
+#
+#    HotSwap.EnableInstall
+#        Description: Enables cmake install after automatic builds have finished
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableInstall = 1
+
+#
+#    HotSwap.EnablePrefixCorrection
+#        Description: Allows the core to automatic set the CMAKE_INSTALL_PREFIX
+#                     to it's current location in the filesystem.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnablePrefixCorrection = 1
+
+#    HotSwap.ReCompilerBuildType
+#        Description: Defines the build type of the builds invoked by the recompiler.
+#        Default:     "" - Built-in build type of the module is used.
+#                     "Release" - Release builds only
+#                     "Debug" - Debug builds only
+
+HotSwap.ReCompilerBuildType = ""
 
 #
 ###################################################################################################
@@ -3115,21 +3226,21 @@ AuctionHouseBot.Items.Yellow.Price.Ratio = 100
 #       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
 #       Default:   100 - (No change)
 
-AuctionHouseBot.Class.Consumable.Price.Ratio = 100 
-AuctionHouseBot.Class.Container.Price.Ratio = 100 
-AuctionHouseBot.Class.Weapon.Price.Ratio = 100 
-AuctionHouseBot.Class.Gem.Price.Ratio = 100 
-AuctionHouseBot.Class.Armor.Price.Ratio = 100 
-AuctionHouseBot.Class.Reagent.Price.Ratio = 100 
-AuctionHouseBot.Class.Projectile.Price.Ratio = 100 
-AuctionHouseBot.Class.TradeGood.Price.Ratio = 100 
-AuctionHouseBot.Class.Generic.Price.Ratio = 100 
-AuctionHouseBot.Class.Recipe.Price.Ratio = 100 
-AuctionHouseBot.Class.Quiver.Price.Ratio = 100 
-AuctionHouseBot.Class.Quest.Price.Ratio = 100 
-AuctionHouseBot.Class.Key.Price.Ratio = 100 
-AuctionHouseBot.Class.Misc.Price.Ratio = 100 
-AuctionHouseBot.Class.Glyph.Price.Ratio = 100 
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100
+AuctionHouseBot.Class.Container.Price.Ratio = 100
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100
+AuctionHouseBot.Class.Gem.Price.Ratio = 100
+AuctionHouseBot.Class.Armor.Price.Ratio = 100
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
+AuctionHouseBot.Class.Generic.Price.Ratio = 100
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100
+AuctionHouseBot.Class.Quest.Price.Ratio = 100
+AuctionHouseBot.Class.Key.Price.Ratio = 100
+AuctionHouseBot.Class.Misc.Price.Ratio = 100
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100
 
 #
 #    AuctionHouseBot.Items.ItemLevel.*
@@ -3404,6 +3515,37 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 ###################################################################################################
 
 ###################################################################################################
+# BLACK MARKET SETTINGS
+#
+#    BlackMarket.Enabled
+#       Description: General Enable or Disable of the Black Market.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+#
+
+BlackMarket.Enabled = 1
+
+#
+#    BlackMarket.MaxAuctions
+#       Description: Maximum amount of aucions present at the same time.
+#       Default:     12
+#
+
+BlackMarket.MaxAuctions = 12
+
+#
+#    BlackMarket.UpdatePeriod
+#       Description: How often are the auctions on the black market restored
+#       Default:     24 (hours)
+#
+
+BlackMarket.UpdatePeriod = 24
+
+#
+#
+###################################################################################################
+
+###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
@@ -3498,6 +3640,7 @@ Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
+Logger.mmaps=3,Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server
@@ -3539,6 +3682,7 @@ Logger.sql.updates=3,Console Server
 #Logger.scenes=3,Console Server
 #Logger.scripts=3,Console Server
 #Logger.scripts.ai=3,Console Server
+#Logger.scripts.hotswap=3,Console Server
 #Logger.server.bnetserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.periodic=3,Console Server

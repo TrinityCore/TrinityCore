@@ -1,4 +1,4 @@
-if (WITH_DYNAMIC_LINKING)
+if (BUILD_SHARED_LIBS)
   set(SRCS
     src/efsw/DirectorySnapshot.cpp
     src/efsw/DirectorySnapshotDiff.cpp
@@ -81,5 +81,5 @@ if (WITH_DYNAMIC_LINKING)
       FOLDER
         "dep")
 else()
-  add_library(efsw INTERFACE)
+  add_library(efsw INTERFACE IMPORTED GLOBAL)
 endif()

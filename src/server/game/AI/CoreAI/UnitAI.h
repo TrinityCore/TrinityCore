@@ -107,11 +107,11 @@ struct TC_GAME_API SpellTargetSelector : public std::unary_function<Unit*, bool>
 struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, bool>
 {
     public:
-        NonTankTargetSelector(Creature* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
+        NonTankTargetSelector(Unit* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
         bool operator()(Unit const* target) const;
 
     private:
-        Creature const* _source;
+        Unit* _source;
         bool _playerOnly;
 };
 

@@ -765,9 +765,10 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
     UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER   = 0x0100000000,
     UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x0200000000,
-    UNIT_NPC_FLAG_SHIPMENT_CRAFTER      = 0x2000000000,
-    UNIT_NPC_FLAG_GARRISON_MISSION_NPC  = 0x4000000000,
-    UNIT_NPC_FLAG_TRADESKILL_NPC        = 0x8000000000
+    UNIT_NPC_FLAG_SHIPMENT_CRAFTER      = 0x1000000000,
+    UNIT_NPC_FLAG_GARRISON_MISSION_NPC  = 0x2000000000,
+    UNIT_NPC_FLAG_TRADESKILL_NPC        = 0x4000000000,
+    UNIT_NPC_FLAG_BLACK_MARKET_VIEW     = 0x8000000000
 };
 
 enum MovementFlags
@@ -1370,7 +1371,7 @@ class TC_GAME_API Unit : public WorldObject
         void _removeAttacker(Unit* pAttacker);               // must be called only from Unit::AttackStop()
         Unit* getAttackerForHelper() const;                 // If someone wants to help, who to give them
         bool Attack(Unit* victim, bool meleeAttack);
-        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Unit for forced target reacquisition in the next ::Attack call
+        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Unit for forced (client displayed) target reacquisition in the next ::Attack call
         void CastStop(uint32 except_spellid = 0);
         bool AttackStop();
         void RemoveAllAttackers();
@@ -2231,6 +2232,7 @@ class TC_GAME_API Unit : public WorldObject
         void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
         uint32 GetVirtualItemId(uint32 slot) const;
+        uint16 GetVirtualItemAppearanceMod(uint32 slot) const;
         void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0, uint16 itemVisual = 0);
 
     protected:

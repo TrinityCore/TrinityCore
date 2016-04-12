@@ -116,7 +116,7 @@ public:
         void JustSummoned(Creature* summon) override
         {
             BossAI::JustSummoned(summon);
-            
+
             if (me->IsInCombat())
                 if (summon->GetEntry() == NPC_CRYPT_GUARD)
                     summon->AI()->Talk(EMOTE_SPAWN, me);
@@ -162,13 +162,13 @@ public:
             summons.DoZoneInCombat();
             
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_IMPALE, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SCARABS, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_LOCUST, urand(80,120) * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_BERSERK, 10 * MINUTE * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(10), Seconds(20)), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SCARABS, randtime(Seconds(20), Seconds(30)), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_LOCUST, Minutes(1)+randtime(Seconds(40), Seconds(60)), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
 
             if (!Is25ManRaid())
-                events.ScheduleEvent(EVENT_SPAWN_GUARD, urand(15, 20) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SPAWN_GUARD, randtime(Seconds(15), Seconds(20)));
         }
 
         void UpdateAI(uint32 diff) override
@@ -189,11 +189,9 @@ public:
                         else
                             EnterEvadeMode();
 
-                        events.ScheduleEvent(EVENT_IMPALE, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, PHASE_NORMAL);
+                        events.Repeat(randtime(Seconds(10), Seconds(20)));
                         break;
                     case EVENT_SCARABS:
-                        events.ScheduleEvent(EVENT_SCARABS, urand(40 * IN_MILLISECONDS, 60 * IN_MILLISECONDS), 0, PHASE_NORMAL);
-
                         if (!guardCorpses.empty())
                         {
                             if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(guardCorpses)))
@@ -203,27 +201,28 @@ public:
                                 creatureTarget->DespawnOrUnsummon();
                             }
                         }
+                        events.Repeat(randtime(Seconds(40), Seconds(60)));
                         break;
                     case EVENT_LOCUST:
                         Talk(EMOTE_LOCUST);
-                        DoCast(me, SPELL_LOCUST_SWARM);
-                        events.ScheduleEvent(EVENT_SPAWN_GUARD, 3 * IN_MILLISECONDS);
-                        
-                        events.ScheduleEvent(EVENT_LOCUST_ENDS, RAID_MODE(19, 23) * IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_LOCUST, 90000);
                         events.SetPhase(PHASE_SWARM);
+                        DoCast(me, SPELL_LOCUST_SWARM);
+                        
+                        events.ScheduleEvent(EVENT_SPAWN_GUARD, Seconds(3));
+                        events.ScheduleEvent(EVENT_LOCUST_ENDS, RAID_MODE(Seconds(19), Seconds(23)));
+                        events.Repeat(Minutes(1)+Seconds(30));
                         break;
                     case EVENT_LOCUST_ENDS:
-                        events.ScheduleEvent(EVENT_IMPALE, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS), 0, PHASE_NORMAL);
-                        events.ScheduleEvent(EVENT_SCARABS, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS), 0, PHASE_NORMAL);
                         events.SetPhase(PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(10), Seconds(20)), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_SCARABS, randtime(Seconds(20), Seconds(30)), 0, PHASE_NORMAL);
                         break;
                     case EVENT_SPAWN_GUARD:
                         me->SummonCreatureGroup(GROUP_SINGLE_SPAWN);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
-                        events.ScheduleEvent(EVENT_BERSERK, 600000);
+                        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                         break;
                 }
             }

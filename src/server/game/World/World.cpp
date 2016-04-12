@@ -29,6 +29,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "BattlePetMgr.h"
+#include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
@@ -58,6 +59,7 @@
 #include "PoolMgr.h"
 #include "GitRevision.h"
 #include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
@@ -644,6 +646,13 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ADDON_CHANNEL] = sConfigMgr->GetBoolDefault("AddonChannel", true);
     m_bool_configs[CONFIG_CLEAN_CHARACTER_DB] = sConfigMgr->GetBoolDefault("CleanCharacterDB", false);
     m_int_configs[CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS] = sConfigMgr->GetIntDefault("PersistentCharacterCleanFlags", 0);
+    m_int_configs[CONFIG_AUCTION_GETALL_DELAY] = sConfigMgr->GetIntDefault("Auction.GetAllScanDelay", 900);
+    m_int_configs[CONFIG_AUCTION_SEARCH_DELAY] = sConfigMgr->GetIntDefault("Auction.SearchDelay", 300);
+    if (m_int_configs[CONFIG_AUCTION_SEARCH_DELAY] < 100 || m_int_configs[CONFIG_AUCTION_SEARCH_DELAY] > 10000)
+    {
+        TC_LOG_ERROR("server.loading", "Auction.SearchDelay (%i) must be between 100 and 10000. Using default of 300ms", m_int_configs[CONFIG_AUCTION_SEARCH_DELAY]);
+        m_int_configs[CONFIG_AUCTION_SEARCH_DELAY] = 300;
+    }
     m_int_configs[CONFIG_CHAT_CHANNEL_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Channel", 1);
     m_int_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Whisper", 1);
     m_int_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Say", 1);
@@ -653,6 +662,18 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PRESERVE_CUSTOM_CHANNELS] = sConfigMgr->GetBoolDefault("PreserveCustomChannels", false);
     m_int_configs[CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION] = sConfigMgr->GetIntDefault("PreserveCustomChannelDuration", 14);
     m_bool_configs[CONFIG_GRID_UNLOAD] = sConfigMgr->GetBoolDefault("GridUnload", true);
+    m_bool_configs[CONFIG_BASEMAP_LOAD_GRIDS] = sConfigMgr->GetBoolDefault("BaseMapLoadAllGrids", false);
+    if (m_bool_configs[CONFIG_BASEMAP_LOAD_GRIDS] && m_bool_configs[CONFIG_GRID_UNLOAD])
+    {
+        TC_LOG_ERROR("server.loading", "BaseMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable base map pre-loading. Base map pre-loading disabled");
+        m_bool_configs[CONFIG_BASEMAP_LOAD_GRIDS] = false;
+    }
+    m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] = sConfigMgr->GetBoolDefault("InstanceMapLoadAllGrids", false);
+    if (m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] && m_bool_configs[CONFIG_GRID_UNLOAD])
+    {
+        TC_LOG_ERROR("server.loading", "InstanceMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable instance map pre-loading. Instance map pre-loading disabled");
+        m_bool_configs[CONFIG_INSTANCEMAP_LOAD_GRIDS] = false;
+    }
     m_int_configs[CONFIG_INTERVAL_SAVE] = sConfigMgr->GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfigMgr->GetIntDefault("DisconnectToleranceInterval", 0);
     m_bool_configs[CONFIG_STATS_SAVE_ONLY_ON_LOGOUT] = sConfigMgr->GetBoolDefault("PlayerSave.Stats.SaveOnlyOnLogout", true);
@@ -1412,6 +1433,20 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Creature.Zone.Area.Data", false);
     m_bool_configs[CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Gameoject.Zone.Area.Data", false);
 
+    // Black Market
+    m_bool_configs[CONFIG_BLACKMARKET_ENABLED] = sConfigMgr->GetBoolDefault("BlackMarket.Enabled", true);
+
+    m_int_configs[CONFIG_BLACKMARKET_MAXAUCTIONS] = sConfigMgr->GetIntDefault("BlackMarket.MaxAuctions", 12);
+    m_int_configs[CONFIG_BLACKMARKET_UPDATE_PERIOD] = sConfigMgr->GetIntDefault("BlackMarket.UpdatePeriod", 24);
+
+    // HotSwap
+    m_bool_configs[CONFIG_HOTSWAP_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.Enabled", true);
+    m_bool_configs[CONFIG_HOTSWAP_RECOMPILER_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnableReCompiler", true);
+    m_bool_configs[CONFIG_HOTSWAP_EARLY_TERMINATION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnableEarlyTermination", true);
+    m_bool_configs[CONFIG_HOTSWAP_BUILD_FILE_RECREATION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnableBuildFileRecreation", true);
+    m_bool_configs[CONFIG_HOTSWAP_INSTALL_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnableInstall", true);
+    m_bool_configs[CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnablePrefixCorrection", true);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -1802,6 +1837,15 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
+    if (m_bool_configs[CONFIG_BLACKMARKET_ENABLED])
+    {
+        TC_LOG_INFO("server.loading", "Loading Black Market Templates...");
+        sBlackMarketMgr->LoadTemplates();
+
+        TC_LOG_INFO("server.loading", "Loading Black Market Auctions...");
+        sBlackMarketMgr->LoadAuctions();
+    }
+
     TC_LOG_INFO("server.loading", "Loading Guild rewards...");
     sGuildMgr->LoadGuildRewards();
 
@@ -1964,6 +2008,12 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
+    m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
+
+    blackmarket_timer = 0;
+
+    m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
+
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
@@ -2059,6 +2109,19 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading battle pets info...");
     BattlePetMgr::Initialize();
+
+    // Preload all cells, if required for the base maps
+    if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
+    {
+        sMapMgr->DoForAllMaps([](Map* map)
+        {
+            if (!map->Instanceable())
+            {
+                TC_LOG_INFO("server.loading", "Pre-loading base map data for map %u", map->GetId());
+                map->LoadAllCells();
+            }
+        });
+    }
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -2204,11 +2267,37 @@ void World::Update(uint32 diff)
         sAuctionMgr->UpdatePendingAuctions();
     }
 
+    if (m_timers[WUPDATE_BLACKMARKET].Passed())
+    {
+        m_timers[WUPDATE_BLACKMARKET].Reset();
+
+        ///- Update blackmarket, refresh auctions if necessary
+        if ((blackmarket_timer *  m_timers[WUPDATE_BLACKMARKET].GetInterval() >=
+            getIntConfig(CONFIG_BLACKMARKET_UPDATE_PERIOD) * HOUR * IN_MILLISECONDS)
+            || !blackmarket_timer)
+        {
+            sBlackMarketMgr->RefreshAuctions();
+            blackmarket_timer = 1; // timer is 0 on startup
+        }
+        else
+        {
+            ++blackmarket_timer;
+            sBlackMarketMgr->Update();
+        }
+    }
+
     /// <li> Handle AHBot operations
     if (m_timers[WUPDATE_AHBOT].Passed())
     {
         sAuctionBot->Update();
         m_timers[WUPDATE_AHBOT].Reset();
+    }
+
+    /// <li> Handle file changes
+    if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
+    {
+        sScriptReloadMgr->Update();
+        m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed

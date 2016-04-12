@@ -61,9 +61,12 @@ BattlenetPort = 1119
 #
 #    LoginREST.ExternalAddress
 #        Description: IP address sent to clients connecting from outside the network where bnetserver runs
+#                     Set it to your external IP address
 #
 #    LoginREST.LocalAddress
 #        Description: IP address sent to clients connecting from inside the network where bnetserver runs
+#                     Set it to your local IP address (common 192.168.x.x network)
+#                     or leave it at default value 127.0.0.1 if connecting directly to the internet without a router
 #
 
 LoginREST.Port = 8081
@@ -85,6 +88,22 @@ BindIP = "0.0.0.0"
 #        Default:     ""                  - (Disabled)
 
 PidFile = ""
+
+#
+#    CertificatesFile
+#        Description: Certificates file.
+#        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
+#        Default:     "./bnetserver.cert.pem"
+
+CertificatesFile = "./bnetserver.cert.pem"
+
+#
+#    PrivateKeyFile
+#        Description: Private key file.
+#        Example:     "/etc/ssl/private/bnetserver.key.pem"
+#        Default:     "./bnetserver.key.pem"
+
+PrivateKeyFile = "./bnetserver.key.pem"
 
 #
 #    UseProcessors
@@ -147,6 +166,13 @@ WrongPass.BanType = 0
 WrongPass.Logging = 0
 
 #
+#    BanExpiryCheckInterval
+#        Description: Time (in seconds) between checks for expired bans
+#        Default:     60
+
+BanExpiryCheckInterval = 60
+
+#
 #    SourceDirectory
 #        Description: The path to your TrinityCore source directory.
 #                     If the path is left empty, the built-in CMAKE_SOURCE_DIR is used.
@@ -191,6 +217,13 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 #        Default:     1
 
 LoginDatabase.WorkerThreads = 1
+
+#
+#    LoginDatabase.SynchThreads
+#        Description: The amount of MySQL connections spawned to handle.
+#        Default:     1 - (LoginDatabase.WorkerThreads)
+
+LoginDatabase.SynchThreads  = 1
 
 #
 ###################################################################################################
