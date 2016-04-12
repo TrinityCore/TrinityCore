@@ -676,18 +676,18 @@ void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
     Mutate(new RotateMovementGenerator(time, direction), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::propagateSpeedChange()
+void MotionMaster::PropagateSpeedChange()
 {
     for (int i = 0; i <= _top; ++i)
         if (Impl[i])
-            Impl[i]->unitSpeedChanged();
+            Impl[i]->UnitSpeedChanged();
 }
 
-void MotionMaster::propagateRootOrStun()
+void MotionMaster::PropagateInterruption()
 {
     for (int i = 0; i <= _top; ++i)
         if (Impl[i])
-            Impl[i]->unitRootOrStun(_owner);
+            Impl[i]->UnitMovementInterrupted(_owner);
 }
 
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const

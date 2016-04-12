@@ -41,9 +41,8 @@ class TC_GAME_API MovementGenerator
 
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
-        virtual void unitSpeedChanged() { }
-
-        virtual void unitRootOrStun(Unit*) { }
+        virtual void UnitSpeedChanged() { }
+        virtual void UnitMovementInterrupted(Unit*) { }
 
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }

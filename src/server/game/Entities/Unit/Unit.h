@@ -2043,8 +2043,8 @@ class TC_GAME_API Unit : public WorldObject
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------
 
-        void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
-        void propagateRootOrStun() { GetMotionMaster()->propagateRootOrStun(); }
+        void PropagateSpeedChange() { GetMotionMaster()->PropagateSpeedChange(); }
+        void PropagateMovementInterruption() { GetMotionMaster()->PropagateInterruption(); }
 
         // reactive attacks
         void ClearAllReactives();

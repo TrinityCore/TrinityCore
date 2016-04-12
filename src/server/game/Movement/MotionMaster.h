@@ -206,8 +206,8 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
         MovementGeneratorType GetMotionSlotType(int slot) const;
 
-        void propagateSpeedChange();
-        void propagateRootOrStun();
+        void PropagateSpeedChange();
+        void PropagateInterruption();
 
         bool GetDestination(float &x, float &y, float &z);
     private:

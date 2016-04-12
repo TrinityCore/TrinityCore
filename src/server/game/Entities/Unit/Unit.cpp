@@ -12466,7 +12466,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     m_speed_rate[mtype] = rate;
 
-    propagateSpeedChange();
+    PropagateSpeedChange();
 
     WorldPacket data;
     if (!forced)
@@ -15810,7 +15810,7 @@ void Unit::SetStunned(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
 
-        propagateRootOrStun();
+        PropagateMovementInterruption();
 
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
@@ -15858,7 +15858,7 @@ void Unit::SetRooted(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
 
-        propagateRootOrStun();
+        PropagateMovementInterruption();
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
