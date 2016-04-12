@@ -322,7 +322,7 @@
                 {
                   "key": "realm",
                   "operator": "=",
-                  "value": "Windows"
+                  "value": "Trinity"
                 }
               ]
             },
@@ -418,8 +418,8 @@
       {
         "allFormat": "regex values",
         "current": {
-          "text": "Windows",
-          "value": "Windows"
+          "text": "Trinity",
+          "value": "Trinity"
         },
         "datasource": "Influx",
         "includeAll": false,
@@ -428,13 +428,8 @@
         "name": "realm",
         "options": [
           {
-            "text": "Ubuntu",
-            "value": "Ubuntu",
-            "selected": false
-          },
-          {
-            "text": "Windows",
-            "value": "Windows",
+            "text": "Trinity",
+            "value": "Trinity",
             "selected": true
           }
         ],
