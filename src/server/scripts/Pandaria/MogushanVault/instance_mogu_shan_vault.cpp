@@ -23,18 +23,18 @@
 
 DoorData const doorData[] =
 {
-    {GOB_STONE_GUARD_DOOR_ENTRANCE,          DATA_STONE_GUARD,          DOOR_TYPE_ROOM,       BOUNDARY_E   },
-    {GOB_STONE_GUARD_DOOR_EXIT,              DATA_STONE_GUARD,          DOOR_TYPE_PASSAGE,    BOUNDARY_W   },
-    {GOB_FENG_DOOR_FENCE,                    DATA_FENG,                 DOOR_TYPE_ROOM,       BOUNDARY_NONE},
-    {GOB_FENG_DOOR_EXIT,                     DATA_FENG,                 DOOR_TYPE_PASSAGE,    BOUNDARY_N   },
-    {GOB_GARAJAL_FENCE,                      DATA_GARAJAL,              DOOR_TYPE_ROOM,       BOUNDARY_NONE},
-    {GOB_GARAJAL_EXIT,                       DATA_GARAJAL,              DOOR_TYPE_PASSAGE,    BOUNDARY_W   },
-    {GOB_SPIRIT_KINGS_WIND_WALL,             DATA_SPIRIT_KINGS,         DOOR_TYPE_ROOM,       BOUNDARY_NONE},
-    {GOB_SPIRIT_KINGS_EXIT,                  DATA_SPIRIT_KINGS,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {GOB_ELEGON_DOOR_ENTRANCE,               DATA_SPIRIT_KINGS,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {GOB_ELEGON_CELESTIAL_DOOR,              DATA_ELEGON,               DOOR_TYPE_ROOM,       BOUNDARY_E   },
-    {GOB_WILL_OF_EMPEROR_ENTRANCE,           DATA_ELEGON,               DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {0,                                      0,                         DOOR_TYPE_ROOM,       BOUNDARY_NONE},// END
+    {GOB_STONE_GUARD_DOOR_ENTRANCE,          DATA_STONE_GUARD,          DOOR_TYPE_ROOM, },
+    {GOB_STONE_GUARD_DOOR_EXIT,              DATA_STONE_GUARD,          DOOR_TYPE_PASSAGE, },
+    {GOB_FENG_DOOR_FENCE,                    DATA_FENG,                 DOOR_TYPE_ROOM, },
+    {GOB_FENG_DOOR_EXIT,                     DATA_FENG,                 DOOR_TYPE_PASSAGE, },
+    {GOB_GARAJAL_FENCE,                      DATA_GARAJAL,              DOOR_TYPE_ROOM, },
+    {GOB_GARAJAL_EXIT,                       DATA_GARAJAL,              DOOR_TYPE_PASSAGE, },
+    {GOB_SPIRIT_KINGS_WIND_WALL,             DATA_SPIRIT_KINGS,         DOOR_TYPE_ROOM, },
+    {GOB_SPIRIT_KINGS_EXIT,                  DATA_SPIRIT_KINGS,         DOOR_TYPE_PASSAGE, },
+    {GOB_ELEGON_DOOR_ENTRANCE,               DATA_SPIRIT_KINGS,         DOOR_TYPE_PASSAGE, },
+    {GOB_ELEGON_CELESTIAL_DOOR,              DATA_ELEGON,               DOOR_TYPE_ROOM, },
+    {GOB_WILL_OF_EMPEROR_ENTRANCE,           DATA_ELEGON,               DOOR_TYPE_PASSAGE, },
+    {0,                                      0,                         DOOR_TYPE_ROOM, },// END
 };
 
 #define DIST_BETWEEN_TWO_Z      32.39f
@@ -183,48 +183,48 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case NPC_AMETHYST:
                     case NPC_COBALT:
                     {
-                        stoneGuardGUIDs.push_back(creature->GetGUID());
+                        stoneGuardGUIDs.push_back(creature->GetGUID().GetEntry());
 
                         if (!creature->IsAlive())
                             oneStoneGuardianAlreadyDead = true;
 
                         if (++guardianCount == 4 && !oneStoneGuardianAlreadyDead && GetBossState(DATA_STONE_GUARD) != DONE && !instance->Is25ManRaid())
-                            if (Creature* guardianToDespawn = instance->GetCreature(stoneGuardGUIDs[urand(0, 3)]))
+                            if (Creature* guardianToDespawn = instance->GetCreature(GetObjectGuid(stoneGuardGUIDs[urand(0, 3)])))
                                 guardianToDespawn->DespawnOrUnsummon();
 
                         break;
                     }
                     case NPC_TILE:
                     {
-                        tileGUIDs.push_back(creature->GetGUID());
+                        tileGUIDs.push_back(creature->GetGUID().GetEntry());
                         break;
                     }
                     case NPC_FENG:
-                        fengGuid = creature->GetGUID();
+                        fengGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_SPIRIT_GUID_CONTROLER:
-                        spiritKingsControlerGuid = creature->GetGUID();
+                        spiritKingsControlerGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_ZIAN:
                     case NPC_MENG:
                     case NPC_QIANG:
                     case NPC_SUBETAI:
-                        spiritKingsGUIDs.push_back(creature->GetGUID());
+                        spiritKingsGUIDs.push_back(creature->GetGUID().GetEntry());
                         break;
                     case NPC_ELEGON:
-                        elegonGuid = creature->GetGUID();
+                        elegonGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_INFINITE_ENERGY:
-                        infiniteEnergyGuid = creature->GetGUID();
+                        infiniteEnergyGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_QIN_XI:
-                        qinxiGuid = creature->GetGUID();
+                        qinxiGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_JAN_XI:
-                        janxiGuid = creature->GetGUID();
+                        janxiGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_LOREWALKER_CHO:
-                        lorewalkerChoGUID = creature->GetGUID();
+                        lorewalkerChoGUID = creature->GetGUID().GetEntry();
                         break;
                     default:
                         break;
@@ -252,33 +252,33 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case GOB_FIST_STATUE:
                     case GOB_SHIELD_STATUE:
                     case GOB_STAFF_STATUE:
-                        fengStatuesGUIDs.push_back(go->GetGUID());
+                        fengStatuesGUIDs.push_back(go->GetGUID().GetEntry());
                         break;
                     case GOB_STONE_GUARD_DOOR_EXIT:
                         AddDoor(go, true);
-                        stoneGuardExit = go->GetGUID();
+                        stoneGuardExit = go->GetGUID().GetEntry();
                         break;
                     case GOB_INVERSION:
-                        inversionGobGuid = go->GetGUID();
+                        inversionGobGuid = go->GetGUID().GetEntry();
                         break;
                     case GOB_CANCEL:
-                        cancelGobGuid = go->GetGUID();
+                        cancelGobGuid = go->GetGUID().GetEntry();
                         break;
                     case GOB_ENERGY_PLATFORM:
-                        energyPlatformGuid = go->GetGUID();
+                        energyPlatformGuid = go->GetGUID().GetEntry();
                         go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GOB_ENERGY_TITAN_DISK:
-                        titanDiskGuid = go->GetGUID();
+                        titanDiskGuid = go->GetGUID().GetEntry();
                         break;
                     case GOB_ENERGY_TITAN_CIRCLE_1:
                     case GOB_ENERGY_TITAN_CIRCLE_2:
                     case GOB_ENERGY_TITAN_CIRCLE_3:
                         go->SetGoState(GO_STATE_ACTIVE);
-                        titanCirclesGuids.push_back(go->GetGUID());
+                        titanCirclesGuids.push_back(go->GetGUID().GetEntry());
                         break;
                     case GOB_ANCIENT_CONTROL_CONSOLE:
-                        ancientControlConsoleGUID = go->GetGUID();
+                        ancientControlConsoleGUID = go->GetGUID().GetEntry();
                         break;
                 }
             }
@@ -295,25 +295,25 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         switch (state)
                         {
                             case IN_PROGRESS:
-                                if (Creature* stoneGuardControler = instance->GetCreature(stoneGuardControlerGuid))
+                                if (Creature* stoneGuardControler = instance->GetCreature(GetObjectGuid(stoneGuardControlerGuid)))
                                     stoneGuardControler->AI()->DoAction(ACTION_ENTER_COMBAT);
 
                                 for (auto stoneGuardGuid: stoneGuardGUIDs)
-                                    if (Creature* stoneGuard = instance->GetCreature(stoneGuardGuid))
+                                    if (Creature* stoneGuard = instance->GetCreature(GetObjectGuid(stoneGuardGuid)))
                                         stoneGuard->AI()->DoAction(ACTION_ENTER_COMBAT);
                                 break;
                             case FAIL:
                                 for (auto stoneGuardGuid: stoneGuardGUIDs)
-                                    if (Creature* stoneGuard = instance->GetCreature(stoneGuardGuid))
+                                    if (Creature* stoneGuard = instance->GetCreature(GetObjectGuid(stoneGuardGuid)))
                                         stoneGuard->AI()->DoAction(ACTION_FAIL);
 
                                 SetData(DATA_ACTION_REMOVE_ENERGIZED_TILE, 1);
                                 break;
                             case DONE:
-                                if (Creature* stoneGuardControler = instance->GetCreature(stoneGuardControlerGuid))
+                                if (Creature* stoneGuardControler = instance->GetCreature(GetObjectGuid(stoneGuardControlerGuid)))
                                     stoneGuardControler->CastSpell(stoneGuardControler, ACHIEVEMENT_STONE_GUARD_KILL, true);
 
-                                if (Creature* lorewalkerCho = instance->GetCreature(lorewalkerChoGUID))
+                                if (Creature* lorewalkerCho = instance->GetCreature(GetObjectGuid(lorewalkerChoGUID)))
                                     if (lorewalkerCho->AI())
                                         lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
 
@@ -330,7 +330,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         {
                             case IN_PROGRESS:
                             {
-                                if (Creature* spiritKingsControler = instance->GetCreature(spiritKingsControlerGuid))
+                                if (Creature* spiritKingsControler = instance->GetCreature(GetObjectGuid(spiritKingsControlerGuid)))
                                     spiritKingsControler->AI()->DoAction(ACTION_ENTER_COMBAT);
                                 break;
                             }
@@ -345,28 +345,28 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         {
                             case TO_BE_DECIDED:
                             {
-                                if (GameObject* titanDisk = instance->GetGameObject(titanDiskGuid))
+                                if (GameObject* titanDisk = instance->GetGameObject(GetObjectGuid(titanDiskGuid)))
                                     titanDisk->SetGoState(GO_STATE_ACTIVE);
 
-                                if (GameObject* energyPlatform = instance->GetGameObject(energyPlatformGuid))
+                                if (GameObject* energyPlatform = instance->GetGameObject(GetObjectGuid(energyPlatformGuid)))
                                     energyPlatform->SetGoState(GO_STATE_ACTIVE);
 
                                 for (auto guid: titanCirclesGuids)
-                                    if (GameObject* titanCircles = instance->GetGameObject(guid))
+                                    if (GameObject* titanCircles = instance->GetGameObject(GetObjectGuid(guid)))
                                         titanCircles->SetGoState(GO_STATE_ACTIVE);
 
                                 break;
                             }
                             case FAIL:
                             {
-                                if (GameObject* titanDisk = instance->GetGameObject(titanDiskGuid))
+                                if (GameObject* titanDisk = instance->GetGameObject(GetObjectGuid(titanDiskGuid)))
                                     titanDisk->SetGoState(GO_STATE_READY);
 
-                                if (GameObject* energyPlatform = instance->GetGameObject(energyPlatformGuid))
+                                if (GameObject* energyPlatform = instance->GetGameObject(GetObjectGuid(energyPlatformGuid)))
                                     energyPlatform->SetGoState(GO_STATE_READY);
 
                                 for (auto guid: titanCirclesGuids)
-                                    if (GameObject* titanCircles = instance->GetGameObject(guid))
+                                    if (GameObject* titanCircles = instance->GetGameObject(GetObjectGuid(guid)))
                                         titanCircles->SetGoState(GO_STATE_READY);
 
                                 break;
@@ -382,8 +382,8 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         {
                             case NOT_STARTED:
                             case FAIL:
-                                if (GameObject* ancientControlConsole = instance->GetGameObject(ancientControlConsoleGUID))
-                                    ancientControlConsole->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                if (GameObject* ancientControlConsole = instance->GetGameObject(GetObjectGuid(ancientControlConsoleGUID)))
+                                    ancientControlConsole->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                                 //No Break
                             case DONE: // Warning : DONE will be called twice actually
                                 willOfEmperorTimer              = 0;
@@ -419,7 +419,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case DATA_ACTION_REMOVE_ENERGIZED_TILE:
                     {
                         for (auto tileGUID: tileGUIDs)
-                            if (Creature* tile = instance->GetCreature(tileGUID))
+                            if (Creature* tile = instance->GetCreature(GetObjectGuid(tileGUID)))
                                 tile->AI()->DoAction(ACTION_REMOVE_ENERGIZED_TILE);
 
                         DoRemoveAurasDueToSpellOnPlayers(116541); // SPELL_ENERGIZED_TILE_BUFF
@@ -447,7 +447,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case NPC_COBALT:
                     {
                         for (auto guid: stoneGuardGUIDs)
-                            if (Creature* stoneGuard = instance->GetCreature(guid))
+                            if (Creature* stoneGuard = instance->GetCreature(GetObjectGuid(guid)))
                                 if (stoneGuard->GetEntry() == type)
                                     return guid;
                         break;
@@ -464,7 +464,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case NPC_SUBETAI:
                     {
                         for (auto guid: spiritKingsGUIDs)
-                            if (Creature* spiritKing = instance->GetCreature(guid))
+                            if (Creature* spiritKing = instance->GetCreature(GetObjectGuid(guid)))
                                 if (spiritKing->GetEntry() == type)
                                     return guid;
                         break;
@@ -489,7 +489,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case GOB_STAFF_STATUE:
                     {
                         for (auto guid: fengStatuesGUIDs)
-                            if (GameObject* fengStatue = instance->GetGameObject(guid))
+                            if (GameObject* fengStatue = instance->GetGameObject(GetObjectGuid(guid)))
                                 if (fengStatue->GetEntry() == type)
                                     return guid;
                         break;
@@ -666,7 +666,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "M V " << GetBossSaveData();
+                //saveStream << "M V " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
