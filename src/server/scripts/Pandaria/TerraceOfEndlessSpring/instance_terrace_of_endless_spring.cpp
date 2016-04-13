@@ -20,7 +20,7 @@
 
 DoorData const doorData[] =
 {
-    {0,                                      0,                         DOOR_TYPE_ROOM,       BOUNDARY_NONE},// END
+    {0,                                      0,                         DOOR_TYPE_ROOM, },// END
 };
 
 class instance_terrace_of_endless_spring : public InstanceMapScript
@@ -59,12 +59,12 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_KAOLAN:        kaolanGUID      = creature->GetGUID(); break;
-                    case NPC_REGAIL:        regailGUID      = creature->GetGUID(); break;
-                    case NPC_ASANI:         asaniGUID       = creature->GetGUID(); break;
-                    case NPC_TSULONG:       tsulongGUID     = creature->GetGUID(); break;
-                    case NPC_LEI_SHI:       leishiGUID      = creature->GetGUID(); break;
-                    case NPC_SHA_OF_FEAR:   shaoffearGUID   = creature->GetGUID(); break;
+                    case NPC_KAOLAN:        kaolanGUID      = creature->GetGUID().GetEntry(); break;
+                    case NPC_REGAIL:        regailGUID      = creature->GetGUID().GetEntry(); break;
+                    case NPC_ASANI:         asaniGUID       = creature->GetGUID().GetEntry(); break;
+                    case NPC_TSULONG:       tsulongGUID     = creature->GetGUID().GetEntry(); break;
+                    case NPC_LEI_SHI:       leishiGUID      = creature->GetGUID().GetEntry(); break;
+                    case NPC_SHA_OF_FEAR:   shaoffearGUID   = creature->GetGUID().GetEntry(); break;
                     default:
                         break;
                 }
@@ -101,7 +101,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() override
+            /*std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -143,7 +143,7 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
                     OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
-            }
+            }*/
 
             protected:
                 uint64 kaolanGUID;
