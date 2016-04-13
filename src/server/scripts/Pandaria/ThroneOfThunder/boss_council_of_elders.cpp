@@ -1033,7 +1033,7 @@ public:
 
                 case EVENT_RECKLESS_CHARGE:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    Talk(RAND<uint8>(SAY_KAZ_RECKLESS_CHARGE_1, SAY_KAZ_RECKLESS_CHARGE_2));
+                    //Talk(RAND<uint8>(SAY_KAZ_RECKLESS_CHARGE_1, SAY_KAZ_RECKLESS_CHARGE_2));
                     DoCast(me, SPELL_RECKLESS_CHARGE); // Launch everything
                     // Summon npcs for the visual of Reckless Charge while travelling ?
                     // Handle next part in MovementInform.
@@ -1372,7 +1372,7 @@ public:
 
                 case EVENT_SHADOWED_LOA_SPIRIT:
                 {
-                    Talk(RAND<uint8>(SAY_MARLI_SHADOWED_LOA_SPIRIT_1, SAY_MARLI_SHADOWED_LOA_SPIRIT_2, SAY_MARLI_SHADOWED_LOA_SPIRIT_3));
+                    //Talk(RAND<uint8>(SAY_MARLI_SHADOWED_LOA_SPIRIT_1, SAY_MARLI_SHADOWED_LOA_SPIRIT_2, SAY_MARLI_SHADOWED_LOA_SPIRIT_3));
                     std::list<Player*> playerList;
                     me->GetPlayerListInGrid(playerList, 500.0f);
 
