@@ -103,12 +103,12 @@ public:
         {
             switch (creature->GetEntry())
             {
-            case NPC_GU_CLOUDSTRIKE:    guCloudstikeGuid    = creature->GetGUID();          return;
-            case NPC_MASTER_SNOWDRIFT:  masterSnowdriftGuid = creature->GetGUID();          return;
-            case NPC_SHA_VIOLENCE:      shaViolenceGuid     = creature->GetGUID();          return;
-            case NPC_TARAN_ZHU:         taranZhuGuid        = creature->GetGUID();          return;
-            case NPC_AZURE_SERPENT:     azureSerpentGuid    = creature->GetGUID();          return;
-            case NPC_ARCHERY_TARGET:    archeryTargetGuids.push_back((int)creature->GetGUID());  return;
+            case NPC_GU_CLOUDSTRIKE:    guCloudstikeGuid    = creature->GetGUID().GetEntry();          return;
+            case NPC_MASTER_SNOWDRIFT:  masterSnowdriftGuid = creature->GetGUID().GetEntry();          return;
+            case NPC_SHA_VIOLENCE:      shaViolenceGuid     = creature->GetGUID().GetEntry();          return;
+            case NPC_TARAN_ZHU:         taranZhuGuid        = creature->GetGUID().GetEntry();          return;
+            case NPC_AZURE_SERPENT:     azureSerpentGuid    = creature->GetGUID().GetEntry();          return;
+            case NPC_ARCHERY_TARGET:    archeryTargetGuids.push_back(creature->GetGUID().GetEntry());  return;
             }
         }
 
@@ -117,31 +117,31 @@ public:
             switch (go->GetEntry())
             {
             case GO_CLOUDSTRIKE_ENTRANCE:
-                cloudstikeEntranceGuid = go->GetGUID();
+                cloudstikeEntranceGuid = go->GetGUID().GetEntry();
                 HandleGameObject(GetObjectGuid(0), true, go);
                 break;
             case GO_CLOUDSTRIKE_EXIT:
-                cloudstikeExitGuid = go->GetGUID();
+                cloudstikeExitGuid = go->GetGUID().GetEntry();
                 break;
             case GO_SNOWDRIFT_ENTRANCE:
-                snowdriftEntranceGuid = go->GetGUID();
+                snowdriftEntranceGuid = go->GetGUID().GetEntry();
                 HandleGameObject(GetObjectGuid(0), true, go);
                 break;
             case GO_SNOWDRIFT_POSSESSIONS:
                 go->SetPhaseMask(2, true);
-                snowdriftPossessionsGuid = go->GetGUID();
+                snowdriftPossessionsGuid = go->GetGUID().GetEntry();
                 break;
             case GO_SNOWDRIFT_FIRE_WALL:
-                snowdriftFirewallGuid = go->GetGUID();
+                snowdriftFirewallGuid = go->GetGUID().GetEntry();
                 break;
             case GO_SNOWDRIFT_DOJO_DOOR:
-                snowdriftDojoDoorGuid = go->GetGUID();
+                snowdriftDojoDoorGuid = go->GetGUID().GetEntry();
                 break;
             case GO_SNOWDRIFT_EXIT:
-                snowdriftExitGuid = go->GetGUID();
+                snowdriftExitGuid = go->GetGUID().GetEntry();
                 break;
             case GO_SHA_ENTRANCE:
-                shaEntranceGuid = go->GetGUID();
+                shaEntranceGuid = go->GetGUID().GetEntry();
                 HandleGameObject(GetObjectGuid(0), true, go);
                 break;
             case GO_SHA_EXIT:
@@ -149,7 +149,7 @@ public:
                 break;
             case GO_TARANZHU_POSSESSIONS:
                 go->SetPhaseMask(2, true);
-                taranzhuPossessionsGuid = go->GetGUID();
+                taranzhuPossessionsGuid = go->GetGUID().GetEntry();
                 break;
             default:
                 return;
@@ -214,7 +214,7 @@ public:
                         HandleGameObject(GetObjectGuid(snowdriftDojoDoorGuid), false);
                         break;
                     case DONE:
-                        if (GameObject* possessions = instance->GetGameObject((ObjectGuid)snowdriftPossessionsGuid))
+                        if (GameObject* possessions = instance->GetGameObject(GetObjectGuid(snowdriftPossessionsGuid)))
                             possessions->SetPhaseMask(1, true);
 
                         HandleGameObject(GetObjectGuid(snowdriftEntranceGuid), true);
