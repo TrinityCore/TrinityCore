@@ -322,7 +322,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                         case EVENT_INTRO_3:
                         {
                             Talk(EVENT_TALK_INTRO_3); //419655481
-                            if (Creature* scroll = me->GetMap()->GetCreature((ObjectGuid)me->GetInstanceScript()->GetData64(CREATURE_SCROLL)))
+                            if (Creature* scroll = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_SCROLL)))
                                 scroll->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             break;
                         }
@@ -512,7 +512,7 @@ public:
                 Creature* c = (*iter);
                 me->AddAura(SPELL_DRAW_SHA_2, c);
                 c->CastSpell(me, SPELL_DRAW_SHA_3, false);
-                c->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, (int)me->GetGUID());
+                c->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID().GetEntry());
                 c->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_CORRUPTION_CHANNEL);
                 c->DespawnOrUnsummon(2000);
             }
@@ -543,7 +543,7 @@ public:
             }
             else if (eventChoosen == EVENT_LOREWALKER_STONESTEP_TRIAL)
             {
-                Creature* lorewalker = me->GetMap()->GetCreature((ObjectGuid)me->GetInstanceScript()->GetData64(CREATURE_LOREWALKTER_STONESTEP));
+                Creature* lorewalker = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_LOREWALKTER_STONESTEP));
                 if (lorewalker && lorewalker->GetAI())
                     lorewalker->GetAI()->DoAction(ACTION_START_TRIAL);
 
@@ -633,7 +633,7 @@ class mob_sun : public CreatureScript
                 if (!instance)
                     return;
 
-                if (Creature* loreWalker = me->GetMap()->GetCreature((ObjectGuid)me->GetInstanceScript()->GetData64(CREATURE_LOREWALKTER_STONESTEP)))
+                if (Creature* loreWalker = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_LOREWALKTER_STONESTEP)))
                     if(loreWalker->GetAI())
                         loreWalker->GetAI()->DoAction(ACTION_SUN_DESTROYED);
 
@@ -746,7 +746,7 @@ class mob_zao : public CreatureScript
                 if (!instance)
                     return;
 
-                if (Creature* loreWalker = me->GetMap()->GetCreature((ObjectGuid)me->GetInstanceScript()->GetData64(CREATURE_LOREWALKTER_STONESTEP)))
+                if (Creature* loreWalker = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_LOREWALKTER_STONESTEP)))
                     if (loreWalker->GetAI())
                         loreWalker->GetAI()->DoAction(ACTION_STATUS_FINISHED);
             }
@@ -981,7 +981,7 @@ class mob_peril_and_strife : public CreatureScript
 
             if (other && other->isDead())
             {
-                if (Creature* loreWalker = me->GetMap()->GetCreature(instance->GetObjectGuid(me->GetInstanceScript()->GetData64(CREATURE_LOREWALKTER_STONESTEP))))
+                if (Creature* loreWalker = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_LOREWALKTER_STONESTEP)))
                     if(loreWalker->GetAI())
                         loreWalker->GetAI()->DoAction(ACTION_STATUS_FINISHED);
             }
