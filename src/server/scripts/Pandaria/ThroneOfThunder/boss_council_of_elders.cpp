@@ -917,7 +917,7 @@ public:
                     break;
 
                 case EVENT_FROSTBITE:
-                    Talk(RAND<uint8>(SAY_MALAKK_FROSTBITE_1, SAY_MALAKK_FROSTBITE_2));
+                    //Talk(RAND<uint8>(SAY_MALAKK_FROSTBITE_1, SAY_MALAKK_FROSTBITE_2));
                     DoCastAOE(SPELL_FROSTBITE); // Handle target selection in SpellScript
                     events.ScheduleEvent(EVENT_FROSTBITE, urand(8, 16) * IN_MILLISECONDS);
                     break;
