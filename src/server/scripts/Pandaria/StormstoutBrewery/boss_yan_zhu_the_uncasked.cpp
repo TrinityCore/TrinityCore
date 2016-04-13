@@ -615,7 +615,7 @@ public :
     }
 
     class spell_yanzhu_wall_of_suds_AuraScript : public AuraScript {
-        PrepareAuraScript(spell_yanzhu_wall_of_suds_AuraScript)
+        //PrepareAuraScript(spell_yanzhu_wall_of_suds_AuraScript)
 
         bool Validate(const SpellInfo *spellInfo) {
             if(sSpellMgr->GetSpellInfo(SPELL_WALL_OF_SUDS_TRIGGER_PERIODIC) &&
@@ -649,7 +649,7 @@ public :
         }
 
         void Register() {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_yanzhu_wall_of_suds_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+           // OnEffectPeriodic += AuraEffectPeriodicFn(spell_yanzhu_wall_of_suds_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
 
         uint32 _uiTick ;
