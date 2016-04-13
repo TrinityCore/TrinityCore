@@ -207,7 +207,7 @@ class npc_shadopan_archery : public CreatureScript
                             for (uint8 i = 0; i < advance; ++i, ++Itr);
 
                             if (Player* player = Itr->GetSource())
-                                targetGuid = player->GetGUID();
+                                targetGuid = player->GetGUID().GetEntry();
                         }
 
                         //if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
