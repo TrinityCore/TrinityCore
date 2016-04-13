@@ -63,26 +63,26 @@ public:
             switch (go->GetEntry())
             {
                 case GAMEOBJECT_DOOR_WISE_MARI:
-                    doorWiseMari = go->GetGUID();
+                    doorWiseMari = go->GetGUID().GetEntry();
                     break;
                 case GAMEOBJECT_DOOR_WISE_MARI_ENTRANCE:
-                    doorWiseMariEntrance = go->GetGUID();
+                    doorWiseMariEntrance = go->GetGUID().GetEntry();
                     break;
                 case GAMEOBJECT_DOOR_LOREWALKER_STONSTEP:
-                    doorLorewalkerStonestep = go->GetGUID();
+                    doorLorewalkerStonestep = go->GetGUID().GetEntry();
                     break;
                 case GAMEOBJECT_DOOR_LIU_FLAMEHEART:
-                    doorLiu = go->GetGUID();
+                    doorLiu = go->GetGUID().GetEntry();
                     if(GetBossState(DATA_WISE_MARI_EVENT) == DONE && GetBossState(DATA_LOREWALKER_STONESTEP_EVENT) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case GAMEOBJECT_DOOR_LIU_FLAMEHEART_2:
-                    doorLiu2 = go->GetGUID();
+                    doorLiu2 = go->GetGUID().GetEntry();
                     if(GetBossState(DATA_WISE_MARI_EVENT) == DONE && GetBossState(DATA_LOREWALKER_STONESTEP_EVENT) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case GAMEOBJECT_DOOR_SHA_OF_DOUBT:
-                    doorShaOfDoubt = go->GetGUID();
+                    doorShaOfDoubt = go->GetGUID().GetEntry();
                     if(GetBossState(DATA_LIU_FLAMEHEART_EVENT) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
@@ -95,36 +95,36 @@ public:
             {
                 //Wise Mari
                 case CREATURE_WISE_MARI:
-                    wiseMariGUID = creature->GetGUID();
+                    wiseMariGUID = creature->GetGUID().GetEntry();
                     break;
 
                 // LoreWalker Stonestep
                 case CREATURE_LOREWALKTER_STONESTEP:
-                    lorewalkterStonestepGUID = creature->GetGUID();
+                    lorewalkterStonestepGUID = creature->GetGUID().GetEntry();
                     break;
 
                 case CREATURE_SCROLL:
-                    scrollGUID = creature->GetGUID();
+                    scrollGUID = creature->GetGUID().GetEntry();
                     break;
 
                 case CREATURE_STRIFE:
-                    strifeGUID = creature->GetGUID();
+                    strifeGUID = creature->GetGUID().GetEntry();
                     break;
                 case CREATURE_PERIL:
-                    perilGUID = creature->GetGUID();
+                    perilGUID = creature->GetGUID().GetEntry();
                     break;
 
                 case CREATURE_ZAO_SUNSEEKER:
-                    zaoSunSeekerGUID = creature->GetGUID();
+                    zaoSunSeekerGUID = creature->GetGUID().GetEntry();
                     break;
                 //Liu FlameHeart
                 case CREATURE_LIU_FLAMEHEART:
-                    liuGUID = creature->GetGUID();
+                    liuGUID = creature->GetGUID().GetEntry();
                     break;
 
                 //Sha of Doubt
                 case CREATURE_SHA_OF_DOUBT:
-                    shaOfDoubtGUID = creature->GetGUID();
+                    shaOfDoubtGUID = creature->GetGUID().GetEntry();
                     break;
             }
                 
