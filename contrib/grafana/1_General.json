@@ -1,7 +1,7 @@
 {
   "id": 1,
-  "title": "General infos",
-  "originalTitle": "General infos",
+  "title": "General info",
+  "originalTitle": "General info",
   "tags": [],
   "style": "dark",
   "timezone": "browser",
@@ -9,6 +9,365 @@
   "hideControls": false,
   "sharedCrosshair": false,
   "rows": [
+    {
+      "collapse": false,
+      "editable": true,
+      "height": "25px",
+      "panels": [
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": null,
+          "editable": true,
+          "error": false,
+          "format": "none",
+          "id": 5,
+          "interval": null,
+          "isNew": true,
+          "links": [],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "0"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "measurement": "online_players",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "last"
+                  }
+                ]
+              ],
+              "tags": [
+                {
+                  "key": "realm",
+                  "operator": "=~",
+                  "value": "/^$realm$/"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "title": "Online players",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "avg"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": null,
+          "editable": true,
+          "error": false,
+          "format": "none",
+          "id": 6,
+          "interval": null,
+          "isNew": true,
+          "links": [],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "auto"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "measurement": "update_time_diff",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": [
+                {
+                  "key": "realm",
+                  "operator": "=~",
+                  "value": "/^$realm$/"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "title": "Update diff (avg)",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "avg",
+          "timeFrom": "1m"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": null,
+          "editable": true,
+          "error": false,
+          "format": "none",
+          "id": 7,
+          "interval": null,
+          "isNew": true,
+          "links": [],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "auto"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "measurement": "update_time_diff",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": "",
+          "title": "Update diff (avg)",
+          "transparent": false,
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "avg",
+          "timeFrom": "5m"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "datasource": null,
+          "editable": true,
+          "error": false,
+          "format": "none",
+          "id": 8,
+          "interval": null,
+          "isNew": true,
+          "links": [],
+          "maxDataPoints": 100,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "auto"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "measurement": "update_time_diff",
+              "policy": "default",
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": [
+                {
+                  "key": "realm",
+                  "operator": "=~",
+                  "value": "/^$realm$/"
+                }
+              ]
+            }
+          ],
+          "thresholds": "",
+          "title": "Update diff (avg)",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "avg",
+          "timeFrom": "15m",
+          "timeShift": null
+        }
+      ],
+      "title": "New row"
+    },
     {
       "collapse": false,
       "editable": true,
@@ -75,6 +434,7 @@
                 }
               ],
               "measurement": "update_time_diff",
+              "policy": "default",
               "query": "SELECT mean(\"value\") FROM \"update_time_diff\" WHERE \"realm\" =~ /$realm$/ AND $timeFilter GROUP BY time($interval) fill(null)",
               "refId": "A",
               "resultFormat": "time_series",
@@ -105,15 +465,37 @@
           "timeShift": null,
           "title": "Update diff",
           "tooltip": {
+            "msResolution": false,
             "shared": true,
             "value_type": "cumulative"
           },
           "type": "graph",
           "x-axis": true,
+          "xaxis": {
+            "show": true
+          },
           "y-axis": true,
           "y_formats": [
             "ms",
             "short"
+          ],
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
           ]
         }
       ],
@@ -185,6 +567,7 @@
                 }
               ],
               "measurement": "online_players",
+              "policy": "default",
               "query": "SELECT mean(\"value\") FROM \"online_players\" WHERE \"realm\" =~ /$realm$/ AND $timeFilter GROUP BY time($interval) fill(null)",
               "refId": "A",
               "resultFormat": "time_series",
@@ -215,15 +598,37 @@
           "timeShift": null,
           "title": "Online players",
           "tooltip": {
+            "msResolution": false,
             "shared": true,
             "value_type": "cumulative"
           },
           "type": "graph",
           "x-axis": true,
+          "xaxis": {
+            "show": true
+          },
           "y-axis": true,
           "y_formats": [
             "short",
             "short"
+          ],
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
           ]
         }
       ],
@@ -300,6 +705,7 @@
                 }
               ],
               "measurement": "player_events",
+              "policy": "default",
               "query": "SELECT count(\"text\") FROM \"player_events\" WHERE \"realm\" =~ /$realm$/ AND \"title\" = 'Login' AND $timeFilter GROUP BY time($interval) fill(0)",
               "rawQuery": true,
               "refId": "A",
@@ -343,6 +749,7 @@
                   "type": "fill"
                 }
               ],
+              "policy": "default",
               "query": "SELECT count(\"text\") FROM \"player_events\" WHERE \"realm\" =~ /$realm$/ AND \"title\" = 'Logout' AND $timeFilter GROUP BY time($interval) fill(0)",
               "rawQuery": true,
               "refId": "B",
@@ -368,15 +775,37 @@
           "timeShift": null,
           "title": "Player login/logout",
           "tooltip": {
+            "msResolution": false,
             "shared": true,
             "value_type": "cumulative"
           },
           "type": "graph",
           "x-axis": true,
+          "xaxis": {
+            "show": true
+          },
           "y-axis": true,
           "y_formats": [
             "short",
             "short"
+          ],
+          "yaxes": [
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": null,
+              "logBase": 1,
+              "max": null,
+              "min": null,
+              "show": true
+            }
           ]
         }
       ],
@@ -421,7 +850,7 @@
           "text": "Trinity",
           "value": "Trinity"
         },
-        "datasource": "Influx",
+        "datasource": null,
         "includeAll": false,
         "multi": false,
         "multiFormat": "regex values",
@@ -434,7 +863,7 @@
           }
         ],
         "query": "show tag values from events with key = realm",
-        "refresh": true,
+        "refresh": 1,
         "regex": "",
         "type": "query"
       }
@@ -457,7 +886,7 @@
     ]
   },
   "refresh": "1m",
-  "schemaVersion": 8,
-  "version": 41,
+  "schemaVersion": 12,
+  "version": 6,
   "links": []
 }
