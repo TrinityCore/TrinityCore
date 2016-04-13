@@ -60,7 +60,7 @@ class mob_cursed_mogu_sculture : public CreatureScript
             Creature* GetCho()
             {
                 if (pInstance)
-                    return me->GetMap()->GetCreature(pInstance->GetData64(NPC_LOREWALKER_CHO));
+                    return me->GetMap()->GetCreature(pInstance->GetObjectGuid(NPC_LOREWALKER_CHO));
                 else
                     return NULL;
             }
@@ -578,7 +578,7 @@ public:
 
         void Reset()
         {
-            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
             events.Reset();
             SetDespawnAtFar(false);
@@ -649,11 +649,11 @@ public:
                 case 38:
                     me->SetOrientation(4.68f);
                     me->SetFacingTo(4.68f);
-                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetEscortPaused(true);
                     break;
                 case 39:
-                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     break;
                 case 42:
                 {
@@ -1210,7 +1210,7 @@ class mob_mounted_mogu : public CreatureScript
                         break;
                     case ACTION_SET_NATIVE_DISPLAYID:
                         me->SetDisplayId(42555);
-                        me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 41441);
+                        me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 41441);
                         SetEquipmentSlots(false, EQUIP_MOUNTED_MOGU_WEAPON, 0, EQUIP_NO_CHANGE);
                         break;
                    case ACTION_BEFORE_COMBAT:
