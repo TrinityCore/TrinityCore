@@ -60,6 +60,7 @@ public:
 
     bool AddToy(uint32 itemId, bool isFavourite /*= false*/);
     bool UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/);
+    bool HasToy(uint32 itemId) const { return _toys.count(itemId) > 0; }
 
     ToyBoxContainer const& GetAccountToys() const { return _toys; }
 
