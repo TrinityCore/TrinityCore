@@ -1137,7 +1137,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiIndex) const
+        /*uint32 GetData(uint32 uiIndex) const
         {
             if(uiIndex == DATA_DAMAGES_PAST_SEC)
                 return uiDamagesDoneInPastSecs;
@@ -1145,7 +1145,7 @@ public:
                 return uiDarkPowerCount;
 
             return 0;
-        }
+        }*/
 
         /*uint64 GetGUID(int32 iIndex) const
         {
@@ -1958,7 +1958,7 @@ public:
         {
             if(pSummoner && pSummoner->GetAI())
             {
-                uiTargetGuid = pSummoner->GetAI()->GetGUID(DATA_BLESSED_LOA_SPIRIT_TARGET_GUID);
+                uiTargetGuid = pSummoner->GetAI()->GetGUID(DATA_BLESSED_LOA_SPIRIT_TARGET_GUID).GetEntry();
                 if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, GetGUID(uiTargetGuid)))
                     me->GetMotionMaster()->MovePoint(POINT_BLESSED_LOA_SPIRIT_COUNCILLOR, *pCouncillor);
 
