@@ -1113,7 +1113,7 @@ void AddSC_boss_stone_guard()
     new mob_tile();
     new npc_stone_guard_crystal();
     new spell_petrification();
-    new spell_jasper_chains();
+    //new spell_jasper_chains();
     new spell_jasper_chains_damage();
     //new sat_amethyst_pool());
 }
