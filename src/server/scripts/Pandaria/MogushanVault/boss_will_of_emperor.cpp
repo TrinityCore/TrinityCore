@@ -359,7 +359,7 @@ class mob_woe_add_generic : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
-                                targetGuid = target->GetGUID();
+                                targetGuid = target->GetGUID().GetEntry();
                                 AttackStart(target);
                                 me->getThreatManager().addThreat(target, 1000000.0f);
 
@@ -380,7 +380,7 @@ class mob_woe_add_generic : public CreatureScript
 
                             if (target)
                             {
-                                targetGuid = target->GetGUID();
+                                targetGuid = target->GetGUID().GetEntry();
                                 AttackStart(target);
                                 me->getThreatManager().addThreat(target, 1000000.0f);
 
@@ -479,7 +479,7 @@ class mob_woe_add_generic : public CreatureScript
                                 DoZoneInCombat(me, 200.0f);
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 {
-                                    targetGuid = target->GetGUID();
+                                    targetGuid = target->GetGUID().GetEntry();
                                     AttackStart(target);
                                     me->getThreatManager().addThreat(target, 1000000.0f);
                                     me->AddAura(me->GetEntry() == NPC_EMPEROR_RAGE ? SPELL_FOCALISED_ASSAULT: SPELL_FOCALISED_DEFENSE, target);
@@ -555,7 +555,7 @@ class mob_woe_titan_spark : public CreatureScript
                 DoZoneInCombat(me, 200.0f);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                 {
-                    targetGuid = target->GetGUID();
+                    targetGuid = target->GetGUID().GetEntry();
                     AttackStart(target);
                     me->getThreatManager().addThreat(target, 1000000.0f);
                     me->AddAura(SPELL_FOCALISED_ENERGY, target);
