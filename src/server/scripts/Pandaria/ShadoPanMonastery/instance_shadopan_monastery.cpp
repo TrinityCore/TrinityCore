@@ -145,7 +145,7 @@ public:
                 HandleGameObject(GetObjectGuid(0), true, go);
                 break;
             case GO_SHA_EXIT:
-                shaExitGuid = go->GetGUID();
+                shaExitGuid = go->GetGUID().GetEntry();
                 break;
             case GO_TARANZHU_POSSESSIONS:
                 go->SetPhaseMask(2, true);
