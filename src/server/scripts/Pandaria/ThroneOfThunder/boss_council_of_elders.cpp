@@ -1147,13 +1147,13 @@ public:
             return 0;
         }
 
-        uint64 GetGUID(int32 iIndex) const
+        /*uint64 GetGUID(int32 iIndex) const
         {
             if(iIndex == DATA_RECKLESS_CHARGE_TARGET_GUID)
                 return uiRecklessChargeTargetGUID;
 
             return 0;
-        }
+        }*/
 
     private:
         // Amount of damages received during past seconds in Heroic,
