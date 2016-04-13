@@ -660,7 +660,7 @@ public :
     
     class spell_hoptallus_carrot_breath_periodic_SpellScript : public SpellScript 
     {
-        PrepareSpellScript(spell_hoptallus_carrot_breath_periodic_SpellScript)
+        PrepareSpellScript(spell_hoptallus_carrot_breath_periodic_SpellScript);
         
         void FilterTargets(std::list<WorldObject*>& targets) 
         {
