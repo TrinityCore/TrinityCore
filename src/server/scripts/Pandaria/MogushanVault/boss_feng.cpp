@@ -242,7 +242,7 @@ class boss_feng : public CreatureScript
                     phaseControllerList[i] = 0;
 
                     if (Creature* phaseController = me->SummonCreature(NPC_PHASE_CONTROLLER, modPhasePositions[i].GetPositionX(), modPhasePositions[i].GetPositionY(), modPhasePositions[i].GetPositionZ(), modPhasePositions[i].GetOrientation()))
-                        phaseControllerList[i] = phaseController->GetGUID();
+                        phaseControllerList[i] = phaseController->GetGUID().GetEntry();
                 }
 
                 isWaitingForPhase = false;
@@ -404,7 +404,7 @@ class boss_feng : public CreatureScript
                 summons.Summon(summon);
 
                 if (summon->GetEntry() == NPC_SHIELD)
-                    shieldGUID = summon->GetGUID();
+                    shieldGUID = summon->GetGUID().GetEntry();
             }
 
             void SummonedCreatureDespawn(Creature* summon)
@@ -481,7 +481,7 @@ class boss_feng : public CreatureScript
                             {
                                 for (uint8 i = 0; i < 4; ++i)
                                 {
-                                    if (nearestController->GetGUID() == phaseControllerList[i])
+                                    if (nearestController->GetGUID().GetEntry() == phaseControllerList[i])
                                     {
                                         newPhase = i + 1;
                                         break;
