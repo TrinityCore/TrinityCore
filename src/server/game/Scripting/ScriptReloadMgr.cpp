@@ -46,6 +46,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <unordered_set>
 #include <unordered_map>
 
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/system_error.hpp>
 
@@ -131,11 +132,9 @@ public:
         }
         else
         {
-            TC_LOG_ERROR("scripts.hotswap", "Failed to delete the shared library \"%s\".",
-                _path.generic_string().c_str());
+            TC_LOG_ERROR("scripts.hotswap", "Failed to delete the shared library \"%s\" (%s).",
+                _path.generic_string().c_str(), error.message().c_str());
         }
-
-        (void)error;
     }
 
 private:
@@ -265,6 +264,7 @@ static bool HasValidScriptModuleName(std::string const& name)
     return std::regex_match(name, regex);
 }
 
+/// File watcher responsible for watching shared libraries
 class LibraryUpdateListener : public efsw::FileWatchListener
 {
 public:
@@ -277,17 +277,23 @@ public:
 
 static LibraryUpdateListener libraryUpdateListener;
 
+/// File watcher responsible for watching source files
 class SourceUpdateListener : public efsw::FileWatchListener
 {
+    fs::path const path_;
+
+    std::string const script_module_name_;
+
+    efsw::WatchID const watcher_id_;
+
 public:
-    SourceUpdateListener() { }
-    virtual ~SourceUpdateListener() { }
+    explicit SourceUpdateListener(fs::path path, std::string script_module_name);
+
+    virtual ~SourceUpdateListener();
 
     void handleFileAction(efsw::WatchID /*watchid*/, std::string const& dir,
         std::string const& filename, efsw::Action action, std::string oldFilename = "") final override;
 };
-
-static SourceUpdateListener sourceUpdateListener;
 
 namespace std
 {
@@ -303,23 +309,35 @@ namespace std
     };
 }
 
-/// Quotes the given string
-static std::string CMakeStringify(std::string const& str)
+/// Escapes spaces in the given path
+static std::string EscapeWindowsPath(std::string str)
 {
-    return Trinity::StringFormat("\"%s\"", str);
+#ifdef _WIN32
+    boost::algorithm::replace_all(str, " ", "\\ ");
+#endif
+    return str;
 }
 
-/// Invokes a synchronous CMake command action
-static int InvokeCMakeCommand(std::vector<std::string> const& args)
+/// Invokes a synchronous CMake process with the given arguments
+template<typename... T>
+static int InvokeCMakeCommand(T&&... args)
 {
-    return Trinity::StartProcess(BuiltInConfig::GetCMakeCommand(), args, "scripts.hotswap");
+    auto const executable = BuiltInConfig::GetCMakeCommand();
+    return Trinity::StartProcess(executable, {
+        executable,
+        std::forward<T>(args)...
+    }, "scripts.hotswap");
 }
 
-/// Invokes an asynchronous CMake command action
-static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(std::vector<std::string> args)
+/// Invokes an asynchronous CMake process with the given arguments
+template<typename... T>
+static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&... args)
 {
-    return Trinity::StartAsyncProcess(BuiltInConfig::GetCMakeCommand(),
-                                      std::move(args), "scripts.hotswap");
+    auto const executable = BuiltInConfig::GetCMakeCommand();
+    return Trinity::StartAsyncProcess(executable, {
+        executable,
+        std::forward<T>(args)...
+    }, "scripts.hotswap");
 }
 
 /// Calculates the C++ project name of the given module which is
@@ -349,6 +367,7 @@ class HotSwapScriptReloadMgr final
     : public ScriptReloadMgr
 {
     friend class ScriptReloadMgr;
+    friend class SourceUpdateListener;
 
     /// Reflects a queued change on a shared library or shared library
     /// which is waiting for processing
@@ -464,9 +483,9 @@ class HotSwapScriptReloadMgr final
 
 public:
     HotSwapScriptReloadMgr()
-        : _libraryWatcher(0), _sourceWatcher(0),
-         _unique_library_name_counter(0), _last_time_library_changed(0),
-         _last_time_sources_changed(0), terminate_early(false) { }
+        : _libraryWatcher(-1), _unique_library_name_counter(0),
+          _last_time_library_changed(0), _last_time_sources_changed(0),
+          terminate_early(false) { }
 
     virtual ~HotSwapScriptReloadMgr()
     {
@@ -485,7 +504,11 @@ public:
     /// Returns the absolute path to the scripts directory in the source tree.
     static fs::path GetSourceDirectory()
     {
-        return fs::absolute("src/server/scripts", BuiltInConfig::GetSourceDirectory());
+        fs::path dir = BuiltInConfig::GetSourceDirectory();
+        dir /= "src";
+        dir /= "server";
+        dir /= "scripts";
+        return dir;
     }
 
     /// Initializes the file watchers and loads all existing shared libraries
@@ -557,16 +580,10 @@ public:
     /// Unloads the manager and cancels all runnings jobs immediately
     void Unload() final override
     {
-        if (_libraryWatcher)
+        if (_libraryWatcher >= 0)
         {
             _fileWatcher.removeWatch(_libraryWatcher);
-            _libraryWatcher = 0;
-        }
-
-        if (_sourceWatcher)
-        {
-            _fileWatcher.removeWatch(_sourceWatcher);
-            _sourceWatcher = 0;
+            _libraryWatcher = -1;
         }
 
         // If a build is in progress cancel it
@@ -620,12 +637,6 @@ public:
         UpdateSourceChangeRequest(module_name, path, ChangeStateRequest::CHANGE_REQUEST_REMOVED);
     }
 
-    /// Returns true when the given module name is tracked
-    bool HasModuleToTrack(std::string const& module) const
-    {
-        return _modules_to_track.find(module) == _modules_to_track.end();
-    }
-
 private:
     // Loads all shared libraries which are contained in the
     // scripts directory on startup.
@@ -656,7 +667,7 @@ private:
     void InitializeFileWatchers()
     {
         _libraryWatcher = _fileWatcher.addWatch(GetLibraryDirectory().generic_string(), &libraryUpdateListener, false);
-        if (_libraryWatcher)
+        if (_libraryWatcher >= 0)
         {
             TC_LOG_INFO("scripts.hotswap", ">> Library reloader is listening on \"%s\".",
                 GetLibraryDirectory().generic_string().c_str());
@@ -665,20 +676,6 @@ private:
         {
             TC_LOG_ERROR("scripts.hotswap", "Failed to initialize the library reloader on \"%s\".",
                 GetLibraryDirectory().generic_string().c_str());
-        }
-
-        std::string const scriptsPath = GetSourceDirectory().generic_string();
-
-        _sourceWatcher = _fileWatcher.addWatch(scriptsPath, &sourceUpdateListener, true);
-        if (_sourceWatcher)
-        {
-            TC_LOG_INFO("scripts.hotswap", ">> Source recompiler is recursively listening on \"%s\".",
-                scriptsPath.c_str());
-        }
-        else
-        {
-            TC_LOG_ERROR("scripts.hotswap", "Failed to initialize the script reloader on \"%s\".",
-                scriptsPath.c_str());
         }
 
         _fileWatcher.watch();
@@ -836,7 +833,7 @@ private:
             if (itr != _running_script_modules.end())
             {
                 TC_LOG_ERROR("scripts.hotswap", ">> Attempt to load a module twice \"%s\" (loaded module is at %s)!",
-                    path.generic_string().c_str(), itr->second->GetModulePath().generic_string().c_str());
+                    path.generic_string().c_str(), itr->second.first->GetModulePath().generic_string().c_str());
 
                 return;
             }
@@ -849,11 +846,15 @@ private:
         if (swap_context)
             sScriptMgr->SwapScriptContext();
 
-        _modules_to_track.insert(module_name);
+        // Create the source listener
+        auto listener = Trinity::make_unique<SourceUpdateListener>(
+            sScriptReloadMgr->GetSourceDirectory() / module_name,
+            module_name);
 
         // Store the module
         _known_modules_build_directives.insert(std::make_pair(module_name, (*module)->GetBuildDirective()));
-        _running_script_modules.insert(std::make_pair(module_name, std::move(*module)));
+        _running_script_modules.insert(std::make_pair(module_name,
+            std::make_pair(std::move(*module), std::move(listener))));
         _running_script_module_names.insert(std::make_pair(path, module_name));
     }
 
@@ -876,8 +877,6 @@ private:
         if (finish)
             sScriptMgr->SwapScriptContext();
 
-        _modules_to_track.erase(itr->second);
-
         TC_LOG_INFO("scripts.hotswap", "Released script module \"%s\" (\"%s\")...",
             path.filename().generic_string().c_str(), itr->second.c_str());
 
@@ -890,14 +889,14 @@ private:
         // the module which prevents it from unloading.
         // The module will be unloaded once all scripts provided from the module
         // are destroyed.
-        if (!ref->second.unique())
+        if (!ref->second.first.unique())
         {
             TC_LOG_INFO("scripts.hotswap",
                 "Script module %s is still used by %lu spell, aura or instance scripts. "
                 "Will lazy unload the module once all scripts stopped using it, "
                 "to use the latest version of an edited script unbind yourself from "
                 "the instance or re-cast the spell.",
-                ref->second->GetScriptModule(), ref->second.use_count() - 1);
+                ref->second.first->GetScriptModule(), ref->second.first.use_count() - 1);
         }
 
         // Remove the owning reference from the reloader
@@ -965,6 +964,16 @@ private:
             auto itr = _sources_changed.begin();
             auto name = itr->first;
             rebuild_buildfiles = !itr->second.empty();
+
+            if (sLog->ShouldLog("scripts.hotswap", LogLevel::LOG_LEVEL_TRACE))
+                for (auto const& entry : itr->second)
+                {
+                    TC_LOG_TRACE("scripts.hotswap", "Source file %s was %s.",
+                        entry.first.generic_string().c_str(),
+                        ((entry.second == ChangeStateRequest::CHANGE_REQUEST_ADDED) ?
+                            "added" : "removed"));
+                }
+
             _sources_changed.erase(itr);
             return name;
         }();
@@ -992,7 +1001,7 @@ private:
         {
             auto directive = sConfigMgr->GetStringDefault("HotSwap.ReCompilerBuildType", "");
             if (!directive.empty())
-                return std::move(directive);
+                return directive;
 
             auto const itr = _known_modules_build_directives.find(module_name);
             if (itr != _known_modules_build_directives.end())
@@ -1107,10 +1116,7 @@ private:
         TC_LOG_INFO("scripts.hotswap", "Rerunning CMake because there were sources added or removed...");
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE, 
-            InvokeAsyncCMakeCommand({
-                "cmake",
-                CMakeStringify(BuiltInConfig::GetBuildDirectory())
-            }));
+            InvokeAsyncCMakeCommand(EscapeWindowsPath(BuiltInConfig::GetBuildDirectory())));
     }
 
     /// Invokes a new build of the current active module job
@@ -1122,12 +1128,10 @@ private:
                     _build_job->GetModuleName().c_str());
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_COMPILE,
-            InvokeAsyncCMakeCommand({
-                "cmake",
-                "--build",  CMakeStringify(BuiltInConfig::GetBuildDirectory()),
-                "--target", CMakeStringify(_build_job->GetProjectName()),
-                "--config", CMakeStringify(_build_job->GetBuildDirective())
-            }));
+            InvokeAsyncCMakeCommand(
+                "--build", EscapeWindowsPath(BuiltInConfig::GetBuildDirectory()),
+                "--target", EscapeWindowsPath(_build_job->GetProjectName()),
+                "--config", EscapeWindowsPath(_build_job->GetBuildDirective())));
     }
 
     /// Invokes a new asynchronous install of the current active module job
@@ -1139,13 +1143,11 @@ private:
                     _build_job->GetModuleName().c_str());
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_INSTALL,
-            InvokeAsyncCMakeCommand({
-                "cmake",
-                "-DCOMPONENT=" + CMakeStringify(_build_job->GetProjectName()),
-                "-DBUILD_TYPE=" + CMakeStringify(_build_job->GetBuildDirective()),
-                "-P", CMakeStringify(fs::absolute("cmake_install.cmake",
-                    BuiltInConfig::GetBuildDirectory()).generic_string())
-            }));
+            InvokeAsyncCMakeCommand(
+                "-DCOMPONENT=" + EscapeWindowsPath(_build_job->GetProjectName()),
+                "-DBUILD_TYPE=" + EscapeWindowsPath(_build_job->GetBuildDirective()),
+                "-P", EscapeWindowsPath(fs::absolute("cmake_install.cmake",
+                    BuiltInConfig::GetBuildDirectory()).generic_string())));
     }
 
     /// Sets the CMAKE_INSTALL_PREFIX variable in the CMake cache
@@ -1209,8 +1211,17 @@ private:
             auto const end = cmake_cache_content.find("\n", begin);
             if (end != std::string::npos)
             {
-                fs::path const value = cmake_cache_content.substr(begin, end - begin);
-                if (value != fs::current_path())
+                fs::path value = cmake_cache_content.substr(begin, end - begin);
+
+                auto current_path = fs::current_path();
+
+            #ifndef _WIN32
+                // The worldserver location is ${CMAKE_INSTALL_PREFIX}/bin
+                // on all other platforms then windows
+                current_path = current_path.remove_leaf();
+            #endif
+
+                if (value != current_path)
                 {
                     // Prevent correction of the install prefix
                     // when we are starting the core from inside the build tree
@@ -1232,8 +1243,9 @@ private:
                     if (is_in_path)
                         return;
 
-                    TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\")...",
-                        value.generic_string().c_str());
+                    TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\"), "
+                        "worldserver is currently installed at %s...",
+                        value.generic_string().c_str(), current_path.generic_string().c_str());
                 }
                 else
                 {
@@ -1245,11 +1257,9 @@ private:
 
         TC_LOG_INFO("scripts.hotswap", "Invoking CMake cache correction...");
 
-        auto const error = InvokeCMakeCommand({
-            "cmake",
-            "-DCMAKE_INSTALL_PREFIX:PATH=" + CMakeStringify(fs::current_path().generic_string()),
-            CMakeStringify(BuiltInConfig::GetBuildDirectory())
-        });
+        auto const error = InvokeCMakeCommand(
+            "-DCMAKE_INSTALL_PREFIX:PATH=" + EscapeWindowsPath(fs::current_path().generic_string()),
+            EscapeWindowsPath(BuiltInConfig::GetBuildDirectory()));
 
         if (error)
         {
@@ -1266,7 +1276,6 @@ private:
     // File watcher instance and watcher ID's
     efsw::FileWatcher _fileWatcher;
     efsw::WatchID _libraryWatcher;
-    efsw::WatchID _sourceWatcher;
 
     // Unique library name counter which is used to
     // generate unique names for every shared library version.
@@ -1283,7 +1292,9 @@ private:
     // Contains all running script modules
     // The associated shared libraries are unloaded immediately
     // on loosing ownership through RAII.
-    std::unordered_map<std::string /*module name*/, std::shared_ptr<ScriptModule>> _running_script_modules;
+    std::unordered_map<std::string /*module name*/,
+        std::pair<std::shared_ptr<ScriptModule>, std::unique_ptr<SourceUpdateListener>>
+    > _running_script_modules;
     // Container which maps the path of a shared library to it's module name
     std::unordered_map<fs::path, std::string /*module name*/>  _running_script_module_names;
     // Container which maps the module name to it's last known build directive
@@ -1295,10 +1306,6 @@ private:
     // Tracks the time since the last module has changed to avoid burst updates
     uint32 _last_time_sources_changed;
 
-    // Script modules which are tracked by the reloader
-    // Any changes to modules not listed in this set are discarded.
-    std::unordered_set<std::string> _modules_to_track;
-
     // Represents the current build job which is in progress
     Optional<BuildJob> _build_job;
 
@@ -1307,10 +1314,26 @@ private:
     bool terminate_early;
 };
 
+/// Maps efsw actions to strings
+static char const* ActionToString(efsw::Action action)
+{
+    switch (action)
+    {
+        case efsw::Action::Add:
+            return "added";
+        case efsw::Action::Delete:
+            return "deleted";
+        case efsw::Action::Moved:
+            return "moved";
+        default:
+            return "modified";
+    }
+}
+
 void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string const& dir,
     std::string const& filename, efsw::Action action, std::string oldFilename)
 {
-    // TC_LOG_TRACE("scripts.hotswap", "Library listener detected change on possible module \"%s\".", filename.c_str());
+    // TC_LOG_TRACE("scripts.hotswap", "Library listener detected change on possible module \"%s\ (%s)".", filename.c_str(), ActionToString(action));
 
     // Split moved actions into a delete and an add action
     if (action == efsw::Action::Moved)
@@ -1333,15 +1356,18 @@ void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string 
         switch (action)
         {
             case efsw::Actions::Add:
-                TC_LOG_TRACE("scripts.hotswap", ">> Loading \"%s\"...", path.generic_string().c_str());
+                TC_LOG_TRACE("scripts.hotswap", ">> Loading \"%s\" (%s)...",
+                    path.generic_string().c_str(), ActionToString(action));
                 reloader->QueueSharedLibraryChanged(path);
                 break;
             case efsw::Actions::Delete:
-                TC_LOG_TRACE("scripts.hotswap", ">> Unloading \"%s\"...", path.generic_string().c_str());
+                TC_LOG_TRACE("scripts.hotswap", ">> Unloading \"%s\" (%s)...",
+                    path.generic_string().c_str(), ActionToString(action));
                 reloader->QueueSharedLibraryChanged(path);
                 break;
             case efsw::Actions::Modified:
-                TC_LOG_TRACE("scripts.hotswap", ">> Reloading \"%s\"...", path.generic_string().c_str());
+                TC_LOG_TRACE("scripts.hotswap", ">> Reloading \"%s\" (%s)...",
+                    path.generic_string().c_str(), ActionToString(action));
                 reloader->QueueSharedLibraryChanged(path);
                 break;
             default:
@@ -1358,10 +1384,37 @@ static bool HasCXXSourceFileExtension(fs::path const& path)
     return std::regex_match(path.extension().generic_string(), regex);
 }
 
+SourceUpdateListener::SourceUpdateListener(fs::path path, std::string script_module_name)
+    : path_(std::move(path)), script_module_name_(std::move(script_module_name)),
+      watcher_id_(sScriptReloadMgr->_fileWatcher.addWatch(path_.generic_string(), this, true))
+{
+    if (watcher_id_ >= 0)
+    {
+        TC_LOG_TRACE("scripts.hotswap", ">> Attached the source recompiler to \"%s\".",
+            path_.generic_string().c_str());
+    }
+    else
+    {
+        TC_LOG_ERROR("scripts.hotswap", "Failed to initialize thesource recompiler on \"%s\".",
+            path_.generic_string().c_str());
+    }
+}
+
+SourceUpdateListener::~SourceUpdateListener()
+{
+    if (watcher_id_ >= 0)
+    {
+        sScriptReloadMgr->_fileWatcher.removeWatch(watcher_id_);
+
+        TC_LOG_TRACE("scripts.hotswap", ">> Detached the source recompiler from \"%s\".",
+            path_.generic_string().c_str());
+    }
+}
+
 void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string const& dir,
     std::string const& filename, efsw::Action action, std::string oldFilename)
 {
-    // TC_LOG_TRACE("scripts.hotswap", "Source listener detected change on possible file \"%s\".", filename.c_str());
+    // TC_LOG_TRACE("scripts.hotswap", "Source listener detected change on possible file \"%s/%s\" (%s).", dir.c_str(), filename.c_str(), ActionToString(action));
 
     // Skip the file change notification if the recompiler is disabled
     if (!sWorld->getBoolConfig(CONFIG_HOTSWAP_RECOMPILER_ENABLED))
@@ -1378,51 +1431,34 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
 
     auto const path = fs::absolute(
         filename,
-        sScriptReloadMgr->GetSourceDirectory());
+        dir);
 
     // Check if the file is a C/C++ source file.
     if (!path.has_extension() || !HasCXXSourceFileExtension(path))
         return;
 
-    // The file watcher returns the path relative to the watched directory
-    // Check has a root directory
-    fs::path const relative(filename);
-    if (relative.begin() == relative.end())
-        return;
-
-    fs::path const root_directory = fs::absolute(
-        *relative.begin(),
-        sScriptReloadMgr->GetSourceDirectory());
-
-    if (!fs::is_directory(root_directory))
-        return;
-
-    std::string const module = root_directory.filename().generic_string();
-
     /// Thread safe part
     sScriptReloadMgr->QueueMessage([=](HotSwapScriptReloadMgr* reloader)
     {
-        if (reloader->HasModuleToTrack(module))
-        {
-            TC_LOG_TRACE("scripts.hotswap", "File %s (Module \"%s\") doesn't belong "
-                "to an observed module, skipped!", filename.c_str(), module.c_str());
-
-            return;
-        }
-
         TC_LOG_TRACE("scripts.hotswap", "Detected source change on module \"%s\", "
-            "queued for recompilation...", module.c_str());
+            "queued for recompilation...", script_module_name_.c_str());
 
         switch (action)
         {
             case efsw::Actions::Add:
-                reloader->QueueAddSourceFile(module, path);
+                TC_LOG_TRACE("scripts.hotswap", "Source file %s of module %s was added.",
+                    path.generic_string().c_str(), script_module_name_.c_str());
+                reloader->QueueAddSourceFile(script_module_name_, path);
                 break;
             case efsw::Actions::Delete:
-                reloader->QueueRemoveSourceFile(module, path);
+                TC_LOG_TRACE("scripts.hotswap", "Source file %s of module %s was deleted.",
+                    path.generic_string().c_str(), script_module_name_.c_str());
+                reloader->QueueRemoveSourceFile(script_module_name_, path);
                 break;
             case efsw::Actions::Modified:
-                reloader->QueueModifySourceFile(module, path);
+                TC_LOG_TRACE("scripts.hotswap", "Source file %s of module %s was modified.",
+                    path.generic_string().c_str(), script_module_name_.c_str());
+                reloader->QueueModifySourceFile(script_module_name_, path);
                 break;
             default:
                 WPAbort();
@@ -1437,7 +1473,7 @@ std::shared_ptr<ModuleReference>
 {
     auto const itr = sScriptReloadMgr->_running_script_modules.find(context);
     if (itr != sScriptReloadMgr->_running_script_modules.end())
-        return itr->second;
+        return itr->second.first;
     else
         return { };
 }
