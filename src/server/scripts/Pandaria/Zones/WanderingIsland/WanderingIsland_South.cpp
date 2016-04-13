@@ -16,7 +16,7 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
            if (player->GetQuestStatus(29792) != QUEST_STATUS_INCOMPLETE)
                return true;
 
-           uint64 playerGuid = player->GetGUID();
+           uint64 playerGuid = player->GetGUID().GetEntry();
 
             Creature* Aysa = player->SummonCreature(59986, 698.04f, 3601.79f, 142.82f, 3.254830f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Aysa
             Creature* Ji   = player->SummonCreature(59988, 698.06f, 3599.34f, 142.62f, 2.668790f, TEMPSUMMON_MANUAL_DESPAWN, 0); // Ji
@@ -87,10 +87,10 @@ class mob_mandori_escort : public CreatureScript
                 return;
 
             if (GameObject* mandoriDoor = me->SummonGameObject(211294, 695.26f, 3600.99f, 142.38f, 3.04f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
-                mandoriDoorGuid = mandoriDoor->GetGUID();
+                mandoriDoorGuid = mandoriDoor->GetGUID().GetEntry();
 
             if (GameObject* peiwuDoor = me->SummonGameObject(211298, 566.52f, 3583.46f, 92.16f, 3.14f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
-                peiwuDoorGuid = peiwuDoor->GetGUID();
+                peiwuDoorGuid = peiwuDoor->GetGUID().GetEntry();
         }
 
         bool Is(uint32 npc_entry)
@@ -514,10 +514,10 @@ public:
             playerGuid = guid;
 
             if (Creature* ji = me->SummonCreature(60741, 230.31f, 4006.67f, 87.27f, 3.38f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                jiGuid = ji->GetGUID();
+                jiGuid = ji->GetGUID().GetEntry();
 
             if (GameObject* gob = me->SummonGameObject(215344, 227.75f, 4006.38f, 87.06f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
-                fireGuid = gob->GetGUID();
+                fireGuid = gob->GetGUID().GetEntry();
         }
 
         void WaypointReached(uint32 waypointId)
