@@ -254,7 +254,7 @@ public:
                     waterSpoutGUID = 0;
 
                     if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
-                        waterSpoutGUID = waterSpout->GetGUID();
+                        waterSpoutGUID = waterSpout->GetGUID().GetEntry();
 
                     _events.ScheduleEvent(EVENT_WATER_SPOUT_VISUAL, 500);
                     _events.ScheduleEvent(EVENT_WATER_SPOUT_EJECT, 7500);
