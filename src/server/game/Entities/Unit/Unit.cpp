@@ -15257,14 +15257,9 @@ bool Unit::SetDisableGravity(bool disable)
     {
         AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
-        SetFall(false);
     }
     else
-    {
         RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-        if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
-            SetFall(true);
-    }
 
     static OpcodeServer const gravityOpcodeTable[2][2] =
     {
@@ -15337,14 +15332,9 @@ bool Unit::SetCanFly(bool enable)
     {
         AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
-        SetFall(false);
     }
     else
-    {
         RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
-        if (!IsLevitating())
-            SetFall(true);
-    }
 
     static OpcodeServer const flyOpcodeTable[2][2] =
     {
