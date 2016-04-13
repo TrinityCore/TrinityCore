@@ -189,7 +189,7 @@ class boss_sha_of_anger : public CreatureScript
                             for (uint8 i = 0; i < _dominateMindCount; ++i)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 {
-                                    targetedDominationPlayerGuids.push_back((int)target->GetGUID());
+                                    targetedDominationPlayerGuids.push_back(target->GetGUID().GetEntry());
                                     me->CastSpell(target, SPELL_DOMINATE_MIND_WARNING, true);
                                 }
 
