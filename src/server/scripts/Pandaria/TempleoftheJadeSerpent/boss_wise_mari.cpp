@@ -439,7 +439,7 @@ public:
         void Register() override
         {
             for (uint8 i = EFFECT_0; i <= EFFECT_2; i++)
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_wise_mari_wash_away_SpellScript::SelectTarget, i, TARGET_UNIT_CASTER_CONE_ENEMY_FRONT);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_wise_mari_wash_away_SpellScript::SelectTarget, i, UNIT_FIELD_TARGET);
         }
     };
 
