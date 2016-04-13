@@ -551,7 +551,7 @@ class boss_kuai_the_brute : public CreatureScript
             TempSummon* sum = me->SummonCreature(CREATURE_MU_SHIBA, me->GetPositionX() + 3 * cos(M_PI / 4), me->GetPositionY() + 3 * sin(M_PI / 4), me->GetPositionZ(), me->GetOrientation());
             if (sum)
             {
-                pet_guid = sum->GetGUID();
+                pet_guid = sum->GetGUID().GetEntry();
                 sum->setFaction(me->getFaction());
             }
         }
