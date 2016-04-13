@@ -463,7 +463,7 @@ public:
 
     class spell_garalon_furious_swipe_target_selector_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_garalon_furious_swipe_target_selector_SpellScript)
+        PrepareSpellScript(spell_garalon_furious_swipe_target_selector_SpellScript);
 
         bool Validate(const SpellInfo *spellInfo)
         {
@@ -511,7 +511,7 @@ public:
 
     class spell_garalon_crush_searcher_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_garalon_crush_searcher_SpellScript)
+        PrepareSpellScript(spell_garalon_crush_searcher_SpellScript);
 
         bool Validate(const SpellInfo* spellInfo)
         {
@@ -559,7 +559,7 @@ public:
 
     class spell_garalon_pheromones_first_target_selector_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_garalon_pheromones_first_target_selector_SpellScript)
+        PrepareSpellScript(spell_garalon_pheromones_first_target_selector_SpellScript);
 
         bool Validate(const SpellInfo *spellInfo)
         {
@@ -604,7 +604,7 @@ public:
 
     class spell_garalon_pheromones_switch_target_selector_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_garalon_pheromones_switch_target_selector_SpellScript)
+        PrepareSpellScript(spell_garalon_pheromones_switch_target_selector_SpellScript);
 
         bool Validate(const SpellInfo *spellInfo)
         {
@@ -661,7 +661,7 @@ public:
 
     class spell_garalon_mend_leg_target_selector_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_garalon_mend_leg_target_selector_SpellScript)
+        PrepareSpellScript(spell_garalon_mend_leg_target_selector_SpellScript);
 
         bool Validate(const SpellInfo *spellInfo)
         {
@@ -718,7 +718,7 @@ public:
 
     class spell_garalon_mend_leg_repair_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_garalon_mend_leg_repair_SpellScript)
+        PrepareSpellScript(spell_garalon_mend_leg_repair_SpellScript);
 
         bool Validate(const SpellInfo *spellInfo)
         {
