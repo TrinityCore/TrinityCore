@@ -501,10 +501,10 @@ public:
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
                         
-                        std::list<ObjectGuid>::iterator itr = grunts.begin();
+                        std::list<uint64>::iterator itr = grunts.begin();
                         std::advance(itr, urand(0, grunts.size() - 1));
 
-                        Creature* grunt = instance->GetCreature(*itr);
+                        Creature* grunt = instance->GetCreature(GetObjectGuid(*itr));
                         if (creature && grunt)
                             creature->Attack(grunt, true);
                     }
@@ -515,10 +515,10 @@ public:
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                        std::list<ObjectGuid>::iterator itr = scrappers.begin();
+                        std::list<uint64>::iterator itr = scrappers.begin();
                         std::advance(itr, urand(0, scrappers.size() - 1));
 
-                        Creature* scrapper = instance->GetCreature(*itr);
+                        Creature* scrapper = instance->GetCreature(GetObjectGuid(*itr));
                         if (creature && scrapper)
                             creature->Attack(scrapper, true);
                     }
@@ -529,10 +529,10 @@ public:
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                        std::list<ObjectGuid>::iterator itr = adepts.begin();
+                        std::list<uint64>::iterator itr = adepts.begin();
                         std::advance(itr, urand(0, adepts.size() - 1));
 
-                        Creature* adept = instance->GetCreature(*itr);
+                        Creature* adept = instance->GetCreature(GetObjectGuid(*itr));
                         if (creature && adept)
                             creature->Attack(adept, true);
                     }
