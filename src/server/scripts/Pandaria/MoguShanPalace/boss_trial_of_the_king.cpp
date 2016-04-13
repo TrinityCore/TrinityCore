@@ -4,7 +4,7 @@
     Jade servers
     */
 
-#include "CreatureAi.h"
+#include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "mogu_shan_palace.h"
