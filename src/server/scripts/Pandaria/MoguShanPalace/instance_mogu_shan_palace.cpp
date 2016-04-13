@@ -522,9 +522,9 @@ public:
                         if (creature && scrapper)
                             creature->Attack(scrapper, true);
                     }
-                    for (ObjectGuid guid : scrappers)
+                    for (auto guid : scrappers)
                     {
-                        Creature* creature = instance->GetCreature(guid);
+                        Creature* creature = instance->GetCreature(GetObjectGuid(guid));
 
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
@@ -542,9 +542,9 @@ public:
                 break;
             case TYPE_MING_RETIRED:
                 //Retire the adepts
-                for (ObjectGuid guid : adepts)
+                for (auto guid : adepts)
                 {
-                    Creature* creature = instance->GetCreature(guid);
+                    Creature* creature = instance->GetCreature(GetObjectGuid(guid));
 
                     if (creature && creature->GetAI())
                         creature->GetAI()->DoAction(1); //EVENT_RETIRE
@@ -552,9 +552,9 @@ public:
                 break;
             case TYPE_KUAI_RETIRED:
                 //Retire the adepts
-                for (ObjectGuid guid : scrappers)
+                for (auto guid : scrappers)
                 {
-                    Creature* creature = instance->GetCreature(guid);
+                    Creature* creature = instance->GetCreature(GetObjectGuid(guid));
 
                     if (creature && creature->GetAI())
                         creature->GetAI()->DoAction(1); //EVENT_RETIRE
@@ -562,9 +562,9 @@ public:
                 break;
             case TYPE_HAIYAN_RETIRED:
                 //Retire the adepts
-                for (ObjectGuid guid : grunts)
+                for (auto guid : grunts)
                 {
-                    Creature* creature = instance->GetCreature(guid);
+                    Creature* creature = instance->GetCreature(GetObjectGuid(guid));
 
                     if (creature && creature->GetAI())
                         creature->GetAI()->DoAction(1); //EVENT_RETIRE
