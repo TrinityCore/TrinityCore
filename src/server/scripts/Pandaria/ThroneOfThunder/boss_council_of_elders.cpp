@@ -769,7 +769,7 @@ public:
     
     void KilledUnit(Unit *pKilled)
     {
-        switch(me->GetEntry())
+        /*switch(me->GetEntry())
         {
         case BOSS_COUNCIL_FROST_KING_MALAKK:
             Talk(RAND<uint8>(SAY_MALAKK_KILLED_UNIT_1, SAY_MALAKK_KILLED_UNIT_2));
@@ -789,7 +789,7 @@ public:
             
         default:
             break;
-        }
+        }*/
     }
 
     // Helper function to prevent removing the possessed aura when no
