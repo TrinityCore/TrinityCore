@@ -102,7 +102,7 @@ public:
             me->CastSpell(me, SPELL_ALPHA_MALE);
             me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
 
-            if (Creature *creature = me->GetCreature(*me, dohamanGUID))
+            if (Creature *creature = me)
             {
                 if (TempSummon* dohaman = creature->ToTempSummon())
                 {

@@ -188,8 +188,8 @@ public:
 
         void Reset() override
         {
-            me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 100);
-            me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 25);
+            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 100);
+            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 25);
 
             me->CastSpell(me, SPELL_STATIC_SHIELD);
 

@@ -200,13 +200,13 @@ class tvs_black_prince : public CreatureScript
                         events.ScheduleEvent(EVENT_TALK_4, 7 * IN_MILLISECONDS);
                         break;
                     case EVENT_TALK_4:
-                        if (Creature* thoon = me->FindNearestCreature(NPC_THUN, 20.0f))
+                        /*if (Creature* thoon = me->FindNearestCreature(NPC_THUN, 20.0f))
                         {
                             me->SetFacingToObject(thoon);
                             Talk(SAY_6);
                             thoon->SetFacingToObject(thoon->GetPlayer(*thoon, uiPlayerGUID));
                             thoon->GetMotionMaster()->MovePoint(0, 819.735f, -171.292f, thoon->GetPositionZ());
-                        }
+                        }*/
                         events.ScheduleEvent(EVENT_TALK_5, 6 * IN_MILLISECONDS);
                         break;
                     case EVENT_TALK_5:
@@ -232,14 +232,14 @@ class tvs_black_prince : public CreatureScript
                         break;
                     case EVENT_TALK_10:
                         me->AI()->DoAction(ACTION_WALK_2);
-                        if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
+                        /*if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
                         {
                             //banner must be placed here
                             if (player->GetTeam() == ALLIANCE)
                                 Talk(SAY_12);
                             else
                                 Talk(SAY_13);
-                        }
+                        }*/
                         events.ScheduleEvent(EVENT_TALK_11, 8 * IN_MILLISECONDS);
                         break;
                     case EVENT_TALK_11:
@@ -254,7 +254,7 @@ class tvs_black_prince : public CreatureScript
                     case EVENT_END:
                         GetPlayerListInGrid(playerList, me, 15.0f);
                         for (auto player: playerList)
-                            player->KilledMonsterCredit(64649, 0);
+                            player->KilledMonsterCredit(64649, GetGUID(0));
 
                         me->AI()->Reset();
                         break;
