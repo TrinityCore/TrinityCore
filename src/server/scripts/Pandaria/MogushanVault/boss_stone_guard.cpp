@@ -963,7 +963,7 @@ class spell_petrification : public SpellScriptLoader
 };
 
 // Jasper Chains - 130395
-class spell_jasper_chains : public SpellScriptLoader
+/*class spell_jasper_chains : public SpellScriptLoader
 {
     public:
         spell_jasper_chains() : SpellScriptLoader("spell_jasper_chains") { }
@@ -1029,7 +1029,7 @@ class spell_jasper_chains : public SpellScriptLoader
         {
             return new spell_jasper_chains_AuraScript();
         }
-};
+};*/
 
 // Jasper Chains (damage) - 130404
 class spell_jasper_chains_damage : public SpellScriptLoader
