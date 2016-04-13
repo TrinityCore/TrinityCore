@@ -7,9 +7,9 @@
 
 DoorData const doorData[] =
 {
-    { GAMEOBJECT_DOOR_WISE_MARI,             DATA_WISE_MARI_EVENT,            DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GAMEOBJECT_DOOR_LOREWALKER_STONSTEP,   DATA_LOREWALKER_STONESTEP_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { 0,                                     0,                               DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GAMEOBJECT_DOOR_WISE_MARI,             DATA_WISE_MARI_EVENT,            DOOR_TYPE_ROOM, },
+    { GAMEOBJECT_DOOR_LOREWALKER_STONSTEP,   DATA_LOREWALKER_STONESTEP_EVENT, DOOR_TYPE_ROOM, },
+    { 0,                                     0,                               DOOR_TYPE_ROOM, } // END
 };
 
 Position const roomCenter = {1046.941f, -2560.606f, 174.9552f, 4.33f };
@@ -141,7 +141,7 @@ public:
 
                 if (!PlayerList.isEmpty())
                 {
-                    Creature* wiseMari = instance->GetCreature(wiseMariGUID);
+                    Creature* wiseMari = instance->GetCreature(GetObjectGuid(wiseMariGUID));
                     if (wiseMari && wiseMari->IsAlive() && wiseMari->IsInCombat())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -151,8 +151,8 @@ public:
                                 continue;
 
                             // position : center of the wise mari's room
-                            Position pos;
-                            plr->GetPosition(&pos);
+                            Position pos = pos.GetPosition();
+                            plr->GetPosition();
 
                             if ((plr->GetDistance(roomCenter) < 20.00f && roomCenter.HasInArc(M_PI, &pos))
                                 || (!roomCenter.HasInArc(M_PI, &pos) && plr->GetDistance(roomCenter) < 14.00f))
@@ -206,20 +206,20 @@ public:
                 {
                     if (state == IN_PROGRESS)
                     {
-                        HandleGameObject(doorWiseMariEntrance, false);
+                        HandleGameObject(GetObjectGuid(doorWiseMariEntrance), false);
                     }
                     else if (state == DONE)
                     {
-                        HandleGameObject(doorWiseMariEntrance, true);
+                        HandleGameObject(GetObjectGuid(doorWiseMariEntrance), true);
                         if (GetBossState(DATA_LOREWALKER_STONESTEP_EVENT) == DONE)
                         {
-                            HandleGameObject(doorWiseMari, true);
-                            HandleGameObject(doorLorewalkerStonestep, true);
+                            HandleGameObject(GetObjectGuid(doorWiseMari), true);
+                            HandleGameObject(GetObjectGuid(doorLorewalkerStonestep), true);
                         }
                     }
                     else
                     {
-                        HandleGameObject(doorWiseMariEntrance, true);
+                        HandleGameObject(GetObjectGuid(doorWiseMariEntrance), true);
                     }
 
                     break;
@@ -228,8 +228,8 @@ public:
                 {
                     if(state == DONE && GetBossState(DATA_WISE_MARI_EVENT) == DONE)
                     {
-                        HandleGameObject(doorLorewalkerStonestep, true);
-                        HandleGameObject(doorWiseMari, true);
+                        HandleGameObject(GetObjectGuid(doorLorewalkerStonestep), true);
+                        HandleGameObject(GetObjectGuid(doorWiseMari), true);
                     }
                     break;
                 }
@@ -239,24 +239,24 @@ public:
                     {
                         case IN_PROGRESS:
                         {
-                            HandleGameObject(doorLiu, false);
-                            HandleGameObject(doorLiu2, false);
+                            HandleGameObject(GetObjectGuid(doorLiu), false);
+                            HandleGameObject(GetObjectGuid(doorLiu2), false);
                             break;
                         }
                         case NOT_STARTED:
                         {
                             if(GetBossState(DATA_WISE_MARI_EVENT) == DONE && GetBossState(DATA_LOREWALKER_STONESTEP_EVENT) == DONE)
                             {
-                                HandleGameObject(doorLiu, true);
-                                HandleGameObject(doorLiu2, true);
+                                HandleGameObject(GetObjectGuid(doorLiu), true);
+                                HandleGameObject(GetObjectGuid(doorLiu2), true);
                             }
                             break;
                         }
                         case DONE:
                         {
-                            HandleGameObject(doorLiu, true);
-                            HandleGameObject(doorLiu2, true);
-                            HandleGameObject(doorShaOfDoubt, true);
+                            HandleGameObject(GetObjectGuid(doorLiu), true);
+                            HandleGameObject(GetObjectGuid(doorLiu2), true);
+                            HandleGameObject(GetObjectGuid(doorShaOfDoubt), true);
                             break;
                         }
                         default:
@@ -267,15 +267,15 @@ public:
                 case DATA_SHA_OF_DOUBT_EVENT:
                 {
                     if(state == IN_PROGRESS)
-                        HandleGameObject(doorShaOfDoubt, false);
+                        HandleGameObject(GetObjectGuid(doorShaOfDoubt), false);
                     else if(state == DONE)
-                        HandleGameObject(doorShaOfDoubt, true);
+                        HandleGameObject(GetObjectGuid(doorShaOfDoubt), true);
                     else if(state == NOT_STARTED)
                     {
                         if(GetBossState(DATA_LIU_FLAMEHEART_EVENT) == DONE)
-                            HandleGameObject(doorShaOfDoubt, true);
+                            HandleGameObject(GetObjectGuid(doorShaOfDoubt), true);
                         else
-                            HandleGameObject(doorShaOfDoubt, false);
+                            HandleGameObject(GetObjectGuid(doorShaOfDoubt), false);
                     }
                         
                     break;
