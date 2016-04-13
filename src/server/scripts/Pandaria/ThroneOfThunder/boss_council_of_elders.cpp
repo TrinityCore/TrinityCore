@@ -2076,7 +2076,7 @@ public:
         {
             if(pSummoner && pSummoner->GetAI())
             {
-                uiTargetGuid = pSummoner->GetAI()->GetGUID(DATA_SHADOWED_LOA_SPIRIT_TARGET_GUID);
+                uiTargetGuid = pSummoner->GetAI()->GetGUID(DATA_SHADOWED_LOA_SPIRIT_TARGET_GUID).GetEntry();
                 if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, GetGUID(uiTargetGuid)))
                 {
                     me->GetMotionMaster()->MoveFollow(pPlayer, 0.0f, 0.0f);
@@ -2317,7 +2317,7 @@ public:
             {
             // Create a new TwistedFate_t
             case MOB_TWISTED_FATE_FIRST:
-                pHelperAI->AddTwistedFate(new TwistedFate_t(pSummoner ? pSummoner->GetGUID() : 0, me->GetGUID()));
+                pHelperAI->AddTwistedFate(new TwistedFate_t(pSummoner ? pSummoner->GetGUID().GetEntry() : 0, me->GetGUID().GetEntry()));
                 DoCastAOE(SPELL_TWISTED_FATE_FORCE_SUMMON_SECOND); // Force the most distant player to summon the second twisted fate
                 break;
 
