@@ -519,7 +519,7 @@ public:
 
             if (eventChoosen == EVENT_LOREWALKER_STONESTEP_SUNS)
             {
-                Creature* lorewalker = me->GetMap()->GetCreature((ObjectGuid)me->GetInstanceScript()->GetData64(CREATURE_LOREWALKTER_STONESTEP));
+                Creature* lorewalker = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_LOREWALKTER_STONESTEP));
                 if (lorewalker && lorewalker->GetAI())
                     lorewalker->GetAI()->DoAction(ACTION_START_SUNS);
 
@@ -868,7 +868,7 @@ class mob_haunting_sha : public CreatureScript
                     me->Respawn();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                    if(Creature* zao = me->GetMap()->GetCreature((ObjectGuid)me->GetInstanceScript()->GetData64(CREATURE_ZAO_SUNSEEKER)))
+                    if(Creature* zao = me->GetMap()->GetCreature(me->GetInstanceScript()->GetObjectGuid(CREATURE_ZAO_SUNSEEKER)))
                     {
                         me->getThreatManager().addThreat(zao, 1000000.f);
                         me->AI()->AttackStart(zao);
