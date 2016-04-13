@@ -51,15 +51,9 @@
               "groupBy": [
                 {
                   "params": [
-                    "$interval"
+                    "auto"
                   ],
                   "type": "time"
-                },
-                {
-                  "params": [
-                    "0"
-                  ],
-                  "type": "fill"
                 }
               ],
               "measurement": "online_players",
@@ -69,14 +63,14 @@
               "select": [
                 [
                   {
+                    "type": "field",
                     "params": [
                       "value"
-                    ],
-                    "type": "field"
+                    ]
                   },
                   {
-                    "params": [],
-                    "type": "last"
+                    "type": "last",
+                    "params": []
                   }
                 ]
               ],
@@ -100,7 +94,10 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current",
+          "timeFrom": null,
+          "timeShift": null,
+          "hideTimeOverride": false
         },
         {
           "cacheTimeout": null,
@@ -887,6 +884,6 @@
   },
   "refresh": "1m",
   "schemaVersion": 12,
-  "version": 6,
+  "version": 7,
   "links": []
 }
