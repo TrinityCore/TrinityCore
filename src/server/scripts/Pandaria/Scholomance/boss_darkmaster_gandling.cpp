@@ -82,7 +82,6 @@ public:
                 }
             }
             DoMeleeAttackIfReady();
-            DoCast(SPELL_RUSTING);
         }
     };
 
