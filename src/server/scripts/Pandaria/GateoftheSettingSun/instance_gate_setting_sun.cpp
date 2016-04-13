@@ -5,15 +5,15 @@
 
 DoorData const doorData[] =
 {
-    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM,         BOUNDARY_E   },
-    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM,         BOUNDARY_N   },
-    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM,         BOUNDARY_S   },
-    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM,         BOUNDARY_W   },
-    {GO_KIPTILAK_EXIT_DOOR,                 DATA_KIPTILAK,              DOOR_TYPE_PASSAGE,      BOUNDARY_N   },
-    {GO_RIMAK_AFTER_DOOR,                   DATA_RIMOK,                 DOOR_TYPE_ROOM,         BOUNDARY_S   },
-    {GO_RAIGONN_DOOR,                       DATA_RAIGONN,               DOOR_TYPE_ROOM,         BOUNDARY_NE  },
-    {GO_RAIGONN_AFTER_DOOR,                 DATA_RAIGONN,               DOOR_TYPE_PASSAGE,      BOUNDARY_E   },
-    {0,                                     0,                          DOOR_TYPE_ROOM,         BOUNDARY_NONE},// END
+    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM, },
+    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM, },
+    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM, },
+    {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM, },
+    {GO_KIPTILAK_EXIT_DOOR,                 DATA_KIPTILAK,              DOOR_TYPE_PASSAGE, },
+    {GO_RIMAK_AFTER_DOOR,                   DATA_RIMOK,                 DOOR_TYPE_ROOM, },
+    {GO_RAIGONN_DOOR,                       DATA_RAIGONN,               DOOR_TYPE_ROOM, },
+    {GO_RAIGONN_AFTER_DOOR,                 DATA_RAIGONN,               DOOR_TYPE_PASSAGE, },
+    {0,                                     0,                          DOOR_TYPE_ROOM, },// END
 };
 
 class instance_gate_setting_sun : public InstanceMapScript
@@ -86,8 +86,7 @@ public:
 
         void OnDestroy(InstanceMap* pMap)
         {
-            ObjectGuid a = new ObjectGuid(GetData64(NPC_WEAK_SPOT));
-            if (Creature* weakSpot = instance->GetCreature(a))
+            if (Creature* weakSpot = instance->GetCreature(GetObjectGuid(NPC_WEAK_SPOT)))
                 weakSpot->_ExitVehicle();
         }
 
@@ -108,14 +107,14 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_KIPTILAK:          kiptilakGuid    = creature->GetGUID();                  return;
-                case NPC_GADOK:             gadokGuid       = creature->GetGUID();                  return;
-                case NPC_RIMOK:             rimokGuid       = creature->GetGUID();                  return;
-                case NPC_RAIGONN:           raigonnGuid     = creature->GetGUID();                  return;
-                case NPC_KRITHUK_BOMBARDER: bombarderGuids.push_back((int)creature->GetGUID());          return;
-                case NPC_BOMB_STALKER:      bombStalkerGuids.push_back((int)creature->GetGUID());        return;
-                case NPC_ADD_GENERATOR:     rimokAddGenetarorsGUIDs.push_back((int)creature->GetGUID()); return;
-                case NPC_ARTILLERY:         artilleryGUIDs.push_back((int)creature->GetGUID());          return;
+                case NPC_KIPTILAK:          kiptilakGuid    = creature->GetGUID().GetEntry();                  return;
+                case NPC_GADOK:             gadokGuid       = creature->GetGUID().GetEntry();                  return;
+                case NPC_RIMOK:             rimokGuid       = creature->GetGUID().GetEntry();                  return;
+                case NPC_RAIGONN:           raigonnGuid     = creature->GetGUID().GetEntry();                  return;
+                case NPC_KRITHUK_BOMBARDER: bombarderGuids.push_back(creature->GetGUID().GetEntry());          return;
+                case NPC_BOMB_STALKER:      bombStalkerGuids.push_back(creature->GetGUID().GetEntry());        return;
+                case NPC_ADD_GENERATOR:     rimokAddGenetarorsGUIDs.push_back(creature->GetGUID().GetEntry()); return;
+                case NPC_ARTILLERY:         artilleryGUIDs.push_back(creature->GetGUID().GetEntry());          return;
                 default:                                                                            return;
             }
         }
@@ -127,7 +126,7 @@ public:
                 case NPC_KRITHUK_BOMBARDER:
                     for (std::list<uint64>::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
                     {
-                        if (*it == creature->GetGUID())
+                        if (*it == creature->GetGUID().GetEntry())
                         {
                             bombarderGuids.erase(it);
                             break;
@@ -143,10 +142,10 @@ public:
             switch (go->GetEntry())
             {
                 case GO_KIPTILAK_ENTRANCE_DOOR:
-                    firstDoorGuid = go->GetGUID();
+                    firstDoorGuid = go->GetGUID().GetEntry();
                     break;
                 case GO_SIGNAL_FIRE:
-                    fireSignalGuid = go->GetGUID();
+                    fireSignalGuid = go->GetGUID().GetEntry();
                     break;
                 case GO_KIPTILAK_WALLS:
                 case GO_KIPTILAK_EXIT_DOOR:
@@ -155,17 +154,17 @@ public:
                     AddDoor(go, true);
                     return;
                 case GO_KIPTILAK_MANTID_BOMBS:
-                    mantidBombsGUIDs.push_back((int)go->GetGUID());
+                    mantidBombsGUIDs.push_back(go->GetGUID().GetEntry());
                     return;
                 case GO_GREATDOOR_SECOND_DOOR:
-                    secondaryDoorGUIDs.push_back((int)go->GetGUID());
+                    secondaryDoorGUIDs.push_back(go->GetGUID().GetEntry());
                     HandleGameObject(go->GetGUID(), true, go);
                     return;
                 case GO_WALL_C:
-                    wallCGuid = go->GetGUID();
+                    wallCGuid = go->GetGUID().GetEntry();
                     return;
                 case GO_PORTAL_TEMP_GADOK:
-                    portalTempGadokGuid = go->GetGUID();
+                    portalTempGadokGuid = go->GetGUID().GetEntry();
                     return;
                 default:
                     return;
