@@ -154,7 +154,7 @@ class boss_wase_mari : public CreatureScript
                         continue;
 
                     itr->RemoveAllAuras();
-                    foutainTrigger[++tab] = itr->GetGUID();
+                    foutainTrigger[++tab] = itr->GetGUID().GetEntry();
                 }
 
                 searcher.clear();
@@ -189,7 +189,7 @@ class boss_wase_mari : public CreatureScript
             {
                 Talk(TEXT_DEATH);
                 _JustDied();
-                instance->DoAddAuraOnPlayers(SPELL_BLESSING_WATER_SPEAKER);
+                instance->DoCastSpellOnPlayers(SPELL_BLESSING_WATER_SPEAKER);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -218,13 +218,13 @@ class boss_wase_mari : public CreatureScript
                     {
                         Talk(TEXT_CALL_WATER);
 
-                        Creature* trigger = me->GetCreature(*me, foutainTrigger[++foutainCount]);
+                        /*Creature* trigger = me->GetCreature(*me, foutainTrigger[++foutainCount]);
                         if (trigger)
                         {
                             me->CastSpell(trigger, SPELL_CALL_WATER, true);
                             trigger->AddAura(SPELL_CORRUPTED_FOUTAIN, trigger);
                             trigger->SetInCombatWithZone();
-                        }
+                        }*/
 
                         if (foutainCount == 4)
                         {
@@ -347,7 +347,7 @@ class boss_wase_mari : public CreatureScript
                         {
                             facingDoneSinceLastDry += M_PI / 4;
                             if (me->GetInstanceScript())
-                                me->GetInstanceScript()->DoAddAuraOnPlayers(SPELL_DRY);
+                                me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_DRY);
                         }
 
                         events.ScheduleEvent(EVENT_WASH_AWAY, TIMER_WASH_AWAY, 0, PHASE_WATER_POWER);
@@ -401,7 +401,7 @@ class mob_corrupt_living_water : public CreatureScript
                 for (int i = 0; i < 3; i++)
                 {
                     Position pos;
-                    me->GetRandomNearPosition(pos, 4.0f);
+                    me->GetRandomNearPosition(4.0f);
                     Creature* droplet = me->SummonCreature(CREATURE_CORRUPT_DROPLET, pos);
                     if (!droplet)
                         continue;
