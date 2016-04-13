@@ -26090,6 +26090,9 @@ bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
     if (!packetOnly && !Unit::SetCanFly(apply))
         return false;
 
+    if (!apply)
+        SetFallInformation(0, GetPositionZ());
+
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
     data << GetPackGUID();
     data << uint32(0);          //! movement counter
