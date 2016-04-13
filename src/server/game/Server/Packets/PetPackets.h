@@ -101,7 +101,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid PetGUID;
-            uint16 CreatureFamily = 0;
+            uint16 _CreatureFamily = 0; ///< @see enum CreatureFamily
             uint16 Specialization = 0;
             uint32 TimeLimit = 0;
             uint8 ReactState = 0;
