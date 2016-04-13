@@ -2000,7 +2000,7 @@ class spell_monk_chi_wave : public SpellScriptLoader
         void HandleDummy(SpellEffIndex effIndex)
         {
             if (Unit* target = GetHitUnit())
-                targetGUID = target->GetGUID();
+                targetGUID = target->GetGUID().GetEntry();
         }
 
         void HandleApplyAura()
