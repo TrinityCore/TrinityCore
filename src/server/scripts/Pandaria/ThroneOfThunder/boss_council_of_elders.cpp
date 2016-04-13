@@ -1024,7 +1024,7 @@ public:
                     if(!playerList.empty())
                     {
                         if(Player *pTarget = Trinity::Containers::SelectRandomContainerElement(playerList))
-                            uiRecklessChargeTargetGUID = pTarget->GetGUID();
+                            uiRecklessChargeTargetGUID = pTarget->GetGUID().GetEntry();
                     }
 
                     events.ScheduleEvent(EVENT_RECKLESS_CHARGE, 5 * IN_MILLISECONDS);
