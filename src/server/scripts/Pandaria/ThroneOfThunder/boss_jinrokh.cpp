@@ -610,7 +610,7 @@ public:
 
         void KilledUnit(Unit *pKilled)
         {
-            Talk(RAND<uint8>(TALK_KILLED_PLAYER_FIRST, TALK_KILLED_PLAYER_SECOND));
+            //Talk(RAND<uint8>(TALK_KILLED_PLAYER_FIRST, TALK_KILLED_PLAYER_SECOND));
         }
         
         Creature* GetFarthestNotDestroyedStatue() const
@@ -1519,7 +1519,7 @@ class spell_jinrokh_implosion_conduction : public SpellScriptLoader
 
             void HandleTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ConductiveWaterCheckPredicate(GetCaster() ? GetCaster()->GetGUID() : 0, true));
+                targets.remove_if(ConductiveWaterCheckPredicate(GetCaster() ? GetCaster()->GetGUID().GetEntry() : 0, true));
             }
 
             void Register()
