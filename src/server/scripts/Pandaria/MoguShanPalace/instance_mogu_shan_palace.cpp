@@ -109,10 +109,10 @@ public:
         {
             switch (go->GetEntry())
             {
-                case GO_DOOR_BEFORE_TRIAL:  doorBeforeTrialGuid = go->GetGUID();    break;
-                case GO_TRIAL_CHEST:        trialChestGuid = go->GetGUID();         go->SetPhaseMask(128, true);    break;
-                case GO_DOOR_AFTER_TRIAL:   doorAfterTrialGuid = go->GetGUID();     break;
-                case GO_DOOR_BEFORE_KING:   doorBeforeKingGuid = go->GetGUID();     break;
+                case GO_DOOR_BEFORE_TRIAL:  doorBeforeTrialGuid = go->GetGUID().GetEntry();    break;
+                case GO_TRIAL_CHEST:        trialChestGuid = go->GetGUID().GetEntry();         go->SetPhaseMask(128, true);    break;
+                case GO_DOOR_AFTER_TRIAL:   doorAfterTrialGuid = go->GetGUID().GetEntry();     break;
+                case GO_DOOR_BEFORE_KING:   doorBeforeKingGuid = go->GetGUID().GetEntry();     break;
             }
         }
 
@@ -287,17 +287,17 @@ public:
                     creature->SetReactState(REACT_PASSIVE);
                     break;
                 case CREATURE_ANIMATED_STAFF:
-                    animated_staffs.push_back((int)creature->GetGUID());
+                    animated_staffs.push_back(creature->GetGUID().GetEntry());
                     creature->SetReactState(REACT_PASSIVE);
                     break;
                 case CREATURE_ANIMATED_AXE:
-                    animated_axes.push_back((int)creature->GetGUID());
+                    animated_axes.push_back(creature->GetGUID().GetEntry());
                     creature->SetReactState(REACT_PASSIVE);
                     creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 30316);
                     creature->SetReactState(REACT_PASSIVE);
                     break;
                 case CREATURE_LAUNCH_SWORD:
-                    swordLauncherGuids.push_back((int)creature->GetGUID());
+                    swordLauncherGuids.push_back(creature->GetGUID().GetEntry());
                     break;
             }
         }
@@ -578,28 +578,28 @@ public:
             switch (creature->GetEntry())
             {
             case CREATURE_GURTHAN_SCRAPPER:
-                scrappers.push_back((int)creature->GetGUID());
+                scrappers.push_back(creature->GetGUID().GetEntry());
                 break;
             case CREATURE_HARTHAK_ADEPT:
-                adepts.push_back((int)creature->GetGUID());
+                adepts.push_back(creature->GetGUID().GetEntry());
                 break;
             case CREATURE_KARGESH_GRUNT:
-                grunts.push_back((int)creature->GetGUID());
+                grunts.push_back(creature->GetGUID().GetEntry());
                 break;
             case CREATURE_KUAI_THE_BRUTE:
-                kuai_guid = creature->GetGUID();
+                kuai_guid = creature->GetGUID().GetEntry();
                 creature->SetReactState(REACT_PASSIVE);
                 break;
             case CREATURE_MING_THE_CUNNING:
-                ming_guid = creature->GetGUID();
+                ming_guid = creature->GetGUID().GetEntry();
                 creature->SetReactState(REACT_PASSIVE);
                 break;
             case CREATURE_HAIYAN_THE_UNSTOPPABLE:
-                haiyan_guid = creature->GetGUID();
+                haiyan_guid = creature->GetGUID().GetEntry();
                 creature->SetReactState(REACT_PASSIVE);
                 break;
             case CREATURE_XIN_THE_WEAPONMASTER_TRIGGER:
-                xin_guid = creature->GetGUID();
+                xin_guid = creature->GetGUID().GetEntry();
                 creature->SetReactState(REACT_PASSIVE);
                 break;
             case CREATURE_WHIRLING_DERVISH:
