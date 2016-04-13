@@ -317,7 +317,7 @@ class npc_viscous_fluid : public CreatureScript
                     {
                         if (me->GetDistance(player) < 5.0f)
                         {
-                            if (Creature* rimok = pInstance->GetGuidData(pInstance->GetData64(NPC_RIMOK)))
+                            if (Creature* rimok = pInstance->GetCreature(pInstance->GetData64(NPC_RIMOK)))
                             {
                                 me->AddAura(SPELL_VISCOUS_FLUID_DMG_UP, rimok);
                                 me->AddAura(SPELL_VISCOUS_FLUID_DMG_DOWN, player);
