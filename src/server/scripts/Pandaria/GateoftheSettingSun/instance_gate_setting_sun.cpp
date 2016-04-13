@@ -182,8 +182,8 @@ public:
                 case DATA_KIPTILAK:
                 {
                     if (state == DONE)
-                        for (std::list<ObjectGuid>::const_iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
-                            if (GameObject* bomb = instance->GetGameObject(*itr))
+                        for (std::list<uint64>::const_iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
+                            if (GameObject* bomb = instance->GetGameObject(GetObjectGuid(*itr)))
                                 bomb->SetPhaseMask(32768, true); // Set Invisible
                     break;
                 }
@@ -197,12 +197,12 @@ public:
                 {
                     uint8 generatorsCount = 0;
 
-                    for (std::list<ObjectGuid>::const_iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
-                        HandleGameObject(*itr, state != DONE);
+                    for (std::list<uint64>::const_iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
+                        HandleGameObject(GetObjectGuid(*itr), state != DONE);
 
-                    for (std::list<ObjectGuid>::const_iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
+                    for (std::list<uint64>::const_iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
                     {
-                        if (Creature* generator = instance->GetCreature(*itr))
+                        if (Creature* generator = instance->GetCreature(GetObjectGuid(*itr)))
                         {
                             if (generator->AI())
                             {
@@ -218,9 +218,9 @@ public:
                 }
                 case DATA_RAIGONN:
                 {
-                    for (std::list<ObjectGuid>::const_iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
+                    for (std::list<uint64>::const_iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
                     {
-                        if (Creature* artillery = instance->GetCreature(*itr))
+                        if (Creature* artillery = instance->GetCreature(GetObjectGuid(*itr)))
                         {
                             artillery->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE, state != IN_PROGRESS);
                             artillery->ApplyModFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK, state == IN_PROGRESS);
