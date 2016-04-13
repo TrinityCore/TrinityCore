@@ -1069,7 +1069,7 @@ public:
    
     class spell_lightning_prison_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_lightning_prison_SpellScript)
+        PrepareSpellScript(spell_lightning_prison_SpellScript);
        
         void FilterTargets(std::list<WorldObject*>& targets)
         {
