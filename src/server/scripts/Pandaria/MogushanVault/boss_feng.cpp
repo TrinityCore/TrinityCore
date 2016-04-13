@@ -917,7 +917,7 @@ class mob_soul_fragment : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                shieldGUID = summoner->GetGUID();
+                shieldGUID = summoner->GetGUID().GetEntry();
                 me->GetMotionMaster()->MovePoint(POINT_SHIELD, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
             }
 
