@@ -1189,8 +1189,8 @@ class npc_transcendence_spirit : public CreatureScript
 
         void JustDied(Unit* who) override
         {
-            if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                me->GetOwner()->ToPlayer()->setTransForm(NULL);
+           /* if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                me->GetOwner()->ToPlayer()->setTransForm(NULL);*/
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -1206,8 +1206,8 @@ class npc_transcendence_spirit : public CreatureScript
 
         void CorpseRemoved(uint32& /*respawnDelay*/) override
         {
-            if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                me->GetOwner()->ToPlayer()->setTransForm(NULL);
+            /*if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                me->GetOwner()->ToPlayer()->setTransForm(NULL);*/
         }
 
         void IsSummonedBy(Unit* owner) override
@@ -1469,7 +1469,7 @@ class spell_monk_diffuse_magic : public SpellScriptLoader
                         }
                     }
 
-                    auraListToRemove.insert(new auraData(aura->GetSpellInfo()->Id, caster->GetGUID()));
+                    auraListToRemove.insert(new auraData(aura->GetSpellInfo()->Id, caster->GetGUID().GetEntry()));
                 }
 
                 for (std::set<auraData*>::iterator itr = auraListToRemove.begin(); itr != auraListToRemove.end(); ++itr)
