@@ -343,7 +343,7 @@ class boss_generic_guardian : public CreatureScript
                 me->CastSpell(me, SPELL_ANIM_SIT,    true);
                 me->CastSpell(me, SPELL_ZERO_ENERGY, true);
 
-                if (Creature* stoneGuardControler = me->GetMap()->GetCreature((ObjectGuid)GetData(NPC_STONE_GUARD_CONTROLER)))
+                if (Creature* stoneGuardControler = me->GetMap()->GetCreature(GetGUID(NPC_STONE_GUARD_CONTROLER)))
                     stoneGuardControler->AI()->Reset();
 
                 summons.DespawnAll();
@@ -422,7 +422,7 @@ class boss_generic_guardian : public CreatureScript
                 if (instance->instance->IsHeroic())
                     if (crystalToSummon)
                         if (Creature* crystal = me->SummonCreature(crystalToSummon, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                            crystalGUID = crystal->GetGUID();
+                            crystalGUID = crystal->GetGUID().GetEntry();
             }
 
             void JustReachedHome()
@@ -661,10 +661,10 @@ class boss_generic_guardian : public CreatureScript
 
                                             uint64 victimGuid = 0;
                                             if (me->GetVictim())
-                                                victimGuid = me->GetVictim()->GetGUID();
+                                                victimGuid = me->GetVictim()->GetGUID().GetEntry();
 
                                             for (auto player: playerList)
-                                                if (player->IsAlive() && !player->HasAura(SPELL_JASPER_CHAINS) && !player->HasAura(SPELL_TOTALY_PETRIFIED) && player->GetGUID() != victimGuid)
+                                                if (player->IsAlive() && !player->HasAura(SPELL_JASPER_CHAINS) && !player->HasAura(SPELL_TOTALY_PETRIFIED) && player->GetGUID().GetEntry() != victimGuid)
                                                     tempPlayerList.push_back(player);
 
                                             if (tempPlayerList.size() < 2)
@@ -977,7 +977,7 @@ class spell_jasper_chains : public SpellScriptLoader
             bool Load()
             {
                 playerLinkedGuid = 0;
-                playerLinked = new ObjectGuid(playerLinkedGuid);
+                playerLinked = playerLinkedGuid;
                 return true;
             }
 
