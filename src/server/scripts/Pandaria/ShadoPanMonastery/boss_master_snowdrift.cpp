@@ -268,16 +268,16 @@ class boss_master_snowdrift : public CreatureScript
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     if (Creature* minibossPosCreature = me->SummonCreature(NPC_SNOWDRIFT_POSITION, minibossPositions[i]))
-                        instance->SetData64(DATA_ADD_MINIBOSS_POS, (int)minibossPosCreature->GetGUID());
+                        instance->SetData64(DATA_ADD_MINIBOSS_POS, minibossPosCreature->GetGUID().GetEntry());
                 }
 
                 for (uint8 i = 0; i < 24; ++i)
                 {
                     if (Creature* firstPosCreature = me->SummonCreature(NPC_SNOWDRIFT_POSITION, firstDefeatedNovicePositions[i]))
-                        instance->SetData64(DATA_ADD_FIRST_POS, (int)firstPosCreature->GetGUID());
+                        instance->SetData64(DATA_ADD_FIRST_POS, firstPosCreature->GetGUID().GetEntry());
 
                     if (Creature* secondPosCreature = me->SummonCreature(NPC_SNOWDRIFT_POSITION, secondDefeatedNovicePositions[i]))
-                        instance->SetData64(DATA_ADD_SECOND_POS, (int)secondPosCreature->GetGUID());
+                        instance->SetData64(DATA_ADD_SECOND_POS, secondPosCreature->GetGUID().GetEntry());
                 }
             }
 
