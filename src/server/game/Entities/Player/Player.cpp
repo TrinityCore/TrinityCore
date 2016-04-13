@@ -20154,7 +20154,7 @@ void Player::PetSpellInitialize()
 
     WorldPackets::Pet::PetSpells petSpellsPacket;
     petSpellsPacket.PetGUID = pet->GetGUID();
-    petSpellsPacket.CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
+    petSpellsPacket._CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
     //petSpellsPacket.Specialization = pet->GetSpecialization(); NYI
     petSpellsPacket.TimeLimit = pet->GetDuration();
     petSpellsPacket.ReactState = pet->GetReactState();
