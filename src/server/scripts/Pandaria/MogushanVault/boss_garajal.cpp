@@ -272,7 +272,7 @@ class boss_garajal : public CreatureScript
                             {
                                 if (Unit* target = SelectTarget(i == 0 ? SELECT_TARGET_TOPAGGRO : SELECT_TARGET_RANDOM, 0, 0, true, -SPELL_VOODOO_DOLL_VISUAL))
                                 {
-                                    voodooTargets[i] = target->GetGUID();
+                                    voodooTargets[i] = target->GetGUID().GetEntry();
                                     //me->MonsterTextEmote("Vous etes une Poupee Vaudou ! Les degats que vous subissez seront copies aux autres Poupees Vaudou du raid !", target, true);
                                     target->AddAura(SPELL_VOODOO_DOLL_VISUAL, target);
                                 }
@@ -296,7 +296,7 @@ class boss_garajal : public CreatureScript
                                 me->AddAura(SPELL_SOUL_CUT_DAMAGE,  target);
 
                                 Difficulty difficulty = me->GetMap()->GetDifficultyID();
-                                uint64 viewerGuid = target->GetGUID();
+                                uint64 viewerGuid = target->GetGUID().GetEntry();
                                 uint8  mobCount   = IsHeroic() ? 3: 1;
 
                                 for (uint8 i = 0; i < mobCount; ++i)
@@ -524,7 +524,7 @@ class mob_shadowy_minion : public CreatureScript
 
                     if (Creature* spirit = me->SummonCreature(NPC_SHADOWY_MINION_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        spiritGuid = spirit->GetGUID();
+                        spiritGuid = spirit->GetGUID().GetEntry();
                         spirit->SetPhaseMask(2, true);
                     }
 
