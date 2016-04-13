@@ -820,22 +820,22 @@ class mob_empyreal_focus : public CreatureScript
                         switch (i)
                         {
                             case 0:
-                                empyrealFocus[1] = me->GetGUID();
+                                empyrealFocus[1] = me->GetGUID().GetEntry();
                                 break;
                             case 1:
-                                empyrealFocus[3] = me->GetGUID();
+                                empyrealFocus[3] = me->GetGUID().GetEntry();
                                 break;
                             case 2:
-                                empyrealFocus[5] = me->GetGUID();
+                                empyrealFocus[5] = me->GetGUID().GetEntry();
                                 break;
                             case 3:
-                                empyrealFocus[4] = me->GetGUID();
+                                empyrealFocus[4] = me->GetGUID().GetEntry();
                                 break;
                             case 4:
-                                empyrealFocus[2] = me->GetGUID();
+                                empyrealFocus[2] = me->GetGUID().GetEntry();
                                 break;
                             case 5:
-                                empyrealFocus[0] = me->GetGUID();
+                                empyrealFocus[0] = me->GetGUID().GetEntry();
                                 break;
                         }
 
