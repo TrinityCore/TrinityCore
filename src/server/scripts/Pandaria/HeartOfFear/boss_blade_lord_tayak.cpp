@@ -208,7 +208,7 @@ class boss_blade_lord_tayak : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
                             {
                                 me->SetFacingToObject(target);
-                                tempestSlashTargetGUID = target->GetGUID();
+                                tempestSlashTargetGUID = target->GetGUID().GetEntry();
                                 me->CastSpell(target, SPELL_TEMPEST_SLASH_SUMMON, false);
                             }
                             events.ScheduleEvent(EVENT_TEMPEST_SLASH, TIMER_TO_SET);
@@ -218,7 +218,7 @@ class boss_blade_lord_tayak : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 2))
                             {
-                                previousTargetGUID = me->GetVictim()->GetGUID();
+                                previousTargetGUID = me->GetVictim()->GetGUID().GetEntry();
 
                                 me->AddAura(SPELL_INVISIBLE_STRIKE_VISUAL, target);
                                 me->CastSpell(target, SPELL_INVISIBLE_STRIKE, false);
