@@ -23,7 +23,7 @@
 
 DoorData const doorData[] =
 {
-    {0,                                      0,                         DOOR_TYPE_ROOM,       BOUNDARY_NONE},// END
+    {0,                                      0,                         DOOR_TYPE_ROOM, },// END
 };
 
 class instance_heart_of_fear : public InstanceMapScript
@@ -61,12 +61,12 @@ class instance_heart_of_fear : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_ZORLOCK:  vizierZorlockGUID    = creature->GetGUID(); break;
-                    case NPC_TAYAK:    bladeLordTayakGUID   = creature->GetGUID(); break;
-                    case NPC_GARALON:  garalonGUID          = creature->GetGUID(); break;
-                    case NPC_UNSOK:    windLordMeljarakGUID = creature->GetGUID(); break;
-                    case NPC_SHEKZEER: amberShaperUnsokGUID = creature->GetGUID(); break;
-                    case NPC_MELJARAK: empressShekzeerGUID  = creature->GetGUID(); break;
+                    case NPC_ZORLOCK:  vizierZorlockGUID    = creature->GetGUID().GetEntry(); break;
+                    case NPC_TAYAK:    bladeLordTayakGUID   = creature->GetGUID().GetEntry(); break;
+                    case NPC_GARALON:  garalonGUID          = creature->GetGUID().GetEntry(); break;
+                    case NPC_UNSOK:    windLordMeljarakGUID = creature->GetGUID().GetEntry(); break;
+                    case NPC_SHEKZEER: amberShaperUnsokGUID = creature->GetGUID().GetEntry(); break;
+                    case NPC_MELJARAK: empressShekzeerGUID  = creature->GetGUID().GetEntry(); break;
                     default:
                         break;
                 }
@@ -139,7 +139,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 return true;
             }
 
-            std::string GetSaveData() override
+            /*std::string GetSaveData() override
             {
                 OUT_SAVE_INST_DATA;
 
@@ -181,7 +181,7 @@ class instance_heart_of_fear : public InstanceMapScript
                     OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
-            }
+            }*/
         };
 };
 
