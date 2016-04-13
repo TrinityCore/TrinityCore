@@ -326,19 +326,19 @@ public:
             switch (creature->GetEntry())
             {
                 case CREATURE_GEKKAN:
-                    gekkan = creature->GetGUID();
+                    gekkan = creature->GetGUID().GetEntry();
                     break;
                 case CREATURE_GLINTROK_IRONHIDE:
-                    glintrok_ironhide = creature->GetGUID();
+                    glintrok_ironhide = creature->GetGUID().GetEntry();
                     break;
                 case CREATURE_GLINTROK_SKULKER:
-                    glintrok_skulker = creature->GetGUID();
+                    glintrok_skulker = creature->GetGUID().GetEntry();
                     break;
                 case CREATURE_GLINTROK_ORACLE:
-                    glintrok_oracle = creature->GetGUID();
+                    glintrok_oracle = creature->GetGUID().GetEntry();
                     break;
                 case CREATURE_GLINTROK_HEXXER:
-                    glintrok_hexxer = creature->GetGUID();
+                    glintrok_hexxer = creature->GetGUID().GetEntry();
                     break;
             }
         }
