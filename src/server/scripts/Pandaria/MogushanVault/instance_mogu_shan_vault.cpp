@@ -176,7 +176,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case NPC_STONE_GUARD_CONTROLER:
-                        stoneGuardControlerGuid = creature->GetGUID();
+                        stoneGuardControlerGuid = creature->GetGUID().GetEntry();
                         break;
                     case NPC_JASPER:
                     case NPC_JADE:
