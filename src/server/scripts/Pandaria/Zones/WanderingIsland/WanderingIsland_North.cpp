@@ -156,7 +156,7 @@ public:
             if (me->HealthBelowPctDamaged(5, damage))
             {
                 if (attacker && attacker->GetTypeId() == TYPEID_PLAYER)
-                    attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
+                    attacker->ToPlayer()->KilledMonsterCredit(54586, GetGUID(0));
                 me->CombatStop();
                 me->SetFullHealth();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
@@ -244,7 +244,7 @@ public:
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 15.0f);
                 for (auto player: playerList)
-                    player->KilledMonsterCredit(me->GetEntry(), 0);
+                    player->KilledMonsterCredit(me->GetEntry(), GetGUID(0));
 
                 me->CombatStop();
                 me->setFaction(35);
@@ -363,16 +363,16 @@ public:
             bool HasRemainingAttacker = false;
             for(int i = 0; i < 4; i++)
             {
-                if (guidMob[i])
+                /*if (guidMob[i])
                 {
-                    if (Unit* unit = sObjectAccessor->FindUnit(guidMob[i]))
+                    if (Unit* unit = ObjectAccessor::Find FindUnit(GetGUID(guidMob[i])))
                     {
                         if (unit->IsAlive())
                             HasRemainingAttacker = true;
                     }
                     else
                         guidMob[i] = 0;
-                }
+                }*/
             }
 
             return !HasRemainingAttacker;
@@ -385,10 +385,10 @@ public:
 
             for(int i = 0; i < 4; i++)
             {
-                if (guidMob[i])
+                /*if (guidMob[i])
                     if (Unit* unit = sObjectAccessor->FindUnit(guidMob[i]))
                         if (unit->ToCreature())
-                            unit->ToCreature()->DespawnOrUnsummon();
+                            unit->ToCreature()->DespawnOrUnsummon();*/
 
                 guidMob[i] = 0;
 
@@ -419,12 +419,12 @@ public:
                         if (VerifyMobs()) //plus de mobs, win!
                         {
                             me->HandleEmoteCommand(EMOTE_STATE_STAND);
-                            me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
+                            //me->MonsterYell("Thank you!", LANG_UNIVERSAL, 0);
 
                             std::list<Player*> PlayerList;
                             GetPlayerListInGrid(PlayerList, me, 20.0f);
                             for (auto player: PlayerList)
-                                player->KilledMonsterCredit(54855, 0);
+                                player->KilledMonsterCredit(54855, GetGUID(0));
 
                             events.ScheduleEvent(EVENT_RESET, 30000);
                         }
@@ -494,7 +494,7 @@ public:
             {
                 if (IntroTimer <= diff)
                 {
-                    me->MonsterYell("Follow me!", LANG_UNIVERSAL, 0);
+                   // me->MonsterYell("Follow me!", LANG_UNIVERSAL, 0);
                     IntroTimer = 0;
                     me->GetMotionMaster()->MoveJump(1216.78f, 3499.44f, 91.15f, 10, 20, 10);
                 }
@@ -569,7 +569,7 @@ public:
                 }
 
                 uiDamage = 0;
-                me->MonsterSay("I can't meditate!", LANG_UNIVERSAL, 0);
+                //me->MonsterSay("I can't meditate!", LANG_UNIVERSAL, 0);
                 me->SetFullHealth();
                 me->SetReactState(REACT_DEFENSIVE);
 
@@ -611,7 +611,7 @@ public:
                             events.ScheduleEvent(1, 600);
                         else
                         {
-                            me->MonsterSay("Keep those creatures at bay while I meditate. We'll soon have the answers we seek...", LANG_UNIVERSAL, 0);
+                            //me->MonsterSay("Keep those creatures at bay while I meditate. We'll soon have the answers we seek...", LANG_UNIVERSAL, 0);
                             me->SetReactState(REACT_PASSIVE);
                             timer = 0;
                             events.ScheduleEvent(EVENT_SPAWN_MOBS, 5000); //spawn mobs
@@ -641,7 +641,7 @@ public:
                 case EVENT_PROGRESS: //update energy
                     {
                         timer++;
-
+                        /*
                         if (timer == 25 && !lifei)
                         {
                             if (lifei = me->SummonCreature(54856, 1130.162231f, 3435.905518f, 105.496597f, 0.0f,TEMPSUMMON_MANUAL_DESPAWN))
@@ -667,7 +667,7 @@ public:
                         if (timer == 78)
                             if (lifei)
                                 lifei->MonsterSay("Go, children. We shall meet again very soon.", LANG_UNIVERSAL, 0);
-
+                        */
                         if (timer == 85)
                         {
                             if (lifei)
@@ -699,12 +699,12 @@ public:
                         events.ScheduleEvent(EVENT_START, 10000);
                         events.CancelEvent(EVENT_SPAWN_MOBS);
                         events.CancelEvent(EVENT_PROGRESS);
-                        me->MonsterSay("And so our path lays before us. Speak to Master Shang Xi, he will tell you what comes next.", LANG_UNIVERSAL, 0);
+                       // me->MonsterSay("And so our path lays before us. Speak to Master Shang Xi, he will tell you what comes next.", LANG_UNIVERSAL, 0);
                         updatePlayerList();
                         me->SetReactState(REACT_DEFENSIVE);
                         for(auto player: playersInvolved)
                         {
-                            player->KilledMonsterCredit(54856, 0);
+                            player->KilledMonsterCredit(54856, GetGUID(0));
                             player->RemoveAura(116421);
                         }
                         break;
@@ -846,8 +846,8 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
-                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-                    player->KilledMonsterCredit(54734, 0);
+                if (Player* player = ObjectAccessor::FindPlayer(GetGUID(playerGuid)))
+                    player->KilledMonsterCredit(54734, GetGUID(0));
             }
         }
 
@@ -873,7 +873,7 @@ public:
                 case EVENT_CHECK_PLAYER:
                     {
                         bool checkPassed = true;
-                        Player* player = ObjectAccessor::FindPlayer(playerGuid);
+                        Player* player = ObjectAccessor::FindPlayer(GetGUID(playerGuid));
 
                         if (!player)
                         {
@@ -996,7 +996,7 @@ public:
     {
         if (player->GetQuestStatus(29423) == QUEST_STATUS_INCOMPLETE)
         {
-            player->KilledMonsterCredit(61128, 0);
+           // player->KilledMonsterCredit(61128, 0);
 
             std::list<Creature*> huoList;
             GetCreatureListWithEntryInGrid(huoList, player, 54958, 20.0f);
@@ -1144,7 +1144,7 @@ public :
 
         void ResetToNormal(Unit* attacker)
         {
-            switch(me->GetEntry())
+            /*switch(me->GetEntry())
             {
             case HUOJIN_TRAINEE_1:
             case HUOJIN_TRAINEE_2: // #todo
@@ -1156,7 +1156,7 @@ public :
                 if (attacker)
                     me->MonsterSay("SAY_DEFEATED", LANG_UNIVERSAL, 0);
                 break;
-            }
+            }*/
 
             events.Reset();
             me->setFaction(35);
@@ -1252,7 +1252,7 @@ public :
 
     class spell_summon_living_airSpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_summon_living_airSpellScript)
+        PrepareSpellScript(spell_summon_living_airSpellScript);
 
             bool Validate(const SpellInfo *spellInfo)
         {

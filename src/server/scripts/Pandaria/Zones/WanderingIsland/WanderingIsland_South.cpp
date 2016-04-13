@@ -25,9 +25,9 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
             if (!Aysa || !Ji || !Jojo)
                 return true;
             
-            Aysa->AI()->SetGUID(playerGuid);
-              Ji->AI()->SetGUID(playerGuid);
-            Jojo->AI()->SetGUID(playerGuid);
+          //  Aysa->AI()->SetGUID(playerGuid);
+            //  Ji->AI()->SetGUID(playerGuid);
+            //Jojo->AI()->SetGUID(playerGuid);
 
             player->RemoveAurasDueToSpell(59073);
             player->RemoveAurasDueToSpell(59074);
@@ -119,14 +119,14 @@ class mob_mandori_escort : public CreatureScript
         void LastWaypointReached()
         {
             if (Is(NPC_JI))
-                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                if (Player* player = ObjectAccessor::FindPlayer(GetGUID(playerGuid)))
                     player->AddAura(68482, player); // Phase 8192
             
             if (Is(NPC_AYSA))
             {
-                if (GameObject* mandoriDoor = me->GetMap()->GetGameObject(mandoriDoorGuid))
+                if (GameObject* mandoriDoor = me->GetMap()->GetGameObject(GetGUID(mandoriDoorGuid)))
                     mandoriDoor->Delete();
-                if (GameObject* peiwuDoor = me->GetMap()->GetGameObject(peiwuDoorGuid))
+                if (GameObject* peiwuDoor = me->GetMap()->GetGameObject(GetGUID(peiwuDoorGuid)))
                     peiwuDoor->Delete();
             }
         }
@@ -140,17 +140,17 @@ class mob_mandori_escort : public CreatureScript
                     switch (++IntroState)
                     {
                         case 1:
-                            if (Is(NPC_AYSA))
-                                me->MonsterYell("Let's go !", LANG_UNIVERSAL, 0);
+                            /*if (Is(NPC_AYSA))
+                                me->MonsterYell("Let's go !", LANG_UNIVERSAL, 0);*/
                             IntroTimer = 1000;
                             break;
                         case 2:
                             if (Is(NPC_AYSA))
                             {
-                                if (GameObject* mandoriDoor = me->GetMap()->GetGameObject(mandoriDoorGuid))
+                                if (GameObject* mandoriDoor = me->GetMap()->GetGameObject(GetGUID(mandoriDoorGuid)))
                                     mandoriDoor->SetGoState(GO_STATE_ACTIVE);
 
-                                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                                if (Player* player = ObjectAccessor::FindPlayer(GetGUID(playerGuid)))
                                     player->KilledMonsterCredit(59946);
                             }
                             IntroTimer = 1000;
@@ -172,14 +172,14 @@ class mob_mandori_escort : public CreatureScript
                     switch (++doorEventState)
                     {
                         case 1:
-                            if (Is(NPC_AYSA))
-                                me->MonsterSay("The door is blocked!", LANG_UNIVERSAL, 0);
+                            /*if (Is(NPC_AYSA))
+                                me->Talk("The door is blocked!", LANG_UNIVERSAL, 0);*/
                             doorEventTimer = 2500;
                             break;
                         case 2:
-                            if (Is(NPC_JI))
+                            /*if (Is(NPC_JI))
                                 me->MonsterSay("They blocked it with a rock on the other side, I can't open it!", LANG_UNIVERSAL, 0);
-                            doorEventTimer = 4000;
+                            */doorEventTimer = 4000;
                             break;
                         case 3:
                             if (Is(NPC_JOJO))
@@ -188,16 +188,16 @@ class mob_mandori_escort : public CreatureScript
                             break;
                         case 4:
                             if (Is(NPC_AYSA))
-                                if (GameObject* peiwuDoor = me->GetMap()->GetGameObject(peiwuDoorGuid))
+                                if (GameObject* peiwuDoor = me->GetMap()->GetGameObject(GetGUID(peiwuDoorGuid)))
                                     peiwuDoor->SetGoState(GO_STATE_ACTIVE);
                             doorEventTimer = 2000;
                             break;
                        case 5:
                             if (Is(NPC_AYSA))
                             {
-                                me->MonsterSay("Well done, Jojo!", LANG_UNIVERSAL, 0);
+                                //me->MonsterSay("Well done, Jojo!", LANG_UNIVERSAL, 0);
 
-                                if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+                                if (Player* player = ObjectAccessor::FindPlayer(GetGUID(playerGuid)))
                                     player->KilledMonsterCredit(59947);
                             }
                            if (!Is(NPC_JOJO))
@@ -271,7 +271,7 @@ public:
 
         void LastWaypointReached()
         {
-            if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
+            if (Player* player = ObjectAccessor::FindPlayer(GetGUID(playerGuid)))
                 player->AddAura(68483, player); // Phase 16384
         }
 
@@ -360,7 +360,7 @@ public:
                 {
                     if (HasBeenSaved && !me->GetVehicle())
                     {
-                        me->MonsterSay("Thanks you, i'll never forget that.", LANG_UNIVERSAL, 0);
+                       // me->MonsterSay("Thanks you, i'll never forget that.", LANG_UNIVERSAL, 0);
                         me->DespawnOrUnsummon(5000);
                         checkSavedTimer = 0;
                     }
@@ -531,7 +531,7 @@ public:
 
         Creature* getJi()
         {
-            return me->GetMap()->GetCreature(jiGuid);
+            return me->GetMap()->GetCreature(GetGUID(jiGuid));
         }
 
         void UpdateAI(uint32 diff) override
@@ -554,27 +554,27 @@ public:
                     switch (++discussEvent)
                     {
                         case 1:
-                            me->MonsterSay("Ji, what are you doing ?! You can't do that !", LANG_UNIVERSAL, 0);
+                            //me->MonsterSay("Ji, what are you doing ?! You can't do that !", LANG_UNIVERSAL, 0);
                             if (Creature* ji = getJi())
                                 ji->SetFacingToObject(me);
                             discussTimer = 3000;
                             break;
                         case 2:
-                            if (Creature* ji = getJi())
-                                ji->MonsterSay("We have no choice Aysa.", LANG_UNIVERSAL, 0);
+                            /*if (Creature* ji = getJi())
+                                ji->MonsterSay("We have no choice Aysa.", LANG_UNIVERSAL, 0);*/
                             discussTimer = 3000;
                             break;
                         case 3:
-                            me->MonsterSay("You are going to kill him !", LANG_UNIVERSAL, 0);
+                            //me->MonsterSay("You are going to kill him !", LANG_UNIVERSAL, 0);
                             discussTimer = 3000;
                             break;
                         case 4:
-                            if (Creature* ji = getJi())
-                                ji->MonsterSay("In our situation, inaction would be the greatest danger.", LANG_UNIVERSAL, 0);
+                            /*if (Creature* ji = getJi())
+                                ji->MonsterSay("In our situation, inaction would be the greatest danger.", LANG_UNIVERSAL, 0);*/
                             discussTimer = 3000;
                             break;
                         case 5:
-                            me->MonsterSay("I hope you know what you're doing, Ji...", LANG_UNIVERSAL, 0);
+                            //me->MonsterSay("I hope you know what you're doing, Ji...", LANG_UNIVERSAL, 0);
                             discussTimer = 5000;
                             break;
                         case 6:
@@ -586,7 +586,7 @@ public:
                             discussTimer = 1000;
                             break;
                         case 7:
-                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, GetGUID(playerGuid)))
                             {
                                 player->KilledMonsterCredit(60727);
                                 player->SendMovieStart(117);
@@ -594,13 +594,13 @@ public:
                             discussTimer = 500;
                             break;
                         case 8:
-                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, GetGUID(playerGuid)))
                                 player->NearTeleportTo(249.38f, 3939.55f, 65.61f, 1.501471f);
                             
                             if (Creature* ji = getJi())
                                 ji->DespawnOrUnsummon();
 
-                            if (GameObject* gob = me->GetMap()->GetGameObject(fireGuid))
+                            if (GameObject* gob = me->GetMap()->GetGameObject(GetGUID(fireGuid)))
                                 gob->Delete();
 
                             discussTimer = 0;
@@ -895,9 +895,9 @@ class npc_shang_xi_choose_faction : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-				player->SendPandarenChooseFactionPacket(); // #todo moje da ne e tova??
-            else if (action == GOSSIP_ACTION_INFO_DEF + 2)
+            // if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            //player->SendPandarenChooseFactionPacket(); // #todo moje da ne e tova??
+            if (action == GOSSIP_ACTION_INFO_DEF + 2)
                 player->TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
             else if (action == GOSSIP_ACTION_INFO_DEF + 3)
                 player->TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);

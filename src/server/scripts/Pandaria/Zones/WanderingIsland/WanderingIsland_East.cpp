@@ -53,7 +53,7 @@ class AreaTrigger_at_bassin_curse : public AreaTriggerScript
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
     {
-        switch(trigger->id)
+        switch(trigger->ID)
         {
         case AREA_CRANE:     AddOrRemoveSpell(player, SPELL_CRANE);     break;
         case AREA_SKUNK:     AddOrRemoveSpell(player, SPELL_SKUNK);     break;
@@ -223,7 +223,7 @@ public:
 
         Creature* getWaterSpout()
         {
-            return me->GetMap()->GetCreature(waterSpoutGUID);
+            return me->GetMap()->GetCreature(GetGUID(waterSpoutGUID));
         }
 
         void UpdateAI(uint32 diff) override
@@ -250,7 +250,7 @@ public:
             case EVENT_SUMMON_WATER_SPOUT:
                 {
                     float x = 0.0f, y = 0.0f;
-                    GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
+                    //GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
                     waterSpoutGUID = 0;
 
                     if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
@@ -324,7 +324,7 @@ public:
             if (TempSummon* tempShu = target->SummonCreature(55213, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
             {
                 tempShu->SetOwnerGUID(target->GetGUID());
-                tempShu->GetMotionMaster()->MoveFollow(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                //tempShu->GetMotionMaster()->MoveFollow(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
             }
         }
 
@@ -604,16 +604,16 @@ public:
                         break;
                     case 4:
                         eventTimer = 0;
-                        if (Player* owner = ObjectAccessor::FindPlayer(playerGuid))
+                        if (Player* owner = ObjectAccessor::FindPlayer(GetGUID(playerGuid)))
                         {
                             owner->KilledMonsterCredit(55547);
                             owner->RemoveAurasDueToSpell(59074); // Remove phase 4, asleep wugou disappear
 
-                            if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
-                                if (Creature* newWugou = owner->SummonCreature(60916, wugou->GetPositionX(), wugou->GetPositionY(), wugou->GetPositionZ(), wugou->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
-                                    newWugou->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                            //if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
+                              //  if (Creature* newWugou = owner->SummonCreature(60916, wugou->GetPositionX(), wugou->GetPositionY(), wugou->GetPositionZ(), wugou->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
+                                    //newWugou->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-                            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
+                            //me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
                         }
                         break;
                     default:

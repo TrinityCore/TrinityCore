@@ -169,7 +169,7 @@ class mob_aysa_wind_temple_escort : public CreatureScript
                     SetEscortPaused(true);
                     break;
                 case 8:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, GetGUID(playerGuid)))
                         player->KilledMonsterCredit(55666);
                     break;
                 default:
@@ -563,7 +563,7 @@ class mob_master_shang_xi_after_zhao_escort : public CreatureScript
                     me->SetFacingTo(4.537860f);
                     me->DespawnOrUnsummon(1000);
 
-                    if (Player* owner = ObjectAccessor::GetPlayer(*me, playerGuid))
+                    if (Player* owner = ObjectAccessor::GetPlayer(*me, GetGUID(playerGuid)))
                         owner->AddAura(59074, owner);
                     break;
                 default:
@@ -677,7 +677,7 @@ class mob_master_shang_xi_thousand_staff_escort : public CreatureScript
                     me->DespawnOrUnsummon();
                     me->SummonCreature(57874, 873.09f, 4462.25f, 241.27f, 3.80f, TEMPSUMMON_MANUAL_DESPAWN, 0);
 
-                    if (Player* owner = ObjectAccessor::GetPlayer(*me, playerGuid))
+                    if (Player* owner = ObjectAccessor::GetPlayer(*me, GetGUID(playerGuid)))
                         owner->KilledMonsterCredit(56688);
 
                     DespawnTimer = 0;
