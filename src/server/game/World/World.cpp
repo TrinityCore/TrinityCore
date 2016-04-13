@@ -1935,7 +1935,7 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
-    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_GENERIC, "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
+    TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
 
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
@@ -2254,7 +2254,7 @@ void World::Update(uint32 diff)
 
     // Stats logger update
     sMetric->Update();
-    TC_METRIC_VALUE(METRIC_VALUE_UPDATE_TIME_DIFF, diff);
+    TC_METRIC_VALUE("update_time_diff", diff);
 }
 
 void World::ForceGameEventUpdate()

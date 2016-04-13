@@ -24,36 +24,6 @@
 #include <boost/algorithm/string.hpp>
 #include <type_traits>
 
-enum MetricEventCategory
-{
-    METRIC_EVENT_CATEGORY_GENERIC = 0,
-    METRIC_EVENT_CATEGORY_MAP,
-    METRIC_EVENT_CATEGORY_MMAP,
-    METRIC_EVENT_CATEGORY_PLAYER,
-    METRIC_EVENT_CATEGORY_MAX
-};
-
-static std::map<MetricEventCategory, std::string> Categories = {
-    { METRIC_EVENT_CATEGORY_GENERIC, "events" },
-    { METRIC_EVENT_CATEGORY_MAP, "map_events" },
-    { METRIC_EVENT_CATEGORY_MMAP, "mmap_events" },
-    { METRIC_EVENT_CATEGORY_PLAYER, "player_events" }
-};
-
-enum MetricValueCategory
-{
-    METRIC_VALUE_UPDATE_TIME_DIFF = 0,
-    METRIC_VALUE_ONLINE_PLAYERS,
-    METRIC_VALUE_SESSION_PROCESSED_PACKETS,
-    METRIC_VALUE_MAX
-};
-
-static std::map<MetricValueCategory, std::string> Values = {
-    { METRIC_VALUE_UPDATE_TIME_DIFF, "update_time_diff" },
-    { METRIC_VALUE_SESSION_PROCESSED_PACKETS, "processed_packets"},
-    { METRIC_VALUE_ONLINE_PLAYERS, "online_players" }
-};
-
 enum MetricDataType
 {
     METRIC_DATA_VALUE,
@@ -130,11 +100,7 @@ public:
         _queuedData.Enqueue(data);
     }
 
-    template<class T>
-    void LogValue(MetricValueCategory category, T value) { LogValue(Values[category], value); }
-
     void LogEvent(std::string const& category, std::string const& title, std::string const& description);
-    void LogEvent(MetricEventCategory category, std::string const& title, std::string const& description) { LogEvent(Categories[category], title, description); }
 
     void ForceSend();
     bool IsEnabled() const { return _enabled; }

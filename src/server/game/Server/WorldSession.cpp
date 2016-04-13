@@ -381,7 +381,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
-    TC_METRIC_VALUE(METRIC_VALUE_SESSION_PROCESSED_PACKETS, processedPackets);
+    TC_METRIC_VALUE("processed_packets", processedPackets);
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
@@ -539,7 +539,7 @@ void WorldSession::LogoutPlayer(bool save)
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
 
-        TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_PLAYER, "Logout", _player->GetName());
+        TC_METRIC_EVENT("player_events", "Logout", _player->GetName());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out

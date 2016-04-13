@@ -195,10 +195,10 @@ extern int main(int argc, char** argv)
 
     sMetric->Initialize(realm.Name, _ioService, []()
     {
-        TC_METRIC_VALUE(METRIC_VALUE_ONLINE_PLAYERS, sWorld->GetPlayerCount());
+        TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
     });
 
-    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_GENERIC, "Worldserver started", "");
+    TC_METRIC_EVENT("events", "Worldserver started", "");
 
     // Initialize the World
     sScriptMgr->SetScriptLoader(AddScripts);
@@ -299,7 +299,7 @@ extern int main(int argc, char** argv)
 
     StopDB();
 
-    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_GENERIC, "Worldserver shutdown", "");
+    TC_METRIC_EVENT("events", "Worldserver shutdown", "");
     sMetric->ForceSend();
 
     TC_LOG_INFO("server.worldserver", "Halting process...");

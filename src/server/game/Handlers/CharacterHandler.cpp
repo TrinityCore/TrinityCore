@@ -996,7 +996,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
-    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_PLAYER, "Login", pCurrChar->GetName());
+    TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
 
     delete holder;
 }

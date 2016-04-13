@@ -62,7 +62,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
         return false;
 
-    TC_METRIC_EVENT(METRIC_EVENT_CATEGORY_MMAP, "CalculatePath", "");
+    TC_METRIC_EVENT("mmap_events", "CalculatePath", "");
 
     G3D::Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);
