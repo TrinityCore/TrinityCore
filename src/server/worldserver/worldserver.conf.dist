@@ -3527,7 +3527,7 @@ BlackMarket.Enabled = 1
 
 #
 #    BlackMarket.MaxAuctions
-#       Description: Maximum amount of aucions present at the same time.
+#       Description: Maximum amount of auctions present at the same time.
 #       Default:     12
 #
 
