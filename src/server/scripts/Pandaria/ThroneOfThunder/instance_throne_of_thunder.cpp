@@ -22,7 +22,7 @@
 
 static DoorData const doorData[] =
 {
-    {GOB_JIN_ROKH_ENTRANCE  , DATA_JINROKH          , DOOR_TYPE_ROOM    , BOUNDARY_NONE},
+    {GOB_JIN_ROKH_ENTRANCE  , DATA_JINROKH          , DOOR_TYPE_ROOM    , },
     {GOB_JIN_ROKH_EXIT      , DATA_JINROKH          , DOOR_TYPE_PASSAGE , },
     {GOB_HORRIDON_ENTRANCE  , DATA_HORRIDON         , DOOR_TYPE_ROOM    , },
     {GOB_HORRIDON_EXIT      , DATA_HORRIDON         , DOOR_TYPE_PASSAGE , },
@@ -94,7 +94,7 @@ public:
             if(!pCreature)
                 return;
 
-            uint64 guid = pCreature->GetGUID();
+            uint64 guid = pCreature->GetGUID().GetEntry();
 
             switch (pCreature->GetEntry())
             {
@@ -134,7 +134,7 @@ public:
             if(!pGo)
                 return;
                 
-            uint64  guid = pGo->GetGUID();
+            uint64  guid = pGo->GetGUID().GetEntry();
             bool    bAdd = true;
         
             switch (pGo->GetEntry())
