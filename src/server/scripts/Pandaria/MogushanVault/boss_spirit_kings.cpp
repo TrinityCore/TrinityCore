@@ -304,7 +304,7 @@ class boss_spirit_kings_controler : public CreatureScript
 
                 if (Creature* flankingMogu = me->SummonCreature(NPC_FLANKING_MOGU, flankingPos[moguNumber].GetPositionX(), flankingPos[moguNumber].GetPositionY(), flankingPos[moguNumber].GetPositionZ(), flankingPos[moguNumber].GetOrientation()))
                 {
-                    flankingGuid[moguNumber] = flankingMogu->GetGUID();
+                    flankingGuid[moguNumber] = flankingMogu->GetGUID().GetEntry();
                     flankingMogu->SetReactState(REACT_PASSIVE);
                     flankingMogu->AddAura(SPELL_GHOST_VISUAL, flankingMogu);
                     flankingMogu->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_FLANKING_MOGU_SWORD));
@@ -1100,7 +1100,7 @@ class mob_undying_shadow : public CreatureScript
                 {
                     me->CastSpell(target, SPELL_FIXATE, true);
                     me->GetMotionMaster()->MoveChase(target);
-                    targetGuid = target->GetGUID();
+                    targetGuid = target->GetGUID().GetEntry();
                 }
 
                 switchPhaseTimer = 0;
@@ -1164,7 +1164,7 @@ class mob_undying_shadow : public CreatureScript
                         {
                             me->CastSpell(target, SPELL_FIXATE, true);
                             me->GetMotionMaster()->MoveChase(target);
-                            targetGuid = target->GetGUID();
+                            targetGuid = target->GetGUID().GetEntry();
                         }
                     }
                     else
@@ -1172,16 +1172,16 @@ class mob_undying_shadow : public CreatureScript
                         uint32 pct = uint32(float(switchPhaseTimer) / 30000.0f * 100.0f);
                         me->SetObjectScale(CalculatePct(scale, pct));
 
-                       // if (Unit* target = ObjectAccessor::FindPlayer(targetGuid))
-                         //   target->RemoveAurasDueToSpell(SPELL_FIXATE);
+                        if (Unit* target = ObjectAccessor::FindPlayer(GetGUID(targetGuid)))
+                            target->RemoveAurasDueToSpell(SPELL_FIXATE);
 
                         switchPhaseTimer -= diff;
                     }
                 }
                 else if (targetGuid)
                 {
-                    //if (Unit* target = ObjectAccessor::FindPlayer(targetGuid))
-                      //  me->GetMotionMaster()->MoveChase(target);
+                    if (Unit* target = ObjectAccessor::FindPlayer(GetGUID(targetGuid)))
+                        me->GetMotionMaster()->MoveChase(target);
                 }
             }
         };
