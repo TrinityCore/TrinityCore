@@ -461,17 +461,17 @@ static const Position middlePosition = { 5431.621094f, 5763.865723f, 129.606461f
 
 static Creature *GetHorridon(WorldObject *source) 
 {
-    return ObjectAccessor::GetCreature(*source, source->GetInstanceScript()->GetData64(BOSS_HORRIDON));
+    return ObjectAccessor::GetCreature(*source, source->GetInstanceScript()->GetObjectGuid(BOSS_HORRIDON));
 }
 
 static Creature *GetJalak(WorldObject *source)
 {
-    return ObjectAccessor::GetCreature(*source, source->GetInstanceScript()->GetData64(MOB_WAR_GOD_JALAK));
+    return ObjectAccessor::GetCreature(*source, source->GetInstanceScript()->GetObjectGuid(MOB_WAR_GOD_JALAK));
 }
 
 static Creature *GetHorridonHelper(WorldObject *source)
 {
-    return ObjectAccessor::GetCreature(*source, source->GetInstanceScript()->GetData64(NPC_HORRIDON_EVENT_HELPER));
+    return ObjectAccessor::GetCreature(*source, source->GetInstanceScript()->GetObjectGuid(NPC_HORRIDON_EVENT_HELPER));
 }
 
 static GameObject *GetDoorByPhase(eTrashPhases phase, WorldObject *source)
@@ -479,16 +479,16 @@ static GameObject *GetDoorByPhase(eTrashPhases phase, WorldObject *source)
     switch(phase)
     {
     case TRASH_PHASE_FARRAKI:
-        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_FARRAKI));
+        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_FARRAKI));
 
     case TRASH_PHASE_GURUBASHI:
-        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_GURUBASHI));
+        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_GURUBASHI));
 
     case TRASH_PHASE_DRAKKARI:
-        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_DRAKKARI));
+        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_DRAKKARI));
 
     case TRASH_PHASE_AMANI:
-        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_AMANI));
+        return ObjectAccessor::GetGameObject(*source, source->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_AMANI));
 
     default:
         return NULL;
@@ -500,16 +500,16 @@ static GameObject *GetDoorByOrb(GameObject *orb)
     switch(orb->GetEntry())
     {
     case GOB_ORB_OF_CONTROL_FARRAKI:
-        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_FARRAKI));
+        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_FARRAKI));
 
     case GOB_ORB_OF_CONTROL_GURUBASHI:
-        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_GURUBASHI));
+        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_GURUBASHI));
 
     case GOB_ORB_OF_CONTROL_DRAKKARI:
-        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_DRAKKARI));
+        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_DRAKKARI));
 
     case GOB_ORB_OF_CONTROL_AMANI:
-        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_AMANI));
+        return ObjectAccessor::GetGameObject(*orb, orb->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_AMANI));
 
     default:
         return NULL;
@@ -521,16 +521,16 @@ static GameObject *GetDoorBySpell(uint32 uiSpellId, WorldObject *pSource)
     switch(uiSpellId)
     {
     case SPELL_CONTROL_HORRIDON_FARRAKI:
-        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_FARRAKI));
+        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_FARRAKI));
 
     case SPELL_CONTROL_HORRIDON_GURUBASHI:
-        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_GURUBASHI));
+        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_GURUBASHI));
 
     case SPELL_CONTROL_HORRIDON_DRAKKARI:
-        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_DRAKKARI));
+        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_DRAKKARI));
 
     case SPELL_CONTROL_HORRIDON_AMANI:
-        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetData64(GOB_TRIBAL_DOOR_AMANI));
+        return ObjectAccessor::GetGameObject(*pSource, pSource->GetInstanceScript()->GetObjectGuid(GOB_TRIBAL_DOOR_AMANI));
 
     default:
         return 0;
@@ -1454,7 +1454,7 @@ public:
         {
             std::list<Player*> playerList;
             me->GetPlayerListInGrid(playerList, 500.0f);
-            playerList.sort(Trinity::DistanceCompareOrderPred(me, true));
+            //playerList.sort(Trinity::DistanceCompareOrderPred(me, true));
             
             if(!playerList.empty() && playerList.front())
             {
@@ -2037,7 +2037,7 @@ public:
 
     class spell_horridon_double_swipe_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_horridon_double_swipe_SpellScript)
+        PrepareSpellScript(spell_horridon_double_swipe_SpellScript);
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
@@ -2072,7 +2072,7 @@ public:
 
     class spell_horridon_chain_lightning_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_horridon_chain_lightning_SpellScript)
+        PrepareSpellScript(spell_horridon_chain_lightning_SpellScript);
 
         void HandleEffectHitTarget(SpellEffIndex effectIndex)
         {
@@ -2133,7 +2133,7 @@ public:
     
     class spell_control_horridon_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_control_horridon_AuraScript)
+        PrepareAuraScript(spell_control_horridon_AuraScript);
         
         void HandleRemove(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
@@ -2188,7 +2188,7 @@ public:
     
     class spell_horridon_sand_trap_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_horridon_sand_trap_SpellScript)
+        PrepareSpellScript(spell_horridon_sand_trap_SpellScript);
         
         void HandleSelectTargets(std::list<WorldObject*>& targets)
         {

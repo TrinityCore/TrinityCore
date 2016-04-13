@@ -212,7 +212,7 @@ public:
             case BOSS_COUNCIL_HIGH_PRIESTESS_MARLI:
                 for(uint64 guid: m_vuiCouncilGuids)
                 {
-                    if(Creature *pCounceler = instance->GetCreature(guid))
+                    if(Creature *pCounceler = instance->GetCreature(GetObjectGuid(guid)))
                     {
                         if(pCounceler->GetEntry() == uiType)
                             return guid;
@@ -230,7 +230,7 @@ public:
             case BOSS_SUEN:
                 for(uint64 guid: m_vuiTwinConsortsGuids)
                 {
-                    if(Creature *pCreature = instance->GetCreature(guid))
+                    if(Creature *pCreature = instance->GetCreature(GetObjectGuid(guid)))
                     {
                         if(pCreature->GetEntry() == uiType)
                             return guid;
@@ -267,7 +267,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "T T " << GetBossSaveData();
+            //saveStream << "T T " << GetBossSaveData();
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();

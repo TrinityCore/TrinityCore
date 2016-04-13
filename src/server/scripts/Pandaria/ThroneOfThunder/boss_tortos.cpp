@@ -88,11 +88,11 @@ public:
             events.Reset();
             events.SetPhase(PHASE_NULL);
 
-            me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 30);
-            me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 30);
+            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 30);
+            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 30);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
             me->setPowerType(POWER_ENERGY);
             me->SetMaxPower(POWER_ENERGY, me->GetCreatePowers(POWER_ENERGY));

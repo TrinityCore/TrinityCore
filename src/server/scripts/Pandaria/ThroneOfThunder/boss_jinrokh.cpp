@@ -407,7 +407,7 @@ public:
 
         Player const* pPlayer = pTarget->ToPlayer();
 
-        switch(pPlayer->getClass())
+       /* switch(pPlayer->getClass())
         {
         case CLASS_WARRIOR:
         case CLASS_ROGUE:
@@ -415,6 +415,7 @@ public:
             return false;
 
         case CLASS_PALADIN:
+            return pPlayer->GetActiveTalentGroup() == CHAR_SPECIALIZATION_PALADIN_HOLY;
             return pPlayer->GetSpecializationId(pPlayer->GetActiveSpec()) == CHAR_SPECIALIZATION_PALADIN_HOLY;
 
         case CLASS_DRUID:
@@ -434,7 +435,7 @@ public:
 
         default:
             return false;
-        }
+        }*/
     }
 };
 
@@ -536,8 +537,8 @@ public:
                     // Let's say it spawns uiLightningStrikePerSecond npcs for each second ; we have uiLightningStrikePerSecond * 15 npcs to spawn.
                     for(uint8 i = 0; i < uiLightningStrikePerSecond * 15; ++i)
                     {
-                        float fx, fy;
-                        GetRandPosFromCenterInDist(me->GetPositionX(), me->GetPositionY(), frand(10.0f, 100.0f), fx, fy);
+                        float fx=0.0f, fy=0.0f;
+                        //GetRandPosFromCenterInDist(me->GetPositionX(), me->GetPositionY(), frand(10.0f, 100.0f), fx, fy);
                         
                         if(Creature *pSummon = me->SummonCreature(NPC_LIGHTNING_STRIKE, fx, fy, me->GetPositionZ() + 0.5f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 100000))
                         {
@@ -564,7 +565,7 @@ public:
                 case EVENT_IONIZATION:
                 {
                     char const *pszEmote = "Jin'Rokh le Briseur inflige une Ionisation à ses ennemis !";
-                    me->MonsterTextEmote(pszEmote, 0, true);
+                   // me->Talk(pszEmote, 0, true);
                     DoCastAOE(SPELL_IONIZATION);
                     events.ScheduleEvent(EVENT_IONIZATION, urand(60, 75) * IN_MILLISECONDS);
                     break;
@@ -837,7 +838,7 @@ public:
             {
                 if(me->GetExactDist2d(pTarget) <= 3.0f) // Can't do better for now
                 {
-                    if(me->GetMap()->GetDifficulty() != RAID_DIFFICULTY_25MAN_LFR)
+                    if(me->GetMap()->GetDifficultyID() != DIFFICULTY_25_N)
                         DoCastAOE(SPELL_FOCUSED_LIGHTNING_DETONATE);
                     else // Targets are weird
                         pTarget->CastSpell(pTarget, SPELL_FOCUSED_LIGHTNING_DETONATE, false);
@@ -878,7 +879,7 @@ public:
                 }
                 
                 case EVENT_INITIALIZE_MOTION:
-                    if (Creature *pJinrokh = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(BOSS_JINROKH)))
+                    if (Creature *pJinrokh = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetObjectGuid(BOSS_JINROKH)))
                     {
                         if(pTarget = pJinrokh->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, FocusedLightningSelection()))
                         {
@@ -1206,7 +1207,7 @@ public:
                 switch(uiEventId)
                 {
                 case EVENT_STATUE_CHECK_PLAYER_THROW:
-                    if(Player *pThrown = ObjectAccessor::GetPlayer(*me, uiWatchPlayerGuid))
+                    if(Player *pThrown = ObjectAccessor::GetPlayer(*me, GetGUID(uiWatchPlayerGuid)))
                     {
                         if(me->GetExactDist2d(pThrown) <= 3.0f)
                         {
@@ -1228,7 +1229,7 @@ public:
                     break;
 
                 case EVENT_STATUE_CHECK_PLAYER_CRASH:
-                    if(Player *pThrown = ObjectAccessor::GetPlayer(*me, uiWatchPlayerGuid))
+                    if(Player *pThrown = ObjectAccessor::GetPlayer(*me, GetGUID(uiWatchPlayerGuid)))
                     {
                         if(std::fabs(me->GetPositionZ() - pThrown->GetPositionZ()) > 25.0f)
                         {
@@ -1328,7 +1329,7 @@ class ConductiveWaterCheckPredicate
                 if(bPresent)
                     return !pTarget->ToUnit()->HasAura(SPELL_CONDUCTIVE_WATER_MOD_DAMAGE_TAKEN);
                 else
-                    return pTarget->ToUnit()->HasAura(SPELL_CONDUCTIVE_WATER_MOD_DAMAGE_TAKEN, uiCasterGuid);
+                    return pTarget->ToUnit()->HasAura(SPELL_CONDUCTIVE_WATER_MOD_DAMAGE_TAKEN);
             }
         }
 
@@ -1346,7 +1347,7 @@ public:
 
     class spell_jinrokh_thundering_throw_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_jinrokh_thundering_throw_SpellScript)
+        PrepareSpellScript(spell_jinrokh_thundering_throw_SpellScript);
 
         void HandleScriptEffect(SpellEffIndex effIndex)
         {
@@ -1390,7 +1391,7 @@ public:
 
     class spell_jinrokh_static_burst_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_jinrokh_static_burst_AuraScript)
+        PrepareAuraScript(spell_jinrokh_static_burst_AuraScript);
 
         void HandleDummyRemove(AuraEffect const* pAuraEffect, AuraEffectHandleModes mode)
         {
@@ -1425,13 +1426,13 @@ class spell_jinrokh_static_wound : public SpellScriptLoader
         
         class spell_jinrokh_static_wound_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_jinrokh_static_wound_AuraScript)
+            PrepareAuraScript(spell_jinrokh_static_wound_AuraScript);
             
             void HandleOnProc(ProcEventInfo& procInfo)
             {
                 PreventDefaultAction();
                 
-                int32 iDamage = GetSpellInfo()->Effects[EFFECT_0].BasePoints * GetStackAmount();
+                int32 iDamage = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints * GetStackAmount();
                 
                 if(Unit *pCaster = GetCaster())
                 {
@@ -1486,7 +1487,7 @@ class spell_jinrokh_focused_lightning_conduction : public SpellScriptLoader
 
         class spell_jinrokh_focused_lightning_conduction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jinrokh_focused_lightning_conduction_SpellScript)
+            PrepareSpellScript(spell_jinrokh_focused_lightning_conduction_SpellScript);
 
             void HandleTargets(std::list<WorldObject*>& targets)
             {
@@ -1514,7 +1515,7 @@ class spell_jinrokh_implosion_conduction : public SpellScriptLoader
 
         class spell_jinrokh_implosion_conduction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jinrokh_implosion_conduction_SpellScript)
+            PrepareSpellScript(spell_jinrokh_implosion_conduction_SpellScript);
 
             void HandleTargets(std::list<WorldObject*>& targets)
             {
@@ -1542,7 +1543,7 @@ class spell_jinrokh_lightning_storm : public SpellScriptLoader
 
         class spell_jinrokh_lightning_storm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_jinrokh_lightning_storm_AuraScript)
+            PrepareAuraScript(spell_jinrokh_lightning_storm_AuraScript);
 
             bool Load()
             {
@@ -1690,7 +1691,7 @@ class spell_jinrokh_ionization_conduction : public SpellScriptLoader
 
         class spell_jinrokh_ionization_conduction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jinrokh_ionization_conduction_SpellScript)
+            PrepareSpellScript(spell_jinrokh_ionization_conduction_SpellScript);
 
             void HandleTargets(std::list<WorldObject*>& targets)
             {

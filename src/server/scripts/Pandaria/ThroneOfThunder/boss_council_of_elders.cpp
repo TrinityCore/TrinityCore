@@ -394,37 +394,37 @@ enum eTalks
 
 static Creature *GetCouncilEventHelper(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(NPC_COUNCIL_EVENT_HELPER));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(NPC_COUNCIL_EVENT_HELPER));
 }
 
 static Creature *GetGarajal(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(MOB_GARA_JAL));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(MOB_GARA_JAL));
 }
 
 static Creature *GetGarajalsSoul(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(MOB_GARA_JALS_SOUL));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(MOB_GARA_JALS_SOUL));
 }
 
 static Creature *GetFrostKingMalakk(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(BOSS_COUNCIL_FROST_KING_MALAKK));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(BOSS_COUNCIL_FROST_KING_MALAKK));
 }
 
 static Creature *GetKazrajin(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(BOSS_COUNCIL_KAZRAJIN));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(BOSS_COUNCIL_KAZRAJIN));
 }
 
 static Creature *GetSulTheSandcrawler(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(BOSS_COUNCIL_SUL_THE_SANDCRAWLER));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(BOSS_COUNCIL_SUL_THE_SANDCRAWLER));
 }
 
 static Creature *GetHighPriestessMarli(WorldObject *pSource)
 {
-    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetData64(BOSS_COUNCIL_HIGH_PRIESTESS_MARLI));
+    return ObjectAccessor::GetCreature(*pSource, pSource->GetInstanceScript()->GetObjectGuid(BOSS_COUNCIL_HIGH_PRIESTESS_MARLI));
 }
 
 static Creature *GetBossByEntry(uint32 uiEntry, WorldObject *pSource)
@@ -509,7 +509,7 @@ public:
                 pInstance->SetBossState(DATA_COUNCIL_OF_ELDERS, DONE);
                 eStatus = STATUS_DONE;
 
-                if(Creature *pTwistedFateHelper = ObjectAccessor::GetCreature(*me, pInstance->GetData64(NPC_TWISTED_FATE_HELPER)))
+                if(Creature *pTwistedFateHelper = ObjectAccessor::GetCreature(*me, pInstance->GetObjectGuid(NPC_TWISTED_FATE_HELPER)))
                     pTwistedFateHelper->AI()->DoAction(ACTION_TWISTED_FATE_END_FIGHT);
                     
                 std::list<Player*> playerList;
@@ -1068,8 +1068,7 @@ public:
             case EFFECT_MOTION_TYPE:
                 if(uiMotionPointId == POINT_RECKLESS_CHARGE_LAND)
                 {
-                    float fX, fY;
-                    GetPositionWithDistInOrientation(me, 8.0f, me->GetOrientation(), fX, fY);
+                    float fX = 0.0f, fY = 0.0f;
                     me->GetMotionMaster()->MovePoint(POINT_RECKLESS_CHARGE_PLAYER, fX, fY, me->GetPositionZ());
                 }
                 break;
@@ -1340,7 +1339,7 @@ public:
                     // Check that we are not the only left councillor (otherwise it would be cheaty)
                     for(uint8 i = 0; i < 3; ++i)
                     {
-                        if(Creature *pCouncillor = GetBossByEntry(uiBossEntries[i], me))
+                       /* if(Creature *pCouncillor = GetBossByEntry(uiBossEntries[i], me->))
                         {
                             if(pCouncillor->IsAlive())
                             {
@@ -1350,7 +1349,7 @@ public:
                                 councillors.sort([](Creature const* first, Creature const* second) -> bool { return first->GetHealthPct() < second->GetHealthPct() ;});
 
                                 if(councillors.front())
-                                    uiBlessedLoaSpiritBossGUIDs.push_back(councillors.front()->GetGUID());
+                                    uiBlessedLoaSpiritBossGUIDs.push_back(councillors.front()->GetGUID().GetEntry());
 
                                 // Cast after having init the list to be sure the guid has been set
                                 DoCast(me, SPELL_BLESSED_LOA_SPIRIT);
@@ -1361,7 +1360,7 @@ public:
                                 // the event if there is no other boss than Mar'li alive.
                                 break;
                             }
-                        }
+                        }*/
                     }
                     break;
 
@@ -1398,7 +1397,7 @@ public:
                         // guid of a randomly chosen target in the playerList to the
                         // summoned creature.
                         if(Player *pPlayer = Trinity::Containers::SelectRandomContainerElement(playerList))
-                            uiShadowedSpiritPlayerGUIDs.push_back(pPlayer->GetGUID());
+                            uiShadowedSpiritPlayerGUIDs.push_back(pPlayer->GetGUID().GetEntry());
 
                         DoCast(me, SPELL_SHADOWED_LOA_SPIRIT);
                         events.ScheduleEvent(EVENT_SHADOWED_LOA_SPIRIT, urand(15, 25) * IN_MILLISECONDS);
@@ -1556,7 +1555,7 @@ public:
                     if(Creature *pSoul = me->SummonCreature(MOB_GARA_JALS_SOUL, *me))
                     {
                         pSoul->AI()->DoAction(ACTION_ENTER_COMBAT);
-                        pInstance->SetData64(MOB_GARA_JALS_SOUL, pSoul->GetGUID());
+                        pInstance->SetData64(MOB_GARA_JALS_SOUL, pSoul->GetGUID().GetEntry());
                     }
                     break;
                     
@@ -1960,7 +1959,7 @@ public:
             if(pSummoner && pSummoner->GetAI())
             {
                 uiTargetGuid = pSummoner->GetAI()->GetGUID(DATA_BLESSED_LOA_SPIRIT_TARGET_GUID);
-                if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, uiTargetGuid))
+                if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, GetGUID(uiTargetGuid)))
                     me->GetMotionMaster()->MovePoint(POINT_BLESSED_LOA_SPIRIT_COUNCILLOR, *pCouncillor);
 
                 events.ScheduleEvent(EVENT_BLESSED_GIFT, 20 * IN_MILLISECONDS);
@@ -1989,7 +1988,7 @@ public:
                 switch(uiEventId)
                 {
                 case EVENT_BLESSED_GIFT:
-                    if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, uiTargetGuid))
+                    if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, GetGUID(uiTargetGuid)))
                     {
                         DoCast(me, SPELL_BLESSED_TIME_OUT);
                         me->GetMotionMaster()->MovementExpired();
@@ -2010,7 +2009,7 @@ public:
             case POINT_MOTION_TYPE:
                 if(uiMotionPointId == POINT_BLESSED_LOA_SPIRIT_COUNCILLOR)
                 {
-                    if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, uiTargetGuid))
+                    if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, GetGUID(uiTargetGuid)))
                     {
                         if(me->GetExactDist2d(pCouncillor) <= 3.0f)
                         {
@@ -2026,7 +2025,7 @@ public:
             case EFFECT_MOTION_TYPE:
                 if(uiMotionPointId == EVENT_JUMP)
                 {
-                    if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, uiTargetGuid))
+                    if(Creature *pCouncillor = ObjectAccessor::GetCreature(*me, GetGUID(uiTargetGuid)))
                     {
                         DoCast(pCouncillor, SPELL_BLESSED_GIFT);
                         me->DisappearAndDie();
@@ -2078,7 +2077,7 @@ public:
             if(pSummoner && pSummoner->GetAI())
             {
                 uiTargetGuid = pSummoner->GetAI()->GetGUID(DATA_SHADOWED_LOA_SPIRIT_TARGET_GUID);
-                if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, uiTargetGuid))
+                if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, GetGUID(uiTargetGuid)))
                 {
                     me->GetMotionMaster()->MoveFollow(pPlayer, 0.0f, 0.0f);
                     DoCast(pPlayer, SPELL_MARKED_SOUL);
@@ -2090,7 +2089,7 @@ public:
 
         void UpdateAI(uint32 uiDiff)
         {
-            Player *pPlayer = ObjectAccessor::GetPlayer(*me, uiTargetGuid);
+            Player *pPlayer = ObjectAccessor::GetPlayer(*me, GetGUID(uiTargetGuid));
             if(pPlayer && me->GetExactDist2d(pPlayer) <= 6.0f)
             {
                 DoCast(pPlayer, SPELL_SHADOWED_GIFT);
@@ -2104,7 +2103,7 @@ public:
                 switch(uiEventId)
                 {
                 case EVENT_SHADOWED_GIFT:
-                    if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, uiTargetGuid))
+                    if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, GetGUID(uiTargetGuid)))
                     {
                         DoCast(me, SPELL_SHADOWED_TIME_OUT);
                         me->GetMotionMaster()->MoveJump(*pPlayer, 42.0f, 42.0f, EVENT_JUMP);
@@ -2121,7 +2120,7 @@ public:
         {
             if(uiMotionType == EFFECT_MOTION_TYPE && uiMotionPointId == EVENT_JUMP)
             {
-                if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, uiTargetGuid))
+                if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, GetGUID(uiTargetGuid)))
                 {
                     DoCast(pPlayer, SPELL_SHADOWED_GIFT);
                     me->DisappearAndDie();
@@ -2131,7 +2130,7 @@ public:
         
         void JustDied(Unit *pKiller)
         {
-            if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, uiTargetGuid))
+            if(Player *pPlayer = ObjectAccessor::GetPlayer(*me, GetGUID(uiTargetGuid)))
                 pPlayer->RemoveAurasDueToSpell(SPELL_MARKED_SOUL);
         }
 
@@ -2201,8 +2200,8 @@ public:
                 pFate->uiSecondPlayerGuid = uiPlayerGuid;
                 pFate->uiSecondTwistedFateGuid = uiFateGuid;
 
-                Creature    *pFirst     = ObjectAccessor::GetCreature(*me, pFate->uiFirstTwistedFateGuid),
-                            *pSecond    = ObjectAccessor::GetCreature(*me, pFate->uiSecondTwistedFateGuid);
+                Creature    *pFirst     = ObjectAccessor::GetCreature(*me, GetGUID(pFate->uiFirstTwistedFateGuid)),
+                            *pSecond    = ObjectAccessor::GetCreature(*me, GetGUID(pFate->uiSecondTwistedFateGuid));
 
                 if(!pFirst || !pSecond)
                     return;
@@ -2300,7 +2299,7 @@ public:
         // Add a new TwistedFate_t to the helper
         void IsSummonedBy(Unit *pSummoner)
         {
-            Creature *pHelper = ObjectAccessor::GetCreature(*me, pInstance->GetData64(NPC_TWISTED_FATE_HELPER));
+            Creature *pHelper = ObjectAccessor::GetCreature(*me, pInstance->GetObjectGuid(NPC_TWISTED_FATE_HELPER));
             if(!pHelper)
             {
                 me->DisappearAndDie();
@@ -2324,7 +2323,7 @@ public:
 
             // Finalize it with the second npc and launch everything
             case MOB_TWISTED_FATE_SECOND:
-                pHelperAI->Link(pSummoner ? pSummoner->GetGUID() : 0, me->GetGUID());
+                pHelperAI->Link(pSummoner ? pSummoner->GetGUID().GetEntry() : 0, me->GetGUID().GetEntry());
                 break;
             }
         }
@@ -2341,16 +2340,16 @@ public:
             // of the helper.
             if(bOtherTwistedFateDied)
             {
-                if(Creature *pHelper = ObjectAccessor::GetCreature(*me, pInstance->GetData64(NPC_TWISTED_FATE_HELPER)))
+                if(Creature *pHelper = ObjectAccessor::GetCreature(*me, pInstance->GetObjectGuid(NPC_TWISTED_FATE_HELPER)))
                 {
                     if(TwistedFateHelperAI *pHelperAI = dynamic_cast<TwistedFateHelperAI*>(pHelper->AI()))
-                        pHelperAI->Unlink(me->GetGUID());
+                        pHelperAI->Unlink(me->GetGUID().GetEntry());
                 }
             }
             else
             {
                 // When a Twisted Fate dies, the other stops and then begins to cast an AOE every 3 seconds
-                if(Creature *pOther = ObjectAccessor::GetCreature(*me, uiOtherTwistedFateGuid))
+                if(Creature *pOther = ObjectAccessor::GetCreature(*me, GetGUID(uiOtherTwistedFateGuid)))
                     pOther->AI()->DoAction(ACTION_OTHER_TWISTED_FATE_DIED);
             }
 
@@ -2410,7 +2409,7 @@ public:
     
     class spell_garajal_possessed_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_garajal_possessed_AuraScript)
+        PrepareAuraScript(spell_garajal_possessed_AuraScript);
         
         void HandleApply(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
@@ -2471,7 +2470,7 @@ public:
 
     class spell_malakk_frigid_assault_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_malakk_frigid_assault_AuraScript)
+        PrepareAuraScript(spell_malakk_frigid_assault_AuraScript);
 
         void HandleEffectApply(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
@@ -2511,7 +2510,7 @@ public:
 
     class spell_malakk_biting_cold_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malakk_biting_cold_SpellScript)
+        PrepareSpellScript(spell_malakk_biting_cold_SpellScript);
 
         void HandleEffectHitTarget(SpellEffIndex effIndex)
         {
@@ -2547,7 +2546,7 @@ public:
 
     class spell_malakk_frostbite_periodic_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_malakk_frostbite_periodic_AuraScript)
+        PrepareAuraScript(spell_malakk_frostbite_periodic_AuraScript);
 
         void HandlePeriodic(AuraEffect const* pAuraEffect)
         {
@@ -2565,11 +2564,11 @@ public:
 
                 uint32 uiReduceAmount = 0;
 
-                switch(pOwner->GetMap()->GetDifficulty())
+                switch(pOwner->GetMap()->GetDifficultyID())
                 {
                 // In 25-man raid, the amount is 1 * number of players within 4 yards
-                case RAID_DIFFICULTY_25MAN_HEROIC:
-                case RAID_DIFFICULTY_25MAN_NORMAL:
+                case DIFFICULTY_25_HC:
+                case DIFFICULTY_25_N:
                     uiReduceAmount = playerList.size() > 4 ? 4 : playerList.size();
                     break;
 
@@ -2608,7 +2607,7 @@ public:
 
     class spell_malakk_frostbite_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malakk_frostbite_SpellScript)
+        PrepareSpellScript(spell_malakk_frostbite_SpellScript);
 
         // Handler to select target (cause TARGET_UNIT_SRC_AREA_ENTRY doesn't work fine)
         void SelectTarget(std::list<WorldObject*>& targets)
@@ -2658,7 +2657,7 @@ public:
 
     class spell_malakk_frostbite_allies_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malakk_frostbite_allies_SpellScript)
+        PrepareSpellScript(spell_malakk_frostbite_allies_SpellScript);
         
         void FilterTargets(std::list<WorldObject*>& targets)
         {
@@ -2700,7 +2699,7 @@ public:
 
     class spell_malakk_body_heat_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_malakk_body_heat_SpellScript)
+        PrepareSpellScript(spell_malakk_body_heat_SpellScript);
 
         void SelectTargets(std::list<WorldObject*>& targets)
         {
@@ -2731,7 +2730,7 @@ public:
 
     class spell_malakk_body_heat_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_malakk_body_heat_AuraScript)
+        PrepareAuraScript(spell_malakk_body_heat_AuraScript);
 
         void HandleEffectRemove(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
@@ -2763,7 +2762,7 @@ public:
 
     class spell_kazrajin_reckless_charge_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_kazrajin_reckless_charge_SpellScript)
+        PrepareSpellScript(spell_kazrajin_reckless_charge_SpellScript);
 
         void HandleCast()
         {
@@ -2776,8 +2775,9 @@ public:
                         // Compute position of landing
                         float fDist = pKazrajin->GetExactDist2d(pChargeTarget) - 5.0f; // Remove 5 yards to continue rolling
                         float fAngle = pKazrajin->GetOrientation();
-                        float fX, fY;
-                        GetPositionWithDistInOrientation(pKazrajin, fDist, fAngle, fX, fY);
+                        float fX=0.0f, fY=0.0f;
+                        //GetPositionWithDistInOrientation(pKazrajin, fDist, fAngle, fX, fY);
+
 
                         pKazrajin->GetMotionMaster()->MoveJump(fX, fY, pChargeTarget->GetPositionZ(), 22.0f, 9.0f, POINT_RECKLESS_CHARGE_LAND);
                     }
@@ -2806,7 +2806,7 @@ public:
 
     class spell_kazrajin_overload_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_kazrajin_overload_AuraScript)
+        PrepareAuraScript(spell_kazrajin_overload_AuraScript);
 
         void HandleEffectApply(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
@@ -2829,7 +2829,8 @@ public:
 
                 if(Unit *pVictim = rProcInfo.GetActionTarget())
                 {
-                    pVictim->CastCustomSpell(pCaster, SPELL_OVERLOAD_DAMAGES, &uiDamages, NULL, NULL, NULL, NULL, NULL, true);
+                   // pVictim->CastCustomSpell(pCaster, SPELL_OVERLOAD_DAMAGES, &uiDamages, NULL, NULL, NULL, NULL, NULL, true);
+                    pVictim->CastSpell(pCaster, SPELL_OVERLOAD_DAMAGES, true);
                     pVictim->CastSpell(pCaster, SPELL_OVERLOAD_VISUAL, true);
                 }
             }
@@ -2870,7 +2871,7 @@ public:
 
     class spell_kazrajin_discharge_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_kazrajin_discharge_AuraScript)
+        PrepareAuraScript(spell_kazrajin_discharge_AuraScript);
 
         void HandleEffectApply(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
@@ -2892,7 +2893,7 @@ public:
                 int32 uiDamagesInPastSecs = (int32)pOwner->AI()->GetData(DATA_DAMAGES_PAST_SEC) * 0.05f; // 5% of damages taken in past sec
                 pOwner->AI()->DoAction(ACTION_RESET_DAMAGES);
 
-                pOwner->CastCustomSpell(pOwner, SPELL_DISCHARGE_DAMAGES, &uiDamagesInPastSecs, NULL, NULL, NULL, NULL, NULL, true);
+               // pOwner->CastCustomSpell(pOwner, SPELL_DISCHARGE_DAMAGES, &uiDamagesInPastSecs, NULL, NULL, NULL, NULL, NULL, true);
                 pOwner->AI()->DoCastAOE(SPELL_DISCHARGE_VISUAL);
             }
         }
@@ -2930,7 +2931,7 @@ public:
 
     class spell_quicksand_periodic_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_quicksand_periodic_AuraScript)
+        PrepareAuraScript(spell_quicksand_periodic_AuraScript);
 
         void HandlePeriodic(AuraEffect const* pAuraEffect)
         {
@@ -2942,7 +2943,7 @@ public:
             {
                 std::list<Creature*> quicksandsList;
                 pOwner->GetCreatureListWithEntryInGrid(quicksandsList, NPC_QUICKSAND_STALKER, 400.0f);
-                quicksandsList.sort(Trinity::DistanceCompareOrderPred(pOwner, true));
+               // quicksandsList.sort(Trinity::DistanceCompareOrderPred(pOwner, true));
 
                 // Remove quicksands that are not so close
                 quicksandsList.remove_if([pOwner](Creature const* quicksand) -> bool
@@ -3012,7 +3013,7 @@ public:
 
     class spell_quicksand_entrapped_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_quicksand_entrapped_SpellScript)
+        PrepareSpellScript(spell_quicksand_entrapped_SpellScript);
 
         void HandleAdditionalSpell(SpellEffIndex eEffIndex)
         {
@@ -3040,7 +3041,7 @@ public:
 
     class spell_sul_sandstorm_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_sul_sandstorm_SpellScript)
+        PrepareSpellScript(spell_sul_sandstorm_SpellScript);
 
         void HandleAfterCast()
         {
@@ -3081,7 +3082,7 @@ public:
 
     class spell_marli_summon_blessed_loa_spirit_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_marli_summon_blessed_loa_spirit_SpellScript)
+        PrepareSpellScript(spell_marli_summon_blessed_loa_spirit_SpellScript);
 
         void HandleDummy(SpellEffIndex eEffIndex)
         {
@@ -3110,7 +3111,7 @@ public:
 
     class spell_marli_summon_shadowed_loa_spirit_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_marli_summon_shadowed_loa_spirit_SpellScript)
+        PrepareSpellScript(spell_marli_summon_shadowed_loa_spirit_SpellScript);
 
         void HandleDummy(SpellEffIndex eEffIndex)
         {
@@ -3139,7 +3140,7 @@ public:
 
     class spell_marli_twisted_fate_first_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_marli_twisted_fate_first_SpellScript)
+        PrepareSpellScript(spell_marli_twisted_fate_first_SpellScript);
 
         void SelectTarget(std::list<WorldObject*>& targets)
         {
@@ -3177,7 +3178,7 @@ public:
 
     class spell_marli_twisted_fate_second_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_marli_twisted_fate_second_SpellScript)
+        PrepareSpellScript(spell_marli_twisted_fate_second_SpellScript);
 
         void SelectTarget(std::list<WorldObject*>& targets)
         {
@@ -3187,7 +3188,7 @@ public:
             // Find the fathest player
             std::list<Player*> playerList;
             GetCaster()->GetPlayerListInGrid(playerList, 500.0f);
-            playerList.sort(Trinity::DistanceCompareOrderPred(GetCaster(), false));
+            //playerList.sort(Trinity::DistanceCompareOrderPred(GetCaster(), false));
 
             if(!playerList.empty() && playerList.front())
             {
@@ -3217,7 +3218,7 @@ public:
     
     class spell_marli_twisted_fate_damages_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_marli_twisted_fate_damages_AuraScript)
+        PrepareAuraScript(spell_marli_twisted_fate_damages_AuraScript);
         
         void CalculateAmount(AuraEffect const* pAuraEffect, int32 &ruiAmount, bool &rbCanBeRecalculated)
         {
@@ -3262,7 +3263,7 @@ public:
     
     class spell_dark_power_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dark_power_SpellScript)
+        PrepareSpellScript(spell_dark_power_SpellScript);
         
         void HandleHitTarget(SpellEffIndex eEffectIndex)
         {
@@ -3273,7 +3274,7 @@ public:
                     if(CreatureAI *pAI = pCaster->AI())
                     {
                         uint32 const uiDarkPowerCount   = pAI->GetData(DATA_DARK_POWER_COUNT);
-                        int32 iCustomValue              = GetSpellInfo()->Effects[(uint32)eEffectIndex].BasePoints;;
+                        int32 iCustomValue              = GetSpellInfo()->GetEffect(eEffectIndex)->BasePoints;
                         
                         // Add 10% for each stack of Dark Power
                         for(uint32 i = 0; i < uiDarkPowerCount; ++i)
@@ -3306,7 +3307,7 @@ public:
     
     class spell_soul_fragment_target_selector_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_soul_fragment_target_selector_SpellScript)
+        PrepareSpellScript(spell_soul_fragment_target_selector_SpellScript);
         
         void SelectTarget(std::list<WorldObject*>& targets)
         {
@@ -3344,7 +3345,7 @@ public:
     
     class spell_soul_fragment_switcher_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_soul_fragment_switcher_SpellScript)
+        PrepareSpellScript(spell_soul_fragment_switcher_SpellScript);
         
         void HandleHitTarget(SpellEffIndex eEffIndex)
         {
