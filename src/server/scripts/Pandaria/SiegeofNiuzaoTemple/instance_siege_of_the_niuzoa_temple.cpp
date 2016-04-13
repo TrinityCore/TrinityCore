@@ -40,16 +40,16 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_JINBAK:
-                    jinbakGuid = creature->GetGUID();
+                    jinbakGuid = creature->GetGUID().GetEntry();
                     break;
                 case NPC_VOJAK:
-                    vojakGuid = creature->GetGUID();
+                    vojakGuid = creature->GetGUID().GetEntry();
                     break;
                 case NPC_PAVALAK:
-                    pavalakGuid = creature->GetGUID();
+                    pavalakGuid = creature->GetGUID().GetEntry();
                     break;
                 case NPC_NERONOK:
-                    neronokGuid = creature->GetGUID();
+                    neronokGuid = creature->GetGUID().GetEntry();
                     break;
             }
         }
