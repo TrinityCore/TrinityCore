@@ -394,7 +394,7 @@ public:
 
                 if (TempSummon* temp = me->SummonCreature(54130, me->GetPositionX()-3+rand()%6, me->GetPositionY() + 4 + rand()%4, me->GetPositionZ()+2, 3.3f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                 {
-                    guidMob[i] = temp->GetGUID();
+                    guidMob[i] = temp->GetGUID().GetEntry();
 
                     temp->SetFacingToObject(me);
                     temp->HandleEmoteCommand(EMOTE_STATE_READY2H);
@@ -857,7 +857,7 @@ public:
             {
                 victim->ToPlayer()->SetQuestStatus(QUEST_PARCHEMIN_VOLANT, QUEST_STATUS_FAILED);
 
-                if (victim->GetGUID() == playerGuid)
+                if (victim->GetGUID().GetEntry() == playerGuid)
                     me->DespawnOrUnsummon(3000);
             }
         }
