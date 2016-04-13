@@ -93,7 +93,7 @@ public:
                 if (dohaman->AI())
                     dohaman->AI()->Talk(SAY_DOHAMAN_INTRO);
 
-                dohamanGUID = dohaman->GetGUID();
+                dohamanGUID = dohaman->GetGUID().GetEntry();
             }
         }
 
