@@ -1433,7 +1433,7 @@ public:
         }
 
         // Override function to return the GUIDs of the targets for the Loa Spirits.
-        uint64 GetGUID(int32 iIndex) const
+       /* uint64 GetGUID(int32 iIndex) const
         {
             switch(iIndex)
             {
@@ -1454,7 +1454,7 @@ public:
             default:
                 return 0;
             }
-        }
+        }*/
 
         // Override JustDied() handler to clean the lists (it would use memory for nothing)
         void JustDied(Unit *pKiller)
