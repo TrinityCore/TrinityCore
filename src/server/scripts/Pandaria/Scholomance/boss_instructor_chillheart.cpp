@@ -38,7 +38,7 @@ public:
 
     struct boss_instructor_chillheartAI : public BossAI
     {
-        boss_instructor_chillheartAI(Creature* creature) : BossAI(creature, 59223)
+        boss_instructor_chillheartAI(Creature* creature) : BossAI(creature, 58633)
         {
         }
 

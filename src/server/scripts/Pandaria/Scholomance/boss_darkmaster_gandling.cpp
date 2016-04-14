@@ -28,14 +28,14 @@ enum Events
     EVENT_IMMOLATE = 1
 };
 
-class boss_rattlegore : public CreatureScript
+class boss_darkmaster_gandling : public CreatureScript
 {
 public:
-    boss_rattlegore() : CreatureScript("boss_rattlegore") { }
+    boss_darkmaster_gandling() : CreatureScript("boss_darkmaster_gandling") { }
 
-    struct boss_rattlegoreAI : public BossAI
+    struct boss_darkmaster_gandlingAI : public BossAI
     {
-        boss_rattlegoreAI(Creature* creature) : BossAI(creature, 59153)
+        boss_darkmaster_gandlingAI(Creature* creature) : BossAI(creature, 59153)
         {
         }
 
@@ -87,11 +87,11 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_rattlegoreAI(creature);
+        return new boss_darkmaster_gandlingAI(creature);
     }
 };
 
-void AddSC_boss_rattlegore()
+void AddSC_boss_darkmaster_gandling()
 {
-    new boss_rattlegore();
+    new boss_darkmaster_gandling();
 }

@@ -179,10 +179,22 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (116815,'spell_will_
 INSERT INTO spell_script_names (spell_id,ScriptName) values (117193,'spell_will_of_emperor_magnetic_armor_grip');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (116550,'spell_energizing_smash');
 
+-- Scarlet Halls
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_armsmaster_harlan' WHERE entry=58632;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_flameweaver_koegler' WHERE entry=59150;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_houndmaster_braun' WHERE entry=59303;
 
+-- Scarlet Monastery
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_brother_korloff' WHERE entry=59223;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_high_inquisitor_whitemane' WHERE entry=74366;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_thalnos_the_soulrender' WHERE entry=59789;
 
-
-
+-- Scholomance
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_darkmaster_gandling' WHERE entry=59153;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_instructor_chillheart' WHERE entry=58633;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_jandice_barov' WHERE entry=59184;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_lilian_voss' WHERE entry=74366;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_rattlegore' WHERE entry=59153;
 
 
 

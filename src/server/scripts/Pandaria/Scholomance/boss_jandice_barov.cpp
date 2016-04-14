@@ -35,7 +35,7 @@ public:
 
     struct boss_jandice_barovAI : public BossAI
     {
-        boss_jandice_barovAI(Creature* creature) : BossAI(creature, 59223)
+        boss_jandice_barovAI(Creature* creature) : BossAI(creature, 59184)
         {
         }
 
