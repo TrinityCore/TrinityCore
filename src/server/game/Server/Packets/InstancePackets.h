@@ -174,7 +174,6 @@ namespace WorldPackets
 
             ObjectGuid Unit;
             uint8 TargetFramePriority = 0; // used to set the initial position of the frame if multiple frames are sent
-
         };
 
         class InstanceEncounterDisengageUnit final : public ServerPacket
@@ -196,7 +195,6 @@ namespace WorldPackets
 
             ObjectGuid Unit;
             uint8 TargetFramePriority = 0; // used to update the position of the unit's current frame
-
         };
 
     }
