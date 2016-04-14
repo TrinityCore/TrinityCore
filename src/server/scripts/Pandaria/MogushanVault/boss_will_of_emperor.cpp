@@ -669,7 +669,7 @@ class spell_will_of_emperor_magnetic_armor_grip : public SpellScriptLoader
                 InstanceScript* pInstance = caster->GetInstanceScript();
 
                 //if (!pInstance)
-                    return;
+                    //return;
 
                 Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
 
