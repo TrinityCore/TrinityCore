@@ -344,7 +344,7 @@ void MySQLPreparedStatement::setString(const uint8 index, const char* value)
     CheckValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    size_t len = strlen(value) + 1;
+    uint32 len = uint32(strlen(value) + 1);
     param->buffer_type = MYSQL_TYPE_VAR_STRING;
     delete [] static_cast<char *>(param->buffer);
     param->buffer = new char[len];
