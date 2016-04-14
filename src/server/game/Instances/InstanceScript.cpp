@@ -596,7 +596,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             if (!unit)
                 return;
             WorldPackets::Instance::SendEncounterEngage encounterEngageMessage;
-            encounterEngageMessage.unit = unit;
+            encounterEngageMessage.guid = unit->GetGUID();
             encounterEngageMessage.priority = param1;
             instance->SendToPlayers(encounterEngageMessage.Write());
             break;
@@ -606,7 +606,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             if (!unit)
                 return;
             WorldPackets::Instance::SendEncounterDisengage encounterDisengageMessage;
-            encounterDisengageMessage.unit = unit;
+            encounterDisengageMessage.guid = unit->GetGUID();
             instance->SendToPlayers(encounterDisengageMessage.Write());
             break;
         }
@@ -615,7 +615,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             if (!unit)
                 return;
             WorldPackets::Instance::SendEncounterChangePriority encounterChangePriorityMessage;
-            encounterChangePriorityMessage.unit = unit;
+            encounterChangePriorityMessage.guid = unit->GetGUID();
             encounterChangePriorityMessage.priority = param1;
             instance->SendToPlayers(encounterChangePriorityMessage.Write());
             break;
@@ -627,7 +627,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             break;
         case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE
             //data << uint8(param1);
-            // data << uint8(param2);
+            //data << uint8(param2);
             break;
         default:
             break;

@@ -20,7 +20,6 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
-#include "Unit.h"
 
 namespace WorldPackets
 {
@@ -173,7 +172,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Unit* unit = nullptr;
+            ObjectGuid guid;
             uint8 priority = 0; // used to set the initial position of the frame if multiple frames are sent
 
         };
@@ -185,7 +184,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Unit* unit = nullptr;
+            ObjectGuid guid;
         };
 
         class SendEncounterChangePriority final : public ServerPacket
@@ -195,7 +194,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Unit* unit = nullptr;
+            ObjectGuid guid;
             uint8 priority = 0; // used to update the position of the unit's current frame
 
         };

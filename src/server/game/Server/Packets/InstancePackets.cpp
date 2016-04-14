@@ -120,7 +120,7 @@ WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
 
 WorldPacket const* WorldPackets::Instance::SendEncounterEngage::Write()
 {
-    _worldPacket << unit->GetPackGUID();
+    _worldPacket << guid;
     _worldPacket << uint8(priority);
 
     return &_worldPacket;
@@ -128,14 +128,14 @@ WorldPacket const* WorldPackets::Instance::SendEncounterEngage::Write()
 
 WorldPacket const* WorldPackets::Instance::SendEncounterDisengage::Write()
 {
-    _worldPacket << unit->GetPackGUID();
+    _worldPacket << guid;
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Instance::SendEncounterChangePriority::Write()
 {
-    _worldPacket << unit->GetPackGUID();
+    _worldPacket << guid;
     _worldPacket << uint8(priority);
 
     return &_worldPacket;
