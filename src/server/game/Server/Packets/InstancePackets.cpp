@@ -140,5 +140,3 @@ WorldPacket const* WorldPackets::Instance::InstanceEncounterChangePriority::Writ
 
     return &_worldPacket;
 }
-
-
