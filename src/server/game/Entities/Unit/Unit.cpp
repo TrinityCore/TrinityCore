@@ -986,7 +986,7 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     CastSpell(targets, spellInfo, NULL, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit, bool multistrike /*= false*/)
 {
     if (damage < 0)
         return;
@@ -1016,6 +1016,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 {
                     // Get blocked status
                     blocked = isSpellBlocked(victim, spellInfo, attackType);
+                }
+
+                if (multistrike)
+                {
+                    damageInfo->HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                    damage = CalculateMultistrikeAmount(victim, damage);
                 }
 
                 if (crit)
@@ -1061,6 +1067,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             case SPELL_DAMAGE_CLASS_NONE:
             case SPELL_DAMAGE_CLASS_MAGIC:
             {
+                if (multistrike)
+                {
+                    damageInfo->HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                    damage = CalculateMultistrikeAmount(victim, damage);
+                }
+
                 // If crit add critical bonus
                 if (crit)
                 {
@@ -1118,7 +1130,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilit
 }
 
 /// @todo for melee need create structure as in
-void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType)
+void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType, bool multistrike /*=false*/)
 {
     damageInfo->attacker         = this;
     damageInfo->target           = victim;
@@ -1188,7 +1200,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     else
         damageInfo->damage = damage;
 
-    damageInfo->hitOutCome = RollMeleeOutcomeAgainst(damageInfo->target, damageInfo->attackType);
+    damageInfo->hitOutCome = RollMeleeOutcomeAgainst(damageInfo->target, damageInfo->attackType, multistrike);
 
     switch (damageInfo->hitOutCome)
     {
@@ -1273,6 +1285,40 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             // 150% normal damage
             damageInfo->damage += (damageInfo->damage / 2);
             break;
+        case MELEE_HIT_MULTISTRIKE:
+            damageInfo->HitInfo     |= HITINFO_MULTISTRIKE;
+            damageInfo->TargetState  = VICTIMSTATE_HIT;
+            damageInfo->procEx      |= PROC_EX_MULTISTRIKE_HIT;
+
+            // Multi bonus calc
+            damageInfo->damage = CalculateMultistrikeAmount(victim, damageInfo->damage);
+            break;
+        case MELEE_HIT_MULTI_CRIT:
+        {
+            damageInfo->HitInfo     |= HITINFO_CRITICALHIT;
+            damageInfo->HitInfo     |= HITINFO_MULTISTRIKE;
+            damageInfo->TargetState  = VICTIMSTATE_HIT;
+            damageInfo->procEx      |= PROC_EX_MULTI_CRIT_HIT;
+
+            // Multi bonus calc
+            damageInfo->damage = CalculateMultistrikeAmount(victim, damageInfo->damage);
+
+            // Crit bonus calc
+            damageInfo->damage += damageInfo->damage;
+            float mod = 0.0f;
+            // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
+            if (damageInfo->attackType == RANGED_ATTACK)
+                mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
+            else
+                mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
+
+            // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
+            mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->damageSchoolMask) - 1.0f) * 100;
+
+            if (mod != 0)
+                AddPct(damageInfo->damage, mod);
+            break;
+        }
         default:
             break;
     }
@@ -1904,15 +1950,29 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
         CalculateMeleeDamage(victim, 0, &damageInfo, attType);
         // Send log damage message to client
         DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
-        SendAttackStateUpdate(&damageInfo);
 
         //TriggerAurasProcOnEvent(damageInfo);
         ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
 
         DealMeleeDamage(&damageInfo, true);
+        SendAttackStateUpdate(&damageInfo);
 
         TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: %s attacked %s for %u dmg, absorbed %u, blocked %u, resisted %u.",
             GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+
+        if (Player* player = this->ToPlayer())
+        {
+            if (player->IsSpellMultistrike(victim, nullptr))
+            {
+                MeleeDelayedMultistrikeDamage* multiEvent = new MeleeDelayedMultistrikeDamage(this, victim->GetGUID(), attType, 1);
+                m_Events.AddEvent(multiEvent, m_Events.CalculateTime(500 * 0));
+            }
+            if (player->IsSpellMultistrike(victim, nullptr, true))
+            {
+                MeleeDelayedMultistrikeDamage* multiEvent = new MeleeDelayedMultistrikeDamage(this, victim->GetGUID(), attType, 2);
+                m_Events.AddEvent(multiEvent, m_Events.CalculateTime(500 * 1));
+            }
+        }
     }
 }
 
@@ -1925,7 +1985,7 @@ void Unit::HandleProcExtraAttackFor(Unit* victim)
     }
 }
 
-MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const
+MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType, bool multistrike /*= false*/) const
 {
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
@@ -1952,6 +2012,18 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
         roll, miss_chance, dodge_chance, parry_chance, block_chance, crit_chance);
 
     tmp = miss_chance;
+
+    // Roll checks for multistrike
+    if (multistrike)
+    {
+        // Critical chance
+        tmp = crit_chance;
+
+        if (tmp > 0 && roll < (sum += tmp))
+            return MELEE_HIT_MULTI_CRIT;
+        else
+            return MELEE_HIT_MULTISTRIKE;
+    }
 
     if (tmp > 0 && roll < (sum += tmp))
     {
@@ -4855,6 +4927,36 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     SendCombatLogMessage(&packet);
 }
 
+void Unit::SendSpellMultistrikeEffect(SpellNonMeleeDamage const* log, int16 procNum)
+{
+    WorldPackets::Spells::SpellMultistrikeEffect packet;
+    packet.CasterGUID = log->attacker->GetGUID();
+    packet.TargetGUID = log->target->GetGUID();
+    packet.SpellID = log->SpellID;
+    if (SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(log->SpellID))
+        packet.SpellXSpellVisualID = spellproto->GetSpellXSpellVisualId(DIFFICULTY_NONE);
+    else
+        packet.SpellXSpellVisualID = 0;
+    packet.ProcCount = procNum;
+    packet.ProcNum = 2;
+    SendMessageToSet(packet.Write(), true);
+}
+
+void Unit::SendSpellMultistrikeEffect(ObjectGuid caster, ObjectGuid target, uint32 spellID, uint16 procNum)
+{
+    WorldPackets::Spells::SpellMultistrikeEffect packet;
+    packet.CasterGUID = caster;
+    packet.TargetGUID = target;
+    packet.SpellID = spellID;
+    if (SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(spellID))
+        packet.SpellXSpellVisualID = spellproto->GetSpellXSpellVisualId(DIFFICULTY_NONE);
+    else
+        packet.SpellXSpellVisualID = 0;
+    packet.ProcCount = procNum;
+    packet.ProcNum = 2;
+    SendMessageToSet(packet.Write(), true);
+}
+
 void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVictim, uint32 procExtra, uint32 amount, WeaponAttackType attType, SpellInfo const* procSpell, SpellInfo const* procAura)
 {
      // Not much to do if no flags are set.
@@ -4875,7 +4977,6 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     data.SpellID = aura->GetId();
     data.LogData.Initialize(this);
 
-    /// @todo: should send more logs in one packet when multistrike
     WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffect;
     spellLogEffect.Effect = aura->GetAuraType();
     spellLogEffect.Amount = info->damage;
@@ -4884,10 +4985,40 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     spellLogEffect.AbsorbedOrAmplitude = info->absorb;
     spellLogEffect.Resisted = info->resist;
     spellLogEffect.Crit = info->critical;
-    spellLogEffect.Multistrike = false; // NYI
+    spellLogEffect.Multistrike = false;
     /// @todo: implement debug info
 
     data.Effects.push_back(spellLogEffect);
+
+    if (info->multiInfo1 && info->multiInfo1->hit)
+    {
+        WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffectMultistrike;
+        spellLogEffectMultistrike.Effect = aura->GetAuraType();
+        spellLogEffectMultistrike.Amount = info->multiInfo1->amount;
+        spellLogEffectMultistrike.OverHealOrKill = info->multiInfo1->overAmount;
+        spellLogEffectMultistrike.SchoolMaskOrPower = aura->GetSpellInfo()->GetSchoolMask();
+        spellLogEffectMultistrike.AbsorbedOrAmplitude = info->multiInfo1->absorb;
+        spellLogEffectMultistrike.Resisted = info->multiInfo1->resist;
+        spellLogEffectMultistrike.Crit = info->multiInfo1->critical;
+        spellLogEffectMultistrike.Multistrike = true;
+
+        data.Effects.push_back(spellLogEffectMultistrike);
+    }
+
+    if (info->multiInfo2 && info->multiInfo2->hit)
+    {
+        WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffectMultistrike;
+        spellLogEffectMultistrike.Effect = aura->GetAuraType();
+        spellLogEffectMultistrike.Amount = info->multiInfo2->amount;
+        spellLogEffectMultistrike.OverHealOrKill = info->multiInfo2->overAmount;
+        spellLogEffectMultistrike.SchoolMaskOrPower = aura->GetSpellInfo()->GetSchoolMask();
+        spellLogEffectMultistrike.AbsorbedOrAmplitude = info->multiInfo2->absorb;
+        spellLogEffectMultistrike.Resisted = info->multiInfo2->resist;
+        spellLogEffectMultistrike.Crit = info->multiInfo2->critical;
+        spellLogEffectMultistrike.Multistrike = true;
+
+        data.Effects.push_back(spellLogEffectMultistrike);
+    }
 
     SendCombatLogMessage(&data);
 }
@@ -8135,7 +8266,7 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit)
+void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit, bool multistrike)
 {
     WorldPackets::CombatLog::SpellHealLog spellHealLog;
 
@@ -8151,6 +8282,7 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 
     spellHealLog.Absorbed = absorbed;
 
     spellHealLog.Crit = crit;
+    spellHealLog.Multistrike = multistrike;
 
     /// @todo: 6.x Has to be implemented
     /*
@@ -8174,14 +8306,14 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 
     SendCombatLogMessage(&spellHealLog);
 }
 
-int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical)
+int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical, bool multistrike)
 {
     uint32 absorb = 0;
     // calculate heal absorb and reduce healing
     CalcHealAbsorb(victim, spellInfo, addHealth, absorb);
 
     int32 gain = DealHeal(victim, addHealth);
-    SendHealSpellLog(victim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical);
+    SendHealSpellLog(victim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical, multistrike);
     return gain;
 }
 
@@ -8205,6 +8337,25 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers po
     victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
 
     SendEnergizeSpellLog(victim, spellId, damage, powerType);
+}
+
+uint32 Unit::CalculateMultistrikeAmount(Unit* victim, int32 baseAmount)
+{
+    // Player totems benefit from player auras
+    if (IsTotem() && GetOwnerGUID().IsPlayer() && GetOwner())
+        return GetOwner()->CalculateMultistrikeAmount(victim, baseAmount);
+
+    // Hack for Storm, Fire and Earth elementals
+    if ((GetEntry() == 77936 || GetEntry() == 15352 || GetEntry() == 15438) && GetOwnerGUID().IsPlayer() && GetOwner())
+        return GetOwner()->CalculateMultistrikeAmount(victim, baseAmount);
+
+    uint32 amount = baseAmount;
+    float multiMod = 30.0f;
+    // Add modifiers from SPELL_AURA_MOD_MULTISTRIKE_DMG_PCT
+    int32 auraMod = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_DMG_PCT);
+    multiMod += CalculatePct(multiMod, auraMod);
+    amount = CalculatePct(amount, multiMod);
+    return amount;
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack) const
@@ -8636,6 +8787,34 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
             TakenAdvertisedBenefit += (*i)->GetAmount();
 
     return TakenAdvertisedBenefit;
+}
+
+bool Unit::IsSpellMultistrike(Unit* victim, SpellInfo const* spellProto, bool secondHit /*= false*/) const
+{
+    return roll_chance_f(GetUnitSpellMultistrikeChance(victim, spellProto, secondHit));
+}
+
+float Unit::GetUnitSpellMultistrikeChance(Unit* victim, SpellInfo const* spellProto, bool secondHit /*= false*/) const
+{
+    // Player totems can multistrike with the player's multistrike chance
+    if (IsTotem() && GetOwnerGUID().IsPlayer() && GetOwner())
+        return GetOwner()->GetUnitSpellMultistrikeChance(victim, spellProto, secondHit);
+
+    // Hack for Storm/Earth/Fire Elemental
+    if ((GetEntry() == 77936 || GetEntry() == 15352 || GetEntry() == 15438) && GetOwnerGUID().IsPlayer() && GetOwner())
+        return GetOwner()->GetUnitSpellMultistrikeChance(victim, spellProto, secondHit);
+
+    // Creatures cannot multistrike with spells
+    if (GetGUID().IsCreatureOrVehicle())
+        return 0.0f;
+
+    // If a spell can crit, it can multistrike
+    if (spellProto && spellProto->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+        return 0.0f;
+
+    float multi_chance = GetFloatValue(PLAYER_MULTISTRIKE);
+
+    return multi_chance > 0.0f ? multi_chance : 0.0f;
 }
 
 bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
@@ -12269,8 +12448,15 @@ uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missC
         // On absorb
         if (damageInfo->absorb)
             procEx|=PROC_EX_ABSORB;
+        // On crit + multistrike
+        if (damageInfo->HitInfo & SPELL_HIT_TYPE_MULTISTRIKE &&
+            damageInfo->HitInfo & SPELL_HIT_TYPE_CRIT)
+            procEx|=PROC_EX_MULTI_CRIT_HIT;
+        // On multi
+        else if (damageInfo->HitInfo & SPELL_HIT_TYPE_MULTISTRIKE)
+            procEx|=PROC_EX_MULTISTRIKE_HIT;
         // On crit
-        if (damageInfo->HitInfo & SPELL_HIT_TYPE_CRIT)
+        else if (damageInfo->HitInfo & SPELL_HIT_TYPE_CRIT)
             procEx|=PROC_EX_CRITICAL_HIT;
         else
             procEx|=PROC_EX_NORMAL_HIT;

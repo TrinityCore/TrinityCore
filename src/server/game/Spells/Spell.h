@@ -919,4 +919,62 @@ class TC_GAME_API SpellEvent : public BasicEvent
     protected:
         Spell* m_Spell;
 };
+
+class TC_GAME_API SpellDelayedMultistrikeDamage : public BasicEvent
+{
+    public:
+        SpellDelayedMultistrikeDamage(Unit* _caster, ObjectGuid _target, int32 _amount, WeaponAttackType _attackType, uint32 _spellID, uint16 _hit,
+            uint32 _procAttacker, uint32 _procVictim, uint32 _procEx, bool _canEffectTrigger, SpellMissInfo _missInfo, SpellInfo const* _triggeredByAuraSpell);
+
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+    protected:
+        Unit* m_caster;
+        ObjectGuid m_target;
+        int32 m_amount;
+        WeaponAttackType m_attackType;
+        uint32 m_spellID;
+        uint16 m_hit;
+        uint32 m_procAttacker;
+        uint32 m_procVictim;
+        uint32 m_procEx;
+        bool m_canEffectTrigger;
+        SpellMissInfo m_missInfo;
+        SpellInfo const* m_triggeredByAuraSpell;
+};
+
+class TC_GAME_API SpellDelayedMultistrikeHeal : public BasicEvent
+{
+    public:
+        SpellDelayedMultistrikeHeal(Unit* _caster, ObjectGuid _target, int32 _amount, WeaponAttackType _attackType, uint32 _spellID, uint16 _hit,
+            uint32 _procAttacker, uint32 _procVictim, uint32 _procEx, bool _canEffectTrigger, SpellMissInfo _missInfo, SpellInfo const* _triggeredByAuraSpell);
+
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+    protected:
+        Unit* m_caster;
+        ObjectGuid m_target;
+        int32 m_amount;
+        WeaponAttackType m_attackType;
+        uint32 m_spellID;
+        uint16 m_hit;
+        uint32 m_procAttacker;
+        uint32 m_procVictim;
+        uint32 m_procEx;
+        bool m_canEffectTrigger;
+        SpellMissInfo m_missInfo;
+        SpellInfo const* m_triggeredByAuraSpell;
+};
+
+class TC_GAME_API MeleeDelayedMultistrikeDamage : public BasicEvent
+{
+    public:
+        MeleeDelayedMultistrikeDamage(Unit* _caster, ObjectGuid _target, WeaponAttackType _attackType, uint16 _hit);
+    
+        virtual bool Execute(uint64 e_time, uint32 p_time) override;
+    protected:
+        Unit* m_caster;
+        ObjectGuid m_target;
+        WeaponAttackType m_attackType;
+        uint16 m_hit;
+};
+
 #endif

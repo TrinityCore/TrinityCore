@@ -369,7 +369,10 @@ enum HitInfo
     // 0x00100000
     HITINFO_SWINGNOHITSOUND     = 0x00200000,               // unused?
     // 0x00400000
-    HITINFO_RAGE_GAIN           = 0x00800000
+    HITINFO_RAGE_GAIN           = 0x00800000,
+    // 0x0100000
+    // 0x0200000
+    HITINFO_MULTISTRIKE         = 0x04000000,               // multistrike hit
 };
 
 //i would like to remove this: (it is defined in item.h
@@ -883,7 +886,8 @@ struct DiminishingReturn
 enum MeleeHitOutcome
 {
     MELEE_HIT_EVADE, MELEE_HIT_MISS, MELEE_HIT_DODGE, MELEE_HIT_BLOCK, MELEE_HIT_PARRY,
-    MELEE_HIT_GLANCING, MELEE_HIT_CRIT, MELEE_HIT_CRUSHING, MELEE_HIT_NORMAL
+    MELEE_HIT_GLANCING, MELEE_HIT_CRIT, MELEE_HIT_CRUSHING, MELEE_HIT_NORMAL, MELEE_HIT_MULTISTRIKE,
+    MELEE_HIT_MULTI_CRIT,
 };
 
 class DispelInfo
@@ -1059,10 +1063,29 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 preHitHealth;
 };
 
+struct SpellPeriodicMultistrikeInfo
+{
+    SpellPeriodicMultistrikeInfo(uint32 _amount, uint32 _overAmount, uint32 _absorb, uint32 _resist, float _multiplier, bool _critical)
+        : amount(_amount), overAmount(_overAmount), absorb(_absorb), resist(_resist), multiplier(_multiplier), critical(_critical), hit(false) { }
+    uint32 amount;
+    uint32 overAmount;
+    uint32 absorb;
+    uint32 resist;
+    float  multiplier;
+    bool   critical;
+    bool   hit;
+};
+
 struct SpellPeriodicAuraLogInfo
 {
     SpellPeriodicAuraLogInfo(AuraEffect const* _auraEff, uint32 _damage, uint32 _overDamage, uint32 _absorb, uint32 _resist, float _multiplier, bool _critical)
-        : auraEff(_auraEff), damage(_damage), overDamage(_overDamage), absorb(_absorb), resist(_resist), multiplier(_multiplier), critical(_critical){ }
+        : auraEff(_auraEff), damage(_damage), overDamage(_overDamage), absorb(_absorb), resist(_resist), multiplier(_multiplier), critical(_critical),
+        multiInfo1(nullptr), multiInfo2(nullptr) { }
+
+    SpellPeriodicAuraLogInfo(AuraEffect const* _auraEff, uint32 _damage, uint32 _overDamage, uint32 _absorb, uint32 _resist, float _multiplier, bool _critical,
+        SpellPeriodicMultistrikeInfo* _multiInfo1, SpellPeriodicMultistrikeInfo* _multiInfo2)
+        : auraEff(_auraEff), damage(_damage), overDamage(_overDamage), absorb(_absorb), resist(_resist), multiplier(_multiplier), critical(_critical),
+        multiInfo1(_multiInfo1), multiInfo2(_multiInfo2) { }
 
     AuraEffect const* auraEff;
     uint32 damage;
@@ -1071,6 +1094,8 @@ struct SpellPeriodicAuraLogInfo
     uint32 resist;
     float  multiplier;
     bool   critical;
+    SpellPeriodicMultistrikeInfo* multiInfo1;
+    SpellPeriodicMultistrikeInfo* multiInfo2;
 };
 
 uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
@@ -1530,11 +1555,11 @@ class TC_GAME_API Unit : public WorldObject
         void HandleEmoteCommand(uint32 anim_id);
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
-        void CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
+        void CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK, bool multistrike = false);
         void DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss);
         void HandleProcExtraAttackFor(Unit* victim);
 
-        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false);
+        void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false, bool multistrike = false);
         void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
@@ -1560,7 +1585,7 @@ class TC_GAME_API Unit : public WorldObject
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM,  const SpellInfo* spellProto) const;
 
-        MeleeHitOutcome RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const;
+        MeleeHitOutcome RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType, bool multistrike = false) const;
 
         bool IsVendor()       const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
         bool IsTrainer()      const { return HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_TRAINER); }
@@ -1616,8 +1641,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateUnderwaterState(Map* m, float x, float y, float z);
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
-        void SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit = false);
-        int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false);
+        void SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit = false, bool multistrike = false);
+        int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false, bool multistrike = false);
         void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powertype);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
 
@@ -1642,6 +1667,8 @@ class TC_GAME_API Unit : public WorldObject
         void SendAttackStateUpdate(CalcDamageInfo* damageInfo);
         void SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log);
+        void SendSpellMultistrikeEffect(SpellNonMeleeDamage const* log, int16 procNum);
+        void SendSpellMultistrikeEffect(ObjectGuid caster, ObjectGuid target, uint32 spellID, uint16 procNum);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
@@ -2039,6 +2066,7 @@ class TC_GAME_API Unit : public WorldObject
         Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
 
+        uint32 CalculateMultistrikeAmount(Unit* victim, int32 baseAmount);
         int32  SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
         int32  SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const;
         uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack = 1) const;
@@ -2055,6 +2083,8 @@ class TC_GAME_API Unit : public WorldObject
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
         bool   isBlockCritical();
+        bool   IsSpellMultistrike(Unit* victim, SpellInfo const* spellProto, bool secondHit = false) const;
+        float  GetUnitSpellMultistrikeChance(Unit* victim, SpellInfo const* spellProto, bool secondHit = false) const;
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK) const;
         uint32 SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);

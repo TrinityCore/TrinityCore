@@ -499,8 +499,8 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //437
     &AuraEffect::HandleNULL,                                      //438
     &AuraEffect::HandleNULL,                                      //439
-    &AuraEffect::HandleNULL,                                      //440
-    &AuraEffect::HandleNULL,                                      //441
+    &AuraEffect::HandleNoImmediateEffect,                         //440 SPELL_AURA_MOD_MULTISTRIKE_DMG_PCT implemented in Unit::CalculateMultistrikeAmount
+    &AuraEffect::HandleMultistrike,                               //441 SPELL_AURA_MULTISTRIKE
     &AuraEffect::HandleNULL,                                      //442
     &AuraEffect::HandleNULL,                                      //443
     &AuraEffect::HandleNULL,                                      //444
@@ -5477,6 +5477,18 @@ void AuraEffect::HandleMastery(AuraApplication const* aurApp, uint8 mode, bool /
     target->UpdateMastery();
 }
 
+void AuraEffect::HandleMultistrike(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateMultistrike();
+}
+
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
     switch (GetSpellInfo()->SpellFamilyName)
@@ -6024,10 +6036,11 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
         }
 
+    int32 beforeCritDamage = damage;
+
     bool crit = false;
 
-    if (CanPeriodicTickCrit(caster))
-        crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+    crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
@@ -6035,7 +6048,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     int32 dmg = damage;
 
     if (!(GetSpellInfo()->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
+    {
         caster->ApplyResilience(target, &dmg);
+        caster->ApplyResilience(target, &beforeCritDamage);
+    }
     damage = dmg;
 
     caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, GetSpellInfo());
@@ -6057,10 +6073,21 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     if (overkill < 0)
         overkill = 0;
 
-    SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit);
+    SpellPeriodicMultistrikeInfo multiInfo1(beforeCritDamage, 0, 0, 0, 0.0f, false);
+    SpellPeriodicMultistrikeInfo multiInfo2(beforeCritDamage, 0, 0, 0, 0.0f, false);
+    HandlePeriodicMultistrike(caster, target, &multiInfo1, &multiInfo2);
+
+    SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit, &multiInfo1, &multiInfo2);
 
     caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
+    /// @todo: handle procs for multistrikes
+
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+    if (multiInfo1.hit)
+        caster->DealDamage(target, multiInfo1.amount, nullptr, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, true);
+    if (multiInfo2.hit)
+        caster->DealDamage(target, multiInfo2.amount, nullptr, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, true);
+
     target->SendPeriodicAuraLog(&pInfo);
 }
 
@@ -6269,10 +6296,11 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetSpellEffectInfo(), GetBase()->GetStackAmount());
     }
 
+    int32 beforeCritDamage = damage;
+
     bool crit = false;
 
-    if (CanPeriodicTickCrit(caster))
-        crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+    crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
         damage = caster->SpellCriticalHealingBonus(m_spellInfo, damage, target);
@@ -6283,9 +6311,24 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     uint32 absorb = 0;
     uint32 heal = uint32(damage);
     caster->CalcHealAbsorb(target, GetSpellInfo(), heal, absorb);
-    int32 gain = caster->DealHeal(target, heal);
 
-    SpellPeriodicAuraLogInfo pInfo(this, heal, heal - gain, absorb, 0, 0.0f, crit);
+    SpellPeriodicMultistrikeInfo multiInfo1(beforeCritDamage, 0, 0, 0, 0.0f, false);
+    SpellPeriodicMultistrikeInfo multiInfo2(beforeCritDamage, 0, 0, 0, 0.0f, false);
+    HandlePeriodicMultistrike(caster, target, &multiInfo1, &multiInfo2);
+
+    int32 gain = caster->DealHeal(target, heal);
+    if (multiInfo1.hit)
+    {
+        int32 multiGain1 = caster->DealHeal(target, multiInfo1.amount);
+        multiInfo1.overAmount = multiInfo1.amount - multiGain1;
+    }
+    if (multiInfo2.hit)
+    {
+        int32 multiGain2 = caster->DealHeal(target, multiInfo2.amount);
+        multiInfo2.overAmount = multiInfo2.amount - multiGain2;
+    }
+
+    SpellPeriodicAuraLogInfo pInfo(this, heal, heal - gain, absorb, 0, 0.0f, crit, &multiInfo1, &multiInfo2);
     target->SendPeriodicAuraLog(&pInfo);
 
     target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellInfo());
@@ -6462,6 +6505,119 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
     caster->DealSpellDamage(&damageInfo, true);
     caster->SendSpellNonMeleeDamageLog(&damageInfo);
+}
+
+void AuraEffect::HandlePeriodicMultistrike(Unit* caster, Unit* target, SpellPeriodicMultistrikeInfo* multiInfo1, SpellPeriodicMultistrikeInfo* multiInfo2) const
+{
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+            HandlePeriodicMultistrikeDamage(caster, target, multiInfo1, multiInfo2);
+            break;
+        case SPELL_AURA_PERIODIC_HEAL:
+        case SPELL_AURA_OBS_MOD_HEALTH:
+            HandlePeriodicMultistrikeHeal(caster, target, multiInfo1, multiInfo2);
+            break;
+        default:
+            break;
+    }
+}
+
+void AuraEffect::HandlePeriodicMultistrikeDamage(Unit* caster, Unit* target, SpellPeriodicMultistrikeInfo* multiInfo1, SpellPeriodicMultistrikeInfo* multiInfo2) const
+{
+    bool isAreaAura = GetSpellEffectInfo()->IsAreaAuraEffect() || GetSpellEffectInfo()->IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
+    if (caster->IsSpellMultistrike(target, m_spellInfo))
+    {
+        multiInfo1->amount = caster->CalculateMultistrikeAmount(target, multiInfo1->amount);
+        bool crit = false;
+
+        if (CanPeriodicTickCrit(caster))
+            crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+
+        if (crit)
+            multiInfo1->amount = caster->SpellCriticalDamageBonus(m_spellInfo, multiInfo1->amount, target);
+        multiInfo1->critical = crit;
+
+        caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), SPELL_DIRECT_DAMAGE, multiInfo1->amount, &multiInfo1->absorb, &multiInfo1->resist, m_spellInfo);
+
+        caster->DealDamageMods(target, multiInfo1->amount, &multiInfo1->absorb);
+
+        // Set trigger flag
+        uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
+        uint32 procVictim = PROC_FLAG_TAKEN_PERIODIC;
+        uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT);
+        multiInfo1->amount = (multiInfo1->amount <= multiInfo1->absorb + multiInfo1->resist) ? 0 : (multiInfo1->amount - multiInfo1->absorb - multiInfo1->resist);
+        if (multiInfo1->amount)
+            procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+
+        multiInfo1->overAmount = multiInfo1->amount - target->GetHealth();
+        if (multiInfo1->overAmount < 0)
+            multiInfo1->overAmount = 0;
+        multiInfo1->hit = true;
+    }
+    if (caster->IsSpellMultistrike(target, m_spellInfo, true))
+    {
+        multiInfo2->amount = caster->CalculateMultistrikeAmount(target, multiInfo2->amount);
+        bool crit = false;
+
+        if (CanPeriodicTickCrit(caster))
+            crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+
+        if (crit)
+            multiInfo2->amount = caster->SpellCriticalDamageBonus(m_spellInfo, multiInfo2->amount, target);
+        multiInfo2->critical = crit;
+
+        caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), SPELL_DIRECT_DAMAGE, multiInfo2->amount, &multiInfo2->absorb, &multiInfo2->resist, m_spellInfo);
+
+        caster->DealDamageMods(target, multiInfo2->amount, &multiInfo2->absorb);
+
+        // Set trigger flag
+        uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
+        uint32 procVictim = PROC_FLAG_TAKEN_PERIODIC;
+        uint32 procEx = (crit ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT);
+        multiInfo2->amount = (multiInfo2->amount <= multiInfo2->absorb + multiInfo2->resist) ? 0 : (multiInfo2->amount - multiInfo2->absorb - multiInfo2->resist);
+        if (multiInfo2->amount)
+            procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+
+        multiInfo2->overAmount = multiInfo2->amount - target->GetHealth();
+        if (multiInfo2->overAmount < 0)
+            multiInfo2->overAmount = 0;
+        multiInfo2->hit = true;
+    }
+}
+
+void AuraEffect::HandlePeriodicMultistrikeHeal(Unit* caster, Unit* target, SpellPeriodicMultistrikeInfo* multiInfo1, SpellPeriodicMultistrikeInfo* multiInfo2) const
+{
+    bool isAreaAura = GetSpellEffectInfo()->IsAreaAuraEffect() || GetSpellEffectInfo()->IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA);
+    if (caster->IsSpellMultistrike(target, m_spellInfo))
+    {
+        multiInfo1->amount = caster->CalculateMultistrikeAmount(target, multiInfo1->amount);
+        bool crit = false;
+
+        crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+
+        if (crit)
+            multiInfo1->amount = caster->SpellCriticalHealingBonus(m_spellInfo, multiInfo1->amount, target);
+        multiInfo1->critical = crit;
+
+        caster->CalcHealAbsorb(target, GetSpellInfo(), multiInfo1->amount, multiInfo1->absorb);
+        multiInfo1->hit = true;
+    }
+    if (caster->IsSpellMultistrike(target, m_spellInfo, true))
+    {
+        multiInfo2->amount = caster->CalculateMultistrikeAmount(target, multiInfo2->amount);
+        bool crit = false;
+
+        crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+
+        if (crit)
+            multiInfo2->amount = caster->SpellCriticalHealingBonus(m_spellInfo, multiInfo2->amount, target);
+        multiInfo2->critical = crit;
+
+        caster->CalcHealAbsorb(target, GetSpellInfo(), multiInfo2->amount, multiInfo2->absorb);
+        multiInfo2->hit = true;
+    }
 }
 
 void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)

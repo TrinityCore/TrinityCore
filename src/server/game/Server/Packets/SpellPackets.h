@@ -891,6 +891,21 @@ namespace WorldPackets
             uint32 SpellID = 0;
             std::vector<int32> FailedSpells;
         };
+
+        class SpellMultistrikeEffect final : public ServerPacket
+        {
+        public:
+            SpellMultistrikeEffect() : ServerPacket(SMSG_SPELL_MULTISTRIKE_EFFECT, 16 + 16 + 4 + 4 + 2 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            ObjectGuid TargetGUID;
+            int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
+            int16 ProcCount = 0;
+            int16 ProcNum = 0;
+        };
     }
 }
 

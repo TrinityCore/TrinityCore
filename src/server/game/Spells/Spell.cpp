@@ -2390,6 +2390,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
     CallScriptOnHitHandlers();
 
+    // Save damage/healing before any crit calculations are made
+    int32 multiDamage = m_damage > 0 ? m_damage : 0;
+    int32 multiHealing = m_healing > 0 ? m_healing : 0;
+
     // All calculated do it!
     // Do healing and triggers
     if (m_healing > 0)
@@ -2411,6 +2415,21 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, addhealth, m_attackType, m_spellInfo, m_triggeredByAuraSpell);
+
+        // If spell cannot crit, it cannot multistrike
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+        {
+            if (m_caster->IsSpellMultistrike(unitTarget, m_spellInfo))
+            {
+                SpellDelayedMultistrikeHeal* multiEvent = new SpellDelayedMultistrikeHeal(m_caster, unitTarget->GetGUID(), multiHealing, m_attackType, m_spellInfo->Id, 1, procAttacker, procVictim, m_procEx, canEffectTrigger, missInfo, m_triggeredByAuraSpell);
+                m_caster->m_Events.AddEvent(multiEvent, m_caster->m_Events.CalculateTime(500 * 0));
+            }
+            if (m_caster->IsSpellMultistrike(unitTarget, m_spellInfo, true))
+            {
+                SpellDelayedMultistrikeHeal* multiEvent = new SpellDelayedMultistrikeHeal(m_caster, unitTarget->GetGUID(), multiHealing, m_attackType, m_spellInfo->Id, 2, procAttacker, procVictim, m_procEx, canEffectTrigger, missInfo, m_triggeredByAuraSpell);
+                m_caster->m_Events.AddEvent(multiEvent, m_caster->m_Events.CalculateTime(500 * 1));
+            }
+        }
     }
     // Do damage and triggers
     else if (m_damage > 0)
@@ -2440,6 +2459,21 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
         // Send log damage message to client
         caster->SendSpellNonMeleeDamageLog(&damageInfo);
+
+        // If spell cannot crit, it cannot multistrike
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+        {
+            if (m_caster->IsSpellMultistrike(unitTarget, m_spellInfo))
+            {
+                SpellDelayedMultistrikeDamage* multiEvent = new SpellDelayedMultistrikeDamage(m_caster, unitTarget->GetGUID(), multiDamage, m_attackType, m_spellInfo->Id, 1, procAttacker, procVictim, m_procEx, canEffectTrigger, missInfo, m_triggeredByAuraSpell);
+                m_caster->m_Events.AddEvent(multiEvent, m_caster->m_Events.CalculateTime(500 * 0));
+            }
+            if (m_caster->IsSpellMultistrike(unitTarget, m_spellInfo, true))
+            {
+                SpellDelayedMultistrikeDamage* multiEvent = new SpellDelayedMultistrikeDamage(m_caster, unitTarget->GetGUID(), multiDamage, m_attackType, m_spellInfo->Id, 2, procAttacker, procVictim, m_procEx, canEffectTrigger, missInfo, m_triggeredByAuraSpell);
+                m_caster->m_Events.AddEvent(multiEvent, m_caster->m_Events.CalculateTime(500 * 1));
+            }
+        }
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
@@ -6908,6 +6942,144 @@ void SpellEvent::Abort(uint64 /*e_time*/)
 bool SpellEvent::IsDeletable() const
 {
     return m_Spell->IsDeletable();
+}
+
+SpellDelayedMultistrikeDamage::SpellDelayedMultistrikeDamage(Unit* _caster, ObjectGuid _target, int32 _amount, WeaponAttackType _attackType, uint32 _spellID, uint16 _hit,
+    uint32 _procAttacker, uint32 _procVictim, uint32 _procEx, bool _canEffectTrigger, SpellMissInfo _missInfo, SpellInfo const* _triggeredByAuraSpell) : BasicEvent()
+{
+    m_caster = _caster;
+    m_target = _target;
+    m_amount = _amount;
+    m_attackType = _attackType;
+    m_spellID = _spellID;
+    m_hit = _hit;
+    m_procAttacker = _procAttacker;
+    m_procVictim = _procVictim;
+    m_procEx = _procEx;
+    m_canEffectTrigger = _canEffectTrigger;
+    m_missInfo = _missInfo;
+    m_triggeredByAuraSpell = _triggeredByAuraSpell;
+}
+
+bool SpellDelayedMultistrikeDamage::Execute(uint64 e_time, uint32 p_time)
+{
+    if (!m_caster)
+        return true;
+
+    Unit* target = ObjectAccessor::GetUnit(*m_caster, m_target);
+    if (!target)
+        return true;
+
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellID))
+    {
+        bool crit = m_caster->IsSpellCrit(target, spellInfo, spellInfo->GetSchoolMask(), m_attackType);
+        // Fill base damage struct (unitTarget - is real spell target)
+        SpellNonMeleeDamage damageInfo(m_caster, target, spellInfo->Id, spellInfo->GetSchoolMask());
+
+        // Add bonuses and fill damageInfo struct
+        m_caster->CalculateSpellDamageTaken(&damageInfo, m_amount, spellInfo, m_attackType, crit, true);
+        m_caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+
+        /// @todo: multistrike proc handling
+        m_procEx |= createProcExtendMask(&damageInfo, m_missInfo);
+        m_procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+
+        // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
+        if (m_canEffectTrigger && m_missInfo != SPELL_MISS_REFLECT)
+        {
+            m_caster->ProcDamageAndSpell(target, m_procAttacker, m_procVictim, m_procEx, damageInfo.damage, m_attackType, spellInfo, m_triggeredByAuraSpell);
+            if (m_caster->GetTypeId() == TYPEID_PLAYER && (spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET)) == 0 &&
+                (spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
+                m_caster->ToPlayer()->CastItemCombatSpell(target, m_attackType, m_procVictim, m_procEx);
+        }
+
+        m_caster->DealSpellDamage(&damageInfo, true);
+
+        // Send log damage message to client
+        m_caster->SendSpellNonMeleeDamageLog(&damageInfo);
+        m_caster->SendSpellMultistrikeEffect(&damageInfo, m_hit);
+    }
+    return true;
+}
+
+SpellDelayedMultistrikeHeal::SpellDelayedMultistrikeHeal(Unit* _caster, ObjectGuid _target, int32 _amount, WeaponAttackType _attackType, uint32 _spellID, uint16 _hit,
+    uint32 _procAttacker, uint32 _procVictim, uint32 _procEx, bool _canEffectTrigger, SpellMissInfo _missInfo, SpellInfo const* _triggeredByAuraSpell) : BasicEvent()
+{
+    m_caster = _caster;
+    m_target = _target;
+    m_amount = _amount;
+    m_attackType = _attackType;
+    m_spellID = _spellID;
+    m_hit = _hit;
+    m_procAttacker = _procAttacker;
+    m_procVictim = _procVictim;
+    m_procEx = _procEx;
+    m_canEffectTrigger = _canEffectTrigger;
+    m_missInfo = _missInfo;
+    m_triggeredByAuraSpell = _triggeredByAuraSpell;
+}
+
+bool SpellDelayedMultistrikeHeal::Execute(uint64 e_time, uint32 p_time)
+{
+    if (!m_caster)
+        return true;
+
+    Unit* target = ObjectAccessor::GetUnit(*m_caster, m_target);
+    if (!target)
+        return true;
+
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellID))
+    {
+        m_amount = m_caster->CalculateMultistrikeAmount(target, m_amount);
+        bool crit = m_caster->IsSpellCrit(target, spellInfo, spellInfo->GetSchoolMask(), m_attackType);
+        uint32 addhealth = m_amount;
+        if (crit)
+        {
+            m_procEx |= PROC_EX_MULTI_CRIT_HIT;
+            addhealth = m_caster->SpellCriticalHealingBonus(spellInfo, addhealth, NULL);
+        }
+        else
+            m_procEx |= PROC_EX_MULTISTRIKE_HIT;
+
+        int32 gain = m_caster->HealBySpell(target, spellInfo, addhealth, crit, true);
+        m_caster->SendSpellMultistrikeEffect(m_caster->GetGUID(), target->GetGUID(), m_spellID, m_hit - 1);
+        target->getHostileRefManager().threatAssist(m_caster, float(gain) * 0.5f, spellInfo);
+
+        // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
+        if (m_canEffectTrigger && m_missInfo != SPELL_MISS_REFLECT)
+            m_caster->ProcDamageAndSpell(target, m_procAttacker, m_procVictim, m_procEx, addhealth, m_attackType, spellInfo, m_triggeredByAuraSpell);
+    }
+    return true;
+}
+
+MeleeDelayedMultistrikeDamage::MeleeDelayedMultistrikeDamage(Unit* _caster, ObjectGuid _target, WeaponAttackType _attackType, uint16 _hit) : BasicEvent()
+{
+    m_caster = _caster;
+    m_target = _target;
+    m_attackType = _attackType;
+    m_hit = _hit;
+}
+
+bool MeleeDelayedMultistrikeDamage::Execute(uint64 e_time, uint32 p_time)
+{
+    if (!m_caster)
+        return true;
+
+    Unit* target = ObjectAccessor::GetUnit(*m_caster, m_target);
+    if (!target)
+        return true;
+
+    CalcDamageInfo damageInfo;
+    m_caster->CalculateMeleeDamage(target, 0, &damageInfo, m_attackType, true);
+    // Send log damage message to client
+    m_caster->DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
+
+    m_caster->ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
+
+    m_caster->DealMeleeDamage(&damageInfo, true);
+    m_caster->SendAttackStateUpdate(&damageInfo);
+    m_caster->SendSpellMultistrikeEffect(m_caster->GetGUID(), target->GetGUID(), 0, m_hit - 1);
+    return true;
 }
 
 bool Spell::IsValidDeadOrAliveTarget(Unit const* target) const

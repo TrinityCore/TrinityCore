@@ -302,6 +302,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleMultistrike(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -318,6 +319,9 @@ class TC_GAME_API AuraEffect
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicMultistrike(Unit* target, Unit* caster, SpellPeriodicMultistrikeInfo* multiInfo1, SpellPeriodicMultistrikeInfo* multiInfo2) const;
+        void HandlePeriodicMultistrikeDamage(Unit* caster, Unit* target, SpellPeriodicMultistrikeInfo* multiInfo1, SpellPeriodicMultistrikeInfo* multiInfo2) const;
+        void HandlePeriodicMultistrikeHeal(Unit* caster, Unit* target, SpellPeriodicMultistrikeInfo* multiInfo1, SpellPeriodicMultistrikeInfo* multiInfo2) const;
 
         // aura effect proc handlers
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);

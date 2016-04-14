@@ -2041,7 +2041,7 @@ enum SpellHitType
     SPELL_HIT_TYPE_VICTIM_IS_ATTACKER   = 0x10,
     SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG   = 0x20,
     SPELL_HIT_TYPE_UNK                  = 0x40,
-    SPELL_HIT_TYPE_NO_ATTACKER          = 0x80, // does the same as SPELL_ATTR4_COMBAT_LOG_NO_CASTER
+    SPELL_HIT_TYPE_MULTISTRIKE          = 0x80,
 };
 
 enum SpellDmgClass

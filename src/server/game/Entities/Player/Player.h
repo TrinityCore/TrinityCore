@@ -1931,6 +1931,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
         void UpdateMastery();
         bool CanUseMastery() const;
+        void UpdateMultistrike();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 

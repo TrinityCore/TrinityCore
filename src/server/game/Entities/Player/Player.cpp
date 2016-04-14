@@ -5074,6 +5074,8 @@ void Player::UpdateRating(CombatRating cr)
                 UpdateAllSpellCritChances();
             break;
         case CR_MULTISTRIKE:
+            UpdateMultistrike();
+            break;
         case CR_READINESS:
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
@@ -7344,6 +7346,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 break;
             case ITEM_MOD_ARCANE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
+                break;
+            case ITEM_MOD_CR_MULTISTRIKE:
+                ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
                 break;
             case ITEM_MOD_AGI_STR_INT:
                 HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
@@ -13079,6 +13084,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MASTERY", enchant_amount);
+                            break;
+                        case ITEM_MOD_CR_MULTISTRIKE:
+                            ApplyRatingMod(CR_MULTISTRIKE, enchant_amount, apply);
+                            TC_LOG_DEBUG("entities.player.items", "+ %u MULTISTRIKE", enchant_amount);
                             break;
                         default:
                             break;

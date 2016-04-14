@@ -215,6 +215,8 @@ enum ProcFlagsExLegacy
     PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
     PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not implemented yet)
     PROC_EX_ONLY_ACTIVE_SPELL   = 0x0040000,                 // Spell has to do damage/heal to proc
+    PROC_EX_MULTISTRIKE_HIT     = 0x0080000,
+    PROC_EX_MULTI_CRIT_HIT      = 0x0100000,
 
     // Flags for internal use - do not use these in db!
     PROC_EX_INTERNAL_CANT_PROC  = 0x0800000,
@@ -228,7 +230,8 @@ enum ProcFlagsExLegacy
    (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT | PROC_EX_MISS | \
     PROC_EX_RESIST | PROC_EX_DODGE | PROC_EX_PARRY | PROC_EX_BLOCK | \
     PROC_EX_EVADE | PROC_EX_IMMUNE | PROC_EX_DEFLECT | \
-    PROC_EX_ABSORB | PROC_EX_REFLECT | PROC_EX_INTERRUPT)
+    PROC_EX_ABSORB | PROC_EX_REFLECT | PROC_EX_INTERRUPT | \
+    PROC_EX_MULTISTRIKE_HIT | PROC_EX_MULTI_CRIT_HIT)
 
 enum ProcFlagsSpellType
 {
