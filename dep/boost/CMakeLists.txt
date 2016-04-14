@@ -35,19 +35,14 @@ include (CheckCXXSourceCompiles)
 set(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR})
 set(CMAKE_REQUIRED_LIBRARIES ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY})
 set(CMAKE_REQUIRED_FLAGS "-std=c++11")
-unset(boost_filesystem_copy_links_without_NO_SCOPED_ENUM CACHE)
 check_cxx_source_compiles("
   #include <boost/filesystem/path.hpp>
   #include <boost/filesystem/operations.hpp>
   int main() { boost::filesystem::copy_file(boost::filesystem::path(), boost::filesystem::path()); }"
 boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-unset(CMAKE_REQUIRED_INCLUDES CACHE)
-unset(CMAKE_REQUIRED_LIBRARIES CACHE)
-unset(CMAKE_REQUIRED_FLAGS CACHE)
-
-if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-  set(OPTIONAL_BOOST_NO_SCOPED_ENUMS -DBOOST_NO_CXX11_SCOPED_ENUMS)
-endif()
+unset(CMAKE_REQUIRED_INCLUDES)
+unset(CMAKE_REQUIRED_LIBRARIES)
+unset(CMAKE_REQUIRED_FLAGS)
 
 add_library(boost INTERFACE)
 
@@ -59,9 +54,17 @@ target_include_directories(boost
   INTERFACE
     ${Boost_INCLUDE_DIRS})
 
-target_compile_definitions(boost
-  INTERFACE
-    -DBOOST_DATE_TIME_NO_LIB
-    -DBOOST_REGEX_NO_LIB
-    -DBOOST_CHRONO_NO_LIB
-    ${OPTIONAL_BOOST_NO_SCOPED_ENUMS})
+if (boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
+  target_compile_definitions(boost
+    INTERFACE
+      -DBOOST_DATE_TIME_NO_LIB
+      -DBOOST_REGEX_NO_LIB
+      -DBOOST_CHRONO_NO_LIB)
+else()
+  target_compile_definitions(boost
+    INTERFACE
+      -DBOOST_DATE_TIME_NO_LIB
+      -DBOOST_REGEX_NO_LIB
+      -DBOOST_CHRONO_NO_LIB
+      -DBOOST_NO_CXX11_SCOPED_ENUMS)
+endif()
