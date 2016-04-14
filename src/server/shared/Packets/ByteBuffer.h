@@ -23,16 +23,7 @@
 #include "Errors.h"
 #include "ByteConverter.h"
 #include "Util.h"
-
-#include <exception>
-#include <list>
-#include <map>
-#include <string>
-#include <vector>
 #include <cstring>
-#include <time.h>
-#include <cmath>
-#include <type_traits>
 
 class MessageBuffer;
 
