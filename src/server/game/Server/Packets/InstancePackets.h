@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "Unit.h"
 
 namespace WorldPackets
 {
@@ -164,6 +165,41 @@ namespace WorldPackets
             bool Locked = false;
             bool Extended = false;
         };
+
+        class SendEncounterEngage final : public ServerPacket
+        {
+        public:
+            SendEncounterEngage() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
+
+            WorldPacket const* Write() override;
+
+            Unit* unit = nullptr;
+            uint8 priority = 0; // used to set the initial position of the frame if multiple frames are sent
+
+        };
+
+        class SendEncounterDisengage final : public ServerPacket
+        {
+        public:
+            SendEncounterDisengage() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
+
+            WorldPacket const* Write() override;
+
+            Unit* unit = nullptr;
+        };
+
+        class SendEncounterChangePriority final : public ServerPacket
+        {
+        public:
+            SendEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
+
+            WorldPacket const* Write() override;
+
+            Unit* unit = nullptr;
+            uint8 priority = 0; // used to update the position of the unit's current frame
+
+        };
+
     }
 }
 

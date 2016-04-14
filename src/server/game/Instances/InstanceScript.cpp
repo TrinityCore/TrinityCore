@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "InstancePackets.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -588,34 +589,51 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 
 void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
 {
-    // size of this packet is at most 15 (usually less)
-    WorldPacket data(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15);
-    data << uint32(type);
-
     switch (type)
     {
         case ENCOUNTER_FRAME_ENGAGE:                    // SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT
-        case ENCOUNTER_FRAME_DISENGAGE:                 // SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT
-        case ENCOUNTER_FRAME_UPDATE_PRIORITY:           // SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY
+        {
             if (!unit)
                 return;
-            data << unit->GetPackGUID();
-            data << uint8(param1);
+            WorldPackets::Instance::SendEncounterEngage encounterEngageMessage;
+            encounterEngageMessage.unit = unit;
+            encounterEngageMessage.priority = param1;
+            instance->SendToPlayers(encounterEngageMessage.Write());
             break;
+        }
+        case ENCOUNTER_FRAME_DISENGAGE:                 // SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT
+        {
+            if (!unit)
+                return;
+            WorldPackets::Instance::SendEncounterDisengage encounterDisengageMessage;
+            encounterDisengageMessage.unit = unit;
+            instance->SendToPlayers(encounterDisengageMessage.Write());
+            break;
+        }
+        case ENCOUNTER_FRAME_UPDATE_PRIORITY:           // SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY
+        {
+            if (!unit)
+                return;
+            WorldPackets::Instance::SendEncounterEngage encounterChangePriorityMessage;
+            encounterChangePriorityMessage.unit = unit;
+            encounterChangePriorityMessage.priority = param1;
+            instance->SendToPlayers(encounterChangePriorityMessage.Write());
+            break;
+        }
         case ENCOUNTER_FRAME_ADD_TIMER:                 // SMSG_INSTANCE_ENCOUNTER_TIMER_START
         case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START
         case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:         // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE
-            data << uint8(param1);
+            //data << uint8(param1);
             break;
         case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE
-            data << uint8(param1);
-            data << uint8(param2);
+            //data << uint8(param1);
+            // data << uint8(param2);
             break;
         default:
             break;
     }
 
-    instance->SendToPlayers(&data);
+    // instance->SendToPlayers(&data);
 }
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
