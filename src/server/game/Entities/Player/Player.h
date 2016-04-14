@@ -1928,6 +1928,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateSpellDamageAndHealingBonus();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
         void UpdateRating(CombatRating cr);
+        void UpdateRatingBonus(CombatRating cr, bool apply);
         void UpdateAllRatings();
         void UpdateMastery();
         bool CanUseMastery() const;
@@ -2673,6 +2674,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         float m_auraBaseMod[BASEMOD_END][MOD_END];
         int16 m_baseRatingValue[MAX_COMBAT_RATING];
+        int16 m_bonusRatingValue[MAX_COMBAT_RATING];
         uint32 m_baseSpellPower;
         uint32 m_baseManaRegen;
         uint32 m_baseHealthRegen;

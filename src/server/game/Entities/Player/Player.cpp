@@ -282,7 +282,10 @@ Player::Player(WorldSession* session) : Unit(true)
     }
 
     for (uint8 i = 0; i < MAX_COMBAT_RATING; i++)
+    {
         m_baseRatingValue[i] = 0;
+        m_bonusRatingValue[i] = 0;
+    }
 
     m_baseSpellPower = 0;
     m_baseManaRegen = 0;
@@ -4988,13 +4991,15 @@ float Player::OCTRegenMPPerSpirit() const
 
 void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
-    float oldRating = m_baseRatingValue[combatRating];
+    float oldRating = m_baseRatingValue[combatRating] + m_bonusRatingValue[combatRating];
     m_baseRatingValue[combatRating] += (apply ? value : -value);
+    UpdateRatingBonus(combatRating, apply);
 
     // explicit affected values
     float const multiplier = GetRatingMultiplier(combatRating);
     float const oldVal = oldRating * multiplier;
-    float const newVal = m_baseRatingValue[combatRating] * multiplier;
+    float const newRating = m_baseRatingValue[combatRating] + m_bonusRatingValue[combatRating];
+    float const newVal = newRating * multiplier;
     switch (combatRating)
     {
         case CR_HASTE_MELEE:
@@ -5022,13 +5027,14 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 
 void Player::UpdateRating(CombatRating cr)
 {
-    int32 amount = m_baseRatingValue[cr];
+    int32 amount = m_baseRatingValue[cr] + m_bonusRatingValue[cr];
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
     if (amount < 0)
         amount = 0;
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
@@ -5108,6 +5114,20 @@ void Player::UpdateRating(CombatRating cr)
         case CR_VERSATILITY_DAMAGE_TAKEN:
             break;
     }
+}
+
+void Player::UpdateRatingBonus(CombatRating cr, bool apply)
+{
+    int32 bonus = 0;
+    int32 amount = m_baseRatingValue[cr];
+    // Apply bonus from SPELL_AURA_MOD_RATING_PCT
+    // stat used stored in miscValueA for this aura
+    AuraEffectList const& modRatingPct = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT);
+    for (AuraEffectList::const_iterator i = modRatingPct.begin(); i != modRatingPct.end(); ++i)
+        if ((*i)->GetMiscValue() & (1 << cr))
+            bonus += int32(CalculatePct(amount, (*i)->GetAmount()));
+
+    m_bonusRatingValue[cr] = (apply ? bonus : 0);
 }
 
 void Player::UpdateAllRatings()
