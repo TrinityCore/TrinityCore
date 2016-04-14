@@ -122,6 +122,8 @@ if (BUILD_SHARED_LIBS)
     message(" *** Dynamic linking was enforced through a dynamic script module!")
   endif()
   add_definitions(-DTRINITY_API_USE_DYNAMIC_LINKING)
+
+  WarnAboutSpacesInBuildPath()
 endif()
 
 message("")
