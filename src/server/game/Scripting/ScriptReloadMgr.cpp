@@ -342,6 +342,17 @@ static std::string CalculateScriptModuleProjectName(std::string const& module)
     return module_project;
 }
 
+/// Returns false when there isn't any attached debugger to the process which
+/// could block the rebuild of new shared libraries.
+static bool IsDebuggerBlockingRebuild()
+{
+#ifdef _WIN32
+    if (IsDebuggerPresent())
+        return true;
+#endif
+    return false;
+}
+
 /// ScriptReloadMgr which is used when dynamic linking is enabled
 ///
 /// This class manages shared library loading/unloading through watching
@@ -476,7 +487,7 @@ public:
     HotSwapScriptReloadMgr()
         : _libraryWatcher(-1), _unique_library_name_counter(0),
           _last_time_library_changed(0), _last_time_sources_changed(0),
-          terminate_early(false) { }
+          _last_time_user_informed(0), terminate_early(false) { }
 
     virtual ~HotSwapScriptReloadMgr()
     {
@@ -957,6 +968,22 @@ private:
         // If the changed sources are empty do nothing
         if (_sources_changed.empty())
             return;
+
+        // Wait until are attached debugger were detached.
+        if (IsDebuggerBlockingRebuild())
+        {
+            if ((_last_time_user_informed == 0) ||
+                (GetMSTimeDiffToNow(_last_time_user_informed) > 7500))
+            {
+                _last_time_user_informed = getMSTime();
+
+                // Informs the user that the attached debugger is blocking the automatic script rebuild.
+                TC_LOG_INFO("scripts.hotswap", "Your attached debugger is blocking the TinityCore "
+                    "automatic script rebuild, please detach it!");
+            }
+
+            return;
+        }
         
         // Find all source files of a changed script module and removes
         // it from the changed source list, invoke the build afterwards.
@@ -1307,6 +1334,9 @@ private:
         std::unordered_map<fs::path /*path*/, ChangeStateRequest /*state*/>> _sources_changed;
     // Tracks the time since the last module has changed to avoid burst updates
     uint32 _last_time_sources_changed;
+
+    // Tracks the last timestamp the user was informed about a certain repeating event.
+    uint32 _last_time_user_informed;
 
     // Represents the current build job which is in progress
     Optional<BuildJob> _build_job;
