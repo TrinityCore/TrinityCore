@@ -978,7 +978,7 @@ private:
                 _last_time_user_informed = getMSTime();
 
                 // Informs the user that the attached debugger is blocking the automatic script rebuild.
-                TC_LOG_INFO("scripts.hotswap", "Your attached debugger is blocking the TinityCore "
+                TC_LOG_INFO("scripts.hotswap", "Your attached debugger is blocking the TrinityCore "
                     "automatic script rebuild, please detach it!");
             }
 
