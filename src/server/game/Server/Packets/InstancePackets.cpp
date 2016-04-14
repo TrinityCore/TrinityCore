@@ -117,3 +117,44 @@ WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterEngageUnit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint8(TargetFramePriority);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterDisengageUnit::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterChangePriority::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint8(TargetFramePriority);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterStart::Write()
+{
+    _worldPacket << uint32(InCombatResCount);
+    _worldPacket << uint32(MaxInCombatResCount);
+    _worldPacket << uint32(CombatResChargeRecovery);
+    _worldPacket << uint32(NextCombatResChargeTime);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterGainCombatResurrectionCharge::Write()
+{
+    _worldPacket << int32(InCombatResCount);
+    _worldPacket << uint32(CombatResChargeRecovery);
+
+    return &_worldPacket;
+}

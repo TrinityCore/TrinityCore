@@ -3230,7 +3230,10 @@ void InstanceMap::Update(const uint32 t_diff)
     Map::Update(t_diff);
 
     if (i_data)
+    {
         i_data->Update(t_diff);
+        i_data->UpdateCombatResurrection(t_diff);
+    }
 }
 
 void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
