@@ -595,7 +595,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         {
             if (!unit)
                 return;
-            WorldPackets::Instance::ClientInstanceEncounterEngageUnit encounterEngageMessage;
+            WorldPackets::Instance::InstanceEncounterEngageUnit encounterEngageMessage;
             encounterEngageMessage.Unit = unit->GetGUID();
             encounterEngageMessage.TargetFramePriority = param1;
             instance->SendToPlayers(encounterEngageMessage.Write());
@@ -605,7 +605,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         {
             if (!unit)
                 return;
-            WorldPackets::Instance::ClientInstanceEncounterDisengageUnit encounterDisengageMessage;
+            WorldPackets::Instance::InstanceEncounterDisengageUnit encounterDisengageMessage;
             encounterDisengageMessage.Unit = unit->GetGUID();
             instance->SendToPlayers(encounterDisengageMessage.Write());
             break;
@@ -614,7 +614,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         {
             if (!unit)
                 return;
-            WorldPackets::Instance::ClientInstanceEncounterChangePriority encounterChangePriorityMessage;
+            WorldPackets::Instance::InstanceEncounterChangePriority encounterChangePriorityMessage;
             encounterChangePriorityMessage.Unit = unit->GetGUID();
             encounterChangePriorityMessage.TargetFramePriority = param1;
             instance->SendToPlayers(encounterChangePriorityMessage.Write());

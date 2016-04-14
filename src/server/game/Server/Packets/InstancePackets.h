@@ -165,10 +165,10 @@ namespace WorldPackets
             bool Extended = false;
         };
 
-        class ClientInstanceEncounterEngageUnit final : public ServerPacket
+        class InstanceEncounterEngageUnit final : public ServerPacket
         {
         public:
-            ClientInstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
+            InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
 
             WorldPacket const* Write() override;
 
@@ -177,20 +177,20 @@ namespace WorldPackets
 
         };
 
-        class ClientInstanceEncounterDisengageUnit final : public ServerPacket
+        class InstanceEncounterDisengageUnit final : public ServerPacket
         {
         public:
-            ClientInstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
+            InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid Unit;
         };
 
-        class ClientInstanceEncounterChangePriority final : public ServerPacket
+        class InstanceEncounterChangePriority final : public ServerPacket
         {
         public:
-            ClientInstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
+            InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
 
             WorldPacket const* Write() override;
 
