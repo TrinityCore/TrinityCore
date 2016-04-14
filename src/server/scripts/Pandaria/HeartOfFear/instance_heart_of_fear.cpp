@@ -29,7 +29,7 @@ DoorData const doorData[] =
 class instance_heart_of_fear : public InstanceMapScript
 {
     public:
-        instance_heart_of_fear() : InstanceMapScript("instance_heart_of_fear", 1009) { }
+        instance_heart_of_fear() : InstanceMapScript("instance_heart_of_fear", 897) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
