@@ -24,12 +24,12 @@
 
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
-    _setTargetLocation(owner);
+    SetTargetLocation(owner);
 }
 
 void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
-    if (arrived)
+    if (m_arrived)
     {
         owner->ClearUnitState(UNIT_STATE_EVADE);
         owner->SetWalk(true);
@@ -38,16 +38,22 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
     }
 }
 
-void HomeMovementGenerator<Creature>::DoReset(Creature*) { }
-
-void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
+void HomeMovementGenerator<Creature>::DoReset(Creature* owner)
 {
-    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    SetTargetLocation(owner);
+}
+
+void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
+{
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
+
+    m_travelInitialized = true;
 
     Movement::MoveSplineInit init(owner);
     float x, y, z, o;
-    // at apply we can select more nice return points base at current movegen
+
+    // try to get a reset position placed by any other Movement
     if (owner->GetMotionMaster()->empty() || !owner->GetMotionMaster()->top()->GetResetPosition(owner, x, y, z))
     {
         owner->GetHomePosition(x, y, z, o);
@@ -57,13 +63,28 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     init.SetWalk(false);
     init.Launch();
 
-    arrived = false;
+    m_arrived = false;
 
     owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
 }
 
-bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
+bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 time_diff)
 {
-    arrived = owner->movespline->Finalized();
-    return !arrived;
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
+        return true;
+
+    if (!m_travelInitialized)
+        SetTargetLocation(owner);
+
+    // If despawnTimer has passed, initialize the despawn event
+    m_despawnTimer.Update(time_diff);
+    if (m_despawnTimer.Passed())
+    {
+        owner->m_Events.AddEvent(new EvadeDespawner(owner), owner->m_Events.CalculateTime(1000));
+        return false;
+    }
+    else
+        m_arrived = owner->movespline->Finalized();
+
+    return !m_arrived;
 }

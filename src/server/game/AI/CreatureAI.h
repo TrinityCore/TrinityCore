@@ -219,4 +219,51 @@ enum Permitions
     PERMIT_BASE_SPECIAL            = 800
 };
 
+class EvadeHomeCall : public BasicEvent
+{
+public:
+    explicit EvadeHomeCall(Creature* owner) : _owner(owner) { }
+
+    bool Execute(uint64 /*time*/, uint32 /*diff*/)
+    {
+        if (!_owner->HasSmartAI())
+            _owner->AI()->JustReachedHome();
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
+class EvadeDespawner : public BasicEvent
+{
+public:
+    explicit EvadeDespawner(Creature* owner) : _owner(owner) { }
+
+    bool Execute(uint64 /*time*/, uint32 /*diff*/)
+    {
+        _owner->Respawn(true);
+
+        if (!_owner->IsSummon())
+        {
+            uint32 corpseDelay = _owner->GetCorpseDelay();
+            uint32 respawnDelay = _owner->GetRespawnDelay();
+            _owner->SetCorpseDelay(1);
+            _owner->SetRespawnDelay(2);
+
+            _owner->DespawnOrUnsummon();
+
+            _owner->SetCorpseDelay(corpseDelay);
+            _owner->SetRespawnDelay(respawnDelay);
+        }
+
+        _owner->m_Events.AddEvent(new EvadeHomeCall(_owner), _owner->m_Events.CalculateTime(2500));
+
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
 #endif

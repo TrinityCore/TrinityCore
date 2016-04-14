@@ -20,10 +20,9 @@
 #define TRINITY_HOMEMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Timer.h"
 
-class Creature;
-
-template < class T >
+template <class T>
 class HomeMovementGenerator;
 
 template <>
@@ -31,7 +30,7 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
 {
     public:
 
-        HomeMovementGenerator() : arrived(false) { }
+        HomeMovementGenerator() : m_arrived(false), m_travelInitialized(false), m_despawnTimer(30 * IN_MILLISECONDS) { }
         ~HomeMovementGenerator() { }
 
         void DoInitialize(Creature*);
@@ -40,8 +39,10 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
         bool DoUpdate(Creature*, const uint32);
         MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
 
-    private:
-        void _setTargetLocation(Creature*);
-        bool arrived;
+    protected:
+        void SetTargetLocation(Creature*);
+        bool m_arrived;
+        bool m_travelInitialized;
+        TimeTrackerSmall m_despawnTimer;
 };
 #endif
