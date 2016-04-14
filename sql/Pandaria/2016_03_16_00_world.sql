@@ -196,6 +196,36 @@ UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName=
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_lilian_voss' WHERE entry=74366;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_rattlegore' WHERE entry=59153;
 
+-- ShadoPan Monastery
+UPDATE instance_template SET script='instance_shadopan_monastery' WHERE map=877;
+-- Gu CloudStrike
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_gu_cloudstrike' WHERE entry=56747;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_azure_serpent' WHERE entry=56754;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_azure_serpent' WHERE entry=56754;
+--INSERT INTO areatrigger_scripts (entry,ScriptName) values (,'at_gu_intro');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (114927,'spell_kill_guardians');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (111129,'spell_overcharged_soul_damage');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (107140,'spell_magnetic_shroud');
+-- Master Snowdrift
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_master_snowdrift' WHERE entry=56541;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_snowdrift_novice' WHERE entry=56395;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_snowdrift_clone' WHERE entry=56713;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_snowdrift_miniboss' WHERE entry=56397;
+--UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_snowdrift_fireball' WHERE entry=;
+-- Sha of Violence
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_sha_of_violence' WHERE entry=56719;
+-- Taran Zhu
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_taran_zhu' WHERE entry=56884;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_gripping_hatred' WHERE entry=59804;
+--INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_hate');
+--INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_meditation');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_grip_of_hate');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (131521,'spell_taran_zhu_ring_of_malice');
+
+
+
+
+
 
 
 
