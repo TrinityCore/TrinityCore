@@ -27,6 +27,8 @@
 #include <list>
 
 typedef std::list<uint32> SimpleFactionsList;
+typedef std::vector<FlyByCamera> FlyByCameraCollection;
+
 TC_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
 TC_GAME_API char* GetPetName(uint32 petfamily, uint32 dbclang);
@@ -96,6 +98,7 @@ TC_GAME_API extern DBCStorage <CharSectionsEntry>            sCharSectionsStore;
 TC_GAME_API extern DBCStorage <CharTitlesEntry>              sCharTitlesStore;
 TC_GAME_API extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 TC_GAME_API extern DBCStorage <ChrRacesEntry>                sChrRacesStore;
+TC_GAME_API extern DBCStorage <CinematicCameraEntry>         sCinematicCameraStore;
 TC_GAME_API extern DBCStorage <CinematicSequencesEntry>      sCinematicSequencesStore;
 TC_GAME_API extern DBCStorage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
 TC_GAME_API extern DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore;
@@ -193,7 +196,9 @@ TC_GAME_API extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
 //TC_GAME_API extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 TC_GAME_API extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 TC_GAME_API extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
+TC_GAME_API extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
 TC_GAME_API void LoadDBCStores(const std::string& dataPath);
+TC_GAME_API void LoadM2Cameras(const std::string& dataPath);
 
 #endif

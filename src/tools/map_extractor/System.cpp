@@ -53,12 +53,13 @@ char input_path[MAX_PATH_LENGTH] = ".";
 // **************************************************
 enum Extract
 {
-    EXTRACT_MAP = 1,
-    EXTRACT_DBC = 2
+    EXTRACT_MAP    = 1,
+    EXTRACT_DBC    = 2,
+    EXTRACT_CAMERA = 4
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA;
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
 float CONF_use_minHeight = -500.0f;
@@ -103,7 +104,7 @@ void Usage(char* prg)
         "%s -[var] [value]\n"\
         "-i set input path (max %d characters)\n"\
         "-o set output path (max %d characters)\n"\
-        "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
     exit(1);
@@ -151,7 +152,7 @@ void HandleArgs(int argc, char * arg[])
                 if(c + 1 < argc)                            // all ok
                 {
                     CONF_extract=atoi(arg[(c++) + 1]);
-                    if(!(CONF_extract > 0 && CONF_extract < 4))
+                    if(!(CONF_extract > 0 && CONF_extract < 8))
                         Usage(arg[0]);
                 }
                 else
@@ -1025,6 +1026,56 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     printf("Extracted %u DBC files\n\n", count);
 }
 
+void ExtractCameraFiles(int locale, bool basicLocale)
+{
+    printf("Extracting camera files...\n");
+    DBCFile camdbc("DBFilesClient\\CinematicCamera.dbc");
+
+    if (!camdbc.open())
+    {
+        printf("Unable to open CinematicCamera.dbc. Camera extract aborted.\n");
+        return;
+    }
+
+    // get camera file list from DBC
+    std::vector<std::string> camerafiles;
+    size_t cam_count = camdbc.getRecordCount();
+
+    for (uint32 i = 0; i < cam_count; ++i)
+    {
+        std::string camFile(camdbc.getRecord(i).getString(1));
+        size_t loc = camFile.find(".mdx");
+        if (loc != std::string::npos)
+            camFile.replace(loc, 4, ".m2");
+        camerafiles.push_back(std::string(camFile));
+    }
+
+    std::string path = output_path;
+    path += "/Cameras/";
+    CreateDir(path);
+    if (!basicLocale)
+    {
+        path += langs[locale];
+        path += "/";
+        CreateDir(path);
+    }
+
+    // extract M2s
+    uint32 count = 0;
+    for (std::string thisFile : camerafiles)
+    {
+        std::string filename = path;
+        filename += (thisFile.c_str() + strlen("Cameras\\"));
+
+        if (boost::filesystem::exists(filename))
+            continue;
+
+        if (ExtractFile(thisFile.c_str(), filename))
+            ++count;
+    }
+    printf("Extracted %u camera files\n", count);
+}
+
 void LoadLocaleMPQFiles(int const locale)
 {
     std::string fileName = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path, langs[locale], langs[locale]);
@@ -1109,6 +1160,19 @@ int main(int argc, char * arg[])
     {
         printf("No locales detected\n");
         return 0;
+    }
+
+    if (CONF_extract & EXTRACT_CAMERA)
+    {
+        printf("Using locale: %s\n", langs[FirstLocale]);
+
+        // Open MPQs
+        LoadLocaleMPQFiles(FirstLocale);
+        LoadCommonMPQFiles();
+
+        ExtractCameraFiles(FirstLocale, true);
+        // Close MPQs
+        CloseMPQFiles();
     }
 
     if (CONF_extract & EXTRACT_MAP)

@@ -160,6 +160,7 @@ class TC_GAME_API Object
         void RemoveByteFlag(uint16 index, uint8 offset, uint8 newFlag);
         void ToggleByteFlag(uint16 index, uint8 offset, uint8 flag);
         bool HasByteFlag(uint16 index, uint8 offset, uint8 flag) const;
+        void ApplyModByteFlag(uint16 index, uint8 offset, uint8 flag, bool apply);
 
         void SetFlag64(uint16 index, uint64 newFlag);
         void RemoveFlag64(uint16 index, uint64 oldFlag);
