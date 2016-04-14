@@ -284,7 +284,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         uint32 pzoneid = target->GetZoneId();
-        uint8 gender = target->GetByteValue(PLAYER_BYTES_3, 0);
+        uint8 gender = target->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
 
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)
@@ -405,7 +405,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     // not set flags if player can't free move to prevent lost state at logout cancel
     if (GetPlayer()->CanFreeMove())
     {
-        if (GetPlayer()->getStandState() == UNIT_STAND_STATE_STAND)
+        if (GetPlayer()->GetStandState() == UNIT_STAND_STATE_STAND)
             GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, (8+4));    // guess size
@@ -1056,12 +1056,14 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_COMPLETE_CINEMATIC");
+    // If player has sight bound to visual waypoint NPC we should remove it
+    GetPlayer()->EndCinematic();
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
+    // Sent by client when cinematic actually begun. So we begin the server side process
+    GetPlayer()->BeginCinematic();
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
@@ -1157,7 +1159,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
         return;
     }
 
-    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, actionBar);
+    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, actionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)

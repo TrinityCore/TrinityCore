@@ -29,16 +29,12 @@
 using namespace boost::asio;
 
 /// Storage object for the list of realms on the server
-class RealmList
+class TC_SHARED_API RealmList
 {
 public:
     typedef std::map<RealmHandle, Realm> RealmMap;
 
-    static RealmList* instance()
-    {
-        static RealmList instance;
-        return &instance;
-    }
+    static RealmList* Instance();
 
     ~RealmList();
 
@@ -51,7 +47,7 @@ public:
 private:
     RealmList();
 
-    void UpdateRealms(bool init, boost::system::error_code const& error);
+    void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
         ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
@@ -61,5 +57,5 @@ private:
     boost::asio::ip::tcp::resolver* _resolver;
 };
 
-#define sRealmList RealmList::instance()
+#define sRealmList RealmList::Instance()
 #endif

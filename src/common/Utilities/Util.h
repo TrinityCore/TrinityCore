@@ -318,6 +318,9 @@ TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
 TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
+TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
+
+TC_COMMON_API bool StringToBool(std::string const& str);
 
 // simple class for not-modifyable list
 template <typename T>

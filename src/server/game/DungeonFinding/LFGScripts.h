@@ -53,4 +53,6 @@ class TC_GAME_API LFGGroupScript : public GroupScript
         void OnInviteMember(Group* group, ObjectGuid guid) override;
 };
 
+/*keep private*/ void AddSC_LFGScripts();
+
 } // namespace lfg
