@@ -165,37 +165,37 @@ namespace WorldPackets
             bool Extended = false;
         };
 
-        class SendEncounterEngage final : public ServerPacket
+        class ClientInstanceEncounterEngageUnit final : public ServerPacket
         {
         public:
-            SendEncounterEngage() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
+            ClientInstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid guid;
-            uint8 priority = 0; // used to set the initial position of the frame if multiple frames are sent
+            ObjectGuid Unit;
+            uint8 TargetFramePriority = 0; // used to set the initial position of the frame if multiple frames are sent
 
         };
 
-        class SendEncounterDisengage final : public ServerPacket
+        class ClientInstanceEncounterDisengageUnit final : public ServerPacket
         {
         public:
-            SendEncounterDisengage() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
+            ClientInstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid guid;
+            ObjectGuid Unit;
         };
 
-        class SendEncounterChangePriority final : public ServerPacket
+        class ClientInstanceEncounterChangePriority final : public ServerPacket
         {
         public:
-            SendEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
+            ClientInstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid guid;
-            uint8 priority = 0; // used to update the position of the unit's current frame
+            ObjectGuid Unit;
+            uint8 TargetFramePriority = 0; // used to update the position of the unit's current frame
 
         };
 

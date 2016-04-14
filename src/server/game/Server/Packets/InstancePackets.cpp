@@ -118,25 +118,25 @@ WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Instance::SendEncounterEngage::Write()
+WorldPacket const* WorldPackets::Instance::ClientInstanceEncounterEngageUnit::Write()
 {
-    _worldPacket << guid;
-    _worldPacket << uint8(priority);
+    _worldPacket << Unit;
+    _worldPacket << uint8(TargetFramePriority);
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Instance::SendEncounterDisengage::Write()
+WorldPacket const* WorldPackets::Instance::ClientInstanceEncounterDisengageUnit::Write()
 {
-    _worldPacket << guid;
+    _worldPacket << Unit;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Instance::SendEncounterChangePriority::Write()
+WorldPacket const* WorldPackets::Instance::ClientInstanceEncounterChangePriority::Write()
 {
-    _worldPacket << guid;
-    _worldPacket << uint8(priority);
+    _worldPacket << Unit;
+    _worldPacket << uint8(TargetFramePriority);
 
     return &_worldPacket;
 }
