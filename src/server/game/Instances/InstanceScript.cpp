@@ -614,7 +614,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         {
             if (!unit)
                 return;
-            WorldPackets::Instance::SendEncounterEngage encounterChangePriorityMessage;
+            WorldPackets::Instance::SendEncounterChangePriority encounterChangePriorityMessage;
             encounterChangePriorityMessage.unit = unit;
             encounterChangePriorityMessage.priority = param1;
             instance->SendToPlayers(encounterChangePriorityMessage.Write());
