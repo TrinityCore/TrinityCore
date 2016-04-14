@@ -37,7 +37,7 @@ enum RealmFlags
     REALM_FLAG_FULL             = 0x80
 };
 
-struct RealmHandle
+struct TC_SHARED_API RealmHandle
 {
     RealmHandle() : Realm(0) { }
     RealmHandle(uint32 index) : Realm(index) { }
@@ -53,20 +53,20 @@ struct RealmHandle
 /// Type of server, this is values from second column of Cfg_Configs.dbc
 enum RealmType
 {
-    REALM_TYPE_NORMAL = 0,
-    REALM_TYPE_PVP = 1,
-    REALM_TYPE_NORMAL2 = 4,
-    REALM_TYPE_RP = 6,
-    REALM_TYPE_RPPVP = 8,
+    REALM_TYPE_NORMAL       = 0,
+    REALM_TYPE_PVP          = 1,
+    REALM_TYPE_NORMAL2      = 4,
+    REALM_TYPE_RP           = 6,
+    REALM_TYPE_RPPVP        = 8,
 
-    MAX_CLIENT_REALM_TYPE = 14,
+    MAX_CLIENT_REALM_TYPE   = 14,
 
-    REALM_TYPE_FFA_PVP = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
-                                                       // replaced by REALM_PVP in realm list
+    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
+                                                            // replaced by REALM_PVP in realm list
 };
 
 // Storage object for a realm
-struct Realm
+struct TC_SHARED_API Realm
 {
     RealmHandle Id;
     uint32 Build;
@@ -75,11 +75,13 @@ struct Realm
     ip::address LocalSubnetMask;
     uint16 Port;
     std::string Name;
-    uint8 Type; // icon
+    uint8 Type;
     RealmFlags Flags;
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
     float PopulationLevel;
+
+    ip::tcp::endpoint GetAddressForClient(ip::address const& clientAddr) const;
 };
 
 #endif // Realm_h__

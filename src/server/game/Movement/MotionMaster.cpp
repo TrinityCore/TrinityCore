@@ -302,6 +302,27 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
     }
 }
 
+void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
+{
+    float distanceToTravel = _owner->GetExactDist2d(target) - distance;
+    if (distanceToTravel > 0.0f)
+    {
+        float angle = _owner->GetAngle(target);
+        float destx = _owner->GetPositionX() + distanceToTravel * std::cos(angle);
+        float desty = _owner->GetPositionY() + distanceToTravel * std::sin(angle);
+        MovePoint(id, destx, desty, target->GetPositionZ());
+    }
+    else 
+    {
+        // we are already close enough. We just need to turn toward the target without changing position.
+        Movement::MoveSplineInit init(_owner);
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZMinusOffset());
+        init.SetFacing(target);
+        init.Launch();
+        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
+    }
+}
+
 void MotionMaster::MoveLand(uint32 id, Position const& pos)
 {
     float x, y, z;
