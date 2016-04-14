@@ -76,7 +76,7 @@ m_length(NULL)
     std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
-        size_t size = Field::SizeForType(&field[i]);
+        uint32 size = Field::SizeForType(&field[i]);
         rowSize += size;
 
         m_rBind[i].buffer_type = field[i].type;
