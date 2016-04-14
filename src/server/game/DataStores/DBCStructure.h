@@ -651,9 +651,9 @@ struct BattlemasterListEntry
     uint32 minLevel;                                        // 14, min level (sync with PvPDifficulty.dbc content)
     uint32 maxLevel;                                        // 15, max level (sync with PvPDifficulty.dbc content)
     //uint32 maxGroupSizeRated;                             // 16 4.0.1
-    //uint32 unk;                                           // 17 - 4.0.6.13596
+    //uint32 MinPlayers;                                    // 17 - 4.0.6.13596
     //uint32 maxPlayers;                                    // 18 4.0.1
-    //uint32 unk1;                                          // 19 4.0.3, value 2 for Rated Battlegrounds
+    //uint32 Flags;                                         // 19 4.0.3, value 2 for Rated Battlegrounds
 };
 
 #define MAX_OUTFIT_ITEMS 24
