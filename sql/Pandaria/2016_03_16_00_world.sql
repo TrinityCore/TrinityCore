@@ -34,7 +34,8 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (116298,'spell_gadok
 INSERT INTO spell_script_names (spell_id,ScriptName) values (106933,'spell_prey_time');
 
 -- Heart of Fear
-UPDATE instance_template SET script='instance_heart_of_fear' WHERE map=897;
+UPDATE instance_template SET script='instance_heart_of_fear' WHERE map=1009;
+INSERT INTO instance_template (map,script) values (1009,'instance_heart_of_fear');
 -- Blade Lord Tayak
 UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_blade_lord_tayak' WHERE entry=62543;
 UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='mob_tempest_slash' WHERE entry=62908;
@@ -55,7 +56,8 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (122336,'spell_zorlo
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122740,'spell_zorlock_convert');
 
 -- MoguShan Palace
-UPDATE instance_template SET script='instance_mogu_shan_palace' WHERE map=885;
+UPDATE instance_template SET script='instance_mogu_shan_palace' WHERE map=994;
+INSERT INTO instance_template (map,script) values (994,'instance_mogu_shan_palace');
 --UPDATE gameobject_template SET ScriptName='go_mogushan_palace_temp_portal' WHERE entry=;
 -- Gekkan
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_gekkan' WHERE entry=61243;
@@ -77,7 +79,8 @@ UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName=
 INSERT INTO spell_script_names (spell_id,ScriptName) values (119311,'spell_dart');
 
 -- MoguShan Vaults
-UPDATE instance_template SET script='instance_mogu_shan_vault' WHERE map=896;
+UPDATE instance_template SET script='instance_mogu_shan_vault' WHERE map=1008;
+INSERT INTO instance_template (map,script) values (1008,'instance_mogu_shan_vault');
 -- Elegon
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_elegon' WHERE entry=60410;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_empyreal_focus' WHERE entry=60776;
@@ -190,14 +193,15 @@ UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName=
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_thalnos_the_soulrender' WHERE entry=59789;
 
 -- Scholomance
-UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_darkmaster_gandling' WHERE entry=59153;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_darkmaster_gandling' WHERE entry=59080;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_instructor_chillheart' WHERE entry=58633;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_jandice_barov' WHERE entry=59184;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_lilian_voss' WHERE entry=74366;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_rattlegore' WHERE entry=59153;
 
 -- ShadoPan Monastery
-UPDATE instance_template SET script='instance_shadopan_monastery' WHERE map=877;
+UPDATE instance_template SET script='instance_shadopan_monastery' WHERE map=959;
+INSERT INTO instance_template (map,script) values (959,'instance_shadopan_monastery');
 -- Gu CloudStrike
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_gu_cloudstrike' WHERE entry=56747;
 UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_azure_serpent' WHERE entry=56754;
@@ -293,8 +297,8 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (115175,'spell_monk_
 INSERT INTO spell_script_names (spell_id,ScriptName) values (100784,'spell_monk_blackout_kick');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (115546,'spell_monk_provoke');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (123980,'spell_monk_tigereye_brew_stacks');
-INSERT INTO spell_script_names (spell_id,ScriptName) values (123980,'spell_monk_tigereye_brew_stacks');
 --INSERT INTO spell_script_names (spell_id,ScriptName) values (124081,'spell_monk_zen_sphere_hot');
+
 
 
 
