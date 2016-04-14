@@ -224,20 +224,77 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (131521,'spell_taran
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- MONK SPELLS
+INSERT INTO spell_script_names (spell_id,ScriptName) values (117952,'spell_monk_crackling_jade_lightning');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (117959,'spell_monk_crackling_jade_lightning_aura');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115203,'spell_monk_fortifying_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123725,'spell_monk_breath_of_fire');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123393,'spell_monk_breath_of_fire');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (117666,'spell_monk_legacy_of_the_emperor');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (117667,'spell_monk_legacy_of_the_emperor');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115129,'spell_monk_expel_harm');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (124490,'spell_monk_touch_of_death');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (109132,'spell_monk_roll');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (121827,'spell_monk_roll');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116095,'spell_monk_disable');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115078,'spell_monk_paralysis');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (107270,'spell_monk_spinning_crane_kick');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123980,'spell_monk_brewing_tigereye_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116740,'spell_monk_tigereye_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (120273,'spell_monk_tiger_strikes');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (126892,'spell_monk_zen_pilgrimage');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (126895,'spell_monk_zen_pilgrimage_return');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (124682,'spell_monk_enveloping_mist');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116694,'spell_monk_surging_mist');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (119611,'spell_monk_renewing_mist');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115460,'spell_monk_healing_sphere');
+UPDATE creature_template SET ScriptName='npc_transcendence_spirit' WHERE entry=54569;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (102141,'spell_monk_transcendence');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (119996,'spell_monk_transcendence_transfer');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (122470,'spell_monk_touch_of_karma');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (122783,'spell_monk_diffuse_magic');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115315,'spell_monk_black_ox_statue');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115295,'spell_monk_guard');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (125893,'spell_monk_glyph_of_zen_flight');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115313,'spell_monk_jade_serpent_statue');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (120086,'spell_monk_fists_of_fury_stun');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (132467,'spell_monk_chi_wave_bolt');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (132463,'spell_monk_chi_wave_bolt');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115098,'spell_monk_chi_wave');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (117368,'spell_monk_grapple_weapon');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (132464,'spell_monk_chi_wave_healing_bolt');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (127722,'spell_monk_serpents_zeal');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (122278,'spell_monk_dampen_harm');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (127361,'spell_monk_bear_hug');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (125883,'spell_monk_zen_flight_check');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (121817,'spell_monk_power_strikes');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123408,'spell_monk_spinning_fire_blossom_damage');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115073,'spell_monk_spinning_fire_blossom');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116680,'spell_monk_thunder_focus_tea');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116645,'spell_monk_teachings_of_the_monastery');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123763,'spell_monk_glyph_of_mana_tea');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115294,'spell_monk_mana_tea');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123766,'spell_monk_mana_tea_stacks');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (122280,'spell_monk_healing_elixirs');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (124081,'spell_monk_zen_sphere');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123986,'spell_monk_chi_burst');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115288,'spell_monk_energizing_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116705,'spell_monk_spear_hand_strike');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (116841,'spell_monk_tigers_lust');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115057,'spell_monk_flying_serpent_kick');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115008,'spell_monk_chi_torpedo');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (121828,'spell_monk_chi_torpedo');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (119582,'spell_monk_purifying_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (122057,'spell_monk_clash');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (126449,'spell_monk_clash');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (121253,'spell_monk_keg_smash');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115308,'spell_monk_elusive_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115175,'spell_monk_soothing_mist');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (100784,'spell_monk_blackout_kick');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115546,'spell_monk_provoke');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123980,'spell_monk_tigereye_brew_stacks');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123980,'spell_monk_tigereye_brew_stacks');
+--INSERT INTO spell_script_names (spell_id,ScriptName) values (124081,'spell_monk_zen_sphere_hot');
 
 
 

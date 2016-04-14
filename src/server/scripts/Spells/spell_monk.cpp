@@ -2667,7 +2667,7 @@ class spell_monk_teachings_of_the_monastery : public SpellScriptLoader
     }
 };
 
-// Glyph of Mana Tea - 115294
+// Glyph of Mana Tea - 123763
 class spell_monk_glyph_of_mana_tea : public SpellScriptLoader
 {
     public:
