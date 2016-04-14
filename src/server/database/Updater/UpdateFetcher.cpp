@@ -354,7 +354,7 @@ uint32 UpdateFetcher::Apply(Path const& path) const
     _applyFile(path);
 
     // Return time the query took to apply
-    return std::chrono::duration_cast<std::chrono::milliseconds>(Time::now() - begin).count();
+    return uint32(std::chrono::duration_cast<std::chrono::milliseconds>(Time::now() - begin).count());
 }
 
 void UpdateFetcher::UpdateEntry(AppliedFileEntry const& entry, uint32 const speed) const

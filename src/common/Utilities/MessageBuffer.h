@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include <vector>
+#include <cstring>
 
 class MessageBuffer
 {

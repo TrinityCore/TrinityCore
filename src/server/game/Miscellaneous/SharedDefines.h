@@ -28,7 +28,7 @@
 #define WOTLK
 #endif
 
-enum SpellEffIndex
+enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,
     EFFECT_1 = 1,

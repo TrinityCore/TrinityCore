@@ -4831,6 +4831,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                     m_customError = SpellCustomErrors(condInfo.mLastFailedCondition->ErrorTextId);
                 return SpellCastResult(condInfo.mLastFailedCondition->ErrorType);
             }
+
+            if (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR)
+                return SPELL_FAILED_DONT_REPORT;
+
             if (!condInfo.mLastFailedCondition || !condInfo.mLastFailedCondition->ConditionTarget)
                 return SPELL_FAILED_CASTER_AURASTATE;
             return SPELL_FAILED_BAD_TARGETS;

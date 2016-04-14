@@ -41,10 +41,10 @@
 #endif
 
 MapManager::MapManager()
+    : _nextInstanceId(0), _scheduledScripts(0)
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
-    _nextInstanceId = 0;
 }
 
 MapManager::~MapManager() { }

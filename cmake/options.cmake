@@ -9,12 +9,31 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 option(SERVERS          "Build worldserver and authserver"                            1)
-option(SCRIPTS          "Build core with scripts included"                            1)
+set(SCRIPTS "static" CACHE STRING "Build core with scripts")
+set_property(CACHE SCRIPTS PROPERTY STRINGS none static dynamic minimal-static minimal-dynamic)
+
+# Build a list of all script modules when -DSCRIPT="custom" is selected
+GetScriptModuleList(SCRIPT_MODULE_LIST)
+foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
+  ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+  set(${SCRIPT_MODULE_VARIABLE} "default" CACHE STRING "Build type of the ${SCRIPT_MODULE} module.")
+  set_property(CACHE ${SCRIPT_MODULE_VARIABLE} PROPERTY STRINGS default disabled static dynamic)
+endforeach()
+
 option(TOOLS            "Build map/vmap/mmap extraction/assembler tools"              0)
 option(ELUNA            "Build Eluna Lua Engine"                                      1)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)
 option(USE_COREPCH      "Use precompiled headers when compiling servers"              1)
 option(WITH_DYNAMIC_LINKING "Enable dynamic library linking."                         0)
+IsDynamicLinkingRequired(WITH_DYNAMIC_LINKING_FORCED)
+if (WITH_DYNAMIC_LINKING AND WITH_DYNAMIC_LINKING_FORCED)
+  set(WITH_DYNAMIC_LINKING_FORCED OFF)
+endif()
+if (WITH_DYNAMIC_LINKING OR WITH_DYNAMIC_LINKING_FORCED)
+  set(BUILD_SHARED_LIBS ON)
+else()
+  set(BUILD_SHARED_LIBS OFF)
+endif()
 option(WITH_WARNINGS    "Show all warnings during compile"                            0)
 option(WITH_COREDEBUG   "Include additional debug-code in core"                       0)
 set(WITH_SOURCE_TREE    "hierarchical" CACHE STRING "Build the source tree for IDE's.")

@@ -351,10 +351,10 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     m_creatureInfo = cinfo;                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
-    SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
+    SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, 0);
 
     // known valid are: CLASS_WARRIOR, CLASS_PALADIN, CLASS_ROGUE, CLASS_MAGE
-    SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->unit_class));
+    SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, uint8(cinfo->unit_class));
 
     // Cancel load if no model defined
     if (!(cinfo->GetFirstValidModelId()))
@@ -373,7 +373,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetDisplayId(displayID);
     SetNativeDisplayId(displayID);
-    SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
+    SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
 
     // Load creature equipment
     if (data && data->equipmentId != 0)
@@ -800,6 +800,24 @@ void Creature::DoFleeToGetAssistance()
     }
 }
 
+bool Creature::AIM_Destroy()
+{
+    if (m_AI_locked)
+    {
+        TC_LOG_DEBUG("scripts", "AIM_Destroy: failed to destroy, locked.");
+        return false;
+    }
+
+    ASSERT(!i_disabledAI,
+           "The disabled AI wasn't cleared!");
+
+    delete i_AI;
+    i_AI = nullptr;
+
+    IsAIEnabled = false;
+    return true;
+}
+
 bool Creature::AIM_Initialize(CreatureAI* ai)
 {
     // make sure nothing can change the AI during AI update
@@ -809,12 +827,12 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
         return false;
     }
 
-    UnitAI* oldAI = i_AI;
+    AIM_Destroy();
 
     Motion_Initialize();
 
     i_AI = ai ? ai : FactorySelector::selectAI(this);
-    delete oldAI;
+
     IsAIEnabled = true;
     i_AI->InitializeAI();
     // Initialize vehicle
@@ -898,7 +916,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     {
         SetDisplayId(displayID);
         SetNativeDisplayId(displayID);
-        SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
+        SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
     }
 
     LastUsedScriptID = GetCreatureTemplate()->ScriptID;
@@ -1714,7 +1732,7 @@ void Creature::Respawn(bool force)
         {
             SetDisplayId(displayID);
             SetNativeDisplayId(displayID);
-            SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
+            SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
         }
 
         GetMotionMaster()->InitDefault();

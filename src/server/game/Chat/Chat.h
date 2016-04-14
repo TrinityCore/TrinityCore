@@ -96,6 +96,7 @@ class TC_GAME_API ChatHandler
         bool ParseCommands(const char* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
+        static void invalidateCommandTable();
 
         bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
@@ -143,8 +144,6 @@ class TC_GAME_API ChatHandler
         GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
-        static bool LoadCommandTable() { return load_command_table; }
-        static void SetLoadCommandTable(bool val) { load_command_table = val; }
 
         bool ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd);
     protected:
@@ -157,7 +156,6 @@ class TC_GAME_API ChatHandler
         WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
 
         // common global flag
-        static bool load_command_table;
         bool sentErrorMessage;
 };
 

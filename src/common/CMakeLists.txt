@@ -33,8 +33,8 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DTRINITY_API_EXPORT_COMMON)
 
 add_library(common
-  ${PRIVATE_SOURCES}
   ${PRIVATE_PCH_SOURCE}
+  ${PRIVATE_SOURCES}
 )
 
 # Do NOT add any extra include directory here, as we don't want the common
@@ -72,7 +72,9 @@ target_link_libraries(common
     valgrind
     threads
     lualib
-    jemalloc)
+    jemalloc
+  PRIVATE
+    process)
 
 add_dependencies(common revision_data.h)
 
