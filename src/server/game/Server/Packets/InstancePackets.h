@@ -197,6 +197,26 @@ namespace WorldPackets
             uint8 TargetFramePriority = 0; // used to update the position of the unit's current frame
         };
 
+        class InstanceEncounterStart final : public ServerPacket
+        {
+        public:
+            InstanceEncounterStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_START, 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 InCombatResCount = 0; // amount of usable battle ressurections
+            uint32 MaxInCombatResCount = 0;
+            uint32 CombatResChargeRecovery = 0;
+            uint32 NextCombatResChargeTime = 0;
+        };
+
+        class InstanceEncounterEnd final : public ServerPacket
+        {
+            InstanceEncounterEnd() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_END, 0) { }
+
+            WorldPacket const* Write() override;
+            // empty packet, but sent after encounter has been completed
+        };
     }
 }
 

@@ -140,3 +140,18 @@ WorldPacket const* WorldPackets::Instance::InstanceEncounterChangePriority::Writ
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterStart::Write()
+{
+    _worldPacket << uint32(InCombatResCount);
+    _worldPacket << uint32(MaxInCombatResCount);
+    _worldPacket << uint32(CombatResChargeRecovery);
+    _worldPacket << uint32(NextCombatResChargeTime);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterEnd::Write()
+{
+    return &_worldPacket;
+}

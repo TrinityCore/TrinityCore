@@ -587,7 +587,7 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
+void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 priority)
 {
     switch (type)
     {
@@ -598,7 +598,7 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
 
             WorldPackets::Instance::InstanceEncounterEngageUnit encounterEngageMessage;
             encounterEngageMessage.Unit = unit->GetGUID();
-            encounterEngageMessage.TargetFramePriority = param1;
+            encounterEngageMessage.TargetFramePriority = priority;
             instance->SendToPlayers(encounterEngageMessage.Write());
             break;
         }
@@ -619,22 +619,30 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
 
             WorldPackets::Instance::InstanceEncounterChangePriority encounterChangePriorityMessage;
             encounterChangePriorityMessage.Unit = unit->GetGUID();
-            encounterChangePriorityMessage.TargetFramePriority = param1;
+            encounterChangePriorityMessage.TargetFramePriority = priority;
             instance->SendToPlayers(encounterChangePriorityMessage.Write());
             break;
         }
-        case ENCOUNTER_FRAME_ADD_TIMER:                 // SMSG_INSTANCE_ENCOUNTER_TIMER_START
-        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START
-        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:         // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE
-            //data << uint8(param1);
-            break;
-        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE
-            //data << uint8(param1);
-            //data << uint8(param2);
-            break;
         default:
             break;
     }
+}
+
+void InstanceScript::SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0)
+{
+    WorldPackets::Instance::InstanceEncounterStart encounterStartMessage;
+    encounterStartMessage.InCombatResCount = inCombatResCount;
+    encounterStartMessage.MaxInCombatResCount = maxInCombatResCount;
+    encounterStartMessage.CombatResChargeRecovery = inCombatResChargeRecovery;
+    encounterStartMessage.NextCombatResChargeTime = nextCombatResChargeTime;
+
+    instance->SendToPlayers(encounterStartMessage.Write());
+}
+
+void InstanceScript::SendEncounterEnd()
+{
+    WorldPackets::Instance::InstanceEncounterEnd encounterEndMessage;
+    instance->SendToPlayers(encounterEndMessage.Write());
 }
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
