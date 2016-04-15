@@ -223,8 +223,8 @@ class boss_alizabal : public CreatureScript
                             }
                             break;
                         case EVENT_MOVE_STORM:
-                            me->SetSpeed(MOVE_RUN, 4.0f);
-                            me->SetSpeed(MOVE_WALK, 4.0f);
+                            me->SetSpeedRate(MOVE_RUN, 4.0f);
+                            me->SetSpeedRate(MOVE_WALK, 4.0f);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 me->GetMotionMaster()->MovePoint(POINT_STORM, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             events.ScheduleEvent(EVENT_MOVE_STORM, 4050);
@@ -232,8 +232,8 @@ class boss_alizabal : public CreatureScript
                         case EVENT_STOP_STORM:
                             me->RemoveAura(SPELL_BLADE_DANCE);
                             me->RemoveAura(SPELL_BLADE_DANCE_DUMMY);
-                            me->SetSpeed(MOVE_WALK, 1.0f);
-                            me->SetSpeed(MOVE_RUN, 1.14f);
+                            me->SetSpeedRate(MOVE_WALK, 1.0f);
+                            me->SetSpeedRate(MOVE_RUN, 1.14f);
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             _hate = false;
                             _skewer = false;
