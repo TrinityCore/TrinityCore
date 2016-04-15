@@ -162,6 +162,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) { }
+        void UpdateBattleResurrection(uint32 /*diff*/);
 
         // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
@@ -256,6 +257,13 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 
+        void InitializeBattleResurrections(uint8 stacks = 1, uint32 interval = 0);
+        void AddBattleResurrection();
+        void RemoveBattleResurrection();
+        void ResetBattleResurrections();
+        uint8 GetAvailableBattleResurrections() const;
+        uint32 GetBattleResurrectionChargeInterval() const;
+
     protected:
         void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
@@ -299,6 +307,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 m_battleResurrectionTimer;
+        uint8 battleResurrectionStacks; // the counter for available battle resurrections
+        bool battleResurrectionTimerStarted;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module

@@ -246,7 +246,6 @@ class TC_GAME_API Group
         // Update
         void   Update(uint32 diff);
         void   UpdateReadyCheck(uint32 diff);
-        void   UpdateBattleResurrectionTimer(uint32 diff);
 
         // Ready check
         void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration = READYCHECK_DURATION);
@@ -431,10 +430,5 @@ class TC_GAME_API Group
         // Raid markers
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
         uint32              m_activeMarkers;
-
-        // Battle Resurrection Stacking
-        uint32              m_battleResurrectionStacks;     // Available battle ressurections
-        int32               m_battleResurrectionStackTimer;
-        bool                m_battleResurrectionStackTimerStarted;
 };
 #endif

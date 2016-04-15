@@ -26,7 +26,7 @@
 #include "Battleground.h"
 #include "Vehicle.h"
 #include "Pet.h"
-#include "Group.h"
+#include "InstanceScript.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -2023,10 +2023,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-            if (Player const* plr = caster->ToPlayer())
-                if (Group const* group = plr->GetGroup())
-                    if (group->GetBattleResurrectionStacks() == 0)
+        if (Map* map = caster->GetMap())
+            if (InstanceMap* iMap = map->ToInstanceMap())
+                if (InstanceScript* instance = iMap->GetInstanceScript())
+                    if (instance->GetAvailableBattleResurrections == 0)
                         return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;

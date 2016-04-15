@@ -39,7 +39,8 @@ BossBoundaryData::~BossBoundaryData()
         delete it->Boundary;
 }
 
-InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0)
+InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0), m_battleResurrectionTimer(0), battleResurrectionStacks(0),
+battleResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
@@ -311,19 +312,14 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             {
                 case IN_PROGRESS:
                 {
-                    uint32 resInterval = 0;
-                    if (uint32 playerCount = instance->GetPlayers().getSize())
-                        if (playerCount != 0)
-                            resInterval = ((90 / playerCount) * 60) * IN_MILLISECONDS; // Formular: 90 / group size * 60 * 1000
-
+                    uint32 resInterval = GetBattleResurrectionChargeInterval();
+                    InitializeBattleResurrections(1, resInterval);
                     SendEncounterStart(1, 0, resInterval, resInterval);
-                    if (Player* player = instance->GetPlayers().getFirst()->GetSource())
-                        if (Group* group = player->GetGroup())
-                            group->SetBattleResurrectionStacks(1, resInterval);
                     break;
                 }
                 case FAIL:
                 case DONE:
+                    ResetBattleResurrections();
                     SendEncounterEnd();
                     break;
                 default:
@@ -735,4 +731,62 @@ std::string InstanceScript::GetBossStateName(uint8 state)
         default:
             return "INVALID";
     }
+}
+
+void InstanceScript::UpdateBattleResurrection(uint32 diff)
+{
+    if (!battleResurrectionTimerStarted)
+        return;
+
+    m_battleResurrectionTimer -= diff;
+    if (m_battleResurrectionTimer <= 0)
+    {
+        AddBattleResurrection();
+        battleResurrectionTimerStarted = false;
+    }
+}
+
+void InstanceScript::InitializeBattleResurrections(uint8 stacks /*= 1*/, uint32 interval /*= 0*/)
+{
+    battleResurrectionStacks = stacks;
+
+    if (interval == 0)
+        return;
+
+    m_battleResurrectionTimer = interval;
+    battleResurrectionTimerStarted = true;
+}
+
+void InstanceScript::AddBattleResurrection()
+{
+    battleResurrectionStacks++;
+    m_battleResurrectionTimer = GetBattleResurrectionChargeInterval();
+    battleResurrectionTimerStarted = true;
+}
+
+void InstanceScript::RemoveBattleResurrection()
+{
+    battleResurrectionStacks--;
+}
+
+void InstanceScript::ResetBattleResurrections()
+{
+    battleResurrectionStacks = 0;
+    m_battleResurrectionTimer = 0;
+    battleResurrectionTimerStarted = 0;
+}
+
+uint8 InstanceScript::GetAvailableBattleResurrections() const
+{
+    return battleResurrectionStacks;
+}
+
+uint32 InstanceScript::GetBattleResurrectionChargeInterval() const
+{
+    uint32 interval = 0;
+    if (uint8 playerCount = instance->GetPlayers.getSize())
+        if (playerCount != 0)
+            interval = ((90 / playerCount) * MINUTE) * IN_MILLISECONDS;
+
+    return interval;
 }

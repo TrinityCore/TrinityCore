@@ -2351,7 +2351,6 @@ uint8 Group::GetLfgRoles(ObjectGuid guid)
 void Group::Update(uint32 diff)
 {
     UpdateReadyCheck(diff);
-    UpdateBattleResurrectionTimer(diff);
 }
 
 void Group::UpdateReadyCheck(uint32 diff)
@@ -2362,19 +2361,6 @@ void Group::UpdateReadyCheck(uint32 diff)
     m_readyCheckTimer -= diff;
     if (m_readyCheckTimer <= 0)
         EndReadyCheck();
-}
-
-void Group::UpdateBattleResurrectionTimer(uint32 diff)
-{
-    if (!m_battleResurrectionStackTimerStarted)
-        return;
-
-    m_battleResurrectionStackTimer -= diff;
-    if (m_battleResurrectionStackTimer <= 0)
-    {
-        AddBattleResurrectionStack();
-        m_battleResurrectionStackTimerStarted = false;
-    }
 }
 
 void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration)
@@ -2783,38 +2769,4 @@ void Group::SetEveryoneIsAssistant(bool apply)
         ToggleGroupMemberFlag(itr, MEMBER_FLAG_ASSISTANT, apply);
 
     SendUpdate();
-}
-
-void Group::SetBattleResurrectionStacks(uint8 stacks, uint32 chargeInterval /*= 0*/)
-{
-    m_battleResurrectionStacks = stacks;
-    if (chargeInterval >= 1000) // we wont set a battle rezz timer if the interval is smaller than 1 second
-    {
-        m_battleResurrectionStackTimer = chargeInterval;
-        m_battleResurrectionStackTimerStarted = true;
-    }
-}
-
-void Group::AddBattleResurrectionStack()
-{
-    m_battleResurrectionStacks++;
-    uint32 newInterval = 0; // We're gonna recalculate the interval in case that players leave the raid after engage
-    if (uint32 size = GetMembersCount())
-        newInterval = ((90 / size) * 60) * IN_MILLISECONDS;
-
-    if (newInterval >= 1000)
-    {
-        m_battleResurrectionStackTimer = newInterval;
-        m_battleResurrectionStackTimerStarted = true;
-    }
-}
-
-void Group::RemoveBattleResurrectionStack()
-{
-    m_battleResurrectionStacks--;
-}
-
-uint8 Group::GetBattleResurrectionStacks() const
-{
-    return m_battleResurrectionStacks;
 }
