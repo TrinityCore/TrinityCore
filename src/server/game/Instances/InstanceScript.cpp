@@ -319,7 +319,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     SendEncounterStart(1, 0, resInterval, resInterval);
                     if (Player* player = instance->GetPlayers().getFirst()->GetSource())
                         if (Group* group = player->GetGroup())
-                            group->SetBattleRessurectionStacks(1, resInterval);
+                            group->SetBattleResurrectionStacks(1, resInterval);
                     break;
                 }
                 case FAIL:
