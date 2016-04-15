@@ -312,6 +312,7 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (117955,'spell_expel
 INSERT INTO spell_script_names (spell_id,ScriptName) values (111850,'spell_lightning_prison');
 
 -- Throne Of Thunder
+UPDATE instance_template SET script='instance_throne_of_thunder' WHERE map=1098;
 -- Council of Elders
 UPDATE creature_template SET ScriptName = 'npc_council_event_helper' WHERE entry = 662203;
 UPDATE creature_template SET ScriptName = 'boss_frost_king_malakk' WHERE entry = 69131;
@@ -376,6 +377,37 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (137443,'spell_contr
 INSERT INTO spell_script_names (spell_id,ScriptName) values (137444,'spell_control_horridon');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (136723,'spell_horridon_sand_trap');
 -- Jin Rokh
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_jin_rokh' WHERE entry=69465;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_conductive_water' WHERE entry=69469;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_orb_of_focused_lightning' WHERE entry=70174;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_lightning_fissure' WHERE entry=69609;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_lightning_strike' WHERE entry=69753;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_lightning_strike_storm' WHERE entry=662201;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_mogu_statue_stalker' WHERE entry=662200;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (140597,'spell_jinrokh_thundering_throw');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137162,'spell_jinrokh_static_burst');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (138349,'spell_jinrokh_static_wound');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137530,'spell_jinrokh_focused_lightning_conduction');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137507,'spell_jinrokh_implosion_conduction');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137313,'spell_jinrokh_lightning_storm');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (138732,'spell_jinrokh_ionization');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (138743,'spell_jinrokh_ionization_conduction');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (138743,'spell_jinrokh_ionization_conduction');
+-- Tortos
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_tortos' WHERE entry=69465;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_rockfall' WHERE entry=69465;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (140431,'spell_rockfall');
+
+-- TimelessIsle
+
+-- Chi Ji
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_chi_ji_ti' WHERE entry=71952;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_eternal_kiln' WHERE entry=72896;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_flarecore_golem' WHERE entry=73527;
+UPDATE gameobject_template SET ScriptName='go_time_lost_shrine_ti' WHERE entry=222776;
+UPDATE gameobject_template SET ScriptName='go_gleaming_crane_statue_ti' WHERE entry=220903;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (144385,'spell_timeless_isle_crane_wings');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (144385,'spell_timeless_isle_cauterize');
 
 
 
