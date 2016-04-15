@@ -349,6 +349,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         float GetWaterLevel(float x, float y) const;
         bool IsInWater(float x, float y, float z, LiquidData* data = nullptr) const;
         bool IsUnderWater(float x, float y, float z) const;
+        bool IsSwimmable(float x, float y, float z, LiquidData* data = nullptr) const;
 
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();

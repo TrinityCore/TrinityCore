@@ -2739,7 +2739,7 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
+    SetSwim(CanSwim() && GetBaseMap()->IsSwimmable(GetPositionX(), GetPositionY(), GetPositionZ()));
 }
 
 void Creature::SetObjectScale(float scale)
