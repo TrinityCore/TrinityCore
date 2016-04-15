@@ -138,7 +138,7 @@ public:
         {
             Initialize();
 
-            me->SetSpeed(MOVE_RUN, 2.0f);
+            me->SetSpeedRate(MOVE_RUN, 2.0f);
             me->SetDisableGravity(true);
             me->SetWalk(false);
             me->setActive(true);

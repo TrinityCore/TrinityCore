@@ -117,7 +117,7 @@ public:
                 DummyEntryCheckPredicate pred;
                 summons.DoAction(EVENT_VOLCANO, pred);
                 events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
-                me->SetSpeed(MOVE_RUN, 1.2f);
+                me->SetSpeedRate(MOVE_RUN, 1.2f);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             }
@@ -126,7 +126,7 @@ public:
                 phase = PHASE_CHASE;
                 events.ScheduleEvent(EVENT_VOLCANO, 5000, GCD_CAST, PHASE_CHASE);
                 events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
-                me->SetSpeed(MOVE_RUN, 0.9f);
+                me->SetSpeedRate(MOVE_RUN, 0.9f);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
             }
