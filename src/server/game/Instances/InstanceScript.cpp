@@ -313,8 +313,13 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 {
                     uint32 resInterval = 0;
                     if (uint32 playerCount = instance->GetPlayers().getSize())
-                        resInterval = ((90 / playerCount) * 60) * IN_MILLISECONDS; // Formular: 90 / group size * 60 * 100
+                        if (playerCount != 0)
+                            resInterval = ((90 / playerCount) * 60) * IN_MILLISECONDS; // Formular: 90 / group size * 60 * 1000
+
                     SendEncounterStart(1, 0, resInterval, resInterval);
+                    if (Player* player = instance->GetPlayers().getFirst()->GetSource())
+                        if (Group* group = player->GetGroup())
+                            group->SetBattleRessurectionStacks(1, resInterval);
                     break;
                 }
                 case FAIL:
