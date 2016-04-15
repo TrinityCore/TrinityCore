@@ -15119,6 +15119,7 @@ void Player::SendQuestUpdate(uint32 questId)
 
     UpdateForQuestWorldObjects();
     SendUpdatePhasing();
+    UpdateAreaPhase();
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
