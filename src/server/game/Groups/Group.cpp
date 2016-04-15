@@ -59,8 +59,8 @@ Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL)
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
 m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0),
-m_readyCheckStarted(false), m_readyCheckTimer(0), m_activeMarkers(0), m_battleRessurectionStacks(0), m_battleRessurectionStackTimer(0),
-m_battleRessurectionStackTimerStarted(false)
+m_readyCheckStarted(false), m_readyCheckTimer(0), m_activeMarkers(0), m_battleResurrectionStacks(0), m_battleResurrectionStackTimer(0),
+m_battleResurrectionStackTimerStarted(false)
 {
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].Clear();
@@ -2351,7 +2351,7 @@ uint8 Group::GetLfgRoles(ObjectGuid guid)
 void Group::Update(uint32 diff)
 {
     UpdateReadyCheck(diff);
-    UpdateBattleRessurectionTimer(diff);
+    UpdateBattleResurrectionTimer(diff);
 }
 
 void Group::UpdateReadyCheck(uint32 diff)
@@ -2364,16 +2364,16 @@ void Group::UpdateReadyCheck(uint32 diff)
         EndReadyCheck();
 }
 
-void Group::UpdateBattleRessurectionTimer(uint32 diff)
+void Group::UpdateBattleResurrectionTimer(uint32 diff)
 {
-    if (!m_battleRessurectionStackTimerStarted)
+    if (!m_battleResurrectionStackTimerStarted)
         return;
 
-    m_battleRessurectionStackTimer -= diff;
-    if (m_battleRessurectionStackTimer <= 0)
+    m_battleResurrectionStackTimer -= diff;
+    if (m_battleResurrectionStackTimer <= 0)
     {
-        AddBattleRessurectionStack();
-        m_battleRessurectionStackTimerStarted = false;
+        AddBattleResurrectionStack();
+        m_battleResurrectionStackTimerStarted = false;
     }
 }
 
@@ -2785,36 +2785,36 @@ void Group::SetEveryoneIsAssistant(bool apply)
     SendUpdate();
 }
 
-void Group::SetBattleRessurectionStacks(uint8 stacks, uint32 chargeInterval /*= 0*/)
+void Group::SetBattleResurrectionStacks(uint8 stacks, uint32 chargeInterval /*= 0*/)
 {
-    m_battleRessurectionStacks = stacks;
+    m_battleResurrectionStacks = stacks;
     if (chargeInterval >= 1000) // we wont set a battle rezz timer if the interval is smaller than 1 second
     {
-        m_battleRessurectionStackTimer = chargeInterval;
-        m_battleRessurectionStackTimerStarted = true;
+        m_battleResurrectionStackTimer = chargeInterval;
+        m_battleResurrectionStackTimerStarted = true;
     }
 }
 
-void Group::AddBattleRessurectionStack()
+void Group::AddBattleResurrectionStack()
 {
-    m_battleRessurectionStacks++;
+    m_battleResurrectionStacks++;
     uint32 newInterval = 0; // We're gonna recalculate the interval in case that players leave the raid after engage
     if (uint32 size = GetMembersCount())
         newInterval = ((90 / size) * 60) * IN_MILLISECONDS;
 
     if (newInterval >= 1000)
     {
-        m_battleRessurectionStackTimer = newInterval;
-        m_battleRessurectionStackTimerStarted = true;
+        m_battleResurrectionStackTimer = newInterval;
+        m_battleResurrectionStackTimerStarted = true;
     }
 }
 
-void Group::RemoveBattleRessurectionStack()
+void Group::RemoveBattleResurrectionStack()
 {
-    m_battleRessurectionStacks--;
+    m_battleResurrectionStacks--;
 }
 
-uint8 Group::GetBattleRessurectionStacks()
+uint8 Group::GetBattleResurrectionStacks()
 {
-    return m_battleRessurectionStacks;
+    return m_battleResurrectionStacks;
 }

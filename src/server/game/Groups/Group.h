@@ -237,16 +237,16 @@ class TC_GAME_API Group
         uint8  GetLfgRoles(ObjectGuid guid);
         void   SetEveryoneIsAssistant(bool apply);
 
-        // Battle Ressurection Charge Stacking
-        void   SetBattleRessurectionStacks(uint8 stacks, uint32 chargeInterval = 0);
-        void   AddBattleRessurectionStack();
-        void   RemoveBattleRessurectionStack();
-        uint8  GetBattleRessurectionStacks();
+        // Battle Resurection Charge Stacking
+        void   SetBattleResurrectionStacks(uint8 stacks, uint32 chargeInterval = 0);
+        void   AddBattleResurrectionStack();
+        void   RemoveBattleResurrectionStack();
+        uint8  GetBattleResurrectionStacks();
 
         // Update
         void   Update(uint32 diff);
         void   UpdateReadyCheck(uint32 diff);
-        void   UpdateBattleRessurectionTimer(uint32 diff);
+        void   UpdateBattleResurrectionTimer(uint32 diff);
 
         // Ready check
         void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration = READYCHECK_DURATION);
@@ -423,15 +423,15 @@ class TC_GAME_API Group
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
-        uint32              m_battleRessurectionStacks;     // Available battle ressurections
+        uint32              m_battleResurrectionStacks;     // Available battle ressurections
 
         // Ready Check
         bool                m_readyCheckStarted;
         int32               m_readyCheckTimer;
 
-        // Battle Ressurection Stacking
-        bool                m_battleRessurectionStackTimerStarted;
-        int32               m_battleRessurectionStackTimer;
+        // Battle Resurrection Stacking
+        bool                m_battleResurrectionStackTimerStarted;
+        int32               m_battleResurrectionStackTimer;
 
         // Raid markers
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
