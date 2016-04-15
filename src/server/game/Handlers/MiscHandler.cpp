@@ -453,10 +453,12 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
     if (Player* ressPlayer = ObjectAccessor::GetPlayer(*GetPlayer(), packet.Resurrecter))
         if (InstanceScript* instance = ressPlayer->GetInstanceScript())
             if (instance->IsEncounterInProgress())
-                if (instance->GetAvailableBattleResurrections == 0)
+            {
+                if (instance->GetAvailableBattleResurrections() == 0)
                     return;
                 else
                     instance->RemoveBattleResurrection();
+            }
 
     GetPlayer()->ResurrectUsingRequestData();
 }
