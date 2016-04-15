@@ -13779,8 +13779,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                     {
                         // if the boss killed itself we still need to bind players to the instance
-                        if (!creditedPlayer)
-                            creditedPlayer = ((InstanceMap*)instanceMap)->GetPlayers().getFirst()->GetSource();
+                        if (!creditedPlayer && instanceMap->HavePlayers())
+                            creditedPlayer = instanceMap->GetPlayers().getFirst()->GetSource();
 
                         if (creditedPlayer)
                             ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
