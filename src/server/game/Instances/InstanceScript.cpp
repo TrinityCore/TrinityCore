@@ -307,6 +307,19 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                         if (minion->isWorldBoss() && minion->IsAlive())
                             return false;
 
+            switch (state)
+            {
+                case IN_PROGRESS:
+                    SendEncounterStart(1, 0, 1080000, 1080000); // Same values in all packets
+                    break;
+                case FAIL:
+                case DONE:
+                    SendEncounterEnd();
+                    break;
+                default:
+                    break;
+            }
+
             bossInfo->state = state;
             SaveToDB();
         }
