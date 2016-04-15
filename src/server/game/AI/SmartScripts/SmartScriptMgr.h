@@ -553,8 +553,9 @@ enum SMART_ACTION
     SMART_ACTION_RISE_UP                            = 114,    // distance
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
+    SMART_ACTION_UPDATE_INGAME_PHASES               = 117,
 
-    SMART_ACTION_END                                = 117
+    SMART_ACTION_END                                = 118
 };
 
 struct SmartAction
