@@ -212,6 +212,7 @@ namespace WorldPackets
 
         class InstanceEncounterEnd final : public ServerPacket
         {
+        public:
             InstanceEncounterEnd() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_END, 0) { }
 
             WorldPacket const* Write() override;
