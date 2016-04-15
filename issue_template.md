@@ -10,11 +10,11 @@
 2. 
 3. 
 
-**TC hash/commit**:
+**TC hash/commit**:  
 
-**TDB version**:
+**TDB version**:  
 
-**Operating system**:
+**Operating system**:  
 
 
 [//]: # (This template is for problem reports, for other type of reports edit it accordingly)
