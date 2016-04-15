@@ -375,7 +375,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                         {
                             me->DespawnOrUnsummon(2050);
                             me->SetOrientation(2.5f);
-                            me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
+                            me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                             Talk(SAY_DRAKES_TAKEOFF);
                             Position pos = me->GetPosition();
                             Position offset = { 10.0f, 10.0f, 12.0f, 0.0f };

@@ -205,7 +205,7 @@ class npc_dream_fog : public CreatureScript
                     }
                     // Seeping fog movement is slow enough for a player to be able to walk backwards and still outpace it
                     me->SetWalk(true);
-                    me->SetSpeed(MOVE_WALK, 0.75f);
+                    me->SetSpeedRate(MOVE_WALK, 0.75f);
                 }
                 else
                     _roamTimer -= diff;

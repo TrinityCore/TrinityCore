@@ -178,7 +178,7 @@ class boss_prince_taldaram : public CreatureScript
                             if (Unit* embraceTarget = GetEmbraceTarget())
                             {
                                 me->GetMotionMaster()->Clear();
-                                me->SetSpeed(MOVE_WALK, 2.0f, true);
+                                me->SetSpeedRate(MOVE_WALK, 2.0f);
                                 me->GetMotionMaster()->MoveChase(embraceTarget);
                             }
                             events.ScheduleEvent(EVENT_VANISHED, 1300);
@@ -188,7 +188,7 @@ class boss_prince_taldaram : public CreatureScript
                                 DoCast(embraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
                             Talk(SAY_FEED);
                             me->GetMotionMaster()->Clear();
-                            me->SetSpeed(MOVE_WALK, 1.0f, true);
+                            me->SetSpeedRate(MOVE_WALK, 1.0f);
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             events.ScheduleEvent(EVENT_FEEDING, 20000);
                             break;

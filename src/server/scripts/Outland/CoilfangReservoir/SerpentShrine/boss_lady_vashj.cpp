@@ -585,8 +585,8 @@ public:
 
         void Reset() override
         {
-            me->SetSpeed(MOVE_WALK, 0.6f); // walk
-            me->SetSpeed(MOVE_RUN, 0.6f); // run
+            me->SetSpeedRate(MOVE_WALK, 0.6f); // walk
+            me->SetSpeedRate(MOVE_RUN, 0.6f); // run
             Initialize();
 
             //search for nearest waypoint (up on stairs)

@@ -159,7 +159,7 @@ public:
             else
                 TC_LOG_ERROR("scripts", "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
-            creature->SetSpeed(MOVE_WALK, 1.5f);
+            creature->SetSpeedRate(MOVE_WALK, 1.5f);
             Reset();
         }
 
@@ -192,7 +192,7 @@ public:
                         if (ryga->IsAlive() && !ryga->IsInCombat())
                         {
                             ryga->SetWalk(true);
-                            ryga->SetSpeed(MOVE_WALK, 1.5f);
+                            ryga->SetSpeedRate(MOVE_WALK, 1.5f);
                             ryga->GetMotionMaster()->MovePoint(0, 517.340698f, 3885.03975f, 190.455978f, true);
                             Reset();
                         }
@@ -779,7 +779,7 @@ public:
                     me->AddAura(SPELL_JULES_THREATENS_AURA, me);
 
                     me->SetCanFly(true);
-                    me->SetSpeed(MOVE_RUN, 0.2f);
+                    me->SetSpeedRate(MOVE_RUN, 0.2f);
                     
                     me->SetFacingTo(3.207566f);
                     me->GetMotionMaster()->MoveJump(exorcismPos[2], 2.0f, 2.0f);
@@ -799,7 +799,7 @@ public:
                     break;
                 case ACTION_JULES_MOVE_HOME:
                     wpreached = false;
-                    me->SetSpeed(MOVE_RUN, 1.0f);
+                    me->SetSpeedRate(MOVE_RUN, 1.0f);
                     me->GetMotionMaster()->MovePoint(11, exorcismPos[2]);
 
                     events.CancelEvent(EVENT_SUMMON_SKULL);
