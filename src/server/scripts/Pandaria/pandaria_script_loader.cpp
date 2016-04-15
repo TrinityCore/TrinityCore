@@ -55,7 +55,6 @@ void AddSC_siege_of_the_niuzoa_temple();
 void AddSC_boss_hoptallus();
 void AddSC_boss_ook_ook();
 void AddSC_boss_yan_zhu_the_uncasked();
-void AddSC_boss_yan_zhu();
 void AddSC_instance_stormstout_brewery();
 void AddSC_stormstout_brewery();
 
@@ -183,7 +182,6 @@ void AddPandariaScripts()
     AddSC_boss_hoptallus();
     AddSC_boss_ook_ook();
     AddSC_boss_yan_zhu_the_uncasked();
-    AddSC_boss_yan_zhu();
 
     /* Temple of the Jade Serpent */
     AddSC_instance_temple_of_jade_serpent();
