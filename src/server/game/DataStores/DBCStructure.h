@@ -128,7 +128,7 @@ struct BattlemasterListEntry
     //uint32    Flags;                                      // 27 4.0.3, value 2 for Rated Battlegrounds
     //uint32    IconFileDataID;                             // 28
     //char*     GameType_lang;                              // 29
-    //uint32    Unk1;                                       // 30
+    //uint32    PlayerConditionID;                          // 30
 };
 
 enum CharSectionFlags
