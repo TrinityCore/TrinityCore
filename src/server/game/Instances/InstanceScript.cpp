@@ -310,7 +310,10 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             switch (state)
             {
                 case IN_PROGRESS:
-                    SendEncounterStart(1, 0, 1080000, 1080000); // Same values in all packets
+                    uint32 resInterval = 0;
+                    if (uint32 playerCount = instance->GetPlayers().getSize())
+                        resInterval = ((90 / playerCount) * 60) * IN_MILLISECONDS;
+                    SendEncounterStart(1, 0, resInterval, resInterval);
                     break;
                 case FAIL:
                 case DONE:
