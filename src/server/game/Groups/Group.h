@@ -423,18 +423,18 @@ class TC_GAME_API Group
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
-        uint32              m_battleResurrectionStacks;     // Available battle ressurections
 
         // Ready Check
         bool                m_readyCheckStarted;
         int32               m_readyCheckTimer;
 
-        // Battle Resurrection Stacking
-        bool                m_battleResurrectionStackTimerStarted;
-        int32               m_battleResurrectionStackTimer;
-
         // Raid markers
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
         uint32              m_activeMarkers;
+
+        // Battle Resurrection Stacking
+        uint32              m_battleResurrectionStacks;     // Available battle ressurections
+        int32               m_battleResurrectionStackTimer;
+        bool                m_battleResurrectionStackTimerStarted;
 };
 #endif
