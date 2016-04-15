@@ -310,11 +310,13 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             switch (state)
             {
                 case IN_PROGRESS:
+                {
                     uint32 resInterval = 0;
                     if (uint32 playerCount = instance->GetPlayers().getSize())
-                        resInterval = ((90 / playerCount) * 60) * IN_MILLISECONDS;
+                        resInterval = ((90 / playerCount) * 60) * IN_MILLISECONDS; // Formular: 90 / group size * 60 * 100
                     SendEncounterStart(1, 0, resInterval, resInterval);
                     break;
+                }
                 case FAIL:
                 case DONE:
                     SendEncounterEnd();
