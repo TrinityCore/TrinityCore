@@ -47,6 +47,7 @@
 #include "AchievementPackets.h"
 #include "WhoPackets.h"
 #include "InstancePackets.h"
+#include "InstanceScript.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -448,6 +449,14 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
 
     if (!GetPlayer()->IsResurrectRequestedBy(packet.Resurrecter))
         return;
+
+    if (Player* ressPlayer = ObjectAccessor::GetPlayer(*GetPlayer(), packet.Resurrecter))
+        if (InstanceScript* instance = ressPlayer->GetInstanceScript())
+            if (instance->IsEncounterInProgress())
+                if (instance->GetAvailableBattleResurrections == 0)
+                    return;
+                else
+                    instance->RemoveBattleResurrection();
 
     GetPlayer()->ResurrectUsingRequestData();
 }
