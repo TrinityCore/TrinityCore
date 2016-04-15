@@ -26,6 +26,7 @@
 #include "Battleground.h"
 #include "Vehicle.h"
 #include "Pet.h"
+#include "Group.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -2020,6 +2021,13 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
     if (HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_SELF_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+
+    if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
+        if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (Player const* plr = caster->ToPlayer())
+                if (Group const* group = plr->GetGroup())
+                    if (group->GetBattleResurrectionStacks() == 0)
+                        return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;
 }

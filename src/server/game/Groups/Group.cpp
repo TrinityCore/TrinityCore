@@ -2814,7 +2814,7 @@ void Group::RemoveBattleResurrectionStack()
     m_battleResurrectionStacks--;
 }
 
-uint8 Group::GetBattleResurrectionStacks()
+uint8 Group::GetBattleResurrectionStacks() const
 {
     return m_battleResurrectionStacks;
 }

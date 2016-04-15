@@ -241,7 +241,7 @@ class TC_GAME_API Group
         void   SetBattleResurrectionStacks(uint8 stacks, uint32 chargeInterval = 0);
         void   AddBattleResurrectionStack();
         void   RemoveBattleResurrectionStack();
-        uint8  GetBattleResurrectionStacks();
+        uint8  GetBattleResurrectionStacks() const;
 
         // Update
         void   Update(uint32 diff);
