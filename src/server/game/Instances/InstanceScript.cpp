@@ -784,7 +784,7 @@ uint8 InstanceScript::GetAvailableBattleResurrections() const
 uint32 InstanceScript::GetBattleResurrectionChargeInterval() const
 {
     uint32 interval = 0;
-    if (uint8 playerCount = instance->GetPlayers.getSize())
+    if (uint8 playerCount = instance->GetPlayers().getSize())
         if (playerCount != 0)
             interval = ((90 / playerCount) * MINUTE) * IN_MILLISECONDS;
 
