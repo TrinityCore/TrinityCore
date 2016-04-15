@@ -226,6 +226,158 @@ UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName=
 INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_grip_of_hate');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (131521,'spell_taran_zhu_ring_of_malice');
 
+-- Siege of Niuzao Temple
+UPDATE instance_template SET script='instance_siege_of_the_niuzoa_temple' WHERE map=1011;
+-- Jin Bak
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_jinbak' WHERE entry=61567;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_sap_puddle' WHERE entry=61613;
+
+-- Stormstout Brewery
+UPDATE instance_template SET script='instance_stormstout_brewery' WHERE map=961;
+-- Hoptallus
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_hoptallus' WHERE entry=56717;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_virmen' WHERE entry=59464;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_virmen' WHERE entry=59551;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='stalker_carrot_breath' WHERE entry=200504;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (112944,'spell_hoptallus_carrot_breath');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (114291,'spell_hoptallus_explosive_brew_target_selector');
+--Ook Ook
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_ook_ook' WHERE entry=56637;
+INSERT INTO achievement_criteria_data (ScriptName) VALUES ('achievement_keep_rollin_rollin_rollin') WHERE criteria_id=6089;
+-- Yan Zhu The Uncasked
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_yan_zhu_the_uncasked' WHERE entry=59479;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_yeasty_brew_alamental_yan_zhu' WHERE entry=66413;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_fizzy_bubble' WHERE entry=59799;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (114466,'spell_yanzhu_wall_of_suds');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (106851,'spell_yanzhu_blackout_brew');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (106546,'spell_yanzhu_bloat');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (106560,'spell_yanzhu_bloat_damage_target_selector');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (114451,'spell_yanzhu_ferment');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (106563,'spell_yanzhu_bubble_shield');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (114386,'spell_yanzhu_carbonation_target_selector');
+INSERT INTO achievement_criteria_data (ScriptName) VALUES ('achievement_heroic_stormstout_brewery') WHERE criteria_id=6456;
+
+-- Temple of the Jade Serpent
+UPDATE instance_template SET script='instance_temple_of_jade_serpent' WHERE map=960;
+-- Liu Flameheart
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_liu_flameheart' WHERE entry=56732;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_yu_lon' WHERE entry=56762;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_minion_of_doubt' WHERE entry=65362;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_lesser_sha' WHERE entry=56439;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_jade_fire' WHERE entry=56893;
+-- Lorewalker Stonestep
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_lorewalker_stonestep' WHERE entry=56843;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_lorewalker_scroll' WHERE entry=57080;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sun' WHERE entry=56915;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sunfire' WHERE entry=58815;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_zao' WHERE entry=58826;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_haunting_sha' WHERE entry=58865;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_peril_and_strife' WHERE entry=59726;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_peril_and_strife' WHERE entry=59051;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_nodding_tiger' WHERE entry=59544;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_golden_beetle' WHERE entry=59545;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_jiang_xiang' WHERE entry=59547;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_jiang_xiang' WHERE entry=65317;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_songbird_queen' WHERE entry=59553;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=59149;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=56882;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=56871;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=56872;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=56873;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=56874;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=59545;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=59552;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_sha_corrupted_generic' WHERE entry=59544;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_talking_fish' WHERE entry=59546;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_hunting_sha' WHERE entry=59555;
+-- Sha of Doubt
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_sha_of_doubt' WHERE entry=56439;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_figment_of_doubt' WHERE entry=56792;
+-- Wise Mari
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_wase_mari' WHERE entry=56448;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_corrupt_living_water' WHERE entry=59873;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (106334,'spell_wise_mari_wash_away');
+
+-- Terrace Of Endless Spring
+UPDATE instance_template SET script='instance_terrace_of_endless_spring' WHERE map=996;
+-- Protectors of the Endless
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_protector_kaolan' WHERE entry=60583;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_elder_regail' WHERE entry=60585;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_elder_asani' WHERE entry=60586;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_defiled_ground' WHERE entry=60906;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_expelled_corruption' WHERE entry=60886;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_cleansing_waters' WHERE entry=60646;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_corrupted_waters' WHERE entry=60621;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (117955,'spell_expelled_corruption');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (111850,'spell_lightning_prison');
+
+-- Throne Of Thunder
+-- Council of Elders
+UPDATE creature_template SET ScriptName = 'npc_council_event_helper' WHERE entry = 662203;
+UPDATE creature_template SET ScriptName = 'boss_frost_king_malakk' WHERE entry = 69131;
+UPDATE creature_template SET ScriptName = 'boss_kazrajin' WHERE entry = 69134;
+UPDATE creature_template SET ScriptName = 'boss_sul_the_sandcrawler' WHERE entry = 69078;
+UPDATE creature_template SET ScriptName = 'boss_high_priestess_marli' WHERE entry = 69132;
+UPDATE creature_template SET ScriptName = 'mob_garajals_soul' WHERE entry = 69182;
+UPDATE creature_template SET ScriptName = 'mob_quicksand_stalker' WHERE entry = 662205;
+UPDATE creature_template SET ScriptName = 'mob_living_sand' WHERE entry = 69153;
+UPDATE creature_template SET ScriptName = 'mob_blessed_loa_spirit' WHERE entry = 69480;
+UPDATE creature_template SET ScriptName = 'mob_shadowed_loa_spirit' WHERE entry = 69548;
+UPDATE creature_template SET ScriptName = 'mob_twisted_fate_helper' WHERE entry = 662204;
+UPDATE creature_template SET ScriptName = 'mob_twisted_fate' WHERE entry IN (69740, 69746);
+INSERT INTO spell_script_names VALUES
+    (136442, 'spell_garajal_possessed'),
+    (136903, 'spell_malakk_frigid_assault'),
+    (136917, 'spell_malakk_biting_cold'),
+    (136922, 'spell_malakk_frostbite_periodic'),
+    (136990, 'spell_malakk_frostbite'),
+    (136937, 'spell_malakk_frostbite_allies'),
+    (137084, 'spell_malakk_body_heat'),
+    (137117, 'spell_kazrajin_reckless_charge'),
+    (137149, 'spell_kazrajin_overload'),
+    (137166, 'spell_kazrajin_discharge'),
+    (136860, 'spell_quicksand_periodic'),
+    (136857, 'spell_quicksand_entrapped'),
+    (136894, 'spell_sul_sandstorm'),
+    (137203, 'spell_marli_summon_blessed_loa_spirit'),
+    (137350, 'spell_marli_summon_shadowed_loa_spirit'),
+    (137891, 'spell_marli_twisted_fate_first'),
+    (137962, 'spell_marli_twisted_fate_second'),
+    (137986, 'spell_marli_twisted_fate_damages');
+-- Boss Horrifon
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='npc_horrion_event_helper' WHERE entry=662202;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='boss_horridon' WHERE entry=68476;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_war_god_jalak' WHERE entry=69374;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69172;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69167;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69185;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69184;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69168;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69176;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69175;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69164;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69178;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_trashs' WHERE entry=69177;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_summons' WHERE entry=69346;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_summons' WHERE entry=69314;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_summons' WHERE entry=69268;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_summons' WHERE entry=69215;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_horridon_summons' WHERE entry=69313;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_zandalari_dinomancer' WHERE entry=69221;
+UPDATE creature_template SET minlevel=89, maxlevel=92, faction=1791, ScriptName='mob_direhorn_spirit' WHERE entry=70688;
+UPDATE gameobject_template SET ScriptName='gob_horridon_orb_of_control' WHERE entry=218193;
+UPDATE gameobject_template SET ScriptName='gob_horridon_orb_of_control' WHERE entry=218374;
+UPDATE gameobject_template SET ScriptName='gob_horridon_orb_of_control' WHERE entry=218375;
+UPDATE gameobject_template SET ScriptName='gob_horridon_orb_of_control' WHERE entry=218376;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (136741,'spell_horridon_double_swipe');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137433,'spell_control_horridon');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137442,'spell_control_horridon');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137443,'spell_control_horridon');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (137444,'spell_control_horridon');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (136723,'spell_horridon_sand_trap');
+-- Jin Rokh
+
+
 
 
 -- MONK SPELLS
