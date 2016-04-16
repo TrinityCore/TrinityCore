@@ -28,7 +28,7 @@
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "channel_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -37,7 +37,7 @@ namespace presence {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_presence_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
 void protobuf_AssignDesc_presence_5ftypes_2eproto();
 void protobuf_ShutdownFile_presence_5ftypes_2eproto();
 
@@ -51,12 +51,12 @@ enum FieldOperation_OperationType {
   FieldOperation_OperationType_SET = 0,
   FieldOperation_OperationType_CLEAR = 1
 };
-TC_SHARED_API bool FieldOperation_OperationType_IsValid(int value);
+TC_PROTO_API bool FieldOperation_OperationType_IsValid(int value);
 const FieldOperation_OperationType FieldOperation_OperationType_OperationType_MIN = FieldOperation_OperationType_SET;
 const FieldOperation_OperationType FieldOperation_OperationType_OperationType_MAX = FieldOperation_OperationType_CLEAR;
 const int FieldOperation_OperationType_OperationType_ARRAYSIZE = FieldOperation_OperationType_OperationType_MAX + 1;
 
-TC_SHARED_API const ::google::protobuf::EnumDescriptor* FieldOperation_OperationType_descriptor();
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* FieldOperation_OperationType_descriptor();
 inline const ::std::string& FieldOperation_OperationType_Name(FieldOperation_OperationType value) {
   return ::google::protobuf::internal::NameOfEnum(
     FieldOperation_OperationType_descriptor(), value);
@@ -68,7 +68,7 @@ inline bool FieldOperation_OperationType_Parse(
 }
 // ===================================================================
 
-class TC_SHARED_API RichPresenceLocalizationKey : public ::google::protobuf::Message {
+class TC_PROTO_API RichPresenceLocalizationKey : public ::google::protobuf::Message {
  public:
   RichPresenceLocalizationKey();
   virtual ~RichPresenceLocalizationKey();
@@ -158,7 +158,7 @@ class TC_SHARED_API RichPresenceLocalizationKey : public ::google::protobuf::Mes
   ::google::protobuf::uint32 program_;
   ::google::protobuf::uint32 stream_;
   ::google::protobuf::uint32 localization_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
   friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
 
@@ -167,7 +167,7 @@ class TC_SHARED_API RichPresenceLocalizationKey : public ::google::protobuf::Mes
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API FieldKey : public ::google::protobuf::Message {
+class TC_PROTO_API FieldKey : public ::google::protobuf::Message {
  public:
   FieldKey();
   virtual ~FieldKey();
@@ -267,7 +267,7 @@ class TC_SHARED_API FieldKey : public ::google::protobuf::Message {
   ::google::protobuf::uint32 group_;
   ::google::protobuf::uint64 unique_id_;
   ::google::protobuf::uint32 field_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
   friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
 
@@ -276,7 +276,7 @@ class TC_SHARED_API FieldKey : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Field : public ::google::protobuf::Message {
+class TC_PROTO_API Field : public ::google::protobuf::Message {
  public:
   Field();
   virtual ~Field();
@@ -360,7 +360,7 @@ class TC_SHARED_API Field : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::presence::v1::FieldKey* key_;
   ::bgs::protocol::Variant* value_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
   friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
 
@@ -369,7 +369,7 @@ class TC_SHARED_API Field : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API FieldOperation : public ::google::protobuf::Message {
+class TC_PROTO_API FieldOperation : public ::google::protobuf::Message {
  public:
   FieldOperation();
   virtual ~FieldOperation();
@@ -475,7 +475,7 @@ class TC_SHARED_API FieldOperation : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::presence::v1::Field* field_;
   int operation_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
   friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
 
@@ -484,7 +484,7 @@ class TC_SHARED_API FieldOperation : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ChannelState : public ::google::protobuf::Message {
+class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
  public:
   ChannelState();
   virtual ~ChannelState();
@@ -583,7 +583,7 @@ class TC_SHARED_API ChannelState : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* entity_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation > field_operation_;
   bool healing_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
   friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
 

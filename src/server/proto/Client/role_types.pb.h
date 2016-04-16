@@ -25,14 +25,14 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "attribute_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_role_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_role_5ftypes_2eproto();
 void protobuf_AssignDesc_role_5ftypes_2eproto();
 void protobuf_ShutdownFile_role_5ftypes_2eproto();
 
@@ -40,7 +40,7 @@ class Role;
 
 // ===================================================================
 
-class TC_SHARED_API Role : public ::google::protobuf::Message {
+class TC_PROTO_API Role : public ::google::protobuf::Message {
  public:
   Role();
   virtual ~Role();
@@ -227,7 +227,7 @@ class TC_SHARED_API Role : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > removable_role_;
   mutable int _removable_role_cached_byte_size_;
   ::google::protobuf::uint32 relegation_role_;
-  friend void TC_SHARED_API protobuf_AddDesc_role_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_role_5ftypes_2eproto();
   friend void protobuf_AssignDesc_role_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_role_5ftypes_2eproto();
 

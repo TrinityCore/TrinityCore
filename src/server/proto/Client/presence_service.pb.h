@@ -39,7 +39,7 @@ namespace presence {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
 void protobuf_AssignDesc_presence_5fservice_2eproto();
 void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -53,7 +53,7 @@ class OwnershipRequest;
 
 // ===================================================================
 
-class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
  public:
   SubscribeRequest();
   virtual ~SubscribeRequest();
@@ -170,7 +170,7 @@ class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
   ::google::protobuf::uint64 object_id_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > program_;
   bool flag_public_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -179,7 +179,7 @@ class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API SubscribeNotificationRequest : public ::google::protobuf::Message {
+class TC_PROTO_API SubscribeNotificationRequest : public ::google::protobuf::Message {
  public:
   SubscribeNotificationRequest();
   virtual ~SubscribeNotificationRequest();
@@ -251,7 +251,7 @@ class TC_SHARED_API SubscribeNotificationRequest : public ::google::protobuf::Me
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* entity_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -260,7 +260,7 @@ class TC_SHARED_API SubscribeNotificationRequest : public ::google::protobuf::Me
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UnsubscribeRequest : public ::google::protobuf::Message {
  public:
   UnsubscribeRequest();
   virtual ~UnsubscribeRequest();
@@ -354,7 +354,7 @@ class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::EntityId* entity_id_;
   ::google::protobuf::uint64 object_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -363,7 +363,7 @@ class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UpdateRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UpdateRequest : public ::google::protobuf::Message {
  public:
   UpdateRequest();
   virtual ~UpdateRequest();
@@ -470,7 +470,7 @@ class TC_SHARED_API UpdateRequest : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation > field_operation_;
   ::bgs::protocol::EntityId* agent_id_;
   bool no_create_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -479,7 +479,7 @@ class TC_SHARED_API UpdateRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API QueryRequest : public ::google::protobuf::Message {
+class TC_PROTO_API QueryRequest : public ::google::protobuf::Message {
  public:
   QueryRequest();
   virtual ~QueryRequest();
@@ -576,7 +576,7 @@ class TC_SHARED_API QueryRequest : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* entity_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldKey > key_;
   ::bgs::protocol::EntityId* agent_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -585,7 +585,7 @@ class TC_SHARED_API QueryRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API QueryResponse : public ::google::protobuf::Message {
+class TC_PROTO_API QueryResponse : public ::google::protobuf::Message {
  public:
   QueryResponse();
   virtual ~QueryResponse();
@@ -658,7 +658,7 @@ class TC_SHARED_API QueryResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::Field > field_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -667,7 +667,7 @@ class TC_SHARED_API QueryResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API OwnershipRequest : public ::google::protobuf::Message {
+class TC_PROTO_API OwnershipRequest : public ::google::protobuf::Message {
  public:
   OwnershipRequest();
   virtual ~OwnershipRequest();
@@ -749,7 +749,7 @@ class TC_SHARED_API OwnershipRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* entity_id_;
   bool release_ownership_;
-  friend void TC_SHARED_API protobuf_AddDesc_presence_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5fservice_2eproto();
   friend void protobuf_AssignDesc_presence_5fservice_2eproto();
   friend void protobuf_ShutdownFile_presence_5fservice_2eproto();
 
@@ -758,7 +758,7 @@ class TC_SHARED_API OwnershipRequest : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-class TC_SHARED_API PresenceService : public ServiceBase
+class TC_PROTO_API PresenceService : public ServiceBase
 {
  public:
 

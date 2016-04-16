@@ -42,7 +42,7 @@ namespace friends {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
 void protobuf_AssignDesc_friends_5fservice_2eproto();
 void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -61,7 +61,7 @@ class InvitationNotification;
 
 // ===================================================================
 
-class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
  public:
   SubscribeRequest();
   virtual ~SubscribeRequest();
@@ -143,7 +143,7 @@ class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint64 object_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -152,7 +152,7 @@ class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API SubscribeResponse : public ::google::protobuf::Message {
+class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
  public:
   SubscribeResponse();
   virtual ~SubscribeResponse();
@@ -294,7 +294,7 @@ class TC_SHARED_API SubscribeResponse : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > sent_invitations_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > received_invitations_;
   ::google::protobuf::uint32 max_sent_invitations_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -303,7 +303,7 @@ class TC_SHARED_API SubscribeResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UnsubscribeRequest : public ::google::protobuf::Message {
  public:
   UnsubscribeRequest();
   virtual ~UnsubscribeRequest();
@@ -385,7 +385,7 @@ class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint64 object_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -394,7 +394,7 @@ class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GenericFriendRequest : public ::google::protobuf::Message {
+class TC_PROTO_API GenericFriendRequest : public ::google::protobuf::Message {
  public:
   GenericFriendRequest();
   virtual ~GenericFriendRequest();
@@ -478,7 +478,7 @@ class TC_SHARED_API GenericFriendRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::EntityId* target_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -487,7 +487,7 @@ class TC_SHARED_API GenericFriendRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GenericFriendResponse : public ::google::protobuf::Message {
+class TC_PROTO_API GenericFriendResponse : public ::google::protobuf::Message {
  public:
   GenericFriendResponse();
   virtual ~GenericFriendResponse();
@@ -559,7 +559,7 @@ class TC_SHARED_API GenericFriendResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::friends::v1::Friend* target_friend_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -568,7 +568,7 @@ class TC_SHARED_API GenericFriendResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API AssignRoleRequest : public ::google::protobuf::Message {
+class TC_PROTO_API AssignRoleRequest : public ::google::protobuf::Message {
  public:
   AssignRoleRequest();
   virtual ~AssignRoleRequest();
@@ -665,7 +665,7 @@ class TC_SHARED_API AssignRoleRequest : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::EntityId* target_id_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > role_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -674,7 +674,7 @@ class TC_SHARED_API AssignRoleRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ViewFriendsRequest : public ::google::protobuf::Message {
+class TC_PROTO_API ViewFriendsRequest : public ::google::protobuf::Message {
  public:
   ViewFriendsRequest();
   virtual ~ViewFriendsRequest();
@@ -772,7 +772,7 @@ class TC_SHARED_API ViewFriendsRequest : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* target_id_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
   mutable int _role_cached_byte_size_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -781,7 +781,7 @@ class TC_SHARED_API ViewFriendsRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ViewFriendsResponse : public ::google::protobuf::Message {
+class TC_PROTO_API ViewFriendsResponse : public ::google::protobuf::Message {
  public:
   ViewFriendsResponse();
   virtual ~ViewFriendsResponse();
@@ -854,7 +854,7 @@ class TC_SHARED_API ViewFriendsResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend > friends_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -863,7 +863,7 @@ class TC_SHARED_API ViewFriendsResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UpdateFriendStateRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UpdateFriendStateRequest : public ::google::protobuf::Message {
  public:
   UpdateFriendStateRequest();
   virtual ~UpdateFriendStateRequest();
@@ -970,7 +970,7 @@ class TC_SHARED_API UpdateFriendStateRequest : public ::google::protobuf::Messag
   ::bgs::protocol::EntityId* target_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
   ::google::protobuf::uint64 attributes_epoch_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -979,7 +979,7 @@ class TC_SHARED_API UpdateFriendStateRequest : public ::google::protobuf::Messag
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API FriendNotification : public ::google::protobuf::Message {
+class TC_PROTO_API FriendNotification : public ::google::protobuf::Message {
  public:
   FriendNotification();
   virtual ~FriendNotification();
@@ -1087,7 +1087,7 @@ class TC_SHARED_API FriendNotification : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::ProcessId* peer_;
   ::bgs::protocol::EntityId* account_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -1096,7 +1096,7 @@ class TC_SHARED_API FriendNotification : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UpdateFriendStateNotification : public ::google::protobuf::Message {
+class TC_PROTO_API UpdateFriendStateNotification : public ::google::protobuf::Message {
  public:
   UpdateFriendStateNotification();
   virtual ~UpdateFriendStateNotification();
@@ -1204,7 +1204,7 @@ class TC_SHARED_API UpdateFriendStateNotification : public ::google::protobuf::M
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::ProcessId* peer_;
   ::bgs::protocol::EntityId* account_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -1213,7 +1213,7 @@ class TC_SHARED_API UpdateFriendStateNotification : public ::google::protobuf::M
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API InvitationNotification : public ::google::protobuf::Message {
+class TC_PROTO_API InvitationNotification : public ::google::protobuf::Message {
  public:
   InvitationNotification();
   virtual ~InvitationNotification();
@@ -1331,7 +1331,7 @@ class TC_SHARED_API InvitationNotification : public ::google::protobuf::Message 
   ::bgs::protocol::ProcessId* peer_;
   ::bgs::protocol::EntityId* account_id_;
   ::google::protobuf::uint32 reason_;
-  friend void TC_SHARED_API protobuf_AddDesc_friends_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5fservice_2eproto();
   friend void protobuf_AssignDesc_friends_5fservice_2eproto();
   friend void protobuf_ShutdownFile_friends_5fservice_2eproto();
 
@@ -1340,7 +1340,7 @@ class TC_SHARED_API InvitationNotification : public ::google::protobuf::Message 
 };
 // ===================================================================
 
-class TC_SHARED_API FriendsService : public ServiceBase
+class TC_PROTO_API FriendsService : public ServiceBase
 {
  public:
 
@@ -1392,7 +1392,7 @@ class TC_SHARED_API FriendsService : public ServiceBase
 
 // -------------------------------------------------------------------
 
-class TC_SHARED_API FriendsListener : public ServiceBase
+class TC_PROTO_API FriendsListener : public ServiceBase
 {
  public:
 

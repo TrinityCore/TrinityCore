@@ -25,14 +25,14 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "entity_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
 void protobuf_AssignDesc_invitation_5ftypes_2eproto();
 void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -47,7 +47,7 @@ class GenericInvitationRequest;
 
 // ===================================================================
 
-class TC_SHARED_API Invitation : public ::google::protobuf::Message {
+class TC_PROTO_API Invitation : public ::google::protobuf::Message {
  public:
   Invitation();
   virtual ~Invitation();
@@ -209,7 +209,7 @@ class TC_SHARED_API Invitation : public ::google::protobuf::Message {
   ::std::string* invitation_message_;
   ::google::protobuf::uint64 creation_time_;
   ::google::protobuf::uint64 expiration_time_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -218,7 +218,7 @@ class TC_SHARED_API Invitation : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API InvitationSuggestion : public ::google::protobuf::Message {
+class TC_PROTO_API InvitationSuggestion : public ::google::protobuf::Message {
  public:
   InvitationSuggestion();
   virtual ~InvitationSuggestion();
@@ -356,7 +356,7 @@ class TC_SHARED_API InvitationSuggestion : public ::google::protobuf::Message {
   ::std::string* suggester_name_;
   ::std::string* suggestee_name_;
   ::bgs::protocol::EntityId* suggester_account_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -365,7 +365,7 @@ class TC_SHARED_API InvitationSuggestion : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API InvitationTarget : public ::google::protobuf::Message {
+class TC_PROTO_API InvitationTarget : public ::google::protobuf::Message {
  public:
   InvitationTarget();
   virtual ~InvitationTarget();
@@ -470,7 +470,7 @@ class TC_SHARED_API InvitationTarget : public ::google::protobuf::Message {
   ::bgs::protocol::Identity* identity_;
   ::std::string* email_;
   ::std::string* battle_tag_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -479,7 +479,7 @@ class TC_SHARED_API InvitationTarget : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API InvitationParams : public ::google::protobuf::Message {
+class TC_PROTO_API InvitationParams : public ::google::protobuf::Message {
  public:
   InvitationParams();
   virtual ~InvitationParams();
@@ -567,7 +567,7 @@ class TC_SHARED_API InvitationParams : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* invitation_message_;
   ::google::protobuf::uint64 expiration_time_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -576,7 +576,7 @@ class TC_SHARED_API InvitationParams : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API SendInvitationRequest : public ::google::protobuf::Message {
+class TC_PROTO_API SendInvitationRequest : public ::google::protobuf::Message {
  public:
   SendInvitationRequest();
   virtual ~SendInvitationRequest();
@@ -696,7 +696,7 @@ class TC_SHARED_API SendInvitationRequest : public ::google::protobuf::Message {
   ::bgs::protocol::InvitationParams* params_;
   ::bgs::protocol::AccountInfo* agent_info_;
   ::bgs::protocol::InvitationTarget* target_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -705,7 +705,7 @@ class TC_SHARED_API SendInvitationRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API SendInvitationResponse : public ::google::protobuf::Message {
+class TC_PROTO_API SendInvitationResponse : public ::google::protobuf::Message {
  public:
   SendInvitationResponse();
   virtual ~SendInvitationResponse();
@@ -777,7 +777,7 @@ class TC_SHARED_API SendInvitationResponse : public ::google::protobuf::Message 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::Invitation* invitation_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -786,7 +786,7 @@ class TC_SHARED_API SendInvitationResponse : public ::google::protobuf::Message 
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UpdateInvitationRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UpdateInvitationRequest : public ::google::protobuf::Message {
  public:
   UpdateInvitationRequest();
   virtual ~UpdateInvitationRequest();
@@ -880,7 +880,7 @@ class TC_SHARED_API UpdateInvitationRequest : public ::google::protobuf::Message
   ::bgs::protocol::Identity* agent_identity_;
   ::google::protobuf::uint64 invitation_id_;
   ::bgs::protocol::InvitationParams* params_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 
@@ -889,7 +889,7 @@ class TC_SHARED_API UpdateInvitationRequest : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GenericInvitationRequest : public ::google::protobuf::Message {
+class TC_PROTO_API GenericInvitationRequest : public ::google::protobuf::Message {
  public:
   GenericInvitationRequest();
   virtual ~GenericInvitationRequest();
@@ -1051,7 +1051,7 @@ class TC_SHARED_API GenericInvitationRequest : public ::google::protobuf::Messag
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > desired_role_;
   mutable int _desired_role_cached_byte_size_;
   ::google::protobuf::uint32 reason_;
-  friend void TC_SHARED_API protobuf_AddDesc_invitation_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
 

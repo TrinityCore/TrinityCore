@@ -26,7 +26,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "entity_types.pb.h"
 #include "attribute_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -35,7 +35,7 @@ namespace user_manager {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
 void protobuf_AssignDesc_user_5fmanager_5ftypes_2eproto();
 void protobuf_ShutdownFile_user_5fmanager_5ftypes_2eproto();
 
@@ -44,7 +44,7 @@ class BlockedPlayer;
 
 // ===================================================================
 
-class TC_SHARED_API RecentPlayer : public ::google::protobuf::Message {
+class TC_PROTO_API RecentPlayer : public ::google::protobuf::Message {
  public:
   RecentPlayer();
   virtual ~RecentPlayer();
@@ -174,7 +174,7 @@ class TC_SHARED_API RecentPlayer : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attributes_;
   ::google::protobuf::uint32 id_;
   ::google::protobuf::uint32 counter_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5ftypes_2eproto();
 
@@ -183,7 +183,7 @@ class TC_SHARED_API RecentPlayer : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API BlockedPlayer : public ::google::protobuf::Message {
+class TC_PROTO_API BlockedPlayer : public ::google::protobuf::Message {
  public:
   BlockedPlayer();
   virtual ~BlockedPlayer();
@@ -294,7 +294,7 @@ class TC_SHARED_API BlockedPlayer : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
   mutable int _role_cached_byte_size_;
   ::google::protobuf::uint64 privileges_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5ftypes_2eproto();
 
