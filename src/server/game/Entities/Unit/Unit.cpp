@@ -15991,6 +15991,8 @@ bool Unit::SetCanFly(bool enable)
     };
 
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+    if (!enable && player)
+        ToPlayer()->SetFallInformation(0, GetPositionZ());
 
     if (player)
     {
