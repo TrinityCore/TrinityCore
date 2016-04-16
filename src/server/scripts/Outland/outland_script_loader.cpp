@@ -72,6 +72,7 @@ void AddSC_instance_the_slave_pens();
 void AddSC_boss_mennu_the_betrayer();
 void AddSC_boss_rokmar_the_crackler();
 void AddSC_boss_quagmirran();
+void AddSC_boss_ahune();
 
 // Coilfang Reservoir - The Underbog
 void AddSC_instance_the_underbog();
@@ -193,6 +194,7 @@ void AddOutlandScripts()
     AddSC_boss_mennu_the_betrayer();
     AddSC_boss_rokmar_the_crackler();
     AddSC_boss_quagmirran();
+    AddSC_boss_ahune();
 
     // Coilfang Reservoir - The Underbog
     AddSC_instance_the_underbog();
