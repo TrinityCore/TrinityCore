@@ -31,7 +31,7 @@ namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
+void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
 void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto();
 void protobuf_ShutdownFile_global_5fextensions_2ffield_5foptions_2eproto();
 
@@ -40,12 +40,12 @@ enum LogOption {
   HIDDEN = 1,
   HEX = 2
 };
-TC_SHARED_API bool LogOption_IsValid(int value);
+TC_PROTO_API bool LogOption_IsValid(int value);
 const LogOption LogOption_MIN = HIDDEN;
 const LogOption LogOption_MAX = HEX;
 const int LogOption_ARRAYSIZE = LogOption_MAX + 1;
 
-TC_SHARED_API const ::google::protobuf::EnumDescriptor* LogOption_descriptor();
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* LogOption_descriptor();
 inline const ::std::string& LogOption_Name(LogOption value) {
   return ::google::protobuf::internal::NameOfEnum(
     LogOption_descriptor(), value);
@@ -64,7 +64,7 @@ inline bool LogOption_Parse(
 // ===================================================================
 
 static const int kLogFieldNumber = 50000;
-TC_SHARED_API extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
+TC_PROTO_API extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
     ::google::protobuf::internal::EnumTypeTraits< ::bgs::protocol::LogOption, ::bgs::protocol::LogOption_IsValid>, 14, false >
   log;
 

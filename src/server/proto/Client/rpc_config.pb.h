@@ -24,7 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -32,7 +32,7 @@ namespace protocol {
 namespace config {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_rpc_5fconfig_2eproto();
+void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
 void protobuf_AssignDesc_rpc_5fconfig_2eproto();
 void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
 
@@ -43,7 +43,7 @@ class ServiceAliases;
 
 // ===================================================================
 
-class TC_SHARED_API RPCMethodConfig : public ::google::protobuf::Message {
+class TC_PROTO_API RPCMethodConfig : public ::google::protobuf::Message {
  public:
   RPCMethodConfig();
   virtual ~RPCMethodConfig();
@@ -263,7 +263,7 @@ class TC_SHARED_API RPCMethodConfig : public ::google::protobuf::Message {
   float income_per_second_;
   ::google::protobuf::uint32 service_hash_;
   ::google::protobuf::uint32 method_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5fconfig_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
   friend void protobuf_AssignDesc_rpc_5fconfig_2eproto();
   friend void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
 
@@ -272,7 +272,7 @@ class TC_SHARED_API RPCMethodConfig : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RPCMeterConfig : public ::google::protobuf::Message {
+class TC_PROTO_API RPCMeterConfig : public ::google::protobuf::Message {
  public:
   RPCMeterConfig();
   virtual ~RPCMeterConfig();
@@ -385,7 +385,7 @@ class TC_SHARED_API RPCMeterConfig : public ::google::protobuf::Message {
   ::google::protobuf::uint32 initial_balance_;
   ::google::protobuf::uint32 cap_balance_;
   float startup_period_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5fconfig_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
   friend void protobuf_AssignDesc_rpc_5fconfig_2eproto();
   friend void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
 
@@ -394,7 +394,7 @@ class TC_SHARED_API RPCMeterConfig : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ProtocolAlias : public ::google::protobuf::Message {
+class TC_PROTO_API ProtocolAlias : public ::google::protobuf::Message {
  public:
   ProtocolAlias();
   virtual ~ProtocolAlias();
@@ -484,7 +484,7 @@ class TC_SHARED_API ProtocolAlias : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* server_service_name_;
   ::std::string* client_service_name_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5fconfig_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
   friend void protobuf_AssignDesc_rpc_5fconfig_2eproto();
   friend void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
 
@@ -493,7 +493,7 @@ class TC_SHARED_API ProtocolAlias : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ServiceAliases : public ::google::protobuf::Message {
+class TC_PROTO_API ServiceAliases : public ::google::protobuf::Message {
  public:
   ServiceAliases();
   virtual ~ServiceAliases();
@@ -566,7 +566,7 @@ class TC_SHARED_API ServiceAliases : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::config::ProtocolAlias > protocol_alias_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5fconfig_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
   friend void protobuf_AssignDesc_rpc_5fconfig_2eproto();
   friend void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
 

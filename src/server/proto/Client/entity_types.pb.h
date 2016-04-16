@@ -25,14 +25,14 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "global_extensions/field_options.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_entity_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_entity_5ftypes_2eproto();
 void protobuf_AssignDesc_entity_5ftypes_2eproto();
 void protobuf_ShutdownFile_entity_5ftypes_2eproto();
 
@@ -42,7 +42,7 @@ class AccountInfo;
 
 // ===================================================================
 
-class TC_SHARED_API EntityId : public ::google::protobuf::Message {
+class TC_PROTO_API EntityId : public ::google::protobuf::Message {
  public:
   EntityId();
   virtual ~EntityId();
@@ -122,7 +122,7 @@ class TC_SHARED_API EntityId : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::uint64 high_;
   ::google::protobuf::uint64 low_;
-  friend void TC_SHARED_API protobuf_AddDesc_entity_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_entity_5ftypes_2eproto();
   friend void protobuf_AssignDesc_entity_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_entity_5ftypes_2eproto();
 
@@ -131,7 +131,7 @@ class TC_SHARED_API EntityId : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Identity : public ::google::protobuf::Message {
+class TC_PROTO_API Identity : public ::google::protobuf::Message {
  public:
   Identity();
   virtual ~Identity();
@@ -215,7 +215,7 @@ class TC_SHARED_API Identity : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* account_id_;
   ::bgs::protocol::EntityId* game_account_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_entity_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_entity_5ftypes_2eproto();
   friend void protobuf_AssignDesc_entity_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_entity_5ftypes_2eproto();
 
@@ -224,7 +224,7 @@ class TC_SHARED_API Identity : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API AccountInfo : public ::google::protobuf::Message {
+class TC_PROTO_API AccountInfo : public ::google::protobuf::Message {
  public:
   AccountInfo();
   virtual ~AccountInfo();
@@ -351,7 +351,7 @@ class TC_SHARED_API AccountInfo : public ::google::protobuf::Message {
   bool manual_review_;
   bool account_muted_;
   ::bgs::protocol::Identity* identity_;
-  friend void TC_SHARED_API protobuf_AddDesc_entity_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_entity_5ftypes_2eproto();
   friend void protobuf_AssignDesc_entity_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_entity_5ftypes_2eproto();
 

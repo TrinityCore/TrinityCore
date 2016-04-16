@@ -41,7 +41,7 @@ namespace game_utilities {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
 void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
 void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -61,7 +61,7 @@ class GetAllValuesForAttributeResponse;
 
 // ===================================================================
 
-class TC_SHARED_API ClientRequest : public ::google::protobuf::Message {
+class TC_PROTO_API ClientRequest : public ::google::protobuf::Message {
  public:
   ClientRequest();
   virtual ~ClientRequest();
@@ -192,7 +192,7 @@ class TC_SHARED_API ClientRequest : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::game_utilities::v1::ClientInfo* client_info_;
   ::google::protobuf::uint32 program_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -201,7 +201,7 @@ class TC_SHARED_API ClientRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ClientResponse : public ::google::protobuf::Message {
+class TC_PROTO_API ClientResponse : public ::google::protobuf::Message {
  public:
   ClientResponse();
   virtual ~ClientResponse();
@@ -274,7 +274,7 @@ class TC_SHARED_API ClientResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -283,7 +283,7 @@ class TC_SHARED_API ClientResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ServerRequest : public ::google::protobuf::Message {
+class TC_PROTO_API ServerRequest : public ::google::protobuf::Message {
  public:
   ServerRequest();
   virtual ~ServerRequest();
@@ -378,7 +378,7 @@ class TC_SHARED_API ServerRequest : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
   ::bgs::protocol::ProcessId* host_;
   ::google::protobuf::uint32 program_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -387,7 +387,7 @@ class TC_SHARED_API ServerRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ServerResponse : public ::google::protobuf::Message {
+class TC_PROTO_API ServerResponse : public ::google::protobuf::Message {
  public:
   ServerResponse();
   virtual ~ServerResponse();
@@ -460,7 +460,7 @@ class TC_SHARED_API ServerResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -469,7 +469,7 @@ class TC_SHARED_API ServerResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API PresenceChannelCreatedRequest : public ::google::protobuf::Message {
+class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Message {
  public:
   PresenceChannelCreatedRequest();
   virtual ~PresenceChannelCreatedRequest();
@@ -577,7 +577,7 @@ class TC_SHARED_API PresenceChannelCreatedRequest : public ::google::protobuf::M
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::EntityId* account_id_;
   ::bgs::protocol::ProcessId* host_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -586,7 +586,7 @@ class TC_SHARED_API PresenceChannelCreatedRequest : public ::google::protobuf::M
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GetPlayerVariablesRequest : public ::google::protobuf::Message {
+class TC_PROTO_API GetPlayerVariablesRequest : public ::google::protobuf::Message {
  public:
   GetPlayerVariablesRequest();
   virtual ~GetPlayerVariablesRequest();
@@ -671,7 +671,7 @@ class TC_SHARED_API GetPlayerVariablesRequest : public ::google::protobuf::Messa
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables > player_variables_;
   ::bgs::protocol::ProcessId* host_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -680,7 +680,7 @@ class TC_SHARED_API GetPlayerVariablesRequest : public ::google::protobuf::Messa
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GetPlayerVariablesResponse : public ::google::protobuf::Message {
+class TC_PROTO_API GetPlayerVariablesResponse : public ::google::protobuf::Message {
  public:
   GetPlayerVariablesResponse();
   virtual ~GetPlayerVariablesResponse();
@@ -753,7 +753,7 @@ class TC_SHARED_API GetPlayerVariablesResponse : public ::google::protobuf::Mess
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables > player_variables_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -762,7 +762,7 @@ class TC_SHARED_API GetPlayerVariablesResponse : public ::google::protobuf::Mess
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GameAccountOnlineNotification : public ::google::protobuf::Message {
+class TC_PROTO_API GameAccountOnlineNotification : public ::google::protobuf::Message {
  public:
   GameAccountOnlineNotification();
   virtual ~GameAccountOnlineNotification();
@@ -861,7 +861,7 @@ class TC_SHARED_API GameAccountOnlineNotification : public ::google::protobuf::M
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::ProcessId* host_;
   ::std::string* session_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -870,7 +870,7 @@ class TC_SHARED_API GameAccountOnlineNotification : public ::google::protobuf::M
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GameAccountOfflineNotification : public ::google::protobuf::Message {
+class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::Message {
  public:
   GameAccountOfflineNotification();
   virtual ~GameAccountOfflineNotification();
@@ -969,7 +969,7 @@ class TC_SHARED_API GameAccountOfflineNotification : public ::google::protobuf::
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::ProcessId* host_;
   ::std::string* session_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -978,7 +978,7 @@ class TC_SHARED_API GameAccountOfflineNotification : public ::google::protobuf::
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GetAchievementsFileRequest : public ::google::protobuf::Message {
+class TC_PROTO_API GetAchievementsFileRequest : public ::google::protobuf::Message {
  public:
   GetAchievementsFileRequest();
   virtual ~GetAchievementsFileRequest();
@@ -1050,7 +1050,7 @@ class TC_SHARED_API GetAchievementsFileRequest : public ::google::protobuf::Mess
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::ProcessId* host_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -1059,7 +1059,7 @@ class TC_SHARED_API GetAchievementsFileRequest : public ::google::protobuf::Mess
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GetAchievementsFileResponse : public ::google::protobuf::Message {
+class TC_PROTO_API GetAchievementsFileResponse : public ::google::protobuf::Message {
  public:
   GetAchievementsFileResponse();
   virtual ~GetAchievementsFileResponse();
@@ -1131,7 +1131,7 @@ class TC_SHARED_API GetAchievementsFileResponse : public ::google::protobuf::Mes
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::ContentHandle* content_handle_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -1140,7 +1140,7 @@ class TC_SHARED_API GetAchievementsFileResponse : public ::google::protobuf::Mes
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GetAllValuesForAttributeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API GetAllValuesForAttributeRequest : public ::google::protobuf::Message {
  public:
   GetAllValuesForAttributeRequest();
   virtual ~GetAllValuesForAttributeRequest();
@@ -1237,7 +1237,7 @@ class TC_SHARED_API GetAllValuesForAttributeRequest : public ::google::protobuf:
   ::std::string* attribute_key_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint32 program_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -1246,7 +1246,7 @@ class TC_SHARED_API GetAllValuesForAttributeRequest : public ::google::protobuf:
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API GetAllValuesForAttributeResponse : public ::google::protobuf::Message {
+class TC_PROTO_API GetAllValuesForAttributeResponse : public ::google::protobuf::Message {
  public:
   GetAllValuesForAttributeResponse();
   virtual ~GetAllValuesForAttributeResponse();
@@ -1319,7 +1319,7 @@ class TC_SHARED_API GetAllValuesForAttributeResponse : public ::google::protobuf
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Variant > attribute_value_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
 
@@ -1328,7 +1328,7 @@ class TC_SHARED_API GetAllValuesForAttributeResponse : public ::google::protobuf
 };
 // ===================================================================
 
-class TC_SHARED_API GameUtilitiesService : public ServiceBase
+class TC_PROTO_API GameUtilitiesService : public ServiceBase
 {
  public:
 

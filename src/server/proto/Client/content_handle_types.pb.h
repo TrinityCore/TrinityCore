@@ -24,14 +24,14 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
 void protobuf_AssignDesc_content_5fhandle_5ftypes_2eproto();
 void protobuf_ShutdownFile_content_5fhandle_5ftypes_2eproto();
 
@@ -39,7 +39,7 @@ class ContentHandle;
 
 // ===================================================================
 
-class TC_SHARED_API ContentHandle : public ::google::protobuf::Message {
+class TC_PROTO_API ContentHandle : public ::google::protobuf::Message {
  public:
   ContentHandle();
   virtual ~ContentHandle();
@@ -149,7 +149,7 @@ class TC_SHARED_API ContentHandle : public ::google::protobuf::Message {
   ::google::protobuf::uint32 usage_;
   ::std::string* hash_;
   ::std::string* proto_url_;
-  friend void TC_SHARED_API protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
   friend void protobuf_AssignDesc_content_5fhandle_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_content_5fhandle_5ftypes_2eproto();
 

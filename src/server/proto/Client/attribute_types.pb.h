@@ -26,14 +26,14 @@
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "entity_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_attribute_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_attribute_5ftypes_2eproto();
 void protobuf_AssignDesc_attribute_5ftypes_2eproto();
 void protobuf_ShutdownFile_attribute_5ftypes_2eproto();
 
@@ -47,12 +47,12 @@ enum AttributeFilter_Operation {
   AttributeFilter_Operation_MATCH_ALL = 2,
   AttributeFilter_Operation_MATCH_ALL_MOST_SPECIFIC = 3
 };
-TC_SHARED_API bool AttributeFilter_Operation_IsValid(int value);
+TC_PROTO_API bool AttributeFilter_Operation_IsValid(int value);
 const AttributeFilter_Operation AttributeFilter_Operation_Operation_MIN = AttributeFilter_Operation_MATCH_NONE;
 const AttributeFilter_Operation AttributeFilter_Operation_Operation_MAX = AttributeFilter_Operation_MATCH_ALL_MOST_SPECIFIC;
 const int AttributeFilter_Operation_Operation_ARRAYSIZE = AttributeFilter_Operation_Operation_MAX + 1;
 
-TC_SHARED_API const ::google::protobuf::EnumDescriptor* AttributeFilter_Operation_descriptor();
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* AttributeFilter_Operation_descriptor();
 inline const ::std::string& AttributeFilter_Operation_Name(AttributeFilter_Operation value) {
   return ::google::protobuf::internal::NameOfEnum(
     AttributeFilter_Operation_descriptor(), value);
@@ -64,7 +64,7 @@ inline bool AttributeFilter_Operation_Parse(
 }
 // ===================================================================
 
-class TC_SHARED_API Variant : public ::google::protobuf::Message {
+class TC_PROTO_API Variant : public ::google::protobuf::Message {
  public:
   Variant();
   virtual ~Variant();
@@ -236,7 +236,7 @@ class TC_SHARED_API Variant : public ::google::protobuf::Message {
   ::google::protobuf::uint64 uint_value_;
   ::bgs::protocol::EntityId* entity_id_value_;
   bool bool_value_;
-  friend void TC_SHARED_API protobuf_AddDesc_attribute_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_attribute_5ftypes_2eproto();
   friend void protobuf_AssignDesc_attribute_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_attribute_5ftypes_2eproto();
 
@@ -245,7 +245,7 @@ class TC_SHARED_API Variant : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Attribute : public ::google::protobuf::Message {
+class TC_PROTO_API Attribute : public ::google::protobuf::Message {
  public:
   Attribute();
   virtual ~Attribute();
@@ -332,7 +332,7 @@ class TC_SHARED_API Attribute : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* name_;
   ::bgs::protocol::Variant* value_;
-  friend void TC_SHARED_API protobuf_AddDesc_attribute_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_attribute_5ftypes_2eproto();
   friend void protobuf_AssignDesc_attribute_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_attribute_5ftypes_2eproto();
 
@@ -341,7 +341,7 @@ class TC_SHARED_API Attribute : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API AttributeFilter : public ::google::protobuf::Message {
+class TC_PROTO_API AttributeFilter : public ::google::protobuf::Message {
  public:
   AttributeFilter();
   virtual ~AttributeFilter();
@@ -450,7 +450,7 @@ class TC_SHARED_API AttributeFilter : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
   int op_;
-  friend void TC_SHARED_API protobuf_AddDesc_attribute_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_attribute_5ftypes_2eproto();
   friend void protobuf_AssignDesc_attribute_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_attribute_5ftypes_2eproto();
 

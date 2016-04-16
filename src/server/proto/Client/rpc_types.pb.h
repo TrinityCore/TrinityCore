@@ -27,14 +27,14 @@
 #include "global_extensions/method_options.pb.h"  // IWYU pragma: export
 #include "global_extensions/service_options.pb.h"  // IWYU pragma: export
 #include "global_extensions/field_options.pb.h"  // IWYU pragma: export
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
 namespace protocol {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
 void protobuf_AssignDesc_rpc_5ftypes_2eproto();
 void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -48,7 +48,7 @@ class Header;
 
 // ===================================================================
 
-class TC_SHARED_API NO_RESPONSE : public ::google::protobuf::Message {
+class TC_PROTO_API NO_RESPONSE : public ::google::protobuf::Message {
  public:
   NO_RESPONSE();
   virtual ~NO_RESPONSE();
@@ -108,7 +108,7 @@ class TC_SHARED_API NO_RESPONSE : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -117,7 +117,7 @@ class TC_SHARED_API NO_RESPONSE : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Address : public ::google::protobuf::Message {
+class TC_PROTO_API Address : public ::google::protobuf::Message {
  public:
   Address();
   virtual ~Address();
@@ -202,7 +202,7 @@ class TC_SHARED_API Address : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* address_;
   ::google::protobuf::uint32 port_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -211,7 +211,7 @@ class TC_SHARED_API Address : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ProcessId : public ::google::protobuf::Message {
+class TC_PROTO_API ProcessId : public ::google::protobuf::Message {
  public:
   ProcessId();
   virtual ~ProcessId();
@@ -291,7 +291,7 @@ class TC_SHARED_API ProcessId : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::uint32 label_;
   ::google::protobuf::uint32 epoch_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -300,7 +300,7 @@ class TC_SHARED_API ProcessId : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ObjectAddress : public ::google::protobuf::Message {
+class TC_PROTO_API ObjectAddress : public ::google::protobuf::Message {
  public:
   ObjectAddress();
   virtual ~ObjectAddress();
@@ -382,7 +382,7 @@ class TC_SHARED_API ObjectAddress : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::ProcessId* host_;
   ::google::protobuf::uint64 object_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -391,7 +391,7 @@ class TC_SHARED_API ObjectAddress : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API NoData : public ::google::protobuf::Message {
+class TC_PROTO_API NoData : public ::google::protobuf::Message {
  public:
   NoData();
   virtual ~NoData();
@@ -451,7 +451,7 @@ class TC_SHARED_API NoData : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -460,7 +460,7 @@ class TC_SHARED_API NoData : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ErrorInfo : public ::google::protobuf::Message {
+class TC_PROTO_API ErrorInfo : public ::google::protobuf::Message {
  public:
   ErrorInfo();
   virtual ~ErrorInfo();
@@ -562,7 +562,7 @@ class TC_SHARED_API ErrorInfo : public ::google::protobuf::Message {
   ::google::protobuf::uint32 status_;
   ::google::protobuf::uint32 service_hash_;
   ::google::protobuf::uint32 method_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
@@ -571,7 +571,7 @@ class TC_SHARED_API ErrorInfo : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Header : public ::google::protobuf::Message {
+class TC_PROTO_API Header : public ::google::protobuf::Message {
  public:
   Header();
   virtual ~Header();
@@ -747,7 +747,7 @@ class TC_SHARED_API Header : public ::google::protobuf::Message {
   ::google::protobuf::uint64 timeout_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::ProcessId > forward_targets_;
   ::google::protobuf::uint32 service_hash_;
-  friend void TC_SHARED_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
 
