@@ -2026,7 +2026,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         if (Map* map = caster->GetMap())
             if (InstanceMap* iMap = map->ToInstanceMap())
                 if (InstanceScript* instance = iMap->GetInstanceScript())
-                    if (instance->GetAvailableBattleResurrections() == 0)
+                    if (instance->GetAvailableBattleResurrections() == 0 && instance->IsEncounterInProgress())
                         return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;
