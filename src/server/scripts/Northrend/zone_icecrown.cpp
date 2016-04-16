@@ -712,7 +712,7 @@ enum BorrowedTechnologyAndVolatility
     SPELL_PING_BUNNY       = 59375,
     SPELL_IMMOLATION       = 54690,
     SPELL_EXPLOSION        = 59335,
-    SPELL_RIDE             = 56687,
+    SPELL_RIDE             = 59319,
 
     // Points
     POINT_GRAB_DECOY       = 1,
