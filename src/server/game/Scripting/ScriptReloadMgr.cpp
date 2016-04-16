@@ -782,15 +782,14 @@ private:
             _unique_library_name_counter++,
             path.extension().generic_string().c_str());
 
-        if ([&]
-            {
-                boost::system::error_code code;
-                fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
-                return code;
-            }())
+        boost::system::error_code code;
+        fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
+        if (code)
         {
-            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module \"%s\"!",
-                path.filename().generic_string().c_str());
+            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
+                "\"%s\" at \"%s\" with reason (\"%s\")!",
+                path.filename().generic_string().c_str(), cache_path.generic_string().c_str(),
+                code.message().c_str());
 
             // Find a better solution for this but it's much better
             // to start the core without scripts
