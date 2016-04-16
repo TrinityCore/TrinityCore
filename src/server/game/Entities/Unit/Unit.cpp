@@ -12789,7 +12789,7 @@ Unit* Creature::SelectVictim()
 
     if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
     {
-        if(!IsFocusing())
+        if (!IsFocusing())
             SetInFront(target);
         return target;
     }
