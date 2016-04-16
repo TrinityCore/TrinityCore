@@ -28,7 +28,7 @@ namespace WorldPackets
         {
         public:
             VoiceSessionEnable(WorldPacket&& packet) : ClientPacket(CMSG_VOICE_SESSION_ENABLE, std::move(packet)) { }
-        
+
             void Read() override;
 
             bool EnableVoiceChat = false;
@@ -39,7 +39,7 @@ namespace WorldPackets
         {
         public:
             SetActiveVoiceChannel(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTIVE_VOICE_CHANNEL, std::move(packet)) { }
-        
+
             void Read() override;
 
             uint8 ChannelType = 0;

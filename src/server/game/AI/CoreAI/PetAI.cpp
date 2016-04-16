@@ -148,7 +148,7 @@ void PetAI::UpdateAI(uint32 diff)
 
             if (me->GetCharmInfo() && me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
                 continue;
-    
+
             // check spell cooldown
             if (!me->GetSpellHistory()->IsReady(spellInfo))
                 continue;

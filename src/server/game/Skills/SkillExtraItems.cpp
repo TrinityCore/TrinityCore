@@ -210,7 +210,7 @@ bool CanCreatePerfectItem(Player* player, uint32 spellId, float &perfectCreateCh
     // lack of entry means no perfection proc possible
     if (!thisEntry)
         return false;
-    
+
     // if you don't have the spell needed, then no procs for you
     if (!player->HasSpell(thisEntry->requiredSpecialization))
         return false;
@@ -218,7 +218,7 @@ bool CanCreatePerfectItem(Player* player, uint32 spellId, float &perfectCreateCh
     // set values as appropriate
     perfectCreateChance = thisEntry->perfectCreateChance;
     perfectItemType = thisEntry->perfectItemType;
-    
+
     // and tell the caller to start rolling the dice
     return true;
 }

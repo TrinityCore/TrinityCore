@@ -483,7 +483,7 @@ class npc_barada : public CreatureScript
 {
 public:
     npc_barada() : CreatureScript("npc_barada") { }
-       
+
     struct npc_baradaAI : public ScriptedAI
     {
         npc_baradaAI(Creature* creature) : ScriptedAI(creature)
@@ -780,7 +780,7 @@ public:
 
                     me->SetCanFly(true);
                     me->SetSpeedRate(MOVE_RUN, 0.2f);
-                    
+
                     me->SetFacingTo(3.207566f);
                     me->GetMotionMaster()->MoveJump(exorcismPos[2], 2.0f, 2.0f);
 
@@ -861,14 +861,14 @@ public:
                 }
             }
         }
-        
+
         private:
             EventMap events;
             SummonList summons;
-            
+
             uint8 circleRounds;
             uint8 point;
-            
+
             bool wpreached;
     };
 

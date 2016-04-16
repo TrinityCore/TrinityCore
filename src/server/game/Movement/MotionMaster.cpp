@@ -306,7 +306,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
         float desty = _owner->GetPositionY() + distanceToTravel * std::sin(angle);
         MovePoint(id, destx, desty, target->GetPositionZ());
     }
-    else 
+    else
     {
         // we are already close enough. We just need to turn toward the target without changing position.
         Movement::MoveSplineInit init(_owner);
