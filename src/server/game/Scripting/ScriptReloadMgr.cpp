@@ -984,7 +984,7 @@ private:
 
             return;
         }
-        
+
         // Find all source files of a changed script module and removes
         // it from the changed source list, invoke the build afterwards.
         bool rebuild_buildfiles;
@@ -1056,7 +1056,7 @@ private:
         ASSERT(_build_job->IsValid(), "Invalid build job!");
 
         // Retrieve the result
-        auto const error = _build_job->GetProcess()->GetFutureResult().get();       
+        auto const error = _build_job->GetProcess()->GetFutureResult().get();
 
         if (terminate_early)
         {
@@ -1144,7 +1144,7 @@ private:
 
         TC_LOG_INFO("scripts.hotswap", "Rerunning CMake because there were sources added or removed...");
 
-        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE, 
+        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE,
             InvokeAsyncCMakeCommand(BuiltInConfig::GetBuildDirectory()));
     }
 
