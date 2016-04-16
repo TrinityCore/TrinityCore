@@ -3511,6 +3511,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 102445: // Summon Master Li Fei
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
+            case 114710: // Forcecast Summon Amberleaf Troublemaker
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             default:
                 break;
         }
