@@ -13775,12 +13775,19 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             Player* creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
             /// @todo do instance binding anyway if the charmer/owner is offline
 
-            if (instanceMap->IsDungeon() && creditedPlayer)
+            if (instanceMap->IsDungeon() && (creditedPlayer || this == victim))
             {
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                        ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
+                    {
+                        // if the boss killed itself we still need to bind players to the instance
+                        if (!creditedPlayer && instanceMap->HavePlayers())
+                            creditedPlayer = instanceMap->GetPlayers().getFirst()->GetSource();
+
+                        if (creditedPlayer)
+                            ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
+                    }
                 }
                 else
                 {
@@ -13788,7 +13795,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     // until the players leave the instance
                     time_t resettime = creature->GetRespawnTimeEx() + 2 * HOUR;
                     if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(creature->GetInstanceId()))
-                        if (save->GetResetTime() < resettime) save->SetResetTime(resettime);
+                        if (save->GetResetTime() < resettime)
+                            save->SetResetTime(resettime);
                 }
             }
         }
