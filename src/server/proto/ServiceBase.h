@@ -31,7 +31,7 @@ namespace google
     }
 }
 
-class TC_SHARED_API ServiceBase
+class TC_PROTO_API ServiceBase
 {
 public:
     virtual ~ServiceBase() { }

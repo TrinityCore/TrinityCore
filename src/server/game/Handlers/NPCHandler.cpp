@@ -514,7 +514,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
         stableEntry.DisplayID = pet->GetDisplayId();
         stableEntry.ExperienceLevel = pet->getLevel();
         stableEntry.PetFlags = PET_STABLE_ACTIVE;
-        stableEntry.PetName = pet->GetName();                                       
+        stableEntry.PetName = pet->GetName();
         ++petSlot;
 
         packet.Pets.push_back(stableEntry);

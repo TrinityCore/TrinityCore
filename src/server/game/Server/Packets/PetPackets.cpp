@@ -143,10 +143,10 @@ void WorldPackets::Pet::PetRename::Read()
 void WorldPackets::Pet::PetAction::Read()
 {
     _worldPacket >> PetGUID;
-    
+
     _worldPacket >> Action;
     _worldPacket >> TargetGUID;
-    
+
     _worldPacket >> ActionPosition;
 }
 

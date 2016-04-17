@@ -38,7 +38,7 @@ namespace resources {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_resource_5fservice_2eproto();
+void TC_PROTO_API protobuf_AddDesc_resource_5fservice_2eproto();
 void protobuf_AssignDesc_resource_5fservice_2eproto();
 void protobuf_ShutdownFile_resource_5fservice_2eproto();
 
@@ -46,7 +46,7 @@ class ContentHandleRequest;
 
 // ===================================================================
 
-class TC_SHARED_API ContentHandleRequest : public ::google::protobuf::Message {
+class TC_PROTO_API ContentHandleRequest : public ::google::protobuf::Message {
  public:
   ContentHandleRequest();
   virtual ~ContentHandleRequest();
@@ -136,7 +136,7 @@ class TC_SHARED_API ContentHandleRequest : public ::google::protobuf::Message {
   ::google::protobuf::uint32 program_;
   ::google::protobuf::uint32 stream_;
   ::google::protobuf::uint32 version_;
-  friend void TC_SHARED_API protobuf_AddDesc_resource_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_resource_5fservice_2eproto();
   friend void protobuf_AssignDesc_resource_5fservice_2eproto();
   friend void protobuf_ShutdownFile_resource_5fservice_2eproto();
 
@@ -145,7 +145,7 @@ class TC_SHARED_API ContentHandleRequest : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-class TC_SHARED_API ResourcesService : public ServiceBase
+class TC_PROTO_API ResourcesService : public ServiceBase
 {
  public:
 

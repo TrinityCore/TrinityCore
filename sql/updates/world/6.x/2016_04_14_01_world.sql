@@ -40,7 +40,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 
 SET @Cguid:= 375668;
 DELETE FROM `creature` WHERE `map`=34;
-DELETE FROM `creature` WHERE `guid` BETWEEN @Oguid+0 AND @Oguid+142;
+DELETE FROM `creature` WHERE `guid` BETWEEN @Cguid+0 AND @Cguid+142;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@Cguid+0, 46252, 34, 0, 0, 2, 169, 0, 413, 0, 138.8, 68.2195, -33.8563, 3.75246, 7200, 0, 0, 2284, 1743, 0, 0, 0, 0, 0),
 (@Cguid+1, 46249, 34, 0, 0, 2, 169, 0, 384, 1, 143.643, 107.928, -35.1063, 1.09956, 7200, 0, 0, 2420, 0, 0, 0, 0, 0, 0),

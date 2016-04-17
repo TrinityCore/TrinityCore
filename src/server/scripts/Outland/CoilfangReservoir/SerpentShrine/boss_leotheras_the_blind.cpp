@@ -244,7 +244,7 @@ public:
             CheckChannelers();
             Initialize();
             me->SetCanDualWield(true);
-            me->SetSpeed(MOVE_RUN, 2.0f, true);
+            me->SetSpeedRate(MOVE_RUN, 2.0f);
             me->SetDisplayId(MODEL_NIGHTELF);
             me->SetVirtualItem(0, 0);
             me->SetVirtualItem(1, 0);

@@ -39,7 +39,7 @@ namespace report {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_report_5fservice_2eproto();
+void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
 void protobuf_AssignDesc_report_5fservice_2eproto();
 void protobuf_ShutdownFile_report_5fservice_2eproto();
 
@@ -48,7 +48,7 @@ class SendReportRequest;
 
 // ===================================================================
 
-class TC_SHARED_API Report : public ::google::protobuf::Message {
+class TC_PROTO_API Report : public ::google::protobuf::Message {
  public:
   Report();
   virtual ~Report();
@@ -180,7 +180,7 @@ class TC_SHARED_API Report : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* reporting_game_account_;
   ::google::protobuf::uint64 report_timestamp_;
   ::google::protobuf::int32 report_qos_;
-  friend void TC_SHARED_API protobuf_AddDesc_report_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
   friend void protobuf_AssignDesc_report_5fservice_2eproto();
   friend void protobuf_ShutdownFile_report_5fservice_2eproto();
 
@@ -189,7 +189,7 @@ class TC_SHARED_API Report : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API SendReportRequest : public ::google::protobuf::Message {
+class TC_PROTO_API SendReportRequest : public ::google::protobuf::Message {
  public:
   SendReportRequest();
   virtual ~SendReportRequest();
@@ -261,7 +261,7 @@ class TC_SHARED_API SendReportRequest : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::report::v1::Report* report_;
-  friend void TC_SHARED_API protobuf_AddDesc_report_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
   friend void protobuf_AssignDesc_report_5fservice_2eproto();
   friend void protobuf_ShutdownFile_report_5fservice_2eproto();
 
@@ -270,7 +270,7 @@ class TC_SHARED_API SendReportRequest : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-class TC_SHARED_API ReportService : public ServiceBase
+class TC_PROTO_API ReportService : public ServiceBase
 {
  public:
 
