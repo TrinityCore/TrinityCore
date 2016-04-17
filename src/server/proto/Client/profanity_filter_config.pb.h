@@ -24,7 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -33,7 +33,7 @@ namespace profanity {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
+void TC_PROTO_API protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
 void protobuf_AssignDesc_profanity_5ffilter_5fconfig_2eproto();
 void protobuf_ShutdownFile_profanity_5ffilter_5fconfig_2eproto();
 
@@ -42,7 +42,7 @@ class WordFilters;
 
 // ===================================================================
 
-class TC_SHARED_API WordFilter : public ::google::protobuf::Message {
+class TC_PROTO_API WordFilter : public ::google::protobuf::Message {
  public:
   WordFilter();
   virtual ~WordFilter();
@@ -132,7 +132,7 @@ class TC_SHARED_API WordFilter : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* type_;
   ::std::string* regex_;
-  friend void TC_SHARED_API protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
   friend void protobuf_AssignDesc_profanity_5ffilter_5fconfig_2eproto();
   friend void protobuf_ShutdownFile_profanity_5ffilter_5fconfig_2eproto();
 
@@ -141,7 +141,7 @@ class TC_SHARED_API WordFilter : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API WordFilters : public ::google::protobuf::Message {
+class TC_PROTO_API WordFilters : public ::google::protobuf::Message {
  public:
   WordFilters();
   virtual ~WordFilters();
@@ -214,7 +214,7 @@ class TC_SHARED_API WordFilters : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::profanity::v1::WordFilter > filters_;
-  friend void TC_SHARED_API protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
   friend void protobuf_AssignDesc_profanity_5ffilter_5fconfig_2eproto();
   friend void protobuf_ShutdownFile_profanity_5ffilter_5fconfig_2eproto();
 

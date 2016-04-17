@@ -174,7 +174,7 @@ public:
                 {
                     if (pSpark->IsAlive())
                     {
-                        pSpark->SetSpeed(MOVE_RUN, 2.0f);
+                        pSpark->SetSpeedRate(MOVE_RUN, 2.0f);
                         pSpark->GetMotionMaster()->Clear();
                         pSpark->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
@@ -355,7 +355,7 @@ public:
                     {
                         Position pos = ionar->GetPosition();
 
-                        me->SetSpeed(MOVE_RUN, 2.0f);
+                        me->SetSpeedRate(MOVE_RUN, 2.0f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }

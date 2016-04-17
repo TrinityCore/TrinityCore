@@ -29,9 +29,9 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_SHARED)
+add_definitions(-DTRINITY_API_EXPORT_PROTO)
 
-add_library(proto STATIC
+add_library(proto
   ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
@@ -51,12 +51,24 @@ target_include_directories(proto
 target_link_libraries(proto
   PUBLIC
     common
-	protobuf)
+    protobuf)
 
 set_target_properties(proto
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    FOLDER
+      "server")
+
+if( BUILD_SHARED_LIBS )
+  if( UNIX )
+    install(TARGETS proto
+      LIBRARY
+        DESTINATION lib)
+  elseif( WIN32 )
+    install(TARGETS proto
+      RUNTIME
+        DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  endif()
+endif()
 
 # Generate precompiled header
 if (USE_COREPCH)

@@ -28,7 +28,7 @@
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "rpc_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -37,7 +37,7 @@ namespace notification {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_notification_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
 void protobuf_AssignDesc_notification_5ftypes_2eproto();
 void protobuf_ShutdownFile_notification_5ftypes_2eproto();
 
@@ -47,7 +47,7 @@ class Notification;
 
 // ===================================================================
 
-class TC_SHARED_API Target : public ::google::protobuf::Message {
+class TC_PROTO_API Target : public ::google::protobuf::Message {
  public:
   Target();
   virtual ~Target();
@@ -134,7 +134,7 @@ class TC_SHARED_API Target : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::Identity* identity_;
   ::std::string* type_;
-  friend void TC_SHARED_API protobuf_AddDesc_notification_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
   friend void protobuf_AssignDesc_notification_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_notification_5ftypes_2eproto();
 
@@ -143,7 +143,7 @@ class TC_SHARED_API Target : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Subscription : public ::google::protobuf::Message {
+class TC_PROTO_API Subscription : public ::google::protobuf::Message {
  public:
   Subscription();
   virtual ~Subscription();
@@ -238,7 +238,7 @@ class TC_SHARED_API Subscription : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::notification::v1::Target > target_;
   ::bgs::protocol::account::v1::Identity* subscriber_;
   bool delivery_required_;
-  friend void TC_SHARED_API protobuf_AddDesc_notification_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
   friend void protobuf_AssignDesc_notification_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_notification_5ftypes_2eproto();
 
@@ -247,7 +247,7 @@ class TC_SHARED_API Subscription : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API Notification : public ::google::protobuf::Message {
+class TC_PROTO_API Notification : public ::google::protobuf::Message {
  public:
   Notification();
   virtual ~Notification();
@@ -437,7 +437,7 @@ class TC_SHARED_API Notification : public ::google::protobuf::Message {
   ::std::string* target_battle_tag_;
   ::bgs::protocol::ProcessId* peer_;
   ::bgs::protocol::account::v1::Identity* forwarding_identity_;
-  friend void TC_SHARED_API protobuf_AddDesc_notification_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
   friend void protobuf_AssignDesc_notification_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_notification_5ftypes_2eproto();
 

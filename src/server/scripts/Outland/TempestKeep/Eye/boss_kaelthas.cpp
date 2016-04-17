@@ -298,7 +298,7 @@ const float CAPERNIAN_DISTANCE          = 20.0f;            //she casts away fro
 
 Position const afGravityPos = {795.0f, 0.0f, 70.0f};
 
-Position const TransitionPos[6] = 
+Position const TransitionPos[6] =
 {
     // First two values are not static, they seem to differ on each sniff.
     { 794.0522f, -0.96732f, 48.97848f, 0.0f },
@@ -1475,7 +1475,7 @@ class spell_kael_gravity_lapse : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_kael_gravity_lapse_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
-            
+
             private:
                  uint8 _targetCount;
         };

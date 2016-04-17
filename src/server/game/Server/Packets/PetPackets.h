@@ -92,7 +92,7 @@ namespace WorldPackets
             int32 RecoveryTime = 0;
             int8 ConsumedCharges = 0;
         };
-        
+
         class PetSpells final : public ServerPacket
         {
         public:
@@ -157,7 +157,7 @@ namespace WorldPackets
             std::vector<uint32> Spells;
         };
 
-        
+
         struct PetRenameData
         {
             ObjectGuid PetGUID;

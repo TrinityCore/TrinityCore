@@ -24,14 +24,14 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace JSON {
 namespace RealmList {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
 void protobuf_AssignDesc_RealmList_2eproto();
 void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -50,7 +50,7 @@ class RealmListServerIPAddresses;
 
 // ===================================================================
 
-class TC_SHARED_API RealmListTicketIdentity : public ::google::protobuf::Message {
+class TC_PROTO_API RealmListTicketIdentity : public ::google::protobuf::Message {
  public:
   RealmListTicketIdentity();
   virtual ~RealmListTicketIdentity();
@@ -117,7 +117,7 @@ class TC_SHARED_API RealmListTicketIdentity : public ::google::protobuf::Message
   mutable int _cached_size_;
   ::google::protobuf::uint32 gameaccountid_;
   ::google::protobuf::uint32 gameaccountregion_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -126,7 +126,7 @@ class TC_SHARED_API RealmListTicketIdentity : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ClientVersion : public ::google::protobuf::Message {
+class TC_PROTO_API ClientVersion : public ::google::protobuf::Message {
  public:
   ClientVersion();
   virtual ~ClientVersion();
@@ -213,7 +213,7 @@ class TC_SHARED_API ClientVersion : public ::google::protobuf::Message {
   ::google::protobuf::uint32 versionminor_;
   ::google::protobuf::uint32 versionrevision_;
   ::google::protobuf::uint32 versionbuild_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -222,7 +222,7 @@ class TC_SHARED_API ClientVersion : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ClientInformation : public ::google::protobuf::Message {
+class TC_PROTO_API ClientInformation : public ::google::protobuf::Message {
  public:
   ClientInformation();
   virtual ~ClientInformation();
@@ -386,7 +386,7 @@ class TC_SHARED_API ClientInformation : public ::google::protobuf::Message {
   ::google::protobuf::uint32 versiondatabuild_;
   ::JSON::RealmList::ClientVersion* version_;
   ::std::string* secret_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -395,7 +395,7 @@ class TC_SHARED_API ClientInformation : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmListTicketClientInformation : public ::google::protobuf::Message {
+class TC_PROTO_API RealmListTicketClientInformation : public ::google::protobuf::Message {
  public:
   RealmListTicketClientInformation();
   virtual ~RealmListTicketClientInformation();
@@ -454,7 +454,7 @@ class TC_SHARED_API RealmListTicketClientInformation : public ::google::protobuf
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::JSON::RealmList::ClientInformation* info_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -463,7 +463,7 @@ class TC_SHARED_API RealmListTicketClientInformation : public ::google::protobuf
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmCharacterCountEntry : public ::google::protobuf::Message {
+class TC_PROTO_API RealmCharacterCountEntry : public ::google::protobuf::Message {
  public:
   RealmCharacterCountEntry();
   virtual ~RealmCharacterCountEntry();
@@ -530,7 +530,7 @@ class TC_SHARED_API RealmCharacterCountEntry : public ::google::protobuf::Messag
   mutable int _cached_size_;
   ::google::protobuf::uint32 wowrealmaddress_;
   ::google::protobuf::uint32 count_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -539,7 +539,7 @@ class TC_SHARED_API RealmCharacterCountEntry : public ::google::protobuf::Messag
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmCharacterCountList : public ::google::protobuf::Message {
+class TC_PROTO_API RealmCharacterCountList : public ::google::protobuf::Message {
  public:
   RealmCharacterCountList();
   virtual ~RealmCharacterCountList();
@@ -599,7 +599,7 @@ class TC_SHARED_API RealmCharacterCountList : public ::google::protobuf::Message
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmCharacterCountEntry > counts_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -608,7 +608,7 @@ class TC_SHARED_API RealmCharacterCountList : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmEntry : public ::google::protobuf::Message {
+class TC_PROTO_API RealmEntry : public ::google::protobuf::Message {
  public:
   RealmEntry();
   virtual ~RealmEntry();
@@ -762,7 +762,7 @@ class TC_SHARED_API RealmEntry : public ::google::protobuf::Message {
   ::std::string* name_;
   ::google::protobuf::uint32 cfgconfigsid_;
   ::google::protobuf::uint32 cfglanguagesid_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -771,7 +771,7 @@ class TC_SHARED_API RealmEntry : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmState : public ::google::protobuf::Message {
+class TC_PROTO_API RealmState : public ::google::protobuf::Message {
  public:
   RealmState();
   virtual ~RealmState();
@@ -840,7 +840,7 @@ class TC_SHARED_API RealmState : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::JSON::RealmList::RealmEntry* update_;
   bool deleting_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -849,7 +849,7 @@ class TC_SHARED_API RealmState : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmListUpdates : public ::google::protobuf::Message {
+class TC_PROTO_API RealmListUpdates : public ::google::protobuf::Message {
  public:
   RealmListUpdates();
   virtual ~RealmListUpdates();
@@ -909,7 +909,7 @@ class TC_SHARED_API RealmListUpdates : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmState > updates_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -918,7 +918,7 @@ class TC_SHARED_API RealmListUpdates : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API IPAddress : public ::google::protobuf::Message {
+class TC_PROTO_API IPAddress : public ::google::protobuf::Message {
  public:
   IPAddress();
   virtual ~IPAddress();
@@ -990,7 +990,7 @@ class TC_SHARED_API IPAddress : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* ip_;
   ::google::protobuf::uint32 port_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -999,7 +999,7 @@ class TC_SHARED_API IPAddress : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmIPAddressFamily : public ::google::protobuf::Message {
+class TC_PROTO_API RealmIPAddressFamily : public ::google::protobuf::Message {
  public:
   RealmIPAddressFamily();
   virtual ~RealmIPAddressFamily();
@@ -1069,7 +1069,7 @@ class TC_SHARED_API RealmIPAddressFamily : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::IPAddress > addresses_;
   ::google::protobuf::uint32 family_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 
@@ -1078,7 +1078,7 @@ class TC_SHARED_API RealmIPAddressFamily : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RealmListServerIPAddresses : public ::google::protobuf::Message {
+class TC_PROTO_API RealmListServerIPAddresses : public ::google::protobuf::Message {
  public:
   RealmListServerIPAddresses();
   virtual ~RealmListServerIPAddresses();
@@ -1138,7 +1138,7 @@ class TC_SHARED_API RealmListServerIPAddresses : public ::google::protobuf::Mess
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::JSON::RealmList::RealmIPAddressFamily > families_;
-  friend void TC_SHARED_API protobuf_AddDesc_RealmList_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
 

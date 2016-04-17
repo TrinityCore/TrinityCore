@@ -718,27 +718,7 @@ struct TC_GAME_API ItemTemplate
     std::unordered_set<uint32> Specializations[2];  // one set for 1-40 level range and another for 41-100
 
     // helpers
-    bool CanChangeEquipStateInCombat() const
-    {
-        switch (GetInventoryType())
-        {
-            case INVTYPE_RELIC:
-            case INVTYPE_SHIELD:
-            case INVTYPE_HOLDABLE:
-                return true;
-            default:
-                break;
-        }
-
-        switch (GetClass())
-        {
-            case ITEM_CLASS_WEAPON:
-            case ITEM_CLASS_PROJECTILE:
-                return true;
-        }
-
-        return false;
-    }
+    bool CanChangeEquipStateInCombat() const;
 
     bool IsCurrencyToken() const { return (GetBagFamily() & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
@@ -746,6 +726,8 @@ struct TC_GAME_API ItemTemplate
     {
         return (ExtendedData->Stackable == 2147483647 || ExtendedData->Stackable <= 0) ? uint32(0x7FFFFFFF - 1) : uint32(ExtendedData->Stackable);
     }
+
+    uint32 GetSkill() const;
 
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
