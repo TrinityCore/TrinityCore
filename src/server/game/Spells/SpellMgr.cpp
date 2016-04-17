@@ -3501,6 +3501,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 75697: // Evolution
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
                 break;
+            // IRON DOCKS SPELLS
+            //
+            case 168167: // gronn smash Todo: remove me after target type 114 has been implemented
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
+            // ENDOF IRON DOCKS SPELLS
+            //
             // ISLE OF CONQUEST SPELLS
             //
             case 66551: // Teleport
