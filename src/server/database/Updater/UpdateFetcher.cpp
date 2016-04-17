@@ -18,6 +18,7 @@
 #include "UpdateFetcher.h"
 #include "Log.h"
 #include "Util.h"
+#include "SHA1.h"
 
 #include <fstream>
 #include <chrono>
@@ -25,7 +26,6 @@
 #include <sstream>
 #include <exception>
 #include <unordered_map>
-#include <openssl/sha.h>
 
 using namespace boost::filesystem;
 
@@ -209,9 +209,8 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             }
         }
 
-        // Calculate hash
-        std::string const hash =
-            CalculateHash(ReadSQLUpdate(availableQuery.first));
+        // Calculate a Sha1 hash based on query content.
+        std::string const hash = CalculateSHA1Hash(ReadSQLUpdate(availableQuery.first));
 
         UpdateMode mode = MODE_APPLY;
 
@@ -332,15 +331,6 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
     }
 
     return UpdateResult(importedUpdates, countRecentUpdates, countArchivedUpdates);
-}
-
-std::string UpdateFetcher::CalculateHash(std::string const& query) const
-{
-    // Calculate a Sha1 hash based on query content.
-    unsigned char digest[SHA_DIGEST_LENGTH];
-    SHA1((unsigned char*)query.c_str(), query.length(), (unsigned char*)&digest);
-
-    return ByteArrayToHexStr(digest, SHA_DIGEST_LENGTH);
 }
 
 uint32 UpdateFetcher::Apply(Path const& path) const
