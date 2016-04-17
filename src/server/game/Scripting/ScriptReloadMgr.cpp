@@ -400,6 +400,8 @@ class HotSwapScriptReloadMgr final
         // like "Release" or "Debug". The build directive from the
         // previous same module is used if there was any.
         std::string script_module_build_directive_;
+        // The time where the build job started
+        uint32 start_time_;
 
         // Type of the current running job
         BuildJobType type_;
@@ -412,7 +414,7 @@ class HotSwapScriptReloadMgr final
             : script_module_name_(std::move(script_module_name)),
               script_module_project_name_(std::move(script_module_project_name)),
               script_module_build_directive_(std::move(script_module_build_directive)),
-              type_(BuildJobType::BUILD_JOB_NONE) { }
+              start_time_(getMSTime()), type_(BuildJobType::BUILD_JOB_NONE) { }
 
         bool IsValid() const
         {
@@ -424,6 +426,8 @@ class HotSwapScriptReloadMgr final
         std::string const& GetProjectName() const { return script_module_project_name_; }
 
         std::string const& GetBuildDirective() const { return script_module_build_directive_; }
+
+        uint32 GetTimeFromStart() const { return GetMSTimeDiffToNow(start_time_); }
 
         BuildJobType GetType() const { return type_; }
 
@@ -1116,8 +1120,9 @@ private:
                 if (!error)
                 {
                     // Installation was successful
-                    TC_LOG_INFO("scripts.hotswap", ">> Successfully installed module %s.",
-                        _build_job->GetModuleName().c_str());
+                    TC_LOG_INFO("scripts.hotswap", ">> Successfully installed module %s in %us",
+                        _build_job->GetModuleName().c_str(),
+                        _build_job->GetTimeFromStart() / IN_MILLISECONDS);
                 }
                 else
                 {
