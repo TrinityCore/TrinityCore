@@ -1707,7 +1707,7 @@ enum Quest13291_13292_13239_13261Data
     NPC_SKYTALON       = 31583,
     NPC_DECOY          = 31578,
     // Spells
-    SPELL_RIDE         = 56687
+    SPELL_RIDE         = 59319
 };
 
 class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScriptLoader
