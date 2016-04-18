@@ -460,7 +460,9 @@ UPDATE creature_template SET ScriptName='mob_tushui_trainee' WHERE entry=54587;
 UPDATE creature_template SET ScriptName='boss_jaomin_ro' WHERE entry=54611;
 UPDATE creature_template SET ScriptName='mob_min_dimwind' WHERE entry=54855;
 UPDATE creature_template SET ScriptName='mob_attacker_dimwind' WHERE entry=54785;
-UPDATE creature_template SET ScriptName='mob_attacker_dimwind' WHERE entry=54785;
+UPDATE creature_template SET ScriptName='boss_living_air' WHERE entry=54631;
+UPDATE creature_template SET ScriptName='boss_li_fei' WHERE entry=54135;
+UPDATE creature_template SET ScriptName='boss_li_fei' WHERE entry=54734;
 
 
 

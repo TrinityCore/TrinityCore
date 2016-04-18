@@ -745,8 +745,8 @@ class boss_spirit_kings : public CreatureScript
                     me->AddAura(SPELL_INACTIVE, me);
                     me->SetReactState(REACT_PASSIVE);
                     me->getThreatManager().resetAllAggro();
-                    me->SetSpeed(MOVE_RUN, 0.0f, true);
-                    me->SetSpeed(MOVE_WALK, 0.0f, true);
+                    me->SetSpeed(MOVE_RUN, 0.0f);
+                    me->SetSpeed(MOVE_WALK, 0.0f);
 
                     if (pInstance)
                         pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1411,8 +1411,8 @@ class spell_crazed_cowardice : public SpellScriptLoader
                 {
                     if (GetSpellInfo()->Id == SPELL_COWARDICE)
                     {
-                        caster->SetSpeed(MOVE_RUN, 0.5f, true);
-                        caster->SetSpeed(MOVE_WALK, 0.5f, true);
+                        caster->SetSpeed(MOVE_RUN, 0.5f);
+                        caster->SetSpeed(MOVE_WALK, 0.5f);
                         if (caster->GetMotionMaster())
                             caster->GetMotionMaster()->MoveFleeing(caster);
                     }
@@ -1421,8 +1421,8 @@ class spell_crazed_cowardice : public SpellScriptLoader
                         if (caster->GetMotionMaster() && caster->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
                             caster->GetMotionMaster()->MovementExpired();
 
-                        caster->SetSpeed(MOVE_RUN, 1.42857f, true);
-                        caster->SetSpeed(MOVE_WALK, 0.888888f, true);
+                        caster->SetSpeed(MOVE_RUN, 1.42857f);
+                        caster->SetSpeed(MOVE_WALK, 0.888888f);
 
                         if (caster->GetAI())
                         {

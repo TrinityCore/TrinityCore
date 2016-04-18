@@ -219,7 +219,7 @@ class boss_raigonn : public CreatureScript
                 {
                     Phase = PHASE_VULNERABILITY;
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetSpeed(MOVE_RUN, 1.1f, true);
+                    me->SetSpeed(MOVE_RUN, 1.1f);
 
                     me->CastStop();
                     me->RemoveAurasDueToSpell(SPELL_IMPERVIOUS_CARAPACE);
@@ -305,7 +305,7 @@ class boss_raigonn : public CreatureScript
                     default:
                         // We are going back to main door, restart
                         eventChargeProgress = 0;
-                        me->SetSpeed(MOVE_RUN, 0.5f, true);
+                        me->SetSpeed(MOVE_RUN, 0.5f);
                         me->GetMotionMaster()->MovePoint(POINT_MAIN_DOOR, chargePos[baseMovement + 1].GetPositionX(), chargePos[baseMovement + 1].GetPositionY(), chargePos[baseMovement + 1].GetPositionZ(), 1.0f);
                         break;
                 }

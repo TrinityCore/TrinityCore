@@ -283,7 +283,7 @@ class boss_striker_gadok : public CreatureScript
                         strafingTimer = 2000;
                         break;
                     case 2: // 2 sec passed, move to POINT_END with the spell
-                        me->SetSpeed(MOVE_FLIGHT, 2.0f, true);
+                        me->SetSpeed(MOVE_FLIGHT, 2.0f);
                         me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdEnd, StrafPoints[move].end.GetPositionX(), StrafPoints[move].end.GetPositionY(), StrafPoints[move].end.GetPositionZ());
                         me->CastSpell(me, SPELL_STRAFING_RUN, true);
 
@@ -328,7 +328,7 @@ class boss_striker_gadok : public CreatureScript
                         strafingTimer = 50;
                         break;
                     case 10: // 2 sec passed, move to POINT_END with the spell
-                        me->SetSpeed(MOVE_FLIGHT, 2.0f, true);
+                        me->SetSpeed(MOVE_FLIGHT, 2.0f);
                         me->GetMotionMaster()->MovePoint(StrafPoints[move].pointIdEnd, StrafPoints[move].end.GetPositionX(), StrafPoints[move].end.GetPositionY(), StrafPoints[move].end.GetPositionZ());
                         me->CastSpell(me, SPELL_STRAFING_RUN, true);
 
@@ -352,7 +352,7 @@ class boss_striker_gadok : public CreatureScript
                         strafingTimer = 0;
                         strafingEventProgress = 0;
                         isStrafing = false;
-                        me->SetSpeed(MOVE_FLIGHT, 1.134f, true);
+                        me->SetSpeed(MOVE_FLIGHT, 1.134f);
                         me->SetWalk(true);
 
                         events.ScheduleEvent(EVENT_PREY_TIME, 5000, PHASE_MAIN);

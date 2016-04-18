@@ -462,7 +462,7 @@ public:
             events.Reset();
             pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             pInstance->SetBossState(DATA_JINROKH, NOT_STARTED);
-            me->SetSpeed(MOVE_RUN, 1.0f, true);
+            me->SetSpeed(MOVE_RUN, 1.0f);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE); // Cause we may have the flag if we reset during the storm
             
             CleanArea();
@@ -530,7 +530,7 @@ public:
 
                 case EVENT_LIGHTNING_STORM:
                 {
-                    me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN) * 10.0f, true);
+                    me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN) * 10.0f);
                     me->GetMotionMaster()->MovePoint(POINT_MIDDLE, centerPosition);
                     uint32 uiTimer = 2600;
                     
@@ -590,7 +590,7 @@ public:
             if(uiMotionType == POINT_MOTION_TYPE && uiPointMotionId == POINT_MIDDLE)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN) / 10.0f, true);
+                me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN) / 10.0f);
                 if(SpellInfo const* pLightningStorm = sSpellMgr->GetSpellInfo(SPELL_LIGHTNING_STORM))
                 {
                     events.DelayEvents(pLightningStorm->GetMaxDuration());
