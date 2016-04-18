@@ -433,8 +433,8 @@ public :
             center.Relocate(p_master->GetPositionX(), p_master->GetPositionY(), p_master->GetPositionZ());
             
             // Speed
-            me->SetSpeed(MOVE_RUN, (2 * M_PI * rayon / 15.0f), true);
-            me->SetSpeed(MOVE_FLIGHT, (2 * M_PI * rayon / 15.f) , true);
+            me->SetSpeed(MOVE_RUN, (2 * M_PI * rayon / 15.0f));
+            me->SetSpeed(MOVE_FLIGHT, (2 * M_PI * rayon / 15.f));
         }
         
         void UpdateAI(uint32 uiDiff)

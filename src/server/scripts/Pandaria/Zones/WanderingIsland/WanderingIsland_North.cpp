@@ -494,7 +494,7 @@ public:
             {
                 if (IntroTimer <= diff)
                 {
-                   // me->MonsterYell("Follow me!", LANG_UNIVERSAL, 0);
+                    me->Yell("Sigueme!", LANG_UNIVERSAL, 0);
                     IntroTimer = 0;
                     me->GetMotionMaster()->MoveJump(1216.78f, 3499.44f, 91.15f, 10, 20, 10);
                 }
