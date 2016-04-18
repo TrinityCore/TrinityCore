@@ -782,15 +782,14 @@ private:
             _unique_library_name_counter++,
             path.extension().generic_string().c_str());
 
-        if ([&]
-            {
-                boost::system::error_code code;
-                fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
-                return code;
-            }())
+        boost::system::error_code code;
+        fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
+        if (code)
         {
-            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module \"%s\"!",
-                path.filename().generic_string().c_str());
+            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
+                "\"%s\" at \"%s\" with reason (\"%s\")!",
+                path.filename().generic_string().c_str(), cache_path.generic_string().c_str(),
+                code.message().c_str());
 
             // Find a better solution for this but it's much better
             // to start the core without scripts
@@ -984,7 +983,7 @@ private:
 
             return;
         }
-        
+
         // Find all source files of a changed script module and removes
         // it from the changed source list, invoke the build afterwards.
         bool rebuild_buildfiles;
@@ -1056,7 +1055,7 @@ private:
         ASSERT(_build_job->IsValid(), "Invalid build job!");
 
         // Retrieve the result
-        auto const error = _build_job->GetProcess()->GetFutureResult().get();       
+        auto const error = _build_job->GetProcess()->GetFutureResult().get();
 
         if (terminate_early)
         {
@@ -1144,7 +1143,7 @@ private:
 
         TC_LOG_INFO("scripts.hotswap", "Rerunning CMake because there were sources added or removed...");
 
-        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE, 
+        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE,
             InvokeAsyncCMakeCommand(BuiltInConfig::GetBuildDirectory()));
     }
 

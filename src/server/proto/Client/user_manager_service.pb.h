@@ -40,7 +40,7 @@ namespace user_manager {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
 void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
 void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -60,7 +60,7 @@ class RecentPlayersRemovedNotification;
 
 // ===================================================================
 
-class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
  public:
   SubscribeRequest();
   virtual ~SubscribeRequest();
@@ -142,7 +142,7 @@ class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint64 object_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -151,7 +151,7 @@ class TC_SHARED_API SubscribeRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API SubscribeResponse : public ::google::protobuf::Message {
+class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
  public:
   SubscribeResponse();
   virtual ~SubscribeResponse();
@@ -250,7 +250,7 @@ class TC_SHARED_API SubscribeResponse : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::BlockedPlayer > blocked_players_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > recent_players_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role > role_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -259,7 +259,7 @@ class TC_SHARED_API SubscribeResponse : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UnsubscribeRequest : public ::google::protobuf::Message {
  public:
   UnsubscribeRequest();
   virtual ~UnsubscribeRequest();
@@ -341,7 +341,7 @@ class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint64 object_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -350,7 +350,7 @@ class TC_SHARED_API UnsubscribeRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API AddRecentPlayersRequest : public ::google::protobuf::Message {
+class TC_PROTO_API AddRecentPlayersRequest : public ::google::protobuf::Message {
  public:
   AddRecentPlayersRequest();
   virtual ~AddRecentPlayersRequest();
@@ -445,7 +445,7 @@ class TC_SHARED_API AddRecentPlayersRequest : public ::google::protobuf::Message
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > players_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint32 program_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -454,7 +454,7 @@ class TC_SHARED_API AddRecentPlayersRequest : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API AddRecentPlayersResponse : public ::google::protobuf::Message {
+class TC_PROTO_API AddRecentPlayersResponse : public ::google::protobuf::Message {
  public:
   AddRecentPlayersResponse();
   virtual ~AddRecentPlayersResponse();
@@ -540,7 +540,7 @@ class TC_SHARED_API AddRecentPlayersResponse : public ::google::protobuf::Messag
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > players_added_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > players_removed_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -549,7 +549,7 @@ class TC_SHARED_API AddRecentPlayersResponse : public ::google::protobuf::Messag
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ClearRecentPlayersRequest : public ::google::protobuf::Message {
+class TC_PROTO_API ClearRecentPlayersRequest : public ::google::protobuf::Message {
  public:
   ClearRecentPlayersRequest();
   virtual ~ClearRecentPlayersRequest();
@@ -631,7 +631,7 @@ class TC_SHARED_API ClearRecentPlayersRequest : public ::google::protobuf::Messa
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::google::protobuf::uint32 program_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -640,7 +640,7 @@ class TC_SHARED_API ClearRecentPlayersRequest : public ::google::protobuf::Messa
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ClearRecentPlayersResponse : public ::google::protobuf::Message {
+class TC_PROTO_API ClearRecentPlayersResponse : public ::google::protobuf::Message {
  public:
   ClearRecentPlayersResponse();
   virtual ~ClearRecentPlayersResponse();
@@ -713,7 +713,7 @@ class TC_SHARED_API ClearRecentPlayersResponse : public ::google::protobuf::Mess
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > players_removed_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -722,7 +722,7 @@ class TC_SHARED_API ClearRecentPlayersResponse : public ::google::protobuf::Mess
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API BlockPlayerRequest : public ::google::protobuf::Message {
+class TC_PROTO_API BlockPlayerRequest : public ::google::protobuf::Message {
  public:
   BlockPlayerRequest();
   virtual ~BlockPlayerRequest();
@@ -816,7 +816,7 @@ class TC_SHARED_API BlockPlayerRequest : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::EntityId* target_id_;
   ::google::protobuf::uint32 role_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -825,7 +825,7 @@ class TC_SHARED_API BlockPlayerRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UnblockPlayerRequest : public ::google::protobuf::Message {
+class TC_PROTO_API UnblockPlayerRequest : public ::google::protobuf::Message {
  public:
   UnblockPlayerRequest();
   virtual ~UnblockPlayerRequest();
@@ -909,7 +909,7 @@ class TC_SHARED_API UnblockPlayerRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::EntityId* target_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -918,7 +918,7 @@ class TC_SHARED_API UnblockPlayerRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API BlockedPlayerAddedNotification : public ::google::protobuf::Message {
+class TC_PROTO_API BlockedPlayerAddedNotification : public ::google::protobuf::Message {
  public:
   BlockedPlayerAddedNotification();
   virtual ~BlockedPlayerAddedNotification();
@@ -1014,7 +1014,7 @@ class TC_SHARED_API BlockedPlayerAddedNotification : public ::google::protobuf::
   ::bgs::protocol::user_manager::v1::BlockedPlayer* player_;
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::EntityId* account_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -1023,7 +1023,7 @@ class TC_SHARED_API BlockedPlayerAddedNotification : public ::google::protobuf::
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API BlockedPlayerRemovedNotification : public ::google::protobuf::Message {
+class TC_PROTO_API BlockedPlayerRemovedNotification : public ::google::protobuf::Message {
  public:
   BlockedPlayerRemovedNotification();
   virtual ~BlockedPlayerRemovedNotification();
@@ -1119,7 +1119,7 @@ class TC_SHARED_API BlockedPlayerRemovedNotification : public ::google::protobuf
   ::bgs::protocol::user_manager::v1::BlockedPlayer* player_;
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::EntityId* account_id_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -1128,7 +1128,7 @@ class TC_SHARED_API BlockedPlayerRemovedNotification : public ::google::protobuf
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RecentPlayersAddedNotification : public ::google::protobuf::Message {
+class TC_PROTO_API RecentPlayersAddedNotification : public ::google::protobuf::Message {
  public:
   RecentPlayersAddedNotification();
   virtual ~RecentPlayersAddedNotification();
@@ -1201,7 +1201,7 @@ class TC_SHARED_API RecentPlayersAddedNotification : public ::google::protobuf::
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > player_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -1210,7 +1210,7 @@ class TC_SHARED_API RecentPlayersAddedNotification : public ::google::protobuf::
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API RecentPlayersRemovedNotification : public ::google::protobuf::Message {
+class TC_PROTO_API RecentPlayersRemovedNotification : public ::google::protobuf::Message {
  public:
   RecentPlayersRemovedNotification();
   virtual ~RecentPlayersRemovedNotification();
@@ -1283,7 +1283,7 @@ class TC_SHARED_API RecentPlayersRemovedNotification : public ::google::protobuf
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > player_;
-  friend void TC_SHARED_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
 
@@ -1292,7 +1292,7 @@ class TC_SHARED_API RecentPlayersRemovedNotification : public ::google::protobuf
 };
 // ===================================================================
 
-class TC_SHARED_API UserManagerService : public ServiceBase
+class TC_PROTO_API UserManagerService : public ServiceBase
 {
  public:
 
@@ -1336,7 +1336,7 @@ class TC_SHARED_API UserManagerService : public ServiceBase
 
 // -------------------------------------------------------------------
 
-class TC_SHARED_API UserManagerListener : public ServiceBase
+class TC_PROTO_API UserManagerListener : public ServiceBase
 {
  public:
 

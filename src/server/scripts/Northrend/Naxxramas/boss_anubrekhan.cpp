@@ -160,7 +160,7 @@ public:
             Talk(SAY_AGGRO);
 
             summons.DoZoneInCombat();
-            
+
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(10), Seconds(20)), 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SCARABS, randtime(Seconds(20), Seconds(30)), 0, PHASE_NORMAL);
@@ -207,7 +207,7 @@ public:
                         Talk(EMOTE_LOCUST);
                         events.SetPhase(PHASE_SWARM);
                         DoCast(me, SPELL_LOCUST_SWARM);
-                        
+
                         events.ScheduleEvent(EVENT_SPAWN_GUARD, Seconds(3));
                         events.ScheduleEvent(EVENT_LOCUST_ENDS, RAID_MODE(Seconds(19), Seconds(23)));
                         events.Repeat(Minutes(1)+Seconds(30));

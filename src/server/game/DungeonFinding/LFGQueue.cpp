@@ -117,7 +117,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
     return o.str();
 }
 
-void LFGQueue::AddToQueue(ObjectGuid guid)
+void LFGQueue::AddToQueue(ObjectGuid guid, bool reAdd)
 {
     LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(guid);
     if (itQueue == QueueDataStore.end())
@@ -126,7 +126,10 @@ void LFGQueue::AddToQueue(ObjectGuid guid)
         return;
     }
 
-    AddToNewQueue(guid);
+    if (reAdd)
+        AddToFrontCurrentQueue(guid);
+    else
+        AddToNewQueue(guid);
 }
 
 void LFGQueue::RemoveFromQueue(ObjectGuid guid)
@@ -169,6 +172,11 @@ void LFGQueue::RemoveFromNewQueue(ObjectGuid guid)
 void LFGQueue::AddToCurrentQueue(ObjectGuid guid)
 {
     currentQueueStore.push_back(guid);
+}
+
+void LFGQueue::AddToFrontCurrentQueue(ObjectGuid guid)
+{
+    currentQueueStore.push_front(guid);
 }
 
 void LFGQueue::RemoveFromCurrentQueue(ObjectGuid guid)

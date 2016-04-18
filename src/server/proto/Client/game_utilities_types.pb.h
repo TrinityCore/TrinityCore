@@ -26,7 +26,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -35,7 +35,7 @@ namespace game_utilities {
 namespace v1 {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
+void TC_PROTO_API protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
 void protobuf_AssignDesc_game_5futilities_5ftypes_2eproto();
 void protobuf_ShutdownFile_game_5futilities_5ftypes_2eproto();
 
@@ -44,7 +44,7 @@ class ClientInfo;
 
 // ===================================================================
 
-class TC_SHARED_API PlayerVariables : public ::google::protobuf::Message {
+class TC_PROTO_API PlayerVariables : public ::google::protobuf::Message {
  public:
   PlayerVariables();
   virtual ~PlayerVariables();
@@ -139,7 +139,7 @@ class TC_SHARED_API PlayerVariables : public ::google::protobuf::Message {
   ::bgs::protocol::Identity* identity_;
   double rating_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5ftypes_2eproto();
 
@@ -148,7 +148,7 @@ class TC_SHARED_API PlayerVariables : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API ClientInfo : public ::google::protobuf::Message {
+class TC_PROTO_API ClientInfo : public ::google::protobuf::Message {
  public:
   ClientInfo();
   virtual ~ClientInfo();
@@ -233,7 +233,7 @@ class TC_SHARED_API ClientInfo : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* client_address_;
   bool privileged_network_;
-  friend void TC_SHARED_API protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5ftypes_2eproto();
 

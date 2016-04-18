@@ -25,7 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "Define.h" // for TC_SHARED_API
+#include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
 namespace Battlenet {
@@ -33,7 +33,7 @@ namespace JSON {
 namespace Login {
 
 // Internal implementation detail -- do not call these.
-void TC_SHARED_API protobuf_AddDesc_Login_2eproto();
+void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
 void protobuf_AssignDesc_Login_2eproto();
 void protobuf_ShutdownFile_Login_2eproto();
 
@@ -46,12 +46,12 @@ class LoginResult;
 enum FormType {
   LOGIN_FORM = 1
 };
-TC_SHARED_API bool FormType_IsValid(int value);
+TC_PROTO_API bool FormType_IsValid(int value);
 const FormType FormType_MIN = LOGIN_FORM;
 const FormType FormType_MAX = LOGIN_FORM;
 const int FormType_ARRAYSIZE = FormType_MAX + 1;
 
-TC_SHARED_API const ::google::protobuf::EnumDescriptor* FormType_descriptor();
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* FormType_descriptor();
 inline const ::std::string& FormType_Name(FormType value) {
   return ::google::protobuf::internal::NameOfEnum(
     FormType_descriptor(), value);
@@ -67,12 +67,12 @@ enum AuthenticationState {
   AUTHENTICATOR = 3,
   DONE = 4
 };
-TC_SHARED_API bool AuthenticationState_IsValid(int value);
+TC_PROTO_API bool AuthenticationState_IsValid(int value);
 const AuthenticationState AuthenticationState_MIN = LOGIN;
 const AuthenticationState AuthenticationState_MAX = DONE;
 const int AuthenticationState_ARRAYSIZE = AuthenticationState_MAX + 1;
 
-TC_SHARED_API const ::google::protobuf::EnumDescriptor* AuthenticationState_descriptor();
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* AuthenticationState_descriptor();
 inline const ::std::string& AuthenticationState_Name(AuthenticationState value) {
   return ::google::protobuf::internal::NameOfEnum(
     AuthenticationState_descriptor(), value);
@@ -84,7 +84,7 @@ inline bool AuthenticationState_Parse(
 }
 // ===================================================================
 
-class TC_SHARED_API FormInput : public ::google::protobuf::Message {
+class TC_PROTO_API FormInput : public ::google::protobuf::Message {
  public:
   FormInput();
   virtual ~FormInput();
@@ -186,7 +186,7 @@ class TC_SHARED_API FormInput : public ::google::protobuf::Message {
   ::std::string* type_;
   ::std::string* label_;
   ::google::protobuf::uint32 max_length_;
-  friend void TC_SHARED_API protobuf_AddDesc_Login_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
   friend void protobuf_ShutdownFile_Login_2eproto();
 
@@ -195,7 +195,7 @@ class TC_SHARED_API FormInput : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API FormInputs : public ::google::protobuf::Message {
+class TC_PROTO_API FormInputs : public ::google::protobuf::Message {
  public:
   FormInputs();
   virtual ~FormInputs();
@@ -265,7 +265,7 @@ class TC_SHARED_API FormInputs : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::FormInput > inputs_;
   int type_;
-  friend void TC_SHARED_API protobuf_AddDesc_Login_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
   friend void protobuf_ShutdownFile_Login_2eproto();
 
@@ -274,7 +274,7 @@ class TC_SHARED_API FormInputs : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API FormInputValue : public ::google::protobuf::Message {
+class TC_PROTO_API FormInputValue : public ::google::protobuf::Message {
  public:
   FormInputValue();
   virtual ~FormInputValue();
@@ -351,7 +351,7 @@ class TC_SHARED_API FormInputValue : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* input_id_;
   ::std::string* value_;
-  friend void TC_SHARED_API protobuf_AddDesc_Login_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
   friend void protobuf_ShutdownFile_Login_2eproto();
 
@@ -360,7 +360,7 @@ class TC_SHARED_API FormInputValue : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API LoginForm : public ::google::protobuf::Message {
+class TC_PROTO_API LoginForm : public ::google::protobuf::Message {
  public:
   LoginForm();
   virtual ~LoginForm();
@@ -465,7 +465,7 @@ class TC_SHARED_API LoginForm : public ::google::protobuf::Message {
   ::std::string* program_id_;
   ::std::string* version_;
   ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::FormInputValue > inputs_;
-  friend void TC_SHARED_API protobuf_AddDesc_Login_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
   friend void protobuf_ShutdownFile_Login_2eproto();
 
@@ -474,7 +474,7 @@ class TC_SHARED_API LoginForm : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_SHARED_API LoginResult : public ::google::protobuf::Message {
+class TC_PROTO_API LoginResult : public ::google::protobuf::Message {
  public:
   LoginResult();
   virtual ~LoginResult();
@@ -591,7 +591,7 @@ class TC_SHARED_API LoginResult : public ::google::protobuf::Message {
   ::std::string* url_;
   ::std::string* login_ticket_;
   int authentication_state_;
-  friend void TC_SHARED_API protobuf_AddDesc_Login_2eproto();
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
   friend void protobuf_AssignDesc_Login_2eproto();
   friend void protobuf_ShutdownFile_Login_2eproto();
 
