@@ -173,7 +173,7 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
             { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath); }
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
 
-        /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops. 
+        /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
             Only works in 2D.
             This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
         */

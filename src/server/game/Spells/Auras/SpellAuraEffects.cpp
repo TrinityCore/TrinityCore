@@ -2915,7 +2915,7 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    target->UpdateSpeed(MOVE_RUN);
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2930,7 +2930,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
 
     Unit* target = aurApp->GetTarget();
     if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
-        target->UpdateSpeed(MOVE_FLIGHT, true);
+        target->UpdateSpeed(MOVE_FLIGHT);
 
     //! Update ability to fly
     if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
@@ -2965,7 +2965,7 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_SWIM, true);
+    target->UpdateSpeed(MOVE_SWIM);
 }
 
 void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -2975,12 +2975,12 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_RUN, true);
-    target->UpdateSpeed(MOVE_SWIM, true);
-    target->UpdateSpeed(MOVE_FLIGHT, true);
-    target->UpdateSpeed(MOVE_RUN_BACK, true);
-    target->UpdateSpeed(MOVE_SWIM_BACK, true);
-    target->UpdateSpeed(MOVE_FLIGHT_BACK, true);
+    target->UpdateSpeed(MOVE_RUN);
+    target->UpdateSpeed(MOVE_SWIM);
+    target->UpdateSpeed(MOVE_FLIGHT);
+    target->UpdateSpeed(MOVE_RUN_BACK);
+    target->UpdateSpeed(MOVE_SWIM_BACK);
+    target->UpdateSpeed(MOVE_FLIGHT_BACK);
 }
 
 void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -2990,9 +2990,9 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_RUN,  true);
-    target->UpdateSpeed(MOVE_SWIM, true);
-    target->UpdateSpeed(MOVE_FLIGHT,  true);
+    target->UpdateSpeed(MOVE_RUN);
+    target->UpdateSpeed(MOVE_SWIM);
+    target->UpdateSpeed(MOVE_FLIGHT);
 }
 
 /*********************************************************/

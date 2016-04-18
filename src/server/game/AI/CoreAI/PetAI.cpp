@@ -245,9 +245,9 @@ void PetAI::UpdateAI(uint32 diff)
     }
 
     // Update speed as needed to prevent dropping too far behind and despawning
-    me->UpdateSpeed(MOVE_RUN, true);
-    me->UpdateSpeed(MOVE_WALK, true);
-    me->UpdateSpeed(MOVE_FLIGHT, true);
+    me->UpdateSpeed(MOVE_RUN);
+    me->UpdateSpeed(MOVE_WALK);
+    me->UpdateSpeed(MOVE_FLIGHT);
 
 }
 
