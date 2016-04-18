@@ -56,6 +56,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Config.h"
 #include "BuiltInConfig.h"
 #include "ScriptMgr.h"
+#include "SHA1.h"
 #include "StartProcess.h"
 #include "MPSCQueue.h"
 #include "GitRevision.h"
@@ -64,8 +65,10 @@ namespace fs = boost::filesystem;
 
 #ifdef _WIN32
     #include <windows.h>
+    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #else // Posix
     #include <dlfcn.h>
+    // #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #endif
 
 // Promote the sScriptReloadMgr to a HotSwapScriptReloadMgr
@@ -99,13 +102,25 @@ typedef HMODULE HandleType;
 typedef void* HandleType;
 #endif
 
+static fs::path GetDirectoryOfExecutable()
+{
+    ASSERT((!sConfigMgr->GetArguments().empty()),
+           "Expected the arguments to contain at least 1 element!");
+
+    fs::path path(sConfigMgr->GetArguments()[0]);
+    if (path.is_absolute())
+        return path.parent_path();
+    else
+        return fs::absolute(path).parent_path();
+}
+
 class SharedLibraryUnloader
 {
 public:
-    SharedLibraryUnloader()
-        : _path() { }
-    explicit SharedLibraryUnloader(fs::path const& path)
-        : _path(path) { }
+    explicit SharedLibraryUnloader(fs::path path)
+        : path_(std::move(path)) { }
+    SharedLibraryUnloader(fs::path path, Optional<fs::path> cache_path)
+        : path_(std::move(path)), cache_path_(std::move(cache_path)) { }
 
     void operator() (HandleType handle) const
     {
@@ -119,26 +134,37 @@ public:
         if (!success)
         {
             TC_LOG_ERROR("scripts.hotswap", "Failed to unload (syscall) the shared library \"%s\".",
-                _path.generic_string().c_str());
+                path_.generic_string().c_str());
 
             return;
         }
 
-        boost::system::error_code error;
-        if (fs::remove(_path, error))
+        /// When the shared library was cached delete it's shared version
+        if (cache_path_)
         {
-            TC_LOG_TRACE("scripts.hotswap", "Lazy unloaded and deleted the shared library \"%s\".",
-                _path.generic_string().c_str());
+            boost::system::error_code error;
+            if (!fs::remove(*cache_path_, error))
+            {
+                TC_LOG_ERROR("scripts.hotswap", "Failed to delete the cached shared library \"%s\" (%s).",
+                    cache_path_->generic_string().c_str(), error.message().c_str());
+
+                return;
+            }
+
+            TC_LOG_TRACE("scripts.hotswap", "Lazy unloaded the shared library \"%s\" "
+                         "and deleted it's cached version at \"%s\"",
+                         path_.generic_string().c_str(), cache_path_->generic_string().c_str());
         }
         else
         {
-            TC_LOG_ERROR("scripts.hotswap", "Failed to delete the shared library \"%s\" (%s).",
-                _path.generic_string().c_str(), error.message().c_str());
+            TC_LOG_TRACE("scripts.hotswap", "Lazy unloaded the shared library \"%s\".",
+                path_.generic_string().c_str());
         }
     }
 
 private:
-    fs::path _path;
+    fs::path const path_;
+    Optional<fs::path> const cache_path_;
 };
 
 typedef std::unique_ptr<typename std::remove_pointer<HandleType>::type, SharedLibraryUnloader> HandleHolder;
@@ -165,7 +191,8 @@ public:
     ScriptModule& operator= (ScriptModule const&) = delete;
     ScriptModule& operator= (ScriptModule&& right) = delete;
 
-    static Optional<std::shared_ptr<ScriptModule>> CreateFromPath(fs::path const& path);
+    static Optional<std::shared_ptr<ScriptModule>>
+        CreateFromPath(fs::path const& path, Optional<fs::path> cache_path);
 
     char const* GetScriptModuleRevisionHash() const override
     {
@@ -215,23 +242,41 @@ static bool GetFunctionFromSharedLibrary(HandleType handle, std::string const& n
 }
 
 // Load a shared library from the given path.
-Optional<std::shared_ptr<ScriptModule>> ScriptModule::CreateFromPath(fs::path const& path)
+Optional<std::shared_ptr<ScriptModule>>
+    ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path)
 {
+    auto const load_path = [&] () -> fs::path {
+        if (cache_path)
+            return *cache_path;
+        else
+            return path;
+    }();
+
 #ifdef _WIN32
-    HandleType handle = LoadLibrary(path.generic_string().c_str());
+    HandleType handle = LoadLibrary(load_path.generic_string().c_str());
 #else // Posix
-    HandleType handle = dlopen(path.c_str(), RTLD_LAZY);
+    HandleType handle = dlopen(load_path.generic_string().c_str(), RTLD_LAZY);
 #endif
 
     if (!handle)
     {
-        TC_LOG_ERROR("scripts.hotswap", "Could not load the shared library \"%s\" for reading.",
-            path.generic_string().c_str());
+        if (cache_path)
+        {
+            TC_LOG_ERROR("scripts.hotswap", "Could not dynamic load the shared library \"%s\" "
+                         "(the library is cached at %s)",
+                         path.generic_string().c_str(), cache_path->generic_string().c_str());
+        }
+        else
+        {
+            TC_LOG_ERROR("scripts.hotswap", "Could not dynamic load the shared library \"%s\".",
+                         path.generic_string().c_str());
+        }
+
         return boost::none;
     }
 
     // Use RAII to release the library on failure.
-    HandleHolder holder(handle, SharedLibraryUnloader(path));
+    HandleHolder holder(handle, SharedLibraryUnloader(path, std::move(cache_path)));
 
     GetScriptModuleRevisionHashType getScriptModuleRevisionHash;
     AddScriptsType addScripts;
@@ -309,15 +354,6 @@ namespace std
     };
 }
 
-/// Escapes spaces in the given path
-static std::string EscapeWindowsPath(std::string str)
-{
-#ifdef _WIN32
-    boost::algorithm::replace_all(str, " ", "\\ ");
-#endif
-    return str;
-}
-
 /// Invokes a synchronous CMake process with the given arguments
 template<typename... T>
 static int InvokeCMakeCommand(T&&... args)
@@ -351,11 +387,22 @@ static std::string CalculateScriptModuleProjectName(std::string const& module)
     return module_project;
 }
 
+/// Returns false when there isn't any attached debugger to the process which
+/// could block the rebuild of new shared libraries.
+static bool IsDebuggerBlockingRebuild()
+{
+#ifdef _WIN32
+    if (IsDebuggerPresent())
+        return true;
+#endif
+    return false;
+}
+
 /// ScriptReloadMgr which is used when dynamic linking is enabled
 ///
 /// This class manages shared library loading/unloading through watching
 /// the script module directory. Loaded shared libraries are mirrored
-/// into a .cache subdirectory to allow lazy unloading as long as
+/// into a cache subdirectory to allow lazy unloading as long as
 /// the shared library is still used which is useful for scripts
 /// which can't be instantly replaced like spells or instances.
 /// Several modules which reference different versions can be kept loaded
@@ -398,6 +445,8 @@ class HotSwapScriptReloadMgr final
         // like "Release" or "Debug". The build directive from the
         // previous same module is used if there was any.
         std::string script_module_build_directive_;
+        // The time where the build job started
+        uint32 start_time_;
 
         // Type of the current running job
         BuildJobType type_;
@@ -410,7 +459,7 @@ class HotSwapScriptReloadMgr final
             : script_module_name_(std::move(script_module_name)),
               script_module_project_name_(std::move(script_module_project_name)),
               script_module_build_directive_(std::move(script_module_build_directive)),
-              type_(BuildJobType::BUILD_JOB_NONE) { }
+              start_time_(getMSTime()), type_(BuildJobType::BUILD_JOB_NONE) { }
 
         bool IsValid() const
         {
@@ -422,6 +471,8 @@ class HotSwapScriptReloadMgr final
         std::string const& GetProjectName() const { return script_module_project_name_; }
 
         std::string const& GetBuildDirective() const { return script_module_build_directive_; }
+
+        uint32 GetTimeFromStart() const { return GetMSTimeDiffToNow(start_time_); }
 
         BuildJobType GetType() const { return type_; }
 
@@ -485,7 +536,7 @@ public:
     HotSwapScriptReloadMgr()
         : _libraryWatcher(-1), _unique_library_name_counter(0),
           _last_time_library_changed(0), _last_time_sources_changed(0),
-          terminate_early(false) { }
+          _last_time_user_informed(0), terminate_early(false) { }
 
     virtual ~HotSwapScriptReloadMgr()
     {
@@ -498,7 +549,13 @@ public:
     /// Returns the absolute path to the script module directory
     static fs::path GetLibraryDirectory()
     {
-        return fs::absolute(sConfigMgr->GetStringDefault("HotSwap.ScriptDir", "scripts"));
+        // When an absolute path is given in the config use it,
+        // otherwise interpret paths relative to the executable.
+        fs::path path(sConfigMgr->GetStringDefault("HotSwap.ScriptDir", "scripts"));
+        if (path.is_absolute())
+            return path;
+        else
+            return fs::absolute(path, GetDirectoryOfExecutable());
     }
 
     /// Returns the absolute path to the scripts directory in the source tree.
@@ -518,6 +575,17 @@ public:
         if (!sWorld->getBoolConfig(CONFIG_HOTSWAP_ENABLED))
             return;
 
+        if (BuiltInConfig::GetBuildDirectory().find(" ") != std::string::npos)
+        {
+            TC_LOG_ERROR("scripts.hotswap", "Your build directory path \"%s\" "
+                "contains spaces, which isn't allowed for compatibility reasons! "
+                "You need to create a build directory which doesn't contain any space character "
+                "in it's path!",
+                BuiltInConfig::GetBuildDirectory().c_str());
+
+            return;
+        }
+
         {
             auto const library_directory = GetLibraryDirectory();
             if (!fs::exists(library_directory) || !fs::is_directory(library_directory))
@@ -528,27 +596,27 @@ public:
             }
         }
 
-        // Get the cache directory path
-        fs::path const cache_path = []
-        {
-            auto path = fs::absolute(sScriptReloadMgr->GetLibraryDirectory());
-            path /= ".cache";
-            return path;
-        }();
+    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
+
+        temporary_cache_path_ = CalculateTemporaryCachePath();
 
         // We use the boost filesystem function versions which accept
         // an error code to prevent it from throwing exceptions.
         boost::system::error_code code;
-        if ((!fs::exists(cache_path, code) || (fs::remove_all(cache_path, code) > 0)) &&
-             !fs::create_directory(cache_path, code))
+        if ((!fs::exists(temporary_cache_path_, code)
+             || (fs::remove_all(temporary_cache_path_, code) > 0)) &&
+             !fs::create_directory(temporary_cache_path_, code))
         {
-            TC_LOG_ERROR("scripts.hotswap", "Couldn't create the cache directory \"%s\".",
-                cache_path.generic_string().c_str());
+            TC_LOG_ERROR("scripts.hotswap", "Couldn't create the cache directory at \"%s\".",
+                temporary_cache_path_.generic_string().c_str());
+
             return;
         }
 
         // Used to silent compiler warnings
         (void)code;
+
+    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         // Correct the CMake prefix when needed
         if (sWorld->getBoolConfig(CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED))
@@ -681,6 +749,31 @@ private:
         _fileWatcher.watch();
     }
 
+    static fs::path CalculateTemporaryCachePath()
+    {
+        auto path = fs::temp_directory_path();
+        path /= Trinity::StringFormat("tc_script_cache_%s_%s",
+            GitRevision::GetBranch(),
+            CalculateSHA1Hash(sConfigMgr->GetFilename()).c_str());
+
+        return path;
+    }
+
+    fs::path GenerateUniquePathForLibraryInCache(fs::path path)
+    {
+        ASSERT(!temporary_cache_path_.empty(),
+               "The temporary cache path wasn't set!");
+
+        // Create the cache path and increment the library counter to use an unique name for each library
+        auto cache_path = temporary_cache_path_;
+        cache_path /= Trinity::StringFormat("%s.%u%s",
+            path.stem().generic_string().c_str(),
+            _unique_library_name_counter++,
+            path.extension().generic_string().c_str());
+
+        return cache_path;
+    }
+
     /// Updates the current state of the given source path
     void UpdateSourceChangeRequest(std::string const& module_name,
                                    fs::path const& path,
@@ -761,32 +854,37 @@ private:
         ASSERT(_running_script_module_names.find(path) == _running_script_module_names.end(),
                "Can't load a module which is running already!");
 
-        // Create the cache path and increment the library counter to use an unique name for each library
-        fs::path cache_path = fs::absolute(sScriptReloadMgr->GetLibraryDirectory());
-        cache_path /= ".cache";
-        cache_path /= Trinity::StringFormat("%s.%u%s",
-            path.stem().generic_string().c_str(),
-            _unique_library_name_counter++,
-            path.extension().generic_string().c_str());
+        Optional<fs::path> cache_path;
 
-        if ([&]
-            {
-                boost::system::error_code code;
-                fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
-                return code;
-            }())
+    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
+
+        // Copy the shared library into a cache on platforms which lock files on use (windows).
+        cache_path = GenerateUniquePathForLibraryInCache(path);
+
         {
-            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module \"%s\"!",
-                path.filename().generic_string().c_str());
+            boost::system::error_code code;
+            fs::copy_file(path, *cache_path, fs::copy_option::fail_if_exists, code);
+            if (code)
+            {
+                TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
+                    "\"%s\" at \"%s\" with reason (\"%s\")!",
+                    path.filename().generic_string().c_str(), cache_path->generic_string().c_str(),
+                    code.message().c_str());
 
-            // Find a better solution for this but it's much better
-            // to start the core without scripts
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-            ABORT();
-            return;
+                // Find a better solution for this but it's much better
+                // to start the core without scripts
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                ABORT();
+                return;
+            }
+
+            TC_LOG_TRACE("scripts.hotswap", ">> Copied the shared library \"%s\" to \"%s\" for caching.",
+                path.filename().generic_string().c_str(), cache_path->generic_string().c_str());
         }
 
-        auto module = ScriptModule::CreateFromPath(cache_path);
+    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
+
+        auto module = ScriptModule::CreateFromPath(path, cache_path);
         if (!module)
         {
             TC_LOG_FATAL("scripts.hotswap", ">> Failed to load script module \"%s\"!",
@@ -955,7 +1053,23 @@ private:
         // If the changed sources are empty do nothing
         if (_sources_changed.empty())
             return;
-        
+
+        // Wait until are attached debugger were detached.
+        if (IsDebuggerBlockingRebuild())
+        {
+            if ((_last_time_user_informed == 0) ||
+                (GetMSTimeDiffToNow(_last_time_user_informed) > 7500))
+            {
+                _last_time_user_informed = getMSTime();
+
+                // Informs the user that the attached debugger is blocking the automatic script rebuild.
+                TC_LOG_INFO("scripts.hotswap", "Your attached debugger is blocking the TrinityCore "
+                    "automatic script rebuild, please detach it!");
+            }
+
+            return;
+        }
+
         // Find all source files of a changed script module and removes
         // it from the changed source list, invoke the build afterwards.
         bool rebuild_buildfiles;
@@ -1027,7 +1141,7 @@ private:
         ASSERT(_build_job->IsValid(), "Invalid build job!");
 
         // Retrieve the result
-        auto const error = _build_job->GetProcess()->GetFutureResult().get();       
+        auto const error = _build_job->GetProcess()->GetFutureResult().get();
 
         if (terminate_early)
         {
@@ -1088,8 +1202,9 @@ private:
                 if (!error)
                 {
                     // Installation was successful
-                    TC_LOG_INFO("scripts.hotswap", ">> Successfully installed module %s.",
-                        _build_job->GetModuleName().c_str());
+                    TC_LOG_INFO("scripts.hotswap", ">> Successfully installed module %s in %us",
+                        _build_job->GetModuleName().c_str(),
+                        _build_job->GetTimeFromStart() / IN_MILLISECONDS);
                 }
                 else
                 {
@@ -1115,8 +1230,8 @@ private:
 
         TC_LOG_INFO("scripts.hotswap", "Rerunning CMake because there were sources added or removed...");
 
-        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE, 
-            InvokeAsyncCMakeCommand(EscapeWindowsPath(BuiltInConfig::GetBuildDirectory())));
+        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE,
+            InvokeAsyncCMakeCommand(BuiltInConfig::GetBuildDirectory()));
     }
 
     /// Invokes a new build of the current active module job
@@ -1129,9 +1244,9 @@ private:
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_COMPILE,
             InvokeAsyncCMakeCommand(
-                "--build", EscapeWindowsPath(BuiltInConfig::GetBuildDirectory()),
-                "--target", EscapeWindowsPath(_build_job->GetProjectName()),
-                "--config", EscapeWindowsPath(_build_job->GetBuildDirective())));
+                "--build", BuiltInConfig::GetBuildDirectory(),
+                "--target", _build_job->GetProjectName(),
+                "--config", _build_job->GetBuildDirective()));
     }
 
     /// Invokes a new asynchronous install of the current active module job
@@ -1144,10 +1259,10 @@ private:
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_INSTALL,
             InvokeAsyncCMakeCommand(
-                "-DCOMPONENT=" + EscapeWindowsPath(_build_job->GetProjectName()),
-                "-DBUILD_TYPE=" + EscapeWindowsPath(_build_job->GetBuildDirective()),
-                "-P", EscapeWindowsPath(fs::absolute("cmake_install.cmake",
-                    BuiltInConfig::GetBuildDirectory()).generic_string())));
+                "-DCOMPONENT=" + _build_job->GetProjectName(),
+                "-DBUILD_TYPE=" + _build_job->GetBuildDirective(),
+                "-P", fs::absolute("cmake_install.cmake",
+                    BuiltInConfig::GetBuildDirectory()).generic_string()));
     }
 
     /// Sets the CMAKE_INSTALL_PREFIX variable in the CMake cache
@@ -1218,7 +1333,7 @@ private:
             #ifndef _WIN32
                 // The worldserver location is ${CMAKE_INSTALL_PREFIX}/bin
                 // on all other platforms then windows
-                current_path = current_path.remove_leaf();
+                current_path = current_path.parent_path();
             #endif
 
                 if (value != current_path)
@@ -1234,7 +1349,7 @@ private:
                             if (base == branch)
                                 return true;
 
-                            branch = branch.remove_leaf();
+                            branch = branch.parent_path();
                         }
 
                         return false;
@@ -1258,8 +1373,8 @@ private:
         TC_LOG_INFO("scripts.hotswap", "Invoking CMake cache correction...");
 
         auto const error = InvokeCMakeCommand(
-            "-DCMAKE_INSTALL_PREFIX:PATH=" + EscapeWindowsPath(fs::current_path().generic_string()),
-            EscapeWindowsPath(BuiltInConfig::GetBuildDirectory()));
+            "-DCMAKE_INSTALL_PREFIX:PATH=" + fs::current_path().generic_string(),
+            BuiltInConfig::GetBuildDirectory());
 
         if (error)
         {
@@ -1306,12 +1421,18 @@ private:
     // Tracks the time since the last module has changed to avoid burst updates
     uint32 _last_time_sources_changed;
 
+    // Tracks the last timestamp the user was informed about a certain repeating event.
+    uint32 _last_time_user_informed;
+
     // Represents the current build job which is in progress
     Optional<BuildJob> _build_job;
 
     // Is true when the build job dispatcher should stop after
     // the current job has finished
     bool terminate_early;
+
+    // The path to the tc_scripts temporary cache
+    fs::path temporary_cache_path_;
 };
 
 /// Maps efsw actions to strings

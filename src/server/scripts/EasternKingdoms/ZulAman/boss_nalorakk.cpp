@@ -142,7 +142,7 @@ class boss_nalorakk : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     inMove = false;
                     waitTimer = 0;
-                    me->SetSpeed(MOVE_RUN, 2);
+                    me->SetSpeedRate(MOVE_RUN, 2);
                     me->SetWalk(false);
                 }else
                 {

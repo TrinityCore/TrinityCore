@@ -479,12 +479,12 @@ public:
         void DoMount()
         {
             me->Mount(SKARLOC_MOUNT_MODEL);
-            me->SetSpeed(MOVE_RUN, SPEED_MOUNT);
+            me->SetSpeedRate(MOVE_RUN, SPEED_MOUNT);
         }
         void DoUnmount()
         {
             me->Dismount();
-            me->SetSpeed(MOVE_RUN, SPEED_RUN);
+            me->SetSpeedRate(MOVE_RUN, SPEED_RUN);
         }
         void EnterCombat(Unit* /*who*/) override
         {
