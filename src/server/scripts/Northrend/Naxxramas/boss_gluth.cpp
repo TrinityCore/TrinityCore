@@ -333,7 +333,7 @@ public:
             OnEffectHit += SpellEffectFn(spell_gluth_decimate_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
         }
 
-        bool Load()
+        bool Load() override
         {
             return GetCaster() && GetCaster()->GetEntry() == NPC_GLUTH;
         }
@@ -367,7 +367,7 @@ public:
             AfterHit += SpellHitFn(spell_gluth_zombiechow_search_SpellScript::HealForEachTargetHit);
         }
 
-        bool Load()
+        bool Load() override
         {
             return GetCaster() && GetCaster()->GetEntry() == NPC_GLUTH;
         }
