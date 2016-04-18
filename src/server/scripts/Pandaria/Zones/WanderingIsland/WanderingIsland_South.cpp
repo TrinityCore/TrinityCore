@@ -360,7 +360,7 @@ public:
                 {
                     if (HasBeenSaved && !me->GetVehicle())
                     {
-                       // me->MonsterSay("Thanks you, i'll never forget that.", LANG_UNIVERSAL, 0);
+                        me->Say("Thanks you, i'll never forget that.", LANG_UNIVERSAL, 0);
                         me->DespawnOrUnsummon(5000);
                         checkSavedTimer = 0;
                     }

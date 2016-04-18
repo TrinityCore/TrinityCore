@@ -462,7 +462,155 @@ UPDATE creature_template SET ScriptName='mob_min_dimwind' WHERE entry=54855;
 UPDATE creature_template SET ScriptName='mob_attacker_dimwind' WHERE entry=54785;
 UPDATE creature_template SET ScriptName='boss_living_air' WHERE entry=54631;
 UPDATE creature_template SET ScriptName='boss_li_fei' WHERE entry=54135;
-UPDATE creature_template SET ScriptName='boss_li_fei' WHERE entry=54734;
+UPDATE creature_template SET ScriptName='boss_li_fei_fight' WHERE entry=54734;
+UPDATE creature_template SET ScriptName='npc_trainee_stifled_pride' WHERE entry=54734;
+--South
+UPDATE creature_template SET ScriptName='mob_mandori_escort' WHERE entry=59986;
+UPDATE creature_template SET ScriptName='mob_mandori_escort' WHERE entry=59988;
+UPDATE creature_template SET ScriptName='mob_mandori_escort' WHERE entry=59989;
+UPDATE creature_template SET ScriptName='npc_korga' WHERE entry=60042;
+UPDATE creature_template SET ScriptName='mob_ji_forest_escort' WHERE entry=60042;
+UPDATE creature_template SET ScriptName='npc_shang_xi_choose_faction' WHERE entry=56013
+--West
+UPDATE creature_template SET ScriptName='mob_master_shang_xi_temple' WHERE entry=54786;
+UPDATE creature_template SET ScriptName='npc_aysa_in_wind_temple' WHERE entry=55595;
+UPDATE creature_template SET ScriptName='boss_zhao_ren' WHERE entry=55786;
+UPDATE creature_template SET ScriptName='mob_master_shang_xi_after_zhao' WHERE entry=55586;
+UPDATE creature_template SET ScriptName='mob_master_shang_xi_thousand_staff' WHERE entry=55672;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (95247,'spell_grab_air_balloon');
+
+-- Dread Wastes
+UPDATE creature_template SET ScriptName='mob_ik_ik_the_nimble' WHERE entry=50836;
+UPDATE creature_template SET ScriptName='mob_adjunct_kree_zot' WHERE entry=62301;
+UPDATE creature_template SET ScriptName='mob_dread_fearbringer' WHERE entry=65496;
+UPDATE creature_template SET ScriptName='mob_dread_kunchong' WHERE entry=64717;
+UPDATE creature_template SET ScriptName='mob_dread_matriarch' WHERE entry=66187;
+UPDATE creature_template SET ScriptName='mob_elder_spindlegrin' WHERE entry=65391;
+UPDATE creature_template SET ScriptName='mob_hulking_kor_thik_fleshrender' WHERE entry=62686;
+UPDATE creature_template SET ScriptName='mob_ik_thik_amberstinger' WHERE entry=63728;
+UPDATE creature_template SET ScriptName='mob_ik_thik_kunchong' WHERE entry=65582;
+UPDATE creature_template SET ScriptName='mob_ik_thik_terrorclaw' WHERE entry=65632;
+UPDATE creature_template SET ScriptName='mob_karanosh' WHERE entry=64724;
+UPDATE creature_template SET ScriptName='mob_kypa_rak' WHERE entry=65229;
+UPDATE creature_template SET ScriptName='mob_manifestation_of_terror' WHERE entry=66785;
+UPDATE creature_template SET ScriptName='mob_shox_tik' WHERE entry=66784;
+UPDATE creature_template SET ScriptName='mob_wake_of_horror' WHERE entry=64626;
+UPDATE creature_template SET ScriptName='mob_warlord_gurthan' WHERE entry=65502;
+UPDATE creature_template SET ScriptName='mob_ai_li_skymirror' WHERE entry=50821;
+UPDATE creature_template SET ScriptName='mob_overgrown_seacarp' WHERE entry=65394;
+UPDATE creature_template SET ScriptName='mob_gar_lok' WHERE entry=50739;
+UPDATE creature_template SET ScriptName='mob_dak_the_breaker' WHERE entry=50334;
+UPDATE creature_template SET ScriptName='mob_nalash_verdantis' WHERE entry=50776;
+
+-- Isle of Giants
+UPDATE creature_template SET ScriptName='boss_oondasta' WHERE entry=69161;
+UPDATE creature_template SET ScriptName='npc_primal_devilsaur' WHERE entry=70011;
+UPDATE creature_template SET ScriptName='npc_primal_devilsaur' WHERE entry=70010;
+UPDATE creature_template SET ScriptName='npc_primal_devilsaur' WHERE entry=70008;
+UPDATE creature_template SET ScriptName='npc_primal_devilsaur' WHERE entry=70009;
+UPDATE creature_template SET ScriptName='npc_primal_devilsaur' WHERE entry=69991;
+UPDATE creature_template SET ScriptName='npc_zandalari_dinomancer' WHERE entry=69925;
+UPDATE creature_template SET ScriptName='npc_pterrorwing_skyscreamer' WHERE entry=70020;
+UPDATE creature_template SET ScriptName='npc_pterrorwing_skyscreamer' WHERE entry=70021;
+UPDATE creature_template SET ScriptName='npc_young_primal_devilsaur' WHERE entry=70006;
+UPDATE creature_template SET ScriptName='npc_young_primal_devilsaur' WHERE entry=70004;
+UPDATE creature_template SET ScriptName='npc_young_primal_devilsaur' WHERE entry=69993;
+UPDATE creature_template SET ScriptName='npc_young_primal_devilsaur' WHERE entry=70005;
+UPDATE creature_template SET ScriptName='npc_young_primal_devilsaur' WHERE entry=70007;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn' WHERE entry=70017;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn' WHERE entry=70018;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn' WHERE entry=70019;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn' WHERE entry=70016;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn' WHERE entry=69983;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=70014;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=70015;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=69992;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=70012;
+UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=70013;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (138769,'spell_trihorn_charge');
+UPDATE item_template SET ScriptName='item_primal_egg' WHERE entry=94295;
+
+-- Isle of Thunder
+UPDATE creature_template SET ScriptName='boss_nalak' WHERE entry=69099;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (136350,'spell_lightning_tether');
+UPDATE creature_template SET ScriptName='npc_sunreaver_construct' WHERE entry=50358;
+UPDATE creature_template SET ScriptName='npc_mumta' WHERE entry=69664;
+UPDATE creature_template SET ScriptName='npc_thunder_pterodactyls' WHERE entry=69996;
+UPDATE creature_template SET ScriptName='npc_thunder_pterodactyls' WHERE entry=70141;
+UPDATE creature_template SET ScriptName='npc_progenitus' WHERE entry=69997;
+UPDATE creature_template SET ScriptName='npc_goda' WHERE entry=69998;
+UPDATE creature_template SET ScriptName='npc_godhulk_ramuk' WHERE entry=69999;
+UPDATE creature_template SET ScriptName='npc_altabim_the_allseeing' WHERE entry=70000;
+UPDATE creature_template SET ScriptName='npc_backbreaker_uru' WHERE entry=70001;
+UPDATE creature_template SET ScriptName='npc_luban' WHERE entry=70002;
+UPDATE creature_template SET ScriptName='npc_molthor' WHERE entry=70003;
+UPDATE creature_template SET ScriptName='npc_rasha' WHERE entry=70530;
+UPDATE creature_template SET ScriptName='npc_thunder_zandalaris' WHERE entry=70096;
+UPDATE creature_template SET ScriptName='npc_thunder_zandalaris' WHERE entry=69769;
+UPDATE creature_template SET ScriptName='npc_thunder_zandalaris' WHERE entry=69841;
+UPDATE creature_template SET ScriptName='npc_thunder_zandalaris' WHERE entry=69842;
+UPDATE creature_template SET ScriptName='npc_thunder_zandalaris' WHERE entry=69768;
+UPDATE creature_template SET ScriptName='npc_spirit_of_warlord_teng' WHERE entry=69471;
+
+-- Krasarang Wilds
+UPDATE creature_template SET ScriptName='mob_arness_the_scale' WHERE entry=50787;
+UPDATE creature_template SET ScriptName='mob_gaarn_the_toxic' WHERE entry=50340;
+UPDATE creature_template SET ScriptName='mob_qu_nas' WHERE entry=50352;
+UPDATE creature_template SET ScriptName='mob_torik_ethis' WHERE entry=50388;
+UPDATE creature_template SET ScriptName='mob_go_kan' WHERE entry=50331;
+
+-- Kun Lai Summit
+UPDATE creature_template SET ScriptName='mob_nessos_the_oracle' WHERE entry=50789;
+UPDATE creature_template SET ScriptName='mob_ski_thik' WHERE entry=50733;
+UPDATE creature_template SET ScriptName='mob_havak' WHERE entry=50354;
+UPDATE creature_template SET ScriptName='mob_mogujia_soul_caller' WHERE entry=59797;
+UPDATE creature_template SET ScriptName='mob_quilen_stonemaw' WHERE entry=64186;
+UPDATE creature_template SET ScriptName='mob_zai_the_outcast' WHERE entry=50769;
+
+-- Jade Forest
+UPDATE creature_template SET ScriptName='mob_shadow_of_doubt' WHERE entry=57389;
+UPDATE creature_template SET ScriptName='mob_kor_nas_nightsavage' WHERE entry=50338;
+UPDATE creature_template SET ScriptName='mob_krax_ik' WHERE entry=50363;
+UPDATE creature_template SET ScriptName='mob_mister_ferocious' WHERE entry=50823;
+UPDATE creature_template SET ScriptName='mob_akkalar' WHERE entry=66937;
+UPDATE creature_template SET ScriptName='mob_grookin_outrunner' WHERE entry=67149;
+UPDATE creature_template SET ScriptName='mob_bamboo_python' WHERE entry=59769;
+UPDATE creature_template SET ScriptName='mob_lurking_tiger' WHERE entry=55550;
+UPDATE creature_template SET ScriptName='mob_rakira' WHERE entry=66622;
+UPDATE creature_template SET ScriptName='mob_ro_shen' WHERE entry=66617;
+UPDATE creature_template SET ScriptName='mob_sha_reminant' WHERE entry=59434;
+
+-- Veiled Stair
+UPDATE creature_template SET ScriptName='tvs_black_prince' WHERE entry=71424;
+UPDATE creature_template SET ScriptName='tvs_black_prince' WHERE entry=64822;
+UPDATE creature_template SET ScriptName='tvs_black_prince' WHERE entry=70476;
+UPDATE creature_template SET ScriptName='tvs_black_prince' WHERE entry=69782;
+UPDATE creature_template SET ScriptName='tvs_black_prince' WHERE entry=71426;
+UPDATE creature_template SET ScriptName='tvs_black_prince' WHERE entry=64616;
+
+-- Townlong Steppes
+UPDATE creature_template SET ScriptName='mob_kah_tir' WHERE entry=50355;
+UPDATE creature_template SET ScriptName='mob_lith_ik' WHERE entry=50734;
+UPDATE creature_template SET ScriptName='mob_darkwoods_faerie' WHERE entry=62522;
+UPDATE creature_template SET ScriptName='mob_hei_feng' WHERE entry=62309;
+UPDATE creature_template SET ScriptName='mob_hei_feng' WHERE entry=63920;
+UPDATE creature_template SET ScriptName='mob_eshelon' WHERE entry=50772;
+
+-- Vale of Eternal Blossoms
+
+-- Valley of the Four Winds
+UPDATE creature_template SET ScriptName='mob_bonobos' WHERE entry=50828;
+UPDATE creature_template SET ScriptName='mob_sele_na' WHERE entry=50766;
+UPDATE creature_template SET ScriptName='mob_blackhoof' WHERE entry=51059;
+UPDATE creature_template SET ScriptName='mob_ik_thik_warrior' WHERE entry=56722;
+
+
+-- World Bosses 
+UPDATE creature_template SET ScriptName='boss_galion' WHERE entry=62351;
+UPDATE creature_template SET ScriptName='boss_ordos' WHERE entry=72057;
+UPDATE creature_template SET ScriptName='boss_sha_of_anger' WHERE entry=56439;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (119626,'spell_sha_of_anger_aggressive_behaviour');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (129356,'spell_sha_of_anger_aggressive_behaviour');
 
 
 

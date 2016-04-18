@@ -15,11 +15,11 @@ class mob_master_shang_xi_temple : public CreatureScript
         {
             if (quest->GetQuestId() == 29776) // Brise du matin
             {
-                /*if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
+                if (Creature* vehicle = player->SummonCreature(55685, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation()))
                 {
                     player->AddAura(99385, vehicle);
                     player->EnterVehicle(vehicle);
-                }*/
+                }
                 player->NearTeleportTo(926.58f, 3605.33f, 251.63f, 3.114f);
             }
 
