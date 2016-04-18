@@ -30,14 +30,14 @@ enum Events
     EVENT_RUSTING
 };
 
-class boss_rattlegore : public CreatureScript
+class boss_rattlegore_script : public CreatureScript
 {
 public:
-    boss_rattlegore() : CreatureScript("boss_rattlegore") { }
+    boss_rattlegore_script() : CreatureScript("boss_rattlegore_script") { }
 
-    struct boss_rattlegoreAI : public BossAI
+    struct boss_rattlegore_scriptAI : public BossAI
     {
-        boss_rattlegoreAI(Creature* creature) : BossAI(creature, 59153)
+        boss_rattlegore_scriptAI(Creature* creature) : BossAI(creature, 59153)
         {
         }
 
@@ -90,11 +90,11 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_rattlegoreAI(creature);
+        return new boss_rattlegore_scriptAI(creature);
     }
 };
 
-void AddSC_boss_rattlegore()
+void AddSC_boss_rattlegore_script()
 {
-    new boss_rattlegore();
+    new boss_rattlegore_script();
 }

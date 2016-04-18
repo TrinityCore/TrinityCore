@@ -1,63 +1,61 @@
 -- Gate of the Setting Sun -- falta npc vicuous fluid
 UPDATE instance_template SET script='instance_gate_setting_sun' WHERE map=962;
 -- Rimok
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_commander_rimok' WHERE entry=56636;
+UPDATE creature_template SET ScriptName='boss_commander_rimok' WHERE entry=56636;
 UPDATE creature_template SET minlevel=89, maxlevel=90, faction=1791, ScriptName='npc_krikthik_swarmer' WHERE entry=59835;
 UPDATE creature_template SET minlevel=89, maxlevel=90, faction=1791, ScriptName='npc_krikthik_saboteur' WHERE entry=60447;
 UPDATE creature_template SET minlevel=89, maxlevel=90, faction=1791, ScriptName='npc_add_generator' WHERE entry=59834;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (120559,'spell_rimok_saboteur_bombard');
 -- Raigonn
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_raigonn' WHERE entry=56877;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_raigonn_weak_spot' WHERE entry=56895;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_krikthik_protectorat' WHERE entry=56929;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_krikthik_engulfer' WHERE entry=56912;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_krikthik_swarm_bringer' WHERE entry=56930;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='vehicle_artillery' WHERE entry=59819;
+UPDATE creature_template SET ScriptName='boss_raigonn' WHERE entry=56877;
+UPDATE creature_template SET ScriptName='npc_raigonn_weak_spot' WHERE entry=56895;
+UPDATE creature_template SET ScriptName='npc_krikthik_protectorat' WHERE entry=56929;
+UPDATE creature_template SET ScriptName='npc_krikthik_engulfer' WHERE entry=56912;
+UPDATE creature_template SET ScriptName='npc_krikthik_swarm_bringer' WHERE entry=56930;
+UPDATE creature_template SET ScriptName='vehicle_artillery' WHERE entry=59819;
 -- Kiptilak
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_saboteur_kiptilak' WHERE entry=56906;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_instable_munition' WHERE entry=56917;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=56911;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=56918;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=56919;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=56920;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=59205;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=59206;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=59207;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_munition_explosion_bunny' WHERE entry=59208;
+UPDATE creature_template SET ScriptName='boss_saboteur_kiptilak' WHERE entry=56906;
+UPDATE creature_template SET ScriptName='npc_instable_munition' WHERE entry=56917;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=56911;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=56918;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=56919;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=56920;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=59205;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=59206;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=59207;
+UPDATE creature_template SET ScriptName='npc_munition_explosion_bunny' WHERE entry=59208;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (107268,'spell_kiptilak_sabotage');
 -- Gadok
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_striker_gadok' WHERE entry=56589;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_krikthik_striker' WHERE entry=59778;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_krikthik_disruptor' WHERE entry=59794;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='npc_flak_cannon' WHERE entry=60421;
+UPDATE creature_template SET ScriptName='boss_striker_gadok' WHERE entry=56589;
+UPDATE creature_template SET ScriptName='npc_krikthik_striker' WHERE entry=59778;
+UPDATE creature_template SET ScriptName='npc_krikthik_disruptor' WHERE entry=59794;
+UPDATE creature_template SET ScriptName='npc_flak_cannon' WHERE entry=60421;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (116298,'spell_gadok_strafing');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (106933,'spell_prey_time');
 
 -- Heart of Fear
-UPDATE instance_template SET script='instance_heart_of_fear' WHERE map=1009;
 INSERT INTO instance_template (map,script) values (1009,'instance_heart_of_fear');
 -- Blade Lord Tayak
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_blade_lord_tayak' WHERE entry=62543;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='mob_tempest_slash' WHERE entry=62908;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='mob_tayak_tornado_all' WHERE entry=63567;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='mob_tayak_tornado' WHERE entry=63299;
+UPDATE creature_template SET ScriptName='boss_blade_lord_tayak' WHERE entry=62543;
+UPDATE creature_template SET ScriptName='mob_tempest_slash' WHERE entry=62908;
+UPDATE creature_template SET ScriptName='mob_tayak_tornado_all' WHERE entry=63567;
+UPDATE creature_template SET ScriptName='mob_tayak_tornado' WHERE entry=63299;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122994,'spell_invisible_strike');
 -- Garalon
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_garalon' WHERE entry=62164;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_garalon' WHERE entry=63053;
+UPDATE creature_template SET ScriptName='boss_garalon' WHERE entry=62164;
+UPDATE creature_template SET ScriptName='boss_garalon' WHERE entry=63053;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122754,'spell_garalon_furious_swipe');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122774,'spell_garalon_crush_searcher');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (129815,'spell_garalon_pheromones_first_target_selector');
 -- Vizier Zorlock
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='boss_vizier_zorlock' WHERE entry=62980;
-UPDATE creature_template SET minlevel=91, maxlevel=92, faction=1791, ScriptName='mob_sonic_ring' WHERE entry=62727;
+UPDATE creature_template SET ScriptName='boss_vizier_zorlock' WHERE entry=62980;
+UPDATE creature_template SET ScriptName='mob_sonic_ring' WHERE entry=62727;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122718,'spell_force_and_verve_damage');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122336,'spell_zorlock_sonic_ring');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122740,'spell_zorlock_convert');
 
 -- MoguShan Palace
 UPDATE instance_template SET script='instance_mogu_shan_palace' WHERE map=994;
-INSERT INTO instance_template (map,script) values (994,'instance_mogu_shan_palace');
 --UPDATE gameobject_template SET ScriptName='go_mogushan_palace_temp_portal' WHERE entry=;
 -- Gekkan
 UPDATE creature_template SET ScriptName='boss_gekkan' WHERE entry=61243;
@@ -79,7 +77,6 @@ UPDATE creature_template SET ScriptName='mob_animated_staff' WHERE entry=61433;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (119311,'spell_dart');
 
 -- MoguShan Vaults
-UPDATE instance_template SET script='instance_mogu_shan_vault' WHERE map=1008;
 INSERT INTO instance_template (map,script) values (1008,'instance_mogu_shan_vault');
 -- Elegon
 UPDATE creature_template SET ScriptName='boss_elegon' WHERE entry=60410;
@@ -201,12 +198,10 @@ UPDATE creature_template SET ScriptName='boss_rattlegore' WHERE entry=59153;
 
 -- ShadoPan Monastery
 UPDATE instance_template SET script='instance_shadopan_monastery' WHERE map=959;
-INSERT INTO instance_template (map,script) values (959,'instance_shadopan_monastery');
 -- Gu CloudStrike
 UPDATE creature_template SET ScriptName='boss_gu_cloudstrike' WHERE entry=56747;
 UPDATE creature_template SET ScriptName='npc_azure_serpent' WHERE entry=56754;
 UPDATE creature_template SET ScriptName='npc_azure_serpent' WHERE entry=56754;
---INSERT INTO areatrigger_scripts (entry,ScriptName) values (,'at_gu_intro');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (114927,'spell_kill_guardians');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (111129,'spell_overcharged_soul_damage');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (107140,'spell_magnetic_shroud');
@@ -215,14 +210,11 @@ UPDATE creature_template SET ScriptName='boss_master_snowdrift' WHERE entry=5654
 UPDATE creature_template SET ScriptName='npc_snowdrift_novice' WHERE entry=56395;
 UPDATE creature_template SET ScriptName='npc_snowdrift_clone' WHERE entry=56713;
 UPDATE creature_template SET ScriptName='npc_snowdrift_miniboss' WHERE entry=56397;
---UPDATE creature_template SET ScriptName='npc_snowdrift_fireball' WHERE entry=;
 -- Sha of Violence
 UPDATE creature_template SET ScriptName='boss_sha_of_violence' WHERE entry=56719;
 -- Taran Zhu
 UPDATE creature_template SET ScriptName='boss_taran_zhu' WHERE entry=56884;
 UPDATE creature_template SET ScriptName='npc_gripping_hatred' WHERE entry=59804;
---INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_hate');
---INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_meditation');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_grip_of_hate');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (131521,'spell_taran_zhu_ring_of_malice');
 
@@ -243,7 +235,7 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (112944,'spell_hopta
 INSERT INTO spell_script_names (spell_id,ScriptName) values (114291,'spell_hoptallus_explosive_brew_target_selector');
 --Ook Ook
 UPDATE creature_template SET ScriptName='boss_ook_ook' WHERE entry=56637;
-INSERT INTO achievement_criteria_data (ScriptName) VALUES ('achievement_keep_rollin_rollin_rollin') WHERE criteria_id=6089;
+INSERT INTO achievement_criteria_data (criteria_id,ScriptName) VALUES (6089,'achievement_keep_rollin_rollin_rollin');
 -- Yan Zhu The Uncasked
 UPDATE creature_template SET ScriptName='boss_yan_zhu_the_uncasked' WHERE entry=59479;
 UPDATE creature_template SET ScriptName='mob_yeasty_brew_alamental_yan_zhu' WHERE entry=66413;
@@ -255,7 +247,7 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (106560,'spell_yanzh
 INSERT INTO spell_script_names (spell_id,ScriptName) values (114451,'spell_yanzhu_ferment');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (106563,'spell_yanzhu_bubble_shield');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (114386,'spell_yanzhu_carbonation_target_selector');
-INSERT INTO achievement_criteria_data (ScriptName) VALUES ('achievement_heroic_stormstout_brewery') WHERE criteria_id=6456;
+INSERT INTO achievement_criteria_data (criteria_id,ScriptName) VALUES (6456,'achievement_heroic_stormstout_brewery');
 
 -- Temple of the Jade Serpent
 UPDATE instance_template SET script='instance_temple_of_jade_serpent' WHERE map=960;
@@ -299,7 +291,7 @@ UPDATE creature_template SET ScriptName='mob_corrupt_living_water' WHERE entry=5
 INSERT INTO spell_script_names (spell_id,ScriptName) values (106334,'spell_wise_mari_wash_away');
 
 -- Terrace Of Endless Spring
-UPDATE instance_template SET script='instance_terrace_of_endless_spring' WHERE map=996;
+INSERT INTO instance_template (map,script) VALUES (996,'instance_terrace_of_endless_spring');
 -- Protectors of the Endless
 UPDATE creature_template SET ScriptName='boss_protector_kaolan' WHERE entry=60583;
 UPDATE creature_template SET ScriptName='boss_elder_regail' WHERE entry=60585;
@@ -392,7 +384,6 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (137507,'spell_jinro
 INSERT INTO spell_script_names (spell_id,ScriptName) values (137313,'spell_jinrokh_lightning_storm');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (138732,'spell_jinrokh_ionization');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (138743,'spell_jinrokh_ionization_conduction');
-INSERT INTO spell_script_names (spell_id,ScriptName) values (138743,'spell_jinrokh_ionization_conduction');
 -- Tortos
 UPDATE creature_template SET ScriptName='boss_tortos' WHERE entry=69465;
 UPDATE creature_template SET ScriptName='npc_rockfall' WHERE entry=69465;
@@ -464,14 +455,14 @@ UPDATE creature_template SET ScriptName='boss_living_air' WHERE entry=54631;
 UPDATE creature_template SET ScriptName='boss_li_fei' WHERE entry=54135;
 UPDATE creature_template SET ScriptName='boss_li_fei_fight' WHERE entry=54734;
 UPDATE creature_template SET ScriptName='npc_trainee_stifled_pride' WHERE entry=54734;
---South
+-- South
 UPDATE creature_template SET ScriptName='mob_mandori_escort' WHERE entry=59986;
 UPDATE creature_template SET ScriptName='mob_mandori_escort' WHERE entry=59988;
 UPDATE creature_template SET ScriptName='mob_mandori_escort' WHERE entry=59989;
 UPDATE creature_template SET ScriptName='npc_korga' WHERE entry=60042;
 UPDATE creature_template SET ScriptName='mob_ji_forest_escort' WHERE entry=60042;
-UPDATE creature_template SET ScriptName='npc_shang_xi_choose_faction' WHERE entry=56013
---West
+UPDATE creature_template SET ScriptName='npc_shang_xi_choose_faction' WHERE entry=56013;
+-- West
 UPDATE creature_template SET ScriptName='mob_master_shang_xi_temple' WHERE entry=54786;
 UPDATE creature_template SET ScriptName='npc_aysa_in_wind_temple' WHERE entry=55595;
 UPDATE creature_template SET ScriptName='boss_zhao_ren' WHERE entry=55786;
@@ -528,7 +519,7 @@ UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE en
 UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=70012;
 UPDATE creature_template SET ScriptName='npc_primal_direhorn_hatchling' WHERE entry=70013;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (138769,'spell_trihorn_charge');
-UPDATE item_template SET ScriptName='item_primal_egg' WHERE entry=94295;
+INSERT INTO item_script_names (Id,ScriptName) VALUE (94295,'item_primal_egg');
 
 -- Isle of Thunder
 UPDATE creature_template SET ScriptName='boss_nalak' WHERE entry=69099;
