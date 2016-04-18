@@ -29,7 +29,6 @@ npc_salsalabim
 npc_shattrathflaskvendors
 npc_zephyr
 npc_kservant
-npc_ishanah
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -43,13 +42,15 @@ EndContentData */
 ## npc_raliq_the_drunk
 ######*/
 
-#define GOSSIP_RALIQ            "You owe Sim'salabim money. Hand them over or die!"
-
-enum Raliq
+enum RaliqTheDrunk
 {
-    SPELL_UPPERCUT          = 10966,
-    QUEST_CRACK_SKULLS      = 10009,
-    FACTION_HOSTILE_RD      = 45
+    SAY_RALIQ_ATTACK         = 0,
+    OPTION_ID_COLLECT_A_DEBT = 0,
+    FACTION_OGRE_HOSTILE     = 45,
+    MENU_ID_COLLECT_A_DEBT   = 7729,
+    NPC_TEXT_WUT_YOU_WANT    = 9440,
+    CRACKIN_SOME_SKULLS      = 10009,
+    SPELL_UPPERCUT           = 10966
 };
 
 class npc_raliq_the_drunk : public CreatureScript
@@ -63,7 +64,8 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->setFaction(FACTION_HOSTILE_RD);
+            creature->setFaction(FACTION_OGRE_HOSTILE);
+            creature->AI()->Talk(SAY_RALIQ_ATTACK, player);
             creature->AI()->AttackStart(player);
         }
         return true;
@@ -71,10 +73,16 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_RALIQ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(9440, creature->GetGUID());
+        if (player->GetQuestStatus(CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_WUT_YOU_WANT, creature->GetGUID());
+        }
+        else
+        {
+            player->PlayerTalkClass->ClearMenus();
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        }
         return true;
     }
 
@@ -125,16 +133,14 @@ public:
 
 enum Salsalabim
 {
-    // Factions
-    FACTION_HOSTILE_SA             = 90,
-    FACTION_FRIENDLY_SA            = 35,
-
-    // Quests
-    QUEST_10004                    = 10004,
-
-    // Spells
-    SPELL_MAGNETIC_PULL            = 31705
-
+    SAY_DEMONIC_AGGRO          = 0,
+    OPTION_ID_ALTRUIS_SENT_ME  = 0,
+    FACTION_FRIENDLY           = 35,
+    FACTION_DEMON_HOSTILE      = 90,
+    MENU_ID_ALTRUIS_SENT_ME    = 7725,
+    NPC_TEXT_SAL_GROWLS_AT_YOU = 9435,
+    PATIENCE_AND_UNDERSTANDING = 10004,
+    SPELL_MAGNETIC_PULL        = 31705
 };
 
 class npc_salsalabim : public CreatureScript
@@ -142,12 +148,25 @@ class npc_salsalabim : public CreatureScript
 public:
     npc_salsalabim() : CreatureScript("npc_salsalabim") { }
 
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->setFaction(FACTION_DEMON_HOSTILE);
+            creature->AI()->Talk(SAY_DEMONIC_AGGRO, player);
+            creature->AI()->AttackStart(player);
+        }
+        return true;
+    }
+
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (player->GetQuestStatus(QUEST_10004) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(PATIENCE_AND_UNDERSTANDING) == QUEST_STATUS_INCOMPLETE)
         {
-            creature->setFaction(FACTION_HOSTILE_SA);
-            creature->AI()->AttackStart(player);
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_SAL_GROWLS_AT_YOU, creature->GetGUID());
         }
         else
         {
@@ -187,7 +206,7 @@ public:
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER && me->HealthBelowPctDamaged(20, damage))
             {
-                done_by->ToPlayer()->GroupEventHappens(QUEST_10004, me);
+                done_by->ToPlayer()->GroupEventHappens(PATIENCE_AND_UNDERSTANDING, me);
                 damage = 0;
                 EnterEvadeMode();
             }
@@ -220,6 +239,19 @@ Purchase requires exalted reputation with Scryers/Aldor, Cenarion Expedition and
 ##################################################
 */
 
+enum FlaskVendors
+{
+    ALDOR_REPUTATION         = 932,
+    SCRYERS_REPUTATION       = 934,
+    THE_SHA_TAR_REPUTATION   = 935,
+    CENARION_EXPEDITION_REP  = 942,
+    NPC_TEXT_EXALTED_ALDOR   = 11083, // (need to be exalted with Sha'tar, Cenarion Expedition and the Aldor)
+    NPC_TEXT_EXALTED_SCRYERS = 11084, // (need to be exalted with Sha'tar, Cenarion Expedition and the Scryers)
+    NPC_TEXT_WELCOME_NAME    = 11085, // Access granted
+    ARCANIST_XORITH          = 23483, // Scryer Apothecary
+    HALDOR_THE_COMPULSIVE    = 23484  // Aldor Apothecary
+};
+
 class npc_shattrathflaskvendors : public CreatureScript
 {
 public:
@@ -236,31 +268,31 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (creature->GetEntry() == 23484)
+        if (creature->GetEntry() == HALDOR_THE_COMPULSIVE)
         {
             // Aldor vendor
-            if (creature->IsVendor() && (player->GetReputationRank(932) == REP_EXALTED) && (player->GetReputationRank(935) == REP_EXALTED) && (player->GetReputationRank(942) == REP_EXALTED))
+            if (creature->IsVendor() && (player->GetReputationRank(ALDOR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                player->SEND_GOSSIP_MENU(11085, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_WELCOME_NAME, creature->GetGUID());
             }
             else
             {
-                player->SEND_GOSSIP_MENU(11083, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_EXALTED_ALDOR, creature->GetGUID());
             }
         }
 
-        if (creature->GetEntry() == 23483)
+        if (creature->GetEntry() == ARCANIST_XORITH)
         {
             // Scryers vendor
-            if (creature->IsVendor() && (player->GetReputationRank(934) == REP_EXALTED) && (player->GetReputationRank(935) == REP_EXALTED) && (player->GetReputationRank(942) == REP_EXALTED))
+            if (creature->IsVendor() && (player->GetReputationRank(SCRYERS_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                player->SEND_GOSSIP_MENU(11085, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_WELCOME_NAME, creature->GetGUID());
             }
             else
             {
-                player->SEND_GOSSIP_MENU(11084, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_EXALTED_SCRYERS, creature->GetGUID());
             }
         }
 
@@ -272,7 +304,13 @@ public:
 # npc_zephyr
 ######*/
 
-#define GOSSIP_HZ "Take me to the Caverns of Time."
+enum Zephyr
+{
+    OPTION_ID_TAKE_ME_TO_C_O_T = 0,
+    KEEPERS_OF_TIME_REPUTATION = 989,
+    MENU_ID_TAKE_ME_TO_C_O_T   = 9205,
+    TELEPORT_CAVERNS_OF_TIME   = 37778
+};
 
 class npc_zephyr : public CreatureScript
 {
@@ -283,15 +321,15 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
-            player->CastSpell(player, 37778, false);
+            player->CastSpell(player, TELEPORT_CAVERNS_OF_TIME, false);
 
         return true;
     }
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (player->GetReputationRank(989) >= REP_REVERED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HZ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetReputationRank(KEEPERS_OF_TIME_REPUTATION) >= REP_REVERED)
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
@@ -305,28 +343,29 @@ public:
 
 enum KServant
 {
-    SAY1       = 0,
-    WHISP1     = 1,
-    WHISP2     = 2,
-    WHISP3     = 3,
-    WHISP4     = 4,
-    WHISP5     = 5,
-    WHISP6     = 6,
-    WHISP7     = 7,
-    WHISP8     = 8,
-    WHISP9     = 9,
-    WHISP10    = 10,
-    WHISP11    = 11,
-    WHISP12    = 12,
-    WHISP13    = 13,
-    WHISP14    = 14,
-    WHISP15    = 15,
-    WHISP16    = 16,
-    WHISP17    = 17,
-    WHISP18    = 18,
-    WHISP19    = 19,
-    WHISP20    = 20,
-    WHISP21    = 21
+    SAY1          = 0,
+    WHISP1        = 1,
+    WHISP2        = 2,
+    WHISP3        = 3,
+    WHISP4        = 4,
+    WHISP5        = 5,
+    WHISP6        = 6,
+    WHISP7        = 7,
+    WHISP8        = 8,
+    WHISP9        = 9,
+    WHISP10       = 10,
+    WHISP11       = 11,
+    WHISP12       = 12,
+    WHISP13       = 13,
+    WHISP14       = 14,
+    WHISP15       = 15,
+    WHISP16       = 16,
+    WHISP17       = 17,
+    WHISP18       = 18,
+    WHISP19       = 19,
+    WHISP20       = 20,
+    WHISP21       = 21,
+    CITY_OF_LIGHT = 10211
 };
 
 class npc_kservant : public CreatureScript
@@ -417,7 +456,7 @@ public:
                     break;
                 case 56:
                     Talk(WHISP21, player);
-                    player->GroupEventHappens(10211, me);
+                    player->GroupEventHappens(CITY_OF_LIGHT, me);
                     break;
             }
         }
@@ -429,7 +468,7 @@ public:
                 return;
 
             Player* player = who->ToPlayer();
-            if (player && player->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
+            if (player && player->GetQuestStatus(CITY_OF_LIGHT) == QUEST_STATUS_INCOMPLETE)
             {
                 float Radius = 10.0f;
                 if (me->IsWithinDistInMap(who, Radius))
@@ -443,43 +482,6 @@ public:
     };
 };
 
-/*######
-# npc_ishanah
-######*/
-
-#define ISANAH_GOSSIP_1 "Who are the Sha'tar?"
-#define ISANAH_GOSSIP_2 "Isn't Shattrath a draenei city? Why do you allow others here?"
-
-class npc_ishanah : public CreatureScript
-{
-public:
-    npc_ishanah() : CreatureScript("npc_ishanah") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-            player->SEND_GOSSIP_MENU(9458, creature->GetGUID());
-        else if (action == GOSSIP_ACTION_INFO_DEF+2)
-            player->SEND_GOSSIP_MENU(9459, creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ISANAH_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ISANAH_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
 void AddSC_shattrath_city()
 {
     new npc_raliq_the_drunk();
@@ -487,5 +489,4 @@ void AddSC_shattrath_city()
     new npc_shattrathflaskvendors();
     new npc_zephyr();
     new npc_kservant();
-    new npc_ishanah();
 }

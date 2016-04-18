@@ -309,15 +309,6 @@ namespace std
     };
 }
 
-/// Escapes spaces in the given path
-static std::string EscapeWindowsPath(std::string str)
-{
-#ifdef _WIN32
-    boost::algorithm::replace_all(str, " ", "\\ ");
-#endif
-    return str;
-}
-
 /// Invokes a synchronous CMake process with the given arguments
 template<typename... T>
 static int InvokeCMakeCommand(T&&... args)
@@ -349,6 +340,17 @@ static std::string CalculateScriptModuleProjectName(std::string const& module)
                    module_project.begin(), ::tolower);
 
     return module_project;
+}
+
+/// Returns false when there isn't any attached debugger to the process which
+/// could block the rebuild of new shared libraries.
+static bool IsDebuggerBlockingRebuild()
+{
+#ifdef _WIN32
+    if (IsDebuggerPresent())
+        return true;
+#endif
+    return false;
 }
 
 /// ScriptReloadMgr which is used when dynamic linking is enabled
@@ -485,7 +487,7 @@ public:
     HotSwapScriptReloadMgr()
         : _libraryWatcher(-1), _unique_library_name_counter(0),
           _last_time_library_changed(0), _last_time_sources_changed(0),
-          terminate_early(false) { }
+          _last_time_user_informed(0), terminate_early(false) { }
 
     virtual ~HotSwapScriptReloadMgr()
     {
@@ -517,6 +519,17 @@ public:
     {
         if (!sWorld->getBoolConfig(CONFIG_HOTSWAP_ENABLED))
             return;
+
+        if (BuiltInConfig::GetBuildDirectory().find(" ") != std::string::npos)
+        {
+            TC_LOG_ERROR("scripts.hotswap", "Your build directory path \"%s\" "
+                "contains spaces, which isn't allowed for compatibility reasons! "
+                "You need to create a build directory which doesn't contain any space character "
+                "in it's path!",
+                BuiltInConfig::GetBuildDirectory().c_str());
+
+            return;
+        }
 
         {
             auto const library_directory = GetLibraryDirectory();
@@ -769,15 +782,14 @@ private:
             _unique_library_name_counter++,
             path.extension().generic_string().c_str());
 
-        if ([&]
-            {
-                boost::system::error_code code;
-                fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
-                return code;
-            }())
+        boost::system::error_code code;
+        fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
+        if (code)
         {
-            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module \"%s\"!",
-                path.filename().generic_string().c_str());
+            TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
+                "\"%s\" at \"%s\" with reason (\"%s\")!",
+                path.filename().generic_string().c_str(), cache_path.generic_string().c_str(),
+                code.message().c_str());
 
             // Find a better solution for this but it's much better
             // to start the core without scripts
@@ -955,7 +967,23 @@ private:
         // If the changed sources are empty do nothing
         if (_sources_changed.empty())
             return;
-        
+
+        // Wait until are attached debugger were detached.
+        if (IsDebuggerBlockingRebuild())
+        {
+            if ((_last_time_user_informed == 0) ||
+                (GetMSTimeDiffToNow(_last_time_user_informed) > 7500))
+            {
+                _last_time_user_informed = getMSTime();
+
+                // Informs the user that the attached debugger is blocking the automatic script rebuild.
+                TC_LOG_INFO("scripts.hotswap", "Your attached debugger is blocking the TrinityCore "
+                    "automatic script rebuild, please detach it!");
+            }
+
+            return;
+        }
+
         // Find all source files of a changed script module and removes
         // it from the changed source list, invoke the build afterwards.
         bool rebuild_buildfiles;
@@ -1027,7 +1055,7 @@ private:
         ASSERT(_build_job->IsValid(), "Invalid build job!");
 
         // Retrieve the result
-        auto const error = _build_job->GetProcess()->GetFutureResult().get();       
+        auto const error = _build_job->GetProcess()->GetFutureResult().get();
 
         if (terminate_early)
         {
@@ -1115,8 +1143,8 @@ private:
 
         TC_LOG_INFO("scripts.hotswap", "Rerunning CMake because there were sources added or removed...");
 
-        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE, 
-            InvokeAsyncCMakeCommand(EscapeWindowsPath(BuiltInConfig::GetBuildDirectory())));
+        _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_RERUN_CMAKE,
+            InvokeAsyncCMakeCommand(BuiltInConfig::GetBuildDirectory()));
     }
 
     /// Invokes a new build of the current active module job
@@ -1129,9 +1157,9 @@ private:
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_COMPILE,
             InvokeAsyncCMakeCommand(
-                "--build", EscapeWindowsPath(BuiltInConfig::GetBuildDirectory()),
-                "--target", EscapeWindowsPath(_build_job->GetProjectName()),
-                "--config", EscapeWindowsPath(_build_job->GetBuildDirective())));
+                "--build", BuiltInConfig::GetBuildDirectory(),
+                "--target", _build_job->GetProjectName(),
+                "--config", _build_job->GetBuildDirective()));
     }
 
     /// Invokes a new asynchronous install of the current active module job
@@ -1144,10 +1172,10 @@ private:
 
         _build_job->UpdateCurrentJob(BuildJobType::BUILD_JOB_INSTALL,
             InvokeAsyncCMakeCommand(
-                "-DCOMPONENT=" + EscapeWindowsPath(_build_job->GetProjectName()),
-                "-DBUILD_TYPE=" + EscapeWindowsPath(_build_job->GetBuildDirective()),
-                "-P", EscapeWindowsPath(fs::absolute("cmake_install.cmake",
-                    BuiltInConfig::GetBuildDirectory()).generic_string())));
+                "-DCOMPONENT=" + _build_job->GetProjectName(),
+                "-DBUILD_TYPE=" + _build_job->GetBuildDirective(),
+                "-P", fs::absolute("cmake_install.cmake",
+                    BuiltInConfig::GetBuildDirectory()).generic_string()));
     }
 
     /// Sets the CMAKE_INSTALL_PREFIX variable in the CMake cache
@@ -1258,8 +1286,8 @@ private:
         TC_LOG_INFO("scripts.hotswap", "Invoking CMake cache correction...");
 
         auto const error = InvokeCMakeCommand(
-            "-DCMAKE_INSTALL_PREFIX:PATH=" + EscapeWindowsPath(fs::current_path().generic_string()),
-            EscapeWindowsPath(BuiltInConfig::GetBuildDirectory()));
+            "-DCMAKE_INSTALL_PREFIX:PATH=" + fs::current_path().generic_string(),
+            BuiltInConfig::GetBuildDirectory());
 
         if (error)
         {
@@ -1305,6 +1333,9 @@ private:
         std::unordered_map<fs::path /*path*/, ChangeStateRequest /*state*/>> _sources_changed;
     // Tracks the time since the last module has changed to avoid burst updates
     uint32 _last_time_sources_changed;
+
+    // Tracks the last timestamp the user was informed about a certain repeating event.
+    uint32 _last_time_user_informed;
 
     // Represents the current build job which is in progress
     Optional<BuildJob> _build_job;
