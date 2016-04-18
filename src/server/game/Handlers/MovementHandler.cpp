@@ -473,7 +473,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         {
             TC_LOG_ERROR("network", "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
                 move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
-            _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
+            _player->SetSpeedRate(move_type, _player->GetSpeedRate(move_type));
         }
         else                                                // must be lesser - cheating
         {

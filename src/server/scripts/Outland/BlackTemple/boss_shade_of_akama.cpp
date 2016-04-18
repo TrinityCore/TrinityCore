@@ -238,8 +238,8 @@ public:
             if (me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2) <= 3)
             {
                 moveSpeed = (2.0f - (0.6f * me->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2)));
-                me->SetSpeed(MOVE_WALK, moveSpeed / 2.5f);
-                me->SetSpeed(MOVE_RUN, (moveSpeed * 2) / 7);
+                me->SetSpeedRate(MOVE_WALK, moveSpeed / 2.5f);
+                me->SetSpeedRate(MOVE_RUN, (moveSpeed * 2) / 7);
                 me->ClearUnitState(UNIT_STATE_ROOT);
             }
             else
