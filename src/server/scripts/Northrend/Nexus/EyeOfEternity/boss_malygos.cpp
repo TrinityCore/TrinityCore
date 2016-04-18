@@ -377,7 +377,7 @@ public:
             me->SetDisableGravity(true);
             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
             // TO DO: find what in core is making boss slower than in retail (when correct speed data) or find missing movement flag update or forced spline change
-            me->SetSpeed(MOVE_FLIGHT, _flySpeed * 0.25f);
+            me->SetSpeedRate(MOVE_FLIGHT, _flySpeed * 0.25f);
             if (_despawned)
                 DoAction(ACTION_HANDLE_RESPAWN);
 
@@ -603,7 +603,7 @@ public:
             me->SetRespawnDelay(respawnDelay);
 
             // Set speed to normal value
-            me->SetSpeed(MOVE_FLIGHT, _flySpeed);
+            me->SetSpeedRate(MOVE_FLIGHT, _flySpeed);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveAllAuras();
@@ -1165,7 +1165,7 @@ public:
             _instance = creature->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             // TO DO: These were a bit faster than what they should be. Not sure what is the reason.
-            me->SetSpeed(MOVE_FLIGHT, 1.25f);
+            me->SetSpeedRate(MOVE_FLIGHT, 1.25f);
         }
 
         void Initialize()
@@ -1274,7 +1274,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             // TO DO: Something is wrong with calculations for flying creatures that are on WP/Cyclic path.
             // They should get the same difference as to when at ground from run creature switch to walk.
-            me->SetSpeed(MOVE_FLIGHT, 0.45f);
+            me->SetSpeedRate(MOVE_FLIGHT, 0.45f);
         }
 
         void Reset() override
@@ -1566,7 +1566,7 @@ public:
             {
                 me->DespawnOrUnsummon(2050);
                 me->SetOrientation(2.5f);
-                me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                 Position pos = me->GetPosition();
                 pos.m_positionX += 10.0f;
                 pos.m_positionY += 10.0f;
