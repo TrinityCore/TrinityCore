@@ -20,14 +20,12 @@ void AddSC_boss_flameweaver_koegler();
 void AddSC_boss_houndmaster_braun();
 
 void AddSC_boss_brother_korloff();
-void AddSC_boss_high_inquisitor_whitemane();
+//void AddSC_boss_high_inquisitor_whitemane();
 void AddSC_boss_thalnos_the_soulrender();
 
 void AddSC_boss_instructor_chillheart();
 void AddSC_boss_jandice_barov();
-void AddSC_boss_rattlegore_script();
 void AddSC_boss_lilian_voss();
-void AddSC_boss_rattlegore_script();
 
 void AddSC_boss_commander_rimok();
 void AddSC_boss_raigonn();
@@ -139,15 +137,13 @@ void AddPandariaScripts()
 
     /* Scarlet Monastery */
     AddSC_boss_brother_korloff();
-    AddSC_boss_high_inquisitor_whitemane();
+    //AddSC_boss_high_inquisitor_whitemane();
     AddSC_boss_thalnos_the_soulrender();
 
     /* Scholomance */
     AddSC_boss_instructor_chillheart();
     AddSC_boss_jandice_barov();
-    AddSC_boss_rattlegore_script();
     AddSC_boss_lilian_voss();
-    AddSC_boss_rattlegore_script();
 
     /* Gate of The Setting Sun */
     AddSC_gate_setting_sun();

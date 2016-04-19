@@ -34,7 +34,7 @@ enum Events
     EVENT_SCARLET_RESURRECTION
 };
 
-class boss_high_inquisitor_whitemane : public CreatureScript
+/*class boss_high_inquisitor_whitemane : public CreatureScript
 {
 public:
     boss_high_inquisitor_whitemane() : CreatureScript("boss_high_inquisitor_whitemane") { }
@@ -58,61 +58,61 @@ public:
             events.ScheduleEvent(EVENT_POWER_WORD_SHIELD, 16000);
             events.ScheduleEvent(EVENT_SCARLET_RESURRECTION, 20000);
         }
-
-        void KilledUnit(Unit * /*victim*/) override
-        {
-        }
-
-        void JustDied(Unit * /*victim*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_DEEP_SLEEP:
-                    DoCastAOE(SPELL_DEEP_SLEEP);
-                    events.ScheduleEvent(EVENT_DEEP_SLEEP, 4000);
-                    break;
-                case EVENT_HOLY_SMITE:
-                    DoCastVictim(SPELL_HOLY_SMITE);
-                    events.ScheduleEvent(EVENT_HOLY_SMITE, 12000);
-                    break;
-                case EVENT_POWER_WORD_SHIELD:
-                    DoCast(SPELL_POWER_WORD_SHIELD);
-                    events.ScheduleEvent(EVENT_POWER_WORD_SHIELD, 16000);
-                    break;
-                case EVENT_SCARLET_RESURRECTION:
-                    DoCast(SPELL_SCARLET_RESURRECTION);
-                    events.ScheduleEvent(EVENT_SCARLET_RESURRECTION, 20000);
-                    break;
-                default:
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_high_inquisitor_whitemaneAI(creature);
-    }
-};
-
+*/
+//        void KilledUnit(Unit * /*victim*/) override
+//      {
+//      }
+//
+////      void JustDied(Unit * /*victim*/) override
+//    {
+//          _JustDied();
+//      }
+//
+//      void UpdateAI(uint32 diff) override
+//      {
+//          if (!UpdateVictim())
+//              return;
+//
+//          events.Update(diff);
+//
+//          if (me->HasUnitState(UNIT_STATE_CASTING))
+//              return;
+//
+//          while (uint32 eventId = events.ExecuteEvent())
+//          {
+//              switch (eventId)
+//              {
+//              case EVENT_DEEP_SLEEP:
+//                  DoCastAOE(SPELL_DEEP_SLEEP);
+//                  events.ScheduleEvent(EVENT_DEEP_SLEEP, 4000);
+//                  break;
+//              case EVENT_HOLY_SMITE:
+//                  DoCastVictim(SPELL_HOLY_SMITE);
+//                  events.ScheduleEvent(EVENT_HOLY_SMITE, 12000);
+//                  break;
+//              case EVENT_POWER_WORD_SHIELD:
+//                  DoCast(SPELL_POWER_WORD_SHIELD);
+//                  events.ScheduleEvent(EVENT_POWER_WORD_SHIELD, 16000);
+//                  break;
+//              case EVENT_SCARLET_RESURRECTION:
+//                  DoCast(SPELL_SCARLET_RESURRECTION);
+//                  events.ScheduleEvent(EVENT_SCARLET_RESURRECTION, 20000);
+//                  break;
+//              default:
+//                  break;
+//              }
+//          }
+//          DoMeleeAttackIfReady();
+//      }
+//  };
+//
+//  CreatureAI* GetAI(Creature* creature) const override
+//  {
+//      return new boss_high_inquisitor_whitemaneAI(creature);
+        //    }
+//};
+/*
 void AddSC_boss_high_inquisitor_whitemane()
 {
     new boss_high_inquisitor_whitemane();
-}
+}*/

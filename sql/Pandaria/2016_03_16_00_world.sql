@@ -1,10 +1,19 @@
 -- Gate of the Setting Sun -- falta npc vicuous fluid
 UPDATE instance_template SET script='instance_gate_setting_sun' WHERE map=962;
+UPDATE creature_template SET ScriptName='mob_serpent_spine_defender' WHERE entry=58146;
+UPDATE creature_template SET ScriptName='npc_krikthik_bombarder' WHERE entry=56706;
+UPDATE gameobject_template SET ScriptName='at_first_door' WHERE entry=8359;
+UPDATE gameobject_template SET ScriptName='go_setting_sun_brasier' WHERE entry=213507;
+INSERT INTO gamobject_template (entry,ScriptName) VALUES (400001,'go_setting_sun_temp_portal');
+INSERT INTO gamobject_template (entry,ScriptName) VALUES (400002,'go_setting_sun_temp_portal');
+UPDATE creature_template SET ScriptName='vehicle_artillery_to_wall' WHERE entry=66904;
+
+
 -- Rimok
 UPDATE creature_template SET ScriptName='boss_commander_rimok' WHERE entry=56636;
-UPDATE creature_template SET minlevel=89, maxlevel=90, faction=1791, ScriptName='npc_krikthik_swarmer' WHERE entry=59835;
-UPDATE creature_template SET minlevel=89, maxlevel=90, faction=1791, ScriptName='npc_krikthik_saboteur' WHERE entry=60447;
-UPDATE creature_template SET minlevel=89, maxlevel=90, faction=1791, ScriptName='npc_add_generator' WHERE entry=59834;
+UPDATE creature_template SET ScriptName='npc_krikthik_swarmer' WHERE entry=59835;
+UPDATE creature_template SET ScriptName='npc_krikthik_saboteur' WHERE entry=60447;
+UPDATE creature_template SET ScriptName='npc_add_generator' WHERE entry=59834;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (120559,'spell_rimok_saboteur_bombard');
 -- Raigonn
 UPDATE creature_template SET ScriptName='boss_raigonn' WHERE entry=56877;
@@ -192,18 +201,31 @@ UPDATE creature_template SET ScriptName='boss_houndmaster_braun' WHERE entry=593
 
 -- Scarlet Monastery
 UPDATE creature_template SET ScriptName='boss_brother_korloff' WHERE entry=59223;
-UPDATE creature_template SET ScriptName='boss_high_inquisitor_whitemane' WHERE entry=74366;
 UPDATE creature_template SET ScriptName='boss_thalnos_the_soulrender' WHERE entry=59789;
 
 -- Scholomance
 UPDATE creature_template SET ScriptName='boss_darkmaster_gandling' WHERE entry=59080;
 UPDATE creature_template SET ScriptName='boss_instructor_chillheart' WHERE entry=58633;
 UPDATE creature_template SET ScriptName='boss_jandice_barov' WHERE entry=59184;
-UPDATE creature_template SET ScriptName='boss_lilian_voss' WHERE entry=74366;
-UPDATE creature_template SET ScriptName='boss_rattlegore' WHERE entry=59153;
+UPDATE creature_template SET ScriptName='boss_lilian_voss' WHERE entry=59200;
+UPDATE creature_template SET ScriptName='boss_rattlegore_script' WHERE entry=59153;
 
 -- ShadoPan Monastery
 UPDATE instance_template SET script='instance_shadopan_monastery' WHERE map=959;
+UPDATE creature_template SET ScriptName='npc_unstable_energy' WHERE entry=59811;
+UPDATE creature_template SET ScriptName='npc_sha_trash' WHERE entry=56764;
+UPDATE creature_template SET ScriptName='npc_shadopan_ambusher' WHERE entry=59752;
+UPDATE creature_template SET ScriptName='npc_shadopan_archery' WHERE entry=56767;
+UPDATE creature_template SET ScriptName='npc_shadopan_archery' WHERE entry=64549;
+UPDATE creature_template SET ScriptName='npc_shadopan_hatred' WHERE entry=58803;
+UPDATE creature_template SET ScriptName='npc_shadopan_hatred' WHERE entry=58807;
+UPDATE creature_template SET ScriptName='npc_shadopan_hatred' WHERE entry=58810;
+INSERT INTO areatrigger_scripts values (7126,'areatrigger_at_shadopan_archery');
+INSERT INTO areatrigger_scripts values (7121,'areatrigger_at_shadopan_archery');
+INSERT INTO areatrigger_scripts values (8272,'areatrigger_at_shadopan_archery');
+INSERT INTO areatrigger_scripts values (8271,'areatrigger_at_shadopan_archery');
+
+
 -- Gu CloudStrike
 UPDATE creature_template SET ScriptName='boss_gu_cloudstrike' WHERE entry=56747;
 UPDATE creature_template SET ScriptName='npc_azure_serpent' WHERE entry=56754;
@@ -682,17 +704,25 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (115175,'spell_monk_
 INSERT INTO spell_script_names (spell_id,ScriptName) values (100784,'spell_monk_blackout_kick');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (115546,'spell_monk_provoke');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (123980,'spell_monk_tigereye_brew_stacks');
---INSERT INTO spell_script_names (spell_id,ScriptName) values (124081,'spell_monk_zen_sphere_hot');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (125033,'spell_monk_zen_sphere_hot');
 
 
-
-
-
-
-
-
-
-
+UPDATE creature_template SET ScriptName='npc_snowdrift_fireball' WHERE entry=59225;
+UPDATE creature_template SET ScriptName='mob_sikthik_guardian' WHERE entry=61928;
+UPDATE creature_template SET ScriptName='mob_resin_flake' WHERE entry=61910;
+UPDATE creature_template SET ScriptName='mob_sikthik_amber_weaver' WHERE entry=61929;
+UPDATE creature_template SET ScriptName='npc_chen_stormstout' WHERE entry=56133;
+UPDATE creature_template SET ScriptName='npc_auntie_stormstout' WHERE entry=59822;
+UPDATE creature_template SET ScriptName='npc_sb_illusioner' WHERE entry=56865;
+UPDATE creature_template SET ScriptName='npc_sb_illusioner' WHERE entry=56867;
+UPDATE creature_template SET ScriptName='npc_sb_illusioner_master' WHERE entry=59605;
+UPDATE creature_template SET ScriptName='npc_sb_illusioner_master' WHERE entry=56924;
+UPDATE creature_template SET ScriptName='mob_sb_hozen_generic' WHERE entry=56927;
+UPDATE creature_template SET ScriptName='mob_sb_hozen_generic' WHERE entry=57097;
+UPDATE creature_template SET ScriptName='mob_sb_hozen_generic' WHERE entry=59684;
+UPDATE creature_template SET ScriptName='mob_habanero_brew' WHERE entry=56731;
+UPDATE creature_template SET ScriptName='npc_rolling_barrel' WHERE entry=106614;
+UPDATE creature_template SET ScriptName='mob_hozen_bouncer' WHERE entry=56849;
 
 
 

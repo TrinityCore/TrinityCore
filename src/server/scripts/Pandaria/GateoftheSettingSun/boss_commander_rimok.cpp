@@ -288,7 +288,7 @@ class npc_add_generator : public CreatureScript
         }
 };
 
-class npc_viscous_fluid : public CreatureScript
+/*class npc_viscous_fluid : public CreatureScript
 {
     public:
         npc_viscous_fluid() : CreatureScript("npc_viscous_fluid") {}
@@ -335,7 +335,7 @@ class npc_viscous_fluid : public CreatureScript
         {
             return new npc_viscous_fluidAI(creature);
         }
-};
+};*/
 
 class spell_rimok_saboteur_bombard : public SpellScriptLoader
 {
@@ -389,6 +389,6 @@ void AddSC_boss_commander_rimok()
     new npc_krikthik_swarmer();
     new npc_krikthik_saboteur();
     new npc_add_generator();
-    new npc_viscous_fluid();
+    //new npc_viscous_fluid();
     new spell_rimok_saboteur_bombard();
 }
