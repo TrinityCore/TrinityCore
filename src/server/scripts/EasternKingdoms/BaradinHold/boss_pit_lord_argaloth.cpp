@@ -75,7 +75,7 @@ class boss_pit_lord_argaloth : public CreatureScript
                     DoCastAOE(SPELL_FEL_FIRESTORM);
                 }
                 else
-                if(me->HealthBelowPctDamaged(3) && !second_fel_firestorm)
+                if(me->HealthBelowPctDamaged(33) && !second_fel_firestorm)
                 {
                     second_fel_firestorm = true;
                     DoCastAOE(SPELL_FEL_FIRESTORM);
