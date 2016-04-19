@@ -1446,7 +1446,7 @@ public:
 };
 
 //59553 - gru (trash)
-class mob_lorewalker_gru: public mob_sha_corrupted_generic
+/*class mob_lorewalker_gru: public mob_sha_corrupted_generic
 {
 public:
     mob_lorewalker_gru() : mob_sha_corrupted_generic("mob_lorewalker_gru") { }
@@ -1471,7 +1471,7 @@ public:
             _Reset();
         }
     };
-};
+};*/
 
 void AddSC_boss_lorewalker_stonestep()
 {
@@ -1494,5 +1494,5 @@ void AddSC_boss_lorewalker_stonestep()
     new mob_sha_corrupted_generic();
     new mob_talking_fish();
     new mob_hunting_sha();
-    new mob_lorewalker_gru();
+    //new mob_lorewalker_gru();
 }

@@ -41,12 +41,18 @@ UPDATE creature_template SET ScriptName='mob_tempest_slash' WHERE entry=62908;
 UPDATE creature_template SET ScriptName='mob_tayak_tornado_all' WHERE entry=63567;
 UPDATE creature_template SET ScriptName='mob_tayak_tornado' WHERE entry=63299;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122994,'spell_invisible_strike');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123175,'spell_wind_step');
 -- Garalon
 UPDATE creature_template SET ScriptName='boss_garalon' WHERE entry=62164;
-UPDATE creature_template SET ScriptName='boss_garalon' WHERE entry=63053;
+UPDATE creature_template SET ScriptName='mob_garalons_leg' WHERE entry=63053;
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122754,'spell_garalon_furious_swipe');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (122774,'spell_garalon_crush_searcher');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (129815,'spell_garalon_pheromones_first_target_selector');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123100,'spell_garalon_pheromones_switch_target_selector');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123495,'spell_garalon_mend_leg_target_selector');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123796,'spell_garalon_mend_leg_repair');
+
+
 -- Vizier Zorlock
 UPDATE creature_template SET ScriptName='boss_vizier_zorlock' WHERE entry=62980;
 UPDATE creature_template SET ScriptName='mob_sonic_ring' WHERE entry=62727;
@@ -255,7 +261,7 @@ UPDATE instance_template SET script='instance_temple_of_jade_serpent' WHERE map=
 UPDATE creature_template SET ScriptName='boss_liu_flameheart' WHERE entry=56732;
 UPDATE creature_template SET ScriptName='boss_yu_lon' WHERE entry=56762;
 UPDATE creature_template SET ScriptName='mob_minion_of_doubt' WHERE entry=65362;
-UPDATE creature_template SET ScriptName='mob_lesser_sha' WHERE entry=56439;
+UPDATE creature_template SET ScriptName='mob_lesser_sha' WHERE entry=59598;
 UPDATE creature_template SET ScriptName='mob_jade_fire' WHERE entry=56893;
 -- Lorewalker Stonestep
 UPDATE creature_template SET ScriptName='boss_lorewalker_stonestep' WHERE entry=56843;
@@ -277,11 +283,11 @@ UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=
 UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=56872;
 UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=56873;
 UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=56874;
-UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=59545;
 UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=59552;
-UPDATE creature_template SET ScriptName='mob_sha_corrupted_generic' WHERE entry=59544;
 UPDATE creature_template SET ScriptName='mob_talking_fish' WHERE entry=59546;
 UPDATE creature_template SET ScriptName='mob_hunting_sha' WHERE entry=59555;
+UPDATE creature_template SET ScriptName='mob_lorewalker_gru' WHERE entry=59553;
+
 -- Sha of Doubt
 UPDATE creature_template SET ScriptName='boss_sha_of_doubt' WHERE entry=56439;
 UPDATE creature_template SET ScriptName='mob_figment_of_doubt' WHERE entry=56792;
