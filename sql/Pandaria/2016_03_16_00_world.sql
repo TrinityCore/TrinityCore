@@ -723,6 +723,11 @@ UPDATE creature_template SET ScriptName='mob_sb_hozen_generic' WHERE entry=59684
 UPDATE creature_template SET ScriptName='mob_habanero_brew' WHERE entry=56731;
 UPDATE creature_template SET ScriptName='npc_rolling_barrel' WHERE entry=106614;
 UPDATE creature_template SET ScriptName='mob_hozen_bouncer' WHERE entry=56849;
+INSERT INTO spell_script_names (spell_id,ScriptName) values (115055,'spell_shadopan_explosion');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (111698,'spell_shadopan_apparitions');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (107085,'spell_taran_zhu_hate');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (107200,'spell_taran_zhu_meditation');
+INSERT INTO spell_script_names (spell_id,ScriptName) values (123193,'spell_shadow_pan_flare');
 
 
 

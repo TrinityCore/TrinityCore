@@ -24,7 +24,6 @@ void AddSC_boss_brother_korloff();
 void AddSC_boss_thalnos_the_soulrender();
 
 void AddSC_boss_instructor_chillheart();
-void AddSC_boss_jandice_barov();
 void AddSC_boss_lilian_voss();
 
 void AddSC_boss_commander_rimok();
@@ -142,7 +141,6 @@ void AddPandariaScripts()
 
     /* Scholomance */
     AddSC_boss_instructor_chillheart();
-    AddSC_boss_jandice_barov();
     AddSC_boss_lilian_voss();
 
     /* Gate of The Setting Sun */
