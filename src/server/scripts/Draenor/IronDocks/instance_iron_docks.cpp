@@ -21,15 +21,15 @@ class instance_iron_docks : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case BOSS_SKULLOC:
+                    case BOSS_KORAMAR:
+                    case BOSS_ZOGGOSH:
                         creature->setActive(true); // tempoary hackfix to make him visible from far need packet research to find more about him
-                        SkullocGUID = creature->GetGUID();
                         break;
                     default:
                         break;
                 }
             }
         protected:
-            ObjectGuid SkullocGUID;
         };
 
 

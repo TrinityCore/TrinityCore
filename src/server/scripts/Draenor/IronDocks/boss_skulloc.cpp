@@ -32,21 +32,51 @@ enum Spells
 
 enum Events
 {
+    // Skulloc
     EVENT_GRONN_SMASH = 1,
     EVENT_MOVE_HOME,
     EVENT_CANNON_BARRAGE,
     EVENT_BACKDRAFT,
+    
+    // Koramar
+    EVENT_TALK_GAUNTLET_1,
+    EVENT_TALK_GAUNTLET_2,
+    EVENT_TALK_GAUNTLET_3,
+};
+
+enum Phases
+{
+    PHASE_INTRO = 1,
+    PHASE_COMBAT,
 };
 
 enum Texts
 {
     // Skulloc
     SAY_ANNOUNCE_BARRAGE = 0,
+
+    // Koramar
+    // Zoggosh
+    SAY_GAUNTLET_1      = 0,
+    SAY_GAUNTLET_2      = 1,
 };
 
 enum Movepoints
 {
     POINT_CANNON_BARRAGE = 1,
+};
+
+class BarrageCheck
+{
+public:
+    BarrageCheck(Unit* caster) : caster(caster) { }
+
+    bool operator()(WorldObject* object)
+    {
+        return (object->GetTypeId() == TYPEID_PLAYER && object->IsWithinLOSInMap(caster));
+    }
+private:
+    Unit* caster;
 };
 
 class boss_skulloc : public CreatureScript
@@ -168,6 +198,118 @@ public:
     }
 };
 
+class boss_koramar : public CreatureScript
+{
+public:
+    boss_koramar() : CreatureScript("boss_koramar") { }
+
+    struct boss_koramarAI : public BossAI
+    {
+        boss_koramarAI(Creature* creature) : BossAI(creature, DATA_KORAMAR)
+        {
+        }
+
+        void Reset() override
+        {
+            _Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+            _EnterCombat();
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            _JustDied();
+        }
+
+        void KilledUnit(Unit* victim) override
+        {
+            //if (victim->GetTypeId() == TYPEID_PLAYER)
+            //    Talk(SAY_KILL);
+        }
+
+        void EnterEvadeMode(EvadeReason /*why*/) override
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            me->GetMotionMaster()->MoveTargetedHome();
+            summons.DespawnAll();
+            _DespawnAtEvade();
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+        }
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+                case ACTION_GAUNTLET_1:
+                    break;
+                case ACTION_GAUNTLET_2:
+                    events.SetPhase(PHASE_INTRO);
+                    Talk(SAY_GAUNTLET_2);
+                    events.ScheduleEvent(EVENT_TALK_GAUNTLET_2, 6000);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void JustReachedHome() override
+        {
+            _JustReachedHome();
+        }
+
+        void MovementInform(uint32 type, uint32 point) override
+        {
+            if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+                return;
+
+            switch (point)
+            {
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim() && !(events.IsInPhase(PHASE_INTRO)))
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TALK_GAUNTLET_2:
+                        if (Creature* zoggosh = me->FindNearestCreature(BOSS_ZOGGOSH, 50.0f, true))
+                            zoggosh->AI()->Talk(SAY_GAUNTLET_2);
+                        events.SetPhase(PHASE_COMBAT);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    private:
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetIronDocksAI<boss_koramarAI>(creature);
+    }
+};
+
 class spell_skulloc_gronn_smash : public SpellScriptLoader
 {
 public:
@@ -257,7 +399,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                float ori = caster->GetOrientation() + frand(-0.3f, 0.3f);
+                float ori = caster->GetOrientation() + frand(-0.30f, 0.30f);
                 float x = caster->GetPositionX();
                 float y = caster->GetPositionY();
                 float z = caster->GetPositionZ();
@@ -309,11 +451,43 @@ public:
     }
 };
 
+class spell_skulloc_cannon_barrage_aoe : public SpellScriptLoader
+{
+public:
+    spell_skulloc_cannon_barrage_aoe() : SpellScriptLoader("spell_skulloc_cannon_barrage_aoe") { }
+
+    class spell_skulloc_cannon_barrage_aoe_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_skulloc_cannon_barrage_aoe_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            if (targets.empty())
+                return;
+
+            targets.remove_if(BarrageCheck(GetCaster()));
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skulloc_cannon_barrage_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skulloc_cannon_barrage_aoe_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_skulloc_cannon_barrage_aoe_SpellScript();
+    }
+};
+
 void AddSC_boss_skulloc()
 {
     new boss_skulloc();
+    new boss_koramar();
     new spell_skulloc_gronn_smash();
     new spell_skulloc_cannon_barrage_channel_aura();
     new spell_skulloc_cannon_barrage_cannon_aura();
     new spell_skulloc_backdraft_dummy();
+    new spell_skulloc_cannon_barrage_aoe();
 }

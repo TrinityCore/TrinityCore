@@ -15,16 +15,28 @@ enum DataTypes
 	DATA_FLESHRENDER_NOKGAR = 0,
 	DATA_GRIMRAIL_ENFORCER 	= 1,
 	DATA_OHSIR              = 2,
-	DATA_SKULLOC            = 3,
+    DATA_ZOGGOSH            = 3,
+    DATA_KORAMAR            = 4,
+	DATA_SKULLOC            = 5,
+};
+
+enum Actions
+{
+    ACTION_GAUNTLET_1 = 1,
+    ACTION_GAUNTLET_2,
 };
 
 enum CreatureIds
 {
     // Bosses
-    BOSS_SKULLOC            = 83612,
+    BOSS_SKULLOC                    = 83612,
+    BOSS_KORAMAR                    = 83613,
+    BOSS_ZOGGOSH                    = 83616,
 
     // Generic npc's
-    NPC_BACKDRAFT           = 84464,
+    NPC_BACKDRAFT                   = 84464,
+    NPC_BLACKHANDS_MIGHT_TURRET     = 84215,
+
 };
 
 
