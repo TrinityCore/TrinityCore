@@ -100,7 +100,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 switch (attacker->GetEntry())
                 {
@@ -282,7 +282,7 @@ public:
             damage = 0;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             if (id == 1)
                 me->DespawnOrUnsummon();
