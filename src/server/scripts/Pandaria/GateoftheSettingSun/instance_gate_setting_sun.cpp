@@ -20,6 +20,11 @@
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
 
+enum Spells
+{
+    SPELL_EXPLOSION = 115456
+};
+
 DoorData const doorData[] =
 {
     {GO_KIPTILAK_WALLS,                     DATA_KIPTILAK,              DOOR_TYPE_ROOM, },
@@ -45,27 +50,27 @@ public:
 
     struct instance_gate_setting_sun_InstanceMapScript : public InstanceScript
     {
-        uint64 kiptilakGuid;
-        uint64 gadokGuid;
-        uint64 rimokGuid;
-        uint64 raigonnGuid;
-        uint64 raigonWeakGuid;
+        ObjectGuid kiptilakGuid;
+        ObjectGuid gadokGuid;
+        ObjectGuid rimokGuid;
+        ObjectGuid raigonnGuid;
+        ObjectGuid raigonWeakGuid;
 
-        uint64 firstDoorGuid;
-        uint64 fireSignalGuid;
+        ObjectGuid firstDoorGuid;
+        ObjectGuid fireSignalGuid;
 
-        uint64 wallCGuid;
-        uint64 portalTempGadokGuid;
+        ObjectGuid wallCGuid;
+        ObjectGuid portalTempGadokGuid;
 
         uint32 cinematicTimer;
         uint8 cinematicEventProgress;
 
-        std::list<uint64> bombarderGuids;
-        std::list<uint64> bombStalkerGuids;
-        std::list<uint64> mantidBombsGUIDs;
-        std::list<uint64> rimokAddGenetarorsGUIDs;
-        std::list<uint64> artilleryGUIDs;
-        std::list<uint64> secondaryDoorGUIDs;
+        std::list<ObjectGuid> bombarderGuids;
+        std::list<ObjectGuid> bombStalkerGuids;
+        std::list<ObjectGuid> mantidBombsGUIDs;
+        std::list<ObjectGuid> rimokAddGenetarorsGUIDs;
+        std::list<ObjectGuid> artilleryGUIDs;
+        std::list<ObjectGuid> secondaryDoorGUIDs;
 
         uint32 dataStorage[MAX_DATA];
 
@@ -110,28 +115,28 @@ public:
         void OnPlayerEnter(Player* player)
         {
             if (GetData(DATA_BRASIER_CLICKED) == NOT_STARTED)
-                player->SetPhaseMask(1, true);
+                player->SetInPhase(1, true, true);
             else
-                player->SetPhaseMask(2, true);
+                player->SetInPhase(2, true, true);
         }
 
         void OnPlayerLeave(Player* player)
         {
-            player->SetPhaseMask(1, true);
+            player->SetInPhase(1, true, true);
         }
 
         void OnCreatureCreate(Creature* creature)
         {
             switch (creature->GetEntry())
             {
-                case NPC_KIPTILAK:          kiptilakGuid    = creature->GetGUID().GetEntry();                  return;
-                case NPC_GADOK:             gadokGuid       = creature->GetGUID().GetEntry();                  return;
-                case NPC_RIMOK:             rimokGuid       = creature->GetGUID().GetEntry();                  return;
-                case NPC_RAIGONN:           raigonnGuid     = creature->GetGUID().GetEntry();                  return;
-                case NPC_KRITHUK_BOMBARDER: bombarderGuids.push_back(creature->GetGUID().GetEntry());          return;
-                case NPC_BOMB_STALKER:      bombStalkerGuids.push_back(creature->GetGUID().GetEntry());        return;
-                case NPC_ADD_GENERATOR:     rimokAddGenetarorsGUIDs.push_back(creature->GetGUID().GetEntry()); return;
-                case NPC_ARTILLERY:         artilleryGUIDs.push_back(creature->GetGUID().GetEntry());          return;
+                case NPC_KIPTILAK:          kiptilakGuid    = creature->GetGUID();                  return;
+                case NPC_GADOK:             gadokGuid       = creature->GetGUID();                  return;
+                case NPC_RIMOK:             rimokGuid       = creature->GetGUID();                  return;
+                case NPC_RAIGONN:           raigonnGuid     = creature->GetGUID();                  return;
+                case NPC_KRITHUK_BOMBARDER: bombarderGuids.push_back(creature->GetGUID());          return;
+                case NPC_BOMB_STALKER:      bombStalkerGuids.push_back(creature->GetGUID());        return;
+                case NPC_ADD_GENERATOR:     rimokAddGenetarorsGUIDs.push_back(creature->GetGUID()); return;
+                case NPC_ARTILLERY:         artilleryGUIDs.push_back(creature->GetGUID());          return;
                 default:                                                                            return;
             }
         }
@@ -141,9 +146,9 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_KRITHUK_BOMBARDER:
-                    for (std::list<uint64>::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
+                    for (std::list<ObjectGuid>::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
                     {
-                        if (*it == creature->GetGUID().GetEntry())
+                        if (*it == creature->GetGUID())
                         {
                             bombarderGuids.erase(it);
                             break;
@@ -159,10 +164,10 @@ public:
             switch (go->GetEntry())
             {
                 case GO_KIPTILAK_ENTRANCE_DOOR:
-                    firstDoorGuid = go->GetGUID().GetEntry();
+                    firstDoorGuid = go->GetGUID();
                     break;
                 case GO_SIGNAL_FIRE:
-                    fireSignalGuid = go->GetGUID().GetEntry();
+                    fireSignalGuid = go->GetGUID();
                     break;
                 case GO_KIPTILAK_WALLS:
                 case GO_KIPTILAK_EXIT_DOOR:
@@ -171,17 +176,17 @@ public:
                     AddDoor(go, true);
                     return;
                 case GO_KIPTILAK_MANTID_BOMBS:
-                    mantidBombsGUIDs.push_back(go->GetGUID().GetEntry());
+                    mantidBombsGUIDs.push_back(go->GetGUID());
                     return;
                 case GO_GREATDOOR_SECOND_DOOR:
-                    secondaryDoorGUIDs.push_back(go->GetGUID().GetEntry());
+                    secondaryDoorGUIDs.push_back(go->GetGUID());
                     HandleGameObject(go->GetGUID(), true, go);
                     return;
                 case GO_WALL_C:
-                    wallCGuid = go->GetGUID().GetEntry();
+                    wallCGuid = go->GetGUID();
                     return;
                 case GO_PORTAL_TEMP_GADOK:
-                    portalTempGadokGuid = go->GetGUID().GetEntry();
+                    portalTempGadokGuid = go->GetGUID();
                     return;
                 default:
                     return;
@@ -198,27 +203,27 @@ public:
                 case DATA_KIPTILAK:
                 {
                     if (state == DONE)
-                        for (std::list<uint64>::const_iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
-                            if (GameObject* bomb = instance->GetGameObject(GetObjectGuid(*itr)))
-                                bomb->SetPhaseMask(32768, true); // Set Invisible
+                        for (std::list<ObjectGuid>::const_iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
+                            if (GameObject* bomb = instance->GetGameObject(*itr))
+                                bomb->SetInPhase(32768, true, true); // Set Invisible
                     break;
                 }
                 case DATA_GADOK:
                 {
-                    if (GameObject* portal = instance->GetGameObject(GetObjectGuid(portalTempGadokGuid)))
-                        portal->SetPhaseMask(state == IN_PROGRESS ? 4 : 3, true);
+                    if (GameObject* portal = instance->GetGameObject(portalTempGadokGuid))
+                        portal->SetInPhase(state == IN_PROGRESS ? 4 : 3, true, true);
                     break;
                 }
                 case DATA_RIMOK:
                 {
                     uint8 generatorsCount = 0;
 
-                    for (std::list<uint64>::const_iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
-                        HandleGameObject(GetObjectGuid(*itr), state != DONE);
+                    for (std::list<ObjectGuid>::const_iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
+                        HandleGameObject(*itr, state != DONE);
 
-                    for (std::list<uint64>::const_iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
                     {
-                        if (Creature* generator = instance->GetCreature(GetObjectGuid(*itr)))
+                        if (Creature* generator = instance->GetCreature(*itr))
                         {
                             if (generator->AI())
                             {
@@ -234,9 +239,9 @@ public:
                 }
                 case DATA_RAIGONN:
                 {
-                    for (std::list<uint64>::const_iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
+                    for (std::list<ObjectGuid>::const_iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
                     {
-                        if (Creature* artillery = instance->GetCreature(GetObjectGuid(*itr)))
+                        if (Creature* artillery = instance->GetCreature(*itr))
                         {
                             artillery->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE, state != IN_PROGRESS);
                             artillery->ApplyModFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK, state == IN_PROGRESS);
@@ -260,11 +265,11 @@ public:
                     if (dataStorage[type] == DONE)
                         return;
 
-                    HandleGameObject(GetObjectGuid(firstDoorGuid), true);
+                    HandleGameObject(firstDoorGuid, true);
 
                     dataStorage[type] = data;
                     
-                    if (GameObject* firstDoor = instance->GetGameObject(GetObjectGuid(firstDoorGuid)))
+                    if (GameObject* firstDoor = instance->GetGameObject(firstDoorGuid))
                     {
 
                         if (Creature* trigger = firstDoor->SummonTrigger(firstDoor->GetPositionX(), firstDoor->GetPositionY(), firstDoor->GetPositionZ(), 0, 500))
@@ -272,7 +277,7 @@ public:
                             std::list<Creature*> defensorList;
                             GetCreatureListWithEntryInGrid(defensorList, trigger, 65337, 20.0f);
 
-                            trigger->CastSpell(trigger, 115456); // Explosion
+                            trigger->CastSpell(trigger, SPELL_EXPLOSION); // Explosion
 
                             for (std::list<Creature*>::iterator itr = defensorList.begin(); itr != defensorList.end(); ++itr)
                             {
@@ -301,7 +306,7 @@ public:
                         if (Player* player = it->GetSource())
                         {
                             player->SendCinematicStart(CINEMATIC_SETTING_SUN);
-                            player->SetPhaseMask(2, true);
+                            player->SetInPhase(2, true, true);
                             player->NearTeleportTo(1370.0f, 2283.6f, 402.328f, 2.70f);
                         }
                     }
@@ -365,12 +370,12 @@ public:
                     cinematicTimer = 6000;
                     break;
                 case 1:
-                    if (GameObject* go = instance->GetGameObject(GetObjectGuid(fireSignalGuid)))
+                    if (GameObject* go = instance->GetGameObject(fireSignalGuid))
                         go->UseDoorOrButton();
                     cinematicTimer = 5000;
                     break;
                 case 2:
-                    if (GameObject* go = instance->GetGameObject(GetObjectGuid(wallCGuid)))
+                    if (GameObject* go = instance->GetGameObject(wallCGuid))
                         go->ModifyHealth(-100000);
                     cinematicTimer = 0;
                     break;

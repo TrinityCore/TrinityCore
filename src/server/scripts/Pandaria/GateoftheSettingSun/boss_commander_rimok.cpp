@@ -61,8 +61,6 @@ class boss_commander_rimok : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
             void Reset()
             {
                 _Reset();
@@ -91,7 +89,6 @@ class boss_commander_rimok : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                summons.Summon(summoned);
             }
 
             void UpdateAI(uint32 diff)
@@ -272,7 +269,6 @@ class npc_add_generator : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                summons.Summon(summoned);
 
                 float x = me->GetPositionX();
                 float y = me->GetPositionY() - 10;

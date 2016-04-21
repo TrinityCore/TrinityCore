@@ -7,6 +7,7 @@ UPDATE gameobject_template SET ScriptName='go_setting_sun_brasier' WHERE entry=2
 INSERT INTO gamobject_template (entry,ScriptName) VALUES (400001,'go_setting_sun_temp_portal');
 INSERT INTO gamobject_template (entry,ScriptName) VALUES (400002,'go_setting_sun_temp_portal');
 UPDATE creature_template SET ScriptName='vehicle_artillery_to_wall' WHERE entry=66904;
+INSERT INTO areatrigger_scripts values (8359,'at_first_door');
 
 -- Rimok
 UPDATE creature_template SET ScriptName='boss_commander_rimok' WHERE entry=56636;
