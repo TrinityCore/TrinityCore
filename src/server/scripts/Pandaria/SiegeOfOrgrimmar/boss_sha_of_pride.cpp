@@ -192,7 +192,7 @@ enum eShaOfPrideSwellingCases
 
 void ModifyPride(Unit* me,uint32 p_BaseValue, ObjectGuid playerGuid)
 {
-    if (playerGuid == NULL)
+    if (playerGuid.IsEmpty())
         return;
 
     if (Player* l_Object = ObjectAccessor::GetPlayer(*me, playerGuid))
