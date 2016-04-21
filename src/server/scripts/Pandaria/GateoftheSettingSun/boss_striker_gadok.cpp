@@ -194,7 +194,7 @@ class boss_striker_gadok : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*u*/)
             {
                 if (!urand(0, 1))
                     Talk(TALK_SLAY);

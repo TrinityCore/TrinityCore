@@ -207,7 +207,7 @@ class npc_krikthik_saboteur : public CreatureScript
 
                 if (checkTimer <= diff)
                 {
-                    me->CastSpell(me, SPELL_BOMBARD, false);
+                    me->CastSpell(me, SPELL_BOMBARD);
                     checkTimer = urand(7500, 12500);
                 }
                 else checkTimer -= diff;
