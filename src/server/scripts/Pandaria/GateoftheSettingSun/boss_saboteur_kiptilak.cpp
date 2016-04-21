@@ -70,8 +70,6 @@ class boss_saboteur_kiptilak : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
             uint8 WorldInFlamesEvents;
 
             void Reset()

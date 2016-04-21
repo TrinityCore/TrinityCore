@@ -61,8 +61,6 @@ class boss_commander_rimok : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
             void Reset()
             {
                 _Reset();

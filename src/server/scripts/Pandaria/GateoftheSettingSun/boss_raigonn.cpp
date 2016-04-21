@@ -94,10 +94,8 @@ class boss_raigonn : public CreatureScript
         {
             boss_raigonnAI(Creature* creature) : BossAI(creature, DATA_RAIGONN)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
-
-            InstanceScript* pInstance;
 
             uint8  eventChargeProgress;
             uint32 eventChargeTimer;
@@ -134,7 +132,7 @@ class boss_raigonn : public CreatureScript
                         passenger->setFaction(35);
                         passenger->SetFullHealth();
                         passenger->AddUnitState(UNIT_STATE_UNATTACKABLE);
-                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, passenger);
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, passenger);
                         return;
                     }
 
@@ -142,7 +140,7 @@ class boss_raigonn : public CreatureScript
                     {
                         weakSpot->EnterVehicle(me, 1);
 
-                            pInstance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
+                            instance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
 
                         //if (Vehicle* vehicleWeakSpot = weakSpot->GetVehicleKit())
                           //  vehicleWeakSpot->SetCanBeCastedByPassengers(true);
@@ -158,7 +156,7 @@ class boss_raigonn : public CreatureScript
                 if (me->GetDistance(who) > 30.0f)
                     return;
 
-                if (pInstance->GetBossState(DATA_RIMOK) != DONE)
+                if (instance->GetBossState(DATA_RIMOK) != DONE)
                     return;
 
                 Player* whoPlayer = who->ToPlayer();
@@ -177,9 +175,9 @@ class boss_raigonn : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_SWARM_BRINGER, urand(15000, 30000));
                 events.ScheduleEvent(EVENT_CHECK_WIPE, 1000);
 
-                pInstance->SetBossState(DATA_RAIGONN, IN_PROGRESS);
+                instance->SetBossState(DATA_RAIGONN, IN_PROGRESS);
 
-                if (Creature* weakPoint = pInstance->GetCreature(pInstance->GetData64(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = instance->GetCreature(instance->GetData64(NPC_WEAK_SPOT)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, weakPoint);
                     weakPoint->setFaction(16);
@@ -270,7 +268,7 @@ class boss_raigonn : public CreatureScript
                 if (Phase != PHASE_WEAK_SPOT)
                     return;
 
-                uint32 eventBrasierProgress = pInstance->GetData(DATA_BRASIER_CLICKED);
+                uint32 eventBrasierProgress = instance->GetData(DATA_BRASIER_CLICKED);
                 uint8 baseMovement = eventBrasierProgress != DONE ? 0: 2;
 
                 switch (eventChargeProgress)
@@ -313,7 +311,7 @@ class boss_raigonn : public CreatureScript
                 if (!me->SelectNearestPlayer(25.0f))
                     return false;
 
-                if (pInstance->GetData(DATA_RIMOK) != DONE)
+                if (instance->GetData(DATA_RIMOK) != DONE)
                     return false;
 
                 inFight = true;
@@ -328,7 +326,7 @@ class boss_raigonn : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                    /* case EVENT_CHECK_WIPE:
-                        if (pInstance->IsWipe())
+                        if (instance->IsWipe())
                             Reset();
                         else
                             events.ScheduleEvent(EVENT_CHECK_WIPE, 1000);

@@ -136,8 +136,6 @@ class boss_striker_gadok : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* instance;
-
             bool isStrafing;
 
             uint32 strafingTimer;
