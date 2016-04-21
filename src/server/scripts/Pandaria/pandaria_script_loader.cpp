@@ -101,14 +101,6 @@ void AddSC_twin_consorts();
 void AddSC_instance_throne_of_thunder();
 void AddSC_throne_of_thunder();
 
-void AddSC_instance_siege_of_orgrimmar();
-void AddSC_siege_of_orgrimmar();
-void AddSC_fallen_protectors();
-void AddSC_garrosh_hellscream();
-void AddSC_immersus();
-void AddSC_norushen();
-void AddSC_sha_of_pride();
-
 void AddSC_worldboss_chiji();
 void AddSC_timeless_isle();
 void AddSC_zone_timeless_isle();
@@ -235,15 +227,6 @@ void AddPandariaScripts()
     AddSC_ra_den();
     AddSC_tortos();
     AddSC_twin_consorts();
-
-    /* Siege of Orgrimmar */
-    AddSC_instance_siege_of_orgrimmar();
-    AddSC_siege_of_orgrimmar();
-    AddSC_fallen_protectors();
-    AddSC_garrosh_hellscream();
-    AddSC_immersus();
-    AddSC_norushen();
-    AddSC_sha_of_pride();
 
     /* Timeless Isle */
     AddSC_timeless_isle();
