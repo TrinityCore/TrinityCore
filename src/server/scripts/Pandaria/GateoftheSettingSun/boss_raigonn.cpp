@@ -274,7 +274,7 @@ class boss_raigonn : public CreatureScript
                 switch (eventChargeProgress)
                 {
                     case 0:
-                        me->CastSpell(me, SPELL_BATTERING_HEADBUTT_EMOTE, false);
+                        me->CastSpell(me, SPELL_BATTERING_HEADBUTT_EMOTE);
                         events.ScheduleEvent(EVENT_RAIGONN_CHARGE, 1750, PHASE_WEAK_SPOT);
                         ++eventChargeProgress;
                         break;
@@ -389,7 +389,7 @@ class boss_raigonn : public CreatureScript
                     }
                     case EVENT_STOMP:
                     {
-                        me->CastSpell(me, SPELL_STOMP, false);
+                        me->CastSpell(me, SPELL_STOMP);
                         events.ScheduleEvent(EVENT_STOMP, 30000, PHASE_VULNERABILITY);
                         break;
                     }
@@ -509,7 +509,7 @@ class npc_krikthik_engulfer : public CreatureScript
                 if (engulfingTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        me->CastSpell(target, SPELL_ENGULFING_WINDS, false);
+                        me->CastSpell(target, SPELL_ENGULFING_WINDS);
 
                     engulfingTimer = urand(7500, 12500);
                 }
@@ -549,7 +549,7 @@ class npc_krikthik_swarm_bringer : public CreatureScript
                 if (swarmTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        me->CastSpell(target, SPELL_SCREECHING_SWARM, false);
+                        me->CastSpell(target, SPELL_SCREECHING_SWARM);
 
                     swarmTimer = urand(17500, 22500);
                 }
