@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is where scripts' loading functions should be declared:
-void AddSC_FindeDobleXP();
-void AddSC_anuncio_gm_login();
+#include "heart_of_fear.h"
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
-void AddCustomScripts()
+void AddSC_boss_amber_shaper_unsok()
 {
-    AddSC_FindeDobleXP();
-    AddSC_anuncio_gm_login();
 }
