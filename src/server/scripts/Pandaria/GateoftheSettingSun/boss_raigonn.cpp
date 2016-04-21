@@ -186,7 +186,7 @@ class boss_raigonn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (Phase != PHASE_VULNERABILITY)
                     return;

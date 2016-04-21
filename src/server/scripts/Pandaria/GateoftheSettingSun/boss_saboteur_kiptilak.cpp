@@ -277,7 +277,7 @@ public:
             me->AddAura(SPELL_MUNITION_EXPLOSION_VISUAL, me);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
         {
             damage = 0;
         }
