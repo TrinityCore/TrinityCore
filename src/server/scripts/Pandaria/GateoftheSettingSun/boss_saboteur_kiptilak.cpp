@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
 
-enum eTalks
+enum Talks
 {
     TALK_AGGRO,
     TALK_DEATH,
@@ -30,7 +30,7 @@ enum eTalks
     TALK_SPECIAL3,
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_PLANT_EXPLOSIVE               = 107187,
 
@@ -45,13 +45,13 @@ enum eSpells
     SPELL_MUNITION_EXPLOSION_DAMAGE     = 107215,
 };
 
-enum eEvents
+enum Events
 {
     EVENT_EXPLOSIVES        = 1,
     EVENT_SABOTAGE          = 2
 };
 
-enum eWorldInFlames
+enum WorldInFlames
 {
     WIF_NONE    = 0,
     WIF_70      = 1,
@@ -195,7 +195,7 @@ class boss_saboteur_kiptilak : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetInstanceAI(Creature* creature) const
         {
             return new boss_saboteur_kiptilakAI(creature);
         }

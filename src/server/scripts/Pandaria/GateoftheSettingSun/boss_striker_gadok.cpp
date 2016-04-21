@@ -37,7 +37,7 @@ struct StrafPointStruct
     Position outside;
 };
 
-enum eTalks
+enum Talks
 {
     TALK_AGGRO,
     TALK_DEATH,
@@ -45,7 +45,7 @@ enum eTalks
     TALK_SLAY,
 };
 
-enum eMovements
+enum Movements
 {
     POINT_NORTH_START       = 1,
     POINT_SOUTH_START       = 2,
@@ -80,7 +80,7 @@ StrafPointStruct StrafPoints[4] =
 
 Position CenterPos = {1195.0f, 2304.0f, 438.0f};
 
-enum eSpells
+enum Spells
 {
     SPELL_PREY_TIME         = 106933,
     SPELL_IMPALING_STRIKE   = 107047,
@@ -94,7 +94,7 @@ enum eSpells
     SPELL_BOMB              = 115110
 };
 
-enum eEvents
+enum Events
 {
     EVENT_PREY_TIME         = 1,
     EVENT_IMPALING_STRIKE   = 2,
@@ -102,22 +102,26 @@ enum eEvents
     EVENT_DISRUPTOR_BOMBARD = 3,
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_MAIN          = 1,
     PHASE_NORTH_SOUTH   = 2,
     PHASE_WEST_EAST     = 3
 };
 
-enum eStrafing
+enum Strafing
 {
     STRAF_NONE    = 0,
     STRAF_70      = 1,
     STRAF_30      = 2
 };
 
-#define MAX_DISRUPTOR   5
-#define MAX_STRIKER     10
+enum Maximum
+{
+    MAX_DISRUPTOR = 5,
+    MAX_STRIKER = 10
+};
+
 #define RADIUS_CIRCLE   100.0f
 
 class boss_striker_gadok : public CreatureScript
@@ -144,7 +148,6 @@ class boss_striker_gadok : public CreatureScript
 
             void Reset()
             {
-                _Reset();
                 isStrafing = false;
 
                 strafingTimer = 0;
@@ -190,9 +193,7 @@ class boss_striker_gadok : public CreatureScript
 
             void JustReachedHome()
             {
-                if (instance)
-                    instance->SetBossState(DATA_GADOK, FAIL);
-
+                instance->SetBossState(DATA_GADOK, FAIL);
                 summons.DespawnAll();
             }
 
@@ -343,8 +344,7 @@ class boss_striker_gadok : public CreatureScript
                         else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->AI()->AttackStart(target);
 
-                        if (instance)
-                            instance->SetData(DATA_GADOK, PHASE_MAIN);
+                        instance->SetData(DATA_GADOK, PHASE_MAIN);
 
                         move = 0;
                         me->SetReactState(REACT_AGGRESSIVE);

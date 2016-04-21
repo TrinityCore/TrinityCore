@@ -108,7 +108,7 @@ enum ObjectsIds
     GO_PORTAL_TEMP_GADOK        = 400002
 };
 
-enum eSettingSun
+enum SettingSun
 {
     CINEMATIC_SETTING_SUN       = 265
 };

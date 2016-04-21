@@ -245,7 +245,7 @@ class boss_raigonn : public CreatureScript
 
             void RemoveWeakSpotPassengers()
             {
-                if (Creature* weakPoint = pInstance->GetCreature(pInstance->GetData64(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_WEAK_SPOT)))
                 {
                     if (Vehicle* weakVehicle = weakPoint->GetVehicleKit())
                     {
@@ -266,8 +266,6 @@ class boss_raigonn : public CreatureScript
 
             void DoEventCharge()
             {
-                if (!pInstance)
-                    return;
 
                 if (Phase != PHASE_WEAK_SPOT)
                     return;
@@ -324,8 +322,6 @@ class boss_raigonn : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
-                    return;
 
                 events.Update(diff);
 
@@ -407,14 +403,9 @@ class boss_raigonn : public CreatureScript
                     DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* killer)
             {
-                events.Reset();
-                if (instance)
-                {
-                    instance->SetBossState(DATA_RAIGONN, DONE);
-                    instance->SaveToDB();
-                }
+                BossAI::_JustDied();
             }
         };
 
