@@ -945,7 +945,7 @@ public:
 
     struct npc_manifestation_of_prideAI : public BossAI
     {
-        npc_manifestation_of_prideAI(Creature* creature) : BossAI(creature)
+        npc_manifestation_of_prideAI(Creature* creature) : BossAI(creature,72280)
         {
             m_Instance = creature->GetInstanceScript();
             me->Respawn();
