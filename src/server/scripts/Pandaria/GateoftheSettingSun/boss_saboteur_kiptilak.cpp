@@ -88,7 +88,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 Talk(TALK_INTRO);
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*u*/)
             {
                 if (!urand(0, 1))
                     Talk(TALK_SLAY);
@@ -214,7 +214,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
         {
             damage = 0;
         }
