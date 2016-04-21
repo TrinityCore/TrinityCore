@@ -21,7 +21,7 @@
 #include "Vehicle.h"
 #include "Spline.h"
 
-enum eSpells
+enum Spells
 {
     // Raigonn
     SPELL_IMPERVIOUS_CARAPACE       = 107118,
@@ -45,18 +45,18 @@ enum eSpells
     SPELL_SCREECHING_SWARM          = 111600
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_WEAK_SPOT     = 1,
     PHASE_VULNERABILITY = 2,
 };
 
-enum eActions
+enum Actions
 {
     ACTION_WEAK_SPOT_DEAD   = 1
 };
 
-enum eEvents
+enum Events
 {
     EVENT_CHECK_WIPE            = 1,
     EVENT_RAIGONN_CHARGE        = 2,
@@ -71,7 +71,7 @@ enum eEvents
     EVENT_STOMP                 = 8
 };
 
-enum eMovements
+enum Movements
 {
     POINT_MAIN_DOOR     = 1,
     POINT_HERSE         = 2
@@ -142,7 +142,6 @@ class boss_raigonn : public CreatureScript
                     {
                         weakSpot->EnterVehicle(me, 1);
 
-                        if (pInstance)
                             pInstance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
 
                         //if (Vehicle* vehicleWeakSpot = weakSpot->GetVehicleKit())
@@ -159,9 +158,8 @@ class boss_raigonn : public CreatureScript
                 if (me->GetDistance(who) > 30.0f)
                     return;
 
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_RIMOK) != DONE)
-                        return;
+                if (pInstance->GetBossState(DATA_RIMOK) != DONE)
+                    return;
 
                 Player* whoPlayer = who->ToPlayer();
 
@@ -243,7 +241,6 @@ class boss_raigonn : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                summons.Summon(summoned);
             }
 
             void RemoveWeakSpotPassengers()
@@ -318,9 +315,8 @@ class boss_raigonn : public CreatureScript
                 if (!me->SelectNearestPlayer(25.0f))
                     return false;
 
-                if (pInstance)
-                    if (pInstance->GetData(DATA_RIMOK) != DONE)
-                        return false;
+                if (pInstance->GetData(DATA_RIMOK) != DONE)
+                    return false;
 
                 inFight = true;
                 return true;
@@ -333,7 +329,7 @@ class boss_raigonn : public CreatureScript
 
                 events.Update(diff);
 
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                    /* case EVENT_CHECK_WIPE:
                         if (pInstance->IsWipe())
@@ -422,7 +418,7 @@ class boss_raigonn : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetInstanceAI(Creature* creature) const
         {
             return new boss_raigonnAI(creature);
         }
@@ -450,10 +446,9 @@ class npc_raigonn_weak_spot : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 if (damage >= me->GetHealth())
-                    if (pInstance)
-                        if (Creature* Raigonn = pInstance->GetCreature(pInstance->GetData64(NPC_RAIGONN)))
-                            if (Raigonn->AI())
-                                Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
+                    if (Creature* Raigonn = pInstance->GetCreature(pInstance->GetData64(NPC_RAIGONN)))
+                        if (Raigonn->AI())
+                            Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
             }
         };
 

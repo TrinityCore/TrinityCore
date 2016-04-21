@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
 
-enum eSpells
+enum Spells
 {
     // Commander Rimok
     SPELL_VISCOUS_FLUID_SUMMON      = 107078,
@@ -35,7 +35,7 @@ enum eSpells
     SPELL_BOMBARD                   = 120559
 };
 
-enum eTalks
+enum Yells
 {
     TALK_AGGRO,
     TALK_DEATH,
@@ -43,7 +43,7 @@ enum eTalks
     TALK_SLAY,
 };
 
-enum eEvents
+enum Events
 {
     EVENT_FRENZIED_ASSAULT  = 1,
     EVENT_VISCOUS_FLUID     = 2
@@ -104,7 +104,7 @@ class boss_commander_rimok : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_FRENZIED_ASSAULT:
                         if (me->GetVictim())
@@ -128,7 +128,7 @@ class boss_commander_rimok : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetInstanceAI(Creature* creature) const
         {
             return new boss_commander_rimokAI(creature);
         }
