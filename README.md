@@ -38,6 +38,8 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + GCC ≥ 4.7.2 (Linux only)
 + MS Visual Studio ≥ 12 (2013) update 4 (Windows only)
 + sudo apt-get install libzmq-dev (Linux only)
++ x64 - http://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)
++ or x86 - http://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x86.exe (Windows only)
 
 ## Install
 
