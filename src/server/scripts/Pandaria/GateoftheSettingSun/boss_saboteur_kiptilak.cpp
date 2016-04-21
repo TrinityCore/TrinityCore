@@ -136,7 +136,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 std::list<Creature*> munitionList;
                 GetCreatureListWithEntryInGrid(munitionList, me, NPC_STABLE_MUNITION, 100.0f);
 
-                for (auto itr: munitionList)
+                for (Creature* itr: munitionList)
                 {
                     itr->RemoveAurasDueToSpell(SPELL_MUNITION_STABLE);
                     itr->CastSpell(itr, SPELL_MUNITION_EXPLOSION, true);
@@ -311,7 +311,7 @@ public:
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 2.0f);
 
-                for (auto player : playerList)
+                for (Player* player : playerList)
                     me->CastSpell(player, SPELL_MUNITION_EXPLOSION_DAMAGE, true);
             }
             else checkTimer -= diff;

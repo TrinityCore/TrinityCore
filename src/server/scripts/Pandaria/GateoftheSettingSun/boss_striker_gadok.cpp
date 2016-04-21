@@ -686,7 +686,7 @@ class spell_gadok_strafing : public SpellScriptLoader
                         std::list<Creature*> stalkerList;
                         GetCreatureListWithEntryInGrid(stalkerList, caster, stalkerEntry, 10.0f);
 
-                        for (auto itr: stalkerList)
+                        for (Creature* itr: stalkerList)
                             if (!itr->HasAura(SPELL_STRAFIND_RUN_DMG))
                                 itr->CastSpell(itr, SPELL_STRAFIND_RUN_DMG, true);
                     }
