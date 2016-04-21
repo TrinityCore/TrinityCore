@@ -558,7 +558,7 @@ public:
             }
         }
 
-        void RegeneratePower(Powers power, int32& value) override
+        void RegeneratePower(Powers power, int32& value)
         {
             if (power != POWER_ENERGY)
                 return;
