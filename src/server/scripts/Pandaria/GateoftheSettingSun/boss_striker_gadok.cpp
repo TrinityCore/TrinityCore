@@ -158,8 +158,7 @@ class boss_striker_gadok : public CreatureScript
                 summons.DespawnAll();
                 DoSpawnKrikThik();
 
-                if (instance)
-                    instance->SetData(DATA_GADOK, PHASE_MAIN);
+                instance->SetData(DATA_GADOK, PHASE_MAIN);
 
                 events.ScheduleEvent(EVENT_PREY_TIME, 10000, PHASE_MAIN);
                 events.ScheduleEvent(EVENT_IMPALING_STRIKE, 19000, PHASE_MAIN);
