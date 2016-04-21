@@ -401,7 +401,7 @@ class boss_raigonn : public CreatureScript
                     DoMeleeAttackIfReady();
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 BossAI::_JustDied();
             }
