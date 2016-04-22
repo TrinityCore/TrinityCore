@@ -91,7 +91,9 @@ enum Spells
     SPELL_RIDE_VEHICLE      = 46598,
 
     // Disruptor
-    SPELL_BOMB              = 115110
+    SPELL_BOMB              = 115110,
+
+    SPELL_FIRE_FLAK         = 116553
 };
 
 enum Events
@@ -394,13 +396,13 @@ class boss_striker_gadok : public CreatureScript
                 {
                     case EVENT_PREY_TIME:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            me->CastSpell(target, SPELL_PREY_TIME, false);
+                            me->CastSpell(target, SPELL_PREY_TIME);
 
                         events.ScheduleEvent(EVENT_PREY_TIME, 10000, PHASE_MAIN);
                         break;
                     case EVENT_IMPALING_STRIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            me->CastSpell(target, SPELL_IMPALING_STRIKE, false);
+                            me->CastSpell(target, SPELL_IMPALING_STRIKE);
 
                         events.ScheduleEvent(EVENT_IMPALING_STRIKE, 19000, PHASE_MAIN);
                         break;
@@ -644,7 +646,7 @@ public:
                 {
                     if (Creature* bombarder = pInstance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMBARDER)))
                     {
-                        me->CastSpell(bombarder, 116553, true);
+                        me->CastSpell(bombarder, SPELL_FIRE_FLAK, true);
                         bombarder->GetMotionMaster()->MoveFall();
                         bombarder->DespawnOrUnsummon(2000);
                     }

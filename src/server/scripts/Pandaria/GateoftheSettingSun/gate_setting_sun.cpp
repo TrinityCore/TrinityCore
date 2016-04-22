@@ -29,14 +29,14 @@ enum spells
     SPELL_BOMB_AURA                     = 106875,
 };
 
-class mob_serpent_spine_defender : public CreatureScript
+class npc_serpent_spine_defender : public CreatureScript
 {
 public:
-    mob_serpent_spine_defender() : CreatureScript("mob_serpent_spine_defender") { }
+    npc_serpent_spine_defender() : CreatureScript("npc_serpent_spine_defender") { }
 
-    struct mob_serpent_spine_defenderAI : public ScriptedAI
+    struct npc_serpent_spine_defenderAI : public ScriptedAI
     {
-        mob_serpent_spine_defenderAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_serpent_spine_defenderAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 attackTimer;
 
@@ -70,7 +70,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_serpent_spine_defenderAI(creature);
+        return new npc_serpent_spine_defenderAI(creature);
     }
 };
 
@@ -235,7 +235,7 @@ class vehicle_artillery_to_wall : public VehicleScript
 
 void AddSC_gate_setting_sun()
 {
-    new mob_serpent_spine_defender();
+    new npc_serpent_spine_defender();
     new npc_krikthik_bombarder();
     new AreaTrigger_at_first_door();
     new go_setting_sun_brasier();
