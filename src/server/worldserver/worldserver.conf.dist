@@ -1303,8 +1303,8 @@ HotSwap.ScriptDir = "scripts"
 #        Description: Enables the dynamic script recompiler.
 #                     Watches your script source directories and recompiles the
 #                     script modules on changes.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
 HotSwap.EnableReCompiler = 1
 
@@ -3609,6 +3609,7 @@ Appender.Eluna=2,5,3,Eluna.log,a
 Logger.root=5,Console Server
 Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
+Logger.scripts.hotswap=3,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
@@ -3652,7 +3653,6 @@ Logger.eluna=1,Console Eluna
 #Logger.rbac=3,Console Server
 #Logger.scripts=3,Console Server
 #Logger.scripts.ai=3,Console Server
-#Logger.scripts.hotswap=3,Console Server
 #Logger.server.authserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.periodic=3,Console Server

@@ -745,7 +745,7 @@ public:
             if (!Trigger)
                 return;
 
-            Trigger->SetSpeed(MOVE_WALK, 3);
+            Trigger->SetSpeedRate(MOVE_WALK, 3);
             Trigger->SetWalk(true);
             Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
 
@@ -1524,7 +1524,7 @@ public:
         void BeginWalk()
         {
             me->SetWalk(false);
-            me->SetSpeed(MOVE_RUN, 1.0f);
+            me->SetSpeedRate(MOVE_RUN, 1.0f);
             me->GetMotionMaster()->MovePoint(0, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
         }
 

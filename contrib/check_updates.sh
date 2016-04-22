@@ -1,6 +1,7 @@
 #!/bin/sh
 name=$1
-database=$2
+branch=$2
+database=$3
 
 echo "Database Updater check script:"
 echo "  Checking database '${name}' for missing filenames in tables..."
@@ -9,7 +10,7 @@ echo
 # Select all entries which are in the updates table
 entries=$(mysql -uroot ${database} -e "SELECT name FROM updates" | grep ".sql")
 
-cd sql/updates/${name}
+cd sql/updates/${name}/${branch}
 
 error=0
 updates=0

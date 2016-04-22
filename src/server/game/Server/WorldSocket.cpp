@@ -347,11 +347,12 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         default:
         {
             sessionGuard.lock();
+
             LogOpcodeText(opcode, sessionGuard);
+
             if (!_worldSession)
             {
                 TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                CloseSocket();
                 return ReadDataHandlerResult::Error;
             }
 
