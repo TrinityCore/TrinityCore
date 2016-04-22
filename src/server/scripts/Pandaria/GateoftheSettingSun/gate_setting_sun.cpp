@@ -128,7 +128,7 @@ class AreaTrigger_at_first_door : public AreaTriggerScript
     public:
         AreaTrigger_at_first_door() : AreaTriggerScript("at_first_door") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->GetInstanceScript())
                 player->GetInstanceScript()->SetData(DATA_OPEN_FIRST_DOOR, DONE);

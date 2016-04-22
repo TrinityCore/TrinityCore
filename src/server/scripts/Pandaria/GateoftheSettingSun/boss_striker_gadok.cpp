@@ -133,7 +133,6 @@ class boss_striker_gadok : public CreatureScript
         {
             boss_striker_gadokAI(Creature* creature) : BossAI(creature, DATA_GADOK)
             {
-                instance = creature->GetInstanceScript();
             }
 
             bool isStrafing;

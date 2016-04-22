@@ -58,7 +58,6 @@ class boss_commander_rimok : public CreatureScript
         {
             boss_commander_rimokAI(Creature* creature) : BossAI(creature, DATA_RIMOK)
             {
-                instance = creature->GetInstanceScript();
             }
 
             void Reset()
@@ -104,9 +103,7 @@ class boss_commander_rimok : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_FRENZIED_ASSAULT:
-                        if (me->GetVictim())
-                            me->CastSpell(me->GetVictim(), SPELL_FRENZIED_ASSAULT, false);
-
+                        DoCastVictim(SPELL_FRENZIED_ASSAULT, false);
                         events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(10000, 15000));
                         break;
                     case EVENT_VISCOUS_FLUID:
