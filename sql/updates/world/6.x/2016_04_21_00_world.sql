@@ -1,6 +1,6 @@
 -- Gate of the Setting Sun
 UPDATE instance_template SET script='instance_gate_setting_sun' WHERE map=962;
-UPDATE creature_template SET ScriptName='mob_serpent_spine_defender' WHERE entry=58146;
+UPDATE creature_template SET ScriptName='npc_serpent_spine_defender' WHERE entry=58146;
 UPDATE creature_template SET ScriptName='npc_krikthik_bombarder' WHERE entry=56706;
 UPDATE gameobject_template SET ScriptName='at_first_door' WHERE entry=8359;
 UPDATE gameobject_template SET ScriptName='go_setting_sun_brasier' WHERE entry=213507;
@@ -8,7 +8,6 @@ INSERT INTO gamobject_template (entry,ScriptName) VALUES (400001,'go_setting_sun
 INSERT INTO gamobject_template (entry,ScriptName) VALUES (400002,'go_setting_sun_temp_portal');
 UPDATE creature_template SET ScriptName='vehicle_artillery_to_wall' WHERE entry=66904;
 INSERT INTO areatrigger_scripts values (8359,'at_first_door');
-
 -- Rimok
 UPDATE creature_template SET ScriptName='boss_commander_rimok' WHERE entry=56636;
 UPDATE creature_template SET ScriptName='npc_krikthik_swarmer' WHERE entry=59835;
