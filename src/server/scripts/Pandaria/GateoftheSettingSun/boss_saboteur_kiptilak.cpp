@@ -67,7 +67,6 @@ class boss_saboteur_kiptilak : public CreatureScript
         {
             boss_saboteur_kiptilakAI(Creature* creature) : BossAI(creature, DATA_KIPTILAK)
             {
-                instance = creature->GetInstanceScript();
             }
 
             uint8 WorldInFlamesEvents;

@@ -94,7 +94,6 @@ class boss_raigonn : public CreatureScript
         {
             boss_raigonnAI(Creature* creature) : BossAI(creature, DATA_RAIGONN)
             {
-                instance = creature->GetInstanceScript();
             }
 
             uint8  eventChargeProgress;

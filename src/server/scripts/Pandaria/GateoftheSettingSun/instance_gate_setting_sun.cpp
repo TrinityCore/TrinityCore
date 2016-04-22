@@ -82,19 +82,19 @@ public:
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
 
-            kiptilakGuid            = 0;
-            gadokGuid               = 0;
-            rimokGuid               = 0;
-            raigonnGuid             = 0;
-            raigonWeakGuid          = 0;
-            
-            firstDoorGuid           = 0;
+            kiptilakGuid            = GetObjectGuid(0);
+            gadokGuid               = GetObjectGuid(0);
+            rimokGuid               = GetObjectGuid(0);
+            raigonnGuid             = GetObjectGuid(0);
+            raigonWeakGuid          = GetObjectGuid(0);
 
-            cinematicTimer          = 0;
-            cinematicEventProgress  = 0;
+            firstDoorGuid           = GetObjectGuid(0);
 
-            wallCGuid               = 0;
-            portalTempGadokGuid     = 0;
+            cinematicTimer          = GetObjectGuid(0);
+            cinematicEventProgress  = GetObjectGuid(0);
+
+            wallCGuid               = GetObjectGuid(0);
+            portalTempGadokGuid     = GetObjectGuid(0);
 
             memset(dataStorage, 0, MAX_DATA * sizeof(uint32));
 
