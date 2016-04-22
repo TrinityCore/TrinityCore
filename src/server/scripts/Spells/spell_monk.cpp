@@ -3687,7 +3687,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_flying_serpent_kick();
     new spell_monk_chi_torpedo();
     new spell_monk_purifying_brew();
-    new spell_monk_clash();
     new spell_monk_keg_smash();
     new spell_monk_elusive_brew();
     new spell_monk_breath_of_fire();
