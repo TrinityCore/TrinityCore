@@ -59,8 +59,6 @@ INSERT INTO spell_script_names (spell_id,ScriptName) values (115057,'spell_monk_
 INSERT INTO spell_script_names (spell_id,ScriptName) values (115008,'spell_monk_chi_torpedo');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (121828,'spell_monk_chi_torpedo');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (119582,'spell_monk_purifying_brew');
-INSERT INTO spell_script_names (spell_id,ScriptName) values (122057,'spell_monk_clash');
-INSERT INTO spell_script_names (spell_id,ScriptName) values (126449,'spell_monk_clash');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (121253,'spell_monk_keg_smash');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (115308,'spell_monk_elusive_brew');
 INSERT INTO spell_script_names (spell_id,ScriptName) values (115175,'spell_monk_soothing_mist');
