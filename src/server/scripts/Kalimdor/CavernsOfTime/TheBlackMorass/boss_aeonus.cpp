@@ -106,33 +106,33 @@ public:
             if (!UpdateVictim())
                 return;
 
-                events.Update(diff);
+            events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_SANDBREATH:
-                            DoCastVictim(SPELL_SAND_BREATH);
-                            events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
-                            break;
-                        case EVENT_TIMESTOP:
-                            DoCastVictim(SPELL_TIME_STOP);
-                            events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
-                            break;
-                        case EVENT_FRENZY:
-                             Talk(EMOTE_FRENZY);
-                             DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_FRENZY, urand(20000, 35000));
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_SANDBREATH:
+                        DoCastVictim(SPELL_SAND_BREATH);
+                        events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
+                        break;
+                    case EVENT_TIMESTOP:
+                        DoCastVictim(SPELL_TIME_STOP);
+                        events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
+                        break;
+                    case EVENT_FRENZY:
+                         Talk(EMOTE_FRENZY);
+                         DoCast(me, SPELL_ENRAGE);
+                        events.ScheduleEvent(EVENT_FRENZY, urand(20000, 35000));
+                        break;
+                    default:
+                        break;
                 }
-                DoMeleeAttackIfReady();
+            }
+            DoMeleeAttackIfReady();
         }
     };
 
