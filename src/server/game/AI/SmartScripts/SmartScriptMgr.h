@@ -836,6 +836,8 @@ struct SmartAction
         struct
         {
             uint32 run;
+            uint32 speed;
+            uint32 speedDivider;
         } setRun;
 
         struct
