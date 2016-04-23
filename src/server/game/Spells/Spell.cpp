@@ -987,14 +987,22 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
             {
                 CallScriptObjectTargetSelectHandlers(target, effIndex, targetType);
                 if (target)
-                    m_targets.SetDst(*target);
+                {
+                    SpellDestination dest(*target);
+                    CallScriptDestinationTargetSelectHandlers(dest, effIndex, targetType);
+                    m_targets.SetDst(dest);
+                }
             }
             else
                 TC_LOG_DEBUG("spells", "SPELL: cannot find channel spell destination for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
             break;
         case TARGET_DEST_CHANNEL_CASTER:
-            m_targets.SetDst(*channeledSpell->GetCaster());
+        {
+            SpellDestination dest(*channeledSpell->GetCaster());
+            CallScriptDestinationTargetSelectHandlers(dest, effIndex, targetType);
+            m_targets.SetDst(dest);
             break;
+        }
         default:
             ASSERT(false && "Spell::SelectImplicitChannelTargets: received not implemented target type");
             break;
@@ -1054,7 +1062,11 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 if (m_spellInfo->RequiresSpellFocus)
                 {
                     if (focusObject)
-                        m_targets.SetDst(*focusObject);
+                    {
+                        SpellDestination dest(*focusObject);
+                        CallScriptDestinationTargetSelectHandlers(dest, effIndex, targetType);
+                        m_targets.SetDst(dest);
+                    }
                     return;
                 }
                 break;
@@ -1080,7 +1092,6 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     switch (targetType.GetObjectType())
     {
         case TARGET_OBJECT_TYPE_UNIT:
-        {
             if (Unit* unit = target->ToUnit())
                 AddUnitTarget(unit, effMask, true, false);
             else
@@ -1089,7 +1100,6 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 return;
             }
             break;
-        }
         case TARGET_OBJECT_TYPE_GOBJ:
             if (GameObject* gobjTarget = target->ToGameObject())
                 AddGOTarget(gobjTarget, effMask);
@@ -1100,8 +1110,12 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             }
             break;
         case TARGET_OBJECT_TYPE_DEST:
-            m_targets.SetDst(*target);
+        {
+            SpellDestination dest(*target);
+            CallScriptDestinationTargetSelectHandlers(dest, effIndex, targetType);
+            m_targets.SetDst(dest);
             break;
+        }
         default:
             ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target object type");
             break;
