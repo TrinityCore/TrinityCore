@@ -828,7 +828,7 @@ enum SpellEffects
     SPELL_EFFECT_CREATE_ITEM_2                      = 157,
     SPELL_EFFECT_MILLING                            = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET                   = 159,
-    SPELL_EFFECT_160                                = 160,
+    SPELL_EFFECT_FORCE_CAST_2                       = 160,
     SPELL_EFFECT_TALENT_SPEC_COUNT                  = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT                 = 162,
     SPELL_EFFECT_163                                = 163,
