@@ -102,7 +102,7 @@ public:
                 Sequence[i] = Phase(i);
 
             /// This ensures a random order and only executes each phase once.
-            std::random_shuffle(Sequence, Sequence + PHASE_GORTOK_PALEHOOF);
+            Trinity::Containers::RandomShuffle(Sequence);
 
             uiArcingSmashTimer = 15000;
             uiImpaleTimer = 12000;
@@ -118,7 +118,7 @@ public:
         uint32 uiWhiteringRoarTimer;
         Phase currentPhase;
         uint8 AddCount;
-        Phase Sequence[4];
+        std::array<Phase, 4> Sequence;
 
         void Reset() override
         {

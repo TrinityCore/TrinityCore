@@ -118,6 +118,19 @@ namespace Trinity
         }
 
         /**
+         * @fn void Trinity::Containers::RandomShuffle(C& container)
+         *
+         * @brief Reorder the elements of the container randomly.
+         *
+         * @param container Container to reorder
+         */
+        template <class C>
+        void RandomShuffle(C& container)
+        {
+            std::shuffle(container.begin(), container.end(), SFMTEngine::Instance());
+        }
+
+        /**
         * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
         *
         * @brief Checks if two SORTED containers have a common element
