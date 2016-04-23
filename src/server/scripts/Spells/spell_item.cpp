@@ -218,7 +218,7 @@ class spell_item_decahedral_dwarven_dice : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sObjectMgr->GetBroadcastText(TEXT_DECAHEDRAL_DWARVEN_DICE))
+                if (!sBroadcastTextStore.LookupEntry(TEXT_DECAHEDRAL_DWARVEN_DICE))
                     return false;
                 return true;
             }
@@ -1391,7 +1391,7 @@ class spell_item_worn_troll_dice : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sObjectMgr->GetBroadcastText(TEXT_WORN_TROLL_DICE))
+                if (!sBroadcastTextStore.LookupEntry(TEXT_WORN_TROLL_DICE))
                     return false;
                 return true;
             }
