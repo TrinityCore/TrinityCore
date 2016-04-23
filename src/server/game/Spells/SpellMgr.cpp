@@ -3449,9 +3449,19 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            // The Wandering Isle Spells
             case 102445: // Summon Master Li Fei
+            case 118499: // Summon Aysa
+            case 118500: // Summon Ji
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
+            case 114710: // Forcecast Summon Amberleaf Troublemaker
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 109062: // Summon Lightning
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
+                break;
+            // End of The Wandering Isle Spells
             default:
                 break;
         }
