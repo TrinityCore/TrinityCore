@@ -1205,17 +1205,17 @@ public:
     }
 };
 
-class spell_snakes_spray : public SpellScriptLoader
+class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:
-    spell_snakes_spray(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+    spell_jormungars_snakes_spray(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
 
-    class spell_snakes_spray_SpellScript : public SpellScript
+    class spell_jormungars_snakes_spray_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_snakes_spray_SpellScript);
+        PrepareSpellScript(spell_jormungars_snakes_spray_SpellScript);
 
     public:
-        spell_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
+        spell_jormungars_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
         bool Validate(SpellInfo const* /*spell*/)
         {
@@ -1232,7 +1232,7 @@ public:
 
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
 
     private:
@@ -1241,7 +1241,7 @@ public:
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_snakes_spray_SpellScript(_spellId);
+        return new spell_jormungars_snakes_spray_SpellScript(_spellId);
     }
 
 private:
@@ -1259,8 +1259,8 @@ void AddSC_boss_northrend_beasts()
     new boss_dreadscale();
     new npc_slime_pool();
     new spell_jormungars_paralytic_toxin();
-    new spell_snakes_spray("spell_burning_spray", SPELL_BURNING_BILE);
-    new spell_snakes_spray("spell_paralytic_spray", SPELL_PARALYTIC_TOXIN);
+    new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
+    new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
 
     new boss_icehowl();
 }
