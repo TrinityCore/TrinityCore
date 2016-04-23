@@ -323,7 +323,7 @@ public:
                 me->SetDisplayId(MODEL_NIGHTELF);
 
                 // and reseting equipment
-                me->LoadEquipment();
+                me->LoadEquipment(1);
 
                 if (instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
@@ -415,7 +415,7 @@ public:
             if (me->HasAura(AURA_BANISH))
             return;
 
-            me->LoadEquipment();
+            me->LoadEquipment(1);
         }
 
         void UpdateAI(uint32 diff) override
@@ -563,7 +563,7 @@ public:
                 {
                     //switch to nightelf form
                     me->SetDisplayId(MODEL_NIGHTELF);
-                    me->LoadEquipment();
+                    me->LoadEquipment(1);
 
                     CastConsumingMadness();
                     DespawnDemon();
@@ -594,7 +594,7 @@ public:
 
                 Talk(SAY_FINAL_FORM);
                 me->SetDisplayId(MODEL_NIGHTELF);
-                me->LoadEquipment();
+                me->LoadEquipment(1);
             }
         }
     };
