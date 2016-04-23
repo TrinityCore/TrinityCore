@@ -3271,7 +3271,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me)
                 return;
 
-            WorldObject* creature = NULL;
+            WorldObject* creature = nullptr;
 
             if (e.event.distance.guid != 0)
             {
@@ -3280,20 +3280,20 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 if (!creature)
                     return;
 
-                if (!me->IsInRange(creature, 0, (float)e.event.distance.dist))
+                if (!me->IsInRange(creature, 0, static_cast<float>(e.event.distance.dist)))
                     return;
             }
             else if (e.event.distance.entry != 0)
             {
                 std::list<Creature*> list;
-                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, static_cast<float>(e.event.distance.dist));
 
                 if (!list.empty())
                     creature = list.front();
             }
 
-            if (creature)
-                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+            if (creature && creature->ToUnit() != nullptr)
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat, creature->ToUnit());
 
             break;
         }
