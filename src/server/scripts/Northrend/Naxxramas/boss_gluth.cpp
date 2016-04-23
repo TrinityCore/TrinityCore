@@ -393,6 +393,7 @@ public:
             GluthGUID = creature->GetInstanceScript()->GetGuidData(DATA_GLUTH);
 
             DoCast(me, SPELL_INFECTED_WOUND);
+            timer = 0;
             state = STATE_ZOMBIE_NORMAL;
         }
 
