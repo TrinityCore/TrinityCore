@@ -237,6 +237,12 @@ class TC_GAME_API Group
         uint8  GetLfgRoles(ObjectGuid guid);
         void   SetEveryoneIsAssistant(bool apply);
 
+        // Battle Resurrection Charge Stacking
+        void   SetBattleResurrectionStacks(uint8 stacks, uint32 chargeInterval = 0);
+        void   AddBattleResurrectionStack();
+        void   RemoveBattleResurrectionStack();
+        uint8  GetBattleResurrectionStacks() const;
+
         // Update
         void   Update(uint32 diff);
         void   UpdateReadyCheck(uint32 diff);

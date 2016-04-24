@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "InstancePackets.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -38,7 +39,8 @@ BossBoundaryData::~BossBoundaryData()
         delete it->Boundary;
 }
 
-InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0)
+InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0), m_battleResurrectionTimer(0), battleResurrectionStacks(0),
+battleResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
@@ -305,6 +307,24 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     if (Creature* minion = instance->GetCreature(*i))
                         if (minion->isWorldBoss() && minion->IsAlive())
                             return false;
+
+            switch (state)
+            {
+                case IN_PROGRESS:
+                {
+                    uint32 resInterval = GetBattleResurrectionChargeInterval();
+                    InitializeBattleResurrections(1, resInterval);
+                    SendEncounterStart(1, 0, resInterval, resInterval);
+                    break;
+                }
+                case FAIL:
+                case DONE:
+                    ResetBattleResurrections();
+                    SendEncounterEnd();
+                    break;
+                default:
+                    break;
+            }
 
             bossInfo->state = state;
             SaveToDB();
@@ -586,36 +606,62 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
+void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 priority)
 {
-    // size of this packet is at most 15 (usually less)
-    WorldPacket data(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15);
-    data << uint32(type);
-
     switch (type)
     {
         case ENCOUNTER_FRAME_ENGAGE:                    // SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT
-        case ENCOUNTER_FRAME_DISENGAGE:                 // SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT
-        case ENCOUNTER_FRAME_UPDATE_PRIORITY:           // SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY
+        {
             if (!unit)
                 return;
-            data << unit->GetPackGUID();
-            data << uint8(param1);
+
+            WorldPackets::Instance::InstanceEncounterEngageUnit encounterEngageMessage;
+            encounterEngageMessage.Unit = unit->GetGUID();
+            encounterEngageMessage.TargetFramePriority = priority;
+            instance->SendToPlayers(encounterEngageMessage.Write());
             break;
-        case ENCOUNTER_FRAME_ADD_TIMER:                 // SMSG_INSTANCE_ENCOUNTER_TIMER_START
-        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START
-        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:         // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE
-            data << uint8(param1);
+        }
+        case ENCOUNTER_FRAME_DISENGAGE:                 // SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT
+        {
+            if (!unit)
+                return;
+
+            WorldPackets::Instance::InstanceEncounterDisengageUnit encounterDisengageMessage;
+            encounterDisengageMessage.Unit = unit->GetGUID();
+            instance->SendToPlayers(encounterDisengageMessage.Write());
             break;
-        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:          // SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE
-            data << uint8(param1);
-            data << uint8(param2);
+        }
+        case ENCOUNTER_FRAME_UPDATE_PRIORITY:           // SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY
+        {
+            if (!unit)
+                return;
+
+            WorldPackets::Instance::InstanceEncounterChangePriority encounterChangePriorityMessage;
+            encounterChangePriorityMessage.Unit = unit->GetGUID();
+            encounterChangePriorityMessage.TargetFramePriority = priority;
+            instance->SendToPlayers(encounterChangePriorityMessage.Write());
             break;
+        }
         default:
             break;
     }
+}
 
-    instance->SendToPlayers(&data);
+void InstanceScript::SendEncounterStart(uint32 inCombatResCount /*= 0*/, uint32 maxInCombatResCount /*= 0*/, uint32 inCombatResChargeRecovery /*= 0*/, uint32 nextCombatResChargeTime /*= 0*/)
+{
+    WorldPackets::Instance::InstanceEncounterStart encounterStartMessage;
+    encounterStartMessage.InCombatResCount = inCombatResCount;
+    encounterStartMessage.MaxInCombatResCount = maxInCombatResCount;
+    encounterStartMessage.CombatResChargeRecovery = inCombatResChargeRecovery;
+    encounterStartMessage.NextCombatResChargeTime = nextCombatResChargeTime;
+
+    instance->SendToPlayers(encounterStartMessage.Write());
+}
+
+void InstanceScript::SendEncounterEnd()
+{
+    WorldPackets::Instance::InstanceEncounterEnd encounterEndMessage;
+    instance->SendToPlayers(encounterEndMessage.Write());
 }
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
@@ -685,4 +731,62 @@ std::string InstanceScript::GetBossStateName(uint8 state)
         default:
             return "INVALID";
     }
+}
+
+void InstanceScript::UpdateBattleResurrection(uint32 diff)
+{
+    if (!battleResurrectionTimerStarted)
+        return;
+
+    m_battleResurrectionTimer -= diff;
+    if (m_battleResurrectionTimer <= 0)
+    {
+        AddBattleResurrection();
+        battleResurrectionTimerStarted = false;
+    }
+}
+
+void InstanceScript::InitializeBattleResurrections(uint8 stacks /*= 1*/, uint32 interval /*= 0*/)
+{
+    battleResurrectionStacks = stacks;
+
+    if (interval == 0)
+        return;
+
+    m_battleResurrectionTimer = interval;
+    battleResurrectionTimerStarted = true;
+}
+
+void InstanceScript::AddBattleResurrection()
+{
+    battleResurrectionStacks++;
+    m_battleResurrectionTimer = GetBattleResurrectionChargeInterval();
+    battleResurrectionTimerStarted = true;
+}
+
+void InstanceScript::RemoveBattleResurrection()
+{
+    battleResurrectionStacks--;
+}
+
+void InstanceScript::ResetBattleResurrections()
+{
+    battleResurrectionStacks = 0;
+    m_battleResurrectionTimer = 0;
+    battleResurrectionTimerStarted = 0;
+}
+
+uint8 InstanceScript::GetAvailableBattleResurrections() const
+{
+    return battleResurrectionStacks;
+}
+
+uint32 InstanceScript::GetBattleResurrectionChargeInterval() const
+{
+    uint32 interval = 0;
+    if (uint8 playerCount = instance->GetPlayers().getSize())
+        if (playerCount != 0)
+            interval = ((90 / playerCount) * MINUTE) * IN_MILLISECONDS;
+
+    return interval;
 }
