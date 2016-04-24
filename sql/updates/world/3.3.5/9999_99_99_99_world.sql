@@ -1,4 +1,4 @@
-DELETE FROM `spell_script_names` where `ScriptName` IN ('spell_jormungars_burning_spray','spell_jormungars_paralytic_spray','spell_jormungars_paralytic_toxin');
+DELETE FROM `spell_script_names` where `ScriptName` IN ('spell_jormungars_burning_spray','spell_jormungars_paralytic_spray','spell_jormungars_paralytic_toxin','spell_jormungars_paralysis');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (66902,'spell_jormungars_burning_spray'), -- Burning Spray 10m normal
 (67627,'spell_jormungars_burning_spray'), -- Burning Spray 25m normal
@@ -11,7 +11,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (66823,'spell_jormungars_paralytic_toxin'), -- Paralytic Toxin 10m normal
 (67618,'spell_jormungars_paralytic_toxin'), -- Paralytic Toxin 25m normal
 (67619,'spell_jormungars_paralytic_toxin'), -- Paralytic Toxin 10m heroic
-(67620,'spell_jormungars_paralytic_toxin'); -- Paralytic Toxin 25m heroic
+(67620,'spell_jormungars_paralytic_toxin'), -- Paralytic Toxin 25m heroic
+(66830,'spell_jormungars_paralysis'); -- Paralysis
 
 -- Acidmaw missing text
 DELETE FROM `creature_text` where entry = 35144 AND groupid = 1;

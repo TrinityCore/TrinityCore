@@ -1248,6 +1248,38 @@ private:
     uint32 _spellId;
 };
 
+class spell_jormungars_paralysis : public SpellScriptLoader
+{
+public:
+    spell_jormungars_paralysis() : SpellScriptLoader("spell_jormungars_paralysis") { }
+
+    class spell_jormungars_paralysis_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_jormungars_paralysis_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (InstanceScript* instance = caster->GetInstanceScript())
+                    if (instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_IN_PROGRESS || instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
+                        return;
+
+            if (Unit* owner = GetUnitOwner())
+                owner->RemoveAurasDueToSpell(SPELL_PARALYSIS);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_jormungars_paralysis_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_jormungars_paralysis_AuraScript();
+    }
+};
+
 void AddSC_boss_northrend_beasts()
 {
     new boss_gormok();
@@ -1261,6 +1293,7 @@ void AddSC_boss_northrend_beasts()
     new spell_jormungars_paralytic_toxin();
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
+    new spell_jormungars_paralysis();
 
     new boss_icehowl();
 }
