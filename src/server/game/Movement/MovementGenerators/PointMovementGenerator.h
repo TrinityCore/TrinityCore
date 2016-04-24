@@ -42,6 +42,8 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 
         void GetDestination(float& x, float& y, float& z) const { x = i_x; y = i_y; z = i_z; }
     private:
+        void LaunchMovement(T* unit);
+
         uint32 id;
         float i_x, i_y, i_z;
         float speed;

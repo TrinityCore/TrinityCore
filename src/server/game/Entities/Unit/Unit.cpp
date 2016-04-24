@@ -15816,7 +15816,9 @@ void Unit::SetRooted(bool apply)
         // setting MOVEMENTFLAG_ROOT
         RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-        StopMoving();
+
+        //StopMoving();
+        GetMotionMaster()->ForcedStop();
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
@@ -15851,6 +15853,8 @@ void Unit::SetRooted(bool apply)
             }
 
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            ClearUnitState(UNIT_STATE_ROOT); // hack. this is called later in the stack. however, this is needed here before ResumeMovement() is called.
+            GetMotionMaster()->ResumeMovement();
         }
     }
 }

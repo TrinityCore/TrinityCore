@@ -202,6 +202,9 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveDistract(uint32 time);
         void MovePath(uint32 path_id, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
+        
+        void ForcedStop();
+        void ResumeMovement();
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
         MovementGeneratorType GetMotionSlotType(int slot) const;

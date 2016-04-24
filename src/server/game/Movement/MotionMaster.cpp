@@ -744,3 +744,13 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
     z = dest.z;
     return true;
 }
+
+void MotionMaster::ForcedStop()
+{
+    Mutate(&si_idleMovement, MovementSlot::MOTION_SLOT_CONTROLLED);
+}
+
+void MotionMaster::ResumeMovement()
+{
+    MovementExpired();
+}
