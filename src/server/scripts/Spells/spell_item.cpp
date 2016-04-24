@@ -201,6 +201,55 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
         }
 };
 
+// 47770 - Roll Dice
+class spell_item_decahedral_dwarven_dice : public SpellScriptLoader
+{
+    public:
+        spell_item_decahedral_dwarven_dice() : SpellScriptLoader("spell_item_decahedral_dwarven_dice") { }
+
+        class spell_item_decahedral_dwarven_dice_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_decahedral_dwarven_dice_SpellScript);
+
+            enum
+            {
+                TEXT_DECAHEDRAL_DWARVEN_DICE = 26147
+            };
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sObjectMgr->GetBroadcastText(TEXT_DECAHEDRAL_DWARVEN_DICE))
+                    return false;
+                return true;
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->TextEmote(TEXT_DECAHEDRAL_DWARVEN_DICE, GetHitUnit());
+
+                static uint32 const minimum = 1;
+                static uint32 const maximum = 100;
+
+                GetCaster()->ToPlayer()->DoRandomRoll(minimum, maximum);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_decahedral_dwarven_dice_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_decahedral_dwarven_dice_SpellScript();
+        }
+};
+
 // 8342  - Defibrillate (Goblin Jumper Cables) have 33% chance on success
 // 22999 - Defibrillate (Goblin Jumper Cables XL) have 50% chance on success
 // 54732 - Defibrillate (Gnomish Army Knife) have 67% chance on success
@@ -1316,6 +1365,57 @@ class spell_item_underbelly_elixir : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_underbelly_elixir_SpellScript();
+        }
+};
+
+// 47776 - Roll 'dem Bones
+class spell_item_worn_troll_dice : public SpellScriptLoader
+{
+    public:
+        spell_item_worn_troll_dice() : SpellScriptLoader("spell_item_worn_troll_dice") { }
+
+        class spell_item_worn_troll_dice_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_worn_troll_dice_SpellScript);
+
+            enum
+            {
+                TEXT_WORN_TROLL_DICE = 26152
+            };
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sObjectMgr->GetBroadcastText(TEXT_WORN_TROLL_DICE))
+                    return false;
+                return true;
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->TextEmote(TEXT_WORN_TROLL_DICE, GetHitUnit());
+
+                static uint32 const minimum = 1;
+                static uint32 const maximum = 6;
+
+                // roll twice
+                GetCaster()->ToPlayer()->DoRandomRoll(minimum, maximum);
+                GetCaster()->ToPlayer()->DoRandomRoll(minimum, maximum);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_worn_troll_dice_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_worn_troll_dice_SpellScript();
         }
 };
 
@@ -2682,6 +2782,7 @@ void AddSC_item_spell_scripts()
     new spell_item_aegis_of_preservation();
     new spell_item_arcane_shroud();
     new spell_item_blessing_of_ancient_kings();
+    new spell_item_decahedral_dwarven_dice();
     new spell_item_defibrillate("spell_item_goblin_jumper_cables", 67, SPELL_GOBLIN_JUMPER_CABLES_FAIL);
     new spell_item_defibrillate("spell_item_goblin_jumper_cables_xl", 50, SPELL_GOBLIN_JUMPER_CABLES_XL_FAIL);
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
@@ -2706,6 +2807,7 @@ void AddSC_item_spell_scripts()
     new spell_item_six_demon_bag();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
+    new spell_item_worn_troll_dice();
     new spell_item_red_rider_air_rifle();
 
     new spell_item_create_heart_candy();
