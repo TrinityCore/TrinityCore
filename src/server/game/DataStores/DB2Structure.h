@@ -157,7 +157,7 @@ struct CreatureDisplayInfoEntry
     uint32 SoundID;                                                 // 2
     uint32 ExtendedDisplayInfoID;                                   // 3
     float  CreatureModelScale;                                      // 4
-    float  Unknown620;                                              // 5
+    float  PlayerModelScale;                                        // 5 Used for players if greater than 0, see client's CGUnit_C::GetModelScale
     uint32 CreatureModelAlpha;                                      // 6
     LocalizedString* TextureVariation[3];                           // 7-9
     LocalizedString* PortraitTextureName;                           // 10
