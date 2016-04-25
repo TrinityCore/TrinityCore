@@ -90,8 +90,8 @@ public:
 
             firstDoorGuid           = GetObjectGuid(0);
 
-            cinematicTimer          = GetObjectGuid(0);
-            cinematicEventProgress  = GetObjectGuid(0);
+            cinematicTimer          = 0;
+            cinematicEventProgress  = 0;
 
             wallCGuid               = GetObjectGuid(0);
             portalTempGadokGuid     = GetObjectGuid(0);
