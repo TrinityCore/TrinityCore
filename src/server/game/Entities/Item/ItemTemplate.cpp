@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "World.h"
 #include "ItemTemplate.h"

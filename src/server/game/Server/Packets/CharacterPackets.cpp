@@ -434,16 +434,6 @@ WorldPacket const* WorldPackets::Character::PlayedTime::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Character::ShowingCloak::Read()
-{
-    ShowCloak = _worldPacket.ReadBit();
-}
-
-void WorldPackets::Character::ShowingHelm::Read()
-{
-    ShowHelm = _worldPacket.ReadBit();
-}
-
 void WorldPackets::Character::SetTitle::Read()
 {
     _worldPacket >> TitleID;

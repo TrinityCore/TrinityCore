@@ -20,7 +20,6 @@
 #include "ScriptReloadMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "ScriptSystem.h"

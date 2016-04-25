@@ -1540,11 +1540,11 @@ public:
         if (difficulty == -1)
             for (uint8 diff = 0; diff < MAX_DIFFICULTY; ++diff)
             {
-                if (GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
-                    sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(diff));
+                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff)))
+                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff));
             }
         else
-            sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(difficulty));
+            sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         return true;
     }
 };

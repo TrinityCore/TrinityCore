@@ -19,7 +19,6 @@
 #ifndef __UNIT_H
 #define __UNIT_H
 
-#include "DBCStructure.h"
 #include "EventProcessor.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
@@ -381,6 +380,7 @@ enum InventorySlot
 };
 
 struct FactionTemplateEntry;
+struct LiquidTypeEntry;
 struct MountCapabilityEntry;
 struct SpellValue;
 
@@ -623,8 +623,8 @@ enum WeaponAttackType : uint8
 
 enum CombatRating
 {
-    CR_UNUSED_1                         = 0,
-    CR_DEFENSE_SKILL                    = 1, // Removed in 4.0.1
+    CR_AMPLIFY                          = 0,
+    CR_DEFENSE_SKILL                    = 1,
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
     CR_BLOCK                            = 4,
@@ -638,22 +638,23 @@ enum CombatRating
     CR_READINESS                        = 12,
     CR_SPEED                            = 13,
     CR_RESILIENCE_CRIT_TAKEN            = 14,
-    CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,
+    CR_RESILIENCE_PLAYER_DAMAGE         = 15,
     CR_LIFESTEAL                        = 16,
     CR_HASTE_MELEE                      = 17,
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
     CR_AVOIDANCE                        = 20,
-    CR_UNUSED_2                         = 21,
-    CR_WEAPON_SKILL_RANGED              = 22,
+    CR_STURDINESS                       = 21,
+    CR_UNUSED_7                         = 22,
     CR_EXPERTISE                        = 23,
     CR_ARMOR_PENETRATION                = 24,
     CR_MASTERY                          = 25,
-    CR_UNUSED_3                         = 26,
-    CR_UNUSED_4                         = 27,
+    CR_PVP_POWER                        = 26,
+    CR_CLEAVE                           = 27,
     CR_VERSATILITY_DAMAGE_DONE          = 28,
-    // placeholder                      = 29,
-    CR_VERSATILITY_DAMAGE_TAKEN         = 30
+    CR_VERSATILITY_HEALING_DONE         = 29,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 30,
+    CR_UNUSED_12                        = 31
 };
 
 #define MAX_COMBAT_RATING         31
@@ -1539,7 +1540,7 @@ class TC_GAME_API Unit : public WorldObject
         void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
-        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 1.0f, 100.0f, damage); }
+        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE, 1.0f, 100.0f, damage); }
 
         void ApplyResilience(Unit const* victim, int32* damage) const;
 
@@ -2079,7 +2080,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsImmunedToDamage(SpellInfo const* spellInfo) const;
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // redefined in Creature
 
-        bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = NULL, uint8 effIndex = MAX_SPELL_EFFECTS);
+        bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr, int8 effIndex = -1);
         uint32 CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK);
         uint32 CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const;
         void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo = NULL);

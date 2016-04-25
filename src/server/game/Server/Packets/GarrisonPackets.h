@@ -22,7 +22,8 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
-#include "DB2Structure.h"
+
+struct GarrAbilityEntry;
 
 namespace WorldPackets
 {

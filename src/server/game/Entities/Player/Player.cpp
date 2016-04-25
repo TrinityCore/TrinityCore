@@ -101,7 +101,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
-#include "DBCStructure.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -2402,12 +2401,12 @@ void Player::GiveLevel(uint8 level)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
 
-    uint32 basehp = 0, basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
+    uint32 basemana = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basemana);
 
     WorldPackets::Misc::LevelUpInfo packet;
     packet.Level = level;
-    packet.HealthDelta = int32(basehp) - int32(GetCreateHealth());
+    packet.HealthDelta = 0;
 
     /// @todo find some better solution
     // for (int i = 0; i < MAX_STORED_POWERS; ++i)
@@ -2444,7 +2443,7 @@ void Player::GiveLevel(uint8 level)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         SetCreateStat(Stats(i), info.stats[i]);
 
-    SetCreateHealth(basehp);
+    SetCreateHealth(0);
     SetCreateMana(basemana);
 
     InitTalentForLevel();
@@ -2522,7 +2521,7 @@ void Player::InitTalentForLevel()
         if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_MORE_TALENTS_THAN_ALLOWED))
             for (uint32 t = talentTiers; t < MAX_TALENT_TIERS; ++t)
                 for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-                    for (TalentEntry const* talent : sTalentByPos[getClass()][t][c])
+                    for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(getClass(), t, c))
                         RemoveTalent(talent);
     }
 
@@ -2537,8 +2536,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     if (reapplyMods)                                        //reapply stats values only on .reset stats (level) command
         _RemoveAllStatBonuses();
 
-    uint32 basehp = 0, basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basehp, basemana);
+    uint32 basemana = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basemana);
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), getLevel(), &info);
@@ -2568,7 +2567,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         SetStat(Stats(i), info.stats[i]);
 
-    SetCreateHealth(basehp);
+    SetCreateHealth(0);
 
     //set create powers
     SetCreateMana(basemana);
@@ -2662,7 +2661,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
         SetMaxPower(Powers(i), GetCreatePowers(Powers(i)));
 
-    SetMaxHealth(basehp);                     // stamina bonus will applied later
+    SetMaxHealth(0);                          // stamina bonus will applied later
 
     // cleanup mounted state (it will set correctly at aura loading if player saved at mount.
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
@@ -4831,111 +4830,151 @@ float Player::GetTotalBaseModValue(BaseModGroup modGroup) const
     return m_auraBaseMod[modGroup][FLAT_MOD] * m_auraBaseMod[modGroup][PCT_MOD];
 }
 
-float Player::GetMeleeCritFromAgility() const
-{
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
-        level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
-
-    GtChanceToMeleeCritBaseEntry const* critBase = sGtChanceToMeleeCritBaseStore.EvaluateTable(pclass - 1, 0);
-    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
-    if (critBase == nullptr || critRatio == nullptr)
-        return 0.0f;
-
-    float crit = critBase->base + GetStat(STAT_AGILITY)*critRatio->ratio;
-    return crit*100.0f;
-}
-
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
 {
-    // Table for base dodge values
-    const float dodge_base[MAX_CLASSES] =
-    {
-         0.037580f, // Warrior
-         0.036520f, // Paladin
-        -0.054500f, // Hunter
-        -0.005900f, // Rogue
-         0.031830f, // Priest
-         0.036640f, // DK
-         0.016750f, // Shaman
-         0.034575f, // Mage
-         0.020350f, // Warlock
-         0.0f,      // ??
-         0.049510f  // Druid
-    };
-    // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
-    const float crit_to_dodge[MAX_CLASSES] =
-    {
-         0.85f/1.15f,    // Warrior
-         1.00f/1.15f,    // Paladin
-         1.11f/1.15f,    // Hunter
-         2.00f/1.15f,    // Rogue
-         1.00f/1.15f,    // Priest
-         0.85f/1.15f,    // DK
-         1.60f/1.15f,    // Shaman
-         1.00f/1.15f,    // Mage
-         0.97f/1.15f,    // Warlock (?)
-         0.0f,           // ??
-         2.00f/1.15f     // Druid
-    };
+    //// Table for base dodge values
+    //const float dodge_base[MAX_CLASSES] =
+    //{
+    //     0.037580f, // Warrior
+    //     0.036520f, // Paladin
+    //    -0.054500f, // Hunter
+    //    -0.005900f, // Rogue
+    //     0.031830f, // Priest
+    //     0.036640f, // DK
+    //     0.016750f, // Shaman
+    //     0.034575f, // Mage
+    //     0.020350f, // Warlock
+    //     0.0f,      // ??
+    //     0.049510f  // Druid
+    //};
+    //// Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
+    //const float crit_to_dodge[MAX_CLASSES] =
+    //{
+    //     0.85f/1.15f,    // Warrior
+    //     1.00f/1.15f,    // Paladin
+    //     1.11f/1.15f,    // Hunter
+    //     2.00f/1.15f,    // Rogue
+    //     1.00f/1.15f,    // Priest
+    //     0.85f/1.15f,    // DK
+    //     1.60f/1.15f,    // Shaman
+    //     1.00f/1.15f,    // Mage
+    //     0.97f/1.15f,    // Warlock (?)
+    //     0.0f,           // ??
+    //     2.00f/1.15f     // Druid
+    //};
 
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
+    //uint8 level = getLevel();
+    //uint32 pclass = getClass();
 
-    if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
-        level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
+    //if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
+    //    level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
 
-    // Dodge per agility is proportional to crit per agility, which is available from DBC files
-    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
-    if (dodgeRatio == nullptr || pclass > MAX_CLASSES)
-        return;
+    //// Dodge per agility is proportional to crit per agility, which is available from DBC files
+    //GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
+    //if (dodgeRatio == nullptr || pclass > MAX_CLASSES)
+    //    return;
 
-    /// @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
-    float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
-    float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
+    ///// @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
+    //float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
+    //float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
 
-    // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    diminishing = 100.0f * bonus_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1];
-    nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
+    //// calculate diminishing (green in char screen) and non-diminishing (white) contribution
+    //diminishing = 100.0f * bonus_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1];
+    //nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
 }
 
-float Player::GetSpellCritFromIntellect() const
+inline float GetGameTableColumnForCombatRating(GtCombatRatingsEntry const* row, uint32 rating)
 {
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
+    switch (rating)
+    {
+        case CR_AMPLIFY:
+            return row->Amplify;
+        case CR_DEFENSE_SKILL:
+            return row->DefenseSkill;
+        case CR_DODGE:
+            return row->Dodge;
+        case CR_PARRY:
+            return row->Parry;
+        case CR_BLOCK:
+            return row->Block;
+        case CR_HIT_MELEE:
+            return row->HitMelee;
+        case CR_HIT_RANGED:
+            return row->HitRanged;
+        case CR_HIT_SPELL:
+            return row->HitSpell;
+        case CR_CRIT_MELEE:
+            return row->CritMelee;
+        case CR_CRIT_RANGED:
+            return row->CritRanged;
+        case CR_CRIT_SPELL:
+            return row->CritSpell;
+        case CR_MULTISTRIKE:
+            return row->MultiStrike;
+        case CR_READINESS:
+            return row->Readiness;
+        case CR_SPEED:
+            return row->Speed;
+        case CR_RESILIENCE_CRIT_TAKEN:
+            return row->ResilienceCritTaken;
+        case CR_RESILIENCE_PLAYER_DAMAGE:
+            return row->ResiliencePlayerDamage;
+        case CR_LIFESTEAL:
+            return row->Lifesteal;
+        case CR_HASTE_MELEE:
+            return row->HasteMelee;
+        case CR_HASTE_RANGED:
+            return row->HasteRanged;
+        case CR_HASTE_SPELL:
+            return row->HasteSpell;
+        case CR_AVOIDANCE:
+            return row->Avoidance;
+        case CR_STURDINESS:
+            return row->Sturdiness;
+        case CR_UNUSED_7:
+            return row->Unused7;
+        case CR_EXPERTISE:
+            return row->Expertise;
+        case CR_ARMOR_PENETRATION:
+            return row->ArmorPenetration;
+        case CR_MASTERY:
+            return row->Mastery;
+        case CR_PVP_POWER:
+            return row->PvPPower;
+        case CR_CLEAVE:
+            return row->Cleave;
+        case CR_VERSATILITY_DAMAGE_DONE:
+            return row->VersatilityDamageDone;
+        case CR_VERSATILITY_HEALING_DONE:
+            return row->VersatilityHealingDone;
+        case CR_VERSATILITY_DAMAGE_TAKEN:
+            return row->VersatilityDamageTaken;
+        case CR_UNUSED_12:
+            return row->Unused12;
+        default:
+            break;
+    }
 
-    if (level >= sGtChanceToSpellCritStore.GetTableRowCount())
-        level = sGtChanceToSpellCritStore.GetTableRowCount() - 1;
-
-    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.EvaluateTable(pclass - 1, 0);
-    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.EvaluateTable(level - 1, pclass - 1);
-    if (critBase == nullptr || critRatio == nullptr)
-        return 0.0f;
-
-    float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
-    return crit * 100.0f;
+    return 1.0f;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
-    uint8 level = getLevel();
+    GtCombatRatingsEntry const* Rating = sCombatRatingsGameTable.GetRow(getLevel());
+    if (!Rating)
+        return 1.0f;
 
-    if (level >= sGtCombatRatingsStore.GetTableRowCount())
-        level = sGtCombatRatingsStore.GetTableRowCount() - 1;
-
-    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
-    if (!Rating || !Rating->ratio)
+    float value = GetGameTableColumnForCombatRating(Rating, cr);
+    if (!value)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return 1.0f / Rating->ratio;
+    return 1.0f / value;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
     float baseResult = float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
-    if (cr != CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)
+    if (cr != CR_RESILIENCE_PLAYER_DAMAGE)
         return baseResult;
     return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
 }
@@ -4953,24 +4992,6 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
             break;
     }
     return 0.0f;
-}
-
-float Player::OCTRegenMPPerSpirit() const
-{
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level >= sGtRegenMPPerSptStore.GetTableRowCount())
-        level = sGtRegenMPPerSptStore.GetTableRowCount() - 1;
-
-    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.EvaluateTable(level - 1, pclass - 1);
-    if (moreRatio == nullptr)
-        return 0.0f;
-
-    // Formula get from PaperDollFrame script
-    float spirit    = GetStat(STAT_SPIRIT);
-    float regen     = spirit * moreRatio->ratio;
-    return regen;
 }
 
 void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
@@ -5024,7 +5045,7 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_UNUSED_1:
+        case CR_AMPLIFY:
         case CR_DEFENSE_SKILL:
             break;
         case CR_DODGE:
@@ -5063,7 +5084,7 @@ void Player::UpdateRating(CombatRating cr)
         case CR_MULTISTRIKE:
         case CR_READINESS:
         case CR_SPEED:
-        case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
+        case CR_RESILIENCE_PLAYER_DAMAGE:
         case CR_RESILIENCE_CRIT_TAKEN:
         case CR_LIFESTEAL:
             break;
@@ -5072,8 +5093,8 @@ void Player::UpdateRating(CombatRating cr)
         case CR_HASTE_SPELL:
             break;
         case CR_AVOIDANCE:
-        case CR_UNUSED_2:
-        case CR_WEAPON_SKILL_RANGED:
+        case CR_STURDINESS:
+        case CR_UNUSED_7:
             break;
         case CR_EXPERTISE:
             if (affectStats)
@@ -5089,8 +5110,8 @@ void Player::UpdateRating(CombatRating cr)
         case CR_MASTERY:
             UpdateMastery();
             break;
-        case CR_UNUSED_3:
-        case CR_UNUSED_4:
+        case CR_PVP_POWER:
+        case CR_CLEAVE:
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
             break;
@@ -6085,7 +6106,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
-            if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficultyID()))
+            if (LfgDungeonsEntry const* dungeon = DB2Manager::GetLfgDungeon(map->GetId(), map->GetDifficultyID()))
                 if (dungeon->TargetLevel == 80)
                     ChampioningFaction = GetChampioningFaction();
     }
@@ -7235,7 +7256,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             //     ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
             //     break;
             case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
+                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val), apply);
                 break;
             // case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
             //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
@@ -7270,7 +7291,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
             //     break;
             case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
+                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val), apply);
                 break;
             case ITEM_MOD_HASTE_RATING:
                 ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
@@ -7723,7 +7744,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '%s' (%s) cast unknown spell (EnchantID: %u, SpellID: %i), ignoring",
-                    GetName().c_str(), GetGUID().ToString().c_str(), pEnchant->ID, pEnchant->EffectSpellID[s]);
+                    GetName().c_str(), GetGUID().ToString().c_str(), enchant_id, pEnchant->EffectSpellID[s]);
                 continue;
             }
 
@@ -7823,7 +7844,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(pEnchant->EffectSpellID[s]);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->EffectSpellID[s]);
+                TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Enchant %i, cast unknown spell %i", enchant_id, pEnchant->EffectSpellID[s]);
                 continue;
             }
 
@@ -13011,7 +13032,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
                         //     break;
                         case ITEM_MOD_RESILIENCE_RATING:
-                            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, enchant_amount, apply);
+                            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u RESILIENCE", enchant_amount);
                             break;
                         case ITEM_MOD_HASTE_RATING:
@@ -18076,7 +18097,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             }
             else
             {
-                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(difficulty));
+                MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mapId, Difficulty(difficulty));
                 if (!mapDiff)
                 {
                     TC_LOG_ERROR("entities.player", "Player::_LoadBoundInstances: player '%s' (%s) has bind to not existed difficulty %d instance for map %u (%s)",
@@ -18114,7 +18135,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
 InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired)
 {
     // some instances only have one difficulty
-    MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, difficulty);
     if (!mapDiff)
         return nullptr;
 
@@ -18128,7 +18149,7 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
 InstancePlayerBind const* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty) const
 {
     // some instances only have one difficulty
-    MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, difficulty);
     if (!mapDiff)
         return nullptr;
 
@@ -18360,14 +18381,14 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
                 missingAchievement = ar->achievement;
 
         Difficulty target_difficulty = GetDifficultyID(mapEntry);
-        MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
+        MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (LevelMin || LevelMax || missingItem || missingQuest || missingAchievement)
         {
             if (report)
             {
                 if (missingQuest && !ar->questFailedText.empty())
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
-                else if (mapDiff->HasMessage()) // if (missingAchievement) covered by this case
+                else if (mapDiff->Message_lang->Str[sWorld->GetDefaultDbcLocale()][0] != '\0') // if (missingAchievement) covered by this case
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
                 else if (missingItem)
                     GetSession()->SendNotification(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(missingItem))->GetName(GetSession()->GetSessionDbcLocale()));
@@ -19608,7 +19629,7 @@ void Player::_SaveStats(SQLTransaction& trans) const
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER));
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
-    stmt->setUInt32(index, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_RESILIENCE_PLAYER_DAMAGE_TAKEN));
+    stmt->setUInt32(index, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_RESILIENCE_PLAYER_DAMAGE));
 
     trans->Append(stmt);
 }
@@ -23789,7 +23810,7 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     if (uint32 liqEntry = liquid_status.entry)
     {
         LiquidTypeEntry const* liquid = sLiquidTypeStore.LookupEntry(liqEntry);
-        if (_lastLiquid && _lastLiquid->SpellID && _lastLiquid->ID != liqEntry)
+        if (_lastLiquid && _lastLiquid->SpellID && _lastLiquid != liquid)
             RemoveAurasDueToSpell(_lastLiquid->SpellID);
 
         if (liquid && liquid->SpellID)
@@ -23940,7 +23961,7 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject) const
         FactionTemplateEntry const* playerFaction = GetFactionTemplateEntry();
         FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
 
-        if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
+        if (playerFaction && faction && !playerFaction->IsFriendlyTo(faction))
             return false;
     }
 
@@ -23960,11 +23981,6 @@ bool Player::CanCaptureTowerPoint() const
 
 uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin /*= nullptr*/, BarberShopStyleEntry const* newFace /*= nullptr*/) const
 {
-    uint8 level = getLevel();
-
-    if (level >= sGtBarberShopCostBaseStore.GetTableRowCount())
-        level = sGtBarberShopCostBaseStore.GetTableRowCount() - 1;
-
     uint8 hairstyle = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
     uint8 haircolor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
     uint8 facialhair = GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
@@ -23974,26 +23990,26 @@ uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8
     if ((hairstyle == newHairStyle->Data) && (haircolor == newHairColor) && (facialhair == newFacialHair->Data) && (!newSkin || (newSkin->Data == skincolor)) && (!newFace || (newFace->Data == face)))
         return 0;
 
-    GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.EvaluateTable(level - 1, 0);
+    GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(getLevel());
     if (!bsc)                                                // shouldn't happen
         return 0xFFFFFFFF;
 
     uint32 cost = 0;
 
     if (hairstyle != newHairStyle->Data)
-        cost += uint32(bsc->cost * newHairStyle->CostModifier);
+        cost += uint32(bsc->Cost * newHairStyle->CostModifier);
 
     if ((haircolor != newHairColor) && (hairstyle == newHairStyle->Data))
-        cost += uint32(bsc->cost * 0.5f);                    // +1/2 of price
+        cost += uint32(bsc->Cost * 0.5f);                    // +1/2 of price
 
     if (facialhair != newFacialHair->Data)
-        cost += uint32(bsc->cost * newFacialHair->CostModifier);
+        cost += uint32(bsc->Cost * newFacialHair->CostModifier);
 
     if (newSkin && skincolor != newSkin->Data)
-        cost += uint32(bsc->cost * newSkin->CostModifier);
+        cost += uint32(bsc->Cost * newSkin->CostModifier);
 
     if (newFace && face != newFace->Data)
-        cost += uint32(bsc->cost * newFace->CostModifier);
+        cost += uint32(bsc->Cost * newFace->CostModifier);
 
     return cost;
 }
@@ -24302,7 +24318,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
-    uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
+    uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(mapid, zone);
     return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
 }
 
@@ -24632,7 +24648,7 @@ bool Player::LearnTalent(uint32 talentId)
     // but only 2 out of 3 have SpecID != 0
     // We need to make sure that if player is in one of these defined specs he will not learn the other choice
     TalentEntry const* bestSlotMatch = nullptr;
-    for (TalentEntry const* talent : sTalentByPos[getClass()][talentInfo->TierID][talentInfo->ColumnIndex])
+    for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(getClass(), talentInfo->TierID, talentInfo->ColumnIndex))
     {
         if (!talent->SpecID)
             bestSlotMatch = talent;
@@ -24648,7 +24664,7 @@ bool Player::LearnTalent(uint32 talentId)
 
     // Check if player doesn't have any talent in current tier
     for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-        for (TalentEntry const* talent : sTalentByPos[getClass()][talentInfo->TierID][c])
+        for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(getClass(), talentInfo->TierID, c))
             if (HasTalent(talent->ID, GetActiveTalentGroup()))
                 return false;
 
@@ -24686,8 +24702,8 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
     uint32 class_ = getClass();
     for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
         for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-            if (sTalentByPos[class_][t][c].size() > 1)
-                for (TalentEntry const* talent : sTalentByPos[class_][t][c])
+            if (sDB2Manager.GetTalentsByPosition(class_, t, c).size() > 1)
+                for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(class_, t, c))
                     RemoveTalent(talent);
 
     LearnSpecializationSpells();
@@ -24707,8 +24723,8 @@ void Player::ResetTalentSpecialization()
     uint32 class_ = getClass();
     for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
         for (uint32 c = 0; c < MAX_TALENT_COLUMNS; ++c)
-            if (sTalentByPos[class_][t][c].size() > 1)
-                for (TalentEntry const* talent : sTalentByPos[class_][t][c])
+            if (sDB2Manager.GetTalentsByPosition(class_, t, c).size() > 1)
+                for (TalentEntry const* talent : sDB2Manager.GetTalentsByPosition(class_, t, c))
                     RemoveTalent(talent);
 
     RemoveSpecializationSpells();
@@ -26042,7 +26058,7 @@ Difficulty Player::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficultyEntry const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->ID);
+    MapDifficultyEntry const* defaultDifficulty = sDB2Manager.GetDefaultMapDifficulty(mapEntry->ID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 
@@ -26191,9 +26207,9 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
 {
     // Check skin color
     // For Skin type is always 0
-    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
+    if (CharSectionsEntry const* entry = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
     {   // Skin Color defined as Face color, too, we check skin & face in one pass
-        if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
+        if (CharSectionsEntry const* entry2 = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
         {
             if (!IsSectionFlagValid(entry, class_, create))
                 return false;
@@ -26210,14 +26226,14 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
 
     // Check Hair
-    if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
+    if (CharSectionsEntry const* entry = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
     {
         if (!IsSectionFlagValid(entry, class_, create))
             return false;
 
         if (!excludeCheck)
         {
-            if (CharSectionsEntry const* entry2 = GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
+            if (CharSectionsEntry const* entry2 = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
             {
                 if (!IsSectionFlagValid(entry2, class_, create))
                     return false;
@@ -26235,7 +26251,7 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
         return false;
 
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-        if (CharSectionsEntry const* entry = GetCharSectionEntry(race, CharSectionType(SECTION_TYPE_CUSTOM_DISPLAY_1 + i * 2), gender, customDisplay[i], 0))
+        if (CharSectionsEntry const* entry = sDB2Manager.GetCharSectionEntry(race, CharSectionType(SECTION_TYPE_CUSTOM_DISPLAY_1 + i * 2), gender, customDisplay[i], 0))
             if (!IsSectionFlagValid(entry, class_, create))
                 return false;
 

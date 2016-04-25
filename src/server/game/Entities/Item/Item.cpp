@@ -31,6 +31,7 @@
 #include "WorldSession.h"
 #include "ItemPackets.h"
 #include "TradeData.h"
+#include "GameTables.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -1856,8 +1857,8 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
     if (uint32 randomPropPoints = GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
     {
         float statValue = float(_bonusData.ItemStatAllocation[index] * randomPropPoints) * 0.0001f;
-        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.EvaluateTable(itemLevel - 1, 0))
-            statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->ratio));
+        if (GtItemSocketCostPerLevelEntry const* gtCost = sItemSocketCostPerLevelGameTable.GetRow(itemLevel))
+            statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->SocketCost));
 
         return int32(std::floor(statValue + 0.5f));
     }

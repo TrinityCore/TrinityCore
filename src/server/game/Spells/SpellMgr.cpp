@@ -21,7 +21,6 @@
 #include "ObjectMgr.h"
 #include "SpellAuraDefines.h"
 #include "SharedDefines.h"
-#include "DBCStores.h"
 #include "Chat.h"
 #include "BattlegroundMgr.h"
 #include "BattlefieldWG.h"

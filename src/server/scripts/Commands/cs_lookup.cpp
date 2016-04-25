@@ -309,58 +309,77 @@ public:
 
         for (uint32 id = 0; id < sFactionStore.GetNumRows(); ++id)
         {
-            if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(id))
+            FactionEntry const* factionEntry = sFactionStore.LookupEntry(id);
+            if (factionEntry)
             {
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
 
-                std::string name = factionEntry->Name_lang;
+                int locale = handler->GetSessionDbcLocale();
+                std::string name = factionEntry->Name->Str[locale];
                 if (name.empty())
                     continue;
 
                 if (!Utf8FitTo(name, wNamePart))
-                    continue;
-
-                if (maxResults && count++ == maxResults)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                    return true;
+                    locale = 0;
+                    for (; locale < TOTAL_LOCALES; ++locale)
+                    {
+                        if (locale == handler->GetSessionDbcLocale())
+                            continue;
+
+                        name = factionEntry->Name->Str[locale];
+                        if (name.empty())
+                            continue;
+
+                        if (Utf8FitTo(name, wNamePart))
+                            break;
+                    }
                 }
 
-                // send faction in "id - [faction] rank reputation [visible] [at war] [own team] [unknown] [invisible] [inactive]" format
-                // or              "id - [faction] [no reputation]" format
-                std::ostringstream ss;
-                if (handler->GetSession())
-                    ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << "]|h|r";
-                else
-                    ss << id << " - " << name;
-
-                if (factionState) // and then target != NULL also
+                if (locale < TOTAL_LOCALES)
                 {
-                    uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
-                    std::string rankName = handler->GetTrinityString(index);
+                    if (maxResults && count++ == maxResults)
+                    {
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
+                    }
 
-                    ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
+                    // send faction in "id - [faction] rank reputation [visible] [at war] [own team] [unknown] [invisible] [inactive]" format
+                    // or              "id - [faction] [no reputation]" format
+                    std::ostringstream ss;
+                    if (handler->GetSession())
+                        ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << ' ' << localeNames[locale] << "]|h|r";
+                    else
+                        ss << id << " - " << name << ' ' << localeNames[locale];
 
-                    if (factionState->Flags & FACTION_FLAG_VISIBLE)
-                        ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
-                    if (factionState->Flags & FACTION_FLAG_AT_WAR)
-                        ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
-                    if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
-                        ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
-                    if (factionState->Flags & FACTION_FLAG_HIDDEN)
-                        ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
-                    if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                        ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-                    if (factionState->Flags & FACTION_FLAG_INACTIVE)
-                        ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
+                    if (factionState) // and then target != NULL also
+                    {
+                        uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
+                        std::string rankName = handler->GetTrinityString(index);
+
+                        ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
+
+                        if (factionState->Flags & FACTION_FLAG_VISIBLE)
+                            ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
+                        if (factionState->Flags & FACTION_FLAG_AT_WAR)
+                            ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
+                        if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
+                            ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
+                        if (factionState->Flags & FACTION_FLAG_HIDDEN)
+                            ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
+                        if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
+                            ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
+                        if (factionState->Flags & FACTION_FLAG_INACTIVE)
+                            ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
+                    }
+                    else
+                        ss << handler->GetTrinityString(LANG_FACTION_NOREPUTATION);
+
+                    handler->SendSysMessage(ss.str().c_str());
+
+                    if (!found)
+                        found = true;
                 }
-                else
-                    ss << handler->GetTrinityString(LANG_FACTION_NOREPUTATION);
-
-                handler->SendSysMessage(ss.str().c_str());
-
-                if (!found)
-                    found = true;
             }
         }
 

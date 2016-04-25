@@ -16,7 +16,6 @@
  */
 
 #include "Log.h"
-#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBotSeller.h"

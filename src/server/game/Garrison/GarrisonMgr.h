@@ -45,8 +45,8 @@ public:
 
     void Initialize();
 
-    DBStorageIterator<GarrSiteLevelEntry> GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const;
-    std::vector<std::pair<uint32, GarrSiteLevelPlotInstEntry const*>> const* GetGarrPlotInstForSiteLevel(uint32 garrSiteLevelId) const;
+    GarrSiteLevelEntry const* GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const;
+    std::vector<GarrSiteLevelPlotInstEntry const*> const* GetGarrPlotInstForSiteLevel(uint32 garrSiteLevelId) const;
     GameObjectsEntry const* GetPlotGameObject(uint32 mapId, uint32 garrPlotInstanceId) const;
     bool IsPlotMatchingBuilding(uint32 garrPlotId, uint32 garrBuildingId) const;
     uint32 GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSiteLevelPlotInstId) const;
@@ -61,7 +61,7 @@ private:
     void LoadPlotFinalizeGOInfo();
     void LoadFollowerClassSpecAbilities();
 
-    std::unordered_map<uint32 /*garrSiteId*/, std::vector<std::pair<uint32, GarrSiteLevelPlotInstEntry const*>>> _garrisonPlotInstBySiteLevel;
+    std::unordered_map<uint32 /*garrSiteId*/, std::vector<GarrSiteLevelPlotInstEntry const*>> _garrisonPlotInstBySiteLevel;
     std::unordered_map<uint32 /*mapId*/, std::unordered_map<uint32 /*garrPlotId*/, GameObjectsEntry const*>> _garrisonPlots;
     std::unordered_map<uint32 /*garrPlotId*/, std::unordered_set<uint32/*garrBuildingId*/>> _garrisonBuildingsByPlot;
     std::unordered_map<uint64 /*garrBuildingId | garrSiteLevelPlotInstId << 32*/, uint32 /*garrBuildingPlotInstId*/> _garrisonBuildingPlotInstances;

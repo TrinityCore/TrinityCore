@@ -170,9 +170,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
-        if (MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
+        if (MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mEntry->ID, diff))
         {
-            if (mapDiff->RaidDuration)
+            if (mapDiff->GetRaidDuration())
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {

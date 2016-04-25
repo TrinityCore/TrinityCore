@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DBCStructure.h"
 #include "ObjectGuid.h"
 #include "AuctionHousePackets.h"
 #include <set>

@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "MailPackets.h"
 #include "Language.h"
-#include "DBCStores.h"
 #include "Item.h"
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"

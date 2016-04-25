@@ -1586,9 +1586,9 @@ void LoadLootTemplates_Fishing()
     uint32 count = LootTemplates_Fishing.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (auto itr = sAreaTableStore.begin(); itr != sAreaTableStore.end(); ++itr)
-        if (lootIdSet.find(itr.ID()) != lootIdSet.end())
-            lootIdSet.erase(itr.ID());
+    for (AreaTableEntry const* areaTable : sAreaTableStore)
+        if (lootIdSet.find(areaTable->ID) != lootIdSet.end())
+            lootIdSet.erase(areaTable->ID);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Fishing.ReportUnusedIds(lootIdSet);

@@ -21,7 +21,6 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Util.h"
-#include "DBCStores.h"
 
 #include <list>
 #include <vector>

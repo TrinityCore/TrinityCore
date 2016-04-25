@@ -19,7 +19,6 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "Config.h"
-#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "GameObjectPackets.h"
 #include "GuildMgr.h"

@@ -660,11 +660,10 @@ class Player;
 
 struct TC_GAME_API ItemTemplate
 {
-    uint32 Id;
     ItemEntry const* BasicData;
     ItemSparseEntry const* ExtendedData;
 
-    uint32 GetId() const { return Id; }
+    uint32 GetId() const { return BasicData->ID; }
     uint32 GetClass() const { return BasicData->Class; }
     uint32 GetSubClass() const { return BasicData->SubClass; }
     uint32 GetQuality() const { return ExtendedData->Quality; }

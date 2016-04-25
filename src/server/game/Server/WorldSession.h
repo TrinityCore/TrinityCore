@@ -201,8 +201,6 @@ namespace WorldPackets
         class LoadingScreenNotify;
         class SetActionBarToggles;
         class RequestPlayedTime;
-        class ShowingCloak;
-        class ShowingHelm;
         class SetTitle;
         class SetFactionAtWar;
         class SetFactionNotAtWar;
@@ -1161,10 +1159,6 @@ class TC_GAME_API WorldSession
         void HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect);
 
         void HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& mountSpecial);
-
-        // character view
-        void HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet);
-        void HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet);
 
         // repair
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);

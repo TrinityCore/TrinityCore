@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "ReputationMgr.h"
 #include "ReputationPackets.h"
-#include "DBCStores.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "World.h"
@@ -235,11 +234,9 @@ void ReputationMgr::Initialize()
     _exaltedFactionCount = 0;
     _sendFactionIncreased = false;
 
-    for (unsigned int i = 1; i < sFactionStore.GetNumRows(); i++)
+    for (FactionEntry const* factionEntry : sFactionStore)
     {
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(i);
-
-        if (factionEntry && factionEntry->CanHaveReputation())
+        if (factionEntry->CanHaveReputation())
         {
             FactionState newFaction;
             newFaction.ID = factionEntry->ID;
@@ -283,7 +280,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     {
         float spillOverRepOut = float(standing);
         // check for sub-factions that receive spillover
-        std::vector<uint32> const* flist = GetFactionTeamList(factionEntry->ID);
+        std::vector<uint32> const* flist = sDB2Manager.GetFactionTeamList(factionEntry->ID);
         // if has no sub-factions, check for factions with same parent
         if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionModOut != 0.0f)
         {
@@ -298,7 +295,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                 }
                 else    // spill to "sister" factions
                 {
-                    flist = GetFactionTeamList(factionEntry->ParentFactionID);
+                    flist = sDB2Manager.GetFactionTeamList(factionEntry->ParentFactionID);
                 }
             }
         }

@@ -17,7 +17,7 @@
 
 #include "Common.h"
 #include "DB2SparseStorageLoader.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 
 DB2SparseFileLoader::DB2SparseFileLoader()
@@ -201,6 +201,7 @@ uint32 DB2SparseFileLoader::GetFormatRecordSize(const char * format)
         {
             case FT_FLOAT:
             case FT_INT:
+            case FT_SORT:
                 recordsize += 4;
                 break;
             case FT_STRING:
@@ -247,7 +248,7 @@ static char const* const nullStr = "";
 char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool)
 {
     typedef char* ptr;
-    if (strlen(format) != fieldCount)
+    if (strlen(format) != fieldCount + (format[0] == FT_SORT ? 1 : 0))
         return NULL;
 
     //get struct size and index pos
@@ -283,8 +284,8 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
     for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
         ((char const**)stringHoldersPool)[i] = nullStr;
 
-    char* stringTable = new char[expandedDataSize - records * (recordsize - stringFields * sizeof(char*))];
-    memset(stringTable, 0, expandedDataSize - records * (recordsize - stringFields * sizeof(char*)));
+    char* stringTable = new char[expandedDataSize - records * ((recordsize - (format[0] == FT_SORT ? 4 : 0)) - stringFields * sizeof(char*))];
+    memset(stringTable, 0, expandedDataSize - records * ((recordsize - (format[0] == FT_SORT ? 4 : 0)) - stringFields * sizeof(char*)));
     stringPool.push_back(stringTable);
     char* stringPtr = stringTable;
 
@@ -298,7 +299,7 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
         indexTable.Insert(y + minIndex, &dataTable[offset]);
         uint32 fieldOffset = 0;
         uint32 stringFieldOffset = 0;
-        for (uint32 x = 0; x < fieldCount; x++)
+        for (uint32 x = 0; x < (fieldCount + (format[0] == FT_SORT ? 1 : 0)); x++)
         {
             switch (format[x])
             {
@@ -352,6 +353,10 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
                     offset += sizeof(char*);
                     break;
                 }
+                case FT_SORT:
+                    *((uint32*)(&dataTable[offset])) = y + minIndex;
+                    offset += 4;
+                    break;
             }
         }
 
@@ -363,7 +368,7 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
 
 char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTable, uint32 locale)
 {
-    if (strlen(format) != fieldCount)
+    if (strlen(format) != fieldCount + (format[0] == FT_SORT ? 1 : 0))
         return nullptr;
 
     if (!(localeMask & (1 << locale)))
@@ -513,6 +518,7 @@ char* DB2SparseDatabaseLoader::Load(const char* format, HotfixDatabaseStatements
                     break;
                 case FT_IND:
                 case FT_INT:
+                case FT_SORT:
                     *((int32*)(&dataValue[offset])) = fields[f].GetInt32();
                     offset += 4;
                     break;
@@ -617,6 +623,7 @@ void DB2SparseDatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStat
                     case FT_FLOAT:
                     case FT_IND:
                     case FT_INT:
+                    case FT_SORT:
                         offset += 4;
                         break;
                     case FT_BYTE:
