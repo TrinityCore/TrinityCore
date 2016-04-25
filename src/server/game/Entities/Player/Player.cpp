@@ -15275,7 +15275,9 @@ uint32 Player::GetQuestSlotState(uint16 slot)   const
 
 uint16 Player::GetQuestSlotCounter(uint16 slot, uint8 counter) const
 {
-    return (uint16)(GetUInt64Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET) >> (counter * 16));
+    if (counter < MAX_QUEST_COUNTS)
+        return GetUInt16Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + counter / 2, counter % 2);
+    return 0;
 }
 
 uint32 Player::GetQuestSlotTime(uint16 slot) const
@@ -15287,17 +15289,17 @@ void Player::SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer /*= 0*/)
 {
     SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
     SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 0);
-    SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, 0);
-    SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + 1, 0);
+    for (uint32 i = 0; i < MAX_QUEST_COUNTS / 2; ++i)
+        SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + i, 0);
     SetUInt32Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
 }
 
 void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
 {
-    uint64 val = GetUInt64Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET);
-    val &= ~((uint64)0xFFFF << (counter * 16));
-    val |= ((uint64)count << (counter * 16));
-    SetUInt64Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, val);
+    if (counter >= MAX_QUEST_COUNTS)
+        return;
+
+    SetUInt16Value(PLAYER_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + counter / 2, counter % 2, count);
 }
 
 void Player::SetQuestSlotState(uint16 slot, uint32 state)
