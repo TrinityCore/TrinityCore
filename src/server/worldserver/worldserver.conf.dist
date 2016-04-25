@@ -725,7 +725,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     2    - (Disabled, Paladin)
 #                     4    - (Disabled, Hunter)
 #                     8    - (Disabled, Rogue)
-#                     16   - (Disabled, Undead)
+#                     16   - (Disabled, Priest)
 #                     32   - (Disabled, Death Knight)
 #                     64   - (Disabled, Shaman)
 #                     128  - (Disabled, Mage)
