@@ -99,7 +99,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage)
             {
                 switch (attacker->GetEntry())
                 {
@@ -192,9 +192,9 @@ class boss_saboteur_kiptilak : public CreatureScript
             }
         };
 
-        CreatureAI* GetInstanceAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_saboteur_kiptilakAI(creature);
+            return GetInstanceAI<boss_saboteur_kiptilakAI>(creature);
         }
 };
 

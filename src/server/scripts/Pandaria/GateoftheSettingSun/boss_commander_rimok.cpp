@@ -86,7 +86,7 @@ class boss_commander_rimok : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* /*summoned*/)
             {
             }
 
@@ -103,7 +103,7 @@ class boss_commander_rimok : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_FRENZIED_ASSAULT:
-                        DoCastVictim(SPELL_FRENZIED_ASSAULT, false);
+                        DoCastVictim(SPELL_FRENZIED_ASSAULT);
                         events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(10000, 15000));
                         break;
                     case EVENT_VISCOUS_FLUID:
@@ -122,9 +122,9 @@ class boss_commander_rimok : public CreatureScript
             }
         };
 
-        CreatureAI* GetInstanceAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_commander_rimokAI(creature);
+            return GetInstanceAI<boss_commander_rimokAI>(creature);
         }
 };
 

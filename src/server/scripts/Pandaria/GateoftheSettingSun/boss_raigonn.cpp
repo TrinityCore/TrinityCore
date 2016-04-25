@@ -236,13 +236,13 @@ class boss_raigonn : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* /*summoned*/)
             {
             }
 
             void RemoveWeakSpotPassengers()
             {
-                if (Creature* weakPoint = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = ObjectAccessor::GetCreature(*me, instance->GetObjectGuid(NPC_WEAK_SPOT)))
                 {
                     if (Vehicle* weakVehicle = weakPoint->GetVehicleKit())
                     {
@@ -406,9 +406,9 @@ class boss_raigonn : public CreatureScript
             }
         };
 
-        CreatureAI* GetInstanceAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_raigonnAI(creature);
+            return GetInstanceAI<boss_raigonnAI>(creature);
         }
 };
 

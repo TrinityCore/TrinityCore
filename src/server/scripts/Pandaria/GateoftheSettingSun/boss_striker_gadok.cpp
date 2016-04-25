@@ -218,7 +218,7 @@ class boss_striker_gadok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
 
@@ -425,7 +425,7 @@ class boss_striker_gadok : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_striker_gadokAI(creature);
+            return GetInstanceAI<boss_striker_gadokAI>(creature);
         }
 };
 
