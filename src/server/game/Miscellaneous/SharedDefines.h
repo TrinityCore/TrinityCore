@@ -540,7 +540,7 @@ enum SpellAttr4
 
 enum SpellAttr5
 {
-    SPELL_ATTR5_UNK0                             = 0x00000001, //  0
+    SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, //  0 available casting channel spell when moving
     SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, //  1 not need reagents if UNIT_FLAG_PREPARATION
     SPELL_ATTR5_UNK2                             = 0x00000004, //  2
     SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, //  3 usable while stunned

@@ -2983,6 +2983,15 @@ int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
     return 0;
 }
 
+bool Unit::CanMoveDuringChannel() const
+{
+    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if (spell->getState() != SPELL_STATE_FINISHED)
+            return spell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) && spell->IsChannelActive();
+
+    return false;
+}
+
 bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
 {
     return IsWithinDistInMap(target, distance) && HasInArc(arc, target);
