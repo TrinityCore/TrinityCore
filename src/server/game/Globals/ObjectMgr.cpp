@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -24,9 +25,9 @@
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DB2Structure.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
+#include "GameTables.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
@@ -36,7 +37,6 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "Object.h"
-#include "ObjectMgr.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
@@ -1734,7 +1734,7 @@ void ObjectMgr::LoadCreatures()
 
     // Build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (auto& mapDifficultyPair : sMapDifficultyMap)
+    for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
         for (auto& difficultyPair : mapDifficultyPair.second)
             spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
 
@@ -2046,7 +2046,7 @@ void ObjectMgr::LoadGameobjects()
 
     // build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (auto& mapDifficultyPair : sMapDifficultyMap)
+    for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
         for (auto& difficultyPair : mapDifficultyPair.second)
             spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
 
@@ -2622,15 +2622,13 @@ void ObjectMgr::LoadItemTemplates()
     uint32 oldMSTime = getMSTime();
     uint32 sparseCount = 0;
 
-    for (auto itr = sItemSparseStore.begin(); itr != sItemSparseStore.end(); ++itr)
+    for (ItemSparseEntry const* sparse : sItemSparseStore)
     {
-        ItemSparseEntry const* sparse = itr.Data();
-        ItemEntry const* db2Data = sItemStore.LookupEntry(itr.ID());
+        ItemEntry const* db2Data = sItemStore.LookupEntry(sparse->ID);
         if (!db2Data)
             continue;
 
-        ItemTemplate& itemTemplate = _itemTemplateStore[itr.ID()];
-        itemTemplate.Id = itr.ID();
+        ItemTemplate& itemTemplate = _itemTemplateStore[sparse->ID];
 
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
@@ -2644,7 +2642,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.0f;
 
-        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(itemTemplate.Id))
+        if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
             for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
                 itemTemplate.Specializations[0].insert(itemSpecOverride->SpecID);
@@ -3481,18 +3479,14 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sGtOCTLevelExperienceStore.GetTableRowCount() + 1, 0);
+        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount() + 1, 0);
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
         // load the DBC's levels at first...
-        GtOCTLevelExperienceEntry const* exp;
-        for (uint32 level = 0; level < sGtOCTLevelExperienceStore.GetTableRowCount(); ++level)
-        {
-            exp = sGtOCTLevelExperienceStore.EvaluateTable(level, 0);
-            _playerXPperLevel[level + 1] = exp->Data;
-        }
+        for (uint32 level = 0; level < sXpGameTable.GetTableRowCount(); ++level)
+            _playerXPperLevel[level + 1] = sXpGameTable.GetRow(level)->Total;
 
         uint32 count = 0;
 
@@ -3537,7 +3531,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
-void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseHP, uint32& baseMana) const
+void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const
 {
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
@@ -3545,17 +3539,14 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
-    GtOCTBaseHPByClassEntry const* hp = sGtOCTBaseHPByClassStore.EvaluateTable(level - 1, class_ - 1);
-    GtOCTBaseMPByClassEntry const* mp = sGtOCTBaseMPByClassStore.EvaluateTable(level - 1, class_ - 1);
-
-    if (!hp || !mp)
+    GtBaseMPEntry const* mp = sBaseMPGameTable.GetRow(level);
+    if (!mp)
     {
         TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data for base hp/mp. Class %u Level %u", class_, level);
         return;
     }
 
-    baseHP = uint32(hp->ratio);
-    baseMana = uint32(mp->ratio);
+    baseMana = uint32(GetGameTableColumnForClass(mp, class_));
 }
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
@@ -5349,7 +5340,7 @@ void ObjectMgr::LoadInstanceEncounters()
         {
             for (uint32 i = 0; i < MAX_DIFFICULTY; ++i)
             {
-                if (GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(i)))
+                if (sDB2Manager.GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(i)))
                 {
                     DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, i)];
                     encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
@@ -6242,7 +6233,7 @@ void ObjectMgr::LoadAccessRequirements()
         }
 
         uint32 difficulty = fields[1].GetUInt8();
-        if (!GetMapDifficultyData(mapid, Difficulty(difficulty)))
+        if (!sDB2Manager.GetMapDifficultyData(mapid, Difficulty(difficulty)))
         {
             TC_LOG_ERROR("sql.sql", "Map %u referenced in `access_requirement` does not have difficulty %u, skipped", mapid, difficulty);
             continue;
@@ -8718,8 +8709,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            stats.BaseHealth[0] = sGtNpcTotalHpStore[i].EvaluateTable(Level - 1, Class - 1)->HP;
-            stats.BaseDamage[0] = sGtNpcDamageByClassStore[i].EvaluateTable(Level - 1, Class - 1)->Damage;
+            stats.BaseHealth[i] = GetGameTableColumnForClass(sNpcTotalHpGameTable[i].GetRow(Level), Class);
+            stats.BaseDamage[i] = GetGameTableColumnForClass(sNpcDamageByClassGameTable[i].GetRow(Level), Class);
             if (stats.BaseDamage[i] < 0.0f)
             {
                 TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);

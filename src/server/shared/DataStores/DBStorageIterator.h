@@ -35,9 +35,6 @@ public:
         }
     }
 
-    uint32 ID() const { return _pos; }
-    T const* Data() const { return _index[_pos]; }
-
     T const* operator->() { return _index[_pos]; }
     T const* operator*() { return _index[_pos]; }
 

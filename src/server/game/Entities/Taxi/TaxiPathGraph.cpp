@@ -18,7 +18,6 @@
 #include "TaxiPathGraph.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "Config.h"
 #include "Util.h"

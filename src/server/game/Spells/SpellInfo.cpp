@@ -20,8 +20,8 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Spell.h"
-#include "DBCStores.h"
 #include "ConditionMgr.h"
+#include "GameTables.h"
 #include "Player.h"
 #include "Battleground.h"
 #include "Vehicle.h"
@@ -468,6 +468,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING))
             level = _spellInfo->BaseLevel;
 
+        if (_spellInfo->Scaling.MinScalingLevel && _spellInfo->Scaling.MinScalingLevel > level)
+            level = _spellInfo->Scaling.MinScalingLevel;
+
         if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel < level)
             level = _spellInfo->Scaling.MaxScalingLevel;
 
@@ -481,8 +484,11 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
             {
                 if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
                 {
-                    if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.EvaluateTable(level - 1, (_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class : ((MAX_CLASSES - 1 /*last class*/) - _spellInfo->Scaling.Class)) - 1))
-                        value = gtScaling->value;
+                    GtSpellScalingEntry const* gtScaling = sSpellScalingGameTable.GetRow(level);
+                    if (_spellInfo->Scaling.Class > 0)
+                        value = GetGameTableColumnForClass(gtScaling, _spellInfo->Scaling.Class);
+                    else
+                        value = gtScaling->Item;
                 }
                 else
                     value = GetRandomPropertyPoints(itemLevel != -1 ? uint32(itemLevel) : 1u, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
@@ -600,10 +606,10 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
 
             if (canEffectScale)
             {
-                GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.EvaluateTable(_spellInfo->SpellLevel - 1, 0);
-                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.EvaluateTable(caster->getLevel() - 1, 0);
+                GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(_spellInfo->SpellLevel);
+                GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(caster->getLevel());
                 if (spellScaler && casterScaler)
-                    value *= casterScaler->ratio / spellScaler->ratio;
+                    value *= casterScaler->Scaler / spellScaler->Scaler;
             }
         }
     }
@@ -1729,7 +1735,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (AttributesEx4 & SPELL_ATTR4_CAST_ONLY_IN_OUTLAND)
     {
-        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+        uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
         if (!mapEntry || mapEntry->ExpansionID < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
@@ -2676,10 +2682,10 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
             {
                 if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
                 {
-                    GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.EvaluateTable(SpellLevel - 1, 0);
-                    GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.EvaluateTable(caster->getLevel() - 1, 0);
+                    GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(SpellLevel);
+                    GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(caster->getLevel());
                     if (spellScaler && casterScaler)
-                        powerCost *= casterScaler->ratio / spellScaler->ratio;
+                        powerCost *= casterScaler->Scaler / spellScaler->Scaler;
                 }
             }
 

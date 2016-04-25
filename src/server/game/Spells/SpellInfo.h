@@ -20,8 +20,6 @@
 
 #include "SharedDefines.h"
 #include "Util.h"
-#include "DBCStructure.h"
-#include "DB2Structure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
 
@@ -409,6 +407,7 @@ public:
     struct ScalingInfo
     {
         int32 Class;
+        uint32 MinScalingLevel;
         uint32 MaxScalingLevel;
         uint32 ScalesFromItemLevel;
     } Scaling;

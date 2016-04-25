@@ -762,7 +762,7 @@ class TC_GAME_API ObjectMgr
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
 
-        void GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseHP, uint32& baseMana) const;
+        void GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const;
 
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
 

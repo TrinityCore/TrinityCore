@@ -19,7 +19,6 @@
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
-#include "DBCStores.h"
 #include "AchievementMgr.h"
 
 // Supported shift-links (client generated and server side)

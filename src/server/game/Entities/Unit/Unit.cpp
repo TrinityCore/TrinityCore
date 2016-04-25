@@ -1430,7 +1430,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     SendMessageToSet(packet.Write(), true);
 }
 
-bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)
+bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo /*= nullptr*/, int8 effIndex /*= -1*/)
 {
     // only physical spells damage gets reduced by armor
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
@@ -1441,13 +1441,16 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
         if (spellInfo->HasAttribute(SPELL_ATTR0_CU_IGNORE_ARMOR))
             return false;
 
-        // bleeding effects are not reduced by armor
-        if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), effIndex))
+        if (effIndex != -1)
         {
-            if (effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
-                effect->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
-                if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
-                    return false;
+            // bleeding effects are not reduced by armor
+            if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), effIndex))
+            {
+                if (effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
+                    effect->Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
+                    if (spellInfo->GetEffectMechanicMask(effIndex) & (1 << MECHANIC_BLEED))
+                        return false;
+            }
         }
     }
     return true;
@@ -6733,11 +6736,11 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
     }
 
     // common faction based check
-    if (factionTemplateEntry->IsHostileTo(*targetFactionTemplateEntry))
+    if (factionTemplateEntry->IsHostileTo(targetFactionTemplateEntry))
         return REP_HOSTILE;
-    if (factionTemplateEntry->IsFriendlyTo(*targetFactionTemplateEntry))
+    if (factionTemplateEntry->IsFriendlyTo(targetFactionTemplateEntry))
         return REP_FRIENDLY;
-    if (targetFactionTemplateEntry->IsFriendlyTo(*factionTemplateEntry))
+    if (targetFactionTemplateEntry->IsFriendlyTo(factionTemplateEntry))
         return REP_FRIENDLY;
     if (factionTemplateEntry->Flags & FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT)
         return REP_HOSTILE;
@@ -8952,7 +8955,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
                 {
                     if (Player* player = ToPlayer())
                     {
-                        float mod = player->GetRatingBonusValue(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN) * (-8.0f);
+                        float mod = player->GetRatingBonusValue(CR_RESILIENCE_PLAYER_DAMAGE) * (-8.0f);
                         AddPct(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
                     }
                 }
@@ -15739,7 +15742,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 {
                     FactionTemplateEntry const* ft1 = GetFactionTemplateEntry();
                     FactionTemplateEntry const* ft2 = target->GetFactionTemplateEntry();
-                    if (ft1 && ft2 && !ft1->IsFriendlyTo(*ft2))
+                    if (ft1 && ft2 && !ft1->IsFriendlyTo(ft2))
                     {
                         if (index == UNIT_FIELD_BYTES_2)
                             // Allow targetting opposite faction in party when enabled in config

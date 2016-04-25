@@ -245,8 +245,8 @@ public:
         iterator_wrapper(iterator_wrapper const& right) = default;
         iterator_wrapper(Base const& baseItr) : Base(baseItr) { }
 
-        uint32 ID() const { return (*this)->first; }
-        T const* Data() const { return (*this)->second; }
+        T const* operator->() const { return Base::operator->()->second; }
+        T const* operator*() const { return Base::operator*().second; }
     } iterator;
 
     DB2SparseStorage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)

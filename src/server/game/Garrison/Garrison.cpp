@@ -23,7 +23,7 @@
 #include "ObjectMgr.h"
 #include "VehicleDefines.h"
 
-Garrison::Garrison(Player* owner) : _owner(owner), _siteLevelId(0), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
+Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
 }
 
@@ -34,8 +34,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         return false;
 
     Field* fields = garrison->Fetch();
-    _siteLevelId = fields[0].GetUInt32();
-    _siteLevel = sGarrSiteLevelStore.LookupEntry(_siteLevelId);
+    _siteLevel = sGarrSiteLevelStore.LookupEntry(_siteLevel->ID);
     _followerActivationsRemainingToday = fields[1].GetUInt32();
     if (!_siteLevel)
         return false;
@@ -142,7 +141,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-    stmt->setUInt32(1, _siteLevelId);
+    stmt->setUInt32(1, _siteLevel->ID);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
     trans->Append(stmt);
 
@@ -220,17 +219,16 @@ void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
 
 bool Garrison::Create(uint32 garrSiteId)
 {
-    DBStorageIterator<GarrSiteLevelEntry> siteLevelItr = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
-    if (siteLevelItr == sGarrSiteLevelStore.end())
+    GarrSiteLevelEntry const* siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
+    if (!siteLevel)
         return false;
 
-    _siteLevelId = siteLevelItr.ID();
-    _siteLevel = siteLevelItr.Data();
+    _siteLevel = siteLevel;
 
     InitializePlots();
 
     WorldPackets::Garrison::GarrisonCreateResult garrisonCreateResult;
-    garrisonCreateResult.GarrSiteLevelID = _siteLevelId;
+    garrisonCreateResult.GarrSiteLevelID = _siteLevel->ID;
     _owner->SendDirectMessage(garrisonCreateResult.Write());
     _owner->SendUpdatePhasing();
     SendRemoteInfo();
@@ -251,11 +249,11 @@ void Garrison::Delete()
 
 void Garrison::InitializePlots()
 {
-    if (std::vector<std::pair<uint32, GarrSiteLevelPlotInstEntry const*>> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevelId))
+    if (std::vector<GarrSiteLevelPlotInstEntry const*> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevel->ID))
     {
         for (std::size_t i = 0; i < plots->size(); ++i)
         {
-            uint32 garrPlotInstanceId = plots->at(i).second->GarrPlotInstanceID;
+            uint32 garrPlotInstanceId = plots->at(i)->GarrPlotInstanceID;
             GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);
             GameObjectsEntry const* gameObject = sGarrisonMgr.GetPlotGameObject(_siteLevel->MapID, garrPlotInstanceId);
             if (!plotInstance || !gameObject)
@@ -270,7 +268,7 @@ void Garrison::InitializePlots()
             plotInfo.PacketInfo.PlotPos.Relocate(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, 2 * std::acos(gameObject->RotationW));
             plotInfo.PacketInfo.PlotType = plot->PlotType;
             plotInfo.EmptyGameObjectId = gameObject->ID;
-            plotInfo.GarrSiteLevelPlotInstId = plots->at(i).first;
+            plotInfo.GarrSiteLevelPlotInstId = plots->at(i)->ID;
         }
     }
 }
@@ -531,7 +529,7 @@ void Garrison::SendInfo()
 {
     WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
     garrisonInfo.GarrSiteID = _siteLevel->SiteID;
-    garrisonInfo.GarrSiteLevelID = _siteLevelId;
+    garrisonInfo.GarrSiteLevelID = _siteLevel->ID;
     garrisonInfo.FactionIndex = GetFaction();
     garrisonInfo.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
     for (auto& p : _plots)
@@ -558,7 +556,7 @@ void Garrison::SendRemoteInfo() const
     remoteInfo.Sites.resize(1);
 
     WorldPackets::Garrison::GarrisonRemoteSiteInfo& remoteSiteInfo = remoteInfo.Sites[0];
-    remoteSiteInfo.GarrSiteLevelID = _siteLevelId;
+    remoteSiteInfo.GarrSiteLevelID = _siteLevel->ID;
     for (auto const& p : _plots)
         if (p.second.BuildingInfo.PacketInfo)
             remoteSiteInfo.Buildings.emplace_back(p.first, p.second.BuildingInfo.PacketInfo->GarrBuildingID);

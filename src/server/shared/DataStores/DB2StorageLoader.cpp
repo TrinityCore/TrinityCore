@@ -253,8 +253,6 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
                 recordsize += sizeof(char*);
                 break;
             case FT_SORT:
-                i = x;
-                break;
             case FT_IND:
                 i = x;
                 recordsize += 4;
@@ -322,7 +320,6 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
         }
         else
         {
-            ASSERT(indexField == 0);
             for (uint32 y = 0; y < recordCount; ++y)
             {
                 uint32 ind = ((uint32*)idTable)[y];
@@ -353,48 +350,51 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     uint32 offset = 0;
 
-    if (idTableSize)
-    {
-        ASSERT(format[0] == 'd');
-        ++format;
-    }
-
     for (uint32 y = 0; y < recordCount; y++)
     {
+        uint32 indexVal;
         if (indexField >= 0)
-            indexTable[!idTableSize ? getRecord(y).getUInt(indexField) : ((uint32*)idTable)[y]] = &dataTable[offset];
+            indexVal = !idTableSize ? getRecord(y).getUInt(indexField) : ((uint32*)idTable)[y];
         else
-            indexTable[y] = &dataTable[offset];
+            indexVal = y;
 
-        for (uint32 x = 0; x < fieldCount; x++)
+        indexTable[indexVal] = &dataTable[offset];
+
+        uint32 x = 0;
+        for (char const* fmt = format; *fmt != '\0'; ++fmt)
         {
-            switch (format[x])
+            switch (*fmt)
             {
                 case FT_FLOAT:
-                    *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x);
+                    *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x++);
                     offset += 4;
                     break;
                 case FT_IND:
                 case FT_INT:
-                    *((uint32*)(&dataTable[offset])) = getRecord(y).getUInt(x);
+                    *((uint32*)(&dataTable[offset])) = getRecord(y).getUInt(x++);
                     offset += 4;
                     break;
                 case FT_BYTE:
-                    *((uint8*)(&dataTable[offset])) = getRecord(y).getUInt8(x);
+                    *((uint8*)(&dataTable[offset])) = getRecord(y).getUInt8(x++);
                     offset += 1;
                     break;
                 case FT_LONG:
-                    *((uint64*)(&dataTable[offset])) = getRecord(y).getUInt64(x);
+                    *((uint64*)(&dataTable[offset])) = getRecord(y).getUInt64(x++);
                     offset += 8;
                     break;
                 case FT_SHORT:
-                    *((uint16*)(&dataTable[offset])) = getRecord(y).getUInt16(x);
+                    *((uint16*)(&dataTable[offset])) = getRecord(y).getUInt16(x++);
                     offset += 2;
                     break;
                 case FT_STRING:
                 case FT_STRING_NOT_LOCALIZED:
                     *((char**)(&dataTable[offset])) = nullptr;   // will be replaces non-empty or "" strings in AutoProduceStrings
                     offset += sizeof(char*);
+                    ++x;
+                    break;
+                case FT_SORT:
+                    *((uint32*)(&dataTable[offset])) = indexVal;
+                    offset += 4;
                     break;
             }
         }
@@ -444,21 +444,19 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
 
     uint32 offset = 0;
 
-    if (idTableSize)
-        ++format;
-
     // assign string holders to string field slots
     for (uint32 y = 0; y < recordCount; y++)
     {
         uint32 stringFieldOffset = 0;
 
-        for (uint32 x = 0; x < fieldCount; x++)
+        for (char const* fmt = format; *fmt != '\0'; ++fmt)
         {
-            switch (format[x])
+            switch (*fmt)
             {
                 case FT_FLOAT:
                 case FT_IND:
                 case FT_INT:
+                case FT_SORT:
                     offset += 4;
                     break;
                 case FT_BYTE:
@@ -476,7 +474,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                     // init db2 string field slots by pointers to string holders
                     char const*** slot = (char const***)(&dataTable[offset]);
                     *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
-                    if (format[x] == FT_STRING)
+                    if (*fmt == FT_STRING)
                         stringFieldOffset += stringHolderSize;
                     else
                         ++stringFieldOffset;
@@ -485,7 +483,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                     break;
                 }
                 default:
-                    ASSERT(false, "unknown format character %c", format[x]);
+                    ASSERT(false, "unknown format character %c", *fmt);
             }
         }
     }
@@ -521,18 +519,17 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
 
     uint32 offset = 0;
 
-    if (idTableSize)
-        ++format;
-
     for (uint32 y = 0; y < recordCount; y++)
     {
-        for (uint32 x = 0; x < fieldCount; x++)
+        uint32 x = 0;
+        for (char const* fmt = format; *fmt != '\0'; ++fmt)
         {
-            switch (format[x])
+            switch (*fmt)
             {
                 case FT_FLOAT:
                 case FT_IND:
                 case FT_INT:
+                case FT_SORT:
                     offset += 4;
                     break;
                 case FT_BYTE:
@@ -566,6 +563,9 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uin
                     break;
                 }
             }
+
+            if (*fmt != FT_SORT)
+                ++x;
         }
     }
 
@@ -705,6 +705,10 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
                     offset += sizeof(char*);
                     break;
                 }
+                case FT_SORT:
+                    *((int32*)(&dataValue[offset])) = indexValue;
+                    offset += 4;
+                    break;
             }
         }
 
@@ -769,6 +773,7 @@ void DB2DatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStatements
                     case FT_FLOAT:
                     case FT_IND:
                     case FT_INT:
+                    case FT_SORT:
                         offset += 4;
                         break;
                     case FT_BYTE:

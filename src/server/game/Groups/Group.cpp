@@ -2082,7 +2082,7 @@ Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficultyEntry const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->ID);
+    MapDifficultyEntry const* defaultDifficulty = sDB2Manager.GetDefaultMapDifficulty(mapEntry->ID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 
@@ -2212,7 +2212,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
 InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
 {
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(mapId, difficulty);
+    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
     if (itr != m_boundInstances[difficulty].end())

@@ -32,8 +32,8 @@ GarrisonMgr& GarrisonMgr::Instance()
 
 void GarrisonMgr::Initialize()
 {
-    for (auto itr = sGarrSiteLevelPlotInstStore.begin(); itr != sGarrSiteLevelPlotInstStore.end(); ++itr)
-        _garrisonPlotInstBySiteLevel[itr->GarrSiteLevelID].push_back(std::make_pair(itr.ID(), itr.Data()));
+    for (GarrSiteLevelPlotInstEntry const* siteLevelPlotInst : sGarrSiteLevelPlotInstStore)
+        _garrisonPlotInstBySiteLevel[siteLevelPlotInst->GarrSiteLevelID].push_back(siteLevelPlotInst);
 
     for (GameObjectsEntry const* gameObject : sGameObjectsStore)
         if (gameObject->Type == GAMEOBJECT_TYPE_GARRISON_PLOT)
@@ -45,8 +45,8 @@ void GarrisonMgr::Initialize()
     for (GarrBuildingPlotInstEntry const* buildingPlotInst : sGarrBuildingPlotInstStore)
         _garrisonBuildingPlotInstances[MAKE_PAIR64(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
 
-    for (auto itr = sGarrBuildingStore.begin(); itr != sGarrBuildingStore.end(); ++itr)
-        _garrisonBuildingsByType[itr->Type].push_back(itr.ID());
+    for (GarrBuildingEntry const* building : sGarrBuildingStore)
+        _garrisonBuildingsByType[building->Type].push_back(building->ID);
 
     for (GarrFollowerXAbilityEntry const* followerAbility : sGarrFollowerXAbilityStore)
     {
@@ -73,16 +73,16 @@ void GarrisonMgr::Initialize()
     LoadFollowerClassSpecAbilities();
 }
 
-DBStorageIterator<GarrSiteLevelEntry> GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
+GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
 {
-    for (auto itr = sGarrSiteLevelStore.begin(); itr != sGarrSiteLevelStore.end(); ++itr)
-        if (itr->SiteID == garrSiteId && itr->Level == level)
-            return itr;
+    for (GarrSiteLevelEntry const* siteLevel : sGarrSiteLevelStore)
+        if (siteLevel->SiteID == garrSiteId && siteLevel->Level == level)
+            return siteLevel;
 
-    return sGarrSiteLevelStore.end();
+    return nullptr;
 }
 
-std::vector<std::pair<uint32, GarrSiteLevelPlotInstEntry const*>> const* GarrisonMgr::GetGarrPlotInstForSiteLevel(uint32 garrSiteLevelId) const
+std::vector<GarrSiteLevelPlotInstEntry const*> const* GarrisonMgr::GetGarrPlotInstForSiteLevel(uint32 garrSiteLevelId) const
 {
     auto itr = _garrisonPlotInstBySiteLevel.find(garrSiteLevelId);
     if (itr != _garrisonPlotInstBySiteLevel.end())

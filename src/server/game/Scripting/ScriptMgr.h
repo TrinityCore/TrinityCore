@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include <atomic>
-#include "DBCStores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -62,10 +61,12 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
+struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
 struct ItemTemplate;
+struct MapEntry;
 struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)

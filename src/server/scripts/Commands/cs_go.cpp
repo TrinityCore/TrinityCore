@@ -509,7 +509,7 @@ public:
             return false;
         }
 
-        Zone2MapCoordinates(x, y, areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId);
+        sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->MapID, x, y))
         {

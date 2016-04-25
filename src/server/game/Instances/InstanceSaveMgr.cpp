@@ -376,7 +376,7 @@ void InstanceSaveManager::LoadResetTimes()
             Difficulty difficulty = Difficulty(fields[1].GetUInt8());
             uint64 oldresettime = fields[2].GetUInt32();
 
-            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid, difficulty);
+            MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mapid, difficulty);
             if (!mapDiff)
             {
                 TC_LOG_ERROR("misc", "InstanceSaveManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
@@ -395,7 +395,7 @@ void InstanceSaveManager::LoadResetTimes()
 
     // calculate new global reset times for expired instances and those that have never been reset yet
     // add the global reset times to the priority queue
-    for (auto& mapDifficultyPair : sMapDifficultyMap)
+    for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
     {
         uint32 mapid = mapDifficultyPair.first;
 
@@ -403,11 +403,11 @@ void InstanceSaveManager::LoadResetTimes()
         {
             Difficulty difficulty = Difficulty(difficultyPair.first);
             MapDifficultyEntry const* mapDiff = difficultyPair.second;
-            if (!mapDiff->RaidDuration)
+            if (!mapDiff->GetRaidDuration())
                 continue;
 
             // the reset_delay must be at least one day
-            uint32 period = uint32(((mapDiff->RaidDuration * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
+            uint32 period = uint32(((mapDiff->GetRaidDuration() * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
             if (period < DAY)
                 period = DAY;
 
@@ -447,15 +447,15 @@ void InstanceSaveManager::LoadResetTimes()
 
 time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty difficulty, time_t resetTime) const
 {
-    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid, difficulty);
-    if (!mapDiff || !mapDiff->RaidDuration)
+    MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mapid, difficulty);
+    if (!mapDiff || !mapDiff->GetRaidDuration())
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::GetSubsequentResetTime: not valid difficulty or no reset delay for map %u", mapid);
         return 0;
     }
 
     time_t diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
-    time_t period = uint32(((mapDiff->RaidDuration * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
+    time_t period = uint32(((mapDiff->GetRaidDuration() * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
     if (period < DAY)
         period = DAY;
 
@@ -501,7 +501,7 @@ void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent ev
 
 void InstanceSaveManager::ForceGlobalReset(uint32 mapId, Difficulty difficulty)
 {
-    if (!GetDownscaledMapDifficultyData(mapId, difficulty))
+    if (!sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty))
         return;
     // remove currently scheduled reset times
     ScheduleReset(false, 0, InstResetEvent(1, mapId, difficulty, 0));
@@ -627,7 +627,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
     if (!mapEntry->Instanceable())
         return;
-    TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->MapName_lang, mapid, uint8(difficulty), warn);
+    TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->MapName->Str[sWorld->GetDefaultDbcLocale()], mapid, uint8(difficulty), warn);
 
     time_t now = time(NULL);
 

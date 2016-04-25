@@ -2132,7 +2132,7 @@ ALTER TABLE `spell_power`
 -- Table structure for table `spell_power_difficulty`
 --
 ALTER TABLE `spell_power_difficulty` DROP PRIMARY KEY;
-ALTER TABLE `spell_power_difficulty` ADD `ID` int(10) unsigned NOT NULL DEFAULT '0' FIRST,
+ALTER TABLE `spell_power_difficulty`
   MODIFY `DifficultyID` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `SpellPowerID`,
   MODIFY `PowerIndex` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `DifficultyID`;
 ALTER TABLE `spell_power_difficulty` ADD PRIMARY KEY (`ID`);

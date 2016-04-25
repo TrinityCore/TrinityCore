@@ -22,7 +22,6 @@
 // For static or at-server-startup loaded spell data
 
 #include "Define.h"
-#include "DBCStructure.h"
 #include "SharedDefines.h"
 #include "Util.h"
 

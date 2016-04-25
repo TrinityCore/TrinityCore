@@ -21,7 +21,6 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "Vehicle.h"
 #include "Player.h"

@@ -1008,14 +1008,14 @@ public:
 
         if (factionEntry->ReputationIndex < 0)
         {
-            handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->Name_lang, factionId);
+            handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->Name->Str[handler->GetSessionDbcLocale()], factionId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         target->GetReputationMgr().SetOneFactionReputation(factionEntry, amount, false);
         target->GetReputationMgr().SendState(target->GetReputationMgr().GetState(factionEntry));
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->Name_lang, factionId,
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->Name->Str[handler->GetSessionDbcLocale()], factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;
     }

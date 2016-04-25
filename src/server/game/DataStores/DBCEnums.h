@@ -57,7 +57,7 @@ enum LevelLimit
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
-    BG_BRACKET_ID_LAST           = 10,
+    BG_BRACKET_ID_LAST           = 11,
 
     // must be max value in PvPDificulty slot + 1
     MAX_BATTLEGROUND_BRACKETS
@@ -411,6 +411,25 @@ enum CriteriaTreeOperator
 {
     CRITERIA_TREE_OPERATOR_ALL  = 4,
     CRITERIA_TREE_OPERATOR_ANY  = 8
+};
+
+enum CharSectionFlags
+{
+    SECTION_FLAG_PLAYER = 0x01,
+    SECTION_FLAG_DEATH_KNIGHT = 0x04,
+    SECTION_FLAG_DEMON_HUNTER = 0x40
+};
+
+enum CharSectionType
+{
+    SECTION_TYPE_SKIN = 0,
+    SECTION_TYPE_FACE = 1,
+    SECTION_TYPE_FACIAL_HAIR = 2,
+    SECTION_TYPE_HAIR = 3,
+    SECTION_TYPE_UNDERWEAR = 4,
+    SECTION_TYPE_CUSTOM_DISPLAY_1 = 10,
+    SECTION_TYPE_CUSTOM_DISPLAY_2 = 12,
+    SECTION_TYPE_CUSTOM_DISPLAY_3 = 14
 };
 
 enum Difficulty : uint8

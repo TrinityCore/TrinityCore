@@ -1243,22 +1243,6 @@ void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::
     _player->GetReputationMgr().SendForceReactions();
 }
 
-void WorldSession::HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet)
-{
-    if (packet.ShowHelm)
-        _player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
-    else
-        _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
-}
-
-void WorldSession::HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet)
-{
-    if (packet.ShowCloak)
-        _player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
-    else
-        _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
-}
-
 void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request)
 {
     if (!IsLegitCharacterForAccount(request.RenameInfo->Guid))
