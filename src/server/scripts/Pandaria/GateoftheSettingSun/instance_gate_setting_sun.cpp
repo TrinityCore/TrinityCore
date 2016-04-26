@@ -349,13 +349,13 @@ public:
         {
             switch (type)
             {
-                case NPC_KIPTILAK:              return kiptilakGuid;
-                case NPC_GADOK:                 return gadokGuid;
-                case NPC_RIMOK:                 return rimokGuid;
-                case NPC_RAIGONN:               return raigonnGuid;
-                case NPC_WEAK_SPOT:             return raigonWeakGuid;
-                case DATA_RANDOM_BOMBARDER:     return Trinity::Containers::SelectRandomContainerElement(bombarderGuids);
-                case DATA_RANDOM_BOMB_STALKER:  return Trinity::Containers::SelectRandomContainerElement(bombStalkerGuids);
+                case NPC_KIPTILAK:              return kiptilakGuid.GetEntry();
+                case NPC_GADOK:                 return gadokGuid.GetEntry();
+                case NPC_RIMOK:                 return rimokGuid.GetEntry();
+                case NPC_RAIGONN:               return raigonnGuid.GetEntry();
+                case NPC_WEAK_SPOT:             return raigonWeakGuid.GetEntry();
+                case DATA_RANDOM_BOMBARDER:     return Trinity::Containers::SelectRandomContainerElement(bombarderGuids).GetEntry();
+                case DATA_RANDOM_BOMB_STALKER:  return Trinity::Containers::SelectRandomContainerElement(bombStalkerGuids).GetEntry();
             }
 
             return 0;
