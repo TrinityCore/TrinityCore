@@ -55,7 +55,7 @@ bool DBUpdaterUtil::CheckExecutable()
             }
         }
 
-        TC_LOG_FATAL("sql.updates", "Didn't find executeable mysql binary at \'%s\' or in path, correct the path in the *.conf (\"Updates.MySqlCLIPath\").",
+        TC_LOG_FATAL("sql.updates", "Didn't find executeable mysql binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
             absolute(exe).generic_string().c_str());
 
         return false;
