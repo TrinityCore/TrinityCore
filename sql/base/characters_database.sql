@@ -1460,7 +1460,6 @@ CREATE TABLE `character_stats` (
   `agility` int(10) unsigned NOT NULL DEFAULT '0',
   `stamina` int(10) unsigned NOT NULL DEFAULT '0',
   `intellect` int(10) unsigned NOT NULL DEFAULT '0',
-  `spirit` int(10) unsigned NOT NULL DEFAULT '0',
   `armor` int(10) unsigned NOT NULL DEFAULT '0',
   `resHoly` int(10) unsigned NOT NULL DEFAULT '0',
   `resFire` int(10) unsigned NOT NULL DEFAULT '0',

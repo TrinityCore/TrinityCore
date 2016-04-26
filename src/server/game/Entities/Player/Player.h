@@ -681,7 +681,7 @@ enum QuestSlotOffsets
 };
 
 #define MAX_QUEST_COUNTS 24
-#define MAX_QUEST_OFFSET 15
+#define MAX_QUEST_OFFSET 16
 
 enum QuestSlotStateMask
 {

@@ -91,7 +91,7 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
 
 bool Player::UpdateStats(Stats stat)
 {
-    if (stat > STAT_SPIRIT)
+    if (stat >= MAX_STATS)
         return false;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
@@ -119,8 +119,6 @@ bool Player::UpdateStats(Stats stat)
         case STAT_INTELLECT:
             UpdateAllSpellCritChances();
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
-            break;
-        case STAT_SPIRIT:
             break;
         default:
             break;
@@ -1023,7 +1021,6 @@ bool Guardian::UpdateStats(Stats stat)
         case STAT_AGILITY:          UpdateArmor();                       break;
         case STAT_STAMINA:          UpdateMaxHealth();                   break;
         case STAT_INTELLECT:        UpdateMaxPower(POWER_MANA);          break;
-        case STAT_SPIRIT:
         default:
             break;
     }
