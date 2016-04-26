@@ -8,7 +8,7 @@ Issues
 ======
 
 Read [this](http://www.trinitycore.org/f/topic/37-the-trinitycore-issuetracker-and-you/) before creating a ticket.  
-If you have problems with TrinityCore instalation, read [this](http://www.trinitycore.org/f/topic/1518-trouble-with-your-trinity-install-readme-1st-faqs/)
+If you have problems with TrinityCore installation, read [this](http://www.trinitycore.org/f/topic/1518-trouble-with-your-trinity-install-readme-1st-faqs/).
 
 Mandatory things when creating a ticket:  
 ========================================
