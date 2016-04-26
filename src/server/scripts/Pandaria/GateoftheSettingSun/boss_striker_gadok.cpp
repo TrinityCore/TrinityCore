@@ -516,7 +516,7 @@ public:
             isAttackerStriker = false;
         }
 
-        void DoAction(int32 action)
+        void DoAction(int32 /*action*/)
         {
             isAttackerStriker = true;
 
