@@ -4216,10 +4216,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     if (unitTarget->HasAura(23445))
         return;
 
-    float x, y, z;
-    m_caster->GetPosition(x, y, z);
-
-    unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
+    unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetWorldLocation());
 
     WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
     data << uint64(m_caster->GetGUID());                    // summoner guid
