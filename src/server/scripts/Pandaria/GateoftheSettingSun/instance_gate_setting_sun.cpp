@@ -340,7 +340,7 @@ public:
         {
             switch (type)
             {
-                case NPC_WEAK_SPOT:     raigonWeakGuid = value;     break;
+                case NPC_WEAK_SPOT:     raigonWeakGuid = GetObjectGuid(value);     break;
                 default:                                            break;
             }
         }

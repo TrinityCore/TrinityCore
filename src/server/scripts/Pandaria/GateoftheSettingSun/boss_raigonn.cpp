@@ -592,7 +592,7 @@ class vehicle_artillery : public VehicleScript
                 launchEventTimer = 0;
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 /*action*/)
             {
                 launchEventTimer = 2500;
             }
