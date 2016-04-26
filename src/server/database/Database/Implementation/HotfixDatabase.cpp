@@ -76,7 +76,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM cinematic_sequences ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CreatureDisplayInfo.db2
-    PrepareStatement(HOTFIX_SEL_CREATURE_DISPLAY_INFO, "SELECT ID, ModelID, SoundID, ExtendedDisplayInfoID, CreatureModelScale, Unknown620, "
+    PrepareStatement(HOTFIX_SEL_CREATURE_DISPLAY_INFO, "SELECT ID, ModelID, SoundID, ExtendedDisplayInfoID, CreatureModelScale, PlayerModelScale, "
         "CreatureModelAlpha, TextureVariation1, TextureVariation2, TextureVariation3, PortraitTextureName, PortraitCreatureDisplayInfoID, SizeClass, "
         "BloodID, NPCSoundID, ParticleColorID, CreatureGeosetData, ObjectEffectPackageID, AnimReplacementSetID, Flags, Gender, StateSpellVisualKitID"
         " FROM creature_display_info ORDER BY ID DESC", CONNECTION_SYNCH);

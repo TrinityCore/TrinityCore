@@ -162,6 +162,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) { }
+        void UpdateCombatResurrection(uint32 /*diff*/);
 
         // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
@@ -245,7 +246,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
+        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 priority = 0);
+        void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
+        void SendEncounterEnd();
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
@@ -253,6 +256,13 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void UpdatePhasing();
 
         uint32 GetEncounterCount() const { return uint32(bosses.size()); }
+
+        void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
+        void AddCombatResurrectionCharge();
+        void UseCombatResurrection();
+        void ResetCombatResurrections();
+        uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
+        uint32 GetCombatResurrectionChargeInterval() const;
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
@@ -297,6 +307,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 _combatResurrectionTimer;
+        uint8 _combatResurrectionCharges; // the counter for available battle resurrections
+        bool _combatResurrectionTimerStarted;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module

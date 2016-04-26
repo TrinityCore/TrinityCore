@@ -164,6 +164,78 @@ namespace WorldPackets
             bool Locked = false;
             bool Extended = false;
         };
+
+        class InstanceEncounterEngageUnit final : public ServerPacket
+        {
+        public:
+            InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 TargetFramePriority = 0; // used to set the initial position of the frame if multiple frames are sent
+        };
+
+        class InstanceEncounterDisengageUnit final : public ServerPacket
+        {
+        public:
+            InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 15) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
+        class InstanceEncounterChangePriority final : public ServerPacket
+        {
+        public:
+            InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 15) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 TargetFramePriority = 0; // used to update the position of the unit's current frame
+        };
+
+        class InstanceEncounterStart final : public ServerPacket
+        {
+        public:
+            InstanceEncounterStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_START, 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 InCombatResCount = 0; // amount of usable battle ressurections
+            uint32 MaxInCombatResCount = 0;
+            uint32 CombatResChargeRecovery = 0;
+            uint32 NextCombatResChargeTime = 0;
+        };
+
+        class InstanceEncounterEnd final : public ServerPacket
+        {
+        public:
+            InstanceEncounterEnd() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_END, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class InstanceEncounterInCombatResurrection final : public ServerPacket
+        {
+        public:
+            InstanceEncounterInCombatResurrection() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class InstanceEncounterGainCombatResurrectionCharge final : public ServerPacket
+        {
+        public:
+            InstanceEncounterGainCombatResurrectionCharge() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 0) { }
+
+            WorldPacket const* Write() override;
+
+            int32 InCombatResCount = 0;
+            uint32 CombatResChargeRecovery = 0;
+        };
     }
 }
 

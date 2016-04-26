@@ -325,86 +325,85 @@ class boss_high_astromancer_solarian : public CreatureScript
                     else
                         Phase1_Timer-=diff;
                 }
-                else
-                    if (Phase == 2)
+                else if (Phase == 2)
+                {
+                    //10 seconds after Solarian disappears, 12 mobs spawn out of the three portals.
+                    me->AttackStop();
+                    me->StopMoving();
+                    if (Phase2_Timer <= diff)
                     {
-                        //10 seconds after Solarian disappears, 12 mobs spawn out of the three portals.
-                        me->AttackStop();
-                        me->StopMoving();
-                        if (Phase2_Timer <= diff)
-                        {
-                            Phase = 3;
-                            for (int i=0; i <= 2; ++i)
-                                for (int j=1; j <= 4; j++)
-                                    SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
+                        Phase = 3;
+                        for (int i=0; i <= 2; ++i)
+                            for (int j=1; j <= 4; j++)
+                                SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
-                            Talk(SAY_SUMMON1);
-                            Phase2_Timer = 10000;
-                        }
-                        else
-                            Phase2_Timer -= diff;
+                        Talk(SAY_SUMMON1);
+                        Phase2_Timer = 10000;
                     }
                     else
-                        if (Phase == 3)
-                        {
-                            me->AttackStop();
-                            me->StopMoving();
-                            //Check Phase3_Timer
-                            if (Phase3_Timer <= diff)
-                            {
-                                Phase = 1;
-                                //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
-                                int i = rand32() % 3;
-                                me->GetMotionMaster()->Clear();
-                                me->SetPosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
+                        Phase2_Timer -= diff;
+                }
+                else if (Phase == 3)
+                {
+                    me->AttackStop();
+                    me->StopMoving();
+                    //Check Phase3_Timer
+                    if (Phase3_Timer <= diff)
+                    {
+                        Phase = 1;
+                        //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
+                        int i = rand32() % 3;
+                        me->GetMotionMaster()->Clear();
+                        me->SetPosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
-                                for (int j=0; j <= 2; j++)
-                                    if (j != i)
-                                        SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
+                        for (int j=0; j <= 2; j++)
+                            if (j != i)
+                                SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetVisible(true);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetVisible(true);
 
-                                Talk(SAY_SUMMON2);
-                                AppearDelay = true;
-                                Phase3_Timer = 15000;
-                            }
-                            else
-                                Phase3_Timer -= diff;
-                        }
-                        else
-                            if (Phase == 4)
-                            {
-                                //Fear_Timer
-                                if (Fear_Timer <= diff)
-                                {
-                                    DoCast(me, SPELL_FEAR);
-                                    Fear_Timer = 20000;
-                                }
-                                else
-                                    Fear_Timer -= diff;
-                                //VoidBolt_Timer
-                                if (VoidBolt_Timer <= diff)
-                                {
-                                    DoCastVictim(SPELL_VOID_BOLT);
-                                    VoidBolt_Timer = 10000;
-                                }
-                                else
-                                    VoidBolt_Timer -= diff;
-                            }
-                            //When Solarian reaches 20% she will transform into a huge void walker.
-                            if (Phase != 4 && me->HealthBelowPct(20))
-                            {
-                                Phase = 4;
-                                //To make sure she wont be invisible or not selecatble
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetVisible(true);
-                                Talk(SAY_VOIDA);
-                                Talk(SAY_VOIDB);
-                                me->SetArmor(WV_ARMOR);
-                                me->SetDisplayId(MODEL_VOIDWALKER);
-                                me->SetObjectScale(defaultsize*2.5f);
-                            }
+                        Talk(SAY_SUMMON2);
+                        AppearDelay = true;
+                        Phase3_Timer = 15000;
+                    }
+                    else
+                        Phase3_Timer -= diff;
+                }
+                else if (Phase == 4)
+                {
+                    //Fear_Timer
+                    if (Fear_Timer <= diff)
+                    {
+                        DoCast(me, SPELL_FEAR);
+                        Fear_Timer = 20000;
+                    }
+                    else
+                        Fear_Timer -= diff;
+                    //VoidBolt_Timer
+                    if (VoidBolt_Timer <= diff)
+                    {
+                        DoCastVictim(SPELL_VOID_BOLT);
+                        VoidBolt_Timer = 10000;
+                    }
+                    else
+                        VoidBolt_Timer -= diff;
+                }
+                
+                //When Solarian reaches 20% she will transform into a huge void walker.
+                if (Phase != 4 && me->HealthBelowPct(20))
+                {
+                    Phase = 4;
+                    //To make sure she wont be invisible or not selecatble
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetVisible(true);
+                    Talk(SAY_VOIDA);
+                    Talk(SAY_VOIDB);
+                    me->SetArmor(WV_ARMOR);
+                    me->SetDisplayId(MODEL_VOIDWALKER);
+                    me->SetObjectScale(defaultsize*2.5f);
+                }
+                
                 DoMeleeAttackIfReady();
             }
         };

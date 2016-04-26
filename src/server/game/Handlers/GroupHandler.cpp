@@ -21,16 +21,16 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
+#include "LootPackets.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
+#include "PartyPackets.h"
 #include "Player.h"
 #include "SocialMgr.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "MiscPackets.h"
-#include "LootPackets.h"
-#include "PartyPackets.h"
 
 class Aura;
 
@@ -398,28 +398,12 @@ void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClien
 
 void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
-    uint32 minimum, maximum, roll;
-    minimum = packet.Min;
-    maximum = packet.Max;
-
     /** error handling **/
-    if (minimum > maximum || maximum > 10000)                // < 32768 for urand call
+    if (packet.Min > packet.Max || packet.Max > 10000)                // < 32768 for urand call
         return;
     /********************/
 
-    // everything's fine, do it
-    roll = urand(minimum, maximum);
-
-    WorldPackets::Misc::RandomRoll randomRoll;
-    randomRoll.Min = minimum;
-    randomRoll.Max = maximum;
-    randomRoll.Result = roll;
-    randomRoll.Roller = GetPlayer()->GetGUID();
-    randomRoll.RollerWowAccount = GetAccountGUID();
-    if (GetPlayer()->GetGroup())
-        GetPlayer()->GetGroup()->BroadcastPacket(randomRoll.Write(), false);
-    else
-        SendPacket(randomRoll.Write());
+    GetPlayer()->DoRandomRoll(packet.Min, packet.Max);
 }
 
 void WorldSession::HandleUpdateRaidTargetOpcode(WorldPackets::Party::UpdateRaidTarget& packet)

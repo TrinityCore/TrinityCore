@@ -33,10 +33,12 @@
 #include "LoginRESTService.h"
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/filesystem/path.hpp>
 #include <google/protobuf/stubs/common.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
+namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_BNET_CONFIG
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
@@ -64,7 +66,7 @@ void StopDB();
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void KeepDatabaseAliveHandler(boost::system::error_code const& error);
 void BanExpiryHandler(boost::system::error_code const& error);
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
 
 static boost::asio::io_service* _ioService;
 static boost::asio::deadline_timer* _dbPingTimer;
@@ -76,7 +78,7 @@ int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
 
-    std::string configFile = _TRINITY_BNET_CONFIG;
+    auto configFile = fs::absolute(_TRINITY_BNET_CONFIG);
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help or version is enabled
@@ -95,7 +97,9 @@ int main(int argc, char** argv)
 #endif
 
     std::string configError;
-    if (!sConfigMgr->LoadInitial(configFile, configError))
+    if (!sConfigMgr->LoadInitial(configFile.generic_string(),
+                                 std::vector<std::string>(argv, argv + argc),
+                                 configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
@@ -106,7 +110,7 @@ int main(int argc, char** argv)
 
     TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
+    TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
@@ -295,7 +299,7 @@ void ServiceStatusWatcher(boost::system::error_code const& error)
 }
 #endif
 
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService)
 {
     (void)configService;
 
@@ -303,7 +307,8 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_BNET_CONFIG), "use <arg> as configuration file")
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_BNET_CONFIG)),
+                     "use <arg> as configuration file")
         ;
 #if PLATFORM == PLATFORM_WINDOWS
     options_description win("Windows platform specific options");
