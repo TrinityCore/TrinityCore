@@ -884,7 +884,6 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetCreateStat(STAT_AGILITY, 22);
         SetCreateStat(STAT_STAMINA, 25);
         SetCreateStat(STAT_INTELLECT, 28);
-        SetCreateStat(STAT_SPIRIT, 27);
     }
 
     SetBonusDamage(0);
