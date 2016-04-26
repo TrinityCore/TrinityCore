@@ -1,1 +1,1 @@
-ALTER TABLE `creature_display_info` CHANGE `Unknown620` `PlayerModelScale` float NOT NULL DEFAULT '0';
+ALTER TABLE `creature_display_info` CHANGE `PlayerModelScale` `Unknown620` float NOT NULL DEFAULT '0';
