@@ -720,7 +720,7 @@ class spell_prey_time : public SpellScriptLoader
                     GetTarget()->CastSpell(GetCaster(), SPELL_RIDE_VEHICLE, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
