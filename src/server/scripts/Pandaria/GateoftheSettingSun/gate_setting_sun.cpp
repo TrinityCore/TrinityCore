@@ -200,7 +200,7 @@ class vehicle_artillery_to_wall : public VehicleScript
                 launchEventTimer = 0;
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 /*action*/)
             {
                 launchEventTimer = 2500;
             }
