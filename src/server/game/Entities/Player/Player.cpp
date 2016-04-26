@@ -23968,7 +23968,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         // farsight dynobj or puppet may be very far away
         UpdateVisibilityOf(target);
 
-        if (target->isType(TYPEMASK_SEER) && target != GetVehicleBase())
+        if (target->isType(TYPEMASK_UNIT | TYPEMASK_PLAYER) && target != GetVehicleBase())
         {
             static_cast<Unit*>(target)->AddPlayerToVision(this);
             SetSeer(target);
