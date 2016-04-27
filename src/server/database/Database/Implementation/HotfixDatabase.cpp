@@ -171,6 +171,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT ID, Name_lang, Name2_lang, Description_lang FROM chr_specialization_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 
+    // CinematicCamera.db2
+    PrepareStatement(HOTFIX_SEL_CINEMATIC_CAMERA, "SELECT ID, Model, OriginX, OriginY, OriginZ, OriginFacing, SoundID FROM cinematic_camera"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CinematicSequences.db2
     PrepareStatement(HOTFIX_SEL_CINEMATIC_SEQUENCES, "SELECT ID, SoundID, Camera1, Camera2, Camera3, Camera4, Camera5, Camera6, Camera7, Camera8"
         " FROM cinematic_sequences ORDER BY ID DESC", CONNECTION_SYNCH);
