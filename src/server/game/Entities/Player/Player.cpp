@@ -23190,10 +23190,27 @@ void Player::UpdateForQuestWorldObjects()
     GetSession()->SendPacket(&packet);
 }
 
-void Player::SetSummonPoint(WorldLocation location)
+void Player::SendSummonRequestFrom(Unit* summoner)
 {
+    if (!summoner)
+        return;
+
+    // Player already has active summon request
+    if (m_summon_expire >= time(nullptr))
+        return;
+
+    // Evil Twin (ignore player summon, but hide this for summoner)
+    if (HasAura(23445))
+        return;
+
     m_summon_expire = time(nullptr) + MAX_PLAYER_SUMMON_DELAY;
-    m_summon_location.WorldRelocate(location);
+    m_summon_location.WorldRelocate(summoner->GetWorldLocation());
+
+    WorldPacket data(SMSG_SUMMON_REQUEST, 8 + 4 + 4);
+    data << uint64(summoner->GetGUID());                     // summoner guid
+    data << uint32(summoner->GetZoneId());                   // summoner zone
+    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
+    GetSession()->SendPacket(&data);
 }
 
 void Player::SummonIfPossible(bool agree)

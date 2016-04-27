@@ -1050,7 +1050,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
-        void SetSummonPoint(WorldLocation location);
+        void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
 
         bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);

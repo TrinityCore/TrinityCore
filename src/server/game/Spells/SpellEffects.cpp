@@ -4212,17 +4212,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    // Evil Twin (ignore player summon, but hide this for summoner)
-    if (unitTarget->HasAura(23445))
-        return;
-
-    unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetWorldLocation());
-
-    WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
-    data << uint64(m_caster->GetGUID());                    // summoner guid
-    data << uint32(m_caster->GetZoneId());                  // summoner zone
-    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
-    unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
+    unitTarget->ToPlayer()->SendSummonRequestFrom(m_caster);
 }
 
 void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
