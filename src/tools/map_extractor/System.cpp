@@ -78,8 +78,20 @@ typedef struct
 
 std::vector<map_id> map_ids;
 std::vector<uint16> LiqType;
+std::set<std::string> CameraFileNames;
 boost::filesystem::path input_path;
 boost::filesystem::path output_path;
+
+struct CinematicCameraMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "sffh";
+        static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
+        static DB2Meta instance(-1, 4, 0xA7B95349, types, arraySizes);
+        return &instance;
+    }
+};
 
 struct LiquidTypeMeta
 {
@@ -110,11 +122,12 @@ enum Extract
 {
     EXTRACT_MAP = 1,
     EXTRACT_DBC = 2,
+    EXTRACT_CAMERA = 4,
     EXTRACT_GT  = 8
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_GT;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -177,7 +190,7 @@ void Usage(char const* prg)
         "%s -[var] [value]\n"\
         "-i set input path\n"\
         "-o set output path\n"\
-        "-e extract only MAP(1)/DBC(2)/gt(8) - standard: all(11)\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
@@ -190,10 +203,10 @@ void HandleArgs(int argc, char* arg[])
     {
         // i - input path
         // o - output path
-        // e - extract only MAP(1)/DBC(2) - standard both(3)
+        // e - extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)
         // f - use float to int conversion
         // h - limit minimum height
-        // b - target client build
+        // l - dbc locale
         if (arg[c][0] != '-')
             Usage(arg[0]);
 
@@ -294,7 +307,7 @@ uint32 ReadBuild(int locale)
 
 void ReadMapDBC()
 {
-    printf("Read Map.dbc file... ");
+    printf("Read Map.db2 file...\n");
 
     CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, true);
     if (!dbcFile)
@@ -350,7 +363,7 @@ void ReadMapDBC()
 
 void ReadLiquidTypeTableDBC()
 {
-    printf("Read LiquidType.dbc file...");
+    printf("Read LiquidType.db2 file...\n");
     CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, true);
     if (!dbcFile)
     {
@@ -381,6 +394,38 @@ void ReadLiquidTypeTableDBC()
         LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
 
     printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
+}
+
+bool ReadCinematicCameraDBC()
+{
+    printf("Read CinematicCamera.db2 file...\n");
+
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\CinematicCamera.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
+    {
+        printf("Unable to open CinematicCamera.db2. Camera extract aborted.\n");
+        return false;
+    }
+
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, CinematicCameraMeta::Instance()))
+    {
+        printf("Invalid CinematicCamera.db2 file format. Camera extract aborted. %s\n", HumanReadableCASCError(GetLastError()));
+        return false;
+    }
+
+    // get camera file list from DB2
+    for (size_t i = 0; i < db2.GetNumRows(); ++i)
+    {
+        std::string camFile(db2.getRecord(i).getString(0, 0));
+        size_t loc = camFile.find(".mdx");
+        if (loc != std::string::npos)
+            camFile.replace(loc, 4, ".m2");
+        CameraFileNames.insert(camFile);
+    }
+
+    printf("Done! (" SZFMTD " CinematicCameras loaded)\n", CameraFileNames.size());
+    return true;
 }
 
 //
@@ -1192,6 +1237,38 @@ void ExtractDBFilesClient(int l)
     printf("Extracted %u files\n\n", count);
 }
 
+void ExtractCameraFiles()
+{
+    printf("Extracting camera files...\n");
+
+    if (!ReadCinematicCameraDBC())
+        return;
+
+    boost::filesystem::path outputPath = output_path / "cameras";
+
+    CreateDir(outputPath);
+
+    printf("output path %s\n", outputPath.string().c_str());
+
+    // extract M2s
+    uint32 count = 0;
+    for (std::string const& cameraFileName : CameraFileNames)
+    {
+        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, cameraFileName.c_str(), CASC_LOCALE_NONE))
+        {
+            boost::filesystem::path filePath = outputPath / GetCascFilenamePart(cameraFileName.c_str());
+
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
+                    ++count;
+        }
+        else
+            printf("Unable to open file %s in the archive: %s\n", cameraFileName.c_str(), HumanReadableCASCError(GetLastError()));
+    }
+
+    printf("Extracted %u camera files\n", count);
+}
+
 void ExtractGameTables()
 {
     printf("Extracting game tables...\n");
@@ -1341,6 +1418,13 @@ int main(int argc, char * arg[])
     {
         printf("No locales detected\n");
         return 0;
+    }
+
+    if (CONF_extract & EXTRACT_CAMERA)
+    {
+        OpenCascStorage(FirstLocale);
+        ExtractCameraFiles();
+        CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_GT)
