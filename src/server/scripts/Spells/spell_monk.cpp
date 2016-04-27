@@ -59,9 +59,8 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
         {
             if (GetCaster())
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA, true);
-                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA, true, NULL, aurEff);
-                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC, true);
+                GetCaster()->CastSpell(GetUnitOwner(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_AURA, true);
+                GetCaster()->CastSpell(GetUnitOwner(), SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC, true);
             }
         }
 
