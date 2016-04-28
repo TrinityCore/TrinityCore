@@ -20,10 +20,11 @@
  * Scriptnames of files in this file should be prefixed with "spell_monk_".
  */
 
-#include "SpellScript.h"
 #include "ScriptMgr.h"
-#include "Unit.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Unit.h"
 
 enum MonkSpells
 {
