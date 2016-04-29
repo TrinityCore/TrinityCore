@@ -1617,66 +1617,7 @@ void SpellMgr::LoadSpellLearnSpells()
         ++dbc_count;
     }
 
-    uint32 mastery_count = 0;
-    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
-    {
-        ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i);
-        if (!chrSpec)
-            continue;
-
-        if (chrSpec->ClassID >= MAX_CLASSES)
-            continue;
-
-        uint32 masteryMainSpell = MasterySpells[chrSpec->ClassID];
-
-        for (uint32 m = 0; m < MAX_MASTERY_SPELLS; ++m)
-        {
-            uint32 mastery = chrSpec->MasterySpellID[m];
-            if (!mastery)
-                continue;
-
-            SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(masteryMainSpell);
-            bool found = false;
-            for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
-            {
-                if (itr->second.Spell == mastery)
-                {
-                    TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically as mastery learned spell from ChrSpecialization.dbc", masteryMainSpell, mastery);
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found)
-                continue;
-
-            // Check if it is already found in Spell.dbc, ignore silently if yes
-            SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(masteryMainSpell);
-            found = false;
-            for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
-            {
-                if (itr->second.Spell == mastery)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found)
-                continue;
-
-            SpellLearnSpellNode masteryNode;
-            masteryNode.Spell       = mastery;
-            masteryNode.OverridesSpell = 0;
-            masteryNode.Active      = true;
-            masteryNode.AutoLearned = false;
-
-            mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(masteryMainSpell, masteryNode));
-            ++mastery_count;
-        }
-    }
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell learn spells, %u found in Spell.dbc and %u from TalentTab.dbc in %u ms", count, dbc_count, mastery_count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u spell learn spells, %u found in Spell.dbc in %u ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellTargetPositions()

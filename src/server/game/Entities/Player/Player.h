@@ -116,8 +116,6 @@ struct PlayerSpell
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
 
-TC_GAME_API extern uint32 const MasterySpells[MAX_CLASSES];
-
 enum TalentSpecialization // talent tabs
 {
     TALENT_SPEC_MAGE_ARCANE             = 62,
