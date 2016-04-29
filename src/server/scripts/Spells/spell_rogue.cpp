@@ -53,7 +53,8 @@ enum RogueSpells
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
+    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
 };
 
 enum RogueSpellIcons
@@ -944,6 +945,68 @@ public:
     }
 };
 
+// 2098 - Eviscerate
+class spell_rog_eviscerate : public SpellScriptLoader
+{
+public:
+    spell_rog_eviscerate() : SpellScriptLoader("spell_rog_eviscerate") { }
+
+    class spell_rog_eviscerate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_eviscerate_SpellScript);
+
+        void CalculateDamage(SpellEffIndex /*effIndex*/)
+        {
+            int32 damagePerCombo = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.559f);
+            if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
+                damagePerCombo += t5->GetAmount();
+
+            SetEffectValue(GetEffectValue() + damagePerCombo * GetCaster()->GetPower(POWER_COMBO_POINTS));
+        }
+
+        void Register() override
+        {
+            OnEffectLaunchTarget += SpellEffectFn(spell_rog_eviscerate_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_eviscerate_SpellScript();
+    }
+};
+
+// 32645 - Envenom
+class spell_rog_envenom : public SpellScriptLoader
+{
+public:
+    spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
+
+    class spell_rog_envenom_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_envenom_SpellScript);
+
+        void CalculateDamage(SpellEffIndex /*effIndex*/)
+        {
+            int32 damagePerCombo = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.417f);
+            if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
+                damagePerCombo += t5->GetAmount();
+
+            SetEffectValue(GetEffectValue() + damagePerCombo * GetCaster()->GetPower(POWER_COMBO_POINTS));
+        }
+
+        void Register() override
+        {
+            OnEffectLaunchTarget += SpellEffectFn(spell_rog_envenom_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_envenom_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -963,4 +1026,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
     new spell_rog_honor_among_thieves();
+    new spell_rog_eviscerate();
+    new spell_rog_envenom();
 }
