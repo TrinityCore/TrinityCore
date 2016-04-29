@@ -420,8 +420,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
     if (mode >= PET_SAVE_AS_CURRENT)
     {
         ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
-        std::string name = m_name;
-        CharacterDatabase.EscapeString(name);
         trans = CharacterDatabase.BeginTransaction();
         // remove current data
 
@@ -450,35 +448,26 @@ void Pet::SavePetToDB(PetSaveMode mode)
         }
 
         // save pet
-        std::ostringstream ss;
-        ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType) "
-            << "VALUES ("
-            << m_charmInfo->GetPetNumber() << ','
-            << GetEntry() << ','
-            << ownerLowGUID << ','
-            << GetNativeDisplayId() << ','
-            << uint32(getLevel()) << ','
-            << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ','
-            << uint32(GetReactState()) << ','
-            << uint32(mode) << ", '"
-            << name.c_str() << "', "
-            << uint32(HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1) << ','
-            << curhealth << ','
-            << curmana << ','
-            << GetPower(POWER_HAPPINESS) << ", '";
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
+        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+        stmt->setUInt32(1, GetEntry());
+        stmt->setUInt32(2, ownerLowGUID);
+        stmt->setUInt32(3, GetNativeDisplayId());
+        stmt->setUInt8(4, getLevel());
+        stmt->setUInt32(5, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->setUInt8(6, GetReactState());
+        stmt->setUInt8(7, mode);
+        stmt->setString(8, m_name);
+        stmt->setUInt8(9, HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1);
+        stmt->setUInt32(10, curhealth);
+        stmt->setUInt32(11, curmana);
+        stmt->setUInt32(12, GetPower(POWER_HAPPINESS));
+        stmt->setString(13, GenerateActionBarData());
+        stmt->setUInt32(14, time(nullptr));
+        stmt->setUInt32(15, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt8(16, getPetType());
+        trans->Append(stmt);
 
-        for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
-        {
-            ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
-               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
-        };
-
-        ss  << "', "
-            << time(NULL) << ','
-            << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ','
-            << uint32(getPetType()) << ')';
-
-        trans->Append(ss.str().c_str());
         CharacterDatabase.CommitTransaction(trans);
     }
     // delete
@@ -1560,7 +1549,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     }
 
     // if remove last rank or non-ranked then update action bar at server and client if need
-    if (clear_ab && !learn_prev && m_charmInfo->RemoveSpellFromActionBar(spell_id))
+    if (m_charmInfo->RemoveSpellFromActionBar(spell_id) && !learn_prev && clear_ab)
     {
         if (!m_loading)
             GetOwner()->PetSpellInitialize(); // need update action bar for last removed rank
@@ -1978,4 +1967,17 @@ void Pet::SetDisplayId(uint32 modelId)
 
     if (GetOwner()->GetGroup())
         GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+}
+
+std::string Pet::GenerateActionBarData() const
+{
+    std::ostringstream oss;
+
+    for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
+    {
+        oss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
+            << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
+    }
+
+    return oss.str();
 }
