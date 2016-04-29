@@ -38,6 +38,9 @@ enum PetStableinfo
     PET_STABLE_INACTIVE = 2
 };
 
+// there are 3 specs, but each spec has an Adaptation variant
+#define MAX_PET_SPECIALIZATIONS 6
+
 enum PetTalents
 {
     TALENT_SPEC_PET_FEROCITY                = 74,
@@ -142,6 +145,8 @@ class TC_GAME_API Pet : public Guardian
 
         uint32 GetSpecialization() { return m_petSpecialization; }
         void SetSpecialization(uint32 spec);
+        void LearnSpecializationSpells();
+        void RemoveSpecializationSpells();
 
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag);

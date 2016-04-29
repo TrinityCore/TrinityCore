@@ -1761,8 +1761,46 @@ void Pet::ResetGroupUpdateFlag()
         GetOwner()->RemoveGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
 }
 
+void Pet::LearnSpecializationSpells()
+{
+    if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(m_petSpecialization))
+    {
+        for (size_t j = 0; j < specSpells->size(); ++j)
+        {
+            SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
+            if (!spellInfo || spellInfo->SpellLevel > getLevel())
+                continue;
+
+            learnSpell(specSpell->SpellID);
+        }
+    }
+}
+
+void Pet::RemoveSpecializationSpells()
+{
+    for (uint32 i = 0; i < MAX_PET_SPECIALIZATIONS; ++i)
+    {
+        // pets have class id 0 in ChrSpecialization.dbc
+        if (ChrSpecializationEntry const* specialization = sChrSpecializationByIndexStore[0][i])
+        {
+            if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
+            {
+                for (size_t j = 0; j < specSpells->size(); ++j)
+                {
+                    SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+                    unlearnSpell(specSpell->SpellID, true);
+                }
+            }
+        }
+    }
+}
+
 void Pet::SetSpecialization(uint32 spec)
 {
+    // clear spec spells before switching specs
+    RemoveSpecializationSpells();
+    
     // 152244 - Hunter talent 'Adaptation'
     // if the player has this talent, the pet's spec will be different
     bool adaptation = GetOwner()->HasSpell(152244);
@@ -1780,5 +1818,7 @@ void Pet::SetSpecialization(uint32 spec)
             break;
     }
 
+    // now that we've switched specs, learn the new spec's spells
+    LearnSpecializationSpells();
     return;
 }

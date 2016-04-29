@@ -240,7 +240,7 @@ namespace WorldPackets
         class SetPetSpecialization final : public ServerPacket
         {
         public:
-            SetPetSpecialization() : ServerPacket(SMSG_SET_PET_SPECIALIZATION, 18 + 4 + 2 + 1 + 5 * 2 + 2) { }
+            SetPetSpecialization() : ServerPacket(SMSG_SET_PET_SPECIALIZATION, 2) { }
 
             WorldPacket const* Write() override;
 
