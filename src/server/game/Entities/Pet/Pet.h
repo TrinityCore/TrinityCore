@@ -130,16 +130,6 @@ class TC_GAME_API Pet : public Guardian
 
         void InitPetCreateSpells();
 
-        bool resetTalents();
-        static void resetTalentsForAllPetsOf(Player* owner, Pet* online_pet = nullptr);
-        void InitTalentForLevel();
-
-        uint8 GetMaxTalentPointsForLevel(uint8 level) const;
-        uint8 GetFreeTalentPoints() const { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
-        void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
-
-        uint32  m_usedTalentCount;
-
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag);
         void ResetGroupUpdateFlag();
@@ -158,6 +148,8 @@ class TC_GAME_API Pet : public Guardian
         uint32  m_groupUpdateMask;
 
         DeclinedName *m_declinedname;
+
+        uint32 m_petSpecialization;
 
     private:
         void SaveToDB(uint32, uint32, uint32) override               // override of Creature::SaveToDB     - must not be called

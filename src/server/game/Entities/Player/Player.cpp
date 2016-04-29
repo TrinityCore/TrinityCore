@@ -25999,7 +25999,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         case SUMMON_PET:
             pet->InitPetCreateSpells();
-            pet->InitTalentForLevel();
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             PetSpellInitialize();
             break;

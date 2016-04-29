@@ -2619,7 +2619,8 @@ void AuraEffect::HandleAuraUntrackable(AuraApplication const* aurApp, uint8 mode
 
 void AuraEffect::HandleAuraModPetTalentsPoints(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
+    // TODO: Is this still used in 6.x?
+    /*if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
 
     Unit* target = aurApp->GetTarget();
@@ -2629,7 +2630,7 @@ void AuraEffect::HandleAuraModPetTalentsPoints(AuraApplication const* aurApp, ui
 
     // Recalculate pet talent points
     if (Pet* pet = target->ToPlayer()->GetPet())
-        pet->InitTalentForLevel();
+        pet->InitTalentForLevel();*/
 }
 
 void AuraEffect::HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const
