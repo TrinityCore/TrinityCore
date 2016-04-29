@@ -185,3 +185,16 @@ void WorldPackets::Pet::PetCancelAura::Read()
     _worldPacket >> PetGUID;
     _worldPacket >> SpellID;
 }
+
+void WorldPackets::Pet::LearnPetSpecializationGroup::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpecGroupIndex;
+}
+
+WorldPacket const* WorldPackets::Pet::SetPetSpecialization::Write()
+{
+    _worldPacket << uint16(SpecID);
+
+    return &_worldPacket;
+}
