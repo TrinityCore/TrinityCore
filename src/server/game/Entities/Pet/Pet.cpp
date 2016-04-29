@@ -1760,3 +1760,25 @@ void Pet::ResetGroupUpdateFlag()
     if (GetOwner()->GetGroup())
         GetOwner()->RemoveGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
 }
+
+void Pet::SetSpecialization(uint32 spec)
+{
+    // 152244 - Hunter talent 'Adaptation'
+    // if the player has this talent, the pet's spec will be different
+    bool adaptation = GetOwner()->HasSpell(152244);
+
+    switch (spec)
+    {
+        case TALENT_SPEC_PET_FEROCITY:
+            m_petSpecialization = adaptation ? TALENT_SPEC_PET_FEROCIOUS_ADAPTATION : TALENT_SPEC_PET_FEROCITY;
+            break;
+        case TALENT_SPEC_PET_CUNNING:
+            m_petSpecialization = adaptation ? TALENT_SPEC_PET_CUNNING_ADAPTATION : TALENT_SPEC_PET_CUNNING;
+            break;
+        case TALENT_SPEC_PET_TENACITY:
+            m_petSpecialization = adaptation ? TALENT_SPEC_PET_TENACIOUS_ADAPTATION : TALENT_SPEC_PET_TENACITY;
+            break;
+    }
+
+    return;
+}

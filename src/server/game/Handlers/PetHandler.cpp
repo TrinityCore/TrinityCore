@@ -722,3 +722,35 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
     SendPacket(petNameInvalid.Write());
 }
+
+void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& packet)
+{
+    if (!_player->IsInWorld())
+        return;
+
+    Pet* pet = ObjectAccessor::GetPet(*_player, packet.PetGUID);
+
+    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
+        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
+        return;
+
+    switch (packet.SpecGroupIndex)
+    {
+        case 0:
+            pet->SetSpecialization(TALENT_SPEC_PET_FEROCITY);
+            break;
+        case 1:
+            pet->SetSpecialization(TALENT_SPEC_PET_TENACITY);
+            break;
+        case 2:
+            pet->SetSpecialization(TALENT_SPEC_PET_CUNNING);
+            break;
+        default:
+            TC_LOG_ERROR("network", "WorldSession::HandlePetSetSpecializationOpcode: Invalid SpecGroupIndex (%d) supplied.", packet.SpecGroupIndex);
+            return;
+    }
+
+    WorldPackets::Pet::SetPetSpecialization setPetSpecialization;
+    setPetSpecialization.SpecID = pet->GetSpecialization();
+    SendPacket(setPetSpecialization.Write());
+}
