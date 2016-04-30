@@ -235,7 +235,7 @@ extern int main(int argc, char** argv)
         return false;
     }
 
-    sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort, networkThreads);
+    sWorldSocketMgr->StartNetwork(_ioService, worldListener, worldPort, networkThreads);
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
@@ -270,7 +270,7 @@ extern int main(int argc, char** argv)
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();
 
-    sWorldSocketMgr.StopNetwork();
+    sWorldSocketMgr->StopNetwork();
 
     sInstanceSaveMgr->Unload();
     sOutdoorPvPMgr->Die();
