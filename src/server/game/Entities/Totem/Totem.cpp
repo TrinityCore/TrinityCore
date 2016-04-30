@@ -90,9 +90,6 @@ void Totem::InitSummon()
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
         CastSpell(this, GetSpell(1), true);
-
-    if (m_Properties->ID == SUMMON_TYPE_TOTEM_FIRE && GetOwner()->HasAura(SPELL_TOTEMIC_WRATH_TALENT))
-        CastSpell(this, SPELL_TOTEMIC_WRATH, true);
 }
 
 void Totem::UnSummon(uint32 msTime)
