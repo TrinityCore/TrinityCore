@@ -247,7 +247,6 @@ Unit::Unit(bool isWorldObject) :
         m_createStats[i] = 0.0f;
 
     m_attacking = nullptr;
-    m_shouldReacquireTarget = false;
     m_modMeleeHitChance = 0.0f;
     m_modRangedHitChance = 0.0f;
     m_modSpellHitChance = 0.0f;
@@ -8557,12 +8556,6 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     // remove SPELL_AURA_MOD_UNATTACKABLE at attack (in case non-interruptible spells stun aura applied also that not let attack)
     if (HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         RemoveAurasByType(SPELL_AURA_MOD_UNATTACKABLE);
-
-    if (m_shouldReacquireTarget)
-    {
-        SetTarget(victim->GetGUID());
-        m_shouldReacquireTarget = false;
-    }
 
     if (m_attacking)
     {

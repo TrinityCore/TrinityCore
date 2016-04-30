@@ -3209,10 +3209,7 @@ void Spell::cast(bool skipCheck)
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
             if (WorldObject* objTarget = m_targets.GetObjectTarget())
-            {
                 m_caster->SetInFront(objTarget);
-                m_caster->SetFacingToObject(objTarget);
-            }
 
     SelectSpellTargets();
 
