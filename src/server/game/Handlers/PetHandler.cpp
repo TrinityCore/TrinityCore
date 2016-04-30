@@ -737,13 +737,19 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
     switch (packet.SpecGroupIndex)
     {
         case 0:
+            pet->RemoveSpecializationSpells();
             pet->SetSpecialization(TALENT_SPEC_PET_FEROCITY);
+            pet->LearnSpecializationSpells();
             break;
         case 1:
+            pet->RemoveSpecializationSpells();
             pet->SetSpecialization(TALENT_SPEC_PET_TENACITY);
+            pet->LearnSpecializationSpells();
             break;
         case 2:
+            pet->RemoveSpecializationSpells();
             pet->SetSpecialization(TALENT_SPEC_PET_CUNNING);
+            pet->LearnSpecializationSpells();
             break;
         default:
             TC_LOG_ERROR("network", "WorldSession::HandlePetSetSpecializationOpcode: Invalid SpecGroupIndex (%d) supplied.", packet.SpecGroupIndex);

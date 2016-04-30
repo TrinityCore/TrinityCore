@@ -335,8 +335,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
 
-    // TODO: 6.x remove/update pet talents
-    //owner->SendTalentsInfoData(true);
+    m_petSpecialization = fields[14].GetInt16();
 
     if (getPetType() == HUNTER_PET)
     {
@@ -1797,12 +1796,9 @@ void Pet::RemoveSpecializationSpells()
 }
 
 void Pet::SetSpecialization(uint32 spec)
-{
-    // clear spec spells before switching specs
-    RemoveSpecializationSpells();
-    
+{    
     // 152244 - Hunter talent 'Adaptation'
-    // if the player has this talent, the pet's spec will be different
+    // if the player has this talent, the pet's spec will be 'apapted' and have a different id 
     bool adaptation = GetOwner()->HasSpell(152244);
 
     switch (spec)
@@ -1818,7 +1814,5 @@ void Pet::SetSpecialization(uint32 spec)
             break;
     }
 
-    // now that we've switched specs, learn the new spec's spells
-    LearnSpecializationSpells();
     return;
 }
