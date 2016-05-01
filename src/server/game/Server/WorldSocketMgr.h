@@ -35,7 +35,7 @@ class TC_GAME_API WorldSocketMgr : public SocketMgr<WorldSocket>
     typedef SocketMgr<WorldSocket> BaseSocketMgr;
 
 public:
-    static WorldSocketMgr& Instance();
+    static WorldSocketMgr* instance();
 
     /// Start network, listen at address:port .
     bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int networkThreads) override;
@@ -56,7 +56,7 @@ private:
     bool _tcpNoDelay;
 };
 
-#define sWorldSocketMgr WorldSocketMgr::Instance()
+#define sWorldSocketMgr WorldSocketMgr::instance()
 
 #endif
 /// @}

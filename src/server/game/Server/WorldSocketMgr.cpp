@@ -26,7 +26,7 @@
 
 static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
 {
-    sWorldSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    sWorldSocketMgr->OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
 }
 
 class WorldSocketThread : public NetworkThread<WorldSocket>
@@ -47,10 +47,10 @@ WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSendBufferSize(-1), m
 {
 }
 
-WorldSocketMgr& WorldSocketMgr::Instance()
+WorldSocketMgr* WorldSocketMgr::instance()
 {
     static WorldSocketMgr instance;
-    return instance;
+    return &instance;
 }
 
 bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
