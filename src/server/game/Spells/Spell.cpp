@@ -5324,6 +5324,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
                     return SPELL_FAILED_BAD_TARGETS;
 
+                if (target->HasSummonPending())
+                    return SPELL_FAILED_SUMMON_PENDING;
+
                 // check if our map is dungeon
                 MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
                 if (map->IsDungeon())
