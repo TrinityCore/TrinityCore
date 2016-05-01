@@ -1076,9 +1076,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->ContinueTaxiFlight();
 
     // reset for all pets before pet loading
-    /*if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        // TODO 6.x: When the AT_LOGIN_RESET_PET_TALENTS flag is set, reset the pet's specialization
-        Pet::resetTalentsForAllPetsOf(pCurrChar);*/
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        Pet::ResetSpecializationForAllPetsOf(pCurrChar);
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();

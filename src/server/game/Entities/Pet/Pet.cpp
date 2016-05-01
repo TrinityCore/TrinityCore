@@ -1812,7 +1812,92 @@ void Pet::SetSpecialization(uint32 spec)
         case TALENT_SPEC_PET_TENACITY:
             m_petSpecialization = adaptation ? TALENT_SPEC_PET_TENACIOUS_ADAPTATION : TALENT_SPEC_PET_TENACITY;
             break;
+        default:
+            m_petSpecialization = spec;
+            break;
     }
 
     return;
+}
+
+void Pet::ResetSpecializationForAllPetsOf(Player* owner, Pet* onlinePet /*= NULL*/)
+{
+    // spec. will be reset after this call, so we should remove the flag first
+    if (owner->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        owner->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS, true);
+
+    // if an online pet is supplied, reset its talents
+    if (onlinePet)
+    {
+        onlinePet->RemoveSpecializationSpells();
+        onlinePet->SetSpecialization(0);
+    }
+
+    // reset all of the player's offline pets' specs
+    uint32 exceptPetNumber = onlinePet ? onlinePet->GetCharmInfo()->GetPetNumber() : 0;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET);
+    stmt->setUInt64(0, owner->GetGUID().GetCounter());
+    stmt->setUInt32(1, exceptPetNumber);
+    PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);
+
+    // no offline pets
+    if (!resultPets)
+        return;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_LIST);
+    stmt->setUInt64(0, owner->GetGUID().GetCounter());
+    stmt->setUInt32(1, exceptPetNumber);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return;
+
+    bool need_comma = false;
+    std::ostringstream ssSpells;
+    std::ostringstream ssPets;
+    ssSpells << "DELETE FROM pet_spell WHERE guid IN (";
+    ssPets << "UPDATE character_pet SET specialization=0 WHERE guid in (";
+
+    do
+    {
+        Field* fields = resultPets->Fetch();
+        uint32 id = fields[0].GetUInt32();
+        if (need_comma)
+        {
+            ssSpells << ',';
+            ssPets << ',';
+        }
+
+        ssSpells << id;
+        ssPets << id;
+        need_comma = true;
+    } while (resultPets->NextRow());
+
+    ssSpells << ") AND spell IN (";
+    bool need_execute = false;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 spell = fields[0].GetUInt32();
+
+        // Don't remove the spell if it is not associated with a spec
+        if (!sDB2Manager.GetSpecFromSpellId(spell))
+            continue;
+
+        if (need_execute)
+            ssSpells << ',';
+
+        ssSpells << spell;
+        need_execute = true;
+    } while (result->NextRow());
+
+    if (!need_execute)
+        return;
+
+    ssSpells << ')';
+    ssPets << ')';
+    CharacterDatabase.Execute(ssSpells.str().c_str());
+    CharacterDatabase.Execute(ssPets.str().c_str());
 }

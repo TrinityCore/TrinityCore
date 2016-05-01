@@ -193,6 +193,8 @@ public:
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
     bool IsToyItem(uint32 toy) const;
+    // Returns the specialization id of a given spell or 0 if the spell is not associated with a specialization
+    uint32 GetSpecFromSpellId(uint32 spell) const;
 
 private:
     StorageMap _stores;
@@ -219,6 +221,7 @@ private:
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
     ToyItemIdsContainer _toys;
+    std::unordered_map<uint32, uint32> _specIdBySpell;
 };
 
 #define sDB2Manager DB2Manager::Instance()

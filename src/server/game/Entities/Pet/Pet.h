@@ -147,6 +147,7 @@ class TC_GAME_API Pet : public Guardian
         void SetSpecialization(uint32 spec);
         void LearnSpecializationSpells();
         void RemoveSpecializationSpells();
+        static void ResetSpecializationForAllPetsOf(Player* owner, Pet* online_pet = nullptr);
 
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag);
