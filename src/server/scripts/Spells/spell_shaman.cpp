@@ -125,7 +125,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_chain_heal_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_HIGH_TIDE))
                     return false;
