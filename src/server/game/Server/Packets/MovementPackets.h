@@ -448,6 +448,19 @@ namespace WorldPackets
             MovementInfo movementInfo;
             int32 SplineID = 0;
         };
+
+        class SummonRequest final : public ServerPacket
+        {
+        public:
+            SummonRequest() : ServerPacket(SMSG_SUMMON_REQUEST, 16 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SummonerGUID;
+            uint32 SummonerVirtualRealmAddress = 0;
+            int32 AreaID = 0;
+            bool SkipStartingArea = false;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
