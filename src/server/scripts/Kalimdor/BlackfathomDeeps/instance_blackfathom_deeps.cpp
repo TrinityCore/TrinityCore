@@ -174,7 +174,7 @@ public:
                     if (state == DONE)
                         if (GameObject* go = instance->GetGameObject(shrineOfGelihastGUID))
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        break;
+                    break;
                 case DATA_AKU_MAI:
                     if (state == DONE)
                         if (GameObject* go = instance->GetGameObject(altarOfTheDeepsGUID))

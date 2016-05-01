@@ -542,6 +542,7 @@ public:
         npc_earthen_ring_flamecallerAI(Creature* creature) : ScriptedAI(creature)
         {
             _instance = me->GetInstanceScript();
+            _mySpot = 0;
         }
 
         void Reset() override
