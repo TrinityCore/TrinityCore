@@ -113,8 +113,8 @@ DB2Storage<SpellDurationEntry>                  sSpellDurationStore("SpellDurati
 DB2Storage<SpellItemEnchantmentConditionEntry>  sSpellItemEnchantmentConditionStore("SpellItemEnchantmentCondition.db2", SpellItemEnchantmentConditionFormat, HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT_CONDITION);
 DB2Storage<SpellLearnSpellEntry>                sSpellLearnSpellStore("SpellLearnSpell.db2", SpellLearnSpellFormat, HOTFIX_SEL_SPELL_LEARN_SPELL);
 DB2Storage<SpellMiscEntry>                      sSpellMiscStore("SpellMisc.db2", SpellMiscFormat, HOTFIX_SEL_SPELL_MISC);
-DB2Storage<SpellPowerDifficultyEntry>           sSpellPowerDifficultyStore("SpellPowerDifficulty.db2", SpellPowerDifficultyFormat, HOTFIX_SEL_SPELL_POWER_DIFFICULTY);
 DB2Storage<SpellPowerEntry>                     sSpellPowerStore("SpellPower.db2", SpellPowerFormat, HOTFIX_SEL_SPELL_POWER);
+DB2Storage<SpellPowerDifficultyEntry>           sSpellPowerDifficultyStore("SpellPowerDifficulty.db2", SpellPowerDifficultyFormat, HOTFIX_SEL_SPELL_POWER_DIFFICULTY);
 DB2Storage<SpellRadiusEntry>                    sSpellRadiusStore("SpellRadius.db2", SpellRadiusFormat, HOTFIX_SEL_SPELL_RADIUS);
 DB2Storage<SpellRangeEntry>                     sSpellRangeStore("SpellRange.db2", SpellRangeFormat, HOTFIX_SEL_SPELL_RANGE);
 DB2Storage<SpellReagentsEntry>                  sSpellReagentsStore("SpellReagents.db2", SpellReagentsFormat, HOTFIX_SEL_SPELL_REAGENTS);
@@ -293,8 +293,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sSpellItemEnchantmentConditionStore);
     LOAD_DB2(sSpellLearnSpellStore);
     LOAD_DB2(sSpellMiscStore);
-    LOAD_DB2(sSpellPowerDifficultyStore);
     LOAD_DB2(sSpellPowerStore);
+    LOAD_DB2(sSpellPowerDifficultyStore);
     LOAD_DB2(sSpellRadiusStore);
     LOAD_DB2(sSpellRangeStore);
     LOAD_DB2(sSpellReagentsStore);
