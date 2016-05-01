@@ -280,20 +280,10 @@ Player::Player(WorldSession* session) : Unit(true)
 
     // Player summoning
     m_summon_expire = 0;
-    m_summon_mapid = 0;
-    m_summon_x = 0.0f;
-    m_summon_y = 0.0f;
-    m_summon_z = 0.0f;
 
     m_mover = this;
     m_movedPlayer = this;
     m_seer = this;
-
-    m_recallMap = 0;
-    m_recallX = 0;
-    m_recallY = 0;
-    m_recallZ = 0;
-    m_recallO = 0;
 
     m_homebindMapId = 0;
     m_homebindAreaId = 0;
@@ -5814,15 +5804,6 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     CheckAreaExploreAndOutdoor();
 
     return true;
-}
-
-void Player::SaveRecallPosition()
-{
-    m_recallMap = GetMapId();
-    m_recallX = GetPositionX();
-    m_recallY = GetPositionY();
-    m_recallZ = GetPositionZ();
-    m_recallO = GetOrientation();
 }
 
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self)
@@ -23129,13 +23110,32 @@ void Player::UpdateForQuestWorldObjects()
     GetSession()->SendPacket(&packet);
 }
 
-void Player::SetSummonPoint(uint32 mapid, float x, float y, float z)
+bool Player::HasSummonPending() const
 {
+    return m_summon_expire >= time(nullptr);
+}
+
+void Player::SendSummonRequestFrom(Unit* summoner)
+{
+    if (!summoner)
+        return;
+
+    // Player already has active summon request
+    if (HasSummonPending())
+        return;
+
+    // Evil Twin (ignore player summon, but hide this for summoner)
+    if (HasAura(23445))
+        return;
+
     m_summon_expire = time(nullptr) + MAX_PLAYER_SUMMON_DELAY;
-    m_summon_mapid = mapid;
-    m_summon_x = x;
-    m_summon_y = y;
-    m_summon_z = z;
+    m_summon_location.WorldRelocate(*summoner);
+
+    WorldPackets::Movement::SummonRequest summonRequest;
+    summonRequest.SummonerGUID = summoner->GetGUID();
+    summonRequest.SummonerVirtualRealmAddress = GetVirtualRealmAddress();
+    summonRequest.AreaID = summoner->GetZoneId();
+    GetSession()->SendPacket(summonRequest.Write());
 }
 
 void Player::SummonIfPossible(bool agree)
@@ -23166,7 +23166,7 @@ void Player::SummonIfPossible(bool agree)
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
 
-    TeleportTo(m_summon_mapid, m_summon_x, m_summon_y, m_summon_z, GetOrientation());
+    TeleportTo(m_summon_location);
 }
 
 void Player::RemoveItemDurations(Item* item)
