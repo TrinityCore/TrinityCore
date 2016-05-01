@@ -48,7 +48,7 @@ class boss_pit_lord_argaloth : public CreatureScript
         struct boss_pit_lord_argalothAI : public BossAI
         {
             boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH) { }
-            
+
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
@@ -57,7 +57,7 @@ class boss_pit_lord_argaloth : public CreatureScript
                 events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
             }
-            
+
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 first_fel_firestorm = false;
@@ -69,13 +69,13 @@ class boss_pit_lord_argaloth : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HealthBelowPctDamaged(66) && !first_fel_firestorm)
+                if (me->HealthBelowPctDamaged(66,damage) && !first_fel_firestorm)
                 {
                     first_fel_firestorm = true;
                     DoCastAOE(SPELL_FEL_FIRESTORM);
                 }
                 else
-                if(me->HealthBelowPctDamaged(33) && !second_fel_firestorm)
+                if(me->HealthBelowPctDamaged(33,damage) && !second_fel_firestorm)
                 {
                     second_fel_firestorm = true;
                     DoCastAOE(SPELL_FEL_FIRESTORM);
