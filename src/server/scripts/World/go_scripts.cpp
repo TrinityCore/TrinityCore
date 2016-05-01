@@ -1171,7 +1171,7 @@ public:
                 player->CastSpell(player, SPELL_CLEANSING_SOUL);
                 player->SetStandState(UNIT_STAND_STATE_SIT);
             }
-            return true;
+        return true;
     }
 };
 
