@@ -1,1 +1,1 @@
-ALTER TABLE `character_pet` ADD COLUMN `specialization` SMALLINT UNSIGNED NOT NULL DEFAULT '0' AFTER `abdata`;
+--ALTER TABLE `character_pet` ADD COLUMN `specialization` SMALLINT UNSIGNED NOT NULL DEFAULT '0' AFTER `abdata`;

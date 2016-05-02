@@ -39,7 +39,7 @@
 Pet::Pet(Player* owner, PetType type) :
     Guardian(NULL, owner, true), m_removed(false),
     m_petType(type), m_duration(0), m_loading(false), m_groupUpdateMask(0),
-    m_declinedname(NULL)
+    m_declinedname(NULL), m_petSpecialization(0)
 {
     ASSERT(GetOwner());
 
@@ -331,14 +331,14 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     TC_LOG_DEBUG("entities.pet", "New Pet has %s", GetGUID().ToString().c_str());
 
+    SetSpecialization(fields[16].GetUInt16());
+    
     owner->PetSpellInitialize();
 
     SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
 
-    m_petSpecialization = fields[14].GetInt16();
-
     if (getPetType() == HUNTER_PET)
-    {
+    {   
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
         stmt->setUInt64(0, owner->GetGUID().GetCounter());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
@@ -467,7 +467,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
             << time(NULL) << ','
             << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ','
             << uint32(getPetType()) << ','
-            << uint32(m_petSpecialization) << ')';
+            << uint16(m_petSpecialization) << ')';
 
         trans->Append(ss.str().c_str());
         CharacterDatabase.CommitTransaction(trans);
@@ -1796,7 +1796,7 @@ void Pet::RemoveSpecializationSpells()
     }
 }
 
-void Pet::SetSpecialization(uint32 spec)
+void Pet::SetSpecialization(uint16 spec)
 {    
     // 152244 - Hunter talent 'Adaptation'
     // if the player has this talent, the pet's spec will be 'apapted' and have a different id 

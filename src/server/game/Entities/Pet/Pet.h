@@ -143,8 +143,8 @@ class TC_GAME_API Pet : public Guardian
 
         void InitPetCreateSpells();
 
-        uint32 GetSpecialization() { return m_petSpecialization; }
-        void SetSpecialization(uint32 spec);
+        uint16 GetSpecialization() { return m_petSpecialization; }
+        void SetSpecialization(uint16 spec);
         void LearnSpecializationSpells();
         void RemoveSpecializationSpells();
         static void ResetSpecializationForAllPetsOf(Player* owner, Pet* online_pet = nullptr);
@@ -168,7 +168,7 @@ class TC_GAME_API Pet : public Guardian
 
         DeclinedName *m_declinedname;
 
-        uint32 m_petSpecialization;
+        uint16 m_petSpecialization;
 
     private:
         void SaveToDB(uint32, uint32, uint32) override               // override of Creature::SaveToDB     - must not be called
