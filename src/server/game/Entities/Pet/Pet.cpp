@@ -338,7 +338,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
 
     if (getPetType() == HUNTER_PET)
-    {   
+    {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
         stmt->setUInt64(0, owner->GetGUID().GetCounter());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
@@ -1432,6 +1432,25 @@ bool Pet::learnSpell(uint32 spell_id)
     return true;
 }
 
+void Pet::learnSpells(std::vector<uint32> spellIds)
+{
+    WorldPackets::Pet::PetLearnedSpells packet;
+
+    for (uint32 spell : spellIds)
+    {
+        if (!addSpell(spell))
+            continue;
+
+        packet.Spells.push_back(spell);
+    }
+
+    if (!m_loading)
+    {
+        GetOwner()->GetSession()->SendPacket(packet.Write());
+        //GetOwner()->PetSpellInitialize();
+    }
+}
+
 void Pet::InitLevelupSpellsForLevel()
 {
     uint8 level = getLevel();
@@ -1482,6 +1501,22 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         return true;
     }
     return false;
+}
+
+void Pet::unlearnSpells(std::vector<uint32> spellIds, bool learn_prev, bool clear_ab)
+{
+    WorldPackets::Pet::PetUnlearnedSpells packet;
+
+    for (uint32 spell : spellIds)
+    {
+        if (!removeSpell(spell, learn_prev, clear_ab))
+            continue;
+
+        packet.Spells.push_back(spell);
+    }
+
+    if (!m_loading)
+        GetOwner()->GetSession()->SendPacket(packet.Write());
 }
 
 bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
@@ -1763,6 +1798,8 @@ void Pet::ResetGroupUpdateFlag()
 
 void Pet::LearnSpecializationSpells()
 {
+    std::vector<uint32> learnedSpells;
+
     if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(m_petSpecialization))
     {
         for (size_t j = 0; j < specSpells->size(); ++j)
@@ -1772,13 +1809,17 @@ void Pet::LearnSpecializationSpells()
             if (!spellInfo || spellInfo->SpellLevel > getLevel())
                 continue;
 
-            learnSpell(specSpell->SpellID);
+            learnedSpells.push_back(specSpell->SpellID);
         }
     }
+
+    learnSpells(learnedSpells);
 }
 
 void Pet::RemoveSpecializationSpells()
 {
+    std::vector<uint32> unlearnedSpells;
+
     for (uint32 i = 0; i < MAX_PET_SPECIALIZATIONS; ++i)
     {
         // pets have class id 0 in ChrSpecialization.dbc
@@ -1789,11 +1830,13 @@ void Pet::RemoveSpecializationSpells()
                 for (size_t j = 0; j < specSpells->size(); ++j)
                 {
                     SpecializationSpellsEntry const* specSpell = specSpells->at(j);
-                    unlearnSpell(specSpell->SpellID, true);
+                    unlearnedSpells.push_back(specSpell->SpellID);
                 }
             }
         }
     }
+
+    unlearnSpells(unlearnedSpells, true);
 }
 
 void Pet::SetSpecialization(uint16 spec)

@@ -132,9 +132,11 @@ class TC_GAME_API Pet : public Guardian
 
         bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);
+        void learnSpells(std::vector<uint32> spellIds);
         void learnSpellHighRank(uint32 spellid);
         void InitLevelupSpellsForLevel();
         bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
+        void unlearnSpells(std::vector<uint32> spellIds, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
 

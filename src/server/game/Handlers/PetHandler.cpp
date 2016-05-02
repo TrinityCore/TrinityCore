@@ -756,6 +756,9 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
             return;
     }
 
+    // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
+    _player->PetSpellInitialize();
+
     WorldPackets::Pet::SetPetSpecialization setPetSpecialization;
     setPetSpecialization.SpecID = pet->GetSpecialization();
     SendPacket(setPetSpecialization.Write());
