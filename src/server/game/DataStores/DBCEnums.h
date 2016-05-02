@@ -623,6 +623,17 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
+enum SpellProcsPerMinuteModType
+{
+    SPELL_PPM_MOD_HASTE         = 1,
+    SPELL_PPM_MOD_CRIT          = 2,
+    SPELL_PPM_MOD_CLASS         = 3,
+    SPELL_PPM_MOD_SPEC          = 4,
+    SPELL_PPM_MOD_RACE          = 5,
+    SPELL_PPM_MOD_ITEM_LEVEL    = 6,
+    SPELL_PPM_MOD_BATTLEGROUND  = 7
+};
+
 enum TotemCategoryType
 {
     TOTEM_CATEGORY_TYPE_KNIFE           = 1,
