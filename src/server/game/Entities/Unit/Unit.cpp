@@ -12051,6 +12051,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 }
             }
         }
+
+        if (!IsTriggeredAtSpellProcEvent(target, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
+            continue;
+
         // do checks using conditions table
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id, eventInfo.GetActor(), eventInfo.GetActionTarget()))
             continue;
@@ -12059,7 +12063,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (!triggerData.aura->CallScriptCheckProcHandlers(itr->second, eventInfo))
             continue;
 
-        bool procSuccess = IsTriggeredAtSpellProcEvent(target, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent);
+        bool procSuccess = RollProcResult(target, triggerData.aura, attType, isVictim, triggerData.spellProcEvent);
         triggerData.aura->SetLastProcAttemptTime(now);
         if (!procSuccess)
             continue;
@@ -12983,23 +12987,23 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     return true;
 }
 
-bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const* & spellProcEvent)
+bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent)
 {
-    SpellInfo const* spellProto = aura->GetSpellInfo();
+    SpellInfo const* spellInfo = aura->GetSpellInfo();
 
     // let the aura be handled by new proc system if it has new entry
-    if (sSpellMgr->GetSpellProcEntry(spellProto->Id))
+    if (sSpellMgr->GetSpellProcEntry(spellInfo->Id))
         return false;
 
     // Get proc Event Entry
-    spellProcEvent = sSpellMgr->GetSpellProcEvent(spellProto->Id);
+    spellProcEvent = sSpellMgr->GetSpellProcEvent(spellInfo->Id);
 
     // Get EventProcFlag
     uint32 EventProcFlag;
     if (spellProcEvent && spellProcEvent->procFlags) // if exist get custom spellProcEvent->procFlags
         EventProcFlag = spellProcEvent->procFlags;
     else
-        EventProcFlag = spellProto->ProcFlags;       // else get from spell proto
+        EventProcFlag = spellInfo->ProcFlags;        // else get from spell proto
     // Continue if no trigger exist
     if (!EventProcFlag)
         return false;
@@ -13007,12 +13011,12 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     // Additional checks for triggered spells (ignore trap casts)
     if (procExtra & PROC_EX_INTERNAL_TRIGGERED && !(procFlag & PROC_FLAG_DONE_TRAP_ACTIVATION))
     {
-        if (!spellProto->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
+        if (!spellInfo->HasAttribute(SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED))
             return false;
     }
 
     // Check spellProcEvent data requirements
-    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProto, spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
+    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellInfo, spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
         return false;
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
@@ -13030,15 +13034,15 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     }
     // Aura added by spell can`t trigger from self (prevent drop charges/do triggers)
     // But except periodic and kill triggers (can triggered from self)
-    if (procSpell && procSpell->Id == spellProto->Id
-        && !(spellProto->ProcFlags&(PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_KILL)))
+    if (procSpell && procSpell->Id == spellInfo->Id
+        && !(spellInfo->ProcFlags&(PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_KILL)))
         return false;
 
     // Check if current equipment allows aura to proc
     if (!isVictim && GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = ToPlayer();
-        if (spellProto->EquippedItemClass == ITEM_CLASS_WEAPON)
+        if (spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
             Item* item = NULL;
             if (attType == BASE_ATTACK || attType == RANGED_ATTACK)
@@ -13049,19 +13053,26 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
             if (player->IsInFeralForm())
                 return false;
 
-            if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON || !((1 << item->GetTemplate()->GetSubClass()) & spellProto->EquippedItemSubClassMask))
+            if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON || !((1 << item->GetTemplate()->GetSubClass()) & spellInfo->EquippedItemSubClassMask))
                 return false;
         }
-        else if (spellProto->EquippedItemClass == ITEM_CLASS_ARMOR)
+        else if (spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR)
         {
             // Check if player is wearing shield
             Item* item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_ARMOR || !((1 << item->GetTemplate()->GetSubClass()) & spellProto->EquippedItemSubClassMask))
+            if (!item || item->IsBroken() || item->GetTemplate()->GetClass() != ITEM_CLASS_ARMOR || !((1 << item->GetTemplate()->GetSubClass()) & spellInfo->EquippedItemSubClassMask))
                 return false;
         }
     }
+
+    return true;
+}
+
+bool Unit::RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const* spellProcEvent)
+{
+    SpellInfo const* spellInfo = aura->GetSpellInfo();
     // Get chance from spell
-    float chance = float(spellProto->ProcChance);
+    float chance = float(spellInfo->ProcChance);
     // If in spellProcEvent exist custom chance, chance = spellProcEvent->customChance;
     if (spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;
@@ -13071,21 +13082,21 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
         if (!isVictim)
         {
             uint32 weaponSpeed = GetAttackTime(attType);
-            chance = GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellProto);
+            chance = GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellInfo);
         }
         else if (victim)
         {
             uint32 weaponSpeed = victim->GetAttackTime(attType);
-            chance = victim->GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellProto);
+            chance = victim->GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellInfo);
         }
     }
 
-    if (spellProto->ProcBasePPM > 0.0f)
+    if (spellInfo->ProcBasePPM > 0.0f)
         chance = aura->CalcPPMProcChance(isVictim ? victim : this);
 
     // Apply chance modifer aura
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
+        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
 
     return roll_chance_f(chance);
 }
