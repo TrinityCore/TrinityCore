@@ -27,11 +27,7 @@ class ZoneScript;
 class BattlefieldMgr
 {
     public:
-        static BattlefieldMgr* instance()
-        {
-            static BattlefieldMgr instance;
-            return &instance;
-        }
+        static BattlefieldMgr* instance();
 
         // create battlefield events
         void InitBattlefield();

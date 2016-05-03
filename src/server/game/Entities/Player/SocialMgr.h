@@ -128,11 +128,7 @@ class SocialMgr
         ~SocialMgr();
 
     public:
-        static SocialMgr* instance()
-        {
-            static SocialMgr instance;
-            return &instance;
-        }
+        static SocialMgr* instance();
 
         // Misc
         void RemovePlayerSocial(ObjectGuid::LowType guid) { m_socialMap.erase(guid); }

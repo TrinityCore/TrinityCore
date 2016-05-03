@@ -101,11 +101,7 @@ class TransportMgr
         friend void LoadDBCStores(std::string const&);
 
     public:
-        static TransportMgr* instance()
-        {
-            static TransportMgr instance;
-            return &instance;
-        }
+        static TransportMgr* instance();
 
         void Unload();
 

@@ -158,11 +158,7 @@ class InstanceSaveManager
     public:
         typedef std::unordered_map<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
 
-        static InstanceSaveManager* instance()
-        {
-            static InstanceSaveManager instance;
-            return &instance;
-        }
+        static InstanceSaveManager* instance();
 
         void Unload();
 

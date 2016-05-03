@@ -307,11 +307,7 @@ class AchievementGlobalMgr
         static char const* GetCriteriaTypeString(AchievementCriteriaTypes type);
         static char const* GetCriteriaTypeString(uint32 type);
 
-        static AchievementGlobalMgr* instance()
-        {
-            static AchievementGlobalMgr instance;
-            return &instance;
-        }
+        static AchievementGlobalMgr* instance();
 
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type, bool guild = false) const
         {

@@ -69,6 +69,12 @@ PacketLog::~PacketLog()
     _file = NULL;
 }
 
+PacketLog* PacketLog::instance()
+{
+    static PacketLog instance;
+    return &instance;
+}
+
 void PacketLog::Initialize()
 {
     std::string logsDir = sConfigMgr->GetStringDefault("LogsDir", "");

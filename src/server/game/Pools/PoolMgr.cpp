@@ -570,6 +570,12 @@ void PoolMgr::Initialize()
     mCreatureSearchMap.clear();
 }
 
+PoolMgr* PoolMgr::instance()
+{
+    static PoolMgr instance;
+    return &instance;
+}
+
 void PoolMgr::LoadFromDB()
 {
     // Pool templates

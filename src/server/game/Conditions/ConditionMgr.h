@@ -231,11 +231,7 @@ class ConditionMgr
         ~ConditionMgr();
 
     public:
-        static ConditionMgr* instance()
-        {
-            static ConditionMgr instance;
-            return &instance;
-        }
+        static ConditionMgr* instance();
 
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond) const;

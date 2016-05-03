@@ -47,6 +47,12 @@ WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSendBufferSize(-1), m
 {
 }
 
+WorldSocketMgr& WorldSocketMgr::Instance()
+{
+    static WorldSocketMgr instance;
+    return instance;
+}
+
 bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);

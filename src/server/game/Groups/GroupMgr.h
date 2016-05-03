@@ -27,11 +27,7 @@ private:
     ~GroupMgr();
 
 public:
-    static GroupMgr* instance()
-    {
-        static GroupMgr instance;
-        return &instance;
-    }
+    static GroupMgr* instance();
 
     typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;
     typedef std::vector<Group*>      GroupDbContainer;

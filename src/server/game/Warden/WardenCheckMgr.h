@@ -55,11 +55,7 @@ class WardenCheckMgr
         ~WardenCheckMgr();
 
     public:
-        static WardenCheckMgr* instance()
-        {
-            static WardenCheckMgr instance;
-            return &instance;
-        }
+        static WardenCheckMgr* instance();
 
         // We have a linear key without any gaps, so we use vector for fast access
         typedef std::vector<WardenCheck*> CheckContainer;

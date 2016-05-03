@@ -47,11 +47,7 @@ typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
 class WaypointMgr
 {
     public:
-        static WaypointMgr* instance()
-        {
-            static WaypointMgr instance;
-            return &instance;
-        }
+        static WaypointMgr* instance();
 
         // Attempts to reload a single path from database
         void ReloadPath(uint32 id);
