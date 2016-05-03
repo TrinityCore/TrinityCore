@@ -2811,7 +2811,7 @@ inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 i
 
     float itemLevelPoints = GetRandomPropertyPoints(itemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
     float basePoints = GetRandomPropertyPoints(mod->Param, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
-    if (itemLevelPoints != basePoints)
+    if (itemLevelPoints == basePoints)
         return 0.0f;
 
     return ((itemLevelPoints / basePoints) - 1.0f) * mod->Coeff;
