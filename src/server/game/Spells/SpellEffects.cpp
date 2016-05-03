@@ -241,7 +241,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectNULL,                                     //174 SPELL_EFFECT_APPLY_AURA_ON_PET
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175  unused
-    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_SANCTUARY_2
+    &Spell::EffectSanctuary,                                //176 SPELL_EFFECT_SANCTUARY_2
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreaTrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
@@ -503,57 +503,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case SPELLFAMILY_ROGUE:
-            {
-                // Envenom
-                if (m_spellInfo->SpellFamilyFlags[1] & 0x00000008)
-                {
-                    if (Player* player = m_caster->ToPlayer())
-                    {
-                        // consume from stack dozes not more that have combo-points
-                        if (uint32 combo = player->GetComboPoints())
-                        {
-                            // Lookup for Deadly poison (only attacker applied)
-                            if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00010000, 0, 0), m_caster->GetGUID()))
-                            {
-                                // count consumed deadly poison doses at target
-                                uint32 spellId = aurEff->GetId();
-
-                                uint32 doses = aurEff->GetBase()->GetStackAmount();
-                                if (doses > combo)
-                                    doses = combo;
-
-                                for (uint32 i = 0; i < doses; ++i)
-                                    unitTarget->RemoveAuraFromStack(spellId, m_caster->GetGUID());
-
-                                damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
-                            }
-
-                            // Eviscerate and Envenom Bonus Damage (item set effect)
-                            if (m_caster->HasAura(37169))
-                                damage += combo * 40;
-                        }
-                    }
-                }
-                // Eviscerate
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x00020000)
-                {
-                    if (Player* player = m_caster->ToPlayer())
-                    {
-                        if (uint32 combo = player->GetComboPoints())
-                        {
-                            float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
-
-                            // Eviscerate and Envenom Bonus Damage (item set effect)
-                            if (m_caster->HasAura(37169))
-                                damage += combo*40;
-                        }
-                    }
-                }
-                break;
-            }
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Blood Boil - bonus for diseased targets
@@ -669,18 +618,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
             {
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-                // If this spell is given to an NPC, it must handle the rest using its own AI
-                if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                // See if we already are stealthed. If so, we're done.
-                if (unitTarget->HasAura(1784))
-                    return;
-
-                // Reset cooldown on stealth if needed
-                unitTarget->GetSpellHistory()->ResetCooldown(1784);
-                unitTarget->CastSpell(unitTarget, 1784, true);
                 return;
             }
             // Demonic Empowerment -- succubus
@@ -3961,20 +3898,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    // Evil Twin (ignore player summon, but hide this for summoner)
-    if (unitTarget->HasAura(23445))
-        return;
-
-    float x, y, z;
-    m_caster->GetPosition(x, y, z);
-
-    unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
-
-    WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
-    data << m_caster->GetGUID();                            // summoner guid
-    data << uint32(m_caster->GetZoneId());                  // summoner zone
-    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
-    unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
+    unitTarget->ToPlayer()->SendSummonRequestFrom(m_caster);
 }
 
 void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)

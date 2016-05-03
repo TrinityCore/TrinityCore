@@ -1261,6 +1261,22 @@ struct SpellPowerDifficultyEntry
     uint32 PowerIndex;                                              // 2
 };
 
+struct SpellProcsPerMinuteEntry
+{
+    uint32 ID;
+    float BaseProcRate;
+    uint32 Flags;
+};
+
+struct SpellProcsPerMinuteModEntry
+{
+    uint32 ID;
+    uint32 Type;
+    uint32 Param;
+    float Coeff;
+    uint32 SpellProcsPerMinuteID;
+};
+
 struct SpellRadiusEntry
 {
     uint32 ID;                                                      // 0

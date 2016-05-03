@@ -25,9 +25,9 @@ inline uint32 getMSTime()
 {
     using namespace std::chrono;
 
-    static const system_clock::time_point ApplicationStartTime = system_clock::now();
+    static const steady_clock::time_point ApplicationStartTime = steady_clock::now();
 
-    return uint32(duration_cast<milliseconds>(system_clock::now() - ApplicationStartTime).count());
+    return uint32(duration_cast<milliseconds>(steady_clock::now() - ApplicationStartTime).count());
 }
 
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)

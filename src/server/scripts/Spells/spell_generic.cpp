@@ -2710,6 +2710,48 @@ class spell_gen_profession_research : public SpellScriptLoader
         }
 };
 
+enum TrinketSpells
+{
+    SPELL_PVP_TRINKET_ALLIANCE  = 97403,
+    SPELL_PVP_TRINKET_HORDE     = 97404
+};
+
+class spell_gen_pvp_trinket : public SpellScriptLoader
+{
+    public:
+        spell_gen_pvp_trinket() : SpellScriptLoader("spell_gen_pvp_trinket") { }
+
+        class spell_gen_pvp_trinket_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
+
+            void TriggerAnimation()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                switch (caster->GetTeam())
+                {
+                    case ALLIANCE:
+                        caster->CastSpell(caster, SPELL_PVP_TRINKET_ALLIANCE, TRIGGERED_FULL_MASK);
+                        break;
+                    case HORDE:
+                        caster->CastSpell(caster, SPELL_PVP_TRINKET_HORDE, TRIGGERED_FULL_MASK);
+                        break;
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_gen_pvp_trinket_SpellScript::TriggerAnimation);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_pvp_trinket_SpellScript();
+        }
+};
+
 class spell_gen_remove_flight_auras : public SpellScriptLoader
 {
     public:
@@ -4245,6 +4287,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_profession_research();
+    new spell_gen_pvp_trinket();
     new spell_gen_remove_flight_auras();
     new spell_gen_replenishment();
     // Running Wild

@@ -111,22 +111,6 @@
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
-uint32 const MasterySpells[MAX_CLASSES] =
-{
-        0,
-    87500,  // Warrior
-    87494,  // Paladin
-    87493,  // Hunter
-    87496,  // Rogue
-    87495,  // Priest
-    87492,  // Death Knight
-    87497,  // Shaman
-    86467,  // Mage
-    87498,  // Warlock
-        0,
-    87491,  // Druid
-};
-
 uint64 const MAX_MONEY_AMOUNT = 9999999999ULL;
 
 Player::Player(WorldSession* session) : Unit(true)
@@ -296,20 +280,10 @@ Player::Player(WorldSession* session) : Unit(true)
 
     // Player summoning
     m_summon_expire = 0;
-    m_summon_mapid = 0;
-    m_summon_x = 0.0f;
-    m_summon_y = 0.0f;
-    m_summon_z = 0.0f;
 
     m_mover = this;
     m_movedPlayer = this;
     m_seer = this;
-
-    m_recallMap = 0;
-    m_recallX = 0;
-    m_recallY = 0;
-    m_recallZ = 0;
-    m_recallO = 0;
 
     m_homebindMapId = 0;
     m_homebindAreaId = 0;
@@ -2579,6 +2553,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
 
     // reset size before reapply auras
     SetObjectScale(1.0f);
@@ -5830,15 +5805,6 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     CheckAreaExploreAndOutdoor();
 
     return true;
-}
-
-void Player::SaveRecallPosition()
-{
-    m_recallMap = GetMapId();
-    m_recallX = GetPositionX();
-    m_recallY = GetPositionY();
-    m_recallZ = GetPositionZ();
-    m_recallO = GetOrientation();
 }
 
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self)
@@ -23145,13 +23111,32 @@ void Player::UpdateForQuestWorldObjects()
     GetSession()->SendPacket(&packet);
 }
 
-void Player::SetSummonPoint(uint32 mapid, float x, float y, float z)
+bool Player::HasSummonPending() const
 {
+    return m_summon_expire >= time(nullptr);
+}
+
+void Player::SendSummonRequestFrom(Unit* summoner)
+{
+    if (!summoner)
+        return;
+
+    // Player already has active summon request
+    if (HasSummonPending())
+        return;
+
+    // Evil Twin (ignore player summon, but hide this for summoner)
+    if (HasAura(23445))
+        return;
+
     m_summon_expire = time(nullptr) + MAX_PLAYER_SUMMON_DELAY;
-    m_summon_mapid = mapid;
-    m_summon_x = x;
-    m_summon_y = y;
-    m_summon_z = z;
+    m_summon_location.WorldRelocate(*summoner);
+
+    WorldPackets::Movement::SummonRequest summonRequest;
+    summonRequest.SummonerGUID = summoner->GetGUID();
+    summonRequest.SummonerVirtualRealmAddress = GetVirtualRealmAddress();
+    summonRequest.AreaID = summoner->GetZoneId();
+    GetSession()->SendPacket(summonRequest.Write());
 }
 
 void Player::SummonIfPossible(bool agree)
@@ -23182,7 +23167,7 @@ void Player::SummonIfPossible(bool agree)
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
 
-    TeleportTo(m_summon_mapid, m_summon_x, m_summon_y, m_summon_z, GetOrientation());
+    TeleportTo(m_summon_location);
 }
 
 void Player::RemoveItemDurations(Item* item)
@@ -26033,7 +26018,10 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
 bool Player::CanUseMastery() const
 {
-    return HasSpell(MasterySpells[getClass()]);
+    if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(GetSpecId(GetActiveTalentGroup())))
+        return HasSpell(chrSpec->MasterySpellID[0]) || HasSpell(chrSpec->MasterySpellID[1]);
+
+    return false;
 }
 
 void Player::ValidateMovementInfo(MovementInfo* mi)

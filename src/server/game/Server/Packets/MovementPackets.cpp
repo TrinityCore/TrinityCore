@@ -704,3 +704,14 @@ void WorldPackets::Movement::MoveSplineDone::Read()
     _worldPacket >> movementInfo;
     _worldPacket >> SplineID;
 }
+
+WorldPacket const* WorldPackets::Movement::SummonRequest::Write()
+{
+    _worldPacket << SummonerGUID;
+    _worldPacket << uint32(SummonerVirtualRealmAddress);
+    _worldPacket << int32(AreaID);
+    _worldPacket.WriteBit(SkipStartingArea);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
