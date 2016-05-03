@@ -207,6 +207,7 @@ TC_GAME_API extern DBCStorage<VehicleSeatEntry>                 sVehicleSeatStor
 TC_GAME_API extern DBCStorage<WMOAreaTableEntry>                sWMOAreaTableStore;
 TC_GAME_API extern DBCStorage<WorldSafeLocsEntry>               sWorldSafeLocsStore;
 
+TC_GAME_API extern GameTable<GtArmorMitigationByLvlEntry>       sGtArmorMitigationByLvlStore;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>         sGtBarberShopCostBaseStore;
 TC_GAME_API extern GameTable<GtChanceToMeleeCritBaseEntry>      sGtChanceToMeleeCritBaseStore;
 TC_GAME_API extern GameTable<GtChanceToMeleeCritEntry>          sGtChanceToMeleeCritStore;

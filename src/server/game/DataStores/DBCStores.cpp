@@ -158,6 +158,7 @@ DBCStorage<WorldMapAreaEntry>               sWorldMapAreaStore(WorldMapAreafmt);
 DBCStorage<WorldMapTransformsEntry>         sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage<WorldSafeLocsEntry>              sWorldSafeLocsStore(WorldSafeLocsfmt);
 
+GameTable<GtArmorMitigationByLvlEntry>      sGtArmorMitigationByLvlStore(GtArmorMitigationByLvlfmt);
 GameTable<GtBarberShopCostBaseEntry>        sGtBarberShopCostBaseStore(GtBarberShopCostBasefmt);
 GameTable<GtChanceToMeleeCritBaseEntry>     sGtChanceToMeleeCritBaseStore(GtChanceToMeleeCritBasefmt);
 GameTable<GtChanceToMeleeCritEntry>         sGtChanceToMeleeCritStore(GtChanceToMeleeCritfmt);
@@ -507,6 +508,7 @@ void LoadGameTables(const std::string& dataPath, uint32 defaultLocale)
 
 #define LOAD_GT(tableName, store, file) LoadGameTable(bad_dbc_files, tableName, store, dbcPath, file)
 
+    LOAD_GT("ArmorMitigationByLvl", sGtArmorMitigationByLvlStore, "gtArmorMitigationByLvl.dbc");                // 21463
     LOAD_GT("BarberShopCostBase", sGtBarberShopCostBaseStore, "gtBarberShopCostBase.dbc");                      // 20444
     LOAD_GT("CombatRatings", sGtCombatRatingsStore, "gtCombatRatings.dbc");                                     // 20444
     LOAD_GT("ChanceToMeleeCritBase", sGtChanceToMeleeCritBaseStore, "gtChanceToMeleeCritBase.dbc");             // 20444
