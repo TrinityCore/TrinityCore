@@ -19,7 +19,7 @@
 #define DatabaseLoader_h__
 
 #include "DatabaseWorkerPool.h"
-#include "DatabaseEnv.h"
+#include "DBUpdater.h"
 
 #include <functional>
 #include <stack>

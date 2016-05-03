@@ -76,7 +76,6 @@ boost::asio::deadline_timer* _dbPingTimer;
 uint32 _dbPingInterval;
 boost::asio::deadline_timer* _banExpiryCheckTimer;
 uint32 _banExpiryCheckInterval;
-LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {

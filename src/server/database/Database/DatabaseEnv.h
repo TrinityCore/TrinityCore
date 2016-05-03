@@ -38,9 +38,11 @@
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
 
+/// Accessor to the world database
 extern WorldDatabaseWorkerPool WorldDatabase;
+/// Accessor to the character database
 extern CharacterDatabaseWorkerPool CharacterDatabase;
+/// Accessor to the realm/login database
 extern LoginDatabaseWorkerPool LoginDatabase;
 
 #endif
-
