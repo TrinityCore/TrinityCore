@@ -5687,8 +5687,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
 bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator)
 {
-    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateGatherSkill: Player '%s' (%s), SkillID: %u, SkillLevel: %u,  RedLevel: %u)",
-        GetName().c_str(), GetGUID().ToString().c_str(), SkillId, SkillValue, RedLevel);
+    TC_LOG_DEBUG("entities.player.skills", "UpdateGatherSkill(SkillId %d SkillLevel %d RedLevel %d)", SkillId, SkillValue, RedLevel);
 
     uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
 
