@@ -2465,7 +2465,7 @@ void Player::ResetAllPowers()
     }
 }
 
-bool Player::CanInteractWithQuestGiver(Object* questGiver)
+bool Player::CanInteractWithQuestGiver(Object* questGiver) const
 {
     switch (questGiver->GetTypeId())
     {
