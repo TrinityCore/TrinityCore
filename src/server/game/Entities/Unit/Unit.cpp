@@ -3045,7 +3045,10 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
                 m_AutoRepeatFirstCast = true;
             }
             if (pSpell->GetCastTime() > 0)
+            {
                 AddUnitState(UNIT_STATE_CASTING);
+                PropagateMovementInterruption();
+            }
 
             break;
         }
@@ -3056,10 +3059,11 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
             InterruptSpell(CURRENT_CHANNELED_SPELL);
 
             // it also does break autorepeat if not Auto Shot
-            if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
-                m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
+            if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
                 InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+
             AddUnitState(UNIT_STATE_CASTING);
+            PropagateMovementInterruption();
 
             break;
         }
@@ -12479,7 +12483,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 
     m_speed_rate[mtype] = rate;
 
-    propagateSpeedChange();
+    PropagateSpeedChange();
 
     // Spline packets are for units controlled by AI. "Force speed change" (wrongly named opcodes) and "move set speed" packets are for units controlled by a player.
     static Opcodes const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
@@ -12572,6 +12576,8 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
+
+        StopMoving();
         if (IsInWorld())
         {
             // Only clear MotionMaster for entities that exists in world
@@ -12582,8 +12588,7 @@ void Unit::setDeathState(DeathState s)
             GetMotionMaster()->Clear(false);
             GetMotionMaster()->MoveIdle();
         }
-        StopMoving();
-        DisableSpline();
+
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
@@ -15790,6 +15795,8 @@ void Unit::SetStunned(bool apply)
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
 
+        PropagateMovementInterruption();
+
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -15835,6 +15842,8 @@ void Unit::SetRooted(bool apply)
         RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
         StopMoving();
+
+        PropagateMovementInterruption();
 
         if (GetTypeId() == TYPEID_PLAYER)
         {

@@ -26,8 +26,8 @@ template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
+        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) :
+            m_id(_id), m_x(_x), m_y(_y), m_z(_z), m_speed(_speed), m_generatePath(_generatePath), m_recalculateSpeed(false), m_interrupt(false) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -35,42 +35,46 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         bool DoUpdate(T*, uint32);
 
         void MovementInform(T*);
+        void DoInterrupt(T*);
 
-        void unitSpeedChanged() override { i_recalculateSpeed = true; }
+        void UnitSpeedChanged() override { m_recalculateSpeed = true; }
+        void UnitMovementInterrupted(Unit* unit) override { DoInterrupt(static_cast<T*>(unit)); }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
-        void GetDestination(float& x, float& y, float& z) const { x = i_x; y = i_y; z = i_z; }
+        void GetDestination(float& x, float& y, float& z) const { x = m_x; y = m_y; z = m_z; }
     private:
-        uint32 id;
-        float i_x, i_y, i_z;
-        float speed;
+        uint32 m_id;
+        float m_x, m_y, m_z;
+        float m_speed;
         bool m_generatePath;
-        bool i_recalculateSpeed;
+        bool m_recalculateSpeed;
+        bool m_interrupt;
 };
 
-class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
+template<class T>
+class AssistanceMovementGenerator : public PointMovementGenerator<T>
 {
     public:
-        AssistanceMovementGenerator(float _x, float _y, float _z) :
-            PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
+        AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<T>(0, _x, _y, _z, true) { }
 
+        void DoFinalize(T*);
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
-        void Finalize(Unit*) override;
 };
 
-// Does almost nothing - just doesn't allows previous movegen interrupt current effect.
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        explicit EffectMovementGenerator(uint32 Id) : m_Id(Id) { }
+        explicit EffectMovementGenerator(uint32 Id) : m_id(Id) { }
         void Initialize(Unit*) override { }
         void Finalize(Unit*) override;
         void Reset(Unit*) override { }
         bool Update(Unit*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
+
+        void MovementInform(Unit*);
     private:
-        uint32 m_Id;
+        uint32 m_id;
 };
 
 #endif

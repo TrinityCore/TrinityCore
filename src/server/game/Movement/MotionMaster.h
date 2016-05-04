@@ -185,7 +185,7 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
 
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
-        void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
+        void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, uint32 id = EVENT_KNOCKBACK);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
         void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false)
         {
@@ -206,7 +206,8 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
         MovementGeneratorType GetMotionSlotType(int slot) const;
 
-        void propagateSpeedChange();
+        void PropagateSpeedChange();
+        void PropagateInterruption();
 
         bool GetDestination(float &x, float &y, float &z);
     private:

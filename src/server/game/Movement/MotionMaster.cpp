@@ -81,9 +81,6 @@ void MotionMaster::UpdateMotion(uint32 diff)
     if (!_owner)
         return;
 
-    if (_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED)) // what about UNIT_STATE_DISTRACTED? Why is this not included?
-        return;
-
     ASSERT(!empty());
 
     _cleanFlag |= MMCF_UPDATE;
@@ -351,7 +348,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
+void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, uint32 id)
 {
     //this function may make players fall below map
     if (_owner->GetTypeId() == TYPEID_PLAYER)
@@ -373,7 +370,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     init.SetOrientationFixed(true);
     init.SetVelocity(speedXY);
     init.Launch();
-    Mutate(new EffectMovementGenerator(0), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
@@ -535,7 +532,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), x, y, z);
         _owner->AttackStop();
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);
-        Mutate(new AssistanceMovementGenerator(x, y, z), MOTION_SLOT_ACTIVE);
+        Mutate(new AssistanceMovementGenerator<Creature>(x, y, z), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -679,18 +676,18 @@ void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
     Mutate(new RotateMovementGenerator(time, direction), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::propagateSpeedChange()
+void MotionMaster::PropagateSpeedChange()
 {
-    /*Impl::container_type::iterator it = Impl::c.begin();
-    for (; it != end(); ++it)
-    {
-        (*it)->unitSpeedChanged();
-    }*/
     for (int i = 0; i <= _top; ++i)
-    {
         if (Impl[i])
-            Impl[i]->unitSpeedChanged();
-    }
+            Impl[i]->UnitSpeedChanged();
+}
+
+void MotionMaster::PropagateInterruption()
+{
+    for (int i = 0; i <= _top; ++i)
+        if (Impl[i])
+            Impl[i]->UnitMovementInterrupted(_owner);
 }
 
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const

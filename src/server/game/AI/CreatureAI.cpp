@@ -224,7 +224,7 @@ bool CreatureAI::UpdateVictimWithGaze()
     }
 
     if (Unit* victim = me->SelectVictim())
-        if (!me->IsFocusing(nullptr, true))
+        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
             AttackStart(victim);
 
     return me->GetVictim() != nullptr;
@@ -238,7 +238,7 @@ bool CreatureAI::UpdateVictim()
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
-            if (!me->IsFocusing(nullptr, true))
+            if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
                 AttackStart(victim);
 
         return me->GetVictim() != nullptr;
