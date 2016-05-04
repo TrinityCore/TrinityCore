@@ -16912,7 +16912,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // player should be able to load/delete character only with correct account!
     if (dbAccountId != GetSession()->GetAccountId())
     {
-        C_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) loading from wrong account (is: %u, should be: %u)", guid.ToString().c_str(), GetSession()->GetAccountId(), dbAccountId);
+        TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) loading from wrong account (is: %u, should be: %u)", guid.ToString().c_str(), GetSession()->GetAccountId(), dbAccountId);
         return false;
     }
 
