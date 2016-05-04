@@ -64,9 +64,6 @@ enum MageSpells
 
     SPELL_MAGE_FLAMESTRIKE                       = 2120,
 
-    SPELL_MAGE_CHILLED_R1                        = 12484,
-    SPELL_MAGE_CHILLED_R2                        = 12485,
-
     SPELL_MAGE_CONE_OF_COLD_AURA_R1              = 11190,
     SPELL_MAGE_CONE_OF_COLD_AURA_R2              = 12489,
     SPELL_MAGE_CONE_OF_COLD_TRIGGER_R1           = 83301,
@@ -265,50 +262,6 @@ class spell_mage_blazing_speed : public SpellScriptLoader
         {
             return new spell_mage_blazing_speed_AuraScript();
         }
-};
-
-// 42208 - Blizzard
-/// Updated 4.3.4
-class spell_mage_blizzard : public SpellScriptLoader
-{
-   public:
-       spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
-
-       class spell_mage_blizzard_SpellScript : public SpellScript
-       {
-           PrepareSpellScript(spell_mage_blizzard_SpellScript);
-
-           bool Validate(SpellInfo const* /*spellInfo*/) override
-           {
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
-                   return false;
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R2))
-                   return false;
-               return true;
-           }
-
-           void AddChillEffect(SpellEffIndex /*effIndex*/)
-           {
-               Unit* caster = GetCaster();
-               if (Unit* unitTarget = GetHitUnit())
-               {
-                   if (caster->IsScriptOverriden(GetSpellInfo(), 836))
-                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R1, true);
-                   else if (caster->IsScriptOverriden(GetSpellInfo(), 988))
-                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R2, true);
-               }
-           }
-
-           void Register() override
-           {
-               OnEffectHitTarget += SpellEffectFn(spell_mage_blizzard_SpellScript::AddChillEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-           }
-       };
-
-       SpellScript* GetSpellScript() const override
-       {
-           return new spell_mage_blizzard_SpellScript();
-       }
 };
 
 // 11958 - Cold Snap
@@ -1528,7 +1481,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_potency();
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
-    new spell_mage_blizzard();
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
