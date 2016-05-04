@@ -5734,8 +5734,7 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
     static uint32 bonusSkillLevels[] = { 75, 150, 225, 300, 375, 450, 525 };
     static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
 
-    TC_LOG_DEBUG("entities.player.skills",  "Player::UpdateSkillPro: Player '%s' (%s), SkillID: %u, Chance: %3.1f%%)",
-        GetName().c_str(), GetGUID().ToString().c_str(), SkillId, Chance / 10.0f);
+    TC_LOG_DEBUG("entities.player.skills", "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", SkillId, Chance / 10.0f);
     if (!skillId)
         return false;
 
