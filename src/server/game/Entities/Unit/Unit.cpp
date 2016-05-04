@@ -7901,38 +7901,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
-    // done scripted mod (take it from owner)
-    Unit const* owner = GetOwner() ? GetOwner() : this;
-    AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-    {
-        if (!(*i)->IsAffectingSpell(spellProto))
-            continue;
-
-        switch ((*i)->GetMiscValue())
-        {
-            case 4418: // Increased Shock Damage
-            case 4554: // Increased Lightning Damage
-            case 4555: // Improved Moonfire
-            case 5142: // Increased Lightning Damage
-            case 5147: // Improved Consecration / Libram of Resurgence
-            case 5148: // Idol of the Shooting Star
-            case 6008: // Increased Lightning Damage
-            case 8627: // Totem of Hex
-            {
-                DoneTotal += (*i)->GetAmount();
-                break;
-            }
-        }
-    }
-
-    // Custom scripted damage
-    /*switch (spellProto->SpellFamilyName)
-    {
-        case SPELLFAMILY_DEATHKNIGHT:
-            break;
-    }*/
-
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
     // Pets just add their bonus damage to their spell damage
@@ -8025,74 +7993,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
-
-    // done scripted mod (take it from owner)
-    Unit const* owner = GetOwner() ? GetOwner() : this;
-    AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-    {
-        if (!(*i)->IsAffectingSpell(spellProto))
-            continue;
-
-        switch ((*i)->GetMiscValue())
-        {
-            case 4920: // Molten Fury
-            case 4919:
-            {
-                if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
-            case 6917: // Death's Embrace damage effect
-            case 6926:
-            case 6928:
-            {
-                // Health at 25% or less (25% stored at effect 2 of the spell)
-                if (victim->HealthBelowPct(CalculateSpellDamage(this, (*i)->GetSpellInfo(), EFFECT_2)))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
-            case 6916: // Death's Embrace heal effect
-            case 6925:
-            case 6927:
-                if (HealthBelowPct(CalculateSpellDamage(this, (*i)->GetSpellInfo(), EFFECT_2)))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            // Soul Siphon
-            case 4992:
-            case 4993:
-            {
-                // effect 1 m_amount
-                int32 maxPercent = (*i)->GetAmount();
-                // effect 0 m_amount
-                int32 stepPercent = CalculateSpellDamage(this, (*i)->GetSpellInfo(), 0);
-                // count affliction effects and calc additional damage in percentage
-                int32 modPercent = 0;
-                AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-                for (AuraApplicationMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
-                {
-                    Aura const* aura = itr->second->GetBase();
-                    SpellInfo const* spell = aura->GetSpellInfo();
-                    if (spell->SpellFamilyName != SPELLFAMILY_WARLOCK || !(spell->SpellFamilyFlags[1] & 0x0004071B || spell->SpellFamilyFlags[0] & 0x8044C402))
-                        continue;
-                    modPercent += stepPercent * aura->GetStackAmount();
-                    if (modPercent >= maxPercent)
-                    {
-                        modPercent = maxPercent;
-                        break;
-                    }
-                }
-                AddPct(DoneTotalMod, modPercent);
-                break;
-            }
-            case 5481: // Starfire Bonus
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, flag128(0x200002, 0, 0)))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
-        }
-    }
 
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
@@ -8387,15 +8287,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                     crit_chance += eff->GetAmount();
                             }
                             break;
-                        case 7917: // Glyph of Shadowburn
-                            if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
-                                crit_chance+=(*i)->GetAmount();
-                            break;
-                        case 7997: // Renewed Hope
-                        case 7998:
-                            if (victim->HasAura(6788))
-                                crit_chance+=(*i)->GetAmount();
-                            break;
                         default:
                             break;
                     }
@@ -8580,36 +8471,9 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             continue;
         switch ((*i)->GetMiscValue())
         {
-            case 4415: // Increased Rejuvenation Healing
-            case 4953:
             case 3736: // Hateful Totem of the Third Wind / Increased Lesser Healing Wave / LK Arena (4/5/6) Totem of the Third Wind / Savage Totem of the Third Wind
                 DoneTotal += (*i)->GetAmount();
                 break;
-            case   21: // Test of Faith
-            case 6935:
-            case 6918:
-                if (victim->HealthBelowPct(50))
-                    AddPct(DoneTotal, (*i)->GetAmount());
-                break;
-            case 8477: // Nourish Heal Boost
-            {
-                int32 stepPercent = (*i)->GetAmount();
-                int32 modPercent = 0;
-                AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-                for (AuraApplicationMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
-                {
-                    Aura const* aura = itr->second->GetBase();
-                    if (aura->GetCasterGUID() != GetGUID())
-                        continue;
-                    SpellInfo const* m_spell = aura->GetSpellInfo();
-                    if (m_spell->SpellFamilyName != SPELLFAMILY_DRUID ||
-                        !(m_spell->SpellFamilyFlags[1] & 0x00000010 || m_spell->SpellFamilyFlags[0] & 0x50))
-                        continue;
-                    modPercent += stepPercent * aura->GetStackAmount();
-                }
-                AddPct(DoneTotal, modPercent);
-                break;
-            }
             default:
                 break;
         }
@@ -8689,58 +8553,6 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     AuraEffectList const& mHealingDonePct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
     for (AuraEffectList::const_iterator i = mHealingDonePct.begin(); i != mHealingDonePct.end(); ++i)
         AddPct(DoneTotalMod, (*i)->GetAmount());
-
-    // done scripted mod (take it from owner)
-    Unit const* owner = GetOwner() ? GetOwner() : this;
-    AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-    {
-        if (!(*i)->IsAffectingSpell(spellProto))
-            continue;
-
-        switch ((*i)->GetMiscValue())
-        {
-            case   21: // Test of Faith
-            case 6935:
-            case 6918:
-                if (victim->HealthBelowPct(50))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            case 7798: // Glyph of Regrowth
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, flag128(0x40, 0, 0)))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
-            case 8477: // Nourish Heal Boost
-            {
-                int32 stepPercent = (*i)->GetAmount();
-                int32 modPercent = 0;
-                AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-                for (AuraApplicationMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
-                {
-                    Aura const* aura = itr->second->GetBase();
-                    if (aura->GetCasterGUID() != GetGUID())
-                        continue;
-                    SpellInfo const* m_spell = aura->GetSpellInfo();
-                    if (m_spell->SpellFamilyName != SPELLFAMILY_DRUID ||
-                        !(m_spell->SpellFamilyFlags[1] & 0x00000010 || m_spell->SpellFamilyFlags[0] & 0x50))
-                        continue;
-                    modPercent += stepPercent * aura->GetStackAmount();
-                }
-                AddPct(DoneTotalMod, modPercent);
-                break;
-            }
-            case 7871: // Glyph of Lesser Healing Wave
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, flag128(0, 0x00000400, 0), GetGUID()))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                break;
-            }
-            default:
-                break;
-        }
-    }
 
     return DoneTotalMod;
 }
@@ -9150,10 +8962,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (spellProto)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
-    // done scripted mod (take it from owner)
-    // Unit* owner = GetOwner() ? GetOwner() : this;
-    // AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
 
     // apply spellmod to Done damage
@@ -9243,15 +9051,6 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
                 break;
         }
     }
-
-    // .. taken pct: class scripts
-    //*AuraEffectList const& mclassScritAuras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    //for (AuraEffectList::const_iterator i = mclassScritAuras.begin(); i != mclassScritAuras.end(); ++i)
-    //{
-    //    switch ((*i)->GetMiscValue())
-    //    {
-    //    }
-    //}*/
 
     if (attType != RANGED_ATTACK)
     {

@@ -649,23 +649,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (!m_spellInfo->ProcFlags)
                 break;
             amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
-            if (caster)
-            {
-                // Glyphs increasing damage cap
-                Unit::AuraEffectList const& overrideClassScripts = caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for (Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin(); itr != overrideClassScripts.end(); ++itr)
-                {
-                    if ((*itr)->IsAffectingSpell(m_spellInfo))
-                    {
-                        // Glyph of Frost nova and similar auras
-                        if ((*itr)->GetMiscValue() == 7801)
-                        {
-                            AddPct(amount, (*itr)->GetAmount());
-                            break;
-                        }
-                    }
-                }
-            }
             break;
         case SPELL_AURA_SCHOOL_ABSORB:
         case SPELL_AURA_MANA_SHIELD:
@@ -1935,12 +1918,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_BERSERKERSTANCE:
             {
                 int32 Rage_val = 0;
-                // Defensive Tactics
-                if (form == FORM_DEFENSIVESTANCE)
-                {
-                    if (AuraEffect const* aurEff = target->IsScriptOverriden(m_spellInfo, 831))
-                        Rage_val += aurEff->GetAmount() * 10;
-                }
                 // Stance mastery + Tactical mastery (both passive, and last have aura only in defense stance, but need apply at any stance switch)
                 if (target->GetTypeId() == TYPEID_PLAYER)
                 {

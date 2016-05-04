@@ -5243,13 +5243,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_CHARGE:
             {
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
-                {
-                    // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
-                    if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
-                        m_caster->RemoveMovementImpairingAuras();
-                }
-
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
 
