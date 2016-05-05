@@ -514,7 +514,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 *variance = valueVariance;
         }
 
-        basePoints = int32(value);
+        basePoints = int32(round(value));
 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
