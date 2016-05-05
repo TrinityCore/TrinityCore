@@ -12167,8 +12167,8 @@ void Unit::UpdateCharmAI()
                     i_AI = i_disabledAI;
                     i_disabledAI = nullptr;
 
-            if (GetTypeId() == TYPEID_UNIT)
-                ToCreature()->AI()->OnCharmed(false);
+                    if (GetTypeId() == TYPEID_UNIT)
+                        ToCreature()->AI()->OnCharmed(false);
                 }
             }
             else
