@@ -6580,7 +6580,12 @@ uint32 ObjectMgr::GenerateMailID()
 
 uint32 ObjectMgr::GeneratePetNumber()
 {
-    return ++_hiPetNumber;
+    if (_hiPetNumber >= 0xFFFFFFFE)
+    {
+        TC_LOG_ERROR("misc", "_hiPetNumber Id overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+    return _hiPetNumber++;
 }
 
 uint64 ObjectMgr::GenerateVoidStorageItemId()
