@@ -25391,7 +25391,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     if (talentInfo->Row > 0 || !isMainTree)
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)          // Loop through all talents.
-            if (const TalentEntry* tmpTalent = sTalentStore.LookupEntry(i))
+            if (sTalentStore.LookupEntry(i))
 
     // not have required min points spent in talent tree
     if (spentPoints < (talentInfo->Row * MAX_TALENT_RANK))
