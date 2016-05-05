@@ -185,6 +185,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
 
+    // can fly check
+    if (!_player->CanFlyInZone(newMap->GetId(), newarea))
+        _player->RemoveAurasByType(SPELL_AURA_FLY);
+
     // honorless target
     if (GetPlayer()->pvpInfo.IsHostile)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);

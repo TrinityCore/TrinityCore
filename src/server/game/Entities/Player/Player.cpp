@@ -24927,7 +24927,24 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
+    bool can_fly = false;
+    switch (v_map)
+    {
+        case 0: // Eastern Kingdoms
+        case 1: // Kalimdor
+        case 646: // Deepholm
+            can_fly = HasSpell(90267); // Flight Master's License
+            break;
+        case 571: // Northrend
+            can_fly = HasSpell(54197); // Cold Weather Flying
+            break;
+        case 530: // Outland
+            can_fly = true;
+        default:
+            break;
+    }
+    TC_LOG_DEBUG("network", "------Gangrene------ mapid=%u zone=%u v_map=%u result=%u",mapid,zone,v_map,can_fly);
+    return can_fly;
 }
 
 void Player::LearnSpellHighestRank(uint32 spellid)
