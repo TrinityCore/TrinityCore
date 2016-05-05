@@ -24943,7 +24943,6 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
         default:
             break;
     }
-    TC_LOG_DEBUG("network", "------Gangrene------ mapid=%u zone=%u v_map=%u result=%u",mapid,zone,v_map,can_fly);
     return can_fly;
 }
 
