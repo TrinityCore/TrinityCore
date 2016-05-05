@@ -5259,7 +5259,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
                     {
                         if (!GetSpellHistory()->HasCooldown(*itr))
-                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::seconds(cooldown));
+                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::milliseconds(cooldown));
                     }
                     break;
                 }
@@ -5305,7 +5305,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
                     {
                         if (!GetSpellHistory()->HasCooldown(*itr))
-                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::seconds(cooldown));
+                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::milliseconds(cooldown));
                     }
                     break;
                 }
@@ -6006,7 +6006,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
 
     if (cooldown)
-        GetSpellHistory()->AddCooldown(cooldown_spell_id, 0, std::chrono::seconds(cooldown));
+        GetSpellHistory()->AddCooldown(cooldown_spell_id, 0, std::chrono::milliseconds(cooldown));
 
     return true;
 }
@@ -6143,7 +6143,7 @@ bool Unit::HandleAuraProc(Unit* /*victim*/, uint32 /*damage*/, Aura* triggeredBy
                         if (GetSpellHistory()->HasCooldown(100000))
                             return false;
 
-                        GetSpellHistory()->AddCooldown(100000, 0, std::chrono::seconds(cooldown));
+                        GetSpellHistory()->AddCooldown(100000, 0, std::chrono::milliseconds(cooldown));
                     }
                     return true;
                 }
@@ -6599,7 +6599,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
 
     if (cooldown)
-        GetSpellHistory()->AddCooldown(trigger_spell_id, 0, std::chrono::seconds(cooldown));
+        GetSpellHistory()->AddCooldown(trigger_spell_id, 0, std::chrono::milliseconds(cooldown));
 
     return true;
 }
@@ -6644,7 +6644,7 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, Au
     CastSpell(victim, triggered_spell_id, true, castItem, triggeredByAura);
 
     if (cooldown)
-        GetSpellHistory()->AddCooldown(triggered_spell_id, 0, std::chrono::seconds(cooldown));
+        GetSpellHistory()->AddCooldown(triggered_spell_id, 0, std::chrono::milliseconds(cooldown));
 
     return true;
 }
@@ -11922,7 +11922,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         {
             cooldown = spellInfo->ProcCooldown;
             if (i->spellProcEvent && i->spellProcEvent->cooldown)
-                cooldown = i->spellProcEvent->cooldown;
+                cooldown = i->spellProcEvent->cooldown * IN_MILLISECONDS;
         }
 
         i->aura->SetLastProcSuccessTime(now);
