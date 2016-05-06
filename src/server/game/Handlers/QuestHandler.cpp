@@ -436,7 +436,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             _player->RemoveActiveQuest(questId);
-            _player->RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
+            _player->RemoveCriteriaTimer(CRITERIA_TIMED_TYPE_QUEST, questId);
 
             TC_LOG_INFO("network", "%s abandoned quest %u", _player->GetGUID().ToString().c_str(), questId);
 
@@ -454,7 +454,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
         _player->SetQuestSlot(packet.Entry, 0);
 
-        _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED, 1);
+        _player->UpdateCriteria(CRITERIA_TYPE_QUEST_ABANDONED, 1);
     }
 }
 

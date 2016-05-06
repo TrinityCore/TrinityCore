@@ -1816,14 +1816,14 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading skill tier info...");
     sObjectMgr->LoadSkillTiers();
 
+    TC_LOG_INFO("server.loading", "Loading Criteria Modifier trees...");
+    sCriteriaMgr->LoadCriteriaModifiersTree();
+    TC_LOG_INFO("server.loading", "Loading Criteria Lists...");
+    sCriteriaMgr->LoadCriteriaList();
+    TC_LOG_INFO("server.loading", "Loading Criteria Data...");
+    sCriteriaMgr->LoadCriteriaData();
     TC_LOG_INFO("server.loading", "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
-    TC_LOG_INFO("server.loading", "Loading Achievement Criteria Modifier trees...");
-    sAchievementMgr->LoadAchievementCriteriaModifiersTree();
-    TC_LOG_INFO("server.loading", "Loading Achievement Criteria Lists...");
-    sAchievementMgr->LoadAchievementCriteriaList();
-    TC_LOG_INFO("server.loading", "Loading Achievement Criteria Data...");
-    sAchievementMgr->LoadAchievementCriteriaData();
     TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
     TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");

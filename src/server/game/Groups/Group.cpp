@@ -1417,7 +1417,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
 
             if (player && player->GetSession())
             {
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
+                player->UpdateCriteria(CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
 
                 ItemPosCountVec dest;
                 LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
@@ -1466,7 +1466,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
 
             if (player && player->GetSession())
             {
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
+                player->UpdateCriteria(CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
 
                 LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
 
@@ -1493,7 +1493,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
                     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
-                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
+                    player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
 
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);

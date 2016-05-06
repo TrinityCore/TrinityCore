@@ -538,36 +538,36 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
 }
 
 // Update Achievement Criteria for all players in instance
-void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
+void InstanceScript::DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->GetSource())
-                player->UpdateAchievementCriteria(type, miscValue1, miscValue2, 0, unit);
+                player->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
 }
 
 // Start timed achievement for all players in instance
-void InstanceScript::DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+void InstanceScript::DoStartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->GetSource())
-                player->StartTimedAchievement(type, entry);
+                player->StartCriteriaTimer(type, entry);
 }
 
 // Stop timed achievement for all players in instance
-void InstanceScript::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+void InstanceScript::DoStopCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->GetSource())
-                player->RemoveTimedAchievement(type, entry);
+                player->RemoveCriteriaTimer(type, entry);
 }
 
 // Remove Auras due to Spell on all players in instance

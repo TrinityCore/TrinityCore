@@ -865,8 +865,8 @@ public:
     // Bank tabs
     void SetBankTabText(uint8 tabId, std::string const& text);
 
-    AchievementMgr<Guild>& GetAchievementMgr() { return m_achievementMgr; }
-    AchievementMgr<Guild> const& GetAchievementMgr() const { return m_achievementMgr; }
+    GuildAchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
+    GuildAchievementMgr const& GetAchievementMgr() const { return m_achievementMgr; }
 
     // Guild leveling
     uint8 GetLevel() const { return _level; }
@@ -877,7 +877,7 @@ public:
     void ResetTimes(bool weekly);
 
     bool HasAchieved(uint32 achievementId) const;
-    void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
+    void UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
 
 protected:
     ObjectGuid::LowType m_id;
@@ -899,7 +899,7 @@ protected:
     LogHolder* m_eventLog;
     LogHolder* m_bankEventLog[GUILD_BANK_MAX_TABS + 1];
     LogHolder* m_newsLog;
-    AchievementMgr<Guild> m_achievementMgr;
+    GuildAchievementMgr m_achievementMgr;
 
     uint8 _level;
 

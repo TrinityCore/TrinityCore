@@ -213,7 +213,7 @@ public:
             if ((ObjectAccessor::GetCreature(*me, m_uiGraufGUID) == NULL) && !me->IsMounted())
                  me->SummonCreature(NPC_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
             instance->SetBossState(DATA_SKADI_THE_RUTHLESS, NOT_STARTED);
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void JustReachedHome() override
@@ -237,7 +237,7 @@ public:
             m_uiSummonTimer = 10000;
             me->SetInCombatWithZone();
             instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             me->GetMotionMaster()->MoveJump(Location[0], 5.0f, 10.0f);
             me->SetWalk(false);
             m_uiMountTimer = 1000;

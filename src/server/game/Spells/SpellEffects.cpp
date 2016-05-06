@@ -2211,7 +2211,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
                 if (entry->SummonSpellID == spellToLearn)
                 {
                     battlePetMgr->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+                    player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
                     break;
                 }
             }

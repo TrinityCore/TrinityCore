@@ -660,7 +660,7 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_GUARDIAN_OF_LIFE:
                         if (!conSpeedAtory)
                         {
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_CON_SPEED_ATORY);
+                            DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, CRITERIA_CON_SPEED_ATORY);
                             conSpeedAtory = true;
                         }
                         break;
@@ -669,7 +669,7 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_BRIGHTLEAF:
                         if (!lumberjacked)
                         {
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_LUMBERJACKED);
+                            DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, CRITERIA_LUMBERJACKED);
                             lumberjacked = true;
                         }
                         break;
