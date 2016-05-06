@@ -6246,6 +6246,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                             RemoveAurasDueToSpell(50240);
                         break;
                     }
+                    // Battle Experience
+                    // already handled in gunship battle script
+                    case 71201:
+                        return false;
                 }
                 break;
             case SPELLFAMILY_DRUID:
