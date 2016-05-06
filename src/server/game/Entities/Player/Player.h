@@ -40,7 +40,7 @@ struct ItemExtendedCostEntry;
 struct TrainerSpell;
 struct VendorItem;
 
-template<class T> class AchievementMgr;
+class PlayerAchievementMgr;
 class ReputationMgr;
 class Channel;
 class Creature;
@@ -2429,10 +2429,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetAchievementPoints() const;
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
-        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
-        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
-        void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void ResetCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+        void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
+        void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
+        void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex) const;
@@ -2813,7 +2813,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        AchievementMgr<Player>* m_achievementMgr;
+        PlayerAchievementMgr* m_achievementMgr;
         ReputationMgr*  m_reputationMgr;
 
         uint32 m_ChampioningFaction;

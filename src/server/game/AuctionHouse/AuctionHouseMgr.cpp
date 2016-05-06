@@ -157,7 +157,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         {
             bidder->GetSession()->SendAuctionWonNotification(auction, item);
             // FIXME: for offline player need also
-            bidder->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS, 1);
+            bidder->UpdateCriteria(CRITERIA_TYPE_WON_AUCTIONS, 1);
         }
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_WON), AuctionEntry::BuildAuctionMailBody(auction->owner, auction->bid, auction->buyout, 0, 0))
@@ -198,8 +198,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
         //FIXME: what do if owner offline
         if (owner && item)
         {
-            owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
-            owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
+            owner->UpdateCriteria(CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
+            owner->UpdateCriteria(CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
             //send auction owner notification, bidder must be current!
             owner->GetSession()->SendAuctionClosedNotification(auction, (float)sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), true, item);
         }

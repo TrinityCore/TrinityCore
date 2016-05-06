@@ -253,7 +253,7 @@ class TC_GAME_API Battleground
 
         /* achievement req. */
         virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
-        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         virtual bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         /* Battleground */

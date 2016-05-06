@@ -144,7 +144,7 @@ public:
             Summons.DespawnAll();
 
             instance->SetBossState(DATA_ANUBARAK, NOT_STARTED);
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         Creature* DoSummonImpaleTarget(Unit* target)
@@ -167,7 +167,7 @@ public:
         {
             Talk(SAY_AGGRO);
             DelayTimer = 0;
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void DelayEventStart()

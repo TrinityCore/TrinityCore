@@ -379,7 +379,7 @@ bool AchievementChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate achievement
-    _achievement = sAchievementMgr->GetAchievement(achievementId);
+    _achievement = sAchievementStore.LookupEntry(achievementId);
     if (!_achievement)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid achivement id %u in |achievement command", iss.str().c_str(), achievementId);

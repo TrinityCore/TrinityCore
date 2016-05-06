@@ -3650,7 +3650,6 @@ Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
 
-#Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server
 #Logger.ahbot=3,Console Server
 #Logger.auctionHouse=3,Console Server
@@ -3663,6 +3662,8 @@ Logger.mmaps=3,Server
 #Logger.cheat=3,Console Server
 #Logger.commands.ra=3,Console Server
 #Logger.condition=3,Console Server
+#Logger.criteria=3,Console Server
+#Logger.criteria.achievement=3,Console Server
 #Logger.entities.pet=3,Console Server
 #Logger.entities.player.character=3,Console Server
 #Logger.entities.player.dump=3,Console Server

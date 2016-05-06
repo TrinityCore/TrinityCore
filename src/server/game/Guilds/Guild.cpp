@@ -1391,11 +1391,11 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32>
 
         for (uint32 achievementId : achievementIds)
         {
-            if (AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementId))
+            if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId))
             {
-                if (AchievementCriteriaTree const* tree = sAchievementMgr->GetAchievementCriteriaTree(achievement->CriteriaTree))
+                if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(achievement->CriteriaTree))
                 {
-                    sAchievementMgr->WalkCriteriaTree(tree, [&criteriaIds](AchievementCriteriaTree const* node)
+                    CriteriaMgr::WalkCriteriaTree(tree, [&criteriaIds](CriteriaTree const* node)
                     {
                         if (node->Criteria)
                             criteriaIds.insert(node->Criteria->ID);
@@ -2162,7 +2162,7 @@ void Guild::SendLoginInfo(WorldSession* session)
         if (entry->GuildLevel <= GetLevel())
             player->LearnSpell(entry->SpellID, true);
 
-    m_achievementMgr.SendAllAchievementData(player);
+    m_achievementMgr.SendAllData(player);
 
     WorldPackets::Guild::GuildMemberDailyReset packet; // tells the client to request bank withdrawal limit
     player->GetSession()->SendPacket(packet.Write());
@@ -3384,9 +3384,9 @@ bool Guild::HasAchieved(uint32 achievementId) const
     return m_achievementMgr.HasAchieved(achievementId);
 }
 
-void Guild::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player)
+void Guild::UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player)
 {
-    m_achievementMgr.UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, player);
+    m_achievementMgr.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, player);
 }
 
 void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky)

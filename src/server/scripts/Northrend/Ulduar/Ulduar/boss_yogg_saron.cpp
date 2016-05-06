@@ -485,7 +485,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 events.SetPhase(PHASE_ONE);
 
                 instance->SetData(DATA_DRIVE_ME_CRAZY, uint32(true));
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
                 Initialize();
 
@@ -509,7 +509,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     if (Creature* keeper = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
                         keeper->SetInCombatWith(me);
 
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
                 me->CastCustomSpell(SPELL_SUMMON_GUARDIAN_2, SPELLVALUE_MAX_TARGETS, 1);
                 DoCast(me, SPELL_SANITY_PERIODIC);
