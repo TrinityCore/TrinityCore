@@ -24923,12 +24923,12 @@ uint32 Player::CalculateTalentsPoints() const
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
-bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
+bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
-    uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid);
     bool can_fly = false;
-    switch (v_map)
+    switch (mapid)
     {
         case 0: // Eastern Kingdoms
         case 1: // Kalimdor
@@ -24939,7 +24939,10 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
             can_fly = HasSpell(54197); // Cold Weather Flying
             break;
         case 530: // Outland
-            can_fly = true;
+            // Draenei and blood elves starting zones belong to Outland map, but are not flyable
+            // These zones don't have flag AREA_FLAG_OUTLAND2
+            if (sAreaTableStore.LookupEntry(areaid)->flags & AREA_FLAG_OUTLAND2)
+                can_fly = true;
         default:
             break;
     }

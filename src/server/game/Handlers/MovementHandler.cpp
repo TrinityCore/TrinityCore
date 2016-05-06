@@ -263,6 +263,10 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
         // in friendly area
         else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
+
+        // can fly check
+        if (!plMover->CanFlyInZone(plMover->GetMapId(), newzone))
+            plMover->RemoveAurasByType(SPELL_AURA_FLY);
     }
 
     // resummon pet
