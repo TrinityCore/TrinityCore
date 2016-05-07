@@ -89,7 +89,7 @@ public:
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
 
-    void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
+    void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
 
 protected:
     void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
@@ -97,7 +97,7 @@ protected:
 
     void SendAchievementEarned(AchievementEntry const* achievement) const;
 
-    void SendPacket(WorldPacket const* data) const;
+    void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
     CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
@@ -121,7 +121,7 @@ public:
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
     void SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const;
 
-    void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
+    void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
 
 protected:
     void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
@@ -129,7 +129,7 @@ protected:
 
     void SendAchievementEarned(AchievementEntry const* achievement) const;
 
-    void SendPacket(WorldPacket const* data) const;
+    void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
     CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
