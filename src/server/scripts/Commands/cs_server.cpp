@@ -29,7 +29,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "GitRevision.h"
-#include <regex>
+#include "Util.h"
 
 class server_commandscript : public CommandScript
 {
@@ -328,27 +328,7 @@ private:
         }
         else
         {
-            std::string timeStr(args);
-            static std::regex const regex("[0-9]+[A-Za-z]");
-            auto itr = std::sregex_iterator(timeStr.begin(), timeStr.end(), regex);
-            auto timesEnd = std::sregex_iterator();
-
-            for (; itr != timesEnd; ++itr)
-            {
-                std::string timeString = itr->str();
-
-                int32 amount = atoi(timeString.c_str());
-                if (std::count(timeString.begin(), timeString.end(), 'd') == 1)
-                    delay += amount * DAY;
-                else if (std::count(timeString.begin(), timeString.end(), 'h') == 1)
-                    delay += amount * HOUR;
-                else if (std::count(timeString.begin(), timeString.end(), 'm') == 1)
-                    delay += amount * MINUTE;
-                else if (std::count(timeString.begin(), timeString.end(), 's') == 1)
-                    delay += amount * 1;
-                else
-                    return false;
-            }
+            delay = TimeStringToSecs(std::string(args));
 
             if (delay == 0 || delay < 0)
                 return false;
