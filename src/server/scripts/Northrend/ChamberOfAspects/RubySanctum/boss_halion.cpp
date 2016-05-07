@@ -413,7 +413,7 @@ class boss_twilight_halion : public CreatureScript
                 _EnterCombat();
                 me->AddAura(SPELL_TWILIGHT_PRECISION, me);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(3));
-                events.ScheduleEvent(EVENT_BREATH, Seconds(0));
+                events.ScheduleEvent(EVENT_BREATH, Seconds(12));
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
             }
@@ -451,6 +451,7 @@ class boss_twilight_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
+                //Needed because we already have UNIT_FLAG_IN_COMBAT, otherwise EnterCombat won't ever be called
                 if (!events.IsInPhase(PHASE_TWO) && !events.IsInPhase(PHASE_THREE))
                     EnterCombat(attacker);
 
@@ -551,14 +552,15 @@ class npc_halion_controller : public CreatureScript
                 _materialCorporealityValue = 5;
                 _materialDamageTaken = 0;
                 _twilightDamageTaken = 0;
-                _halionSummoned = false;
             }
 
             void JustRespawned() override
             {
+                if (_instance->GetGuidData(DATA_HALION))
+                    return;
+
                 Reset();
                 me->GetMap()->SummonCreature(NPC_HALION, HalionRespawnPos);
-                _halionSummoned = true;
             }
 
             void Reset() override
@@ -630,13 +632,13 @@ class npc_halion_controller : public CreatureScript
                         _events.ScheduleEvent(EVENT_START_INTRO, Seconds(2));
                         break;
                     case ACTION_INTRO_HALION_2:
-                        if (_halionSummoned)
-                            break;
+                        if (_instance->GetGuidData(DATA_HALION))
+                            return;
+
                         for (uint8 i = DATA_BURNING_TREE_1; i <= DATA_BURNING_TREE_4; ++i)
                             if (GameObject* tree = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(i)))
                                 _instance->HandleGameObject(_instance->GetGuidData(i), true, tree);
                         me->GetMap()->SummonCreature(NPC_HALION, HalionRespawnPos);
-                        _halionSummoned = true;
                         break;
                     case ACTION_MONITOR_CORPOREALITY:
                     {
@@ -706,9 +708,10 @@ class npc_halion_controller : public CreatureScript
                             break;
                         case EVENT_INTRO_PROGRESS_3:
                             DoCast(me, SPELL_FIERY_EXPLOSION);
+                            if (_instance->GetGuidData(DATA_HALION))
+                                return;
                             if (Creature* halion = me->GetMap()->SummonCreature(NPC_HALION, HalionSpawnPos))
                                 halion->AI()->Talk(SAY_INTRO);
-                            _halionSummoned = true;
                             break;
                         case EVENT_TWILIGHT_MENDING:
                             if (ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION))) // Just check if physical Halion is spawned
@@ -856,7 +859,6 @@ class npc_halion_controller : public CreatureScript
             uint32 _twilightDamageTaken;
             uint32 _materialDamageTaken;
             uint8 _materialCorporealityValue;
-            bool _halionSummoned;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -876,7 +878,6 @@ class npc_orb_carrier : public CreatureScript
                 _instance(creature->GetInstanceScript())
             {
                 ASSERT(creature->GetVehicleKit());
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
             }
 
             void UpdateAI(uint32 diff) override
