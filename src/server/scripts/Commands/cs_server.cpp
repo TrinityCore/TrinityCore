@@ -328,9 +328,9 @@ private:
         }
         else
         {
-            delay = TimeStringToSecs(std::string(args));
+            delay = TimeStringToSecs(std::string(delayStr));
 
-            if (delay == 0 || delay < 0)
+            if (delay == 0)
                 return false;
         }
 
