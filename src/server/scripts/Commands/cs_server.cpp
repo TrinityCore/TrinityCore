@@ -29,6 +29,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "GitRevision.h"
+#include <regex>
 
 class server_commandscript : public CommandScript
 {
@@ -313,9 +314,45 @@ private:
             return false;
 
         // #delay [#exit_code] [reason]
+        int32 delay = 0;
         char* delayStr = strtok((char*)args, " ");
-        if (!delayStr || !isNumeric(delayStr))
+        if (!delayStr)
             return false;
+
+        if (isNumeric(delayStr))
+        {
+            delay = atoi(delayStr);
+            // Prevent interpret wrong arg value as 0 secs shutdown time
+            if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
+                return false;
+        }
+        else
+        {
+            std::string timeStr(args);
+            static std::regex const regex("[0-9]+[A-Za-z]");
+            auto itr = std::sregex_iterator(timeStr.begin(), timeStr.end(), regex);
+            auto timesEnd = std::sregex_iterator();
+
+            for (; itr != timesEnd; ++itr)
+            {
+                std::string timeString = itr->str();
+
+                int32 amount = atoi(timeString.c_str());
+                if (std::count(timeString.begin(), timeString.end(), 'd') == 1)
+                    delay += amount * DAY;
+                else if (std::count(timeString.begin(), timeString.end(), 'h') == 1)
+                    delay += amount * HOUR;
+                else if (std::count(timeString.begin(), timeString.end(), 'm') == 1)
+                    delay += amount * MINUTE;
+                else if (std::count(timeString.begin(), timeString.end(), 's') == 1)
+                    delay += amount * 1;
+                else
+                    return false;
+            }
+
+            if (delay == 0 || delay < 0)
+                return false;
+        }
 
         char* exitCodeStr = nullptr;
 
@@ -336,12 +373,6 @@ private:
                 break;
             }
         }
-
-        int32 delay = atoi(delayStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
-            return false;
 
         int32 exitCode = defaultExitCode;
         if (exitCodeStr)
