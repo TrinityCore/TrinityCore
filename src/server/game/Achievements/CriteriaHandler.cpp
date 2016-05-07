@@ -424,7 +424,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
         return;
     }
 
-    TC_LOG_DEBUG("criteria", "CriteriaHandler::UpdateCriteria(%s, " UI64FMTD ", " UI64FMTD ", " UI64FMTD ") %s",
+    TC_LOG_DEBUG("criteria", "CriteriaHandler::UpdateCriteria(%s, %u, " UI64FMTD ", " UI64FMTD ", " UI64FMTD ") %s",
         CriteriaMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2, miscValue3, GetOwnerInfo().c_str());
 
     CriteriaList const& criteriaList = GetCriteriaByType(type);
