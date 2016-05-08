@@ -148,7 +148,7 @@ class boss_nalorakk : public CreatureScript
                 {
                     (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
                 }
-
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 instance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
 
                 Initialize();
@@ -253,7 +253,6 @@ class boss_nalorakk : public CreatureScript
 
                                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
                                         MoveEvent = false;
                                     }
                                     break;
