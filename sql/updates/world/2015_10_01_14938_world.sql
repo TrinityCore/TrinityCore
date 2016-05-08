@@ -70,32 +70,37 @@ INSERT INTO `reference_loot_template` VALUES (34170,47229,0,0,0,1,1,1,1,'');
 --
 
 -- Variables
-SET @ARGENT_BATTLEWORG_GC := 36559; -- used by Grand Champions in looking for mount phase, cannot be used by players
-SET @ARGENT_BATTLEWORG_H := 36558;
-SET @ARGENT_WARHORSE_A := 36557;
 SET @ARGENT_WARHORSE_GC := 35644; -- used by Grand Champions in looking for mount phase, cannot be used by players
-
--- Argent Battleworg should not be attackable by players
-UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256 WHERE `entry`=@ARGENT_BATTLEWORG_GC;
+SET @ARGENT_WARHORSE := 36557;
+SET @ARGENT_BATTLEWORG := 36558;
+SET @ARGENT_BATTLEWORG_GC := 36559; -- used by Grand Champions in looking for mount phase, cannot be used by players
 
 -- Scriptname for cosmetic vehicles
 UPDATE `creature_template` SET `ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (@ARGENT_BATTLEWORG_GC,@ARGENT_WARHORSE_GC);
 
--- Argent Battleworg is missing its Trample aura
-UPDATE `creature_template_addon` SET `auras`=67870 WHERE `entry`=@ARGENT_BATTLEWORG_H;
+UPDATE `creature_template` SET `faction`=14, `npcflag`=16777216, `VehicleId`=529, `speed_walk`=2.5/2.5, `speed_run`=11.0/7.0, `unit_flags`=256, `unit_flags2`=0 WHERE `entry` IN (@ARGENT_WARHORSE_GC,@ARGENT_BATTLEWORG_GC);
+UPDATE `creature_template` SET `faction`=35, `npcflag`=16777216, `VehicleId`=486, `speed_walk`=2.5/2.5, `speed_run`=11.0/7.0, `unit_flags`=0, `unit_flags2`=0 WHERE `entry` IN (@ARGENT_WARHORSE,@ARGENT_BATTLEWORG);
 
--- Argent Warhorse is missing its vehicle data
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (@ARGENT_BATTLEWORG_H,@ARGENT_WARHORSE_A) AND `spell_id`=67830;
-UPDATE `creature_template` SET `npcflag`=16777216,`spell1`=68505,`spell2`=62575,`spell3`=68282,`spell4`=62552,`VehicleId`=486 WHERE `entry`=@ARGENT_WARHORSE_A;
-INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`) VALUES
-(@ARGENT_BATTLEWORG_H,67830,1),
-(@ARGENT_WARHORSE_A,67830,1);
+UPDATE `creature_template` SET `Spell1`=0, `Spell2`=0, `Spell3`=0, `Spell4`=0 WHERE `entry` IN (@ARGENT_WARHORSE_GC, @ARGENT_BATTLEWORG_GC);
+UPDATE `creature_template` SET `Spell1`=68505, `Spell2`=62575, `Spell3`=68282, `Spell4`=62552 WHERE `entry` IN (@ARGENT_WARHORSE, @ARGENT_BATTLEWORG);
+
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (@ARGENT_WARHORSE_GC,@ARGENT_WARHORSE,@ARGENT_BATTLEWORG,@ARGENT_BATTLEWORG_GC);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(@ARGENT_WARHORSE,   67830, 1, 0),
+(@ARGENT_BATTLEWORG, 67830, 1, 0);
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN (@ARGENT_WARHORSE_GC,@ARGENT_WARHORSE,@ARGENT_BATTLEWORG,@ARGENT_BATTLEWORG_GC);
+INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
+(@ARGENT_WARHORSE_GC,   0, 0,   1, 0, '67870'),
+(@ARGENT_WARHORSE,      0, 0, 257, 0, '67865'),
+(@ARGENT_BATTLEWORG,    0, 0, 257, 0, '67865'),
+(@ARGENT_BATTLEWORG_GC, 0, 0,   1, 0, '67870');
 
 -- You should not be able to mount a vehicle if you don't have Argent Lance equipped
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=16 AND `SourceGroup`=0 AND `SourceEntry` IN (@ARGENT_BATTLEWORG_H,@ARGENT_WARHORSE_A);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=16 AND `SourceGroup`=0 AND `SourceEntry` IN (@ARGENT_BATTLEWORG,@ARGENT_WARHORSE);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`Comment`) VALUES
-(16,0,@ARGENT_BATTLEWORG_H,0,0,3,0,46106,0,0,'Argent Lance must be equipped in order to mount a vehicle'),
-(16,0,@ARGENT_WARHORSE_A,0,0,3,0,46106,0,0,'Argent Lance must be equipped in order to mount a vehicle');
+(16,0,@ARGENT_BATTLEWORG,0,0,3,0,46106,0,0,'Argent Lance must be equipped in order to mount a vehicle'),
+(16,0,@ARGENT_WARHORSE,0,0,3,0,46106,0,0,'Argent Lance must be equipped in order to mount a vehicle');
 
 --
 -- Heralds

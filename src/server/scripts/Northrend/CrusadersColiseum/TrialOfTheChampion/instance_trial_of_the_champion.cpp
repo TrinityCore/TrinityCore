@@ -69,6 +69,42 @@ public:
             uiArgentSoldierDeaths = 0;
         }
 
+        uint32 GetCreatureEntry(uint32 /*guidLow*/, CreatureData const* data) override
+        {
+            if (!TeamInInstance)
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+                if (!players.isEmpty())
+                    if (Player* player = players.begin()->GetSource())
+                        TeamInInstance = player->GetTeam();
+            }
+
+            uint32 entry = data->id;
+            switch (entry)
+            {
+                case VEHICLE_ARGENT_WARHORSE_COSMETIC:
+                    if (TeamInInstance == ALLIANCE)
+                        return VEHICLE_ARGENT_BATTLEWORG_COSMETIC;
+                    break;
+                case VEHICLE_ARGENT_WARHORSE:
+                    if (TeamInInstance == HORDE)
+                        return VEHICLE_ARGENT_BATTLEWORG;
+                    break;
+                case VEHICLE_ARGENT_BATTLEWORG:
+                    if (TeamInInstance == ALLIANCE)
+                        return VEHICLE_ARGENT_WARHORSE;
+                    break;
+                case VEHICLE_ARGENT_BATTLEWORG_COSMETIC:
+                    if (TeamInInstance == HORDE)
+                        return VEHICLE_ARGENT_WARHORSE_COSMETIC;
+                    break;
+                default:
+                    break;
+            }
+
+            return entry;
+        }
+
         void OnCreatureCreate(Creature* creature) override
         {
             if (!TeamInInstance)
@@ -99,13 +135,9 @@ public:
                         creature->UpdateEntry(NPC_ARELAS);
                     break;
                 case VEHICLE_ARGENT_WARHORSE_COSMETIC:
-                    if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(VEHICLE_ARGENT_WARHORSE_A);
-                    VehicleList.push_back(creature->GetGUID());
-                    break;
-                case VEHICLE_ARGENT_BATTLEWORG_H:
-                    if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(VEHICLE_ARGENT_BATTLEWORG_COSMETIC);
+                case VEHICLE_ARGENT_WARHORSE:
+                case VEHICLE_ARGENT_BATTLEWORG:
+                case VEHICLE_ARGENT_BATTLEWORG_COSMETIC:
                     VehicleList.push_back(creature->GetGUID());
                     break;
                 case NPC_EADRIC:

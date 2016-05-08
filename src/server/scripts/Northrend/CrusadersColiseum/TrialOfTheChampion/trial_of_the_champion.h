@@ -213,8 +213,8 @@ enum Vehicles
     VEHICLE_SENJIN_CHAMPION                         = 35323,
     // Player vehicles
     VEHICLE_ARGENT_WARHORSE_COSMETIC                = 35644,
-    VEHICLE_ARGENT_WARHORSE_A                       = 36557,
-    VEHICLE_ARGENT_BATTLEWORG_H                     = 36558,
+    VEHICLE_ARGENT_WARHORSE                         = 36557,
+    VEHICLE_ARGENT_BATTLEWORG                       = 36558,
     VEHICLE_ARGENT_BATTLEWORG_COSMETIC              = 36559,
     // The Black Knight's vehicle
     VEHICLE_BLACK_KNIGHT                            = 35491
