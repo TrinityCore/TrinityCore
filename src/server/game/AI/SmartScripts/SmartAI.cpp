@@ -416,12 +416,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
     me->RemoveAurasOnEvade();
 
     me->AddUnitState(UNIT_STATE_EVADE);
-    me->DeleteThreatList();
-    me->CombatStop(true);
-    me->LoadCreaturesAddon();
-    me->SetLootRecipient(NULL);
-    me->ResetPlayerDamageReq();
-    me->SetLastDamagedTime(0);
+    _EnterEvadeMode();
 
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);//must be after aura clear so we can cast spells from db
 
@@ -653,8 +648,8 @@ void SmartAI::OnCharmed(bool apply)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 
-    if (!apply && !me->IsInEvadeMode() && me->GetCharmerGUID())
-        if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetCharmerGUID()))
+    if (!apply && !me->IsInEvadeMode())
+        if (Unit* charmer = me->GetCharmer())
             AttackStart(charmer);
 }
 
