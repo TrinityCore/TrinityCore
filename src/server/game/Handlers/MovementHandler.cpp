@@ -185,6 +185,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
 
+    // can fly check
+    if (!_player->CanFlyInZone(newMap->GetId(), newarea))
+        _player->RemoveAurasByType(SPELL_AURA_FLY);
+
     // honorless target
     if (GetPlayer()->pvpInfo.IsHostile)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
@@ -259,6 +263,10 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
         // in friendly area
         else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
+
+        // can fly check
+        if (!plMover->CanFlyInZone(plMover->GetMapId(), newzone))
+            plMover->RemoveAurasByType(SPELL_AURA_FLY);
     }
 
     // resummon pet
