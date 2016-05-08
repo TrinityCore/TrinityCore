@@ -29,6 +29,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "GitRevision.h"
+#include "Util.h"
 
 class server_commandscript : public CommandScript
 {
@@ -313,9 +314,25 @@ private:
             return false;
 
         // #delay [#exit_code] [reason]
+        int32 delay = 0;
         char* delayStr = strtok((char*)args, " ");
-        if (!delayStr || !isNumeric(delayStr))
+        if (!delayStr)
             return false;
+
+        if (isNumeric(delayStr))
+        {
+            delay = atoi(delayStr);
+            // Prevent interpret wrong arg value as 0 secs shutdown time
+            if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
+                return false;
+        }
+        else
+        {
+            delay = TimeStringToSecs(std::string(delayStr));
+
+            if (delay == 0)
+                return false;
+        }
 
         char* exitCodeStr = nullptr;
 
@@ -336,12 +353,6 @@ private:
                 break;
             }
         }
-
-        int32 delay = atoi(delayStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
-            return false;
 
         int32 exitCode = defaultExitCode;
         if (exitCodeStr)
