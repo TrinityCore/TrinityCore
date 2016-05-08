@@ -5987,9 +5987,6 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     if (crit)
         log.HitInfo |= SPELL_HIT_TYPE_CRIT;
 
-    if (target->GetHealth() < damage)
-        damage = uint32(target->GetHealth());
-
     // Set trigger flag
     uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
     uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
