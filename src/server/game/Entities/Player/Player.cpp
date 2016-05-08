@@ -24926,7 +24926,6 @@ uint32 Player::CalculateTalentsPoints() const
 bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
-    AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid);
     bool can_fly = false;
     switch (mapid)
     {
