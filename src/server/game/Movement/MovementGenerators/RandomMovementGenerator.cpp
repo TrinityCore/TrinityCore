@@ -26,10 +26,6 @@
 
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
 
-#ifdef MAP_BASED_RAND_GEN
-#define rand_norm() creature.rand_norm()
-#endif
-
 template<>
 void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 {
