@@ -56,13 +56,13 @@ public:
                 summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHit += SpellEffectFn(spell_summon_troublemaker_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_summon_troublemaker_SpellScript();
     }
@@ -70,8 +70,8 @@ public:
 
 enum MeditationTimerSpells
 {
-    SPELL_CAVE_OF_SCROLLS_CREDIT = 102447,
-    SPELL_CAVE_OF_SCROLLS_COMP_TIMER_AURA = 128598
+    SPELL_CAVE_OF_SCROLLS_CREDIT            = 102447,
+    SPELL_CAVE_OF_SCROLLS_COMP_TIMER_AURA   = 128598
 };
 
 class spell_meditation_timer_bar : public SpellScriptLoader
@@ -122,7 +122,8 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* target = GetTarget())
-                target->FindNearestCreature(54567, 40.f, true)->AI()->Talk(1, target);
+                if (Creature* creature = target->FindNearestCreature(54567, 40.0f, true))
+                    creature->AI()->Talk(1, target);
         }
 
         void Register() override
@@ -156,28 +157,28 @@ public:
 
             Position const SpawnPosition[6] =
             {
-                {1237.073f, 3697.739f, 93.62743f},
-                {1230.608f, 3701.063f, 93.94895f},
-                {1229.429f, 3732.776f, 92.22045f},
-                {1223.438f, 3700.607f, 93.93437f},
-                {1239.606f, 3732.907f, 94.10403f},
-                {1224.92f, 3727.201f, 92.4472f}
+                { 1237.073f, 3697.739f, 93.62743f },
+                { 1230.608f, 3701.063f, 93.94895f },
+                { 1229.429f, 3732.776f, 92.22045f },
+                { 1223.438f, 3700.607f, 93.93437f },
+                { 1239.606f, 3732.907f, 94.10403f },
+                { 1224.92f, 3727.201f, 92.4472f }
             };
 
             int32 duration = GetSpellInfo()->GetDuration();
             uint32 randomPos = urand(0, 5);
             
             if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[randomPos], properties, duration, GetCaster()))
-                summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHit += SpellEffectFn(spell_summon_living_air_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_summon_living_air_SpellScript();
     }
@@ -238,6 +239,751 @@ public:
     }
 };
 
+enum SingingPoolsATSpells
+{
+    SPELL_CURSE_OF_THE_FROG     = 102938,
+    SPELL_CURSE_OF_THE_SKUNK    = 102939,
+    SPELL_CURSE_OF_THE_TURTLE   = 102940,
+    SPELL_CURSE_OF_THE_CRANE    = 102941,
+    SPELL_RIDE_VEHICLE_POLE     = 102717
+};
+
+enum SingingPoolsATNPCs
+{
+    NPC_CURSED_POOL_CONTROLLER  = 55123
+};
+
+enum SingingPoolsATData
+{
+    DATA_FROG   = 1,
+    DATA_SKUNK  = 2,
+    DATA_TURTLE = 3,
+    DATA_CRANE  = 4
+};
+
+class at_singing_pools_transform : public AreaTriggerScript
+{
+public:
+    at_singing_pools_transform() : AreaTriggerScript("at_singing_pools_transform") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool /*entered*/) override
+    {
+        if (player->IsAlive() && !player->HasAura(SPELL_RIDE_VEHICLE_POLE))
+        {
+            switch (areaTrigger->ID)
+            {
+                case 6986:
+                case 6987:
+                    if (!player->HasAura(SPELL_CURSE_OF_THE_FROG))
+                    {
+                        player->CastSpell(player, SPELL_CURSE_OF_THE_FROG, true);
+
+                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 80.0f, true))
+                            creature->AI()->SetDataWithTarget(DATA_FROG, player->GetGUID());
+                    }
+                    break;
+                case 6988:
+                case 6989:
+                    if (!player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
+                    {
+                        player->CastSpell(player, SPELL_CURSE_OF_THE_SKUNK, true);
+
+                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 60.0f, true))
+                            creature->AI()->SetDataWithTarget(DATA_SKUNK, player->GetGUID());
+                    }
+                    break;
+                case 6991:
+                case 6992:
+                    if (!player->HasAura(SPELL_CURSE_OF_THE_CRANE))
+                    {
+                        player->CastSpell(player, SPELL_CURSE_OF_THE_CRANE, true);
+
+                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 110.0f, true))
+                            creature->AI()->SetDataWithTarget(DATA_CRANE, player->GetGUID());
+                    }
+                    break;
+                case 7011:
+                case 7012:
+                    if (!player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
+                    {
+                        player->CastSpell(player, SPELL_CURSE_OF_THE_TURTLE, true);
+
+                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 50.0f, true))
+                            creature->AI()->SetDataWithTarget(DATA_TURTLE, player->GetGUID());
+                    }
+                    break;
+            }
+            return true;
+        }
+        return false;
+    }
+};
+
+class npc_cursed_pool_controller : public CreatureScript
+{
+public:
+    npc_cursed_pool_controller() : CreatureScript("npc_cursed_pool_controller") { }
+
+    struct npc_cursed_pool_controllerAI : public ScriptedAI
+    {
+        npc_cursed_pool_controllerAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void SetDataWithTarget(uint32 id, ObjectGuid target)
+        {
+            if (std::find(targets.begin(), targets.end(), target) == targets.end())
+                targets.push_back(target);
+
+            switch (id)
+            {
+                case DATA_FROG:
+                    pool = 1;
+                    break;
+                case DATA_SKUNK:
+                    pool = 2;
+                    break;
+                case DATA_TURTLE:
+                    pool = 3;
+                    break;
+                case DATA_CRANE:
+                    pool = 4;
+                    break;
+            }
+        }
+
+        void MoveInLineOfSight(Unit* who) override // need to check on greater range. now its around 55y
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (std::find(targets.begin(), targets.end(), who->GetGUID()) == targets.end())
+                {
+                    targets.push_back(who->GetGUID());
+
+                    if (who->HasAura(SPELL_CURSE_OF_THE_FROG))
+                        pool = 1;
+                    if (who->HasAura(SPELL_CURSE_OF_THE_SKUNK))
+                        pool = 2;
+                    if (who->HasAura(SPELL_CURSE_OF_THE_TURTLE))
+                        pool = 3;
+                    if (who->HasAura(SPELL_CURSE_OF_THE_CRANE))
+                        pool = 4;
+                }
+            }
+        }
+
+        void UpdateAI(uint32 /*diff*/) override
+        {
+            for (std::list<ObjectGuid>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            {
+                Player* player = ObjectAccessor::FindPlayer(*itr);
+                if (!player)
+                    return;
+
+                switch (pool)
+                {
+                    case 1: // TODO: check position greather than line between points 980.15, 3275.5 - 1002.5, 3281.31 & 909.96, 3280.91 - 916.8, 3283.37
+                        if (player->HasAura(SPELL_CURSE_OF_THE_FROG) && player->GetPositionZ() > 118.5f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                        {
+                            player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
+                            targets.erase(itr);
+                        }
+                        break;
+                    case 2:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK) && player->GetPositionZ() > 114.8f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                        {
+                            player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
+                            targets.erase(itr);
+                        }
+                        break;
+                    case 3:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE) && player->GetPositionZ() > 106.5f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                        {
+                            player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
+                            targets.erase(itr);
+                        }
+                        break;
+                    case 4:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_CRANE) && player->GetPositionZ() > 80.95f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                        {
+                            player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
+                            targets.erase(itr);
+                        }
+                        break;
+                }
+            }
+        }
+        
+    private:
+        std::list<ObjectGuid> targets;
+        uint8 pool;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_cursed_pool_controllerAI(creature);
+    }
+};
+
+enum BalancePole
+{
+    EVENT_CAST_TRANSFORM                        = 1,
+    NPC_TRAINING_BELL_BALANCE_POLE              = 55083,
+    SPELL_TRAINING_BELL_EXCLUSION_AURA          = 133381,
+    SPELL_TRAINING_BELL_FORCECAST_RIDE_VEHICLE  = 107050
+};
+
+class npc_balance_pole : public CreatureScript
+{
+public:
+    npc_balance_pole() : CreatureScript("npc_balance_pole") { }
+
+    struct npc_balance_poleAI : public ScriptedAI
+    {
+        npc_balance_poleAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void PassengerBoarded(Unit* passenger, int8 /*seat*/, bool apply) override
+        {
+            if (passenger->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (!apply)
+                {
+                    _passenger = passenger;
+                    events.ScheduleEvent(EVENT_CAST_TRANSFORM, 1000);
+                }
+                else
+                {
+                    if (me->GetEntry() == NPC_TRAINING_BELL_BALANCE_POLE)
+                        me->CastSpell(passenger, SPELL_TRAINING_BELL_FORCECAST_RIDE_VEHICLE, true);
+                }
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CAST_TRANSFORM:
+                        if (!_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
+                        {
+                            if (_passenger->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
+                                _passenger->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
+
+                            if (Creature* creature = _passenger->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 80.0f, true))
+                            {
+                                _passenger->CastSpell(_passenger, SPELL_CURSE_OF_THE_FROG, true);
+                                creature->AI()->SetDataWithTarget(DATA_FROG, _passenger->GetGUID());
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        Unit* _passenger;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_balance_poleAI(creature);
+    }
+};
+
+class at_singing_pools_training_bell : public AreaTriggerScript
+{
+public:
+    at_singing_pools_training_bell() : AreaTriggerScript("at_singing_pools_training_bell") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    {
+        if (player->IsAlive())
+        {
+            if (entered)
+                player->AddAura(SPELL_TRAINING_BELL_EXCLUSION_AURA, player);
+            else
+                player->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
+
+            return true;
+        }
+        return false;
+    }
+};
+
+class spell_rock_jump_a : public SpellScriptLoader
+{
+public:
+    spell_rock_jump_a() : SpellScriptLoader("spell_rock_jump_a") { }
+
+    class spell_rock_jump_a_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rock_jump_a_SpellScript);
+
+        void HandleJumpDest(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->GetPositionZ() > 92.0f)
+                {
+                    Position const jumpPos = { 1077.019f, 2844.103f, 95.27103f };
+                    caster->GetMotionMaster()->MoveJump(jumpPos, GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
+                }
+                else
+                {
+                    if (GameObject* go = caster->FindNearestGameObject(209576, 8.0f))
+                        caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 5);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_rock_jump_a_SpellScript::HandleJumpDest, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rock_jump_a_SpellScript();
+    }
+};
+
+class spell_jump_to_front_right : public SpellScriptLoader
+{
+public:
+    spell_jump_to_front_right() : SpellScriptLoader("spell_jump_to_front_right") { }
+
+    class spell_jump_to_front_right_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_jump_to_front_right_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                Position const jumpPos = { 1111.13f, 2850.21f, 94.6873f };
+                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_jump_to_front_right_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_jump_to_front_right_SpellScript();
+    }
+};
+
+class spell_jump_to_front_left : public SpellScriptLoader
+{
+public:
+    spell_jump_to_front_left() : SpellScriptLoader("spell_jump_to_front_left") { }
+
+    class spell_jump_to_front_left_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_jump_to_front_left_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                Position const jumpPos = { 1100.83f, 2881.36f, 94.0386f };
+                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_jump_to_front_left_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_jump_to_front_left_SpellScript();
+    }
+};
+
+class spell_jump_to_back_right : public SpellScriptLoader
+{
+public:
+    spell_jump_to_back_right() : SpellScriptLoader("spell_jump_to_back_right") { }
+
+    class spell_jump_to_back_right_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_jump_to_back_right_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                Position const jumpPos = { 1127.26f, 2859.8f, 97.2817f };
+                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_jump_to_back_right_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_jump_to_back_right_SpellScript();
+    }
+};
+
+class spell_jump_to_back_left : public SpellScriptLoader
+{
+public:
+    spell_jump_to_back_left() : SpellScriptLoader("spell_jump_to_back_left") { }
+
+    class spell_jump_to_back_left_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_jump_to_back_left_SpellScript);
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                Position const jumpPos = { 1120.16f, 2882.66f, 96.345f };
+                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_jump_to_back_left_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_jump_to_back_left_SpellScript();
+    }
+};
+
+enum ShuSpells
+{
+    SPELL_JUMP_FRONT_RIGHT      = 117033,
+    SPELL_JUMP_FRONT_LEFT       = 117034,
+    SPELL_JUMP_BACK_RIGHT       = 117035,
+    SPELL_JUMP_BACK_LEFT        = 117036,
+    SPELL_SUMMON_WATER_SPOUT    = 116810,
+    SPELL_WATER_SPOUT           = 117063
+};
+
+enum ShuJumpPositions
+{
+    JUMP_POSITION_1             = 0,
+    JUMP_POSITION_2             = 1,
+    JUMP_POSITION_3             = 2,
+    JUMP_POSITION_4             = 3
+};
+
+enum ShuEvents
+{
+    EVENT_JUMP_SPELL            = 1,
+    EVENT_SET_ORIENTATION       = 2,
+    EVENT_SUMMON                = 3
+};
+
+enum ShuData
+{
+    DATA_JUMP_POSITION          = 1
+};
+
+class npc_shu_playing : public CreatureScript
+{
+public:
+    npc_shu_playing() : CreatureScript("npc_shu_playing") { }
+
+    struct npc_shu_playingAI : public ScriptedAI
+    {
+        npc_shu_playingAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Initialize()
+        {
+            jumpPosition = 1;
+            positionBefore = 1;
+            startAI = true;
+        }
+
+        void Reset() override
+        {
+            events.Reset();
+            Initialize();
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == EFFECT_MOTION_TYPE && id == EVENT_JUMP)
+                events.ScheduleEvent(EVENT_SET_ORIENTATION, 500);
+        }
+
+        uint32 GetData(uint32 id) const override
+        {
+            if (id == DATA_JUMP_POSITION)
+                return jumpPosition;
+
+            return false;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (startAI)
+            {
+                events.ScheduleEvent(EVENT_JUMP_SPELL, 1000);
+                startAI = false;
+            }
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_JUMP_SPELL:
+                        if (urand(0, 2) != 0)
+                            jumpPosition = urand(JUMP_POSITION_1, JUMP_POSITION_4);
+                        else
+                            jumpPosition = positionBefore;
+
+                        if (jumpPosition == positionBefore)
+                        {
+                            events.CancelEvent(EVENT_SET_ORIENTATION);
+                            events.ScheduleEvent(EVENT_SUMMON, 1500);
+                        }
+                        else
+                        {
+                            DoCast(jumpSpells[jumpPosition]);
+                            positionBefore = jumpPosition;
+                        }
+                        break;
+                    case EVENT_SET_ORIENTATION:
+                        switch (jumpPosition)
+                        {
+                            case JUMP_POSITION_1:
+                                me->SetFacingTo(1.32645f);
+                                break;
+                            case JUMP_POSITION_2:
+                                me->SetFacingTo(5.654867f);
+                                break;
+                            case JUMP_POSITION_3:
+                                me->SetFacingTo(2.338741f);
+                                break;
+                            case JUMP_POSITION_4:
+                                me->SetFacingTo(4.34587f);
+                                break;
+                        }
+                        events.ScheduleEvent(EVENT_SUMMON, 1500);
+                        break;
+                    case EVENT_SUMMON:
+                        DoCast(SPELL_SUMMON_WATER_SPOUT);
+                        DoCast(SPELL_WATER_SPOUT);
+                        events.ScheduleEvent(EVENT_JUMP_SPELL, 6000);
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        uint32 jumpSpells[4] = { SPELL_JUMP_FRONT_RIGHT, SPELL_JUMP_FRONT_LEFT, SPELL_JUMP_BACK_RIGHT, SPELL_JUMP_BACK_LEFT };
+        uint8 jumpPosition;
+        uint8 positionBefore;
+        bool startAI;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_shu_playingAI(creature);
+    }
+};
+
+class spell_summon_water_spout : public SpellScriptLoader
+{
+public:
+    spell_summon_water_spout() : SpellScriptLoader("spell_summon_water_spout") { }
+
+    class spell_summon_water_spout_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_summon_water_spout_SpellScript);
+
+        void HandleSummon(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
+            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
+            if (!entry || !properties)
+                return;
+
+            int32 duration = GetSpellInfo()->GetDuration();
+            uint32 randomPos = urand(0, 6);
+
+            Position const SpawnPosition[4][7] =
+            {
+                {
+                    { 1117.516f, 2848.437f, 92.14017f },
+                    { 1105.92f, 2853.432f, 92.14017f },
+                    { 1105.231f, 2847.766f, 92.14017f },
+                    { 1114.819f, 2844.094f, 92.14017f },
+                    { 1110.618f, 2856.7f, 92.14017f },
+                    { 1109.559f, 2843.255f, 92.14017f },
+                    { 1116.04f, 2854.104f, 92.14017f }
+                },
+                {
+                    { 1106.743f, 2879.544f, 92.14017f },
+                    { 1105.793f, 2885.37f, 92.14017f },
+                    { 1098.16f, 2874.628f, 92.14017f },
+                    { 1104.28f, 2875.759f, 92.14017f },
+                    { 1095.38f, 2885.097f, 92.14017f },
+                    { 1100.078f, 2888.365f, 92.14017f },
+                    { 1094.693f, 2879.431f, 92.14017f }
+                },
+                {
+                    { 1132.911f, 2864.381f, 92.14017f },
+                    { 1125.672f, 2851.84f, 92.14017f },
+                    { 1121.057f, 2856.08f, 92.14017f },
+                    { 1134.373f, 2858.654f, 92.14017f },
+                    { 1126.556f, 2867.097f, 92.14017f },
+                    { 1120.064f, 2863.003f, 92.14017f },
+                    { 1131.856f, 2852.781f, 92.14017f }
+                },
+                {
+                    { 1118.22f, 2875.427f, 92.14017f },
+                    { 1113.274f, 2879.232f, 92.14017f },
+                    { 1125.439f, 2887.632f, 92.14017f },
+                    { 1118.766f, 2890.419f, 92.14017f },
+                    { 1113.783f, 2886.404f, 92.14017f },
+                    { 1123.7f, 2876.575f, 92.14017f },
+                    { 1126.358f, 2881.005f, 92.14017f }
+                }
+            };
+
+            uint32 stone = GetCaster()->ToCreature()->AI()->GetData(DATA_JUMP_POSITION);
+            
+            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[stone][randomPos], properties, duration, GetCaster()))
+                summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_summon_water_spout_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_summon_water_spout_SpellScript();
+    }
+};
+
+enum WaterSpoutQuestCreditSpells
+{
+    SPELL_AYSA_CONGRATS_TIMER       = 128589,
+    SPELL_SUMMON_SPIRIT_OF_WATER    = 103538
+};
+
+class spell_water_spout_quest_credit : public SpellScriptLoader
+{
+public:
+    spell_water_spout_quest_credit() : SpellScriptLoader("spell_water_spout_quest_credit") { }
+
+    class spell_water_spout_quest_credit_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_water_spout_quest_credit_SpellScript);
+
+        void HandleScript()
+        {
+            if (Player* target = GetHitPlayer())
+            {
+                if (target->GetQuestStatus(29679) == QUEST_STATUS_COMPLETE)
+                {
+                    target->AddAura(SPELL_AYSA_CONGRATS_TIMER, target);
+                    target->CastSpell(target, SPELL_SUMMON_SPIRIT_OF_WATER, true);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_water_spout_quest_credit_SpellScript::HandleScript);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_water_spout_quest_credit_SpellScript();
+    }
+};
+
+class spell_aysa_congrats_timer : public SpellScriptLoader
+{
+public:
+    spell_aysa_congrats_timer() : SpellScriptLoader("spell_aysa_congrats_timer") { }
+
+    class spell_aysa_congrats_timer_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_aysa_congrats_timer_AuraScript);
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (Creature* creature = target->FindNearestCreature(54975, 70.0f, true))
+                    creature->AI()->Talk(0, target);
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_aysa_congrats_timer_AuraScript();
+    }
+};
+
+class spell_aysa_congrats_trigger_aura : public SpellScriptLoader
+{
+public:
+    spell_aysa_congrats_trigger_aura() : SpellScriptLoader("spell_aysa_congrats_trigger_aura") { }
+
+    class spell_aysa_congrats_trigger_aura_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_aysa_congrats_trigger_aura_AuraScript);
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (Creature* creature = target->FindNearestCreature(54975, 70.0f, true))
+                    creature->AI()->Talk(1, target);
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_trigger_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_aysa_congrats_trigger_aura_AuraScript();
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -245,4 +991,18 @@ void AddSC_the_wandering_isle()
     new spell_cave_of_scrolls_comp_timer_aura();
     new spell_summon_living_air();
     new spell_fan_the_flames();
+    new at_singing_pools_transform();
+    new npc_cursed_pool_controller();
+    new npc_balance_pole();
+    new at_singing_pools_training_bell();
+    new spell_rock_jump_a();
+    new spell_jump_to_front_right();
+    new spell_jump_to_front_left();
+    new spell_jump_to_back_right();
+    new spell_jump_to_back_left();
+    new npc_shu_playing();
+    new spell_summon_water_spout();
+    new spell_water_spout_quest_credit();
+    new spell_aysa_congrats_timer();
+    new spell_aysa_congrats_trigger_aura();
 }
