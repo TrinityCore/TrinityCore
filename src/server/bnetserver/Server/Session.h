@@ -23,7 +23,7 @@
 #include "SslSocket.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "Callback.h"
+#include "QueryCallback.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
 #include <google/protobuf/message.h>
