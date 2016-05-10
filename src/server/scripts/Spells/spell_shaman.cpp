@@ -32,6 +32,12 @@
 enum ShamanSpells
 {
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT           = 118522,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE          = 173183,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY        = 173184,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE    = 173185,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY        = 173186,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT         = 173187,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED            = 8349,
@@ -250,6 +256,64 @@ class spell_sha_earth_shield : public SpellScriptLoader
         {
             return new spell_sha_earth_shield_AuraScript();
         }
+};
+
+uint32 const ElementalBlastBuffSpells[] =
+{
+    SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE,
+    SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY,
+};
+
+// 117014 - Elemental Blast
+class spell_sha_elemental_blast : public SpellScriptLoader
+{
+public:
+    spell_sha_elemental_blast() : SpellScriptLoader("spell_sha_elemental_blast") { }
+
+    class spell_sha_elemental_blast_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_elemental_blast_SpellScript);
+
+        static TRINITY_CONSTEXPR uint32 EnhancementBuffCount = std::extent<decltype(ElementalBlastBuffSpells)>::value;
+        static TRINITY_CONSTEXPR uint32 BuffCount = EnhancementBuffCount - 1;
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            for (uint32 i = 0; i < EnhancementBuffCount; ++i)
+                if (!sSpellMgr->GetSpellInfo(ElementalBlastBuffSpells[i]))
+                    return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT))
+                return false;
+            return true;
+        }
+
+        bool Load()
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void TriggerBuff()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            uint32 possbleSpells = (caster->GetSpecId(caster->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_ENHANCEMENT ? EnhancementBuffCount : BuffCount) - 1;
+            caster->CastSpell(caster, ElementalBlastBuffSpells[urand(0, possbleSpells)], TRIGGERED_FULL_MASK);
+            if (caster->GetSpecId(caster->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_RESTORATION)
+                caster->CastSpell(caster, SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT, TRIGGERED_FULL_MASK);
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_sha_elemental_blast_SpellScript::TriggerBuff);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_sha_elemental_blast_SpellScript();
+    }
 };
 
 // 1535 Fire Nova
@@ -1018,6 +1082,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
     new spell_sha_earth_shield();
+    new spell_sha_elemental_blast();
     new spell_sha_fire_nova();
     new spell_sha_flametongue();
     new spell_sha_fulmination();
