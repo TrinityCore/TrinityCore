@@ -44,7 +44,7 @@ typedef std::unordered_map<uint32, EnchStoreList> EnchantmentStore;
 
 static EnchantmentStore RandomItemEnch;
 
-TC_GAME_API void LoadRandomEnchantmentsTable()
+void LoadRandomEnchantmentsTable()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -77,7 +77,7 @@ TC_GAME_API void LoadRandomEnchantmentsTable()
         TC_LOG_ERROR("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
 }
 
-TC_GAME_API uint32 GetItemEnchantMod(int32 entry)
+uint32 GetItemEnchantMod(int32 entry)
 {
     if (!entry)
         return 0;
@@ -118,7 +118,7 @@ TC_GAME_API uint32 GetItemEnchantMod(int32 entry)
     return 0;
 }
 
-TC_GAME_API uint32 GenerateEnchSuffixFactor(uint32 item_id)
+uint32 GenerateEnchSuffixFactor(uint32 item_id)
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
 
