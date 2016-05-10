@@ -290,7 +290,7 @@ public:
             return true;
         }
 
-        bool Load()
+        bool Load() override
         {
             return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
