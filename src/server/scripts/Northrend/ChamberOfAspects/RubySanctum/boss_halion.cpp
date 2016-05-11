@@ -137,7 +137,8 @@ enum Events
     EVENT_CHECK_CORPOREALITY    = 13,
     EVENT_SHADOW_PULSARS_SHOOT  = 14,
     EVENT_TRIGGER_BERSERK       = 15,
-    EVENT_TWILIGHT_MENDING      = 16
+    EVENT_TWILIGHT_MENDING      = 16,
+    EVENT_ACTIVATE_EMBERS       = 17
 };
 
 enum Actions
@@ -151,7 +152,8 @@ enum Actions
 
     // Orb Carrier
     ACTION_WARNING_SHOOT        = 4,
-    ACTION_SHOOT                = 5
+    ACTION_SHOOT                = 5,
+    ACTION_ACTIVATE_EMBERS      = 6
 };
 
 enum Phases
@@ -496,6 +498,9 @@ class boss_twilight_halion : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                if (!UpdateVictim())
+                    return;
+
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -668,6 +673,9 @@ class npc_halion_controller : public CreatureScript
 
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, Seconds(7));
                     }
+                    case ACTION_ACTIVATE_EMBERS:
+                        _events.ScheduleEvent(EVENT_ACTIVATE_EMBERS, Seconds(6));
+                        break;
                     default:
                         break;
                 }
@@ -731,6 +739,9 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_CHECK_CORPOREALITY:
                             UpdateCorporeality();
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, Seconds(5));
+                            break;
+                        case EVENT_ACTIVATE_EMBERS:
+                            _summons.DoZoneInCombat(NPC_LIVING_EMBER);
                             break;
                         default:
                             break;
@@ -1254,7 +1265,10 @@ class npc_living_inferno : public CreatureScript
 
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HALION_CONTROLLER)))
+                    {
+                        controller->AI()->DoAction(ACTION_ACTIVATE_EMBERS);
                         controller->AI()->JustSummoned(me);
+                    }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1285,27 +1299,7 @@ class npc_living_ember : public CreatureScript
 
         struct npc_living_emberAI : public ScriptedAI
         {
-            npc_living_emberAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-                _enrageTimer = 0;
-            }
-
-            void Initialize()
-            {
-                _hasEnraged = false;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _enrageTimer = 20000;
-                _hasEnraged = false;
-            }
+            npc_living_emberAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
@@ -1318,25 +1312,6 @@ class npc_living_ember : public CreatureScript
             {
                 me->DespawnOrUnsummon(1);
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (!_hasEnraged && _enrageTimer <= diff)
-                {
-                    _hasEnraged = true;
-                    DoCast(me, SPELL_BERSERK);
-                }
-                else _enrageTimer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _enrageTimer;
-            bool _hasEnraged;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
