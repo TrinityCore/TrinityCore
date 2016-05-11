@@ -1861,9 +1861,9 @@ bool Aura::IsProcOnCooldown() const
     return false;
 }
 
-void Aura::AddProcCooldown(uint32 /*msec*/)
+void Aura::AddProcCooldown(Milliseconds /*msec*/)
 {
-    //m_procCooldown = time(NULL) + msec;
+    //m_procCooldown = std::chrono::steady_clock::now() + msec;
 }
 
 void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo)
