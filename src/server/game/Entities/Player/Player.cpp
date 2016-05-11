@@ -25695,11 +25695,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
                 {
                     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
                     if (!talentInfo)
-                    {
-                        TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '%s' (%s) has unknown talent id: %u",
-                             GetName().c_str(), GetGUID().ToString().c_str(), talentId);
                         continue;
-                    }
 
                     // skip another tab talents
                     if (talentInfo->TalentTab != talentTabId)
