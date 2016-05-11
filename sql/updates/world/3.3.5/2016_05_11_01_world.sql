@@ -1,0 +1,16 @@
+ALTER TABLE `spell_proc`
+  CHANCE `spellId` `SpellId` int(11) NOT NULL DEFAULT 0 FIRST,
+  CHANCE `schoolMask` `SchoolMask` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `SpellId`,
+  CHANCE `spellFamilyName` `SpellFamilyName` smallint(5) unsigned NOT NULL DEFAULT 0 AFTER `SchoolMask`,
+  CHANCE `spellFamilyMask0` `SpellFamilyMask0` int(10) unsigned NOT NULL DEFAULT 0 AFTER `SpellFamilyName`,
+  CHANCE `spellFamilyMask1` `SpellFamilyMask1` int(10) unsigned NOT NULL DEFAULT 0 AFTER `SpellFamilyMask0`,
+  CHANCE `spellFamilyMask2` `SpellFamilyMask2` int(10) unsigned NOT NULL DEFAULT 0 AFTER `SpellFamilyMask1`,
+  CHANCE `typeMask` `ProcFlags` int(10) unsigned NOT NULL DEFAULT 0 AFTER `SpellFamilyMask2`,
+  CHANCE `spellTypeMask` `SpellTypeMask` int(10) unsigned NOT NULL DEFAULT 0 AFTER `ProcFlags`,
+  CHANCE `spellPhaseMask` `SpellPhaseMask` int(10) unsigned NOT NULL DEFAULT 0 AFTER `SpellTypeMask`,
+  CHANCE `hitMask` `HitMask` int(10) unsigned NOT NULL DEFAULT 0 AFTER `SpellPhaseMask`,
+  CHANCE `attributesMask` `AttributesMask` int(10) unsigned NOT NULL DEFAULT 0 AFTER `HitMask`,
+  CHANCE `ratePerMinute` `ProcsPerMinute` float NOT NULL DEFAULT 0 AFTER `AttributesMask`,
+  CHANCE `chance` `Chance` float NOT NULL DEFAULT 0 AFTER `ProcsPerMinute`,
+  CHANCE `cooldown` `Cooldown` int(10) unsigned NOT NULL DEFAULT 0 AFTER `Chance`,
+  CHANCE `charges` `Charges` tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER `Cooldown`;
