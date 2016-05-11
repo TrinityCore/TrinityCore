@@ -34,6 +34,7 @@ EndScriptData */
 #include "Transport.h"
 #include "Language.h"
 #include "MapManager.h"
+#include "M2Stores.h"
 
 #include <fstream>
 
