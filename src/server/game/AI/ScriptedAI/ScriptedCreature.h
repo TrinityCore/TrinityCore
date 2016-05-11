@@ -114,7 +114,7 @@ public:
         }
     }
 
-    void DoZoneInCombat(uint32 entry = 0);
+    void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
 
