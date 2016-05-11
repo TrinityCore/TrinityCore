@@ -109,21 +109,63 @@ static bool isAlwaysTriggeredAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
-DamageInfo::DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType)
-: m_attacker(_attacker), m_victim(_victim), m_damage(_damage), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask),
-m_damageType(_damageType), m_attackType(BASE_ATTACK)
+DamageInfo::DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
+    : m_attacker(attacker), m_victim(victim), m_damage(damage), m_spellInfo(spellInfo), m_schoolMask(schoolMask), m_damageType(damageType), m_attackType(attackType),
+    m_absorb(0), m_resist(0), m_block(0), m_hitMask(0)
 {
-    m_absorb = 0;
-    m_resist = 0;
-    m_block = 0;
 }
-DamageInfo::DamageInfo(CalcDamageInfo& dmgInfo)
-: m_attacker(dmgInfo.attacker), m_victim(dmgInfo.target), m_damage(dmgInfo.damage), m_spellInfo(NULL), m_schoolMask(SpellSchoolMask(dmgInfo.damageSchoolMask)),
-m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.attackType)
+
+DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
+    : m_attacker(dmgInfo.attacker), m_victim(dmgInfo.target), m_damage(dmgInfo.damage), m_spellInfo(nullptr), m_schoolMask(SpellSchoolMask(dmgInfo.damageSchoolMask)),
+    m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.attackType), m_absorb(dmgInfo.absorb), m_resist(dmgInfo.resist), m_block(dmgInfo.blocked_amount), m_hitMask(0)
 {
-    m_absorb = 0;
-    m_resist = 0;
-    m_block = 0;
+    switch (dmgInfo.TargetState)
+    {
+        case VICTIMSTATE_IS_IMMUNE:
+            m_hitMask |= PROC_HIT_IMMUNE;
+            break;
+        case VICTIMSTATE_BLOCKS:
+            m_hitMask |= PROC_HIT_FULL_BLOCK;
+            break;
+    }
+
+    if (m_absorb)
+        m_hitMask |= PROC_HIT_ABSORB;
+
+    if (dmgInfo.HitInfo & HITINFO_FULL_RESIST)
+        m_hitMask |= PROC_HIT_FULL_RESIST;
+
+    if (m_block)
+        m_hitMask |= PROC_HIT_BLOCK;
+
+    switch (dmgInfo.hitOutCome)
+    {
+        case MELEE_HIT_MISS:
+            m_hitMask |= PROC_HIT_MISS;
+            break;
+        case MELEE_HIT_DODGE:
+            m_hitMask |= PROC_HIT_DODGE;
+            break;
+        case MELEE_HIT_PARRY:
+            m_hitMask |= PROC_HIT_PARRY;
+            break;
+        case MELEE_HIT_EVADE:
+            m_hitMask |= PROC_HIT_EVADE;
+            break;
+        default:
+            break;
+    }
+}
+
+DamageInfo::DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType)
+    : m_attacker(spellNonMeleeDamage.attacker), m_victim(spellNonMeleeDamage.target), m_damage(spellNonMeleeDamage.damage),
+    m_spellInfo(sSpellMgr->GetSpellInfo(spellNonMeleeDamage.SpellID)), m_schoolMask(SpellSchoolMask(spellNonMeleeDamage.schoolMask)), m_damageType(damageType),
+    m_attackType(attackType), m_absorb(spellNonMeleeDamage.absorb), m_resist(spellNonMeleeDamage.resist), m_block(spellNonMeleeDamage.blocked), m_hitMask(0)
+{
+    if (spellNonMeleeDamage.blocked)
+        m_hitMask |= PROC_HIT_BLOCK;
+    if (spellNonMeleeDamage.absorb)
+        m_hitMask |= PROC_HIT_ABSORB;
 }
 
 void DamageInfo::ModifyDamage(int32 amount)
@@ -137,6 +179,7 @@ void DamageInfo::AbsorbDamage(uint32 amount)
     amount = std::min(amount, GetDamage());
     m_absorb += amount;
     m_damage -= amount;
+    m_hitMask |= PROC_HIT_ABSORB;
 }
 
 void DamageInfo::ResistDamage(uint32 amount)
@@ -144,6 +187,8 @@ void DamageInfo::ResistDamage(uint32 amount)
     amount = std::min(amount, GetDamage());
     m_resist += amount;
     m_damage -= amount;
+    if (!m_damage)
+        m_hitMask |= PROC_HIT_FULL_RESIST;
 }
 
 void DamageInfo::BlockDamage(uint32 amount)
@@ -151,6 +196,32 @@ void DamageInfo::BlockDamage(uint32 amount)
     amount = std::min(amount, GetDamage());
     m_block += amount;
     m_damage -= amount;
+    m_hitMask |= PROC_HIT_BLOCK;
+    if (!m_damage)
+        m_hitMask |= PROC_HIT_FULL_BLOCK;
+}
+
+uint32 DamageInfo::GetHitMask() const
+{
+    return m_hitMask;
+}
+
+HealInfo::HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
+    : _healer(healer), _target(target), _heal(heal), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
+{
+}
+
+void HealInfo::AbsorbHeal(uint32 amount)
+{
+    amount = std::min(amount, GetHeal());
+    _absorb += amount;
+    _heal -= amount;
+    _hitMask |= PROC_HIT_ABSORB;
+}
+
+uint32 HealInfo::GetHitMask() const
+{
+    return _hitMask;
 }
 
 ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
@@ -1605,7 +1676,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     if (!victim || !victim->IsAlive() || !damage)
         return;
 
-    DamageInfo dmgInfo = DamageInfo(this, victim, damage, spellInfo, schoolMask, damagetype);
+    DamageInfo dmgInfo = DamageInfo(this, victim, damage, spellInfo, schoolMask, damagetype, BASE_ATTACK);
 
     uint32 spellResistance = CalcSpellResistance(victim, schoolMask, spellInfo);
     dmgInfo.ResistDamage(CalculatePct(damage, spellResistance));
@@ -11624,7 +11695,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     Unit* actor = isVictim ? target : this;
     Unit* actionTarget = !isVictim ? target : this;
 
-    DamageInfo damageInfo = DamageInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL, SPELL_DIRECT_DAMAGE);
+    DamageInfo damageInfo = DamageInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL, SPELL_DIRECT_DAMAGE, attType);
     HealInfo healInfo = HealInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL);
     ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, nullptr, &damageInfo, &healInfo);
 
