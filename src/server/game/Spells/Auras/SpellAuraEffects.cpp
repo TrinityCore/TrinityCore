@@ -406,7 +406,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     &AuraEffect::HandleEnableAltPower,                            //346 SPELL_AURA_ENABLE_ALT_POWER
-    &AuraEffect::HandleNULL,                                      //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE
+    &AuraEffect::HandleNoImmediateEffect,                         //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE implemented in Unit::ApplyAttackTimePercentMod and AuraEffect::CalculateSpellMod
     &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoneyOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //349 SPELL_AURA_MOD_CURRENCY_GAIN implemented in Player::ModifyCurrency
     &AuraEffect::HandleNULL,                                      //350 SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT
@@ -802,6 +802,21 @@ void AuraEffect::CalculateSpellMod()
             }
             m_spellmod->value = GetAmount();
             break;
+        case SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE:
+        {
+            if (!m_spellmod)
+            {
+                m_spellmod = new SpellModifier(GetBase());
+                m_spellmod->op = SPELLMOD_COOLDOWN;
+                m_spellmod->type = SPELLMOD_PCT;
+                m_spellmod->spellId = GetId();
+                m_spellmod->mask = GetSpellClassMask();
+                m_spellmod->charges = 0;
+            }
+
+            m_spellmod->value =  int32((GetCaster()->GetFloatValue(UNIT_FIELD_MOD_HASTE) - 1.0f) * float(GetAmount()));
+            break;
+        }
         default:
             break;
     }
