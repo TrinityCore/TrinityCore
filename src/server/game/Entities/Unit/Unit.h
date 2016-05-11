@@ -954,9 +954,11 @@ private:
     uint32 m_absorb;
     uint32 m_resist;
     uint32 m_block;
+    uint32 m_hitMask;
 public:
-    explicit DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType);
-    explicit DamageInfo(CalcDamageInfo& dmgInfo);
+    DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType);
+    explicit DamageInfo(CalcDamageInfo const& dmgInfo);
+    DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType);
 
     void ModifyDamage(int32 amount);
     void AbsorbDamage(uint32 amount);
@@ -973,9 +975,11 @@ public:
     uint32 GetAbsorb() const { return m_absorb; }
     uint32 GetResist() const { return m_resist; }
     uint32 GetBlock() const { return m_block; }
+
+    uint32 GetHitMask() const;
 };
 
-class HealInfo
+class TC_GAME_API HealInfo
 {
 private:
     Unit* const _healer;
@@ -984,17 +988,12 @@ private:
     uint32 _absorb;
     SpellInfo const* const _spellInfo;
     SpellSchoolMask const _schoolMask;
+    uint32 _hitMask;
 
 public:
-    explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
-        : _healer(healer), _target(target), _heal(heal), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask) { }
+    explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
-    void AbsorbHeal(uint32 amount)
-    {
-        amount = std::min(amount, GetHeal());
-        _absorb += amount;
-        _heal -= amount;
-    }
+    void AbsorbHeal(uint32 amount);
 
     Unit* GetHealer() const { return _healer; }
     Unit* GetTarget() const { return _target; }
@@ -1002,6 +1001,8 @@ public:
     uint32 GetAbsorb() const { return _absorb; }
     SpellInfo const* GetSpellInfo() const { return _spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
+
+    uint32 GetHitMask() const;
 };
 
 class TC_GAME_API ProcEventInfo
