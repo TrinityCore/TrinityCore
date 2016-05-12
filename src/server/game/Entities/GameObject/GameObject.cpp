@@ -2295,7 +2295,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     data->append(fieldBuffer);
 }
 
-void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = 0.0f*/) const
+void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = nullptr*/) const
 {
     if (m_spawnId)
     {
