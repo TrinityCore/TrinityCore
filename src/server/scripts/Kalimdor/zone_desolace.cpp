@@ -127,4 +127,3 @@ void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
 }
-f
