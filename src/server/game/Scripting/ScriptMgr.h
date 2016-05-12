@@ -234,7 +234,7 @@ class ServerScript : public ScriptObject
         virtual void OnUnknownPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
-class TC_GAME_API WorldScript : public ScriptObject
+class WorldScript : public ScriptObject
 {
     protected:
 
@@ -267,7 +267,7 @@ class TC_GAME_API WorldScript : public ScriptObject
         virtual void OnShutdown() { }
 };
 
-class TC_GAME_API FormulaScript : public ScriptObject
+class FormulaScript : public ScriptObject
 {
     protected:
 

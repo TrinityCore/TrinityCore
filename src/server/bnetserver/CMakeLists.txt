@@ -60,7 +60,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/common/Logging
   ${CMAKE_SOURCE_DIR}/src/common/Threading
   ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/common/Plataform
+  ${CMAKE_SOURCE_DIR}/src/common/Platform
   ${CMAKE_SOURCE_DIR}/src/server/database
   ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/database/Logging

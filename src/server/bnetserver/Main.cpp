@@ -51,6 +51,23 @@ using namespace boost::program_options;
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
 #endif
 
+#if PLATFORM == PLATFORM_WINDOWS
+#include "ServiceWin32.h"
+char serviceName[] = "bnetserver";
+char serviceLongName[] = "TrinityCore bnet service";
+char serviceDescription[] = "TrinityCore Battle.net emulator authentication service";
+/*
+* -1 - not in service mode
+*  0 - stopped
+*  1 - running
+*  2 - paused
+*/
+int m_ServiceStatus = -1;
+
+static boost::asio::deadline_timer* _serviceStatusWatchTimer;
+void ServiceStatusWatcher(boost::system::error_code const& error);
+#endif
+
 bool StartDB();
 void StopDB();
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
