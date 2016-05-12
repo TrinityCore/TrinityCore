@@ -375,6 +375,11 @@ namespace WorldPackets
         struct ItemInstance;
     }
 
+    namespace LFG
+    {
+        class DFGetSystemInfo;
+    }
+
     namespace Loot
     {
         class LootUnit;
@@ -1564,7 +1569,7 @@ class TC_GAME_API WorldSession
 
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
-        void HandleDFGetSystemInfo(WorldPacket& recvData);
+        void HandleDFGetSystemInfo(WorldPackets::LFG::DFGetSystemInfo& packet);
         void SendLfgPlayerLockInfo();
         void SendLfgPartyLockInfo();
         void HandleLfgJoinOpcode(WorldPacket& recvData);
