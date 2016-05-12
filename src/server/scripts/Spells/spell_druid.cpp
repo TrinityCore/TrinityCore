@@ -41,6 +41,11 @@ enum DruidSpells
     SPELL_DRUID_LUNAR_ECLIPSE               = 48518,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
+    SPELL_DRUID_FORMS_TRINKET_BEAR          = 37340,
+    SPELL_DRUID_FORMS_TRINKET_CAT           = 37341,
+    SPELL_DRUID_FORMS_TRINKET_MOONKIN       = 37343,
+    SPELL_DRUID_FORMS_TRINKET_NONE          = 37344,
+    SPELL_DRUID_FORMS_TRINKET_TREE          = 37342,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
@@ -240,6 +245,91 @@ class spell_dru_eclipse_energize : public SpellScriptLoader
         {
             return new spell_dru_eclipse_energize_SpellScript;
         }
+};
+
+// 37336 - Druid Forms Trinket
+class spell_dru_forms_trinket : public SpellScriptLoader
+{
+public:
+    spell_dru_forms_trinket() : SpellScriptLoader("spell_dru_forms_trinket") { }
+
+    class spell_dru_forms_trinket_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_forms_trinket_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_FORMS_TRINKET_BEAR) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DRUID_FORMS_TRINKET_CAT) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DRUID_FORMS_TRINKET_MOONKIN) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DRUID_FORMS_TRINKET_NONE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DRUID_FORMS_TRINKET_TREE))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            Unit* target = eventInfo.GetActor();
+
+            switch (target->GetShapeshiftForm())
+            {
+                case FORM_BEAR_FORM:
+                case FORM_DIRE_BEAR_FORM:
+                case FORM_CAT_FORM:
+                case FORM_MOONKIN_FORM:
+                case FORM_NONE:
+                case FORM_TREE_OF_LIFE:
+                    return true;
+                default:
+                    break;
+            }
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            Unit* target = eventInfo.GetActor();
+            uint32 triggerspell = 0;
+
+            switch (target->GetShapeshiftForm())
+            {
+                case FORM_BEAR_FORM:
+                case FORM_DIRE_BEAR_FORM:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_BEAR;
+                    break;
+                case FORM_CAT_FORM:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_CAT;
+                    break;
+                case FORM_MOONKIN_FORM:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_MOONKIN;
+                    break;
+                case FORM_NONE:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_NONE;
+                    break;
+                case FORM_TREE_OF_LIFE:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_TREE;
+                    break;
+                default:
+                    return;
+            }
+
+            target->CastSpell(target, triggerspell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dru_forms_trinket_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_dru_forms_trinket_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dru_forms_trinket_AuraScript();
+    }
 };
 
 // 54832 - Glyph of Innervate
@@ -1209,6 +1299,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_eclipse("spell_dru_eclipse_lunar");
     new spell_dru_eclipse("spell_dru_eclipse_solar");
     new spell_dru_eclipse_energize();
+    new spell_dru_forms_trinket();
     new spell_dru_glyph_of_innervate();
     new spell_dru_glyph_of_starfire();
     new spell_dru_glyph_of_starfire_proc();
