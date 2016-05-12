@@ -919,6 +919,33 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
         }
 };
 
+// 324 - Lightning Shield
+class spell_sha_lightning_shield : public SpellScriptLoader
+{
+public:
+    spell_sha_lightning_shield() : SpellScriptLoader("spell_sha_lightning_shield") { }
+
+    class spell_sha_lightning_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_lightning_shield_AuraScript);
+
+        void UnsetUsingCharges(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetAura()->SetUsingCharges(false);
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_sha_lightning_shield_AuraScript::UnsetUsingCharges, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_lightning_shield_AuraScript();
+    }
+};
+
 // 30884 - Nature's Guardian
 class spell_sha_nature_guardian : public SpellScriptLoader
 {
@@ -1098,6 +1125,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash_spread_flame_shock();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
+    new spell_sha_lightning_shield();
     new spell_sha_nature_guardian();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
