@@ -536,7 +536,7 @@ void BossAI::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-void BossAI::_DespawnAtEvade(uint32 delayToRespawn)
+void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
 {
     if (delayToRespawn < 2)
     {
@@ -544,18 +544,28 @@ void BossAI::_DespawnAtEvade(uint32 delayToRespawn)
         delayToRespawn = 2;
     }
 
-    uint32 corpseDelay = me->GetCorpseDelay();
-    uint32 respawnDelay = me->GetRespawnDelay();
+    if (!who)
+        who = me;
 
-    me->SetCorpseDelay(1);
-    me->SetRespawnDelay(delayToRespawn - 1);
+    if (TempSummon* whoSummon = who->ToTempSummon())
+    {
+        TC_LOG_WARN("scripts", "_DespawnAtEvade called on a temporary summon.");
+        whoSummon->UnSummon();
+        return;
+    }
 
-    me->DespawnOrUnsummon();
+    uint32 corpseDelay = who->GetCorpseDelay();
+    uint32 respawnDelay = who->GetRespawnDelay();
 
-    me->SetCorpseDelay(corpseDelay);
-    me->SetRespawnDelay(respawnDelay);
+    who->SetCorpseDelay(1);
+    who->SetRespawnDelay(delayToRespawn - 1);
 
-    if (instance)
+    who->DespawnOrUnsummon();
+
+    who->SetCorpseDelay(corpseDelay);
+    who->SetRespawnDelay(respawnDelay);
+
+    if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);
 }
 
