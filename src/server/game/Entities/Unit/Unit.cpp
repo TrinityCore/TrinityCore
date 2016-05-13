@@ -8048,47 +8048,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_SHAMAN:
             {
-                switch (auraSpellInfo->Id)
+                // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
+                if (auraSpellInfo->SpellFamilyFlags[0] & 0x400)
                 {
-                    case 30881: // Nature's Guardian Rank 1
-                    case 30883: // Nature's Guardian Rank 2
-                    case 30884: // Nature's Guardian Rank 3
-                    case 30885: // Nature's Guardian Rank 4
-                    case 30886: // Nature's Guardian Rank 5
-                    {
-                        if (HealthBelowPct(30))
-                        {
-                            basepoints0 = int32(auraSpellInfo->Effects[EFFECT_0].CalcValue() * GetMaxHealth() / 100.0f);
-                            target = this;
-                            trigger_spell_id = 31616;
-                            /// @todo Threat part
-                        }
-                        else
-                            return false;
-                        break;
-                    }
-                    default:
-                    {
-                        // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
-                        if (auraSpellInfo->SpellFamilyFlags[0] & 0x400)
-                        {
-                            trigger_spell_id = sSpellMgr->GetSpellWithRank(26364, auraSpellInfo->GetRank());
-                        }
-                        // Nature's Guardian
-                        else if (auraSpellInfo->SpellIconID == 2013)
-                        {
-                            // Check health condition - should drop to less 30% (damage deal after this!)
-                            if (!HealthBelowPctDamaged(30, damage))
-                                return false;
-
-                             if (victim && victim->IsAlive())
-                                 victim->getThreatManager().modifyThreatPercent(this, -10);
-
-                            basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
-                            trigger_spell_id = 31616;
-                            target = this;
-                        }
-                    }
+                    trigger_spell_id = sSpellMgr->GetSpellWithRank(26364, auraSpellInfo->GetRank());
                 }
                 break;
             }

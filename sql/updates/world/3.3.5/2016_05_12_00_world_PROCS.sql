@@ -14,3 +14,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_forms_trinket';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (67353, 'spell_dru_t9_feral_relic');
+-- Shaman Nature's Guardian
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_sha_nature_guardian';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-30881, 'spell_sha_nature_guardian');

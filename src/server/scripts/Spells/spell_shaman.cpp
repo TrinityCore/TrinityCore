@@ -50,6 +50,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 64694,
     SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE     = 52032,
     SPELL_SHAMAN_MANA_TIDE_TOTEM                = 39609,
+    SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
@@ -952,6 +953,53 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
         }
 };
 
+// -30881 - Nature's Guardian
+class spell_sha_nature_guardian : public SpellScriptLoader
+{
+public:
+    spell_sha_nature_guardian() : SpellScriptLoader("spell_sha_nature_guardian") { }
+
+    class spell_sha_nature_guardian_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_nature_guardian_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_NATURE_GUARDIAN))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            if (Unit* target = GetTarget())
+                if(target->HealthBelowPct(30))
+                { 
+                    uint32 bp = int32(aurEff->GetSpellInfo()->Effects[EFFECT_0].CalcValue() * target->GetMaxHealth() / 100.0f);
+                    target->CastCustomSpell(SPELL_SHAMAN_NATURE_GUARDIAN, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+                
+                    // Threat reduction is around 10% confirmed in retail and from wiki
+                    if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+                        if (Unit* attacker = dmgInfo->GetAttacker())
+                            if (attacker->IsAlive())
+                                attacker->getThreatManager().modifyThreatPercent(target, -10);
+                }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_sha_nature_guardian_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_nature_guardian_AuraScript();
+    }
+};
+
 // 6495 - Sentry Totem
 class spell_sha_sentry_totem : public SpellScriptLoader
 {
@@ -1087,6 +1135,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash();
     new spell_sha_mana_spring_totem();
     new spell_sha_mana_tide_totem();
+    new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
     new spell_sha_thunderstorm();
     new spell_sha_totemic_mastery();

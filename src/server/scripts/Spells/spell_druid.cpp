@@ -225,33 +225,52 @@ public:
             return true;
         }
 
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (GetTarget())
+            {
+                switch (GetTarget()->GetShapeshiftForm())
+                {
+                    case FORM_BEAR:
+                    case FORM_DIREBEAR:
+                    case FORM_CAT:
+                    case FORM_MOONKIN:
+                    case FORM_NONE:
+                    case FORM_TREE:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            if (Unit* target = eventInfo.GetActionTarget())
+            if (Unit* target = GetTarget())
             {
                 uint32 triggerspell = 0;
 
                 switch (target->GetShapeshiftForm())
                 {
-                case FORM_BEAR:
-                case FORM_DIREBEAR:
-                    triggerspell = SPELL_DRUID_FORMS_TRINKET_BEAR;
-                    break;
-                case FORM_CAT:
-                    triggerspell = SPELL_DRUID_FORMS_TRINKET_CAT;
-                    break;
-                case FORM_MOONKIN:
-                    triggerspell = SPELL_DRUID_FORMS_TRINKET_MOONKIN;
-                    break;
-                case FORM_NONE:
-                    triggerspell = SPELL_DRUID_FORMS_TRINKET_NONE;
-                    break;
-                case FORM_TREE:
-                    triggerspell = SPELL_DRUID_FORMS_TRINKET_TREE;
-                    break;
-                default:
-                    return;
+                    case FORM_BEAR:
+                    case FORM_DIREBEAR:
+                        triggerspell = SPELL_DRUID_FORMS_TRINKET_BEAR;
+                        break;
+                    case FORM_CAT:
+                        triggerspell = SPELL_DRUID_FORMS_TRINKET_CAT;
+                        break;
+                    case FORM_MOONKIN:
+                        triggerspell = SPELL_DRUID_FORMS_TRINKET_MOONKIN;
+                        break;
+                    case FORM_NONE:
+                        triggerspell = SPELL_DRUID_FORMS_TRINKET_NONE;
+                        break;
+                    case FORM_TREE:
+                        triggerspell = SPELL_DRUID_FORMS_TRINKET_TREE;
+                        break;
+                    default:
+                        return;
                 }
 
                 target->CastSpell(target, triggerspell, true, nullptr, aurEff);
@@ -260,6 +279,7 @@ public:
 
         void Register() override
         {
+            DoCheckProc += AuraCheckProcFn(spell_dru_forms_trinket_AuraScript::CheckProc);
             OnEffectProc += AuraEffectProcFn(spell_dru_forms_trinket_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
@@ -1170,10 +1190,26 @@ public:
             return true;
         }
 
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (GetTarget())
+            {
+                switch (GetTarget()->GetShapeshiftForm())
+                {
+                    case FORM_BEAR:
+                    case FORM_DIREBEAR:
+                    case FORM_CAT:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            if (Unit* target = eventInfo.GetActionTarget())
+            if (Unit* target = GetTarget())
             {
                 uint32 triggerspell = 0;
 
@@ -1186,8 +1222,6 @@ public:
                     case FORM_CAT:
                         triggerspell = SPELL_DRUID_T9_FERAL_RELIC_CAT;
                         break;
-                    default:
-                        return;
                 }
 
                 target->CastSpell(target, triggerspell, true, nullptr, aurEff);
@@ -1196,6 +1230,7 @@ public:
 
         void Register() override
         {
+            DoCheckProc += AuraCheckProcFn(spell_dru_t9_feral_relic_AuraScript::CheckProc);
             OnEffectProc += AuraEffectProcFn(spell_dru_t9_feral_relic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };

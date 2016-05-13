@@ -30,8 +30,6 @@
 enum PriestSpells
 {
     SPELL_PRIEST_BLESSED_RECOVERY_R1                = 27813,
-    SPELL_PRIEST_BLESSED_RECOVERY_R2                = 27817,
-    SPELL_PRIEST_BLESSED_RECOVERY_R3                = 27818,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
@@ -104,38 +102,19 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_RECOVERY_R1) 
-                || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_RECOVERY_R2)
-                || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_RECOVERY_R3))
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_RECOVERY_R1))
                 return false;
             return true;
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
-            uint32 triggerSpell = 0;
-            uint32 bp = 0;
-
             PreventDefaultAction();
             if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
-                if (Unit* target = eventInfo.GetActionTarget())
+                if (Unit* target = GetTarget())
                 {
-                    switch (eventInfo.GetSpellInfo()->GetRank())
-                    {
-                        case 1:
-                            triggerSpell = SPELL_PRIEST_BLESSED_RECOVERY_R1;
-                            break;
-                        case 2:
-                            triggerSpell = SPELL_PRIEST_BLESSED_RECOVERY_R2;
-                            break;
-                        case 3:
-                            triggerSpell = SPELL_PRIEST_BLESSED_RECOVERY_R3;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    bp = CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount()) / 3;
+                    uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PRIEST_BLESSED_RECOVERY_R1, eventInfo.GetSpellInfo()->GetRank());
+                    uint32 bp = CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount()) / 3;
                     bp += target->GetRemainingPeriodicAmount(target->GetGUID(), triggerSpell, SPELL_AURA_PERIODIC_HEAL);
                     target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
                 }
