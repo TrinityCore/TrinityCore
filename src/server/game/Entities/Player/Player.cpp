@@ -1670,7 +1670,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
     *data << uint32(fields[16].GetUInt32());                // guild id
 
-    uint32 charFlags = CHARACTER_FLAG_UNK1;
+    uint32 charFlags = 0;
     uint32 playerFlags = fields[17].GetUInt32();
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
