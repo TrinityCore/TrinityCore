@@ -1564,7 +1564,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex)
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_PROJECTILE_COLLISION))
+                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DOES_NOT_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }
