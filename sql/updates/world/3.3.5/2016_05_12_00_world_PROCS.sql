@@ -30,3 +30,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_hun_t9_4p_bonus';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-67151, 'spell_hun_t9_4p_bonus');
+-- Shaman Lightning Shield
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_sha_lightning_shield';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-324, 'spell_sha_lightning_shield');

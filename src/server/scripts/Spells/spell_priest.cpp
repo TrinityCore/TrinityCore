@@ -113,7 +113,7 @@ public:
             if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
                 if (Unit* target = eventInfo.GetActionTarget())
                 {
-                    uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PRIEST_BLESSED_RECOVERY_R1, eventInfo.GetSpellInfo()->GetRank());
+                    uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PRIEST_BLESSED_RECOVERY_R1, aurEff->GetSpellInfo()->GetRank());
                     uint32 bp = CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount()) / 3;
                     bp += target->GetRemainingPeriodicAmount(target->GetGUID(), triggerSpell, SPELL_AURA_PERIODIC_HEAL);
                     target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);

@@ -722,6 +722,8 @@ public:
                     case SPELL_SCHOOL_SHADOW:
                     case SPELL_SCHOOL_ARCANE:
                         return true;
+                    default:
+                        return false;
                 }
 
             return false;
@@ -752,6 +754,8 @@ public:
                 case SPELL_SCHOOL_ARCANE: 
                     triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_ARCANE;
                     break;
+                default:
+                    return;
             }
 
             if (Unit* target = eventInfo.GetActionTarget())

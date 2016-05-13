@@ -270,6 +270,8 @@ public:
                 case FORM_TREE:
                     triggerspell = SPELL_DRUID_FORMS_TRINKET_TREE;
                     break;
+                default:
+                    return;
             }
 
             target->CastSpell(target, triggerspell, true, nullptr, aurEff); 
@@ -1222,6 +1224,8 @@ public:
                 case FORM_CAT:
                     triggerspell = SPELL_DRUID_T9_FERAL_RELIC_CAT;
                     break;
+                default:
+                    return;
             }
 
             target->CastSpell(target, triggerspell, true, nullptr, aurEff);

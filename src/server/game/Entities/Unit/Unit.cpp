@@ -7994,15 +7994,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 }
                 break;
             }
-            case SPELLFAMILY_SHAMAN:
-            {
-                // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
-                if (auraSpellInfo->SpellFamilyFlags[0] & 0x400)
-                {
-                    trigger_spell_id = sSpellMgr->GetSpellWithRank(26364, auraSpellInfo->GetRank());
-                }
-                break;
-            }
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Acclimation
