@@ -227,9 +227,9 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (GetTarget())
+            if (Unit* target = eventInfo.GetActor())
             {
-                switch (GetTarget()->GetShapeshiftForm())
+                switch (target->GetShapeshiftForm())
                 {
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
@@ -247,34 +247,30 @@ public:
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            if (Unit* target = GetTarget())
+            Unit* target = eventInfo.GetActor();
+            uint32 triggerspell = 0;
+
+            switch (target->GetShapeshiftForm())
             {
-                uint32 triggerspell = 0;
-
-                switch (target->GetShapeshiftForm())
-                {
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                        triggerspell = SPELL_DRUID_FORMS_TRINKET_BEAR;
-                        break;
-                    case FORM_CAT:
-                        triggerspell = SPELL_DRUID_FORMS_TRINKET_CAT;
-                        break;
-                    case FORM_MOONKIN:
-                        triggerspell = SPELL_DRUID_FORMS_TRINKET_MOONKIN;
-                        break;
-                    case FORM_NONE:
-                        triggerspell = SPELL_DRUID_FORMS_TRINKET_NONE;
-                        break;
-                    case FORM_TREE:
-                        triggerspell = SPELL_DRUID_FORMS_TRINKET_TREE;
-                        break;
-                    default:
-                        return;
-                }
-
-                target->CastSpell(target, triggerspell, true, nullptr, aurEff);
+                case FORM_BEAR:
+                case FORM_DIREBEAR:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_BEAR;
+                    break;
+                case FORM_CAT:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_CAT;
+                    break;
+                case FORM_MOONKIN:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_MOONKIN;
+                    break;
+                case FORM_NONE:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_NONE;
+                    break;
+                case FORM_TREE:
+                    triggerspell = SPELL_DRUID_FORMS_TRINKET_TREE;
+                    break;
             }
+
+            target->CastSpell(target, triggerspell, true, nullptr, aurEff); 
         }
 
         void Register() override
@@ -1192,9 +1188,9 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (GetTarget())
+            if (Unit* target = eventInfo.GetActor())
             {
-                switch (GetTarget()->GetShapeshiftForm())
+                switch (target->GetShapeshiftForm())
                 {
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
@@ -1209,23 +1205,22 @@ public:
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            if (Unit* target = GetTarget())
+            uint32 triggerspell = 0;
+
+            Unit* target = eventInfo.GetActor();
+
+            switch (target->GetShapeshiftForm())
             {
-                uint32 triggerspell = 0;
-
-                switch (target->GetShapeshiftForm())
-                {
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                        triggerspell = SPELL_DRUID_T9_FERAL_RELIC_BEAR;
-                        break;
-                    case FORM_CAT:
-                        triggerspell = SPELL_DRUID_T9_FERAL_RELIC_CAT;
-                        break;
-                }
-
-                target->CastSpell(target, triggerspell, true, nullptr, aurEff);
+                case FORM_BEAR:
+                case FORM_DIREBEAR:
+                    triggerspell = SPELL_DRUID_T9_FERAL_RELIC_BEAR;
+                    break;
+                case FORM_CAT:
+                    triggerspell = SPELL_DRUID_T9_FERAL_RELIC_CAT;
+                    break;
             }
+
+            target->CastSpell(target, triggerspell, true, nullptr, aurEff);
         }
 
         void Register() override

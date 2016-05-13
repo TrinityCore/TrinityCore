@@ -138,7 +138,7 @@ public:
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            if (Unit* target = GetTarget())
+            if (Unit* target = eventInfo.GetActionTarget())
                 target->CastSpell(target, SPELL_MAGE_BLAZING_SPEED, true, nullptr, aurEff);
         }
 

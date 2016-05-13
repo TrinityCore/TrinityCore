@@ -18,3 +18,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_sha_nature_guardian';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-30881, 'spell_sha_nature_guardian');
+-- Warlock Nether protection
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_warl_nether_protection';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-30299, 'spell_warl_nether_protection');

@@ -974,19 +974,19 @@ public:
         {
             PreventDefaultAction();
 
-            if (Unit* target = GetTarget())
-                if(target->HealthBelowPct(30))
-                { 
+            if (Unit* target = eventInfo.GetActionTarget())
+                if (target->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage()))
+                {
                     uint32 bp = int32(aurEff->GetSpellInfo()->Effects[EFFECT_0].CalcValue() * target->GetMaxHealth() / 100.0f);
                     target->CastCustomSpell(SPELL_SHAMAN_NATURE_GUARDIAN, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
-                
+
                     // Threat reduction is around 10% confirmed in retail and from wiki
-                    if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
-                        if (Unit* attacker = dmgInfo->GetAttacker())
-                            if (attacker->IsAlive())
-                                attacker->getThreatManager().modifyThreatPercent(target, -10);
+                    if (Unit* attacker = eventInfo.GetActor())
+                        if (attacker->IsAlive())
+                            attacker->getThreatManager().modifyThreatPercent(target, -10);
                 }
         }
+        
 
         void Register() override
         {
