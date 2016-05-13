@@ -6,3 +6,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_pri_blessed_recovery';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-27811, 'spell_priest_blessed_recovery');
+-- Druid Forms Trinket
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_forms_trinket';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(37336, 'spell_dru_forms_trinket');
+-- Druid T9 Feral Relic (Idol of Mutilation)
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_forms_trinket';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(67353, 'spell_dru_t9_feral_relic');

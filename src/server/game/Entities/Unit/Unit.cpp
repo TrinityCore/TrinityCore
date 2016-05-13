@@ -7908,44 +7908,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 }
                 break;
             }
-            case SPELLFAMILY_DRUID:
-            {
-                switch (auraSpellInfo->Id)
-                {
-                    // Druid Forms Trinket
-                    case 37336:
-                    {
-                        switch (GetShapeshiftForm())
-                        {
-                            case FORM_NONE:     trigger_spell_id = 37344; break;
-                            case FORM_CAT:      trigger_spell_id = 37341; break;
-                            case FORM_BEAR:
-                            case FORM_DIREBEAR: trigger_spell_id = 37340; break;
-                            case FORM_TREE:     trigger_spell_id = 37342; break;
-                            case FORM_MOONKIN:  trigger_spell_id = 37343; break;
-                            default:
-                                return false;
-                        }
-                        break;
-                    }
-                    // Druid T9 Feral Relic (Lacerate, Swipe, Mangle, and Shred)
-                    case 67353:
-                    {
-                        switch (GetShapeshiftForm())
-                        {
-                            case FORM_CAT:      trigger_spell_id = 67355; break;
-                            case FORM_BEAR:
-                            case FORM_DIREBEAR: trigger_spell_id = 67354; break;
-                            default:
-                                return false;
-                        }
-                        break;
-                    }
-                    default:
-                        break;
-                }
-                break;
-            }
             case SPELLFAMILY_HUNTER:
             {
                 if (auraSpellInfo->SpellIconID == 3247)     // Piercing Shots

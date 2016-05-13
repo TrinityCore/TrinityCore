@@ -117,7 +117,7 @@ public:
             uint32 bp = 0;
 
             PreventDefaultAction();
-            if( DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+            if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
                 if (Unit* target = eventInfo.GetActionTarget())
                 {
                     switch (eventInfo.GetSpellInfo()->GetRank())
