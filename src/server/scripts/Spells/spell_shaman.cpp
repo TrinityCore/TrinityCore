@@ -973,11 +973,13 @@ public:
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
+            int32 healthpct = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(); // %s2 - the 30% threshold for health
 
             if (Unit* target = eventInfo.GetActionTarget())
-                if (target->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage()))
+                if (target->HealthBelowPctDamaged(healthpct, eventInfo.GetDamageInfo()->GetDamage()))
                 {
-                    uint32 bp = int32(aurEff->GetSpellInfo()->Effects[EFFECT_0].CalcValue() * target->GetMaxHealth() / 100.0f);
+                    
+                    uint32 bp = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
                     target->CastCustomSpell(SPELL_SHAMAN_NATURE_GUARDIAN, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
 
                     // Threat reduction is around 10% confirmed in retail and from wiki

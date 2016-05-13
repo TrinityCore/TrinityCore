@@ -22,3 +22,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_warl_nether_protection';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-30299, 'spell_warl_nether_protection');
+-- Hunter Piercing Shots
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_hun_piercing_shots';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-53234, 'spell_hun_piercing_shots');
+-- Hunter T9 Bonus
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_hun_t9_4p_bonus';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-67151, 'spell_hun_t9_4p_bonus');

@@ -242,6 +242,8 @@ public:
                         return false;
                 }
             }
+
+            return false;
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1200,6 +1202,8 @@ public:
                         return false;
                 }
             }
+
+            return false;
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
