@@ -1823,7 +1823,7 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
     for (uint32 i = 0; i < MAX_PET_SPECIALIZATIONS; ++i)
     {
         // pets have class id 0 in ChrSpecialization.dbc
-        if (ChrSpecializationEntry const* specialization = sChrSpecializationByIndexStore[0][i])
+        if (ChrSpecializationEntry const* specialization = sChrSpecializationByIndexStore[PET_SPEC_OVERRIDE_CLASS_INDEX][i])
         {
             if (std::vector<SpecializationSpellsEntry const*> const* specSpells = sDB2Manager.GetSpecializationSpells(specialization->ID))
             {
