@@ -567,6 +567,7 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
+    delete _cinematicMgr;
 
     sWorld->DecreasePlayerCount();
 }

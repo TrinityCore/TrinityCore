@@ -27,6 +27,7 @@ CinematicMgr::CinematicMgr(Player* playerref)
     m_cinematicDiff = 0;
     m_lastCinematicCheck = 0;
     m_activeCinematicCameraId = 0;
+    m_cinematicLength = 0;
     m_cinematicCamera = nullptr;
     m_remoteSightPosition = Position(0.0f, 0.0f, 0.0f);
     m_CinematicObject = nullptr;
@@ -70,6 +71,8 @@ void CinematicMgr::BeginCinematic()
             FlyByCameraCollection::const_reverse_iterator camrevitr = m_cinematicCamera->rbegin();
             if (camrevitr != m_cinematicCamera->rend())
                 m_cinematicLength = camrevitr->timeStamp;
+            else
+                m_cinematicLength = 0;
         }
     }
 }
