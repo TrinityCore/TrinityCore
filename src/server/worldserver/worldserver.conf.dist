@@ -3729,12 +3729,12 @@ Allow.IP.Based.Action.Logging = 0
 Currency.ResetInterval = 7
 
 #
-#    Currency.ResetWeekDay
+#    Currency.ResetDay
 #        Week day when currency week count is reset (0..6) 0 == Sunday
 #        Default: 3 (Wednesday)
 #
 
-Currency.ResetWeekDay = 3
+Currency.ResetDay = 3
 
 #
 #    Currency.ResetHour
@@ -3801,12 +3801,12 @@ Currency.MaxJusticePoints = 4000
 Currency.StartConquestPoints = 0
 
 #
-#    Currency.ConquestPointsDefaultWeekCap
+#    Currency.ConquestPointsWeekCap
 #        Amount of conquest points that player can earn per week
 #        Default: 1350
 #
 
-Currency.ConquestPointsDefaultWeekCap = 1350
+Currency.ConquestPointsWeekCap = 1350
 
 #
 #    Currency.ConquestPointsArenaReward
