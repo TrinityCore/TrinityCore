@@ -734,20 +734,22 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
+    // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
+    // clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
     switch (packet.SpecGroupIndex)
     {
         case 0:
-            pet->RemoveSpecializationSpells();
+            pet->RemoveSpecializationSpells(false);
             pet->SetSpecialization(TALENT_SPEC_PET_FEROCITY);
             pet->LearnSpecializationSpells();
             break;
         case 1:
-            pet->RemoveSpecializationSpells();
+            pet->RemoveSpecializationSpells(false);
             pet->SetSpecialization(TALENT_SPEC_PET_TENACITY);
             pet->LearnSpecializationSpells();
             break;
         case 2:
-            pet->RemoveSpecializationSpells();
+            pet->RemoveSpecializationSpells(false);
             pet->SetSpecialization(TALENT_SPEC_PET_CUNNING);
             pet->LearnSpecializationSpells();
             break;
@@ -757,6 +759,7 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
     }
 
     // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
+    pet->CleanupActionBar();
     _player->PetSpellInitialize();
 
     WorldPackets::Pet::SetPetSpecialization setPetSpecialization;
