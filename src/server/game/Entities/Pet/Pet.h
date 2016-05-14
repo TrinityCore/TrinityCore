@@ -38,8 +38,7 @@ enum PetStableinfo
     PET_STABLE_INACTIVE = 2
 };
 
-// there are 3 specs, but each spec has an Adaptation variant
-#define MAX_PET_SPECIALIZATIONS 6
+#define MAX_PET_SPECIALIZATIONS 3
 
 enum PetTalents
 {

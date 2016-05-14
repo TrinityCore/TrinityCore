@@ -421,10 +421,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
 
     for (SpecializationSpellsEntry const* specSpells : sSpecializationSpellsStore)
-    {
         _specializationSpellsBySpec[specSpells->SpecID].push_back(specSpells);
-        _specIdBySpell[specSpells->SpellID] = specSpells->SpecID;
-    }
 
     for (SpellPowerEntry const* power : sSpellPowerStore)
     {
@@ -880,13 +877,4 @@ bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabili
     if (left->MountTypeID == right->MountTypeID)
         return left->OrderIndex < right->OrderIndex;
     return left->ID < right->ID;
-}
-
-uint32 DB2Manager::GetSpecFromSpellId(uint32 spellId) const
-{
-    auto itr = _specIdBySpell.find(spellId);
-    if (itr != _specIdBySpell.end())
-        return itr->second;
-
-    return 0;
 }
