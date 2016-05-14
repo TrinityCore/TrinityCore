@@ -5475,7 +5475,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
         {
             // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetCurrentRune(l) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)) && (player->GetRuneCooldown(l+1) && player->GetCurrentRune(l+1) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)))
+            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)) && (player->GetRuneCooldown(l+1) && player->GetBaseRune(l+1) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)))
             {
                 // Should always update the rune with the lowest cd
                 if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
