@@ -688,7 +688,7 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
-// -30881 - Nature's Guardian
+// -30299 - Nether Protection
 class spell_warl_nether_protection : public SpellScriptLoader
 {
 public:

@@ -30,6 +30,12 @@
 
 enum DeathKnightSpells
 {
+    SPELL_DK_ACCLIMATION_HOLY                   = 50490,
+    SPELL_DK_ACCLIMATION_FIRE                   = 50362,
+    SPELL_DK_ACCLIMATION_FROST                  = 50485,
+    SPELL_DK_ACCLIMATION_ARCANE                 = 50486,
+    SPELL_DK_ACCLIMATION_SHADOW                 = 50489,
+    SPELL_DK_ACCLIMATION_NATURE                 = 50488,
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
@@ -76,6 +82,93 @@ enum DeathKnightSpellIcons
 enum Misc
 {
     NPC_DK_GHOUL                                = 26125
+};
+
+// -49200 - Acclimation
+class spell_dk_acclimation : public SpellScriptLoader
+{
+public:
+    spell_dk_acclimation() : SpellScriptLoader("spell_dk_acclimation") { }
+
+    class spell_dk_acclimation_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_acclimation_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_HOLY)
+                || !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_FIRE)
+                || !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_FROST)
+                || !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_NATURE)
+                || !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_SHADOW)
+                || !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_ARCANE))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetDamageInfo())
+                switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+                {
+                    case SPELL_SCHOOL_HOLY:
+                    case SPELL_SCHOOL_FIRE:
+                    case SPELL_SCHOOL_NATURE:
+                    case SPELL_SCHOOL_FROST:
+                    case SPELL_SCHOOL_SHADOW:
+                    case SPELL_SCHOOL_ARCANE:
+                        return true;
+                    default:
+                        return false;
+                }
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            uint32 triggerspell = 0;
+
+            switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+            {
+                case SPELL_SCHOOL_HOLY:
+                    triggerspell = SPELL_DK_ACCLIMATION_HOLY;
+                    break;
+                case SPELL_SCHOOL_FIRE:
+                    triggerspell = SPELL_DK_ACCLIMATION_FIRE;
+                    break;
+                case SPELL_SCHOOL_NATURE:
+                    triggerspell = SPELL_DK_ACCLIMATION_NATURE;
+                    break;
+                case SPELL_SCHOOL_FROST:
+                    triggerspell = SPELL_DK_ACCLIMATION_FROST;
+                    break;
+                case SPELL_SCHOOL_SHADOW:
+                    triggerspell = SPELL_DK_ACCLIMATION_SHADOW;
+                    break;
+                case SPELL_SCHOOL_ARCANE:
+                    triggerspell = SPELL_DK_ACCLIMATION_ARCANE;
+                    break;
+                default:
+                    return;
+            }
+
+            if (Unit* target = eventInfo.GetActionTarget())
+                target->CastSpell(target, triggerspell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_acclimation_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_dk_acclimation_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_acclimation_AuraScript();
+    }
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -2006,6 +2099,7 @@ public:
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_acclimation();
     new spell_dk_anti_magic_shell_raid();
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();

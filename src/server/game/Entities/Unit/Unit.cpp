@@ -7996,27 +7996,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
-                // Acclimation
-                if (auraSpellInfo->SpellIconID == 1930)
-                {
-                    if (!procSpell)
-                        return false;
-                    switch (GetFirstSchoolInMask(procSpell->GetSchoolMask()))
-                    {
-                        case SPELL_SCHOOL_NORMAL:
-                            return false;                   // ignore
-                        case SPELL_SCHOOL_HOLY:   trigger_spell_id = 50490; break;
-                        case SPELL_SCHOOL_FIRE:   trigger_spell_id = 50362; break;
-                        case SPELL_SCHOOL_NATURE: trigger_spell_id = 50488; break;
-                        case SPELL_SCHOOL_FROST:  trigger_spell_id = 50485; break;
-                        case SPELL_SCHOOL_SHADOW: trigger_spell_id = 50489; break;
-                        case SPELL_SCHOOL_ARCANE: trigger_spell_id = 50486; break;
-                        default:
-                            return false;
-                    }
-                }
                 // Blood Presence (Improved)
-                else if (auraSpellInfo->Id == 63611)
+                if (auraSpellInfo->Id == 63611)
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
