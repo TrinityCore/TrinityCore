@@ -540,9 +540,16 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //478
     &AuraEffect::HandleNULL,                                      //479
     &AuraEffect::HandleNULL,                                      //480
-    &AuraEffect::HandleNULL,                                      //481
+    &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
     &AuraEffect::HandleNULL,                                      //482
     &AuraEffect::HandleNULL,                                      //483
+    &AuraEffect::HandleNULL,                                      //484
+    &AuraEffect::HandleNULL,                                      //485
+    &AuraEffect::HandleNULL,                                      //486
+    &AuraEffect::HandleNULL,                                      //487
+    &AuraEffect::HandleNULL,                                      //488
+    &AuraEffect::HandleNULL,                                      //489
+    &AuraEffect::HandleNULL,                                      //490
 };
 
 AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster) :
@@ -649,23 +656,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (!m_spellInfo->ProcFlags)
                 break;
             amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
-            if (caster)
-            {
-                // Glyphs increasing damage cap
-                Unit::AuraEffectList const& overrideClassScripts = caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for (Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin(); itr != overrideClassScripts.end(); ++itr)
-                {
-                    if ((*itr)->IsAffectingSpell(m_spellInfo))
-                    {
-                        // Glyph of Frost nova and similar auras
-                        if ((*itr)->GetMiscValue() == 7801)
-                        {
-                            AddPct(amount, (*itr)->GetAmount());
-                            break;
-                        }
-                    }
-                }
-            }
             break;
         case SPELL_AURA_SCHOOL_ABSORB:
         case SPELL_AURA_MANA_SHIELD:
@@ -1935,12 +1925,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_BERSERKERSTANCE:
             {
                 int32 Rage_val = 0;
-                // Defensive Tactics
-                if (form == FORM_DEFENSIVESTANCE)
-                {
-                    if (AuraEffect const* aurEff = target->IsScriptOverriden(m_spellInfo, 831))
-                        Rage_val += aurEff->GetAmount() * 10;
-                }
                 // Stance mastery + Tactical mastery (both passive, and last have aura only in defense stance, but need apply at any stance switch)
                 if (target->GetTypeId() == TYPEID_PLAYER)
                 {
@@ -5960,7 +5944,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         // Calculate armor mitigation
         if (caster->IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
         {
-            uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
+            uint32 damageReductedArmor = caster->CalcArmorReducedDamage(caster, target, damage, GetSpellInfo());
             cleanDamage.mitigated_damage += damage - damageReductedArmor;
             damage = damageReductedArmor;
         }
@@ -6095,7 +6079,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     // Calculate armor mitigation
     if (caster->IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
     {
-        uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
+        uint32 damageReductedArmor = caster->CalcArmorReducedDamage(caster, target, damage, GetSpellInfo());
         cleanDamage.mitigated_damage += damage - damageReductedArmor;
         damage = damageReductedArmor;
     }

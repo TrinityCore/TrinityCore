@@ -2527,15 +2527,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
     if (Player* player = unit->ToPlayer())
     {
-        player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, m_spellInfo->Id);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id, 0, 0, m_caster);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, m_spellInfo->Id);
+        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_TARGET, m_spellInfo->Id);
+        player->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id, 0, 0, m_caster);
+        player->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET2, m_spellInfo->Id);
     }
 
     if (Player* player = m_caster->ToPlayer())
     {
-        player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER, m_spellInfo->Id);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2, m_spellInfo->Id, 0, 0, unit);
+        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_CASTER, m_spellInfo->Id);
+        player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL2, m_spellInfo->Id, 0, 0, unit);
     }
 
     if (m_caster != unit)
@@ -3270,11 +3270,11 @@ void Spell::cast(bool skipCheck)
     {
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM) && m_CastItem)
         {
-            player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_ITEM, m_CastItem->GetEntry());
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM, m_CastItem->GetEntry());
+            player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_ITEM, m_CastItem->GetEntry());
+            player->UpdateCriteria(CRITERIA_TYPE_USE_ITEM, m_CastItem->GetEntry());
         }
 
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
+        player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
     }
 
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
@@ -4612,6 +4612,11 @@ void Spell::TakeRunePower(bool didHit)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
     }
 
+    bool convertUsedRunes = false;
+    for (AuraEffect const* convertConsumedRuneAuras : m_caster->GetAuraEffectsByType(SPELL_AURA_CONVERT_CONSUMED_RUNE))
+        if (convertConsumedRuneAuras->IsAffectingSpell(m_spellInfo))
+            convertUsedRunes = true;
+
     // Let's say we use a skill that requires a Frost rune. This is the order:
     // - Frost rune
     // - Death rune, originally a Frost rune
@@ -4624,6 +4629,8 @@ void Spell::TakeRunePower(bool didHit)
             player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN), true);
             player->SetLastUsedRune(rune);
             runeCost[rune]--;
+            if (convertUsedRunes)
+                player->ConvertRune(i, RUNE_DEATH);
         }
     }
 
@@ -4643,7 +4650,7 @@ void Spell::TakeRunePower(bool didHit)
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (didHit && !convertUsedRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -4665,7 +4672,7 @@ void Spell::TakeRunePower(bool didHit)
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (didHit && !convertUsedRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -5243,13 +5250,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_CHARGE:
             {
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
-                {
-                    // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
-                    if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
-                        m_caster->RemoveMovementImpairingAuras();
-                }
-
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
 
@@ -5440,6 +5440,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
                 if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
                     return SPELL_FAILED_BAD_TARGETS;
+
+                if (target->HasSummonPending())
+                    return SPELL_FAILED_SUMMON_PENDING;
 
                 // check if our map is dungeon
                 MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());

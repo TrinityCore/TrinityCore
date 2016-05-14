@@ -40,7 +40,7 @@ struct ItemExtendedCostEntry;
 struct TrainerSpell;
 struct VendorItem;
 
-template<class T> class AchievementMgr;
+class PlayerAchievementMgr;
 class ReputationMgr;
 class Channel;
 class Creature;
@@ -115,8 +115,6 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
-
-TC_GAME_API extern uint32 const MasterySpells[MAX_CLASSES];
 
 enum TalentSpecialization // talent tabs
 {
@@ -1212,7 +1210,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
-        void SetSummonPoint(uint32 mapid, float x, float y, float z);
+        bool HasSummonPending() const;
+        void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
 
         bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo);
@@ -2277,13 +2276,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
-        // Recall position
-        uint32 m_recallMap;
-        float  m_recallX;
-        float  m_recallY;
-        float  m_recallZ;
-        float  m_recallO;
-        void   SaveRecallPosition();
+        void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
+        void Recall() { TeleportTo(m_recall_location); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
@@ -2435,10 +2429,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetAchievementPoints() const;
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
-        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
-        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
-        void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void ResetCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+        void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
+        void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
+        void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex) const;
@@ -2751,10 +2745,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // Player summoning
         time_t m_summon_expire;
-        uint32 m_summon_mapid;
-        float  m_summon_x;
-        float  m_summon_y;
-        float  m_summon_z;
+        WorldLocation m_summon_location;
+
+        // Recall position
+        WorldLocation m_recall_location;
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
@@ -2819,7 +2813,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        AchievementMgr<Player>* m_achievementMgr;
+        PlayerAchievementMgr* m_achievementMgr;
         ReputationMgr*  m_reputationMgr;
 
         uint32 m_ChampioningFaction;

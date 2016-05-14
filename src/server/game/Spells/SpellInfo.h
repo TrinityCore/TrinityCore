@@ -371,6 +371,9 @@ public:
     uint32 ProcFlags;
     uint32 ProcChance;
     uint32 ProcCharges;
+    uint32 ProcCooldown;
+    float ProcBasePPM;
+    std::vector<SpellProcsPerMinuteModEntry const*> ProcPPMMods;
     uint32 MaxLevel;
     uint32 BaseLevel;
     uint32 SpellLevel;
@@ -391,7 +394,6 @@ public:
     uint32 SpellIconID;
     uint32 ActiveIconID;
     char* SpellName;
-    char* Rank;
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
@@ -559,6 +561,8 @@ public:
     };
 
     std::vector<CostData> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+
+    float CalcProcPPM(Unit* caster, int32 itemLevel) const;
 
     bool IsRanked() const;
     uint8 GetRank() const;

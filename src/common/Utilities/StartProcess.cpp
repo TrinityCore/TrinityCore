@@ -92,6 +92,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
             // With binding stdin
             return execute(run_exe(boost::filesystem::absolute(executable)),
                 set_args(args),
+                inherit_env(),
                 bind_stdin(*inputSource),
                 bind_stdout(file_descriptor_sink(outPipe.sink, close_handle)),
                 bind_stderr(file_descriptor_sink(errPipe.sink, close_handle)));
@@ -101,6 +102,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
             // Without binding stdin
             return execute(run_exe(boost::filesystem::absolute(executable)),
                 set_args(args),
+                inherit_env(),
                 bind_stdout(file_descriptor_sink(outPipe.sink, close_handle)),
                 bind_stderr(file_descriptor_sink(errPipe.sink, close_handle)));
         }
@@ -237,7 +239,7 @@ public:
     }
 };
 
-TC_COMMON_API std::shared_ptr<AsyncProcessResult>
+std::shared_ptr<AsyncProcessResult>
     StartAsyncProcess(std::string executable, std::vector<std::string> args,
                       std::string logger, std::string input_file, bool secure)
 {

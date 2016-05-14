@@ -376,10 +376,10 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     switch (packet.RollType)
     {
         case ROLL_NEED:
-            GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
+            GetPlayer()->UpdateCriteria(CRITERIA_TYPE_ROLL_NEED, 1);
             break;
         case ROLL_GREED:
-            GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
+            GetPlayer()->UpdateCriteria(CRITERIA_TYPE_ROLL_GREED, 1);
             break;
     }
 }

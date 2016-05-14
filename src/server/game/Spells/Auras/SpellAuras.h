@@ -253,6 +253,9 @@ class TC_GAME_API Aura
         bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        float CalcPPMProcChance(Unit* actor) const;
+        void SetLastProcAttemptTime(std::chrono::steady_clock::time_point lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
+        void SetLastProcSuccessTime(std::chrono::steady_clock::time_point lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
 
         // AuraScript
         void LoadScripts();
@@ -313,11 +316,14 @@ class TC_GAME_API Aura
         //AuraEffect* m_effects[3];
         ApplicationMap m_applications;
 
-        bool m_isRemoved:1;
-        bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
-        bool m_isUsingCharges:1;
+        bool m_isRemoved;
+        bool m_isSingleTarget;                              // true if it's a single target spell and registered at caster - can change at spell steal for example
+        bool m_isUsingCharges;
 
         ChargeDropEvent* m_dropEvent;
+
+        std::chrono::steady_clock::time_point m_lastProcAttemptTime;
+        std::chrono::steady_clock::time_point m_lastProcSuccessTime;
 
     private:
         Unit::AuraApplicationList m_removedApplications;

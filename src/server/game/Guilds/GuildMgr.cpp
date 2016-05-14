@@ -511,7 +511,7 @@ void GuildMgr::LoadGuildRewards()
 
                 uint32 requiredAchievementId = fields[0].GetUInt32();
 
-                if (!sAchievementMgr->GetAchievement(requiredAchievementId))
+                if (!sAchievementStore.LookupEntry(requiredAchievementId))
                 {
                     TC_LOG_ERROR("server.loading", "Guild rewards constains not existing achievement entry %u", requiredAchievementId);
                     continue;

@@ -515,6 +515,12 @@ struct GlyphPropertiesEntry
     //uint32    GlyphExclusiveCategoryID;                   // 4
 };
 
+struct GtArmorMitigationByLvlEntry
+{
+    //uint32 level;
+    float   KFactor;
+};
+
 struct GtBarberShopCostBaseEntry
 {
     //uint32 level;

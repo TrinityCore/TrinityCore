@@ -78,8 +78,8 @@ public:
     BlackMarketTemplate const* GetTemplate() const;
     int32 GetMarketId() const { return _marketId; }
 
-    uint32 GetCurrentBid() const { return _currentBid; }
-    void SetCurrentBid(uint32 bid) { _currentBid = bid; }
+    uint64 GetCurrentBid() const { return _currentBid; }
+    void SetCurrentBid(uint64 bid) { _currentBid = bid; }
 
     int32 GetNumBids() const { return _numBids; }
     void SetNumBids(int32 numBids) { _numBids = numBids; }

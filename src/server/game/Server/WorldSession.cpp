@@ -482,8 +482,16 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
-                m_Socket[CONNECTION_TYPE_REALM].reset();
-                m_Socket[CONNECTION_TYPE_INSTANCE].reset();
+                if (m_Socket[CONNECTION_TYPE_REALM])
+                {
+                    m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
+                    m_Socket[CONNECTION_TYPE_REALM].reset();
+                }
+                if (m_Socket[CONNECTION_TYPE_INSTANCE])
+                {
+                    m_Socket[CONNECTION_TYPE_INSTANCE]->CloseSocket();
+                    m_Socket[CONNECTION_TYPE_INSTANCE].reset();
+                }
             }
         }
 

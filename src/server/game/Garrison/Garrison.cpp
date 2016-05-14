@@ -407,7 +407,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
             _owner->SendDirectMessage(buildingRemoved.Write());
         }
 
-        _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING, garrBuildingId);
+        _owner->UpdateCriteria(CRITERIA_TYPE_PLACE_GARRISON_BUILDING, garrBuildingId);
     }
 
     _owner->SendDirectMessage(placeBuildingResult.Write());
@@ -511,7 +511,7 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     addFollowerResult.Follower = follower.PacketInfo;
     _owner->SendDirectMessage(addFollowerResult.Write());
 
-    _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER, follower.PacketInfo.DbID);
+    _owner->UpdateCriteria(CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER, follower.PacketInfo.DbID);
 }
 
 Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const

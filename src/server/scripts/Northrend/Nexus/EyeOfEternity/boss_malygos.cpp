@@ -383,7 +383,7 @@ public:
 
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetReactState(REACT_PASSIVE);
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         uint32 GetData(uint32 data) const override
@@ -582,7 +582,7 @@ public:
 
             Talk(SAY_START_P_ONE);
             DoCast(SPELL_BERSERK); // periodic aura, first tick in 10 minutes
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override

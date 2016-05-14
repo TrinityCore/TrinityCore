@@ -19,7 +19,7 @@
 #define _DATABASEWORKERPOOL_H
 
 #include "Common.h"
-#include "Callback.h"
+#include "QueryCallback.h"
 #include "MySQLConnection.h"
 #include "Transaction.h"
 #include "DatabaseWorker.h"

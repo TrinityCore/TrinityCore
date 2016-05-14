@@ -537,10 +537,17 @@ enum AuraType
     SPELL_AURA_478                                          = 478,
     SPELL_AURA_479                                          = 479,
     SPELL_AURA_480                                          = 480,
-    SPELL_AURA_481                                          = 481,
+    SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_483                                          = 483,
-    TOTAL_AURAS                                             = 484
+    SPELL_AURA_484                                          = 484,
+    SPELL_AURA_485                                          = 485,
+    SPELL_AURA_486                                          = 486,
+    SPELL_AURA_487                                          = 487,
+    SPELL_AURA_488                                          = 488,
+    SPELL_AURA_489                                          = 489,
+    SPELL_AURA_490                                          = 490,
+    TOTAL_AURAS                                             = 491
 };
 
 enum AuraObjectType

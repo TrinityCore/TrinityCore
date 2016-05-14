@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CALLBACK_H
-#define _CALLBACK_H
+#ifndef _QUERY_CALLBACK_H
+#define _QUERY_CALLBACK_H
 
 #include <future>
 #include "QueryResult.h"
@@ -206,4 +206,4 @@ class QueryCallback_2
         QueryCallback_2& operator=(QueryCallback_2 const& right) = delete;
 };
 
-#endif
+#endif // _QUERY_CALLBACK_H

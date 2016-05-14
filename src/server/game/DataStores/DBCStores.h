@@ -34,7 +34,8 @@ TC_GAME_API char const* GetClassName(uint8 class_, uint8 locale);
 TC_GAME_API char const* GetRaceName(uint8 race, uint8 locale);
 
 // ChrSpecialization
-typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
+#define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
+typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
 
 // CreatureFamilty
 TC_GAME_API char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);
@@ -207,6 +208,7 @@ TC_GAME_API extern DBCStorage<VehicleSeatEntry>                 sVehicleSeatStor
 TC_GAME_API extern DBCStorage<WMOAreaTableEntry>                sWMOAreaTableStore;
 TC_GAME_API extern DBCStorage<WorldSafeLocsEntry>               sWorldSafeLocsStore;
 
+TC_GAME_API extern GameTable<GtArmorMitigationByLvlEntry>       sGtArmorMitigationByLvlStore;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>         sGtBarberShopCostBaseStore;
 TC_GAME_API extern GameTable<GtChanceToMeleeCritBaseEntry>      sGtChanceToMeleeCritBaseStore;
 TC_GAME_API extern GameTable<GtChanceToMeleeCritEntry>          sGtChanceToMeleeCritStore;

@@ -165,7 +165,7 @@ public:
             Initialize();
 
             instance->SetBossState(DATA_HERALD_VOLAZJ, NOT_STARTED);
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
 
             // Visible for all players in insanity
             me->SetInPhase(169, true, true);
@@ -185,7 +185,7 @@ public:
             Talk(SAY_AGGRO);
 
             instance->SetBossState(DATA_HERALD_VOLAZJ, IN_PROGRESS);
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
         }
 
         void JustSummoned(Creature* summon) override
