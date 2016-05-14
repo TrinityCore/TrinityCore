@@ -28,6 +28,7 @@
 #include "SpellScript.h"
 #include "SpellHistory.h"
 #include "SpellAuraEffects.h"
+#include "CellImpl.h"
 
 enum ShamanSpells
 {
