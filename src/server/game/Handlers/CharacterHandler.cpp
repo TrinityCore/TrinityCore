@@ -1076,18 +1076,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->ContinueTaxiFlight();
 
     // reset for all pets before pet loading
-	if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-	{
-		// Delete all of the player's pet spells
-		PreparedStatement* stmtSpells = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
-		stmtSpells->setUInt64(0, pCurrChar->GetGUID().GetCounter());
-		CharacterDatabase.Execute(stmtSpells);
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+    {
+        // Delete all of the player's pet spells
+        PreparedStatement* stmtSpells = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
+        stmtSpells->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmtSpells);
 
-		// Then reset all of the player's pet specualizations
-		PreparedStatement* stmtSpec = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
-		stmtSpec->setUInt64(0, pCurrChar->GetGUID().GetCounter());
-		CharacterDatabase.Execute(stmtSpec);
-	}
+        // Then reset all of the player's pet specualizations
+        PreparedStatement* stmtSpec = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
+        stmtSpec->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmtSpec);
+    }
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
