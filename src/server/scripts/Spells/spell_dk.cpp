@@ -36,6 +36,7 @@ enum DeathKnightSpells
     SPELL_DK_ACCLIMATION_ARCANE                 = 50486,
     SPELL_DK_ACCLIMATION_SHADOW                 = 50489,
     SPELL_DK_ACCLIMATION_NATURE                 = 50488,
+    SPELL_DK_ADVANTAGE_T10_4P_MELEE             = 70657,
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
@@ -168,6 +169,52 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_dk_acclimation_AuraScript();
+    }
+};
+
+// 70656 - Advantage (T10 4P Melee Bonus)
+class spell_dk_advantage_t10_4p : public SpellScriptLoader
+{
+public:
+    spell_dk_advantage_t10_4p() : SpellScriptLoader("spell_dk_advantage_t10_4p") { }
+
+    class spell_dk_advantage_t10_4p_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_advantage_t10_4p_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_ADVANTAGE_T10_4P_MELEE))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (Unit* target = eventInfo.GetActionTarget())
+            {
+                if (target->GetTypeId() != TYPEID_PLAYER || target->getClass() != CLASS_DEATH_KNIGHT)
+                    return false;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                    if (target->ToPlayer()->GetRuneCooldown(i) == 0)
+                        return false;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_advantage_t10_4p_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_advantage_t10_4p_AuraScript();
     }
 };
 
@@ -2100,6 +2147,7 @@ public:
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_acclimation();
+    new spell_dk_advantage_t10_4p();
     new spell_dk_anti_magic_shell_raid();
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();

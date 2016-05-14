@@ -8005,16 +8005,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     trigger_spell_id = 50475;
                     basepoints0 = CalculatePct(int32(damage), triggerAmount);
                 }
-                // Item - Death Knight T10 Melee 4P Bonus
-                else if (auraSpellInfo->Id == 70656)
-                {
-                    if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
-                        return false;
-
-                    for (uint8 i = 0; i < MAX_RUNES; ++i)
-                        if (ToPlayer()->GetRuneCooldown(i) == 0)
-                            return false;
-                }
                 break;
             }
             case SPELLFAMILY_ROGUE:

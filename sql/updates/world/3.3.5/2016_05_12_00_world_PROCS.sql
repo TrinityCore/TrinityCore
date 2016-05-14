@@ -35,6 +35,10 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_sha_lightning_shield
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-324, 'spell_sha_lightning_shield');
 -- DK Acclimation
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_sha_lightning_shield';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dk_acclimation';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-49200, 'spell_dk_acclimation');
+-- DK Advantage t10 4p melee
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dk_advantage_t10_4p';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(70656, 'spell_dk_advantage_t10_4p');
