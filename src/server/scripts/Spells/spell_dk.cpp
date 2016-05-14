@@ -58,6 +58,7 @@ enum DeathKnightSpells
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
     SPELL_DK_IMPROVED_FROST_PRESENCE_R1         = 50384,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1        = 50391,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL       = 50475,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
@@ -1057,6 +1058,58 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
         {
             return new spell_dk_improved_blood_presence_AuraScript();
         }
+};
+
+// 63611 - Improved Blood Presence Triggered
+class spell_dk_improved_blood_presence_triggered : public SpellScriptLoader
+{
+public:
+    spell_dk_improved_blood_presence_triggered() : SpellScriptLoader("spell_dk_improved_blood_presence_triggered") { }
+
+    class spell_dk_improved_blood_presence_triggered_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_improved_blood_presence_triggered_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (Unit* caster = eventInfo.GetActor())  // procs on dk dealing damage
+                if (caster->GetTypeId() == TYPEID_PLAYER)
+                    if (Unit* target = eventInfo.GetActionTarget())
+                        if (caster->ToPlayer()->isHonorOrXPTarget(target)) // victim needs to yield XP or Honor as per spell tooltip
+                            return true;
+            
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+            {
+                Unit* caster = eventInfo.GetActor();
+                int32 bp = CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount());
+                caster->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
+            }
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_improved_blood_presence_triggered_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_dk_improved_blood_presence_triggered_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_improved_blood_presence_triggered_AuraScript();
+    }
 };
 
 // -50384 - Improved Frost Presence
@@ -2164,6 +2217,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_ghoul_explode();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
+    new spell_dk_improved_blood_presence_triggered();
     new spell_dk_improved_frost_presence();
     new spell_dk_improved_unholy_presence();
     new spell_dk_pestilence();

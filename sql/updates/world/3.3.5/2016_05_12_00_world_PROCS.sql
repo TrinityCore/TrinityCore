@@ -1,8 +1,8 @@
--- Blazing Speed
+-- Mage Blazing Speed
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_mage_blazing_speed';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-31641, 'spell_mage_blazing_speed');
--- Blessed Recovery
+-- Priest Blessed Recovery
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_pri_blessed_recovery';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-27811, 'spell_priest_blessed_recovery');
@@ -11,7 +11,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_forms_trinket';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (37336, 'spell_dru_forms_trinket');
 -- Druid T9 Feral Relic (Idol of Mutilation)
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_forms_trinket';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_t9_feral_relic';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (67353, 'spell_dru_t9_feral_relic');
 -- Shaman Nature's Guardian
@@ -42,3 +42,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dk_advantage_t10_4p';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (70656, 'spell_dk_advantage_t10_4p');
+-- DK Improved blood Presence Triggered
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dk_improved_blood_presence_triggered';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(63611, 'spell_dk_improved_blood_presence_triggered');
