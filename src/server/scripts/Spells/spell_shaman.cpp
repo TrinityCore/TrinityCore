@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Unit.h"
 #include "SpellScript.h"
 #include "SpellHistory.h"
