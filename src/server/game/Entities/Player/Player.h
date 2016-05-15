@@ -31,6 +31,7 @@
 #include "Unit.h"
 #include "Transmogrification.h"
 #include "TradeData.h"
+#include "CinematicMgr.h"
 
 #include <limits>
 #include <string>
@@ -1039,6 +1040,7 @@ struct ResurrectionData
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
+    friend class CinematicMgr;
     friend void Item::AddToUpdateQueueOf(Player* player);
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:
@@ -1286,6 +1288,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : nullptr; }
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
+
+        CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateSoulboundTradeItems();
@@ -2142,7 +2146,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResummonPetTemporaryUnSummonedIfAny();
         bool IsPetNeedBeTemporaryUnsummoned() const;
 
-        void SendCinematicStart(uint32 CinematicSequenceId);
+        void SendCinematicStart(uint32 CinematicSequenceId) const;
         void SendMovieStart(uint32 MovieId) const;
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
@@ -2284,17 +2288,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 #ifdef PRESETS
         PresetMapType presetMap; // presetMap[presetId] = presetData
 #endif
-
-        // Cinematic camera data and remote sight functions
-        uint32 GetActiveCinematicCamera() const { return m_activeCinematicCameraId; }
-        void SetActiveCinematicCamera(uint32 cinematicCameraId = 0) { m_activeCinematicCameraId = cinematicCameraId; }
-        bool IsOnCinematic() const { return (m_cinematicCamera != nullptr); }
-        void BeginCinematic();
-        void EndCinematic();
-        void UpdateCinematicLocation(uint32 diff);
-
-        std::string GetMapAreaAndZoneString();
-        std::string GetCoordsMapAreaAndZoneString();
 
     protected:
         // Gamemaster whisper whitelist
@@ -2555,6 +2548,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
         Item* _LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
 
+        CinematicMgr* _cinematicMgr;
+
         GuidSet m_refundableItems;
         void SendRefundInfo(Item* item);
         void RefundItem(Item* item);
@@ -2621,14 +2616,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
-
-        // Remote location information
-        uint32 m_cinematicDiff;
-        uint32 m_lastCinematicCheck;
-        uint32 m_activeCinematicCameraId;
-        FlyByCameraCollection* m_cinematicCamera;
-        Position m_remoteSightPosition;
-        Creature* m_CinematicObject;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

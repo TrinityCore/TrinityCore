@@ -1877,6 +1877,13 @@ GM.LowerSecurity = 0
 GM.TicketSystem.ChanceOfGMSurvey = 50
 
 #
+#    GM.ForceShutdownThreshold
+#        Description: Minimum shutdown time in seconds before 'force' is required if other players are connected.
+#        Default:     30
+
+GM.ForceShutdownThreshold = 30
+
+#
 ###################################################################################################
 
 ###################################################################################################
