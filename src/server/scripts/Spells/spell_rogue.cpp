@@ -844,7 +844,7 @@ public:
     }
 };
 
-// 70805 - Rogue T10 2P Bonus
+// 70805 - Rogue T10 2P Bonus -- THIS SHOULD BE REMOVED WITH NEW PROC SYSTEM.
 class spell_rog_t10_2p_bonus : public SpellScriptLoader
 {
 public:

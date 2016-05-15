@@ -2731,6 +2731,69 @@ public:
     }
 };
 
+enum SoulPreserver
+{
+    SPELL_SOUL_PRESERVER_DRUID       = 60512,
+    SPELL_SOUL_PRESERVER_PALADIN     = 60513,
+    SPELL_SOUL_PRESERVER_PRIEST      = 60514,
+    SPELL_SOUL_PRESERVER_SHAMAN      = 60515,
+};
+
+class spell_item_soul_preserver : public SpellScriptLoader
+{
+public:
+    spell_item_soul_preserver() : SpellScriptLoader("spell_item_soul_preserver") { }
+
+    class spell_item_soul_preserver_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_soul_preserver_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_DRUID)
+                || !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_PALADIN)
+                || !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_PRIEST)
+                || !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_SHAMAN))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            if (Unit* caster = eventInfo.GetActor())
+            {
+                switch (caster->getClass())
+                {
+                    case CLASS_DRUID:
+                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, true, nullptr, aurEff);
+                        break;
+                    case CLASS_PALADIN:
+                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PALADIN, true, nullptr, aurEff);
+                        break;
+                    case CLASS_PRIEST:
+                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PRIEST, true, nullptr, aurEff);
+                        break;
+                    case CLASS_SHAMAN:
+                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_SHAMAN, true, nullptr, aurEff);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_soul_preserver_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_soul_preserver_AuraScript();
+    }
+};
+
 class spell_item_toy_train_set_pulse : public SpellScriptLoader
 {
 public:
@@ -2838,5 +2901,6 @@ void AddSC_item_spell_scripts()
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
+    new spell_item_soul_preserver();
     new spell_item_toy_train_set_pulse();
 }
