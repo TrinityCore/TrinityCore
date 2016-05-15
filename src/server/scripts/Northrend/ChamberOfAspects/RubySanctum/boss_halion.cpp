@@ -1010,7 +1010,7 @@ class npc_meteor_strike_initial : public CreatureScript
                 if (HalionAI* halionAI = CAST_AI(HalionAI, owner->AI()))
                 {
                     Position const* ownerPos = halionAI->GetMeteorStrikePosition();
-                    float randomAdjustment = frand(0.0f, static_cast<float>(M_PI / 5.0f));
+                    float randomAdjustment = frand(static_cast<float>(M_PI / 5.0f), static_cast<float>(M_PI / 2.0f));
                     float angle[4];
                     angle[0] = me->GetAngle(ownerPos);
                     angle[1] = angle[0] + randomAdjustment;
@@ -1024,10 +1024,7 @@ class npc_meteor_strike_initial : public CreatureScript
                         me->SetOrientation(angle[i]);
                         Position newPos = me->GetNearPosition(10.0f, 0.0f); // Exact distance
                         if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
-                        {
-                            meteor->SetOrientation(angle[i]);
                             _meteorList.push_back(meteor);
-                        }
                     }
                 }
             }
