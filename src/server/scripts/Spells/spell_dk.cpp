@@ -1081,9 +1081,7 @@ public:
         {
             if (Unit* caster = eventInfo.GetActor())  // procs on dk dealing damage
                 if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = eventInfo.GetActionTarget())
-                        if (caster->ToPlayer()->isHonorOrXPTarget(target)) // victim needs to yield XP or Honor as per spell tooltip
-                            return true;
+                    return true;
             
             return false;
         }

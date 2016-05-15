@@ -50,3 +50,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_rog_t10_2p_bonus';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (70805, 'spell_rog_t10_2p_bonus');
+-- Paladin Illumination (for Holy Shock)
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_pal_illumination';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(-20210, 'spell_pal_illumination');

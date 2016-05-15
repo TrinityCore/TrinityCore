@@ -7954,42 +7954,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         break;
                     }
                     default:
-                        // Illumination
-                        if (auraSpellInfo->SpellIconID == 241)
-                        {
-                            if (!procSpell)
-                                return false;
-                            // procspell is triggered spell but we need mana cost of original cast spell
-                            uint32 originalSpellId = procSpell->Id;
-                            // Holy Shock heal
-                            if (procSpell->SpellFamilyFlags[1] & 0x00010000)
-                            {
-                                switch (procSpell->Id)
-                                {
-                                    case 25914: originalSpellId = 20473; break;
-                                    case 25913: originalSpellId = 20929; break;
-                                    case 25903: originalSpellId = 20930; break;
-                                    case 27175: originalSpellId = 27174; break;
-                                    case 33074: originalSpellId = 33072; break;
-                                    case 48820: originalSpellId = 48824; break;
-                                    case 48821: originalSpellId = 48825; break;
-                                    default:
-                                        TC_LOG_ERROR("entities.unit", "Unit::HandleProcTriggerSpell: Spell %u not handled in HShock", procSpell->Id);
-                                       return false;
-                                }
-                            }
-                            SpellInfo const* originalSpell = sSpellMgr->GetSpellInfo(originalSpellId);
-                            if (!originalSpell)
-                            {
-                                TC_LOG_ERROR("entities.unit", "Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu", originalSpellId);
-                                return false;
-                            }
-                            // percent stored in effect 1 (class scripts) base points
-                            int32 cost = int32(originalSpell->ManaCost + CalculatePct(GetCreateMana(), originalSpell->ManaCostPercentage));
-                            basepoints0 = CalculatePct(cost, auraSpellInfo->Effects[1].CalcValue());
-                            trigger_spell_id = 20272;
-                            target = this;
-                        }
                         break;
                 }
                 break;
