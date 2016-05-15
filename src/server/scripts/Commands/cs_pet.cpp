@@ -22,6 +22,19 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 
+static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
+{
+    if (Unit* target = handler->getSelectedUnit())
+    {
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            return target->ToPlayer()->GetPet();
+        if (target->IsPet())
+            return target->ToPet();
+        return nullptr;
+    }
+    Player* player = handler->GetSession()->GetPlayer();
+    return player ? player->GetPet() : nullptr;
+}
 class pet_commandscript : public CommandScript
 {
 public:
@@ -34,6 +47,7 @@ public:
             { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "" },
             { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "" },
             { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "" },
+            { "level",   rbac::RBAC_PERM_COMMAND_PET_LEVEL,   false, &HandlePetLevelCommand,   "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -54,9 +68,9 @@ public:
             return false;
         }
 
-        CreatureTemplate const* creatrueTemplate = creatureTarget->GetCreatureTemplate();
+        CreatureTemplate const* creatureTemplate = creatureTarget->GetCreatureTemplate();
         // Creatures with family 0 crashes the server
-        if (!creatrueTemplate->family)
+        if (!creatureTemplate->family)
         {
             handler->PSendSysMessage("This creature cannot be tamed. (family id: 0).");
             handler->SetSentErrorMessage(true);
@@ -119,12 +133,11 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Pet* pet = player->GetPet();
+        Pet* pet = GetSelectedPlayerPetOrOwn(handler);
 
         if (!pet)
         {
-            handler->PSendSysMessage("You have no pet");
+            handler->SendSysMessage(LANG_SELECT_PLAYER_OR_PET);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -162,11 +175,10 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Pet* pet = player->GetPet();
+        Pet* pet = GetSelectedPlayerPetOrOwn(handler);
         if (!pet)
         {
-            handler->PSendSysMessage("You have no pet");
+            handler->SendSysMessage(LANG_SELECT_PLAYER_OR_PET);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -178,6 +190,37 @@ public:
         else
             handler->PSendSysMessage("Pet doesn't have that spell");
 
+        return true;
+    }
+
+    static bool HandlePetLevelCommand(ChatHandler* handler, char const* args)
+    {
+        Pet* pet = GetSelectedPlayerPetOrOwn(handler);
+        Player* owner = pet ? pet->GetOwner() : nullptr;
+        if (!pet || !owner)
+        {
+            handler->SendSysMessage(LANG_SELECT_PLAYER_OR_PET);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 level = args ? atoi(args) : 0;
+        if (level == 0)
+            level = owner->getLevel() - pet->getLevel();
+        if (level == 0 || level < -STRONG_MAX_LEVEL || level > STRONG_MAX_LEVEL)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 newLevel = pet->getLevel() + level;
+        if (newLevel < 1)
+            newLevel = 1;
+        else if (newLevel > owner->getLevel())
+            newLevel = owner->getLevel();
+
+        pet->GivePetLevel(newLevel);
         return true;
     }
 };
