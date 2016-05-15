@@ -1471,7 +1471,7 @@ float WorldObject::GetGridActivationRange() const
 {
     if (ToPlayer())
     {
-        if (ToPlayer()->IsOnCinematic())
+        if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
             return DEFAULT_VISIBILITY_INSTANCE;
         return GetMap()->GetVisibilityRange();
     }
@@ -1504,7 +1504,7 @@ float WorldObject::GetSightRange(const WorldObject* target) const
         {
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
-            else if (ToPlayer()->IsOnCinematic())
+            else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
             else
                 return GetMap()->GetVisibilityRange();
@@ -2038,7 +2038,10 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
     if (!data)
+    {
+        TC_LOG_WARN("scripts", "%s (%s) tried to summon non-existing summon group %u.", GetName().c_str(), GetGUID().ToString().c_str(), group);
         return;
+    }
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
         if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, itr->time))
