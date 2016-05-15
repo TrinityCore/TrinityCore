@@ -38,8 +38,6 @@ enum PetStableinfo
     PET_STABLE_INACTIVE = 2
 };
 
-#define MAX_PET_SPECIALIZATIONS 3
-
 enum PetTalents
 {
     TALENT_SPEC_PET_FEROCITY                = 74,
