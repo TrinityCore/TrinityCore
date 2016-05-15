@@ -242,6 +242,7 @@ class TC_GAME_API UnitAI
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
         void DoCast(uint32 spellId);
         void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
+        void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
         void DoCastToAllHostilePlayers(uint32 spellid, bool triggered = false);
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
