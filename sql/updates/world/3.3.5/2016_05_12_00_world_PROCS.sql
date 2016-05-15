@@ -46,3 +46,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dk_improved_blood_presence_triggered';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (63611, 'spell_dk_improved_blood_presence_triggered');
+-- Rogue T10 2P bonus
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_rog_t10_2p_bonus';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(70805, 'spell_rog_t10_2p_bonus');
