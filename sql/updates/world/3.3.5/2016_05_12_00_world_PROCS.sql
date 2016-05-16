@@ -62,3 +62,9 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_item_death_choice`';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (67702, 'spell_item_death_choice'),
 (67771, 'spell_item_death_choice');
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_item_trinket_stack`';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(37657, 'spell_item_trinket_stack'),
+(54841, 'spell_item_trinket_stack');
+(67712, 'spell_item_trinket_stack'),
+(67758, 'spell_item_trinket_stack');

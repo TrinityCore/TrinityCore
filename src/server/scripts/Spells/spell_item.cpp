@@ -2901,6 +2901,104 @@ public:
     }
 };
 
+enum TrinketStackSpells
+{
+    SPELL_LIGHTNING_CAPACITOR_AURA              = 37657,  // Lightning Capacitor
+    SPELL_LIGHTNING_CAPACITOR_STACK             = 37658,
+    SPELL_LIGHTNING_CAPACITOR_TRIGGER           = 37661,
+    SPELL_THUNDER_CAPACITOR_AURA                = 54841,  // Thunder Capacitor
+    SPELL_THUNDER_CAPACITOR_STACK               = 54842,
+    SPELL_THUNDER_CAPACITOR_TRIGGER             = 54843,
+    SPELL_TOC25_CASTER_TRINKET_NORMAL_AURA      = 67712,  // Item - Coliseum 25 Normal Caster Trinket
+    SPELL_TOC25_CASTER_TRINKET_NORMAL_STACK     = 67713,
+    SPELL_TOC25_CASTER_TRINKET_NORMAL_TRIGGER   = 67714, 
+    SPELL_TOC25_CASTER_TRINKET_HEROIC_AURA      = 67758,  // Item - Coliseum 25 Heroic Caster Trinket
+    SPELL_TOC25_CASTER_TRINKET_HEROIC_STACK     = 67759,
+    SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER   = 67760,
+};
+
+class spell_item_trinket_stack : public SpellScriptLoader
+{
+public:
+    spell_item_trinket_stack() : SpellScriptLoader("spell_item_trinket_stack") { }
+
+    class spell_item_trinket_stack_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_trinket_stack_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_LIGHTNING_CAPACITOR_TRIGGER)
+                || !sSpellMgr->GetSpellInfo(SPELL_THUNDER_CAPACITOR_TRIGGER)
+                || !sSpellMgr->GetSpellInfo(SPELL_TOC25_CASTER_TRINKET_NORMAL_TRIGGER)
+                || !sSpellMgr->GetSpellInfo(SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = eventInfo.GetActor();
+            
+            uint32 stackSpell = 0;
+            uint32 triggerSpell = 0;
+
+            switch (aurEff->GetId())
+            {
+                case SPELL_LIGHTNING_CAPACITOR_AURA:
+                    {
+                        stackSpell = SPELL_LIGHTNING_CAPACITOR_STACK;
+                        triggerSpell = SPELL_LIGHTNING_CAPACITOR_TRIGGER;
+                    }
+                    break;
+                case SPELL_THUNDER_CAPACITOR_AURA:
+                    {
+                        stackSpell = SPELL_THUNDER_CAPACITOR_STACK;
+                        triggerSpell = SPELL_THUNDER_CAPACITOR_TRIGGER;
+                    }
+                    break;
+                case SPELL_TOC25_CASTER_TRINKET_NORMAL_AURA:
+                    {
+                        stackSpell = SPELL_TOC25_CASTER_TRINKET_NORMAL_STACK;
+                        triggerSpell = SPELL_TOC25_CASTER_TRINKET_NORMAL_TRIGGER;
+                    }
+                    break;
+                case SPELL_TOC25_CASTER_TRINKET_HEROIC_AURA:
+                    {
+                        stackSpell = SPELL_TOC25_CASTER_TRINKET_HEROIC_STACK;
+                        triggerSpell = SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER;
+                    }
+                    break;
+                default:
+                    return;
+            }
+
+            caster->CastSpell(caster, stackSpell, nullptr, NULL, aurEff); // cast the stack
+            
+            Aura* dummy = caster->GetAura(stackSpell); // retrieve aura
+
+            //dont do anything if it's not the right amount of stacks;
+            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmount())
+                return;
+
+            // if right amount, remove the aura and cast real trigger
+            caster->RemoveAurasDueToSpell(stackSpell);
+            if (Unit* target = eventInfo.GetActionTarget())
+                caster->CastSpell(target, triggerSpell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_trinket_stack_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_trinket_stack_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2974,4 +3072,5 @@ void AddSC_item_spell_scripts()
     new spell_item_soul_preserver();
     new spell_item_toy_train_set_pulse();
     new spell_item_death_choice();
+    new spell_item_trinket_stack();
 }
