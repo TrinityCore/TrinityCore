@@ -1432,7 +1432,7 @@ bool Pet::learnSpell(uint32 spell_id)
     return true;
 }
 
-void Pet::learnSpells(std::vector<uint32> spellIds)
+void Pet::learnSpells(std::vector<uint32> const& spellIds)
 {
     WorldPackets::Pet::PetLearnedSpells packet;
 
@@ -1445,10 +1445,7 @@ void Pet::learnSpells(std::vector<uint32> spellIds)
     }
 
     if (!m_loading)
-    {
         GetOwner()->GetSession()->SendPacket(packet.Write());
-        //GetOwner()->PetSpellInitialize();
-    }
 }
 
 void Pet::InitLevelupSpellsForLevel()
@@ -1503,7 +1500,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     return false;
 }
 
-void Pet::unlearnSpells(std::vector<uint32> spellIds, bool learn_prev, bool clear_ab)
+void Pet::unlearnSpells(std::vector<uint32> const& spellIds, bool learn_prev, bool clear_ab)
 {
     WorldPackets::Pet::PetUnlearnedSpells packet;
 
