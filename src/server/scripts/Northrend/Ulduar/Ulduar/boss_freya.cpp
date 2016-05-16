@@ -704,7 +704,7 @@ class boss_elder_brightleaf : public CreatureScript
                     Talk(SAY_ELDER_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_ELDER_DEATH);
@@ -802,7 +802,7 @@ class boss_elder_stonebark : public CreatureScript
                     Talk(SAY_ELDER_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_ELDER_DEATH);
@@ -906,7 +906,7 @@ class boss_elder_ironbranch : public CreatureScript
                     Talk(SAY_ELDER_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_ELDER_DEATH);
