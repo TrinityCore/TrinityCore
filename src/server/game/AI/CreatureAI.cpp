@@ -285,7 +285,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) const
 {
     typedef std::pair<int32, int32> coordinate;
-    
+
     if (!owner)
         return -1;
 
@@ -295,7 +295,7 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     std::queue<coordinate> Q;
     std::unordered_set<coordinate> alreadyChecked;
     std::unordered_set<coordinate> outOfBounds;
-    
+
     Position startPosition = owner->GetPosition();
     if (!CheckBoundary(&startPosition)) // fall back to creature position
     {

@@ -65,7 +65,7 @@ enum Spells
     /* gothik phase two spells */
     SPELL_HARVEST_SOUL          = 28679,
     SPELL_SHADOW_BOLT           = 29317,
-    
+
     /* visual spells */
     SPELL_ANCHOR_1_TRAINEE      = 27892,
     SPELL_ANCHOR_1_DK           = 27928,
@@ -373,7 +373,7 @@ class boss_gothik : public CreatureScript
                 instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 Talk(EMOTE_GATE_OPENED);
                 _gateIsOpen = true;
-                
+
                 for (ObjectGuid summonGuid : summons)
                 {
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, summonGuid))
@@ -444,7 +444,7 @@ class boss_gothik : public CreatureScript
                                 TC_LOG_INFO("scripts", "GothikAI: Wave count %d is out of range for difficulty %d.", _waveCount, GetDifficulty());
                                 break;
                             }
-                            
+
                             std::list<Creature*> triggers;
                             me->GetCreatureListWithEntryInGrid(triggers, NPC_TRIGGER, 150.0f);
                             for (GothikWaveEntry entry : RAID_MODE(waves10, waves25)[_waveCount].first)
@@ -470,7 +470,7 @@ class boss_gothik : public CreatureScript
                                         default:
                                             targetDBGuid = 0;
                                     }
-                                
+
                                     for (Creature* trigger : triggers)
                                         if (trigger && trigger->GetSpawnId() == targetDBGuid)
                                         {
@@ -548,7 +548,7 @@ class boss_gothik : public CreatureScript
                     }
                 }
             }
-            
+
             private:
                 uint32 _waveCount;
                 bool _gateCanOpen;

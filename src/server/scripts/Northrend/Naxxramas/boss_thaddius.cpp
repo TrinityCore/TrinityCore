@@ -253,7 +253,7 @@ public:
                         events.SetPhase(PHASE_PETS);
 
                         shockingEligibility = true;
-                        
+
                         if (!instance->CheckRequiredBosses(BOSS_THADDIUS))
                         {
                             BeginResetEncounter();
@@ -394,7 +394,7 @@ public:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             me->SetReactState(REACT_AGGRESSIVE);
-                            
+
                             DoZoneInCombat();
                             if (Unit* closest = SelectTarget(SELECT_TARGET_NEAREST, 0, 500.0f))
                                 AttackStart(closest);
@@ -620,7 +620,7 @@ public:
                     damage = 0;
                     return;
                 }
-                
+
                 isFeignDeath = true;
                 isOverloading = false;
 
@@ -824,7 +824,7 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
-                        
+
                         refreshBeam = true; // force beam refresh
 
                         if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
@@ -956,7 +956,7 @@ public:
                     magneticPullTimer = 20 * IN_MILLISECONDS;
                 }
                 else magneticPullTimer -= uiDiff;
-            
+
                 if (staticFieldTimer <= uiDiff)
                 {
                     DoCast(me, SPELL_FEUGEN_STATICFIELD);
@@ -1005,7 +1005,7 @@ public:
 
             ObjectGuid _myCoil;
             ObjectGuid _myCoilGO;
-       
+
             bool isOverloading;
             bool refreshBeam;
             bool isFeignDeath;
@@ -1203,7 +1203,7 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
                 Unit* feugen = GetCaster();
                 if (!feugen || feugen->GetEntry() != NPC_FEUGEN)
                     return;
-                
+
                 Unit* stalagg = ObjectAccessor::GetCreature(*feugen, feugen->GetInstanceScript()->GetGuidData(DATA_STALAGG));
                 if (!stalagg)
                     return;

@@ -1140,7 +1140,7 @@ class go_toy_train_set : public GameObjectScript
         struct go_toy_train_setAI : public GameObjectAI
         {
             go_toy_train_setAI(GameObject* go) : GameObjectAI(go), _pulseTimer(3 * IN_MILLISECONDS) { }
-        
+
             void UpdateAI(uint32 diff) override
             {
                 if (diff < _pulseTimer)
