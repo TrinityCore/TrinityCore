@@ -2595,7 +2595,7 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_EXOTIC_PET                           = 0x00010000,   // Can be tamed by hunter as exotic pet
     CREATURE_TYPE_FLAG_USE_DEFAULT_COLLISION_BOX            = 0x00020000,   // Collision related. (always using default collision box?)
     CREATURE_TYPE_FLAG_IS_SIEGE_WEAPON                      = 0x00040000,
-    CREATURE_TYPE_FLAG_DOES_NOT_COLLIDE_WITH_MISSILES       = 0x00080000,   // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
+    CREATURE_TYPE_FLAG_CAN_COLLIDE_WITH_MISSILES            = 0x00080000,   // Projectiles can collide with this creature - interacts with TARGET_DEST_TRAJ
     CREATURE_TYPE_FLAG_HIDE_NAME_PLATE                      = 0x00100000,
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_MOUNTED_ANIMATIONS       = 0x00200000,
     CREATURE_TYPE_FLAG_IS_LINK_ALL                          = 0x00400000,
