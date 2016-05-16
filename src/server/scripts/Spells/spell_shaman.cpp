@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "SpellScript.h"
