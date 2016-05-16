@@ -1710,7 +1710,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     // Pets info
     uint32 petDisplayId = 0;
     uint32 petLevel = 0;
-    uint32 petFamily = 0;
+    CreatureFamily petFamily = CREATURE_FAMILY_NONE;
 
     // show pet at selection character in character list only for non-ghost character
     if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
