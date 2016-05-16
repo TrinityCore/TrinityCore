@@ -20215,49 +20215,42 @@ void Player::VehicleSpellInitialize()
     if (!vehicle)
         return;
 
-    uint8 cooldownCount = 0;
+    WorldPackets::Pet::PetSpells petSpells;
+    petSpells.PetGUID = vehicle->GetGUID();
+    petSpells._CreatureFamily = 0;                          // Pet Family (0 for all vehicles)
+    petSpells.Specialization = 0;
+    petSpells.TimeLimit = vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0;
+    petSpells.ReactState = vehicle->GetReactState();
+    petSpells.CommandState = COMMAND_FOLLOW;
+    petSpells.Flag = 0x800;
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
-    data << vehicle->GetGUID();                             // Guid
-    data << uint16(0);                                      // Pet Family (0 for all vehicles)
-    data << uint32(vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0); // Duration
-    // The following three segments are read by the client as one uint32
-    data << uint8(vehicle->GetReactState());                // React State
-    data << uint8(0);                                       // Command State
-    data << uint16(0x800);                                  // DisableActions (set for all vehicles)
+    for (uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
+        petSpells.ActionButtons[i] = MAKE_UNIT_ACTION_BUTTON(0, i + 8);
 
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
         uint32 spellId = vehicle->m_spells[i];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
-        {
-            data << uint16(0) << uint8(0) << uint8(i+8);
             continue;
-        }
 
         if (!sConditionMgr->IsObjectMeetingVehicleSpellConditions(vehicle->GetEntry(), spellId, this, vehicle))
         {
             TC_LOG_DEBUG("condition", "Player::VehicleSpellInitialize: Player '%s' (%s) doesn't meet conditions for vehicle (Entry: %u, Spell: %u)",
                 GetName().c_str(), GetGUID().ToString().c_str(), vehicle->ToCreature()->GetEntry(), spellId);
-            data << uint16(0) << uint8(0) << uint8(i+8);
             continue;
         }
 
         if (spellInfo->IsPassive())
             vehicle->CastSpell(vehicle, spellId, true);
 
-        data << uint32(MAKE_UNIT_ACTION_BUTTON(spellId, i+8));
+        petSpells.ActionButtons[i] = MAKE_UNIT_ACTION_BUTTON(spellId, i + 8);
     }
 
-    for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
-        data << uint32(0);
-
-    data << uint8(0); // Auras?
-
     // Cooldowns
-    //vehicle->GetSpellHistory()->WritePacket(&petSpells);
-    GetSession()->SendPacket(&data);
+    vehicle->GetSpellHistory()->WritePacket(&petSpells);
+
+    GetSession()->SendPacket(petSpells.Write());
 }
 
 void Player::CharmSpellInitialize()
@@ -20274,46 +20267,30 @@ void Player::CharmSpellInitialize()
         return;
     }
 
-    uint8 addlist = 0;
-    if (charm->GetTypeId() != TYPEID_PLAYER)
+    WorldPackets::Pet::PetSpells petSpells;
+    petSpells.PetGUID = charm->GetGUID();
+
+    if (charm->GetTypeId() == TYPEID_UNIT)
     {
-        //CreatureInfo const* cinfo = charm->ToCreature()->GetCreatureTemplate();
-        //if (cinfo && cinfo->type == CREATURE_TYPE_DEMON && getClass() == CLASS_WARLOCK)
-        {
-            for (uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
-                if (charmInfo->GetCharmSpell(i)->GetAction())
-                    ++addlist;
-        }
+        petSpells.ReactState = charm->ToCreature()->GetReactState();
+        petSpells.CommandState = charmInfo->GetCommandState();
     }
 
-    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * MAX_UNIT_ACTION_BAR_INDEX + 1 + 4 * addlist + 1);
-    data << charm->GetGUID();
-    data << uint16(0);
-    data << uint32(0);
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        petSpells.ActionButtons[i] = charmInfo->GetActionBarEntry(i)->packedData;
 
-    if (charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(charm->ToCreature()->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
-    else
-        data << uint32(0);
-
-    charmInfo->BuildActionBar(&data);
-
-    data << uint8(addlist);
-
-    if (addlist)
+    for (uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
     {
-        for (uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
-        {
-            CharmSpellInfo* cspell = charmInfo->GetCharmSpell(i);
-            if (cspell->GetAction())
-                data << uint32(cspell->packedData);
-        }
+        CharmSpellInfo* cspell = charmInfo->GetCharmSpell(i);
+        if (cspell->GetAction())
+            petSpells.Actions.push_back(cspell->packedData);
     }
 
     // Cooldowns
-    //charm->GetSpellHistory()->WritePacket(&petSpells);
+    if (charm->GetTypeId() != TYPEID_PLAYER)
+        charm->GetSpellHistory()->WritePacket(&petSpells);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(petSpells.Write());
 }
 
 void Player::SendRemoveControlBar() const
