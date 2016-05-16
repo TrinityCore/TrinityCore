@@ -7821,24 +7821,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         }
                         return false;
                     }
-                    case 67702:             // Death's Choice, Item - Coliseum 25 Normal Melee Trinket
-                    {
-                        float stat = 0.0f;
-                        // strength
-                        if (GetStat(STAT_STRENGTH) > stat) { trigger_spell_id = 67708;stat = GetStat(STAT_STRENGTH); }
-                        // agility
-                        if (GetStat(STAT_AGILITY)  > stat) { trigger_spell_id = 67703;                               }
-                        break;
-                    }
-                    case 67771:             // Death's Choice (heroic), Item - Coliseum 25 Heroic Melee Trinket
-                    {
-                        float stat = 0.0f;
-                        // strength
-                        if (GetStat(STAT_STRENGTH) > stat) { trigger_spell_id = 67773;stat = GetStat(STAT_STRENGTH); }
-                        // agility
-                        if (GetStat(STAT_AGILITY)  > stat) { trigger_spell_id = 67772;                               }
-                        break;
-                    }
                     // Mana Drain Trigger
                     case 27522:
                     case 40336:

@@ -58,3 +58,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_item_soul_preserver';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (60510, 'spell_item_soul_preserver');
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_item_death_choice`';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(67702, 'spell_item_death_choice'),
+(67771, 'spell_item_death_choice');

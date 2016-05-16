@@ -2831,6 +2831,76 @@ public:
     }
 };
 
+enum DeathChoiceSpells
+{
+    SPELL_DEATH_CHOICE_NORMAL_AURA      = 67702,
+    SPELL_DEATH_CHOICE_HEROIC_AURA      = 67771,
+    SPELL_DEATH_CHOICE_NORMAL_STRENGHT  = 67708,
+    SPELL_DEATH_CHOICE_NORMAL_AGILITY   = 67703,
+    SPELL_DEATH_CHOICE_HEROIC_STRENGHT  = 67773,
+    SPELL_DEATH_CHOICE_HEROIC_AGILITY   = 67772
+};
+
+class spell_item_death_choice : public SpellScriptLoader
+{
+public:
+    spell_item_death_choice() : SpellScriptLoader("spell_item_death_choice") { }
+
+    class spell_item_death_choice_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_death_choice_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_STRENGHT)
+                || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_AGILITY)
+                || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_STRENGHT)
+                || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_AGILITY))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = eventInfo.GetActor();
+            float str = caster->GetStat(STAT_STRENGTH);
+            float agi = caster->GetStat(STAT_AGILITY);
+
+            switch (aurEff->GetId())
+            {
+                case SPELL_DEATH_CHOICE_NORMAL_AURA:
+                    {
+                        if(str > agi)
+                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_STRENGHT, true, nullptr, aurEff);
+                        else 
+                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_AGILITY, true, nullptr, aurEff);
+                    }
+                    break;
+                case SPELL_DEATH_CHOICE_HEROIC_AURA:
+                    {
+                        if (str > agi)
+                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_STRENGHT, true, nullptr, aurEff);
+                        else
+                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_AGILITY, true, nullptr, aurEff);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_death_choice_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_death_choice_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2903,4 +2973,5 @@ void AddSC_item_spell_scripts()
     new spell_item_greatmothers_soulcatcher();
     new spell_item_soul_preserver();
     new spell_item_toy_train_set_pulse();
+    new spell_item_death_choice();
 }

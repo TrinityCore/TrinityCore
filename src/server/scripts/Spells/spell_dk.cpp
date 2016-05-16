@@ -1079,9 +1079,8 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (Unit* caster = eventInfo.GetActor())  // procs on dk dealing damage
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                    return true;
+            if (eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER)
+                return true;
             
             return false;
         }
