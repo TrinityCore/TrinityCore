@@ -136,6 +136,7 @@ class TC_GAME_API Pet : public Guardian
         void unlearnSpells(std::vector<uint32> const& spellIds, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
+        std::string GenerateActionBarData() const;
 
         PetSpellMap     m_spells;
         AutoSpellList   m_autospells;

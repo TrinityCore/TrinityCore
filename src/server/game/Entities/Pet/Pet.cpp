@@ -441,37 +441,31 @@ void Pet::SavePetToDB(PetSaveMode mode)
         }
 
         // save pet
-        std::ostringstream ss;
-        ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization) "
-            << "VALUES ("
-            << m_charmInfo->GetPetNumber() << ','
-            << GetEntry() << ','
-            << ownerLowGUID << ','
-            << GetNativeDisplayId() << ','
-            << uint32(getLevel()) << ','
-            << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ','
-            << uint32(GetReactState()) << ','
-            << uint32(mode) << ", '"
-            << name.c_str() << "', "
-            << uint32(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1) << ','
-            << curhealth << ','
-            << curmana << ", '";
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
+        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+        stmt->setUInt32(1, GetEntry());
+        stmt->setUInt64(2, ownerLowGUID);
+        stmt->setUInt32(3, GetNativeDisplayId());
+        stmt->setUInt8(4, getLevel());
+        stmt->setUInt32(5, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->setUInt8(6, GetReactState());
+        stmt->setInt16(7, mode);
+        stmt->setString(8, name);
+        stmt->setUInt8(9, HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1);
+        stmt->setUInt32(10, curhealth);
+        stmt->setUInt32(11, curmana);
 
-        for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
-        {
-            ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
-               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
-        };
+        stmt->setString(12, GenerateActionBarData());
 
-        ss  << "', "
-            << time(NULL) << ','
-            << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ','
-            << uint32(getPetType()) << ','
-            << uint16(m_petSpecialization) << ')';
+        stmt->setUInt32(13, time(NULL));
+        stmt->setUInt32(14, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt8(15, getPetType());
+        stmt->setUInt16(16, m_petSpecialization);
+        trans->Append(stmt);
 
-        trans->Append(ss.str().c_str());
         CharacterDatabase.CommitTransaction(trans);
     }
+
     // delete
     else
     {
@@ -1870,4 +1864,17 @@ void Pet::SetSpecialization(uint16 spec)
     }
 
     return;
+}
+
+std::string Pet::GenerateActionBarData() const
+{
+    std::ostringstream ss;
+
+    for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
+    {
+        ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
+           << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
+    }
+
+    return ss.str();
 }
