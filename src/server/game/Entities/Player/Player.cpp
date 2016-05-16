@@ -23969,10 +23969,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         UpdateVisibilityOf(target);
 
         if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
-        {
             static_cast<Unit*>(target)->AddPlayerToVision(this);
-            SetSeer(target);
-        }
+        SetSeer(target);
     }
     else
     {
