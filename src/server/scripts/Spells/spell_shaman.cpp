@@ -21,15 +21,13 @@
  * Scriptnames of files in this file should be prefixed with "spell_sha_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "GridNotifiers.h"
+#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "Unit.h"
+#include "Player.h"
 #include "SpellScript.h"
 #include "SpellHistory.h"
 #include "SpellAuraEffects.h"
-#include "CellImpl.h"
 
 enum ShamanSpells
 {
@@ -260,15 +258,6 @@ class spell_sha_earth_shield : public SpellScriptLoader
         }
 };
 
-uint32 const ElementalBlastBuffSpells[] =
-{
-    SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE,
-    SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY,
-};
-
 // 117014 - Elemental Blast
 class spell_sha_elemental_blast : public SpellScriptLoader
 {
@@ -279,14 +268,18 @@ public:
     {
         PrepareSpellScript(spell_sha_elemental_blast_SpellScript);
 
-        static TRINITY_CONSTEXPR uint32 EnhancementBuffCount = std::extent<decltype(ElementalBlastBuffSpells)>::value;
-        static TRINITY_CONSTEXPR uint32 BuffCount = EnhancementBuffCount - 1;
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            for (uint32 i = 0; i < EnhancementBuffCount; ++i)
-                if (!sSpellMgr->GetSpellInfo(ElementalBlastBuffSpells[i]))
-                    return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY))
+                return false;
             if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT))
                 return false;
             return true;
@@ -300,9 +293,14 @@ public:
         void TriggerBuff()
         {
             Player* caster = GetCaster()->ToPlayer();
-            uint32 possbleSpells = (caster->GetSpecId(caster->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_ENHANCEMENT ? EnhancementBuffCount : BuffCount) - 1;
-            caster->CastSpell(caster, ElementalBlastBuffSpells[urand(0, possbleSpells)], TRIGGERED_FULL_MASK);
-            if (caster->GetSpecId(caster->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_RESTORATION)
+            uint32 spellId;
+            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+                spellId = RAND(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY, SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE, SPELL_SHAMAN_ELEMENTAL_BLAST_AGILITY);
+            else
+                spellId = RAND(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT, SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE, SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY, SPELL_SHAMAN_ELEMENTAL_BLAST_MULTISTRIKE);
+
+            caster->CastSpell(caster, spellId, TRIGGERED_FULL_MASK);
+            if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_SHAMAN_RESTORATION)
                 caster->CastSpell(caster, SPELL_SHAMAN_ELEMENTAL_BLAST_SPIRIT, TRIGGERED_FULL_MASK);
         }
 
