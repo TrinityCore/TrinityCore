@@ -473,7 +473,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.unit_flags       = fields[29].GetUInt32();
     creatureTemplate.unit_flags2      = fields[30].GetUInt32();
     creatureTemplate.dynamicflags     = fields[31].GetUInt32();
-    creatureTemplate.family           = fields[32].GetUInt8();
+    creatureTemplate.family           = CreatureFamily(fields[32].GetUInt8());
     creatureTemplate.trainer_type     = fields[33].GetUInt8();
     creatureTemplate.trainer_spell    = fields[34].GetUInt32();
     creatureTemplate.trainer_class    = fields[35].GetUInt8();
