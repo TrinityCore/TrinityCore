@@ -1843,27 +1843,22 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
 
 void Pet::SetSpecialization(uint16 spec)
 {    
-    // 152244 - Hunter talent 'Adaptation'
-    // if the player has this talent, the pet's spec will be 'apapted' and have a different id 
-    bool adaptation = GetOwner()->HasSpell(152244);
+    if (m_petSpecialization == spec);
+        return;
 
-    switch (spec)
-    {
-        case TALENT_SPEC_PET_FEROCITY:
-            m_petSpecialization = adaptation ? TALENT_SPEC_PET_FEROCIOUS_ADAPTATION : TALENT_SPEC_PET_FEROCITY;
-            break;
-        case TALENT_SPEC_PET_CUNNING:
-            m_petSpecialization = adaptation ? TALENT_SPEC_PET_CUNNING_ADAPTATION : TALENT_SPEC_PET_CUNNING;
-            break;
-        case TALENT_SPEC_PET_TENACITY:
-            m_petSpecialization = adaptation ? TALENT_SPEC_PET_TENACIOUS_ADAPTATION : TALENT_SPEC_PET_TENACITY;
-            break;
-        default:
-            m_petSpecialization = spec;
-            break;
-    }
+    // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
+    // clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
+    RemoveSpecializationSpells(false);
+    m_petSpecialization = spec;
+    LearnSpecializationSpells();
 
-    return;
+    // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
+    CleanupActionBar();
+    GetOwner()->PetSpellInitialize();
+
+    WorldPackets::Pet::SetPetSpecialization setPetSpecialization;
+    setPetSpecialization.SpecID = m_petSpecialization;
+    GetOwner()->GetSession()->SendPacket(setPetSpecialization.Write());
 }
 
 std::string Pet::GenerateActionBarData() const

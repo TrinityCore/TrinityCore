@@ -510,7 +510,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448
     &AuraEffect::HandleNULL,                                      //449
     &AuraEffect::HandleNULL,                                      //450
-    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_OVERRIDE_PET_SPECS
+    &AuraEffect::HandleOverridePetSpecs,                          //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleNULL,                                      //452
     &AuraEffect::HandleNoImmediateEffect,                         //453 SPELL_AURA_CHARGE_RECOVERY_MOD implemented in SpellHistory::GetChargeRecoveryTime
     &AuraEffect::HandleNoImmediateEffect,                         //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER implemented in SpellHistory::GetChargeRecoveryTime
@@ -6650,4 +6650,33 @@ void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, u
 
     if (Player* player = aurApp->GetTarget()->ToPlayer())
         player->SendSpellCategoryCooldowns();
+}
+
+void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* player = aurApp->GetTarget()->ToPlayer();
+    if (!player)
+        return;
+
+    if (player->getClass() != CLASS_HUNTER)
+        return;
+
+    Pet* pet = player->GetPet();
+    if (!pet)
+        return;
+
+    if (apply)
+    {
+        ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[PET_SPEC_OVERRIDE_CLASS_INDEX][pet->GetSpecGroup()];
+        pet->SetSpecialization(petSpec->ID);
+    }
+    else
+    {
+        ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[0][pet->GetSpecGroup()];
+        pet->SetSpecialization(petSpec->ID);
+    }
+
 }

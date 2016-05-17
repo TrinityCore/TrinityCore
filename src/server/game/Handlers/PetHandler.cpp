@@ -734,35 +734,28 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
-    // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells
-    // clearActionBars is false because we'll be updating the pet actionbar later so we don't have to do it now
-    switch (packet.SpecGroupIndex)
+    if (packet.SpecGroupIndex >= MAX_SPECIALIZATIONS)
     {
-        case 0:
-            pet->RemoveSpecializationSpells(false);
-            pet->SetSpecialization(TALENT_SPEC_PET_FEROCITY);
-            pet->LearnSpecializationSpells();
-            break;
-        case 1:
-            pet->RemoveSpecializationSpells(false);
-            pet->SetSpecialization(TALENT_SPEC_PET_TENACITY);
-            pet->LearnSpecializationSpells();
-            break;
-        case 2:
-            pet->RemoveSpecializationSpells(false);
-            pet->SetSpecialization(TALENT_SPEC_PET_CUNNING);
-            pet->LearnSpecializationSpells();
-            break;
-        default:
-            TC_LOG_ERROR("network", "WorldSession::HandlePetSetSpecializationOpcode: Invalid SpecGroupIndex (%d) supplied.", packet.SpecGroupIndex);
-            return;
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u out of range", packet.SpecGroupIndex);
+        return;
     }
 
-    // resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
-    pet->CleanupActionBar();
-    _player->PetSpellInitialize();
+    int specIndex = _player->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0;
 
-    WorldPackets::Pet::SetPetSpecialization setPetSpecialization;
-    setPetSpecialization.SpecID = pet->GetSpecialization();
-    SendPacket(setPetSpecialization.Write());
+    ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[specIndex][packet.SpecGroupIndex];
+
+    if (!petSpec)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u not found", packet.SpecGroupIndex);
+        return;
+    }
+
+    if (_player->getLevel() < MIN_SPECIALIZATION_LEVEL)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - player level too low for specializations");
+        return;
+    }
+
+    pet->SetSpecGroup(packet.SpecGroupIndex);
+    pet->SetSpecialization(petSpec->ID);
 }

@@ -143,6 +143,8 @@ class TC_GAME_API Pet : public Guardian
 
         void InitPetCreateSpells();
 
+        uint8 GetSpecGroup() { return m_specGroup; }
+        void SetSpecGroup(uint8 group) { m_specGroup = group; }
         uint16 GetSpecialization() { return m_petSpecialization; }
         void SetSpecialization(uint16 spec);
         void LearnSpecializationSpells();
@@ -167,6 +169,7 @@ class TC_GAME_API Pet : public Guardian
 
         DeclinedName *m_declinedname;
 
+        uint8 m_specGroup;
         uint16 m_petSpecialization;
 
     private:
