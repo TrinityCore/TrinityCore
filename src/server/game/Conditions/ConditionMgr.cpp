@@ -1378,6 +1378,7 @@ bool ConditionMgr::addToPhases(Condition* cond) const
 {
     if (!cond->SourceEntry)
     {
+        bool found = false;
         PhaseInfo& p = sObjectMgr->GetAreaPhasesForLoading();
         for (auto phaseItr = p.begin(); phaseItr != p.end(); ++phaseItr)
         {
@@ -1386,10 +1387,13 @@ bool ConditionMgr::addToPhases(Condition* cond) const
                 if (phase.Id == cond->SourceGroup)
                 {
                     phase.Conditions.push_back(cond);
-                    return true;
+                    found = true;
                 }
             }
         }
+
+        if (found)
+            return true;
     }
     else if (std::vector<PhaseInfoStruct>* phases = sObjectMgr->GetPhasesForAreaForLoading(cond->SourceEntry))
     {
