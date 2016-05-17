@@ -2862,6 +2862,8 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
+            
             Unit* caster = eventInfo.GetActor();
             float str = caster->GetStat(STAT_STRENGTH);
             float agi = caster->GetStat(STAT_AGILITY);
@@ -3031,6 +3033,8 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
+            
             Unit* caster = eventInfo.GetActor();
             float str = caster->GetStat(STAT_STRENGTH);
             float agi = caster->GetStat(STAT_AGILITY);
@@ -3076,6 +3080,54 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_item_darkmoon_card_greatness_AuraScript();
+    }
+};
+
+// 43820 - Amani Charm of the Witch Doctor
+enum CharmWitchDoctor
+{
+    SPELL_CHARM_WITCH_DOCTOR_PROC = 43821
+};
+
+class spell_item_charm_witch_doctor : public SpellScriptLoader
+{
+public:
+    spell_item_charm_witch_doctor() : SpellScriptLoader("spell_item_charm_witch_doctor") { }
+
+    class spell_item_charm_witch_doctor_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_charm_witch_doctor_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_CHARM_WITCH_DOCTOR_PROC))
+                return false;
+            return true;
+        }
+        
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            
+            Unit* caster = eventInfo.GetActor();
+            Unit* target = eventInfo.GetActionTarget();
+            
+            if(target)
+            {
+                int32 bp = CalculatePct(target->GetCreateHealth(),aurEff->GetSpellInfo()->Effects[1].CalcValue());
+                caster->CastCustomSpell(target, SPELL_CHARM_WITCH_DOCTOR_PROC, &bp, nullptr, nullptr, true, nullptr, aurEff);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_charm_witch_doctor_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_charm_witch_doctor_AuraScript();
     }
 };
 
@@ -3154,4 +3206,5 @@ void AddSC_item_spell_scripts()
     new spell_item_death_choice();
     new spell_item_trinket_stack();
     new spell_item_darkmoon_card_greatness();
+    new spell_item_charm_witch_doctor();
 }

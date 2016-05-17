@@ -29,4 +29,5 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (67758, 'spell_item_trinket_stack'), -- ToC 25 Caster Trinket
 (71201, 'spell_igb_battle_experience_check'), -- Battle Experience (Gunship - ICC)
 (64568, 'spell_gen_blood_reserve'), -- Blood Reserve (no idea what this is)
-(57345, 'spell_item_darkmoon_card_greatness'); -- Darkmoon Card: Greatness
+(57345, 'spell_item_darkmoon_card_greatness'), -- Darkmoon Card: Greatness
+(43820, 'spell_item_charm_witch_doctor'); -- Charm of the Witch Doctor
