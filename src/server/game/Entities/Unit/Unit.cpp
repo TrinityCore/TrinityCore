@@ -7812,15 +7812,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         if (GetStat(STAT_SPIRIT)   > stat) { trigger_spell_id = 60235;                               }
                         break;
                     }
-                    case 64568:             // Blood Reserve
-                    {
-                        if (HealthBelowPctDamaged(35, damage))
-                        {
-                            CastCustomSpell(this, 64569, &triggerAmount, NULL, NULL, true);
-                            RemoveAura(64568);
-                        }
-                        return false;
-                    }
                     // Mana Drain Trigger
                     case 27522:
                     case 40336:

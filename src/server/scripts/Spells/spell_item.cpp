@@ -2938,6 +2938,8 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
+            
             Unit* caster = eventInfo.GetActor();
             
             uint32 stackSpell = 0;
@@ -2973,7 +2975,7 @@ public:
                     return;
             }
 
-            caster->CastSpell(caster, stackSpell, nullptr, NULL, aurEff); // cast the stack
+            caster->CastSpell(caster, stackSpell, true, nullptr, aurEff); // cast the stack
             
             Aura* dummy = caster->GetAura(stackSpell); // retrieve aura
 

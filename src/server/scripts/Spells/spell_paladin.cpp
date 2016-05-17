@@ -892,6 +892,8 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
+            
             // this script is valid only for the Holy Shock procs of illumination
             if (eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetSpellInfo())
                 if (eventInfo.GetHealInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x00010000)
