@@ -327,13 +327,16 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         CastPetAuras(current);
     }
 
-    CleanupActionBar();                                     // remove unknown spells from action bar after load
-
     TC_LOG_DEBUG("entities.pet", "New Pet has %s", GetGUID().ToString().c_str());
 
     SetSpecialization(fields[16].GetUInt16());
-    
-    owner->PetSpellInitialize();
+
+    // The SetSpecialization function will run these functions if the pet's spec is not 0
+    if (!GetSpecialization())
+    {
+        CleanupActionBar();                                     // remove unknown spells from action bar after load
+        owner->PetSpellInitialize();
+    }
 
     SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
 
