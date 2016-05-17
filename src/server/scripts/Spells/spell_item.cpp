@@ -3001,6 +3001,84 @@ public:
     }
 };
 
+// 57345 - Darkmoon Card: Greatness
+enum DarkmoonCardSpells
+{
+    SPELL_DARKMOON_CARD_STRENGHT        = 60229,
+    SPELL_DARKMOON_CARD_AGILITY         = 60233,
+    SPELL_DARKMOON_CARD_INTELLECT       = 60234,
+    SPELL_DARKMOON_CARD_SPIRIT          = 60235,
+};
+
+class spell_item_darkmoon_card_greatness : public SpellScriptLoader
+{
+public:
+    spell_item_darkmoon_card_greatness() : SpellScriptLoader("spell_item_darkmoon_card_greatness") { }
+
+    class spell_item_darkmoon_card_greatness_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_darkmoon_card_greatness_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_STRENGHT)
+                || !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_AGILITY)
+                || !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_INTELLECT)
+                || !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_SPIRIT))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = eventInfo.GetActor();
+            float str = caster->GetStat(STAT_STRENGTH);
+            float agi = caster->GetStat(STAT_AGILITY);
+            float intl = caster->GetStat(STAT_INTELLECT);
+            float spi = caster->GetStat(STAT_SPIRIT);
+            float stat = 0.0f;
+            
+            uint32 spellTrigger = SPELL_DARKMOON_CARD_STRENGHT;
+
+           if (str > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_STRENGHT;
+               stat = str;
+           }
+           
+           if (agi > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_AGILITY;
+               stat = agi;
+           }
+           
+           if (intl > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_INTELLECT;
+               stat = intl;
+           }
+           
+           if (spi > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_SPIRIT;
+               stat = spi;
+           }
+           
+           caster->CastSpell(caster, spellTrigger, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_darkmoon_card_greatness_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_darkmoon_card_greatness_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -3075,4 +3153,5 @@ void AddSC_item_spell_scripts()
     new spell_item_toy_train_set_pulse();
     new spell_item_death_choice();
     new spell_item_trinket_stack();
+    new spell_item_darkmoon_card_greatness();
 }
