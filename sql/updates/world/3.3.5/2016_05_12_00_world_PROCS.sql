@@ -7,30 +7,30 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_item_charm_witch_doctor','spell_item_mana_drain');
 
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(-31641, 'spell_mage_blazing_speed'), -- Mage Blazing Speed
-(-27811, 'spell_pri_blessed_recovery'), -- Priest Blessed Recovery
-(37336, 'spell_dru_forms_trinket'), -- Druid Forms Trinket
-(67353, 'spell_dru_t9_feral_relic'), -- Druid T9 Feral Relic (Idol of Mutilation)
-(-30881, 'spell_sha_nature_guardian'), -- Shaman Nature's Guardian
-(-30299, 'spell_warl_nether_protection'), -- Warlock Nether protection
-(-53234, 'spell_hun_piercing_shots'), -- Hunter Piercing Shots
-(-67151, 'spell_hun_t9_4p_bonus'), -- Hunter T9 Bonus
-(-324, 'spell_sha_lightning_shield'), -- Shaman Lightning Shield
-(-49200, 'spell_dk_acclimation'), -- DK Acclimation
-(70656, 'spell_dk_advantage_t10_4p'), -- DK Advantage t10 4p melee
-(63611, 'spell_dk_improved_blood_presence_triggered'), -- DK Improved blood Presence Triggered
-(70805, 'spell_rog_t10_2p_bonus'), -- Rogue T10 2P bonus
-(-20210, 'spell_pal_illumination'), -- Paladin Illumination (for Holy Shock)
-(60510, 'spell_item_soul_preserver'), -- Soul Preserver
-(67702, 'spell_item_death_choice'), -- Death Choice Trinket
-(67771, 'spell_item_death_choice'), -- Death Choice Trinket
-(37657, 'spell_item_trinket_stack'), -- ToC 25 Caster Trinket
-(54841, 'spell_item_trinket_stack'), -- ToC 25 Caster Trinket
-(67712, 'spell_item_trinket_stack'), -- ToC 25 Caster Trinket
-(67758, 'spell_item_trinket_stack'), -- ToC 25 Caster Trinket
-(71201, 'spell_igb_battle_experience_check'), -- Battle Experience (Gunship - ICC)
-(64568, 'spell_gen_blood_reserve'), -- Blood Reserve (no idea what this is)
-(57345, 'spell_item_darkmoon_card_greatness'), -- Darkmoon Card: Greatness
-(43820, 'spell_item_charm_witch_doctor'), -- Charm of the Witch Doctor
-(27522, 'spell_item_mana_drain'), -- Mana Drain
-(40336, 'spell_item_mana_drain'); -- Mana Drain
+(-31641,'spell_dk_acclimation'),                        -- DK Acclimation
+(-27811,'spell_dk_advantage_t10_4p'),                   -- DK Advantage t10 4p melee
+(37336, 'spell_dk_improved_blood_presence_triggered'),  -- DK Improved blood Presence Triggered
+(67353, 'spell_dru_forms_trinket'),                     -- Druid Forms Trinket
+(-30881,'spell_dru_t9_feral_relic'),                    -- Druid T9 Feral Relic (Idol of Mutilation)
+(-30299,'spell_gen_blood_reserve'),                     -- Blood Reserve, triggered by Blood Draining
+(-53234,'spell_hun_piercing_shots'),                    -- Hunter Piercing Shots
+(-67151,'spell_hun_t9_4p_bonus'),                       -- Hunter T9 Bonus
+(67758, 'spell_mage_blazing_speed'),                    -- Mage Blazing Speed
+(71201, 'spell_pal_illumination'),                      -- Paladin Illumination (for Holy Shock)
+(64568, 'spell_pri_blessed_recovery'),                  -- Priest Blessed Recovery
+(57345, 'spell_rog_t10_2p_bonus'),                      -- Rogue T10 2P bonus
+(43820, 'spell_sha_lightning_shield'),                  -- Shaman Lightning Shield
+(27522, 'spell_sha_nature_guardian'),                   -- Shaman Nature's Guardian
+(40336, 'spell_warl_nether_protection'),                -- Warlock Nether protection
+(-324,  'spell_igb_battle_experience_check'),           -- Battle Experience (Gunship - ICC)
+(-49200,'spell_item_charm_witch_doctor'),               -- Charm of the Witch Doctor
+(70656, 'spell_item_darkmoon_card_greatness'),          -- Darkmoon Card: Greatness
+(63611, 'spell_item_death_choice'),                     -- Death Choice Trinket
+(70805, 'spell_item_death_choice'),                     -- Death Choice Trinket
+(-20210,'spell_item_mana_drain'),                       -- Mana Drain
+(60510, 'spell_item_mana_drain'),                       -- Mana Drain
+(67702, 'spell_item_soul_preserver'),                   -- Soul Preserver
+(67771, 'spell_item_trinket_stack'),                    -- ToC 25 Caster Trinket
+(37657, 'spell_item_trinket_stack'),                    -- ToC 25 Caster Trinket
+(54841, 'spell_item_trinket_stack'),                    -- ToC 25 Caster Trinket
+(67712, 'spell_item_trinket_stack');                    -- ToC 25 Caster Trinket

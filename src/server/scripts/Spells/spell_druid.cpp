@@ -227,20 +227,19 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (Unit* target = eventInfo.GetActor())
+            Unit* target = eventInfo.GetActor();
+
+            switch (target->GetShapeshiftForm())
             {
-                switch (target->GetShapeshiftForm())
-                {
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                    case FORM_CAT:
-                    case FORM_MOONKIN:
-                    case FORM_NONE:
-                    case FORM_TREE:
-                        return true;
-                    default:
-                        return false;
-                }
+                case FORM_BEAR:
+                case FORM_DIREBEAR:
+                case FORM_CAT:
+                case FORM_MOONKIN:
+                case FORM_NONE:
+                case FORM_TREE:
+                    return true;
+                default:
+                    return false;
             }
 
             return false;
@@ -1192,19 +1191,18 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (Unit* target = eventInfo.GetActor())
+            Unit* target = eventInfo.GetActor();
+            
+            switch (target->GetShapeshiftForm())
             {
-                switch (target->GetShapeshiftForm())
-                {
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                    case FORM_CAT:
-                        return true;
-                    default:
-                        return false;
-                }
+                case FORM_BEAR:
+                case FORM_DIREBEAR:
+                case FORM_CAT:
+                    return true;
+                default:
+                    return false;
             }
-
+            
             return false;
         }
 

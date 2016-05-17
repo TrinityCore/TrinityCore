@@ -1029,9 +1029,9 @@ public:
                     target->CastCustomSpell(SPELL_SHAMAN_NATURE_GUARDIAN, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
 
                     // Threat reduction is around 10% confirmed in retail and from wiki
-                    if (Unit* attacker = eventInfo.GetActor())
-                        if (attacker->IsAlive())
-                            attacker->getThreatManager().modifyThreatPercent(target, -10);
+                    Unit* attacker = eventInfo.GetActor();
+                    if (attacker->IsAlive())
+                        attacker->getThreatManager().modifyThreatPercent(target, -10);
                 }
         }
         

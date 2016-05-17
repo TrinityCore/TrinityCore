@@ -1044,8 +1044,7 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (eventInfo.GetActor() 
-                && eventInfo.GetActor()->ToPlayer() 
+            if (eventInfo.GetActor()->ToPlayer() 
                 && eventInfo.GetActor()->ToPlayer()->GetPet())
                 return true;
             return false;

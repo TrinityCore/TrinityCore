@@ -2762,25 +2762,24 @@ public:
         {
             PreventDefaultAction();
             
-            if (Unit* caster = eventInfo.GetActor())
+            Unit* caster = eventInfo.GetActor();
+            
+            switch (caster->getClass())
             {
-                switch (caster->getClass())
-                {
-                    case CLASS_DRUID:
-                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, true, nullptr, aurEff);
-                        break;
-                    case CLASS_PALADIN:
-                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PALADIN, true, nullptr, aurEff);
-                        break;
-                    case CLASS_PRIEST:
-                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PRIEST, true, nullptr, aurEff);
-                        break;
-                    case CLASS_SHAMAN:
-                        caster->CastSpell(caster, SPELL_SOUL_PRESERVER_SHAMAN, true, nullptr, aurEff);
-                        break;
-                    default:
-                        break;
-                }
+                case CLASS_DRUID:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, true, nullptr, aurEff);
+                    break;
+                case CLASS_PALADIN:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PALADIN, true, nullptr, aurEff);
+                    break;
+                case CLASS_PRIEST:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PRIEST, true, nullptr, aurEff);
+                    break;
+                case CLASS_SHAMAN:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_SHAMAN, true, nullptr, aurEff);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -3082,54 +3081,6 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_item_darkmoon_card_greatness_AuraScript();
-    }
-};
-
-// 43820 - Amani Charm of the Witch Doctor
-enum CharmWitchDoctor
-{
-    SPELL_CHARM_WITCH_DOCTOR_PROC = 43821
-};
-
-class spell_item_charm_witch_doctor : public SpellScriptLoader
-{
-public:
-    spell_item_charm_witch_doctor() : SpellScriptLoader("spell_item_charm_witch_doctor") { }
-
-    class spell_item_charm_witch_doctor_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_item_charm_witch_doctor_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_CHARM_WITCH_DOCTOR_PROC))
-                return false;
-            return true;
-        }
-        
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-            
-            Unit* caster = eventInfo.GetActor();
-            Unit* target = eventInfo.GetActionTarget();
-            
-            if(target)
-            {
-                int32 bp = CalculatePct(target->GetCreateHealth(),aurEff->GetSpellInfo()->Effects[1].CalcValue());
-                caster->CastCustomSpell(target, SPELL_CHARM_WITCH_DOCTOR_PROC, &bp, nullptr, nullptr, true, nullptr, aurEff);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_item_charm_witch_doctor_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_item_charm_witch_doctor_AuraScript();
     }
 };
 

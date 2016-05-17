@@ -899,17 +899,16 @@ public:
                 if (eventInfo.GetHealInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x00010000)
                 {
                     PreventDefaultAction();
-                    if (Unit* target = eventInfo.GetActor()) // Paladin is the target of the energize
+                    Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
+                    
+                    // proc comes from the Holy Shock heal, need to get mana cost of original spell
+                    uint32 originalspellid = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1, aurEff->GetSpellInfo()->GetRank());
+                    SpellInfo const* originalSpell = sSpellMgr->GetSpellInfo(originalspellid);
+                    if (originalSpell && aurEff->GetSpellInfo())
                     {
-                        // proc comes from the Holy Shock heal, need to get mana cost of original spell
-                        uint32 originalspellid = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1, aurEff->GetSpellInfo()->GetRank());
-                        SpellInfo const* originalSpell = sSpellMgr->GetSpellInfo(originalspellid);
-                        if (originalSpell && aurEff->GetSpellInfo())
-                        {
-                            int32 cost = int32(originalSpell->ManaCost + CalculatePct(target->GetCreateMana(), originalSpell->ManaCostPercentage));
-                            uint32 bp = CalculatePct(cost, aurEff->GetSpellInfo()->Effects[1].CalcValue());
-                            target->CastCustomSpell(SPELL_PALADIN_ILLUMINATION_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
-                        }
+                        int32 cost = int32(originalSpell->ManaCost + CalculatePct(target->GetCreateMana(), originalSpell->ManaCostPercentage));
+                        uint32 bp = CalculatePct(cost, aurEff->GetSpellInfo()->Effects[1].CalcValue());
+                        target->CastCustomSpell(SPELL_PALADIN_ILLUMINATION_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
                     }
                 }
         }

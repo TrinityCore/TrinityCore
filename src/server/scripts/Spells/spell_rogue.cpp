@@ -863,11 +863,7 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (Unit* caster = eventInfo.GetActor())
-                if (Unit* target = eventInfo.GetActionTarget())
-                    return caster == target;
-            
-            return false;
+            return eventInfo.GetActor() == eventInfo.GetActionTarget();
         }
 
         void Register() override
