@@ -7832,15 +7832,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                             CastSpell(victim, 27526, true, castItem, triggeredByAura);
                         return true;
                     }
-                    // Evasive Maneuvers
-                    case 50240:
-                    {
-                        // Remove a Evasive Charge
-                        Aura* charge = GetAura(50241);
-                        if (charge && charge->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL))
-                            RemoveAurasDueToSpell(50240);
-                        break;
-                    }
                 }
                 break;
             case SPELLFAMILY_WARLOCK:
