@@ -3,8 +3,9 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_sha_nature_guardian','spell_warl_nether_protection','spell_hun_piercing_shots','spell_hun_t9_4p_bonus',
 'spell_sha_lightning_shield','spell_dk_acclimation','spell_dk_advantage_t10_4p','spell_dk_improved_blood_presence_triggered',
 'spell_rog_t10_2p_bonus','spell_pal_illumination','spell_item_soul_preserver','spell_item_death_choice','spell_item_trinket_stack',
-'spell_igb_battle_experience_check','spell_gen_blood_reserve','spell_item_darkmoon_card_greatness');
- 
+'spell_igb_battle_experience_check','spell_gen_blood_reserve','spell_item_darkmoon_card_greatness',
+'spell_item_charm_witch_doctor','spell_item_mana_drain');
+
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-31641, 'spell_mage_blazing_speed'), -- Mage Blazing Speed
 (-27811, 'spell_pri_blessed_recovery'), -- Priest Blessed Recovery
@@ -30,4 +31,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (71201, 'spell_igb_battle_experience_check'), -- Battle Experience (Gunship - ICC)
 (64568, 'spell_gen_blood_reserve'), -- Blood Reserve (no idea what this is)
 (57345, 'spell_item_darkmoon_card_greatness'), -- Darkmoon Card: Greatness
-(43820, 'spell_item_charm_witch_doctor'); -- Charm of the Witch Doctor
+(43820, 'spell_item_charm_witch_doctor'), -- Charm of the Witch Doctor
+(27522, 'spell_item_mana_drain'), -- Mana Drain
+(40336, 'spell_item_mana_drain'); -- Mana Drain

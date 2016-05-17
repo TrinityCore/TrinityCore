@@ -2760,6 +2760,8 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
+            
             if (Unit* caster = eventInfo.GetActor())
             {
                 switch (caster->getClass())
@@ -2834,11 +2836,11 @@ public:
 enum DeathChoiceSpells
 {
     SPELL_DEATH_CHOICE_NORMAL_AURA      = 67702,
-    SPELL_DEATH_CHOICE_HEROIC_AURA      = 67771,
-    SPELL_DEATH_CHOICE_NORMAL_STRENGHT  = 67708,
     SPELL_DEATH_CHOICE_NORMAL_AGILITY   = 67703,
-    SPELL_DEATH_CHOICE_HEROIC_STRENGHT  = 67773,
-    SPELL_DEATH_CHOICE_HEROIC_AGILITY   = 67772
+    SPELL_DEATH_CHOICE_NORMAL_STRENGTH  = 67708,
+    SPELL_DEATH_CHOICE_HEROIC_AURA      = 67771,
+    SPELL_DEATH_CHOICE_HEROIC_AGILITY   = 67772,    
+    SPELL_DEATH_CHOICE_HEROIC_STRENGTH  = 67773
 };
 
 class spell_item_death_choice : public SpellScriptLoader
@@ -2852,9 +2854,9 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_STRENGHT)
+            if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_STRENGTH)
                 || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_AGILITY)
-                || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_STRENGHT)
+                || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_STRENGTH)
                 || !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_AGILITY))
                 return false;
             return true;
@@ -2873,7 +2875,7 @@ public:
                 case SPELL_DEATH_CHOICE_NORMAL_AURA:
                     {
                         if(str > agi)
-                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_STRENGHT, true, nullptr, aurEff);
+                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_STRENGTH, true, nullptr, aurEff);
                         else 
                             caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_AGILITY, true, nullptr, aurEff);
                     }
@@ -2881,7 +2883,7 @@ public:
                 case SPELL_DEATH_CHOICE_HEROIC_AURA:
                     {
                         if (str > agi)
-                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_STRENGHT, true, nullptr, aurEff);
+                            caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_STRENGTH, true, nullptr, aurEff);
                         else
                             caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_AGILITY, true, nullptr, aurEff);
                     }
@@ -3131,6 +3133,104 @@ public:
     }
 };
 
+// 43820 - Amani Charm of the Witch Doctor
+enum CharmWitchDoctor
+{
+    SPELL_CHARM_WITCH_DOCTOR_PROC = 43821
+};
+
+class spell_item_charm_witch_doctor : public SpellScriptLoader
+{
+public:
+    spell_item_charm_witch_doctor() : SpellScriptLoader("spell_item_charm_witch_doctor") { }
+
+    class spell_item_charm_witch_doctor_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_charm_witch_doctor_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_CHARM_WITCH_DOCTOR_PROC))
+                return false;
+            return true;
+        }
+        
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            
+            Unit* caster = eventInfo.GetActor();
+            Unit* target = eventInfo.GetActionTarget();
+            
+            if(target)
+            {
+                int32 bp = CalculatePct(target->GetCreateHealth(),aurEff->GetSpellInfo()->Effects[1].CalcValue());
+                caster->CastCustomSpell(target, SPELL_CHARM_WITCH_DOCTOR_PROC, &bp, nullptr, nullptr, true, nullptr, aurEff);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_charm_witch_doctor_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_charm_witch_doctor_AuraScript();
+    }
+};
+
+// 27522,40336 - Mana Drain
+enum ManaDrainSpells
+{
+    SPELL_MANA_DRAIN_ENERGIZE = 29471,
+    SPELL_MANA_DRAIN_LEECH    = 27526
+};
+
+class spell_item_mana_drain : public SpellScriptLoader
+{
+public:
+    spell_item_mana_drain() : SpellScriptLoader("spell_item_mana_drain") { }
+
+    class spell_item_mana_drain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_mana_drain_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DRAIN_ENERGIZE)
+                || !sSpellMgr->GetSpellInfo(SPELL_MANA_DRAIN_LEECH))
+                return false;
+            return true;
+        }
+        
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            
+            Unit* caster = eventInfo.GetActor();
+            Unit* target = eventInfo.GetActionTarget();
+            
+            if(caster->IsAlive())
+                caster->CastSpell(caster, SPELL_MANA_DRAIN_ENERGIZE, true, nullptr, aurEff);
+            
+            if(target && target->IsAlive())
+                caster->CastSpell(target, SPELL_MANA_DRAIN_LEECH, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_mana_drain_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_mana_drain_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -3207,4 +3307,5 @@ void AddSC_item_spell_scripts()
     new spell_item_trinket_stack();
     new spell_item_darkmoon_card_greatness();
     new spell_item_charm_witch_doctor();
+    new spell_item_mana_drain();
 }
