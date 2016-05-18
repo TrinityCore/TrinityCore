@@ -1330,14 +1330,14 @@ class TC_GAME_API ObjectMgr
             return itr != _phases.end() ? &itr->second : nullptr;
         }
         TerrainPhaseInfo const& GetDefaultTerrainSwapStore() const { return _terrainMapDefaultStore; }
-        PhaseInfo const& GetAreaPhases() const { return _phases; }
+        PhaseInfo const& GetAreaAndZonePhases() const { return _phases; }
         // condition loading helpers
-        std::vector<PhaseInfoStruct>* GetPhasesForAreaForLoading(uint32 area)
+        std::vector<PhaseInfoStruct>* GetPhasesForAreaOrZoneForLoading(uint32 areaOrZone)
         {
-            auto itr = _phases.find(area);
+            auto itr = _phases.find(areaOrZone);
             return itr != _phases.end() ? &itr->second : nullptr;
         }
-        PhaseInfo& GetAreaPhasesForLoading() { return _phases; }
+        PhaseInfo& GetAreaAndZonePhasesForLoading() { return _phases; }
 
         // for wintergrasp only
         GraveYardContainer GraveYardStore;

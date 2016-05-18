@@ -2809,16 +2809,16 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 
 // Updates Area based phases, does not remove phases from auras
 // Phases from gm commands are not taken into calculations, they can be lost!!
-void WorldObject::UpdateAreaPhase()
+void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
-    PhaseInfo const& phases = sObjectMgr->GetAreaPhases();
+    PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
     for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
     {
-        uint32 areaId = itr->first;
+        uint32 areaOrZoneId = itr->first;
         for (PhaseInfoStruct const& phase : itr->second)
         {
-            if (areaId == GetAreaId())
+            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
             {
                 if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                 {
