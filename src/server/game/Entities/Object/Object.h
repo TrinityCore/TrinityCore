@@ -453,7 +453,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         virtual bool SetInPhase(uint32 id, bool update, bool apply);
         void CopyPhaseFrom(WorldObject* obj, bool update = false);
-        void UpdateAreaPhase();
+        void UpdateAreaAndZonePhase();
         void ClearPhases(bool update = false);
         void RebuildTerrainSwaps();
         void RebuildWorldMapAreaSwaps();

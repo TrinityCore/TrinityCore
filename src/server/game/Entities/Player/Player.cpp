@@ -6846,7 +6846,7 @@ void Player::UpdateArea(uint32 newArea)
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
-    UpdateAreaPhase();
+    UpdateAreaAndZonePhase();
 
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
@@ -6955,7 +6955,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     UpdateZoneDependentAuras(newZone);
 
-    UpdateAreaPhase();
+    UpdateAreaAndZonePhase();
 }
 
 //If players are too far away from the duel flag... they lose the duel
