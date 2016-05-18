@@ -10,7 +10,7 @@
 2. 
 3. 
 
-**Branch(es)**: 335/6x  CHOICE THE BRANCH AFECTED BY BUG  
+**Branch(es)**: 3.3.5 / 6.x (Select the branch(es) affected by this issue) 
 
 **TC hash/commit**:  
 
