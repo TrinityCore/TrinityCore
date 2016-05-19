@@ -3023,7 +3023,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             {
                 OldSummon->SetHealth(OldSummon->GetMaxHealth());
                 OldSummon->SetPower(OldSummon->getPowerType(),
-                OldSummon->GetMaxPower(OldSummon->getPowerType()));
+                    OldSummon->GetMaxPower(OldSummon->getPowerType()));
                 OldSummon->GetSpellHistory()->ResetAllCooldowns();
             }
 
