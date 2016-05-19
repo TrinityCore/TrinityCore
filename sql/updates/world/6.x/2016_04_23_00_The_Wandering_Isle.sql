@@ -2262,7 +2262,7 @@ INSERT INTO creature (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `pha
 (@CGUID+1629, 65467, 860, 0, 0, 1, 1329, 0, 0, 0, 1074.576, 4171.368, 205.5627, 1.375766, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 65467 (Area: 5830) (Auras: 80852 - 80852)
 (@CGUID+1630, 57419, 860, 0, 0, 1, 1329, 0, 0, 0, 1049.806, 4220.413, 210.2535, 4.743097, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 57419 (Area: 5830)
 (@CGUID+1631, 57419, 860, 0, 0, 1, 1329, 0, 0, 0, 1053.656, 4128.002, 209.2923, 1.464456, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 57419 (Area: 5830)
-(@CGUID+1632, 55650, 860, 0, 0, 1, 1519, 0, 0, 0, 1137.972, 4167.648, 190.5402, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55650 (Area: 5830) (Auras: 82358 - 82358)
+(@CGUID+1632, 55650, 860, 0, 0, 1, 1329, 0, 0, 0, 1137.972, 4167.648, 190.5402, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55650 (Area: 5830) (Auras: 82358 - 82358)
 (@CGUID+1633, 56394, 860, 0, 0, 1, 1329, 0, 0, 0, 1073.441, 4174.508, 205.5174, 0.9725225, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 56394 (Area: 5830) (Auras: 80852 - 80852)
 (@CGUID+1634, 56393, 860, 0, 0, 1, 1329, 0, 0, 0, 1068.924, 4175.977, 204.952, 0.2994842, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 56393 (Area: 5830) (Auras: 80852 - 80852)
 (@CGUID+1635, 57419, 860, 0, 0, 1, 1329, 0, 0, 0, 1066.303, 4184.821, 204.2563, 5.882643, 120, 0, 0, 0, 0, 2, 0, 0, 0, 20886), -- 57419 (Area: 5830) (possible waypoints or random movement)
@@ -2389,18 +2389,18 @@ INSERT INTO creature (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `pha
 (@CGUID+1775, 55640, 860, 0, 0, 1, 1329, 0, 0, 0, 597.2999, 4393.556, 196.4596, 5.086708, 120, 10, 0, 0, 0, 1, 0, 0, 0, 20886), -- 55640 (Area: 5886) (possible waypoints or random movement)
 (@CGUID+1776, 55595, 860, 0, 0, 1, 1329, 0, 0, 0, 543.9462, 4317.313, 212.3221, 1.675516, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55595 (Area: 5886) (Auras: 82343 - 82343)
 (@CGUID+1777, 55786, 860, 0, 0, 1, 524, 0, 0, 0, 713.9167, 4168.126, 213.846, 2.70526, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55786 (Area: 5886) (Auras: 125992 - 125992)
-(@CGUID+1778, 64507, 860, 0, 0, 1, 1329, 0, 0, 0, 704.7743, 4190.157, 198.3277, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
-(@CGUID+1779, 64507, 860, 0, 0, 1, 1329, 0, 0, 0, 684.5347, 4173.243, 197.0644, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
-(@CGUID+1780, 64507, 860, 0, 0, 1, 1329, 0, 0, 0, 736.9011, 4183.853, 201.4932, 6.257929, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
+(@CGUID+1778, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 704.7743, 4190.157, 198.3277, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
+(@CGUID+1779, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 684.5347, 4173.243, 197.0644, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
+(@CGUID+1780, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 736.9011, 4183.853, 201.4932, 6.257929, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
 (@CGUID+1781, 64505, 860, 0, 0, 1, 524, 0, 0, 0, 691.354, 4152.99, 197.6286, 0.5908799, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64505 (Area: 5886)
 (@CGUID+1782, 64506, 860, 0, 0, 1, 524, 0, 0, 0, 715.858, 4165.51, 196.0635, 5.856958, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64506 (Area: 5886) (Auras: 117326 - 117326)
-(@CGUID+1783, 64507, 860, 0, 0, 1, 1329, 0, 0, 0, 689.6268, 4153.174, 197.7139, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
-(@CGUID+1784, 64507, 860, 0, 0, 1, 1329, 0, 0, 0, 717.0469, 4141.155, 199.9135, 6.249729, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5829) (Auras: 81312 - 81312)
-(@CGUID+1785, 64507, 860, 0, 0, 1, 1329, 0, 0, 0, 745.9132, 4154.358, 203.5666, 0.02568459, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5829) (Auras: 81312 - 81312)
+(@CGUID+1783, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 689.6268, 4153.174, 197.7139, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5886) (Auras: 81312 - 81312)
+(@CGUID+1784, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 717.0469, 4141.155, 199.9135, 6.249729, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5829) (Auras: 81312 - 81312)
+(@CGUID+1785, 64507, 860, 0, 0, 1, 524, 0, 0, 0, 745.9132, 4154.358, 203.5666, 0.02568459, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64507 (Area: 5829) (Auras: 81312 - 81312)
 (@CGUID+1786, 55586, 860, 0, 0, 1, 1526, 0, 0, 0, 711.3351, 4178.052, 197.8458, 5.412983, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55586 (Area: 5829) (Auras: 108900 - 108900, 126160 - 126160)
 (@CGUID+1787, 55595, 860, 0, 0, 1, 536, 0, 0, 0, 715.8577, 4165.514, 196.0213, 5.856959, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55595 (Area: 5829)
 (@CGUID+1788, 55874, 860, 0, 0, 1, 536, 0, 0, 0, 723.1632, 4163.804, 196.0833, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55874 (Area: 5829) (Auras: 29266 - 29266)
-(@CGUID+1789, 55583, 860, 0, 0, 1, 1329, 0, 0, 0, 714.3854, 4163.736, 195.974, 6.015011, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55583 (Area: 5829)
+(@CGUID+1789, 55583, 860, 0, 0, 1, 536, 0, 0, 0, 714.3854, 4163.736, 195.974, 6.015011, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 55583 (Area: 5829)
 (@CGUID+1790, 56479, 860, 0, 0, 1, 1327, 0, 0, 0, 942.2813, 3604.516, 196.0161, 3.106686, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 56479 (Area: 5829) (Auras: 132378 - 132378)
 (@CGUID+1791, 64439, 860, 0, 0, 1, 1329, 0, 0, 0, 874.6898, 4258.66, 197.2982, 3.40052, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 64439 (Area: 5859)
 (@CGUID+1792, 56274, 860, 0, 0, 1, 1329, 0, 0, 0, 845.8941, 4372.632, 224.0641, 4.782202, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 56274 (Area: 5859)
@@ -7229,6 +7229,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 1028, 5820, 0, 1, 8, 0, 29775, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1028 when Quest 29775 rewarded'),
 (26, 1029, 5820, 0, 0, 28, 0, 29776, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1029 when Quest 29776 complete'),
 (26, 1029, 5820, 0, 1, 8, 0, 29776, 0, 0, 0, 0, 0, '', 'Temple of Five Dawns Phase 1029 when Quest 29776 rewarded'),
+(26, 1429, 5837, 0, 0, 8, 0, 29776, 0, 0, 1, 0, 0, '', 'The Dawning Span Phase 1429 when Quest 29776 not rewarded'),
 (26, 1526, 5829, 0, 0, 28, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 1526 when Quest 29786 complete'), -- mozno je multiple area
 (26, 1526, 5829, 0, 1, 8, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 1526 when Quest 29786 rewarded'), -- mozno je multiple area
 (26, 1714, 5831, 0, 0, 9, 0, 29782, 0, 0, 1, 0, 0, '', 'Fe-Feng Village Phase 1714 when Quest 29782 not taken'),
@@ -7261,18 +7262,18 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 1523, 0, 0, 1, 28, 0, 29784, 0, 0, 0, 0, 0, '', 'Morning Breeze Lake Phase 1523 when Quest 29784 complete'),
 (26, 1523, 0, 0, 2, 8, 0, 29784, 0, 0, 0, 0, 0, '', 'Morning Breeze Lake Phase 1523 when Quest 29784 rewarded'),
 -- Phases General
--- (26, 1323, 5736, 0, 0, 8, 0, 29423, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1323 when Quest 29423 not rewarded'),
--- (26, 1324, 5736, 0, 0, 8, 0, 29423, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1324 when Quest 29423 rewarded'),
--- (26, 1324, 5736, 0, 0, 8, 0, 29679, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1324 when Quest 29679 not rewarded'),
--- (26, 1325, 5736, 0, 0, 8, 0, 29679, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1325 when Quest 29679 rewarded'),
--- (26, 1325, 5736, 0, 0, 8, 0, 29775, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1325 when Quest 29775 not rewarded'),
--- (26, 1326, 5736, 0, 0, 8, 0, 29775, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29775 rewarded'),
--- (26, 1326, 5736, 0, 0, 9, 0, 29787, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29787 not taken'),
--- (26, 1326, 5736, 0, 1, 28, 0, 29787, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29787 not complete'),
--- (26, 1326, 5736, 0, 2, 8, 0, 29787, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29787 not rewarded'),
--- (26, 1327, 5736, 0, 0, 9, 0, 29787, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1327 when Quest 29787 taken'),
--- (26, 1327, 5736, 0, 1, 28, 0, 29787, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1327 when Quest 29787 complete'),
--- (26, 1327, 5736, 0, 2, 8, 0, 29787, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1327 when Quest 29787 rewarded'),
+(26, 1323, 5736, 0, 0, 8, 0, 29423, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1323 when Quest 29423 not rewarded'),
+(26, 1324, 5736, 0, 0, 8, 0, 29423, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1324 when Quest 29423 rewarded'),
+(26, 1324, 5736, 0, 0, 8, 0, 29679, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1324 when Quest 29679 not rewarded'),
+(26, 1325, 5736, 0, 0, 8, 0, 29679, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1325 when Quest 29679 rewarded'),
+(26, 1325, 5736, 0, 0, 8, 0, 29775, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1325 when Quest 29775 not rewarded'),
+(26, 1326, 5736, 0, 0, 8, 0, 29775, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29775 rewarded'),
+(26, 1326, 5736, 0, 0, 9, 0, 29787, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29787 not taken'),
+(26, 1326, 5736, 0, 1, 28, 0, 29787, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29787 not complete'),
+(26, 1326, 5736, 0, 2, 8, 0, 29787, 0, 0, 1, 0, 0, '', 'Wandering Isle Phase 1326 when Quest 29787 not rewarded'),
+(26, 1327, 5736, 0, 0, 9, 0, 29787, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1327 when Quest 29787 taken'),
+(26, 1327, 5736, 0, 1, 28, 0, 29787, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1327 when Quest 29787 complete'),
+(26, 1327, 5736, 0, 2, 8, 0, 29787, 0, 0, 0, 0, 0, '', 'Wandering Isle Phase 1327 when Quest 29787 rewarded'),
 -- Triggers
 (22, 1, 7746, 2, 0, 9, 0, 29409, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
 (22, 1, 7746, 2, 0, 1, 0, 116219, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
@@ -7379,13 +7380,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `phase_area` WHERE `AreaId` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 -- THE WANDERING ISLE
--- (5736, 1323, 'The Wandering Isle - before quest 29423 rewarded'),
--- (5736, 1324, 'The Wandering Isle - after quest 29423 rewarded and before quest 29679 rewarded'),
--- (5736, 1325, 'The Wandering Isle - after quest 29679 rewarded and before quest 29775 rewarded'),
--- (5736, 1326, 'The Wandering Isle - after quest 29775 rewarded and before quest 29787 taken'),
--- (5736, 1327, 'The Wandering Isle - quest 29787 taken, complete or rewarded'),
--- (5736, 1328, 'The Wandering Isle - see GOs'),
--- (5736, 1329, 'The Wandering Isle - see creatures'),
+(5736, 1323, 'The Wandering Isle - before quest 29423 rewarded'),
+(5736, 1324, 'The Wandering Isle - after quest 29423 rewarded and before quest 29679 rewarded'),
+(5736, 1325, 'The Wandering Isle - after quest 29679 rewarded and before quest 29775 rewarded'),
+(5736, 1326, 'The Wandering Isle - after quest 29775 rewarded and before quest 29787 taken'),
+(5736, 1327, 'The Wandering Isle - quest 29787 taken, complete or rewarded'),
+(5736, 1328, 'The Wandering Isle - see GOs'),
+(5736, 1329, 'The Wandering Isle - see creatures'),
 -- Shang Xi Training Grounds
 (5834, 592, 'Shang Xi Training Grounds - warrior'),
 (5834, 593, 'Shang Xi Training Grounds - mage'),
@@ -7436,31 +7437,32 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (5828, 878, 'Mandori Village - x'),
 (5828, 879, 'Mandori Village - x'),
 -- The Dawning Span
-(5837, 1429, 'The Dawning Span - x'),
+(5837, 1429, 'The Dawning Span - before quest 29776 rewarded'),
+(5837, 1430, 'The Dawning Span - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'),
 -- Ridge of Laughing Winds
-(5829, 524, 'Ridge of Laughing Winds - quest 29786 taken'), -- drak combat, Ji, Aysa
-(5829, 536, 'Ridge of Laughing Winds - after quest 29786 complete or rewarded'), -- drak gf, Aysa
-(5829, 1430, 'Ridge of Laughing Winds - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'), -- drak
-(5829, 1526, 'Ridge of Laughing Winds - after quest 29786 complete or rewarded'),  -- Master Sheng
-(5829, 1836, 'Ridge of Laughing Winds - before quest 29785 complete or rewarded'), -- viry
+(5829, 524, 'Ridge of Laughing Winds - quest 29786 taken'),
+(5829, 536, 'Ridge of Laughing Winds - after quest 29786 complete or rewarded'),
+(5829, 1430, 'Ridge of Laughing Winds - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'),
+(5829, 1526, 'Ridge of Laughing Winds - after quest 29786 complete or rewarded'),
+(5829, 1836, 'Ridge of Laughing Winds - before quest 29785 complete or rewarded'),
 -- Morning Breeze Village
-(5830, 1430, 'Morning Breeze Village - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'), -- drak
-(5830, 1518, 'Morning Breeze Village - after quest 29776 rewarded'), -- Master Sheng
-(5830, 1519, 'Morning Breeze Village - x'), -- balon
+(5830, 1430, 'Morning Breeze Village - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'),
+(5830, 1518, 'Morning Breeze Village - after quest 29776 rewarded'),
+(5830, 1519, 'Morning Breeze Village - x'),
 (5830, 1523, 'Morning Breeze Village - quest 29784 taken, complete or rewarded'), -- dafeng a drak
-(5830, 1836, 'Morning Breeze Village - before quest 29785 complete or rewarded'), -- viry
+(5830, 1836, 'Morning Breeze Village - before quest 29785 complete or rewarded'),
 -- Fe-Feng Village
 (5831, 1714, 'Fe-Feng Village - before quest 29782 taken'),
 -- Morning Breeze Lake
-(5946, 1518, 'Morning Breeze Lake - after quest 29776 rewarded'), -- Master Sheng
-(5946, 1519, 'Morning Breeze Lake - x'), -- balon
+(5946, 1518, 'Morning Breeze Lake - after quest 29776 rewarded'),
+(5946, 1519, 'Morning Breeze Lake - x'),
 (5946, 1523, 'Morning Breeze Lake - quest 29784 taken, complete or rewarded'), -- dafeng a drak
 -- Chamber of Whispers
 (5886, 169, 'Chamber of Whispers - quest 29786 taken'),
-(5886, 524, 'Chamber of Whispers - quest 29786 taken'), -- drak combat, Ji, Aysa
-(5886, 536, 'Chamber of Whispers - after quest 29786 complete or rewarded'), -- drak gf, Aysa
-(5886, 1430, 'Chamber of Whispers - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'), -- drak
-(5886, 1836, 'Chamber of Whispers - before quest 29785 complete or rewarded'), -- viry
+(5886, 524, 'Chamber of Whispers - quest 29786 taken'),
+(5886, 536, 'Chamber of Whispers - after quest 29786 complete or rewarded'),
+(5886, 1430, 'Chamber of Whispers - after quest 29776 rewarded and quest 29786 not taken, complete or rewarded'),
+(5886, 1836, 'Chamber of Whispers - before quest 29785 complete or rewarded'),
 -- The Elders' Path
 (5859, 1527, 'The Elders'' Path - after quest 29787 rewarded and before quest 29790 taken'),
 (5859, 1885, 'The Elders'' Path - before quest 29791 completed or rewarded'), -- guardian
@@ -7480,7 +7482,7 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 -- Forlorn Hut
 (5944, 903, 'Forlorn Hut - x');
 
-DELETE FROM `spell_area` WHERE `spell` IN (104028, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
+DELETE FROM `spell_area` WHERE `spell` IN (105005, 105307, 105308, 108842, 108844, 109100, 104028, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
 (100709, 5834, 0, 29524, 0, 0, 2, 1, 0, 9), -- See Quest Invis 1 (Master Shang bench)
 (107027, 5834, 0, 29406, 0, 0, 2, 1, 0, 11), -- See Quest Invis 20 (Gate 1 - GO)
@@ -7531,8 +7533,8 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (102870, 5826, 29677, 29678, 0, 0, 2, 1, 74, 9), -- See Quest Invis 2 (Aysa near jumping rocks)
 (102874, 5826, 29677, 29678, 0, 0, 2, 1, 74, 9), -- See Quest Invis 6 (Old Man Liang near jumping rocks)
 (116571, 5862, 29678, 0, 0, 0, 2, 1, 74, 0), -- Blessing of the Water Strider
-(102871, 5862, 29678, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 3 (Aysa near Shu)
-(102871, 5826, 29678, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 3 (Aysa near Shu)
+(102871, 5862, 29678, 29776, 0, 0, 2, 1, 66, 11), -- See Quest Invis 3 (Aysa near Shu)
+(102871, 5826, 29678, 29776, 0, 0, 2, 1, 66, 11), -- See Quest Invis 3 (Aysa near Shu)
 (102875, 5862, 29678, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 7 (Old Man Liang near Shu)
 (102875, 5826, 29678, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 7 (Old Man Liang near Shu)
 (128574, 5862, 29678, 29679, 0, 0, 2, 1, 66, 9), -- See Quest Invis 29 (Shu)
@@ -7542,10 +7544,20 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (108835, 5881, 29662, 29771, 0, 0, 2, 1, 64, 11), -- See Quest Invis 4 (Children & Onlookers) // should be delayed
 (109303, 5881, 0, 29774, 0, 0, 2, 1, 0, 9), -- See Quest Invis 5 (Wugou - gong)
 (114455, 5881, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 6 (Cart - The Dai-Lo Farmstead)
-(118028, 5881, 29768, 0, 0, 0, 2, 1, 74, 0), -- See Quest Invis 7 (Ji Firepaw)
+(118028, 5881, 29768, 29776, 0, 0, 2, 1, 74, 11), -- See Quest Invis 7 (Ji Firepaw)
 (115448, 5828, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 27 (Pei-Wu Forest Gate - GO)
 (115446, 5828, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 29 (Mandori Village Gate - GO)
-(104028, 5820, 29775, 0, 0, 0, 2, 1, 66, 0); -- See Quest Invis 2 (Master Shang)
+(104028, 5820, 29775, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 2 (Master Shang)
+(105005, 5830, 0, 0, 0, 0, 2, 1, 0, 0), -- See Quest Invis 6 (Baloon)
+(105307, 5830, 29776, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 7 (Ji Firepaw)
+(105307, 5946, 29776, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 7 (Ji Firepaw)
+(105308, 5830, 29776, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 8 (Aysa on rope - Lake)
+(105308, 5946, 29776, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 8 (Aysa on rope - Lake)
+(108842, 5830, 29771, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 9 (Jojo Ironbrow)
+(108842, 5946, 29771, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 9 (Jojo Ironbrow)
+(108844, 5830, 29771, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 10 (Children & Onlookers)
+(108844, 5946, 29771, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 10 (Children & Onlookers)
+(109100, 5829, 0, 0, 0, 0, 2, 1, 0, 0); -- See Quest Invis 11 (???)
 
 DELETE FROM `spell_target_position` WHERE `ID` IN (102499, 118499, 118500, 116190, 116191, 108786, 108827, 104450);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
@@ -8612,10 +8624,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Zhao-Ren
 (64554, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 48, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - On Respawn - Set Active'),
 (64554, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 59, 1, 40, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - On Respawn - Set Run'),
-(64554, 0, 2, 3, 54, 0, 100, 0, 0, 0, 0, 0, 48, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Active'),
-(64554, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 59, 1, 40, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Run'),
-(64554, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 53, 1, 64554, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Start WP'),
-(64554, 0, 5, 0, 58, 0, 100, 0, 13, 64554, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - WP Ended - Despawn'),
+(64554, 0, 2, 3, 54, 0, 100, 0, 0, 0, 0, 0, 44, 1429, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Add Phase'),
+(64554, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 48, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Active'),
+(64554, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 59, 1, 40, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Run'),
+(64554, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 53, 1, 64554, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Start WP'),
+(64554, 0, 6, 0, 58, 0, 100, 0, 13, 64554, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - WP Ended - Despawn'),
 -- Trigger 8287 - The Dawning Span
 (8287, 2, 0, 0, 46, 0, 100, 0, 8287, 0, 0, 0, 86, 116219, 2, 10, @CGUID+1584, 64885, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cross Cast CSA Area Trigger Dummy Timer Aura A'),
 -- Lorewalker Zan
@@ -9506,9 +9519,10 @@ UPDATE `creature` SET `PhaseId`=504 WHERE `id` IN (54734, 54900, 54901, 54902);
 UPDATE `gameobject` SET `PhaseId`=0, `PhaseGroup`=0 WHERE `map`=860;
 UPDATE `gameobject` SET `PhaseId`=504 WHERE `id`=209375 OR (`id`=209373 AND `guid`=@OGUID+150) OR (`id`=209372 AND `guid`=@OGUID+151) OR (`id`=209374 AND `guid`=@OGUID+153);
 DELETE FROM `phase_area` WHERE `AreaId` IN (5736, 5834, 5825, 5843, 5846, 5835, 5849, 5847, 5820, 5947, 5826, 5860, 5862, 5827, 5881, 5882, 5883, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5941, 5833, 5737, 5944, 5945);
-DELETE FROM `smart_scripts` WHERE (`entryorguid`=56503 AND `id`=12) OR (`entryorguid`=54734 AND `id` IN (7, 8)) OR (`entryorguid`=54958 AND `id`=7) OR (`entryorguid`=60916 AND `id`=5);
+DELETE FROM `smart_scripts` WHERE (`entryorguid`=56503 AND `id`=12) OR (`entryorguid`=54734 AND `id` IN (7, 8)) OR (`entryorguid`=54958 AND `id`=7) OR (`entryorguid`=60916 AND `id`=5) OR (`entryorguid`=64554 AND `id`=2);
 UPDATE `smart_scripts` SET `id`=12 WHERE `entryorguid`=56503 AND `id`=13;
 UPDATE `smart_scripts` SET `link`=9 WHERE `entryorguid`=54734 AND `id`=6;
 UPDATE `smart_scripts` SET `link`=8 WHERE `entryorguid`=54958 AND `id`=6;
 UPDATE `smart_scripts` SET `link`=6 WHERE `entryorguid`=60916 AND `id`=4;
+UPDATE `smart_scripts` SET `event_type`=54 WHERE `entryorguid`=64554 AND `id`=3;
 UPDATE `spell_area` SET `quest_end`=0 WHERE `spell` IN (108834, 108835);
