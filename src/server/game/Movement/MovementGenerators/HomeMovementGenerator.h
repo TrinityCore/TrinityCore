@@ -32,7 +32,7 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
         ~HomeMovementGenerator();
 
         void DoInitialize(Creature*);
-        void DoFinalize(Creature*, bool);
+        void DoFinalize(Creature*);
         void DoReset(Creature*);
         bool DoUpdate(Creature*, const uint32);
         MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }

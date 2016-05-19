@@ -32,21 +32,18 @@ void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
     SetTargetLocation(owner);
 }
 
-void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active)
+void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
     if (!m_despawnEvent)
     {
         owner->ClearUnitState(UNIT_STATE_EVADE);
-        if (active)
+        bool movementInform = owner->movespline->Finalized();
+        owner->StopMoving();
+        if (movementInform)
         {
-            bool movementInform = owner->movespline->Finalized();
-            owner->StopMoving();
-            if (movementInform)
-            {
-                owner->SetWalk(true);
-                owner->LoadCreaturesAddon();
-                owner->AI()->JustReachedHome();
-            }
+            owner->SetWalk(true);
+            owner->LoadCreaturesAddon();
+            owner->AI()->JustReachedHome();
         }
     }
 }
