@@ -28,7 +28,6 @@ template <>
 class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
 {
     public:
-
         HomeMovementGenerator() : m_path(nullptr), m_travelInitialized(false), m_despawnEvent(false) { }
         ~HomeMovementGenerator();
 
@@ -38,7 +37,7 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
         bool DoUpdate(Creature*, const uint32);
         MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
 
-    protected:
+    private:
         void SetTargetLocation(Creature*);
 
         PathGenerator* m_path;
