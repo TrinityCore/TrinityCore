@@ -226,8 +226,12 @@ public:
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/)
     {
-        if (!_owner->HasSmartAI())
-            _owner->AI()->JustReachedHome();
+        _owner->SetFullHealth();
+        _owner->ClearUnitState(UNIT_STATE_EVADE);
+        _owner->SetWalk(true);
+        _owner->LoadCreaturesAddon();
+        _owner->AI()->JustReachedHome();
+        _owner->UpdateObjectVisibility();
         return true;
     }
 
@@ -242,23 +246,12 @@ public:
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/)
     {
-        _owner->Respawn(true);
+        Position home = _owner->GetHomePosition();
+        _owner->GetMap()->LoadGrid(home.GetPositionX(), home.GetPositionY());
+        _owner->DestroyForNearbyPlayers();
+        _owner->UpdatePosition(home.GetPositionX(), home.GetPositionY(), home.GetPositionZ(), home.GetOrientation(), true);
 
-        if (!_owner->IsSummon())
-        {
-            uint32 corpseDelay = _owner->GetCorpseDelay();
-            uint32 respawnDelay = _owner->GetRespawnDelay();
-            _owner->SetCorpseDelay(1);
-            _owner->SetRespawnDelay(2);
-
-            _owner->DespawnOrUnsummon();
-
-            _owner->SetCorpseDelay(corpseDelay);
-            _owner->SetRespawnDelay(respawnDelay);
-        }
-
-        _owner->m_Events.AddEvent(new EvadeHomeCall(_owner), _owner->m_Events.CalculateTime(2500));
-
+        _owner->m_Events.AddEvent(new EvadeHomeCall(_owner), _owner->m_Events.CalculateTime(1000));
         return true;
     }
 

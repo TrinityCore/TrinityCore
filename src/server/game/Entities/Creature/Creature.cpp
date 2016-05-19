@@ -47,7 +47,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "Transport.h"
-#include "SmartAI.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -251,11 +250,6 @@ void Creature::RemoveFromWorld()
         TC_LOG_DEBUG("entities.unit", "Removing creature %u with entry %u and DBGUID %u to world in map %u", GetGUID().GetCounter(), GetEntry(), m_spawnId, GetMap()->GetId());
         GetMap()->GetObjectsStore().Remove<Creature>(GetGUID());
     }
-}
-
-bool Creature::HasSmartAI() const
-{
-    return IsAIEnabled && i_AI && dynamic_cast<const SmartAI*>(i_AI) != nullptr;
 }
 
 void Creature::DisappearAndDie()

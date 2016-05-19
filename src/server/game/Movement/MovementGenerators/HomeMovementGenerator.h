@@ -30,19 +30,20 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
 {
     public:
 
-        HomeMovementGenerator() : m_arrived(false), m_travelInitialized(false), m_despawnTimer(30 * IN_MILLISECONDS) { }
-        ~HomeMovementGenerator() { }
+        HomeMovementGenerator() : m_path(nullptr), m_travelInitialized(false), m_despawnEvent(false) { }
+        ~HomeMovementGenerator();
 
         void DoInitialize(Creature*);
-        void DoFinalize(Creature*);
+        void DoFinalize(Creature*, bool);
         void DoReset(Creature*);
         bool DoUpdate(Creature*, const uint32);
         MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
 
     protected:
         void SetTargetLocation(Creature*);
-        bool m_arrived;
+
+        PathGenerator* m_path;
         bool m_travelInitialized;
-        TimeTrackerSmall m_despawnTimer;
+        bool m_despawnEvent;
 };
 #endif

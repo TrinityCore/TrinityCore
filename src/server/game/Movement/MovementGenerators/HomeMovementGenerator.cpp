@@ -22,19 +22,32 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
+HomeMovementGenerator<Creature>::~HomeMovementGenerator()
+{
+    delete m_path;
+}
+
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     SetTargetLocation(owner);
 }
 
-void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
+void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active)
 {
-    if (m_arrived)
+    if (!m_despawnEvent)
     {
         owner->ClearUnitState(UNIT_STATE_EVADE);
-        owner->SetWalk(true);
-        owner->LoadCreaturesAddon();
-        owner->AI()->JustReachedHome();
+        if (active)
+        {
+            bool movementInform = owner->movespline->Finalized();
+            owner->StopMoving();
+            if (movementInform)
+            {
+                owner->SetWalk(true);
+                owner->LoadCreaturesAddon();
+                owner->AI()->JustReachedHome();
+            }
+        }
     }
 }
 
@@ -45,30 +58,34 @@ void HomeMovementGenerator<Creature>::DoReset(Creature* owner)
 
 void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
 {
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
-        return;
-
     m_travelInitialized = true;
+    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
 
-    Movement::MoveSplineInit init(owner);
-    float x, y, z, o;
+    float x, y, z, o = 0.0f;
+
+    if (!m_path)
+        m_path = new PathGenerator(owner);
 
     // try to get a reset position placed by any other Movement
     if (owner->GetMotionMaster()->empty() || !owner->GetMotionMaster()->top()->GetResetPosition(owner, x, y, z))
-    {
         owner->GetHomePosition(x, y, z, o);
-        init.SetFacing(o);
+
+    bool result = m_path->CalculatePath(x, y, z);
+    if (!result || !(m_path->GetPathType() & PATHFIND_NORMAL))
+    {
+        // Cant reach home
+        m_despawnEvent = true;
+        return;
     }
-    init.MoveTo(x, y, z);
+
+    Movement::MoveSplineInit init(owner);
+    init.SetFacing(o);
+    init.MovebyPath(m_path->GetPath());
     init.SetWalk(false);
     init.Launch();
-
-    m_arrived = false;
-
-    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
 }
 
-bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 time_diff)
+bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return true;
@@ -76,15 +93,11 @@ bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 tim
     if (!m_travelInitialized)
         SetTargetLocation(owner);
 
-    // If despawnTimer has passed, initialize the despawn event
-    m_despawnTimer.Update(time_diff);
-    if (m_despawnTimer.Passed())
+    if (m_despawnEvent)
     {
-        owner->m_Events.AddEvent(new EvadeDespawner(owner), owner->m_Events.CalculateTime(1000));
+        owner->m_Events.AddEvent(new EvadeDespawner(owner), owner->m_Events.CalculateTime(3000));
         return false;
     }
-    else
-        m_arrived = owner->movespline->Finalized();
 
-    return !m_arrived;
+    return !owner->movespline->Finalized();
 }

@@ -483,7 +483,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void Motion_Initialize();
 
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(i_AI); }
-        bool HasSmartAI() const;
 
         bool SetWalk(bool enable) override;
         bool SetDisableGravity(bool disable, bool packetOnly = false) override;
