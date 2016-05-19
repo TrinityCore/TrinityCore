@@ -77,6 +77,7 @@ enum BossSpells
     SPELL_FIRE_BOMB_1       = 66317,
     SPELL_FIRE_BOMB_DOT     = 66318,
     SPELL_HEAD_CRACK        = 66407,
+    SPELL_JUMP_TO_HAND      = 66342,
 
     //Acidmaw & Dreadscale
     SPELL_ACID_SPIT         = 66880,
@@ -108,7 +109,8 @@ enum BossSpells
 enum MyActions
 {
     ACTION_ENABLE_FIRE_BOMB     = 1,
-    ACTION_DISABLE_FIRE_BOMB    = 2
+    ACTION_DISABLE_FIRE_BOMB    = 2,
+    ACTION_JUMP_ON_PLAYER       = 3
 };
 
 enum Events
@@ -212,11 +214,12 @@ class boss_gormok : public CreatureScript
 
                 for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                 {
-                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* snobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
-                        pSnobold->EnterVehicle(me, i);
-                        pSnobold->SetInCombatWithZone();
-                        pSnobold->AI()->DoAction(ACTION_ENABLE_FIRE_BOMB);
+                        snobold->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        snobold->EnterVehicle(me, i);
+                        snobold->SetInCombatWithZone();
+                        snobold->AI()->DoAction(ACTION_ENABLE_FIRE_BOMB);
                     }
                 }
             }
@@ -226,8 +229,8 @@ class boss_gormok : public CreatureScript
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
                     for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
-                        if (Unit* pSnobold = me->GetVehicleKit()->GetPassenger(i))
-                            pSnobold->ToCreature()->DespawnOrUnsummon();
+                        if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
+                            snobold->ToCreature()->DespawnOrUnsummon();
             }
 
             void UpdateAI(uint32 diff) override
@@ -255,13 +258,13 @@ class boss_gormok : public CreatureScript
                         case EVENT_THROW:
                             for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
                             {
-                                if (Unit* pSnobold = me->GetVehicleKit()->GetPassenger(i))
+                                if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
                                 {
-                                    pSnobold->ExitVehicle();
-                                    pSnobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    pSnobold->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                                    pSnobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
-                                    pSnobold->CastSpell(me, SPELL_RISING_ANGER, true);
+                                    snobold->ExitVehicle();
+                                    snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    snobold->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+                                    snobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                                    snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
                                     Talk(EMOTE_SNOBOLLED);
                                     break;
                                 }
@@ -275,6 +278,12 @@ class boss_gormok : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
+            {
+                if (!apply && seatId == 4) // hand
+                    who->ToCreature()->AI()->DoAction(ACTION_JUMP_ON_PLAYER);
+            } 
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -292,34 +301,16 @@ class npc_snobold_vassal : public CreatureScript
         {
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
             {
-                _targetDied = false;
+                _active = false;
                 _instance = creature->GetInstanceScript();
                 _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
             }
 
             void Reset() override
             {
-                _events.ScheduleEvent(EVENT_BATTER, 5*IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_HEAD_CRACK, 25*IN_MILLISECONDS);
-
+                _events.Reset();
                 _targetGUID.Clear();
-                _targetDied = false;
-
-                //Workaround for Snobold
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            }
-
-            void EnterCombat(Unit* who) override
-            {
-                _targetGUID = who->GetGUID();
-                me->TauntApply(who);
-                DoCast(who, SPELL_SNOBOLLED);
-            }
-
-            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
-            {
-                if (pDoneBy->GetGUID() == _targetGUID)
-                    uiDamage = 0;
+                _active = false;
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -330,9 +321,12 @@ class npc_snobold_vassal : public CreatureScript
                 switch (pointId)
                 {
                     case 0:
-                        if (_targetDied)
+                    {
+                        Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID);
+                        if (victim && !victim->IsAlive())
                             me->DespawnOrUnsummon();
                         break;
+                    }
                     default:
                         break;
                 }
@@ -340,9 +334,10 @@ class npc_snobold_vassal : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
-                    if (target->IsAlive())
-                        target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+                Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID);
+                if (victim && victim->IsAlive())
+                    victim->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+
                 _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
             }
 
@@ -356,6 +351,22 @@ class npc_snobold_vassal : public CreatureScript
                     case ACTION_DISABLE_FIRE_BOMB:
                         _events.CancelEvent(EVENT_FIRE_BOMB);
                         break;
+                    case ACTION_JUMP_ON_PLAYER:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SNOBOLLED))
+                        {
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            _targetGUID = target->GetGUID();
+                            target->CreateVehicleKit(444, 0);
+                            me->EnterVehicle(target, 0);
+                            //DoCast(victim, SPELL_SNOBOLLED, true); direct cast dont work
+                            me->AddAura(SPELL_SNOBOLLED, target);
+                            me->Attack(target, true);
+                            me->TauntApply(target);
+                            _active = true;
+                            _events.ScheduleEvent(EVENT_BATTER, 5 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_HEAD_CRACK, 25 * IN_MILLISECONDS);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -363,37 +374,15 @@ class npc_snobold_vassal : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || _targetDied)
+                if (!UpdateVictim())
                     return;
 
-                if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
-                {
-                    if (!target->IsAlive())
-                    {
-                        Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_GORMOK));
-                        if (gormok && gormok->IsAlive())
-                        {
-                            SetCombatMovement(false);
-                            _targetDied = true;
+                Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID);
+                if (victim && !victim->IsAlive())
+                    MountOnBoss();
 
-                            // looping through Gormoks seats
-                            for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
-                            {
-                                if (!gormok->GetVehicleKit()->GetPassenger(i))
-                                {
-                                    me->EnterVehicle(gormok, i);
-                                    DoAction(ACTION_ENABLE_FIRE_BOMB);
-                                    break;
-                                }
-                            }
-                        }
-                        else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        {
-                            _targetGUID = target2->GetGUID();
-                            me->GetMotionMaster()->MoveJump(*target2, 15.0f, 15.0f);
-                        }
-                    }
-                }
+                if (!victim && _active)
+                    MountOnBoss();
 
                 _events.Update(diff);
 
@@ -411,15 +400,11 @@ class npc_snobold_vassal : public CreatureScript
                             _events.ScheduleEvent(EVENT_FIRE_BOMB, 20*IN_MILLISECONDS);
                             return;
                         case EVENT_HEAD_CRACK:
-                            // commented out while SPELL_SNOBOLLED gets fixed
-                            //if (Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
-                            DoCastVictim(SPELL_HEAD_CRACK);
+                            DoCast(victim, SPELL_HEAD_CRACK);
                             _events.ScheduleEvent(EVENT_HEAD_CRACK, 30*IN_MILLISECONDS);
                             return;
                         case EVENT_BATTER:
-                            // commented out while SPELL_SNOBOLLED gets fixed
-                            //if (Unit* target = ObjectAccessor::GetPlayer(*me, m_uiTargetGUID))
-                            DoCastVictim(SPELL_BATTER);
+                            DoCast(victim, SPELL_BATTER);
                             _events.ScheduleEvent(EVENT_BATTER, 10*IN_MILLISECONDS);
                             return;
                         default:
@@ -431,11 +416,38 @@ class npc_snobold_vassal : public CreatureScript
                 if (!me->GetVehicleBase())
                     DoMeleeAttackIfReady();
             }
-            private:
-                EventMap _events;
-                InstanceScript* _instance;
-                ObjectGuid _targetGUID;
-                bool   _targetDied;
+
+        private:
+            EventMap _events;
+            InstanceScript* _instance;
+            ObjectGuid _targetGUID;
+            bool _active;
+
+            void MountOnBoss()
+            {
+                Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_GORMOK));
+                if (gormok && gormok->IsAlive())
+                {
+                    bool found = false;
+                    me->GetMotionMaster()->Clear();
+                    SetCombatMovement(false);
+                    _active = false;
+
+                    // looping through Gormoks seats
+                    for (uint8 i = 0; i < MAX_SNOBOLDS && !found; i++)
+                    {
+                        if (!gormok->GetVehicleKit()->GetPassenger(i))
+                        {
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            me->EnterVehicle(gormok, i);
+                            DoAction(ACTION_ENABLE_FIRE_BOMB);
+                            found = true;
+                        }
+                    }
+                }
+                else
+                    me->AI()->DoAction(ACTION_JUMP_ON_PLAYER);
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -478,6 +490,43 @@ class npc_firebomb : public CreatureScript
         {
             return GetInstanceAI<npc_firebombAI>(creature);
         }
+};
+
+class spell_gormok_snobolled : public SpellScriptLoader
+{
+public:
+    spell_gormok_snobolled() : SpellScriptLoader("spell_gormok_snobolled") { }
+
+    class spell_gormok_snobolled_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gormok_snobolled_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SNOBOLLED))
+                return false;
+            return true;
+        }
+
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (GetTarget()->GetVehicleKit())
+            {
+                GetTarget()->GetVehicleKit()->RemoveAllPassengers();
+                GetTarget()->RemoveVehicleKit();
+            }
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_snobolled_AuraScript::HandleRemove, EFFECT_0, SPELL_EFFECT_APPLY_AURA, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_gormok_snobolled_AuraScript();
+    }
 };
 
 struct boss_jormungarAI : public BossAI
@@ -1128,6 +1177,7 @@ void AddSC_boss_northrend_beasts()
     new npc_snobold_vassal();
     new npc_firebomb();
     new spell_gormok_fire_bomb();
+    new spell_gormok_snobolled();
 
     new boss_acidmaw();
     new boss_dreadscale();
