@@ -984,6 +984,28 @@ public:
     }
 };
 
+class at_temple_of_five_dawns_summon_zhaoren : public AreaTriggerScript
+{
+public:
+    at_temple_of_five_dawns_summon_zhaoren() : AreaTriggerScript("at_temple_of_five_dawns_summon_zhaoren") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    {
+        if (player->IsAlive())
+        {
+            if (entered)
+            {
+                Position const pos = { 750.5781f, 4262.676f, 323.0713f, 5.042483f };
+
+                player->SummonCreature(64554, pos, TEMPSUMMON_MANUAL_DESPAWN);
+
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -1005,4 +1027,5 @@ void AddSC_the_wandering_isle()
     new spell_water_spout_quest_credit();
     new spell_aysa_congrats_timer();
     new spell_aysa_congrats_trigger_aura();
+    new at_temple_of_five_dawns_summon_zhaoren();
 }

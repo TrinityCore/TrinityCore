@@ -3461,6 +3461,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 116191: // Summon Child 2
             case 108786: // Summon Stack of Reeds
             case 108827: // Summon Stack of Planks
+            case 104450: // Summon Ji Yuan
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
             case 114710: // Forcecast Summon Amberleaf Troublemaker
