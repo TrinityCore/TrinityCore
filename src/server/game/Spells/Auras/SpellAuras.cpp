@@ -341,6 +341,7 @@ m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_castItemLe
 m_applyTime(time(NULL)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
+m_procCooldown(std::chrono::steady_clock::time_point::min()),
 m_lastProcAttemptTime(std::chrono::steady_clock::now() - Seconds(10)), m_lastProcSuccessTime(std::chrono::steady_clock::now() - Seconds(120))
 {
     std::vector<SpellPowerEntry const*> powers = sDB2Manager.GetSpellPowers(GetId(), caster ? caster->GetMap()->GetDifficultyID() : DIFFICULTY_NONE);
@@ -1739,22 +1740,17 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     return true;
 }
 
-bool Aura::IsProcOnCooldown() const
+bool Aura::IsProcOnCooldown(std::chrono::steady_clock::time_point now) const
 {
-    /*if (m_procCooldown)
-    {
-        if (m_procCooldown > time(NULL))
-            return true;
-    }*/
-    return false;
+    return m_procCooldown > now;
 }
 
-void Aura::AddProcCooldown(Milliseconds /*msec*/)
+void Aura::AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd)
 {
-    //m_procCooldown = std::chrono::steady_clock::now() + msec;
+    m_procCooldown = cooldownEnd;
 }
 
-void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo)
+void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now)
 {
     bool prepare = CallScriptPrepareProcHandlers(aurApp, eventInfo);
     if (!prepare)
@@ -1772,10 +1768,10 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     ASSERT(procEntry);
 
     // cooldowns should be added to the whole aura (see 51698 area aura)
-    AddProcCooldown(procEntry->Cooldown);
+    AddProcCooldown(now + procEntry->Cooldown);
 }
 
-bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const
+bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
 {
     SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
     // only auras with spell proc entry can trigger proc
@@ -1787,7 +1783,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
         return false;
 
     // check proc cooldown
-    if (IsProcOnCooldown())
+    if (IsProcOnCooldown(now))
         return false;
 
     /// @todo
