@@ -5363,7 +5363,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
 }
 
 //victim may be NULL
-bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
+bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, Milliseconds& cooldown)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
     uint32 effIndex = triggeredByAura->GetEffIndex();
@@ -5373,8 +5373,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
     uint32 triggered_spell_id = 0;
-    uint32 cooldown_spell_id = 0; // for random trigger, will be one of the triggered spell to avoid repeatable triggers
-                                  // otherwise, it's the triggered_spell_id by default
     Unit* target = victim;
     int32 basepoints0 = 0;
     ObjectGuid originalCaster;
@@ -5450,24 +5448,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         case CLASS_PALADIN:                 // 39511, 40997, 40998, 40999, 41002, 41005, 41009, 41011, 41409
                         case CLASS_DRUID:                   // 39511, 40997, 40998, 40999, 41002, 41005, 41009, 41011, 41409
                             triggered_spell_id = RAND(39511, 40997, 40998, 40999, 41002, 41005, 41009, 41011, 41409);
-                            cooldown_spell_id = 39511;
                             break;
                         case CLASS_ROGUE:                   // 39511, 40997, 40998, 41002, 41005, 41011
                         case CLASS_WARRIOR:                 // 39511, 40997, 40998, 41002, 41005, 41011
                         case CLASS_DEATH_KNIGHT:
                             triggered_spell_id = RAND(39511, 40997, 40998, 41002, 41005, 41011);
-                            cooldown_spell_id = 39511;
                             break;
                         case CLASS_PRIEST:                  // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                         case CLASS_SHAMAN:                  // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                         case CLASS_MAGE:                    // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                         case CLASS_WARLOCK:                 // 40999, 41002, 41005, 41009, 41011, 41406, 41409
                             triggered_spell_id = RAND(40999, 41002, 41005, 41009, 41011, 41406, 41409);
-                            cooldown_spell_id = 40999;
                             break;
                         case CLASS_HUNTER:                  // 40997, 40999, 41002, 41005, 41009, 41011, 41406, 41409
                             triggered_spell_id = RAND(40997, 40999, 41002, 41005, 41009, 41011, 41406, 41409);
-                            cooldown_spell_id = 40997;
                             break;
                         default:
                             return false;
@@ -5685,11 +5679,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     uint8 rand_spell = urand(0, (RandomSpells.size() - 1));
                     CastSpell(target, RandomSpells[rand_spell], true, castItem, triggeredByAura, originalCaster);
-                    for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
-                    {
-                        if (!GetSpellHistory()->HasCooldown(*itr))
-                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::seconds(cooldown));
-                    }
                     break;
                 }
                 case 71562: // Deathbringer's Will Heroic
@@ -5731,11 +5720,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     uint8 rand_spell = urand(0, (RandomSpells.size() - 1));
                     CastSpell(target, RandomSpells[rand_spell], true, castItem, triggeredByAura, originalCaster);
-                    for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
-                    {
-                        if (!GetSpellHistory()->HasCooldown(*itr))
-                            GetSpellHistory()->AddCooldown(*itr, 0, std::chrono::seconds(cooldown));
-                    }
                     break;
                 }
                 case 65032: // Boom aura (321 Boombot)
@@ -6113,7 +6097,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // Item - Paladin T8 Holy 4P Bonus
                     if (Unit* caster = triggeredByAura->GetCaster())
                         if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
-                            cooldown = aurEff->GetAmount();
+                            cooldown = Milliseconds(aurEff->GetAmount());
 
                     target = this;
                     break;
@@ -6332,10 +6316,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!player || !castItem || !castItem->IsEquipped() || !victim || !victim->IsAlive())
                         return false;
 
-                    // custom cooldown processing case
-                    if (cooldown && GetSpellHistory()->HasCooldown(dummySpell->Id))
-                        return false;
-
                     if (triggeredByAura->GetBase() && castItem->GetGUID() != triggeredByAura->GetBase()->GetCastItemGUID())
                         return false;
 
@@ -6379,8 +6359,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         triggered_spell_id = 33750;
 
                     // apply cooldown before cast to prevent processing itself
-                    if (cooldown)
-                        player->GetSpellHistory()->AddCooldown(dummySpell->Id, 0, std::chrono::seconds(cooldown));
+                    triggeredByAura->GetBase()->AddProcCooldown(std::chrono::steady_clock::now() + cooldown);
+                    cooldown = Milliseconds::zero();
 
                     // Attack Twice
                     for (uint32 i = 0; i < 2; ++i)
@@ -6554,6 +6534,86 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 CastCustomSpell(victim, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                 return true;
             }
+            // Improved Water Shield
+            if (dummySpell->SpellIconID == 2287)
+            {
+                // Default chance for Healing Wave and Riptide
+                float chance = (float)triggeredByAura->GetAmount();
+
+                if (!procSpell)
+                    return false; //This is the same than putting chance *= 0.0f;
+                else if (procSpell->SpellFamilyFlags[0] & 0x80)
+                    // Lesser Healing Wave - 0.6 of default
+                    chance *= 0.6f;
+                else if (procSpell->SpellFamilyFlags[0] & 0x100)
+                    // Chain heal - 0.3 of default
+                    chance *= 0.3f;
+
+                if (!roll_chance_f(chance))
+                    return false;
+
+                // Water Shield
+                if (AuraEffect const* aurEff = GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0, 0x00000020, 0))
+                {
+                    uint32 spell = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                    CastSpell(this, spell, true, castItem, triggeredByAura);
+                    return true;
+                }
+                return false;
+            }
+            // Lightning Overload
+            if (dummySpell->SpellIconID == 2018)            // only this spell has SpellFamily Shaman SpellIconID == 2018 and dummy aura
+            {
+                if (!procSpell || GetTypeId() != TYPEID_PLAYER || !victim)
+                    return false;
+
+                uint32 spellId = 0;
+                // Every Lightning Bolt and Chain Lightning spell have duplicate vs half damage and zero cost
+                switch (procSpell->Id)
+                {
+                    // Lightning Bolt
+                    case   403: spellId = 45284; break;     // Rank  1
+                    case   529: spellId = 45286; break;     // Rank  2
+                    case   548: spellId = 45287; break;     // Rank  3
+                    case   915: spellId = 45288; break;     // Rank  4
+                    case   943: spellId = 45289; break;     // Rank  5
+                    case  6041: spellId = 45290; break;     // Rank  6
+                    case 10391: spellId = 45291; break;     // Rank  7
+                    case 10392: spellId = 45292; break;     // Rank  8
+                    case 15207: spellId = 45293; break;     // Rank  9
+                    case 15208: spellId = 45294; break;     // Rank 10
+                    case 25448: spellId = 45295; break;     // Rank 11
+                    case 25449: spellId = 45296; break;     // Rank 12
+                    case 49237: spellId = 49239; break;     // Rank 13
+                    case 49238: spellId = 49240; break;     // Rank 14
+                    // Chain Lightning
+                    case   421: spellId = 45297; break;     // Rank  1
+                    case   930: spellId = 45298; break;     // Rank  2
+                    case  2860: spellId = 45299; break;     // Rank  3
+                    case 10605: spellId = 45300; break;     // Rank  4
+                    case 25439: spellId = 45301; break;     // Rank  5
+                    case 25442: spellId = 45302; break;     // Rank  6
+                    case 49270: spellId = 49268; break;     // Rank  7
+                    case 49271: spellId = 49269; break;     // Rank  8
+                    default:
+                        TC_LOG_ERROR("entities.unit", "Unit::HandleDummyAuraProc: non handled spell id: %u (LO)", procSpell->Id);
+                        return false;
+                }
+
+                // Chain Lightning
+                if (procSpell->SpellFamilyFlags[0] & 0x2)
+                {
+                    // Chain lightning has [LightOverload_Proc_Chance] / [Max_Number_of_Targets] chance to proc of each individual target hit.
+                    // A maxed LO would have a 33% / 3 = 11% chance to proc of each target.
+                    // LO chance was already "accounted" at the proc chance roll, now need to divide the chance by [Max_Number_of_Targets]
+                    float chance = 100.0f / procSpell->Effects[effIndex].ChainTarget;
+                    if (!roll_chance_f(chance))
+                        return false;
+                }
+
+                CastSpell(victim, spellId, true, castItem, triggeredByAura);
+                return true;
+            }
             // Static Shock
             if (dummySpell->SpellIconID == 3059)
             {
@@ -6708,19 +6768,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         return false;
     }
 
-    if (cooldown_spell_id == 0)
-        cooldown_spell_id = triggered_spell_id;
-
-    if (cooldown && GetTypeId() == TYPEID_PLAYER && GetSpellHistory()->HasCooldown(cooldown_spell_id))
-        return false;
-
     if (basepoints0)
         CastCustomSpell(target, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura, originalCaster);
     else
         CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
-
-    if (cooldown && GetTypeId() == TYPEID_PLAYER)
-        GetSpellHistory()->AddCooldown(cooldown_spell_id, 0, std::chrono::seconds(cooldown));
 
     return true;
 }
@@ -6731,7 +6782,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
 // Used in case when access to whole aura is needed
 // All procs should be handled like this...
-bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown, bool * handled)
+bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 /*procFlag*/, uint32 procEx, bool* handled)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
 
@@ -6905,12 +6956,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                 case 49222:
                 {
                     *handled = true;
-                    if (cooldown && GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (GetSpellHistory()->HasCooldown(100000))
-                            return false;
-                        GetSpellHistory()->AddCooldown(100000, 0, std::chrono::seconds(cooldown));
-                    }
                     return true;
                 }
             }
@@ -6946,7 +6991,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
     return false;
 }
 
-bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlags, uint32 procEx, uint32 cooldown)
+bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx)
 {
     // Get triggered aura spell info
     SpellInfo const* auraSpellInfo = triggeredByAura->GetSpellInfo();
@@ -7244,7 +7289,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             float averageDmg = 0;
             // now compute approximate weapon damage by formula from wowwiki.com
-            if (procFlags & PROC_FLAG_DONE_OFFHAND_ATTACK)
+            if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
                 averageDmg = (GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2.f;
             else
                 averageDmg = (GetFloatValue(UNIT_FIELD_MINDAMAGE) + GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.f;
@@ -7343,6 +7388,18 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     switch (trigger_spell_id)
     {
         // Auras which should proc on area aura source (caster in this case):
+        // Turn the Tables
+        case 52914:
+        case 52915:
+        case 52910:
+        {
+            target = triggeredByAura->GetBase()->GetCaster();
+            if (!target)
+                return false;
+
+            target->CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
+            return true;
+        }
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending
         case 39703: // Curse of Mending
@@ -7405,6 +7462,35 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         CastSpell(this, 70831, true, castItem, triggeredByAura);
             break;
         }
+        // Astral Shift
+        case 52179:
+        {
+            if (procSpell == 0 || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
+                return false;
+
+            // Need stun, fear or silence mechanic
+            if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_SILENCE)|(1<<MECHANIC_STUN)|(1<<MECHANIC_FEAR))))
+                return false;
+            break;
+        }
+        // Burning Determination
+        case 54748:
+        {
+            if (!procSpell)
+                return false;
+            // Need Interrupt or Silenced mechanic
+            if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_INTERRUPT)|(1<<MECHANIC_SILENCE))))
+                return false;
+            break;
+        }
+        // Lock and Load
+        case 56453:
+        {
+            // Proc only from Frost/Freezing trap activation or from Freezing Arrow (the periodic dmg proc handled elsewhere)
+            if (!(procFlag & PROC_FLAG_DONE_TRAP_ACTIVATION) || !procSpell || !(procSpell->SchoolMask & SPELL_SCHOOL_MASK_FROST) || !roll_chance_i(triggerAmount))
+                return false;
+            break;
+        }
         // Glyph of Death's Embrace
         case 58679:
         {
@@ -7441,29 +7527,23 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         }
     }
 
-    if (cooldown && GetTypeId() == TYPEID_PLAYER && GetSpellHistory()->HasCooldown(trigger_spell_id))
-        return false;
-
     // extra attack should hit same target
     if (triggerEntry->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
         target = victim;
 
     // try detect target manually if not set
     if (target == NULL)
-        target = !(procFlags & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)) && triggerEntry->IsPositive() ? this : victim;
+        target = !(procFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)) && triggerEntry->IsPositive() ? this : victim;
 
     if (basepoints0)
         CastCustomSpell(target, trigger_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
     else
         CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
 
-    if (cooldown && GetTypeId() == TYPEID_PLAYER)
-        GetSpellHistory()->AddCooldown(trigger_spell_id, 0, std::chrono::seconds(cooldown));
-
     return true;
 }
 
-bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, AuraEffect* triggeredByAura, SpellInfo const* /*procSpell*/, uint32 cooldown)
+bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, AuraEffect* triggeredByAura, SpellInfo const* procSpell)
 {
     int32 scriptId = triggeredByAura->GetMiscValue();
 
@@ -7513,14 +7593,7 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, uint32 /*damage*/, Au
         return false;
     }
 
-    if (cooldown && GetTypeId() == TYPEID_PLAYER && GetSpellHistory()->HasCooldown(triggered_spell_id))
-        return false;
-
     CastSpell(victim, triggered_spell_id, true, castItem, triggeredByAura);
-
-    if (cooldown && GetTypeId() == TYPEID_PLAYER)
-        GetSpellHistory()->AddCooldown(triggered_spell_id, 0, std::chrono::seconds(cooldown));
-
     return true;
 }
 
@@ -12885,6 +12958,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     HealInfo healInfo = HealInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL);
     ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, nullptr, &damageInfo, &healInfo);
 
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
     for (AuraApplicationMap::const_iterator itr = GetAppliedAuras().begin(); itr!= GetAppliedAuras().end(); ++itr)
@@ -12892,6 +12966,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Do not allow auras to proc from effect triggered by itself
         if (procAura && procAura->Id == itr->first)
             continue;
+
+        if (itr->second->GetBase()->IsProcOnCooldown(now))
+            continue;
+
         ProcTriggeredData triggerData(itr->second->GetBase());
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
         bool active = damage || (procExtra & PROC_EX_BLOCK && isVictim);
@@ -12976,10 +13054,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
 
-        //Milliseconds cooldown = Milliseconds::zero(); // temp revert. dig for the 3.3.5a commit changing this.
-        uint32 cooldown = 0;
-        if (prepare && i->spellProcEvent && i->spellProcEvent->cooldown)
-            cooldown = i->spellProcEvent->cooldown;
+        // For players set spell cooldown if need
+        Milliseconds cooldown = Milliseconds::zero();
+        if (prepare && GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
+            cooldown = Seconds(i->spellProcEvent->cooldown);
 
         // Note: must SetCantProc(false) before return
         if (spellInfo->HasAttribute(SPELL_ATTR3_DISABLE_PROC))
@@ -12988,9 +13066,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         bool handled = i->aura->CallScriptProcHandlers(aurApp, eventInfo);
 
         // "handled" is needed as long as proc can be handled in multiple places
-        if (!handled && HandleAuraProc(target, damage, i->aura, procSpell, procFlag, procExtra, cooldown, &handled))
+        if (!handled && HandleAuraProc(target, damage, i->aura, procSpell, procFlag, procExtra, &handled))
         {
-            TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), Id);
+            TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)", spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), Id);
             takeCharges = true;
         }
 
@@ -12998,7 +13076,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         {
             for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
             {
-                if (!(i->effMask & (1<<effIndex)))
+                if (!(i->effMask & (1 << effIndex)))
                     continue;
 
                 AuraEffect* triggeredByAura = i->aura->GetEffect(effIndex);
@@ -13015,9 +13093,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 {
                     case SPELL_AURA_PROC_TRIGGER_SPELL:
                     {
-                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell %u (triggered by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell %u (triggered by %s aura of spell %u)",
+                            spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
                         // Don`t drop charge or add cooldown for not started trigger
-                        if (HandleProcTriggerSpell(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
+                        if (HandleProcTriggerSpell(target, damage, triggeredByAura, procSpell, procFlag, procExtra))
                             takeCharges = true;
                         break;
                     }
@@ -13034,7 +13113,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MANA_SHIELD:
                     case SPELL_AURA_DUMMY:
                     {
-                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell id %u (triggered by %s dummy aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell id %u (triggered by %s dummy aura of spell %u)",
+                            spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
                         if (HandleDummyAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         break;
@@ -13052,20 +13132,22 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_POWER_REGEN_PERCENT:
                     case SPELL_AURA_MOD_MELEE_HASTE:
                     case SPELL_AURA_MOD_MELEE_HASTE_3:
-                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id, isVictim ? "a victim's" : "an attacker's", triggeredByAura->GetId());
+                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)",
+                            spellInfo->Id, isVictim ? "a victim's" : "an attacker's", triggeredByAura->GetId());
                         takeCharges = true;
                         break;
                     case SPELL_AURA_OVERRIDE_CLASS_SCRIPTS:
                     {
-                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
-                        if (HandleOverrideClassScriptAuraProc(target, damage, triggeredByAura, procSpell, cooldown))
+                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)",
+                            spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
+                        if (HandleOverrideClassScriptAuraProc(target, damage, triggeredByAura, procSpell))
                             takeCharges = true;
                         break;
                     }
                     case SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE:
                     {
                         TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting mending (triggered by %s dummy aura of spell %u)",
-                            (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                            (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
 
                         HandleAuraRaidProcFromChargeWithValue(triggeredByAura);
                         takeCharges = true;
@@ -13074,7 +13156,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_RAID_PROC_FROM_CHARGE:
                     {
                         TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting mending (triggered by %s dummy aura of spell %u)",
-                            (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                            (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
 
                         HandleAuraRaidProcFromCharge(triggeredByAura);
                         takeCharges = true;
@@ -13082,9 +13164,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     }
                     case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
                     {
-                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                        TC_LOG_DEBUG("spells", "ProcDamageAndSpell: casting spell %u (triggered with value by %s aura of spell %u)",
+                            spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
 
-                        if (HandleProcTriggerSpell(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
+                        if (HandleProcTriggerSpell(target, damage, triggeredByAura, procSpell, procFlag, procExtra))
                             takeCharges = true;
                         break;
                     }
@@ -13169,6 +13252,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             } // for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         } // if (!handled)
 
+        if (prepare && takeCharges && cooldown != Milliseconds::zero())
+            i->aura->AddProcCooldown(now + cooldown);
+
         // Remove charge (aura can be removed by triggers)
         if (prepare && useCharges && takeCharges)
         {
@@ -13197,6 +13283,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
 void Unit::GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTriggeringProc, std::list<AuraApplication*>* procAuras, ProcEventInfo eventInfo)
 {
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+
     // use provided list of auras which can proc
     if (procAuras)
     {
@@ -13204,9 +13292,9 @@ void Unit::GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTrigge
         {
             ASSERT((*itr)->GetTarget() == this);
             if (!(*itr)->GetRemoveMode())
-                if ((*itr)->GetBase()->IsProcTriggeredOnEvent(*itr, eventInfo))
+                if ((*itr)->GetBase()->IsProcTriggeredOnEvent(*itr, eventInfo, now))
                 {
-                    (*itr)->GetBase()->PrepareProcToTrigger(*itr, eventInfo);
+                    (*itr)->GetBase()->PrepareProcToTrigger(*itr, eventInfo, now);
                     aurasTriggeringProc.push_back(*itr);
                 }
         }
@@ -13216,9 +13304,9 @@ void Unit::GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTrigge
     {
         for (AuraApplicationMap::iterator itr = GetAppliedAuras().begin(); itr!= GetAppliedAuras().end(); ++itr)
         {
-            if (itr->second->GetBase()->IsProcTriggeredOnEvent(itr->second, eventInfo))
+            if (itr->second->GetBase()->IsProcTriggeredOnEvent(itr->second, eventInfo, now))
             {
-                itr->second->GetBase()->PrepareProcToTrigger(itr->second, eventInfo);
+                itr->second->GetBase()->PrepareProcToTrigger(itr->second, eventInfo, now);
                 aurasTriggeringProc.push_back(itr->second);
             }
         }
