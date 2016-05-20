@@ -4585,8 +4585,6 @@ void Spell::TakeRunePower(bool didHit)
         {
             player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown() : uint32(RUNE_MISS_COOLDOWN), true);
             --runeCost;
-            if (convertUsedRunes)
-                player->ConvertRune(i, RUNE_DEATH);
         }
     }
 }

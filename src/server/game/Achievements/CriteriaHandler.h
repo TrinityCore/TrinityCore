@@ -370,6 +370,7 @@ public:
     void LoadCriteriaData();
     CriteriaTree const* GetCriteriaTree(uint32 criteriaTreeId) const;
     Criteria const* GetCriteria(uint32 criteriaId) const;
+    ModifierTreeNode const* GetModifierTree(uint32 modifierTreeId) const;
 
 private:
     CriteriaDataMap _criteriaDataMap;

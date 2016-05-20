@@ -21,6 +21,11 @@
 #include "SharedDefines.h"
 #include "Common.h"
 
+struct GtArmorMitigationByLvlEntry
+{
+    float Mitigation = 0.0f;
+};
+
 struct GtBarberShopCostBaseEntry
 {
     float Cost = 0.0f;
@@ -176,6 +181,7 @@ private:
     std::vector<T> _data;
 };
 
+TC_GAME_API extern GameTable<GtArmorMitigationByLvlEntry>       sArmorMitigationByLvlGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>         sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                     sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>              sCombatRatingsGameTable;

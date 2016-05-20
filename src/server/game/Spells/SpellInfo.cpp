@@ -1028,6 +1028,7 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = data.Scaling;
     Scaling.Class = _scaling ? _scaling->ScalingClass : 0;
+    Scaling.MinScalingLevel = _scaling ? _scaling->MinScalingLevel : 0;
     Scaling.MaxScalingLevel = _scaling ? _scaling->MaxScalingLevel : 0;
     Scaling.ScalesFromItemLevel = _scaling ? _scaling->ScalesFromItemLevel : 0;
 

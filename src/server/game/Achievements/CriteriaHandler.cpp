@@ -18,7 +18,6 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
@@ -780,7 +779,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
             if (_timeCriteriaTrees.find(tree->ID) == _timeCriteriaTrees.end() && !IsCompletedCriteriaTree(tree))
             {
                 // Start the timer
-                if (criteria->Entry->StartTimer * IN_MILLISECONDS > timeLost)
+                if (criteria->Entry->StartTimer * uint32(IN_MILLISECONDS) > timeLost)
                 {
                     _timeCriteriaTrees[tree->ID] = criteria->Entry->StartTimer * IN_MILLISECONDS - timeLost;
                     canStart = true;
@@ -2215,4 +2214,13 @@ Criteria const* CriteriaMgr::GetCriteria(uint32 criteriaId) const
         return nullptr;
 
     return itr->second;
+}
+
+ModifierTreeNode const* CriteriaMgr::GetModifierTree(uint32 modifierTreeId) const
+{
+    auto itr = _criteriaModifiers.find(modifierTreeId);
+    if (itr != _criteriaModifiers.end())
+        return itr->second;
+
+    return nullptr;
 }

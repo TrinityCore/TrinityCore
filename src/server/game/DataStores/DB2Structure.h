@@ -2246,16 +2246,16 @@ struct SpellProcsPerMinuteEntry
 {
     uint32 ID;
     float BaseProcRate;
-    uint32 Flags;
+    uint8 Flags;
 };
 
 struct SpellProcsPerMinuteModEntry
 {
     uint32 ID;
-    uint32 Type;
-    uint32 Param;
     float Coeff;
-    uint32 SpellProcsPerMinuteID;
+    uint16 Param;
+    uint8 Type;
+    uint8 SpellProcsPerMinuteID;
 };
 
 struct SpellRadiusEntry

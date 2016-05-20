@@ -1503,14 +1503,14 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
         return damage;
 
     uint8 attackerLevel = attacker->getLevel();
-    if (attackerLevel > sGtArmorMitigationByLvlStore.GetTableRowCount())
-        attackerLevel = sGtArmorMitigationByLvlStore.GetTableRowCount();
+    if (attackerLevel > sArmorMitigationByLvlGameTable.GetTableRowCount())
+        attackerLevel = sArmorMitigationByLvlGameTable.GetTableRowCount();
 
-    GtArmorMitigationByLvlEntry const* ambl = sGtArmorMitigationByLvlStore.EvaluateTable(attackerLevel - 1, 0);
+    GtArmorMitigationByLvlEntry const* ambl = sArmorMitigationByLvlGameTable.GetRow(attackerLevel);
     if (!ambl)
         return damage;
 
-    float mitigation = std::min(armor / (armor + ambl->KFactor), 0.85f);
+    float mitigation = std::min(armor / (armor + ambl->Mitigation), 0.85f);
     return std::max<uint32>(damage * (1.0f - mitigation), 1);
 }
 
