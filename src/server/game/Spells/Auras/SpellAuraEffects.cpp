@@ -6668,18 +6668,18 @@ void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mod
     if (!pet)
         return;
 
-    ChrSpecializationEntry const* petSpec = sChrSpecializationStore.LookupEntry(pet->GetSpecialization());
-    if (!petSpec)
+    ChrSpecializationEntry const* indexGetter = sChrSpecializationStore.LookupEntry(pet->GetSpecialization());
+    if (!indexGetter)
         return;
 
     if (apply)
     {
-        ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[PET_SPEC_OVERRIDE_CLASS_INDEX][petSpec->OrderIndex];
+        ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[PET_SPEC_OVERRIDE_CLASS_INDEX][indexGetter->OrderIndex];
         pet->SetSpecialization(petSpec->ID);
     }
     else
     {
-        ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[0][petSpec->OrderIndex];
+        ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[0][indexGetter->OrderIndex];
         pet->SetSpecialization(petSpec->ID);
     }
 
