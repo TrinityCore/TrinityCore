@@ -38,16 +38,6 @@ enum PetStableinfo
     PET_STABLE_INACTIVE = 2
 };
 
-enum PetTalents
-{
-    TALENT_SPEC_PET_FEROCITY                = 74,
-    TALENT_SPEC_PET_CUNNING                 = 79,
-    TALENT_SPEC_PET_TENACITY                = 81,
-    TALENT_SPEC_PET_FEROCIOUS_ADAPTATION    = 535,
-    TALENT_SPEC_PET_CUNNING_ADAPTATION      = 536,
-    TALENT_SPEC_PET_TENACIOUS_ADAPTATION    = 537
-};
-
 typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
