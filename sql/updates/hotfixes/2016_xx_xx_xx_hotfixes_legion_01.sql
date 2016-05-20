@@ -110,13 +110,6 @@ ALTER TABLE `battle_pet_species`
   MODIFY `Source` tinyint(4) NOT NULL DEFAULT '0' AFTER `PetType`;
 
 --
--- Table structure for table `battle_pet_species_locale`
---
-ALTER TABLE `battle_pet_species_locale`
-  CHANGE `SourceText` `SourceText_lang` text AFTER `locale`,
-  CHANGE `Description` `Description_lang` text AFTER `SourceText_lang`;
-
---
 -- Table structure for table `battle_pet_species_state`
 --
 ALTER TABLE `battle_pet_species_state`
@@ -485,14 +478,14 @@ ALTER TABLE `gameobjects`
   MODIFY `RotationZ` float NOT NULL DEFAULT '0' AFTER `RotationY`,
   MODIFY `RotationW` float NOT NULL DEFAULT '0' AFTER `RotationZ`,
   MODIFY `Size` float NOT NULL DEFAULT '0' AFTER `RotationW`,
-  MODIFY `Data0` int(10) NOT NULL DEFAULT '0' AFTER `Size`,
-  MODIFY `Data1` int(10) NOT NULL DEFAULT '0' AFTER `Data0`,
+  MODIFY `Data1` int(10) NOT NULL DEFAULT '0' AFTER `Size`,
   MODIFY `Data2` int(10) NOT NULL DEFAULT '0' AFTER `Data1`,
   MODIFY `Data3` int(10) NOT NULL DEFAULT '0' AFTER `Data2`,
   MODIFY `Data4` int(10) NOT NULL DEFAULT '0' AFTER `Data3`,
   MODIFY `Data5` int(10) NOT NULL DEFAULT '0' AFTER `Data4`,
   MODIFY `Data6` int(10) NOT NULL DEFAULT '0' AFTER `Data5`,
   MODIFY `Data7` int(10) NOT NULL DEFAULT '0' AFTER `Data6`,
+  MODIFY `Data8` int(10) NOT NULL DEFAULT '0' AFTER `Data7`,
   MODIFY `Name` text AFTER `Data7`,
   MODIFY `MapID` smallint(5) unsigned NOT NULL DEFAULT '0' AFTER `Name`,
   MODIFY `DisplayID` smallint(5) unsigned NOT NULL DEFAULT '0' AFTER `MapID`,
@@ -501,15 +494,6 @@ ALTER TABLE `gameobjects`
   MODIFY `PhaseUseFlags` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `PhaseGroupID`,
   MODIFY `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `PhaseUseFlags`,
   MODIFY `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0' AFTER `Type`;
-
-ALTER TABLE `gameobjects` CHANGE `Data7` `Data8` int(10) NOT NULL DEFAULT '0' AFTER `Data6`;
-ALTER TABLE `gameobjects` CHANGE `Data6` `Data7` int(10) NOT NULL DEFAULT '0' AFTER `Data5`;
-ALTER TABLE `gameobjects` CHANGE `Data5` `Data6` int(10) NOT NULL DEFAULT '0' AFTER `Data4`;
-ALTER TABLE `gameobjects` CHANGE `Data4` `Data5` int(10) NOT NULL DEFAULT '0' AFTER `Data3`;
-ALTER TABLE `gameobjects` CHANGE `Data3` `Data4` int(10) NOT NULL DEFAULT '0' AFTER `Data2`;
-ALTER TABLE `gameobjects` CHANGE `Data2` `Data3` int(10) NOT NULL DEFAULT '0' AFTER `Data1`;
-ALTER TABLE `gameobjects` CHANGE `Data1` `Data2` int(10) NOT NULL DEFAULT '0' AFTER `Data0`;
-ALTER TABLE `gameobjects` CHANGE `Data0` `Data1` int(10) NOT NULL DEFAULT '0' AFTER `Size`;
 
 --
 -- Table structure for table `gameobject_display_info`
@@ -1401,8 +1385,7 @@ ALTER TABLE `override_spell_data`
 --
 -- Table structure for table `phase_x_phase_group`
 --
-ALTER TABLE `phase_group`
-  RENAME `phase_x_phase_group`,
+ALTER TABLE `phase_x_phase_group`
   MODIFY `PhaseID` smallint(5) unsigned NOT NULL DEFAULT '0' AFTER `ID`,
   MODIFY `PhaseGroupID` smallint(5) unsigned NOT NULL DEFAULT '0' AFTER `PhaseID`,
   MODIFY `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0' AFTER `PhaseGroupID`;
@@ -2137,6 +2120,22 @@ ALTER TABLE `spell_power_difficulty`
   MODIFY `PowerIndex` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `DifficultyID`;
 ALTER TABLE `spell_power_difficulty` ADD PRIMARY KEY (`ID`);
 
+--
+-- Table structure for table `spell_procs_per_minute`
+--
+ALTER TABLE `spell_procs_per_minute` MODIFY `Flags` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `BaseProcRate`;
+
+--
+-- Table structure for table `spell_procs_per_minute_mod`
+--
+ALTER TABLE `spell_procs_per_minute_mod`
+  MODIFY `Param` smallint(5) unsigned NOT NULL DEFAULT '0' AFTER `Coeff`,
+  MODIFY `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `Param`,
+  MODIFY `SpellProcsPerMinuteID` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `Type`;
+
+--
+-- Table structure for table `spell_range`
+--
 ALTER TABLE `spell_range`
   MODIFY `DisplayName` text AFTER `MaxRangeFriend`,
   MODIFY `DisplayNameShort` text AFTER `DisplayName`,

@@ -753,7 +753,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE, "SELECT ID, BaseProcRate, Flags FROM spell_procs_per_minute ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellProcsPerMinuteMod.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD, "SELECT ID, Type, Param, Coeff, SpellProcsPerMinuteID FROM spell_procs_per_minute_mod"
+    PrepareStatement(HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD, "SELECT ID, Coeff, Param, Type, SpellProcsPerMinuteID FROM spell_procs_per_minute_mod"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellRadius.db2

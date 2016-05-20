@@ -515,7 +515,15 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(chrSpec->ClassID < MAX_CLASSES);
         ASSERT(chrSpec->OrderIndex < MAX_SPECIALIZATIONS);
-        _chrSpecializationsByIndex[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
+
+        uint32 storageIndex = chrSpec->ClassID;
+        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_PET_OVERRIDE_SPEC)
+        {
+            ASSERT(!chrSpec->ClassID);
+            storageIndex = PET_SPEC_OVERRIDE_CLASS_INDEX;
+        }
+
+        _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
     }
 
     ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),

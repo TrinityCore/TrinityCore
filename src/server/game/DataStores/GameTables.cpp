@@ -22,6 +22,7 @@
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 
+GameTable<GtArmorMitigationByLvlEntry>      sArmorMitigationByLvlGameTable;
 GameTable<GtBarberShopCostBaseEntry>        sBarberShopCostBaseGameTable;
 GameTable<GtBaseMPEntry>                    sBaseMPGameTable;
 GameTable<GtCombatRatingsEntry>             sCombatRatingsGameTable;
@@ -94,6 +95,7 @@ void LoadGameTables(std::string const& dataPath)
 
 #define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file)
 
+    LOAD_GT(sArmorMitigationByLvlGameTable, "ArmorMitigationByLvl.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");

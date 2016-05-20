@@ -226,7 +226,7 @@ public:
     typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
     typedef std::unordered_multimap<uint32, CharSectionsEntry const*> CharSectionsContainer;
     typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
-    typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES][MAX_SPECIALIZATIONS];
+    typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
     typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
     typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
     typedef std::set<GlyphSlotEntry const*, GlyphSlotEntryComparator> GlyphSlotContainer;
