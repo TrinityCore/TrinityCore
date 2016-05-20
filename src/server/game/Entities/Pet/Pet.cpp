@@ -1846,7 +1846,7 @@ void Pet::RemoveSpecializationSpells(bool clearActionBar)
 
 void Pet::SetSpecialization(uint16 spec)
 {    
-    if (m_petSpecialization == spec);
+    if (m_petSpecialization == spec)
         return;
 
     // remove all the old spec's specalization spells, set the new spec, then add the new spec's spells

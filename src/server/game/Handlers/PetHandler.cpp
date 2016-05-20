@@ -740,7 +740,7 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
         return;
     }
 
-    int specIndex = _player->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0;
+    uint32 specIndex = _player->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0;
 
     ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[specIndex][packet.SpecGroupIndex];
 
@@ -756,6 +756,5 @@ void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetS
         return;
     }
 
-    pet->SetSpecGroup(packet.SpecGroupIndex);
     pet->SetSpecialization(petSpec->ID);
 }
