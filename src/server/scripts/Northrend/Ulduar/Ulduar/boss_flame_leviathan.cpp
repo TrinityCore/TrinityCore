@@ -374,6 +374,7 @@ class boss_flame_leviathan : public CreatureScript
                     return;
 
                 events.Update(diff);
+                DoBatteringRamIfReady();
 
                 if (Shutdown == RAID_MODE(TWO_SEATS, FOUR_SEATS))
                 {
@@ -463,8 +464,6 @@ class boss_flame_leviathan : public CreatureScript
                             break;
                     }
                 }
-
-                DoBatteringRamIfReady();
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -558,7 +557,7 @@ class boss_flame_leviathan : public CreatureScript
 
                         if (me->IsWithinCombatRange(target, 30.0f))
                         {
-                            DoCast(target, SPELL_BATTERING_RAM);
+                            DoCast(target, SPELL_BATTERING_RAM, true);
                             me->resetAttackTimer();
                         }
                     }
