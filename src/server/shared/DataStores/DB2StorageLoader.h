@@ -24,7 +24,7 @@
 #include <cassert>
 #include <list>
 
-class DB2FileLoader
+class TC_SHARED_API DB2FileLoader
 {
     public:
     DB2FileLoader();
@@ -114,7 +114,7 @@ private:
     int unk5;            // WDB2
 };
 
-class DB2DatabaseLoader
+class TC_SHARED_API DB2DatabaseLoader
 {
 public:
     explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }

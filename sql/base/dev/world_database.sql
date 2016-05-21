@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.6.26, for Win64 (x86_64)
 --
--- Host: localhost    Database: world6_temp
+-- Host: localhost    Database: world6
 -- ------------------------------------------------------
 -- Server version	5.6.26-log
 
@@ -3470,4 +3470,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-11-08  1:52:20
+-- Dump completed on 2016-04-11  2:02:48

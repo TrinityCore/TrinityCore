@@ -67,18 +67,14 @@ namespace WorldPackets
     }
 }
 
-class BattlegroundMgr
+class TC_GAME_API BattlegroundMgr
 {
     private:
         BattlegroundMgr();
         ~BattlegroundMgr();
 
     public:
-        static BattlegroundMgr* instance()
-        {
-            static BattlegroundMgr instance;
-            return &instance;
-        }
+        static BattlegroundMgr* instance();
 
         void Update(uint32 diff);
 

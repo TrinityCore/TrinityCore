@@ -28,18 +28,14 @@
 class Transport;
 struct TransportCreatureProto;
 
-class MapManager
+class TC_GAME_API MapManager
 {
     public:
-        static MapManager* instance()
-        {
-            static MapManager instance;
-            return &instance;
-        }
+        static MapManager* instance();
 
         Map* CreateBaseMap(uint32 mapId);
         Map* FindBaseNonInstanceMap(uint32 mapId) const;
-        Map* CreateMap(uint32 mapId, Player* player);
+        Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId=0);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
         uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
@@ -106,7 +102,7 @@ class MapManager
 
         void DoDelayedMovesAndRemoves();
 
-        bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
+        Map::EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
         void InitializeVisibilityDistanceInfo();
 
         /* statistics */
@@ -130,7 +126,12 @@ class MapManager
         template<typename Worker>
         void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
 
-private:
+        void IncreaseScheduledScriptsCount() { ++_scheduledScripts; }
+        void DecreaseScheduledScriptCount() { --_scheduledScripts; }
+        void DecreaseScheduledScriptCount(std::size_t count) { _scheduledScripts -= count; }
+        bool IsScriptScheduled() const { return _scheduledScripts > 0; }
+
+    private:
         typedef std::unordered_map<uint32, Map*> MapMapType;
         typedef std::vector<bool> InstanceIds;
 
@@ -154,6 +155,9 @@ private:
         InstanceIds _instanceIds;
         uint32 _nextInstanceId;
         MapUpdater m_updater;
+
+        // atomic op counter for active scripts amount
+        std::atomic<std::size_t> _scheduledScripts;
 };
 
 template<typename Worker>

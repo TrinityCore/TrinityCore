@@ -187,7 +187,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
     SPELL_ATTR0_CU_IS_TALENT                     = 0x00000020,
-    SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
+    SPELL_ATTR0_CU_DONT_BREAK_STEALTH            = 0x00000040,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
@@ -198,13 +198,14 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
     SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET         = 0x00040000,
+    SPELL_ATTR0_CU_NEEDS_AMMO_DATA               = 0x00080000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
 
-class SpellImplicitTargetInfo
+class TC_GAME_API SpellImplicitTargetInfo
 {
 private:
     Targets _target;
@@ -235,7 +236,7 @@ private:
     static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
-class SpellEffectInfo
+class TC_GAME_API SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
 public:
@@ -323,7 +324,7 @@ typedef std::unordered_map<uint32, SpellVisualVector> SpellVisualMap;
 
 typedef std::vector<AuraEffect*> AuraEffectVector;
 
-class SpellInfo
+class TC_GAME_API SpellInfo
 {
 public:
     uint32 Id;
@@ -370,6 +371,9 @@ public:
     uint32 ProcFlags;
     uint32 ProcChance;
     uint32 ProcCharges;
+    uint32 ProcCooldown;
+    float ProcBasePPM;
+    std::vector<SpellProcsPerMinuteModEntry const*> ProcPPMMods;
     uint32 MaxLevel;
     uint32 BaseLevel;
     uint32 SpellLevel;
@@ -390,7 +394,6 @@ public:
     uint32 SpellIconID;
     uint32 ActiveIconID;
     char* SpellName;
-    char* Rank;
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
@@ -508,6 +511,7 @@ public:
     bool IsBreakingStealth() const;
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
+    bool HasInitialAggro() const;
 
     bool IsAffectedBySpellMods() const;
     bool IsAffectedBySpellMod(SpellModifier const* mod) const;
@@ -557,6 +561,8 @@ public:
     };
 
     std::vector<CostData> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+
+    float CalcProcPPM(Unit* caster, int32 itemLevel) const;
 
     bool IsRanked() const;
     uint8 GetRank() const;

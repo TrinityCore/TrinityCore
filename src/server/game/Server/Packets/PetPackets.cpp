@@ -20,7 +20,7 @@
 WorldPacket const* WorldPackets::Pet::PetSpells::Write()
 {
     _worldPacket << PetGUID;
-    _worldPacket << int16(CreatureFamily);
+    _worldPacket << int16(_CreatureFamily);
     _worldPacket << int16(Specialization);
     _worldPacket << int32(TimeLimit);
 
@@ -143,10 +143,10 @@ void WorldPackets::Pet::PetRename::Read()
 void WorldPackets::Pet::PetAction::Read()
 {
     _worldPacket >> PetGUID;
-    
+
     _worldPacket >> Action;
     _worldPacket >> TargetGUID;
-    
+
     _worldPacket >> ActionPosition;
 }
 

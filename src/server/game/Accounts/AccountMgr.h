@@ -50,18 +50,14 @@ typedef std::map<uint32, rbac::RBACPermission*> RBACPermissionsContainer;
 typedef std::map<uint8, rbac::RBACPermissionContainer> RBACDefaultPermissionsContainer;
 }
 
-class AccountMgr
+class TC_GAME_API AccountMgr
 {
     private:
         AccountMgr();
         ~AccountMgr();
 
     public:
-        static AccountMgr* instance()
-        {
-            static AccountMgr instance;
-            return &instance;
-        }
+        static AccountMgr* instance();
 
         AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "", uint32 bnetAccountId = 0, uint8 bnetIndex = 0);
         static AccountOpResult DeleteAccount(uint32 accountId);

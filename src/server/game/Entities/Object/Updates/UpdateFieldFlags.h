@@ -37,17 +37,17 @@ enum UpdatefieldFlags
     UF_FLAG_URGENT_SELF_ONLY    = 0x400
 };
 
-extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
-extern uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END];
-extern uint32 UnitUpdateFieldFlags[PLAYER_END];
-extern uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END];
-extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
-extern uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END];
-extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
-extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
-extern uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END];
-extern uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END];
-extern uint32 ConversationUpdateFieldFlags[CONVERSATION_END];
-extern uint32 ConversationDynamicUpdateFieldFlags[CONVERSATION_DYNAMIC_END];
+TC_GAME_API extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
+TC_GAME_API extern uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END];
+TC_GAME_API extern uint32 UnitUpdateFieldFlags[PLAYER_END];
+TC_GAME_API extern uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END];
+TC_GAME_API extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
+TC_GAME_API extern uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END];
+TC_GAME_API extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
+TC_GAME_API extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
+TC_GAME_API extern uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END];
+TC_GAME_API extern uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END];
+TC_GAME_API extern uint32 ConversationUpdateFieldFlags[CONVERSATION_END];
+TC_GAME_API extern uint32 ConversationDynamicUpdateFieldFlags[CONVERSATION_DYNAMIC_END];
 
 #endif // _UPDATEFIELDFLAGS_H

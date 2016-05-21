@@ -251,6 +251,12 @@ ObjectMgr::ObjectMgr():
             _playerInfo[j][i] = NULL;
 }
 
+ObjectMgr* ObjectMgr::instance()
+{
+    static ObjectMgr instance;
+    return &instance;
+}
+
 ObjectMgr::~ObjectMgr()
 {
     for (QuestMap::iterator i = _questTemplates.begin(); i != _questTemplates.end(); ++i)
@@ -1797,7 +1803,7 @@ void ObjectMgr::LoadCreatures()
         if (!ok)
             continue;
 
-        // -1 random, 0 no equipment,
+        // -1 random, 0 no equipment
         if (data.equipmentId != 0)
         {
             if (!GetEquipmentInfo(data.id, data.equipmentId))
@@ -4057,7 +4063,7 @@ void ObjectMgr::LoadQuests()
             }
             else if (qinfo->SourceItemIdCount == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `SourceItemId` = %u but `SourceItemIdCount` = 0, set to 1 but need fix in DB.",
+                TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = %u but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
                     qinfo->GetQuestId(), qinfo->SourceItemId);
                 qinfo->SourceItemIdCount = 1;                    // update to 1 for allow quest work for backward compatibility with DB
             }
@@ -4581,7 +4587,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     if (tableName.empty())
         return;
 
-    if (sScriptMgr->IsScriptScheduled())                    // function cannot be called when scripts are in use.
+    if (sMapMgr->IsScriptScheduled())                    // function cannot be called when scripts are in use.
         return;
 
     TC_LOG_INFO("server.loading", "Loading %s...", tableName.c_str());
@@ -5038,7 +5044,7 @@ void ObjectMgr::LoadSpellScriptNames()
             }
             while (spellInfo)
             {
-                _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
+                _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptId(scriptName), true)));
                 spellInfo = spellInfo->GetNextRankSpell();
             }
         }
@@ -5047,7 +5053,7 @@ void ObjectMgr::LoadSpellScriptNames()
             if (spellInfo->IsRanked())
                 TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName.c_str(), spellId);
 
-            _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
+            _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptId(scriptName), true)));
         }
 
         ++count;
@@ -5069,45 +5075,59 @@ void ObjectMgr::ValidateSpellScripts()
 
     uint32 count = 0;
 
-    for (SpellScriptsContainer::iterator itr = _spellScriptsStore.begin(); itr != _spellScriptsStore.end();)
+    for (auto spell : _spellScriptsStore)
     {
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->first);
-        std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::iterator> > SpellScriptLoaders;
-        sScriptMgr->CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
-        itr = _spellScriptsStore.upper_bound(itr->first);
+        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell.first);
 
-        for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
+        auto const bounds = sObjectMgr->GetSpellScriptsBounds(spell.first);
+
+        for (auto itr = bounds.first; itr != bounds.second; ++itr)
         {
-            SpellScript* spellScript = sitr->first->GetSpellScript();
-            AuraScript* auraScript = sitr->first->GetAuraScript();
-            bool valid = true;
-            if (!spellScript && !auraScript)
+            if (SpellScriptLoader* spellScriptLoader = sScriptMgr->GetSpellScriptLoader(itr->second.first))
             {
-                TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second).c_str());
-                valid = false;
+                ++count;
+
+                std::unique_ptr<SpellScript> spellScript(spellScriptLoader->GetSpellScript());
+                std::unique_ptr<AuraScript> auraScript(spellScriptLoader->GetAuraScript());
+
+                if (!spellScript && !auraScript)
+                {
+                    TC_LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped", GetScriptName(itr->second.first).c_str());
+
+                    itr->second.second = false;
+                    continue;
+                }
+
+                if (spellScript)
+                {
+                    spellScript->_Init(&spellScriptLoader->GetName(), spellEntry->Id);
+                    spellScript->_Register();
+
+                    if (!spellScript->_Validate(spellEntry))
+                    {
+                        itr->second.second = false;
+                        continue;
+                    }
+                }
+
+                if (auraScript)
+                {
+                    auraScript->_Init(&spellScriptLoader->GetName(), spellEntry->Id);
+                    auraScript->_Register();
+
+                    if (!auraScript->_Validate(spellEntry))
+                    {
+                        itr->second.second = false;
+                        continue;
+                    }
+                }
+
+                // Enable the script when all checks passed
+                itr->second.second = true;
             }
-            if (spellScript)
-            {
-                spellScript->_Init(&sitr->first->GetName(), spellEntry->Id);
-                spellScript->_Register();
-                if (!spellScript->_Validate(spellEntry))
-                    valid = false;
-                delete spellScript;
-            }
-            if (auraScript)
-            {
-                auraScript->_Init(&sitr->first->GetName(), spellEntry->Id);
-                auraScript->_Register();
-                if (!auraScript->_Validate(spellEntry))
-                    valid = false;
-                delete auraScript;
-            }
-            if (!valid)
-            {
-                _spellScriptsStore.erase(sitr->second);
-            }
+            else
+                itr->second.second = false;
         }
-        ++count;
     }
 
     TC_LOG_INFO("server.loading", ">> Validated %u scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -6269,7 +6289,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar->achievement)
         {
-            if (!sAchievementMgr->GetAchievement(ar->achievement))
+            if (!sAchievementStore.LookupEntry(ar->achievement))
             {
                 TC_LOG_ERROR("sql.sql", "Required Achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar->achievement, mapid, difficulty);
                 ar->achievement = 0;
@@ -8563,14 +8583,16 @@ void ObjectMgr::LoadScriptNames()
 {
     uint32 oldMSTime = getMSTime();
 
+    // We insert an empty placeholder here so we can use the
+    // script id 0 as dummy for "no script found".
     _scriptNamesStore.emplace_back("");
 
     QueryResult result = WorldDatabase.Query(
-        "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
-        "UNION "
         "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
+        "UNION "
+        "SELECT DISTINCT(ScriptName) FROM criteria_data WHERE ScriptName <> '' AND type = 11 "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM gameobject_template WHERE ScriptName <> '' "
         "UNION "
@@ -8604,18 +8626,18 @@ void ObjectMgr::LoadScriptNames()
 
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
 
-#ifdef SCRIPTS
-    for (size_t i = 1; i < _scriptNamesStore.size(); ++i)
-        UnusedScriptNames.push_back(_scriptNamesStore[i]);
-#endif
-
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+ObjectMgr::ScriptNameContainer const& ObjectMgr::GetAllScriptNames() const
+{
+    return _scriptNamesStore;
 }
 
 std::string const& ObjectMgr::GetScriptName(uint32 id) const
 {
     static std::string const empty = "";
-    return id < _scriptNamesStore.size() ? _scriptNamesStore[id] : empty;
+    return (id < _scriptNamesStore.size()) ? _scriptNamesStore[id] : empty;
 }
 
 uint32 ObjectMgr::GetScriptId(std::string const& name)
@@ -8753,9 +8775,9 @@ void ObjectMgr::LoadFactionChangeAchievements()
         uint32 alliance = fields[0].GetUInt32();
         uint32 horde = fields[1].GetUInt32();
 
-        if (!sAchievementMgr->GetAchievement(alliance))
+        if (!sAchievementStore.LookupEntry(alliance))
             TC_LOG_ERROR("sql.sql", "Achievement %u (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-        else if (!sAchievementMgr->GetAchievement(horde))
+        else if (!sAchievementStore.LookupEntry(horde))
             TC_LOG_ERROR("sql.sql", "Achievement %u (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
         else
             FactionChangeAchievements[alliance] = horde;
@@ -9332,6 +9354,13 @@ std::string ObjectMgr::GetRealmName(uint32 realmId) const
 {
     RealmNameContainer::const_iterator iter = _realmNameStore.find(realmId);
     return iter != _realmNameStore.end() ? iter->second : "";
+}
+
+std::string ObjectMgr::GetNormalizedRealmName(uint32 realmId) const
+{
+    std::string name = GetRealmName(realmId);
+    name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+    return name;
 }
 
 void ObjectMgr::LoadGameObjectQuestItems()

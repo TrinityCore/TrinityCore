@@ -134,8 +134,6 @@ static char const* Text[]=
     "Now, know demise!"
 };
 
-#define EMOTE_LAUGHS    "Headless Horseman laughs"  // needs assigned to db.
-
 class npc_wisp_invis : public CreatureScript
 {
 public:
@@ -347,7 +345,6 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->TextEmote(EMOTE_LAUGHS);
                 }
                 else laugh -= diff;
             }
@@ -453,7 +450,7 @@ public:
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetDisableGravity(true);
-            me->SetSpeed(MOVE_WALK, 5.0f, true);
+            me->SetSpeedRate(MOVE_WALK, 5.0f);
             wp_reached = false;
             count = 0;
             say_timer = 3000;
@@ -724,7 +721,6 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->TextEmote(EMOTE_LAUGHS);
                     DoPlaySoundToSet(me, RandomLaugh[rand32() % 3]);
                 }
                 else laugh -= diff;
@@ -898,12 +894,12 @@ public:
             if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS)
                 return false;
 
-            player->AreaExploredOrEventHappens(11405);
-            if (Creature* horseman = go->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
-            {
-                ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
-                ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
-            }
+        player->AreaExploredOrEventHappens(11405);
+        if (Creature* horseman = go->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
+        {
+            ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
+            ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
+        }
         return true;
     }
 };

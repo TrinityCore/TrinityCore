@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cryptography/WardenKeyGeneration.h"
+#include "Cryptography/SessionKeyGeneration.h"
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -28,6 +28,7 @@
 #include "Util.h"
 #include "WardenMac.h"
 #include "WardenModuleMac.h"
+#include "SHA1.h"
 
 #include <openssl/md5.h>
 
@@ -39,7 +40,7 @@ void WardenMac::Init(WorldSession* pClient, BigNumber* K)
 {
     _session = pClient;
     // Generate Warden Key
-    SHA1Randx WK(K->AsByteArray().get(), K->GetNumBytes());
+    SessionKeyGenerator<SHA1Hash> WK(K->AsByteArray().get(), K->GetNumBytes());
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
     /*

@@ -31,6 +31,7 @@ namespace WorldPackets
     {
         struct SpellCastRequest;
         struct SpellTargetData;
+        struct SpellAmmo;
         struct SpellCastData;
     }
 }
@@ -115,7 +116,7 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
 };
 
-struct SpellDestination
+struct TC_GAME_API SpellDestination
 {
     SpellDestination();
     SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
@@ -167,7 +168,7 @@ struct SpellLogEffectFeedPetParams
     int32 ItemID        = 0;
 };
 
-class SpellCastTargets
+class TC_GAME_API SpellCastTargets
 {
     public:
         SpellCastTargets();
@@ -291,7 +292,7 @@ enum SpellEffectHandleMode
 
 typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
 
-class Spell
+class TC_GAME_API Spell
 {
     friend void Unit::SetCurrentCastSpell(Spell* pSpell);
     friend class SpellScript;
@@ -439,6 +440,9 @@ class Spell
         void EffectUncageBattlePet(SpellEffIndex effIndex);
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
+        void EffectApplyEnchantIllusion(SpellEffIndex effIndex);
+        void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
+        void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -661,6 +665,7 @@ class Spell
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
+        bool m_isDelayedInstantCast;                        // whether this is a creature's delayed instant cast
         uint8 m_runesState;
 
         uint8 m_delayAtDamageCount;
@@ -810,6 +815,7 @@ class Spell
         void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedxy, float& speedz);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
+        void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
@@ -851,7 +857,7 @@ class Spell
 
 namespace Trinity
 {
-    struct WorldObjectSpellTargetCheck
+    struct TC_GAME_API WorldObjectSpellTargetCheck
     {
         Unit* _caster;
         Unit* _referer;
@@ -866,7 +872,7 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
-    struct WorldObjectSpellNearbyTargetCheck : public WorldObjectSpellTargetCheck
+    struct TC_GAME_API WorldObjectSpellNearbyTargetCheck : public WorldObjectSpellTargetCheck
     {
         float _range;
         Position const* _position;
@@ -875,7 +881,7 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
-    struct WorldObjectSpellAreaTargetCheck : public WorldObjectSpellTargetCheck
+    struct TC_GAME_API WorldObjectSpellAreaTargetCheck : public WorldObjectSpellTargetCheck
     {
         float _range;
         Position const* _position;
@@ -884,7 +890,7 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
-    struct WorldObjectSpellConeTargetCheck : public WorldObjectSpellAreaTargetCheck
+    struct TC_GAME_API WorldObjectSpellConeTargetCheck : public WorldObjectSpellAreaTargetCheck
     {
         float _coneAngle;
         WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
@@ -892,7 +898,7 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
-    struct WorldObjectSpellTrajTargetCheck : public WorldObjectSpellAreaTargetCheck
+    struct TC_GAME_API WorldObjectSpellTrajTargetCheck : public WorldObjectSpellAreaTargetCheck
     {
         WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster, SpellInfo const* spellInfo);
         bool operator()(WorldObject* target);
@@ -901,7 +907,7 @@ namespace Trinity
 
 typedef void(Spell::*pEffect)(SpellEffIndex effIndex);
 
-class SpellEvent : public BasicEvent
+class TC_GAME_API SpellEvent : public BasicEvent
 {
     public:
         SpellEvent(Spell* spell);

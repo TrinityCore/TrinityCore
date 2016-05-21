@@ -26,6 +26,7 @@
 
 struct AuctionEntry;
 struct CalendarEvent;
+class BlackMarketEntry;
 class Item;
 class Object;
 class Player;
@@ -39,7 +40,8 @@ enum MailMessageType
     MAIL_AUCTION        = 2,
     MAIL_CREATURE       = 3,                                // client send CMSG_CREATURE_QUERY on this mailmessagetype
     MAIL_GAMEOBJECT     = 4,                                // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
-    MAIL_CALENDAR       = 5
+    MAIL_CALENDAR       = 5,
+    MAIL_BLACKMARKET    = 6
 };
 
 enum MailCheckMask
@@ -80,7 +82,7 @@ enum MailShowFlags
     MAIL_SHOW_RETURN  = 0x0010
 };
 
-class MailSender
+class TC_GAME_API MailSender
 {
     public:                                                 // Constructors
         MailSender(MailMessageType messageType, ObjectGuid::LowType sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_DEFAULT)
@@ -90,6 +92,7 @@ class MailSender
         MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
         MailSender(CalendarEvent* sender);
         MailSender(AuctionEntry* sender);
+        MailSender(BlackMarketEntry* sender);
         MailSender(Player* sender);
     public:                                                 // Accessors
         MailMessageType GetMailMessageType() const { return m_messageType; }
@@ -101,7 +104,7 @@ class MailSender
         MailStationery m_stationery;
 };
 
-class MailReceiver
+class TC_GAME_API MailReceiver
 {
     public:                                                 // Constructors
         explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) { }
@@ -115,7 +118,7 @@ class MailReceiver
         ObjectGuid::LowType m_receiver_lowguid;
 };
 
-class MailDraft
+class TC_GAME_API MailDraft
 {
     typedef std::map<ObjectGuid::LowType, Item*> MailItemMap;
 
@@ -163,7 +166,7 @@ struct MailItemInfo
 };
 typedef std::vector<MailItemInfo> MailItemInfoVec;
 
-struct Mail
+struct TC_GAME_API Mail
 {
     uint32 messageID;
     uint8 messageType;

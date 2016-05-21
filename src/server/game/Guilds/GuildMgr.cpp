@@ -96,6 +96,12 @@ std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
     return "";
 }
 
+GuildMgr* GuildMgr::instance()
+{
+    static GuildMgr instance;
+    return &instance;
+}
+
 Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
 {
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
@@ -505,7 +511,7 @@ void GuildMgr::LoadGuildRewards()
 
                 uint32 requiredAchievementId = fields[0].GetUInt32();
 
-                if (!sAchievementMgr->GetAchievement(requiredAchievementId))
+                if (!sAchievementStore.LookupEntry(requiredAchievementId))
                 {
                     TC_LOG_ERROR("server.loading", "Guild rewards constains not existing achievement entry %u", requiredAchievementId);
                     continue;

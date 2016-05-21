@@ -142,7 +142,7 @@ class boss_lord_marrowgar : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                 me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
@@ -186,7 +186,7 @@ class boss_lord_marrowgar : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -224,7 +224,7 @@ class boss_lord_marrowgar : public CreatureScript
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                                 pStorm->SetDuration(int32(_boneStormDuration));
-                            me->SetSpeed(MOVE_RUN, _baseSpeed*3.0f, true);
+                            me->SetSpeedRate(MOVE_RUN, _baseSpeed*3.0f);
                             Talk(SAY_BONE_STORM);
                             events.ScheduleEvent(EVENT_BONE_STORM_END, _boneStormDuration+1);
                             // no break here
@@ -242,7 +242,7 @@ class boss_lord_marrowgar : public CreatureScript
                             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                                 me->GetMotionMaster()->MovementExpired();
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
-                            me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                            me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
                             if (!IsHeroic())

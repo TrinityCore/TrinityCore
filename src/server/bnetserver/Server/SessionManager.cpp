@@ -17,9 +17,9 @@
 
 #include "SessionManager.h"
 
-bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port)
+bool Battlenet::SessionManager::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
 {
-    if (!BaseSocketMgr::StartNetwork(service, bindIp, port))
+    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
         return false;
 
     _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
@@ -37,41 +37,8 @@ void Battlenet::SessionManager::OnSocketAccept(tcp::socket&& sock, uint32 thread
     sSessionMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
 }
 
-void Battlenet::SessionManager::AddSession(Session* session)
+Battlenet::SessionManager& Battlenet::SessionManager::Instance()
 {
-    std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
-    _sessions[{ session->GetAccountId(), session->GetGameAccountId() }] = session;
-    _sessionsByAccountId[session->GetAccountId()].push_back(session);
-}
-
-void Battlenet::SessionManager::RemoveSession(Session* session)
-{
-    std::unique_lock<boost::shared_mutex> lock(_sessionMutex);
-    auto itr = _sessions.find({ session->GetAccountId(), session->GetGameAccountId() });
-    // Remove old session only if it was not overwritten by reconnecting
-    if (itr != _sessions.end() && itr->second == session)
-        _sessions.erase(itr);
-
-    _sessionsByAccountId[session->GetAccountId()].remove(session);
-}
-
-Battlenet::Session* Battlenet::SessionManager::GetSession(uint32 accountId, uint32 gameAccountId) const
-{
-    boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
-    auto itr = _sessions.find({ accountId, gameAccountId });
-    if (itr != _sessions.end())
-        return itr->second;
-
-    return nullptr;
-}
-
-std::list<Battlenet::Session*> Battlenet::SessionManager::GetSessions(uint32 accountId) const
-{
-    boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
-    std::list<Session*> sessions;
-    auto itr = _sessionsByAccountId.find(accountId);
-    if (itr != _sessionsByAccountId.end())
-        sessions = itr->second;
-
-    return sessions;
+    static SessionManager instance;
+    return instance;
 }

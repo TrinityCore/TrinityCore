@@ -18,6 +18,7 @@
 
 #include "SHA1.h"
 #include "BigNumber.h"
+#include "Util.h"
 #include <cstring>
 #include <stdarg.h>
 
@@ -67,3 +68,10 @@ void SHA1Hash::Finalize(void)
     SHA1_Final(mDigest, &mC);
 }
 
+std::string CalculateSHA1Hash(std::string const& content)
+{
+    unsigned char digest[SHA_DIGEST_LENGTH];
+    SHA1((unsigned char*)content.c_str(), content.length(), (unsigned char*)&digest);
+
+    return ByteArrayToHexStr(digest, SHA_DIGEST_LENGTH);
+}

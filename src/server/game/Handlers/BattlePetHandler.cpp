@@ -59,9 +59,9 @@ void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSet
 {
     if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
-        if (battlePetSetFlags.ControlType == 2) // 2 - apply
+        if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)
             pet->PacketInfo.Flags |= battlePetSetFlags.Flags;
-        else                                    // 3 - remove
+        else // FLAGS_CONTROL_TYPE_REMOVE
             pet->PacketInfo.Flags &= ~battlePetSetFlags.Flags;
 
         if (pet->SaveInfo != BATTLE_PET_NEW)

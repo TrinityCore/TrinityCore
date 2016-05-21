@@ -22,12 +22,12 @@
 
 DoorData const doorData[] =
 {
-    { GO_VENOXIS_COIL,                  DATA_VENOXIS,   DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { GO_ARENA_DOOR_1,                  DATA_MANDOKIR,  DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { GO_FORCEFIELD,                    DATA_KILNARA,   DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { GO_ZANZIL_DOOR,                   DATA_ZANZIL,    DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { 0,                                0,              DOOR_TYPE_ROOM, BOUNDARY_NONE }
+    { GO_VENOXIS_COIL,                  DATA_VENOXIS,   DOOR_TYPE_ROOM },
+    { GO_ARENA_DOOR_1,                  DATA_MANDOKIR,  DOOR_TYPE_ROOM },
+    { GO_FORCEFIELD,                    DATA_KILNARA,   DOOR_TYPE_ROOM },
+    { GO_ZANZIL_DOOR,                   DATA_ZANZIL,    DOOR_TYPE_ROOM },
+    //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   DOOR_TYPE_ROOM },
+    { 0,                                0,              DOOR_TYPE_ROOM }
 };
 
 class instance_zulgurub : public InstanceMapScript

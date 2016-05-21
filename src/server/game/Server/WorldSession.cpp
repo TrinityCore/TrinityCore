@@ -42,8 +42,8 @@
 #include "SocialMgr.h"
 #include "ScriptMgr.h"
 #include "WardenWin.h"
-#include "BattlenetServerManager.h"
 #include "AuthenticationPackets.h"
+#include "BattlenetPackets.h"
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
@@ -104,7 +104,8 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
+    std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -115,6 +116,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _accountName(std::move(name)),
     _battlenetAccountId(battlenetAccountId),
     m_expansion(expansion),
+    _os(os),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -391,7 +393,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player has not logged in yet");
                     else if (_player->IsInWorld())
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
-                    else if(AntiDOS.EvaluateOpcode(*packet, currentTime))
+                    else if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
@@ -419,12 +421,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     break;
                 case STATUS_NEVER:
-                        TC_LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str()
-                            , GetPlayerInfo().c_str());
+                    TC_LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str()
+                        , GetPlayerInfo().c_str());
                     break;
                 case STATUS_UNHANDLED:
-                        TC_LOG_ERROR("network.opcode", "Received not handled opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str()
-                            , GetPlayerInfo().c_str());
+                    TC_LOG_ERROR("network.opcode", "Received not handled opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str()
+                        , GetPlayerInfo().c_str());
                     break;
             }
         }
@@ -480,8 +482,16 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
-                m_Socket[CONNECTION_TYPE_REALM].reset();
-                m_Socket[CONNECTION_TYPE_INSTANCE].reset();
+                if (m_Socket[CONNECTION_TYPE_REALM])
+                {
+                    m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
+                    m_Socket[CONNECTION_TYPE_REALM].reset();
+                }
+                if (m_Socket[CONNECTION_TYPE_INSTANCE])
+                {
+                    m_Socket[CONNECTION_TYPE_INSTANCE]->CloseSocket();
+                    m_Socket[CONNECTION_TYPE_INSTANCE].reset();
+                }
             }
         }
 
@@ -611,8 +621,6 @@ void WorldSession::LogoutPlayer(bool save)
         _player->CleanupsBeforeDelete();
         TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Logout Character:[%s] (%s) Level: %d",
             GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->getLevel());
-
-        sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), false);
 
         if (Map* _map = _player->FindMap())
             _map->RemovePlayerFromMap(_player, true);
@@ -1072,26 +1080,20 @@ void WorldSession::ProcessQueryCallbacks()
     }
 }
 
-void WorldSession::InitWarden(BigNumber* k, std::string const& os)
+void WorldSession::InitWarden(BigNumber* k)
 {
-    if (os == "Win")
+    if (_os == "Win")
     {
         _warden = new WardenWin();
         _warden->Init(this, k);
     }
-    else if (os == "Wn64")
+    else if (_os == "Wn64")
     {
         // Not implemented
     }
-    else if (os == "Mc64")
+    else if (_os == "Mc64")
     {
         // Not implemented
-    }
-    else if (os == "Mac")
-    {
-        // Disabled as it is causing the client to crash
-        // _warden = new WardenMac();
-        // _warden->Init(this, k);
     }
 }
 
@@ -1157,13 +1159,14 @@ public:
         BATTLE_PETS,
         BATTLE_PET_SLOTS,
         GLOBAL_ACCOUNT_HEIRLOOMS,
+        GLOBAL_REALM_CHARACTER_COUNTS,
 
         MAX_QUERIES
     };
 
     AccountInfoQueryHolder() { SetSize(MAX_QUERIES); }
 
-    bool Initialize(uint32 /*accountId*/, uint32 battlenetAccountId)
+    bool Initialize(uint32 accountId, uint32 battlenetAccountId)
     {
         bool ok = true;
 
@@ -1183,6 +1186,10 @@ public:
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(GLOBAL_ACCOUNT_HEIRLOOMS, stmt) && ok;
 
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID);
+        stmt->setUInt32(0, accountId);
+        ok = SetPreparedQuery(GLOBAL_REALM_CHARACTER_COUNTS, stmt) && ok;
+
         return ok;
     }
 };
@@ -1193,7 +1200,7 @@ void WorldSession::InitializeSession()
     if (!realmHolder->Initialize(GetAccountId(), GetBattlenetAccountId()))
     {
         delete realmHolder;
-        SendAuthResponse(AUTH_SYSTEM_ERROR, false);
+        SendAuthResponse(ERROR_INTERNAL, false);
         return;
     }
 
@@ -1202,7 +1209,7 @@ void WorldSession::InitializeSession()
     {
         delete realmHolder;
         delete holder;
-        SendAuthResponse(AUTH_SYSTEM_ERROR, false);
+        SendAuthResponse(ERROR_INTERNAL, false);
         return;
     }
 
@@ -1218,7 +1225,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
 
     if (!m_inQueue)
-        SendAuthResponse(AUTH_OK, false);
+        SendAuthResponse(ERROR_OK, false);
     else
         SendAuthWaitQue(0);
 
@@ -1230,6 +1237,20 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendAddonsInfo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendTutorialsData();
+
+    if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
+    {
+        do
+        {
+            Field* fields = characterCountsResult->Fetch();
+            _realmCharacterCounts[Battlenet::RealmHandle{ fields[3].GetUInt8(), fields[4].GetUInt8(), fields[2].GetUInt32() }.GetAddress()] = fields[1].GetUInt8();
+
+        } while (characterCountsResult->NextRow());
+    }
+
+    WorldPackets::Battlenet::SetSessionState bnetConnected;
+    bnetConnected.State = 1;
+    SendPacket(bnetConnected.Write());
 
     _battlePetMgr->LoadFromDB(holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
                               holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));

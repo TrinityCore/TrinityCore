@@ -34,7 +34,6 @@ class DuelResetScript : public PlayerScript
                 player1->GetSpellHistory()->SaveCooldownStateBeforeDuel();
                 player2->GetSpellHistory()->SaveCooldownStateBeforeDuel();
 
-
                 ResetSpellCooldowns(player1, true);
                 ResetSpellCooldowns(player2, true);
             }
@@ -73,9 +72,8 @@ class DuelResetScript : public PlayerScript
                 // Cooldown restore
                 if (sWorld->getBoolConfig(CONFIG_RESET_DUEL_COOLDOWNS))
                 {
-
-                    ResetSpellCooldowns(winner, true);
-                    ResetSpellCooldowns(loser, true);
+                    ResetSpellCooldowns(winner, false);
+                    ResetSpellCooldowns(loser, false);
 
                     winner->GetSpellHistory()->RestoreCooldownStateAfterDuel();
                     loser->GetSpellHistory()->RestoreCooldownStateAfterDuel();
@@ -89,28 +87,48 @@ class DuelResetScript : public PlayerScript
 
                     // check if player1 class uses mana
                     if (winner->getPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
-                        winner->RestoreManaAfterDuel(); 
+                        winner->RestoreManaAfterDuel();
 
                     // check if player2 class uses mana
                     if (loser->getPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
-                        loser->RestoreManaAfterDuel(); 
+                        loser->RestoreManaAfterDuel();
                 }
             }
         }
 
-        void ResetSpellCooldowns(Player* player, bool removeActivePetCooldowns)
+        static void ResetSpellCooldowns(Player* player, bool onStartDuel)
         {
-            // remove cooldowns on spells that have < 10 min CD and has no onHold
-            player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+            if (onStartDuel)
             {
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-                return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS && !itr->second.OnHold;
-            }, true);
+                // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
+                player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+                {
+                    SpellHistory::Clock::time_point now = SpellHistory::Clock::now();
+                    uint32 cooldownDuration = itr->second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.CooldownEnd - now).count() : 0;
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+                    return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS
+                           && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS
+                           && !itr->second.OnHold
+                           && cooldownDuration > 0
+                           && ( spellInfo->RecoveryTime - cooldownDuration ) > (MINUTE / 2) * IN_MILLISECONDS
+                           && ( spellInfo->CategoryRecoveryTime - cooldownDuration ) > (MINUTE / 2) * IN_MILLISECONDS;
+                }, true);
+            }
+            else
+            {
+                // remove cooldowns on spells that have < 10 min CD and has no onHold
+                player->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+                {
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+                    return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS
+                           && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS
+                           && !itr->second.OnHold;
+                }, true);
+            }
 
             // pet cooldowns
-            if (removeActivePetCooldowns)
-                if (Pet* pet = player->GetPet())
-                    pet->GetSpellHistory()->ResetAllCooldowns();
+            if (Pet* pet = player->GetPet())
+                pet->GetSpellHistory()->ResetAllCooldowns();
         }
 };
 

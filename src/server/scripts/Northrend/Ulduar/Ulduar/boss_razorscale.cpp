@@ -366,7 +366,7 @@ class boss_razorscale : public CreatureScript
                 _EnterCombat();
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE_CONTROL)))
                     controller->AI()->DoAction(ACTION_HARPOON_BUILD);
-                me->SetSpeed(MOVE_FLIGHT, 3.0f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 3.0f);
                 me->SetReactState(REACT_PASSIVE);
                 phase = PHASE_GROUND;
                 events.SetPhase(PHASE_GROUND);
@@ -550,7 +550,7 @@ class boss_razorscale : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
-                me->SetSpeed(MOVE_FLIGHT, 1.0f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                 PermaGround = true;
                 DoCastAOE(SPELL_FLAMEBREATH);
                 events.ScheduleEvent(EVENT_FLAME, 15000, 0, PHASE_PERMAGROUND);
@@ -677,7 +677,7 @@ class npc_expedition_commander : public CreatureScript
                                 if (Creature* summonedEngineer = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
                                 {
                                     summonedEngineer->SetWalk(false);
-                                    summonedEngineer->SetSpeed(MOVE_RUN, 0.5f);
+                                    summonedEngineer->SetSpeedRate(MOVE_RUN, 0.5f);
                                     summonedEngineer->SetHomePosition(PosEngRepair[n]);
                                     summonedEngineer->GetMotionMaster()->MoveTargetedHome();
                                     Engineer[n] = summonedEngineer->GetGUID();

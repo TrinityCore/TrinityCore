@@ -184,10 +184,10 @@ void WorldPackets::AuctionHouse::AuctionRemoveItem::Read()
 void WorldPackets::AuctionHouse::AuctionReplicateItems::Read()
 {
     _worldPacket >> Auctioneer;
-    _worldPacket >> Count;
     _worldPacket >> ChangeNumberGlobal;
     _worldPacket >> ChangeNumberCursor;
     _worldPacket >> ChangeNumberTombstone;
+    _worldPacket >> Count;
 }
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionListItemsResult::Write()
@@ -312,12 +312,11 @@ WorldPacket const* WorldPackets::AuctionHouse::AuctionOutBidNotification::Write(
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionReplicateResponse::Write()
 {
-    //Todo order
-    _worldPacket << int32(ChangeNumberCursor);
-    _worldPacket << int32(ChangeNumberGlobal);
-    _worldPacket << int32(DesiredDelay);
-    _worldPacket << int32(ChangeNumberTombstone);
     _worldPacket << int32(Result);
+    _worldPacket << int32(DesiredDelay);
+    _worldPacket << int32(ChangeNumberGlobal);
+    _worldPacket << int32(ChangeNumberCursor);
+    _worldPacket << int32(ChangeNumberTombstone);
     _worldPacket << int32(Items.size());
 
     for (auto const& item : Items)

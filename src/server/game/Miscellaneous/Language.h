@@ -896,7 +896,8 @@ enum TrinityStrings
     LANG_SQLDRIVER_QUERY_LOGGING_ENABLED  = 1027,
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
     LANG_ACCOUNT_INVALID_BNET_NAME      = 1029,
-    // Room for more level 4              1030-1099 not used
+    LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030,
+    // Room for more level 4              1031-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
@@ -1068,7 +1069,7 @@ enum TrinityStrings
     LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
     LANG_COMMAND_LIST_FREEZE            = 5005,
     LANG_COMMAND_PERMA_FROZEN_PLAYER    = 5006,
-    LANG_INSTANCE_RAID_GROUP_ONLY       = 5007,
+    //                                  = 5007, unused
     LANG_INSTANCE_CLOSED                = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     LANG_NPCINFO_LINKGUID               = 5010,
@@ -1211,7 +1212,12 @@ enum TrinityStrings
     LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD   = 11007,
 
     LANG_NPCINFO_INHABIT_TYPE                     = 11008,
-    LANG_NPCINFO_FLAGS_EXTRA                      = 11009
+    LANG_NPCINFO_FLAGS_EXTRA                      = 11009,
+    LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION      = 11010,
 
+    LANG_CREATURE_NO_INTERIOR_POINT_FOUND         = 11011,
+    LANG_CREATURE_MOVEMENT_NOT_BOUNDED            = 11012,
+    LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED        = 11013,
+    LANG_INSTANCE_BIND_MISMATCH                   = 11014
 };
 #endif

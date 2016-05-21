@@ -38,7 +38,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Challenge = 0;
+            std::array<uint8, 16> Challenge;
             uint32 DosChallenge[8]; ///< Encryption seeds
             uint8 DosZeroBits = 0;
         };
@@ -46,26 +46,27 @@ namespace WorldPackets
         class AuthSession final : public ClientPacket
         {
         public:
+            static uint32 const DigestLength = 24;
+
             AuthSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_SESSION, std::move(packet))
             {
-                memset(Digest, 0, SHA_DIGEST_LENGTH);
+                LocalChallenge.fill(0);
+                Digest.fill(0);
             }
 
             void Read() override;
 
-            uint32 BattlegroupID = 0;
-            int8 LoginServerType = 0;           ///< Auth type used - 0 GRUNT, 1 battle.net
-            int8 BuildType = 0;
-            uint32 RealmID = 0;
             uint16 Build = 0;
-            uint32 LocalChallenge = 0;
-            int32 LoginServerID = 0;
+            int8 BuildType = 0;
             uint32 RegionID = 0;
+            uint32 BattlegroupID = 0;
+            uint32 RealmID = 0;
+            std::array<uint8, 16> LocalChallenge;
+            std::array<uint8, DigestLength> Digest;
             uint64 DosResponse = 0;
-            uint8 Digest[SHA_DIGEST_LENGTH];
-            std::string Account;
-            bool UseIPv6 = false;
             ByteBuffer AddonInfo;
+            std::string RealmJoinTicket;
+            bool UseIPv6 = false;
         };
 
         class AuthResponse final : public ServerPacket
@@ -85,16 +86,22 @@ namespace WorldPackets
 
             struct AuthSuccessInfo
             {
-                uint32 TimeRemain = 0; ///< the remaining game time that the account has in seconds. It is not currently implemented and probably won't ever be.
+                struct BillingInfo
+                {
+                    uint32 BillingPlan = 0;
+                    uint32 TimeRemain = 0;
+                    bool InGameRoom = false;
+                };
+
                 uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
                 uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
                 uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
-                uint8 TimeOptions = 0; ///< controls the behavior of the client regarding billing, used in Asia realms, as they don't have monthly subscriptions, possible values are in @ref BillingPlanFlags. It is not currently implemented and will probably never be.
 
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
-                uint32 RealmNamesCount = 0; ///< the number of realms connected to this one (inclusive). @todo implement
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+
+                BillingInfo Billing;
 
                 std::vector<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
                 std::vector<CharacterTemplate> Templates; ///< list of pre-made character templates.
@@ -106,12 +113,12 @@ namespace WorldPackets
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
                 Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
-                bool IsVeteranTrial = false; ///< @todo research
             };
 
             struct AuthWaitInfo
             {
                 uint32 WaitCount = 0; ///< position of the account in the login queue
+                uint32 WaitTime = 0; ///< Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
                 bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
             };
 
@@ -121,7 +128,7 @@ namespace WorldPackets
 
             Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
             Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
-            uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
+            uint32 Result = 0; ///< the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
         };
 
         enum class ConnectToSerial : uint32
@@ -169,16 +176,20 @@ namespace WorldPackets
         class AuthContinuedSession final : public ClientPacket
         {
         public:
+            static uint32 const DigestLength = 24;
+
             AuthContinuedSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet))
             {
-                memset(Digest, 0, SHA_DIGEST_LENGTH);
+                LocalChallenge.fill(0);
+                Digest.fill(0);
             }
 
             void Read() override;
 
             uint64 DosResponse = 0;
             uint64 Key = 0;
-            uint8 Digest[SHA_DIGEST_LENGTH];
+            std::array<uint8, 16> LocalChallenge;
+            std::array<uint8, DigestLength> Digest;
         };
 
         class ResumeComms final : public ServerPacket

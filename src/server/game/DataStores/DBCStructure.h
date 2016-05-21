@@ -128,7 +128,7 @@ struct BattlemasterListEntry
     //uint32    Flags;                                      // 27 4.0.3, value 2 for Rated Battlegrounds
     //uint32    IconFileDataID;                             // 28
     //char*     GameType_lang;                              // 29
-    //uint32    Unk1;                                       // 30
+    //uint32    PlayerConditionID;                          // 30
 };
 
 enum CharSectionFlags
@@ -393,6 +393,15 @@ struct EmotesTextEntry
     //uint32    EmoteText[16];                              // 3-18
 };
 
+struct EmotesTextSoundEntry
+{
+    uint32 Id;                                              // 0
+    uint32 EmotesTextId;                                    // 1
+    uint32 RaceId;                                          // 2
+    uint32 SexId;                                           // 3, 0 male / 1 female
+    uint32 SoundId;                                         // 4
+};
+
 struct FactionEntry
 {
     uint32      ID;                                         // 0
@@ -504,6 +513,12 @@ struct GlyphPropertiesEntry
     uint32      Type;                                       // 2
     uint32      SpellIconID;                                // 3 GlyphIconId (SpellIcon.dbc)
     //uint32    GlyphExclusiveCategoryID;                   // 4
+};
+
+struct GtArmorMitigationByLvlEntry
+{
+    //uint32 level;
+    float   KFactor;
 };
 
 struct GtBarberShopCostBaseEntry
@@ -795,10 +810,10 @@ struct LiquidTypeEntry
     //uint32    ParticleTexSlots;                           // 13
     //uint32    MaterialID;                                 // 14
     //char*     Texture[6];                                 // 15-20
-    //uint32    Color[2];                                   // 21-23
-    //float     Float[18];                                  // 24-41
-    //uint32    Int[4];                                     // 42-45
-    //uint32    Unk3[5];                                    // 46-50
+    //uint32    DepthTexCount[6]                            // 21-26
+    //uint32    Color[2];                                   // 27-28
+    //float     Float[18];                                  // 29-46
+    //uint32    Int[4];                                     // 47-50
 };
 
 #define MAX_LOCK_CASE 8

@@ -437,7 +437,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
 
                 uint32 money = pProto->GetSellPrice() * packet.Amount;
                 _player->ModifyMoney(money);
-                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
                 _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
@@ -481,7 +481,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
             _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-            _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
+            _player->UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
             _player->StoreItem(dest, pItem, true);
         }
         else
@@ -1229,6 +1229,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
 
         if (transmogrifier->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || transmogrifier->GetTemplate()->GetBonding() == BIND_WHEN_USE)
             transmogrifier->SetBinding(true);
+
+        transmogrified->SetState(ITEM_CHANGED, player);
     }
 
     for (auto& transmogVoirPair : transmogVoidItems)
@@ -1243,12 +1245,14 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems
 
         transmogrified->SetNotRefundable(player);
         transmogrified->ClearSoulboundTradeable(player);
+        transmogrified->SetState(ITEM_CHANGED, player);
     }
 
     for (Item* item : resetAppearanceItems)
     {
         item->SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, 0);
         item->SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD, 0);
+        item->SetState(ITEM_CHANGED, player);
         player->SetVisibleItemSlot(item->GetSlot(), item);
     }
 }

@@ -40,8 +40,6 @@ namespace lfg
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
 {
-    new LFGPlayerScript();
-    new LFGGroupScript();
 }
 
 LFGMgr::~LFGMgr()
@@ -256,6 +254,12 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 
     if (reload)
         CachedDungeonMapStore.clear();
+}
+
+LFGMgr* LFGMgr::instance()
+{
+    static LFGMgr instance;
+    return &instance;
 }
 
 void LFGMgr::Update(uint32 diff)
@@ -1144,7 +1148,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
     for (GuidList::const_iterator it = proposal.queues.begin(); it != proposal.queues.end(); ++it)
     {
         ObjectGuid guid = *it;
-        queue.AddToQueue(guid);
+        queue.AddToQueue(guid, true);
     }
 
     ProposalsStore.erase(itProposal);
@@ -1406,7 +1410,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
 
         // Update achievements
         if (dungeon->difficulty == DIFFICULTY_HEROIC)
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+            player->UpdateCriteria(CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
         LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
         if (!reward)

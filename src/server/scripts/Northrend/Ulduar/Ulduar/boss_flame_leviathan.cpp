@@ -334,7 +334,8 @@ class boss_flame_leviathan : public CreatureScript
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
-                    ASSERT_NOTNULL(me->GetVehicleKit())->InstallAllAccessories(false);
+                    if (Vehicle* vehicleKit = me->GetVehicleKit())
+                        vehicleKit->InstallAllAccessories(false);
 
                 if (spell->Id == SPELL_ELECTROSHOCK)
                     me->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -369,7 +370,7 @@ class boss_flame_leviathan : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -1768,9 +1769,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                             else
                             {
                                 passenger->ExitVehicle();
-                                float x, y, z;
-                                targets.GetDstPos()->GetPosition(x, y, z);
-                                passenger->GetMotionMaster()->MoveJump(x, y, z, targets.GetSpeedXY(), targets.GetSpeedZ());
+                                passenger->GetMotionMaster()->MoveJump(*targets.GetDstPos(), targets.GetSpeedXY(), targets.GetSpeedZ());
                             }
                         }
             }

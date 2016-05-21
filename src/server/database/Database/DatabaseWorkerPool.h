@@ -19,7 +19,7 @@
 #define _DATABASEWORKERPOOL_H
 
 #include "Common.h"
-#include "Callback.h"
+#include "QueryCallback.h"
 #include "MySQLConnection.h"
 #include "Transaction.h"
 #include "DatabaseWorker.h"
@@ -120,7 +120,7 @@ class DatabaseWorkerPool
         //! This method should only be used for queries that are only executed once, e.g during startup.
         void DirectExecute(const char* sql)
         {
-            if (!sql)
+            if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
             T* connection = GetFreeConnection();
@@ -175,7 +175,7 @@ class DatabaseWorkerPool
         template<typename Format, typename... Args>
         QueryResult PQuery(Format&& sql, Args&&... args)
         {
-            if (!sql)
+            if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
             return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());

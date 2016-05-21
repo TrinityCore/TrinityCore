@@ -35,7 +35,7 @@ enum TotemSpells
     SPELL_TOTEMIC_WRATH         = 77747
 };
 
-class Totem : public Minion
+class TC_GAME_API Totem : public Minion
 {
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);

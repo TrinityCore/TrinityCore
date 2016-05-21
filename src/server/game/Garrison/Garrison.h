@@ -80,7 +80,7 @@ enum GarrisonFollowerStatus
 class GameObject;
 class Map;
 
-class Garrison
+class TC_GAME_API Garrison
 {
 public:
     struct Building

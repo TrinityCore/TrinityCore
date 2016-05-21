@@ -368,7 +368,8 @@ m_spellInfo(spellproto), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caste
 m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_castItemLevel(castItemLevel),
 m_applyTime(time(NULL)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
-m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr)
+m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
+m_lastProcAttemptTime(std::chrono::steady_clock::now() - Seconds(10)), m_lastProcSuccessTime(std::chrono::steady_clock::now() - Seconds(120))
 {
     std::vector<SpellPowerEntry const*> powers = sDB2Manager.GetSpellPowers(GetId(), caster ? caster->GetMap()->GetDifficultyID() : DIFFICULTY_NONE);
     for (SpellPowerEntry const* power : powers)
@@ -939,9 +940,9 @@ void Aura::SetStackAmount(uint8 stackAmount)
         if (!(*apptItr)->GetRemoveMode())
             HandleAuraSpecificMods(*apptItr, caster, false, true);
 
-        for (AuraEffect* effect : GetAuraEffects())
-            if (effect)
-                effect->ChangeAmount(effect->CalculateAmount(caster), false, true);
+    for (AuraEffect* effect : GetAuraEffects())
+        if (effect)
+            effect->ChangeAmount(effect->CalculateAmount(caster), false, true);
 
     for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
         if (!(*apptItr)->GetRemoveMode())
@@ -1488,7 +1489,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             {
                                 // This additional check is needed to add a minimal delay before cooldown in in effect
                                 // to allow all bubbles broken by a single damage source proc mana return
-                                if (caster->GetSpellHistory()->GetRemainingCooldown(aura->GetSpellInfo()) <= 11)
+                                if (caster->GetSpellHistory()->GetRemainingCooldown(aura->GetSpellInfo()) <= 11 * IN_MILLISECONDS)
                                     break;
                             }
                             else    // and add if needed
@@ -1931,6 +1932,23 @@ void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
     // Remove aura if we've used last charge to proc
     if (IsUsingCharges() && !GetCharges())
         Remove();
+}
+
+float Aura::CalcPPMProcChance(Unit* actor) const
+{
+    using FSeconds = std::chrono::duration<float, Seconds::period>;
+
+    // Formula see http://us.battle.net/wow/en/forum/topic/8197741003#1
+    float ppm = m_spellInfo->CalcProcPPM(actor, m_castItemLevel);
+    float averageProcInterval = 60.0f / ppm;
+
+    std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
+    float secondsSinceLastAttempt = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcAttemptTime).count(), 10.0f);
+    float secondsSinceLastProc = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcSuccessTime).count(), 1000.0f);
+
+    float chance = std::max(1.0f, 1.0f + ((secondsSinceLastProc / averageProcInterval - 1.5f) * 3.0f)) * ppm * secondsSinceLastAttempt / 60.0f;
+    RoundToInterval(chance, 0.0f, 1.0f);
+    return chance * 100.0f;
 }
 
 void Aura::_DeleteRemovedApplications()

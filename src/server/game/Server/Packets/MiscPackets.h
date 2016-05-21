@@ -397,7 +397,7 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class Weather final : public ServerPacket
+        class TC_GAME_API  Weather final : public ServerPacket
         {
         public:
             Weather();
@@ -598,7 +598,7 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
         };
 
-        class PlaySound final : public ServerPacket
+        class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
             PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 20) { }

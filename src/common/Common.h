@@ -21,27 +21,28 @@
 
 #include "Define.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <cmath>
-#include <errno.h>
-#include <signal.h>
-#include <assert.h>
-
-#include <set>
-#include <unordered_set>
-#include <list>
-#include <string>
-#include <map>
-#include <unordered_map>
-#include <queue>
-#include <sstream>
 #include <algorithm>
-#include <memory>
-#include <vector>
 #include <array>
+#include <exception>
+#include <list>
+#include <map>
+#include <memory>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cerrno>
+#include <csignal>
 
 #include <boost/optional.hpp>
 #include <boost/utility/in_place_factory.hpp>
@@ -135,15 +136,15 @@ const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 
 #define MAX_LOCALES 11
 
-extern char const* localeNames[TOTAL_LOCALES];
+extern "C" TC_COMMON_API char const* localeNames[TOTAL_LOCALES];
 
-LocaleConstant GetLocaleByName(const std::string& name);
+TC_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
 #pragma pack(push, 1)
 
-struct LocalizedString
+struct TC_COMMON_API LocalizedString
 {
     char const* Str[TOTAL_LOCALES];
 };

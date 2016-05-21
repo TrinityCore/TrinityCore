@@ -47,7 +47,7 @@ class ChargeDropEvent;
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
 
-class AuraApplication
+class TC_GAME_API AuraApplication
 {
     friend void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask);
     friend void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
@@ -113,7 +113,7 @@ struct AuraLoadEffectInfo
 };
 #pragma pack(pop)
 
-class Aura
+class TC_GAME_API Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
@@ -253,6 +253,9 @@ class Aura
         bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        float CalcPPMProcChance(Unit* actor) const;
+        void SetLastProcAttemptTime(std::chrono::steady_clock::time_point lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
+        void SetLastProcSuccessTime(std::chrono::steady_clock::time_point lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
 
         // AuraScript
         void LoadScripts();
@@ -313,11 +316,14 @@ class Aura
         //AuraEffect* m_effects[3];
         ApplicationMap m_applications;
 
-        bool m_isRemoved:1;
-        bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
-        bool m_isUsingCharges:1;
+        bool m_isRemoved;
+        bool m_isSingleTarget;                              // true if it's a single target spell and registered at caster - can change at spell steal for example
+        bool m_isUsingCharges;
 
         ChargeDropEvent* m_dropEvent;
+
+        std::chrono::steady_clock::time_point m_lastProcAttemptTime;
+        std::chrono::steady_clock::time_point m_lastProcSuccessTime;
 
     private:
         Unit::AuraApplicationList m_removedApplications;
@@ -326,7 +332,7 @@ class Aura
         SpellEffectInfoVector _spelEffectInfos;
 };
 
-class UnitAura : public Aura
+class TC_GAME_API UnitAura : public Aura
 {
     friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
@@ -347,7 +353,7 @@ class UnitAura : public Aura
         DiminishingGroup m_AuraDRGroup:8;               // Diminishing
 };
 
-class DynObjAura : public Aura
+class TC_GAME_API DynObjAura : public Aura
 {
     friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
@@ -358,7 +364,7 @@ class DynObjAura : public Aura
         void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
 };
 
-class ChargeDropEvent : public BasicEvent
+class TC_GAME_API ChargeDropEvent : public BasicEvent
 {
     friend class Aura;
     protected:

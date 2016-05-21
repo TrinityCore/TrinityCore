@@ -20,13 +20,16 @@
 
 #include "Define.h"
 #include <string>
+#include <type_traits>
 #include <openssl/sha.h>
 
 class BigNumber;
 
-class SHA256Hash
+class TC_COMMON_API SHA256Hash
 {
     public:
+        typedef std::integral_constant<uint32, SHA256_DIGEST_LENGTH> DigestLength;
+
         SHA256Hash();
         ~SHA256Hash();
 

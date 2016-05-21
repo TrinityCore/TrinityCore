@@ -39,7 +39,7 @@ enum SpellCooldownFlags
     SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
 };
 
-class SpellHistory
+class TC_GAME_API SpellHistory
 {
 public:
     typedef std::chrono::system_clock Clock;

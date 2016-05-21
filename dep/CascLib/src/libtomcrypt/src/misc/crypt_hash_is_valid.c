@@ -13,7 +13,7 @@
 /**
   @file crypt_hash_is_valid.c
   Determine if hash is valid, Tom St Denis
-*/  
+*/
 
 /*
    Test if a hash index is valid

@@ -207,7 +207,7 @@ namespace WorldPackets
             ObjectGuid Healer;
         };
 
-        class SpiritHealerConfirm final : public ServerPacket
+        class TC_GAME_API SpiritHealerConfirm final : public ServerPacket
         {
         public:
             SpiritHealerConfirm() : ServerPacket(SMSG_SPIRIT_HEALER_CONFIRM, 16) { }
@@ -245,7 +245,7 @@ namespace WorldPackets
         {
         public:
             RequestStabledPets(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_STABLED_PETS, std::move(packet)) { }
-        
+
             void Read() override;
 
             ObjectGuid StableMaster;

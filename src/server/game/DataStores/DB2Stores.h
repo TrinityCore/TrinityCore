@@ -24,96 +24,97 @@
 #include <boost/regex.hpp>
 #include <array>
 
-extern DB2Storage<AchievementEntry>                     sAchievementStore;
-extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
-extern DB2Storage<BarberShopStyleEntry>                 sBarberShopStyleStore;
-extern DB2Storage<BattlePetBreedQualityEntry>           sBattlePetBreedQualityStore;
-extern DB2Storage<BattlePetBreedStateEntry>             sBattlePetBreedStateStore;
-extern DB2Storage<BattlePetSpeciesEntry>                sBattlePetSpeciesStore;
-extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSpeciesStateStore;
-extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
-extern DB2Storage<CharStartOutfitEntry>                 sCharStartOutfitStore;
-extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
-extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
-extern DB2Storage<CreatureTypeEntry>                    sCreatureTypeStore;
-extern DB2Storage<CriteriaEntry>                        sCriteriaStore;
-extern DB2Storage<CriteriaTreeEntry>                    sCriteriaTreeStore;
-extern DB2Storage<CurrencyTypesEntry>                   sCurrencyTypesStore;
-extern DB2Storage<DestructibleModelDataEntry>           sDestructibleModelDataStore;
-extern DB2Storage<DurabilityQualityEntry>               sDurabilityQualityStore;
-extern DB2Storage<GameObjectsEntry>                     sGameObjectsStore;
-extern DB2Storage<GameTablesEntry>                      sGameTablesStore;
-extern DB2Storage<GarrAbilityEntry>                     sGarrAbilityStore;
-extern DB2Storage<GarrBuildingEntry>                    sGarrBuildingStore;
-extern DB2Storage<GarrBuildingPlotInstEntry>            sGarrBuildingPlotInstStore;
-extern DB2Storage<GarrClassSpecEntry>                   sGarrClassSpecStore;
-extern DB2Storage<GarrFollowerEntry>                    sGarrFollowerStore;
-extern DB2Storage<GarrFollowerXAbilityEntry>            sGarrFollowerXAbilityStore;
-extern DB2Storage<GarrPlotBuildingEntry>                sGarrPlotBuildingStore;
-extern DB2Storage<GarrPlotEntry>                        sGarrPlotStore;
-extern DB2Storage<GarrPlotInstanceEntry>                sGarrPlotInstanceStore;
-extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLevelStore;
-extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
-extern DB2Storage<GlyphSlotEntry>                       sGlyphSlotStore;
-extern DB2Storage<GuildPerkSpellsEntry>                 sGuildPerkSpellsStore;
-extern DB2Storage<HeirloomEntry>                        sHeirloomStore;
-extern DB2Storage<HolidaysEntry>                        sHolidaysStore;
-extern DB2Storage<ImportPriceArmorEntry>                sImportPriceArmorStore;
-extern DB2Storage<ImportPriceQualityEntry>              sImportPriceQualityStore;
-extern DB2Storage<ImportPriceShieldEntry>               sImportPriceShieldStore;
-extern DB2Storage<ImportPriceWeaponEntry>               sImportPriceWeaponStore;
-extern DB2Storage<ItemClassEntry>                       sItemClassStore;
-extern DB2Storage<ItemCurrencyCostEntry>                sItemCurrencyCostStore;
-extern DB2Storage<ItemDisenchantLootEntry>              sItemDisenchantLootStore;
-extern DB2Storage<ItemEffectEntry>                      sItemEffectStore;
-extern DB2Storage<ItemEntry>                            sItemStore;
-extern DB2Storage<ItemExtendedCostEntry>                sItemExtendedCostStore;
-extern DB2Storage<ItemLimitCategoryEntry>               sItemLimitCategoryStore;
-extern DB2Storage<ItemPriceBaseEntry>                   sItemPriceBaseStore;
-extern DB2Storage<ItemRandomPropertiesEntry>            sItemRandomPropertiesStore;
-extern DB2Storage<ItemRandomSuffixEntry>                sItemRandomSuffixStore;
-extern DB2Storage<ItemSparseEntry>                      sItemSparseStore;
-extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
-extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
-extern DB2Storage<ItemToBattlePetSpeciesEntry>          sItemToBattlePetSpeciesStore;
-extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
-extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
-extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
-extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
-extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
-extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
-extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
-extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
-extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
-extern DB2Storage<SoundEntriesEntry>                    sSoundEntriesStore;
-extern DB2Storage<SpellAuraRestrictionsEntry>           sSpellAuraRestrictionsStore;
-extern DB2Storage<SpellCastTimesEntry>                  sSpellCastTimesStore;
-extern DB2Storage<SpellCastingRequirementsEntry>        sSpellCastingRequirementsStore;
-extern DB2Storage<SpellClassOptionsEntry>               sSpellClassOptionsStore;
-extern DB2Storage<SpellDurationEntry>                   sSpellDurationStore;
-extern DB2Storage<SpellItemEnchantmentConditionEntry>   sSpellItemEnchantmentConditionStore;
-extern DB2Storage<SpellLearnSpellEntry>                 sSpellLearnSpellStore;
-extern DB2Storage<SpellMiscEntry>                       sSpellMiscStore;
-extern DB2Storage<SpellPowerEntry>                      sSpellPowerStore;
-extern DB2Storage<SpellRadiusEntry>                     sSpellRadiusStore;
-extern DB2Storage<SpellRangeEntry>                      sSpellRangeStore;
-extern DB2Storage<SpellReagentsEntry>                   sSpellReagentsStore;
-extern DB2Storage<SpellRuneCostEntry>                   sSpellRuneCostStore;
-extern DB2Storage<SpellTotemsEntry>                     sSpellTotemsStore;
-extern DB2Storage<SpellXSpellVisualEntry>               sSpellXSpellVisualStore;
-extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
-extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
-extern DB2Storage<TotemCategoryEntry>                   sTotemCategoryStore;
-extern DB2Storage<ToyEntry>                             sToyStore;
-extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBarStore;
-extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
+TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
+TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
+TC_GAME_API extern DB2Storage<BarberShopStyleEntry>                 sBarberShopStyleStore;
+TC_GAME_API extern DB2Storage<BattlePetBreedQualityEntry>           sBattlePetBreedQualityStore;
+TC_GAME_API extern DB2Storage<BattlePetBreedStateEntry>             sBattlePetBreedStateStore;
+TC_GAME_API extern DB2Storage<BattlePetSpeciesEntry>                sBattlePetSpeciesStore;
+TC_GAME_API extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSpeciesStateStore;
+TC_GAME_API extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
+TC_GAME_API extern DB2Storage<CharStartOutfitEntry>                 sCharStartOutfitStore;
+TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
+TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
+TC_GAME_API extern DB2Storage<CreatureTypeEntry>                    sCreatureTypeStore;
+TC_GAME_API extern DB2Storage<CriteriaEntry>                        sCriteriaStore;
+TC_GAME_API extern DB2Storage<CriteriaTreeEntry>                    sCriteriaTreeStore;
+TC_GAME_API extern DB2Storage<CurrencyTypesEntry>                   sCurrencyTypesStore;
+TC_GAME_API extern DB2Storage<DestructibleModelDataEntry>           sDestructibleModelDataStore;
+TC_GAME_API extern DB2Storage<DurabilityQualityEntry>               sDurabilityQualityStore;
+TC_GAME_API extern DB2Storage<GameObjectsEntry>                     sGameObjectsStore;
+TC_GAME_API extern DB2Storage<GameTablesEntry>                      sGameTablesStore;
+TC_GAME_API extern DB2Storage<GarrAbilityEntry>                     sGarrAbilityStore;
+TC_GAME_API extern DB2Storage<GarrBuildingEntry>                    sGarrBuildingStore;
+TC_GAME_API extern DB2Storage<GarrBuildingPlotInstEntry>            sGarrBuildingPlotInstStore;
+TC_GAME_API extern DB2Storage<GarrClassSpecEntry>                   sGarrClassSpecStore;
+TC_GAME_API extern DB2Storage<GarrFollowerEntry>                    sGarrFollowerStore;
+TC_GAME_API extern DB2Storage<GarrFollowerXAbilityEntry>            sGarrFollowerXAbilityStore;
+TC_GAME_API extern DB2Storage<GarrPlotBuildingEntry>                sGarrPlotBuildingStore;
+TC_GAME_API extern DB2Storage<GarrPlotEntry>                        sGarrPlotStore;
+TC_GAME_API extern DB2Storage<GarrPlotInstanceEntry>                sGarrPlotInstanceStore;
+TC_GAME_API extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLevelStore;
+TC_GAME_API extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
+TC_GAME_API extern DB2Storage<GlyphSlotEntry>                       sGlyphSlotStore;
+TC_GAME_API extern DB2Storage<GuildPerkSpellsEntry>                 sGuildPerkSpellsStore;
+TC_GAME_API extern DB2Storage<HeirloomEntry>                        sHeirloomStore;
+TC_GAME_API extern DB2Storage<HolidaysEntry>                        sHolidaysStore;
+TC_GAME_API extern DB2Storage<ImportPriceArmorEntry>                sImportPriceArmorStore;
+TC_GAME_API extern DB2Storage<ImportPriceQualityEntry>              sImportPriceQualityStore;
+TC_GAME_API extern DB2Storage<ImportPriceShieldEntry>               sImportPriceShieldStore;
+TC_GAME_API extern DB2Storage<ImportPriceWeaponEntry>               sImportPriceWeaponStore;
+TC_GAME_API extern DB2Storage<ItemClassEntry>                       sItemClassStore;
+TC_GAME_API extern DB2Storage<ItemCurrencyCostEntry>                sItemCurrencyCostStore;
+TC_GAME_API extern DB2Storage<ItemDisenchantLootEntry>              sItemDisenchantLootStore;
+TC_GAME_API extern DB2Storage<ItemEffectEntry>                      sItemEffectStore;
+TC_GAME_API extern DB2Storage<ItemEntry>                            sItemStore;
+TC_GAME_API extern DB2Storage<ItemExtendedCostEntry>                sItemExtendedCostStore;
+TC_GAME_API extern DB2Storage<ItemLimitCategoryEntry>               sItemLimitCategoryStore;
+TC_GAME_API extern DB2Storage<ItemPriceBaseEntry>                   sItemPriceBaseStore;
+TC_GAME_API extern DB2Storage<ItemRandomPropertiesEntry>            sItemRandomPropertiesStore;
+TC_GAME_API extern DB2Storage<ItemRandomSuffixEntry>                sItemRandomSuffixStore;
+TC_GAME_API extern DB2Storage<ItemSparseEntry>                      sItemSparseStore;
+TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
+TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
+TC_GAME_API extern DB2Storage<ItemToBattlePetSpeciesEntry>          sItemToBattlePetSpeciesStore;
+TC_GAME_API extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
+TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
+TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
+TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
+TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
+TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
+TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
+TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
+TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
+TC_GAME_API extern DB2Storage<SoundEntriesEntry>                    sSoundEntriesStore;
+TC_GAME_API extern DB2Storage<SpellAuraRestrictionsEntry>           sSpellAuraRestrictionsStore;
+TC_GAME_API extern DB2Storage<SpellCastTimesEntry>                  sSpellCastTimesStore;
+TC_GAME_API extern DB2Storage<SpellCastingRequirementsEntry>        sSpellCastingRequirementsStore;
+TC_GAME_API extern DB2Storage<SpellClassOptionsEntry>               sSpellClassOptionsStore;
+TC_GAME_API extern DB2Storage<SpellDurationEntry>                   sSpellDurationStore;
+TC_GAME_API extern DB2Storage<SpellItemEnchantmentConditionEntry>   sSpellItemEnchantmentConditionStore;
+TC_GAME_API extern DB2Storage<SpellLearnSpellEntry>                 sSpellLearnSpellStore;
+TC_GAME_API extern DB2Storage<SpellMiscEntry>                       sSpellMiscStore;
+TC_GAME_API extern DB2Storage<SpellPowerEntry>                      sSpellPowerStore;
+TC_GAME_API extern DB2Storage<SpellProcsPerMinuteEntry>             sSpellProcsPerMinuteStore;
+TC_GAME_API extern DB2Storage<SpellRadiusEntry>                     sSpellRadiusStore;
+TC_GAME_API extern DB2Storage<SpellRangeEntry>                      sSpellRangeStore;
+TC_GAME_API extern DB2Storage<SpellReagentsEntry>                   sSpellReagentsStore;
+TC_GAME_API extern DB2Storage<SpellRuneCostEntry>                   sSpellRuneCostStore;
+TC_GAME_API extern DB2Storage<SpellTotemsEntry>                     sSpellTotemsStore;
+TC_GAME_API extern DB2Storage<SpellXSpellVisualEntry>               sSpellXSpellVisualStore;
+TC_GAME_API extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
+TC_GAME_API extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
+TC_GAME_API extern DB2Storage<TotemCategoryEntry>                   sTotemCategoryStore;
+TC_GAME_API extern DB2Storage<ToyEntry>                             sToyStore;
+TC_GAME_API extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBarStore;
+TC_GAME_API extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
 
-extern TaxiMask                                         sTaxiNodesMask;
-extern TaxiMask                                         sOldContinentsNodesMask;
-extern TaxiMask                                         sHordeTaxiNodesMask;
-extern TaxiMask                                         sAllianceTaxiNodesMask;
-extern TaxiPathSetBySource                              sTaxiPathSetBySource;
-extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
+TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;
+TC_GAME_API extern TaxiMask                                         sOldContinentsNodesMask;
+TC_GAME_API extern TaxiMask                                         sHordeTaxiNodesMask;
+TC_GAME_API extern TaxiMask                                         sAllianceTaxiNodesMask;
+TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSetBySource;
+TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
 
 struct HotfixNotify
 {
@@ -131,7 +132,7 @@ typedef std::vector<HotfixNotify> HotfixData;
         static bool Compare(structure const* left, structure const* right); \
     };
 
-class DB2Manager
+class TC_GAME_API DB2Manager
 {
 public:
     DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry);
@@ -160,13 +161,10 @@ public:
     typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
     typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
+    typedef std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> SpellProcsPerMinuteModContainer;
     typedef std::unordered_set<uint32> ToyItemIdsContainer;
 
-    static DB2Manager& Instance()
-    {
-        static DB2Manager instance;
-        return instance;
-    }
+    static DB2Manager& Instance();
 
     void LoadStores(std::string const& dataPath, uint32 defaultLocale);
     DB2StorageBase const* GetStorage(uint32 type) const;
@@ -196,6 +194,7 @@ public:
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
+    std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
     bool IsToyItem(uint32 toy) const;
 
 private:
@@ -222,6 +221,7 @@ private:
     SpecializationSpellsContainer _specializationSpellsBySpec;
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
+    SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
     ToyItemIdsContainer _toys;
 };
 

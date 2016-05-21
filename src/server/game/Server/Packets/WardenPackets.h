@@ -28,7 +28,7 @@ namespace WorldPackets
         {
         public:
             WardenData(WorldPacket&& packet) : ClientPacket(CMSG_WARDEN_DATA, std::move(packet)) { }
-        
+
             void Read() override;
 
             ByteBuffer Data;

@@ -117,7 +117,7 @@ typedef struct _CASC_MAPPING_TABLE
     BYTE   KeyBytes;                                // Size of the file key
     BYTE   SegmentBits;                             // Number of bits for the file offset (rest is archive index)
     ULONGLONG MaxFileOffset;
-        
+
     PCASC_INDEX_ENTRY pIndexEntries;                // Sorted array of index entries
     DWORD nIndexEntries;                            // Number of index entries
 
@@ -197,7 +197,7 @@ typedef struct _TCascStorage
     DWORD dwBuildNumber;                            // Game build number
     DWORD dwFileBeginDelta;                         // This is number of bytes to shift back from archive offset (from index entry) to actual begin of file data
     DWORD dwDefaultLocale;                          // Default locale, read from ".build.info"
-    
+
     CBLD_TYPE BuildFileType;                        // Type of the build file
 
     QUERY_KEY CdnConfigKey;
@@ -229,7 +229,7 @@ typedef struct _TCascFile
     TCascStorage * hs;                              // Pointer to storage structure
     TFileStream * pStream;                          // An open data stream
     const char * szClassName;                       // "TCascFile"
-    
+
     DWORD FilePointer;                              // Current file pointer
 
     DWORD ArchiveIndex;                             // Index of the archive (data.###)
@@ -320,7 +320,9 @@ void FreeCascBlob(PQUERY_KEY pQueryKey);
 
 int LoadBuildInfo(TCascStorage * hs);
 int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory);
-int ParseRootFileLine(const char * szLinePtr, const char * szLineEnd, PQUERY_KEY pEncodingKey, char * szFileName, size_t nMaxChars);
+
+int GetRootVariableIndex(const char * szLinePtr, const char * szLineEnd, const char * szVariableName, int * PtrIndex);
+int ParseRootFileLine(const char * szLinePtr, const char * szLineEnd, int nFileNameIndex, PQUERY_KEY pEncodingKey, char * szFileName, size_t nMaxChars);
 
 //-----------------------------------------------------------------------------
 // Internal file functions

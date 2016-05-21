@@ -22,6 +22,14 @@
 #include "Player.h"
 #include "TemporarySummon.h"
 
+BossBoundaryData const boundaries = {
+    { BOSS_BEASTS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
+    { BOSS_JARAXXUS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
+    { BOSS_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
+    { BOSS_VALKIRIES, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
+    { BOSS_ANUBARAK, new EllipseBoundary(Position(746.0f, 135.0f), 100.0, 75.0) }
+};
+
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
     public:
@@ -33,6 +41,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTERS);
+                LoadBossBoundaries(boundaries);
                 TrialCounter = 50;
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
@@ -229,9 +238,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 state = IN_PROGRESS;
                                 break;
                             case DONE:
-                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
+                                DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
                                 if (ResilienceWillFixItTimer > 0)
-                                    DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
+                                    DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
                                 DoRespawnGameObject(CrusadersCacheGUID, 7*DAY);
                                 if (GameObject* cache = instance->GetGameObject(CrusadersCacheGUID))
                                     cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -399,7 +408,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                             case SNAKES_DONE:
                                 if (NotOneButTwoJormungarsTimer > 0)
-                                    DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
+                                    DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
                                 EventStage = 300;
                                 SetData(TYPE_NORTHREND_BEASTS, IN_PROGRESS);
                                 break;

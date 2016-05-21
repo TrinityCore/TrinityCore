@@ -100,7 +100,7 @@ enum FriendsResult : uint8
 #define SOCIALMGR_FRIEND_LIMIT  50u
 #define SOCIALMGR_IGNORE_LIMIT  50u
 
-class PlayerSocial
+class TC_GAME_API PlayerSocial
 {
     friend class SocialMgr;
 
@@ -138,11 +138,7 @@ class SocialMgr
         ~SocialMgr() { }
 
     public:
-        static SocialMgr* instance()
-        {
-            static SocialMgr instance;
-            return &instance;
-        }
+        static SocialMgr* instance();
 
         // Misc
         void RemovePlayerSocial(ObjectGuid const& guid) { _socialMap.erase(guid); }

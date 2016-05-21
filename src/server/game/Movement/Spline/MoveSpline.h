@@ -46,7 +46,7 @@ namespace Movement
     // MoveSpline represents smooth catmullrom or linear curve and point that moves belong it
     // curve can be cyclic - in this case movement will be cyclic
     // point can have vertical acceleration motion component (used in fall, parabolic movement)
-    class MoveSpline
+    class TC_GAME_API MoveSpline
     {
         friend class WorldPackets::Movement::CommonMovement;
         friend class WorldPackets::Movement::MonsterMove;

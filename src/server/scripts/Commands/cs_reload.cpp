@@ -67,7 +67,6 @@ public:
         {
             { "auctions",                      rbac::RBAC_PERM_COMMAND_RELOAD_AUCTIONS,                         true,  &HandleReloadAuctionsCommand,                   "" },
             { "access_requirement",            rbac::RBAC_PERM_COMMAND_RELOAD_ACCESS_REQUIREMENT,               true,  &HandleReloadAccessRequirementCommand,          "" },
-            { "achievement_criteria_data",     rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_CRITERIA_DATA,        true,  &HandleReloadAchievementCriteriaDataCommand,    "" },
             { "achievement_reward",            rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD,               true,  &HandleReloadAchievementRewardCommand,          "" },
             { "all",                           rbac::RBAC_PERM_COMMAND_RELOAD_ALL,                              true,  NULL,                                           "", reloadAllCommandTable },
             { "areatrigger_involvedrelation",  rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_INVOLVEDRELATION,     true,  &HandleReloadQuestAreaTriggersCommand,          "" },
@@ -87,6 +86,7 @@ public:
             { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER,            true,  &HandleReloadCreatureQuestStarterCommand,       "" },
             { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS,           true,  &HandleReloadCreatureSummonGroupsCommand,       "" },
             { "creature_template",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,                true,  &HandleReloadCreatureTemplateCommand,           "" },
+            { "criteria_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_CRITERIA_DATA,                    true,  &HandleReloadCriteriaDataCommand,               "" },
             { "disables",                      rbac::RBAC_PERM_COMMAND_RELOAD_DISABLES,                         true,  &HandleReloadDisablesCommand,                   "" },
             { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE,         true,  &HandleReloadLootTemplatesDisenchantCommand,    "" },
             { "event_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS,                    true,  &HandleReloadEventScriptsCommand,               "" },
@@ -205,7 +205,7 @@ public:
 
     static bool HandleReloadAllAchievementCommand(ChatHandler* handler, const char* /*args*/)
     {
-        HandleReloadAchievementCriteriaDataCommand(handler, "");
+        HandleReloadCriteriaDataCommand(handler, "");
         HandleReloadAchievementRewardCommand(handler, "");
         return true;
     }
@@ -253,7 +253,7 @@ public:
 
     static bool HandleReloadAllScriptsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->PSendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -333,11 +333,11 @@ public:
         return true;
     }
 
-    static bool HandleReloadAchievementCriteriaDataCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadCriteriaDataCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Additional Achievement Criteria Data...");
-        sAchievementMgr->LoadAchievementCriteriaData();
-        handler->SendGlobalGMSysMessage("DB table `achievement_criteria_data` reloaded.");
+        TC_LOG_INFO("misc", "Re-Loading Additional Criteria Data...");
+        sCriteriaMgr->LoadCriteriaData();
+        handler->SendGlobalGMSysMessage("DB table `criteria_data` reloaded.");
         return true;
     }
 
@@ -391,7 +391,7 @@ public:
 
     static bool HandleReloadCommandCommand(ChatHandler* handler, const char* /*args*/)
     {
-        handler->SetLoadCommandTable(true);
+        ChatHandler::invalidateCommandTable();
         handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
         return true;
     }
@@ -883,7 +883,7 @@ public:
 
     static bool HandleReloadEventScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -903,7 +903,7 @@ public:
 
     static bool HandleReloadWpScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -936,7 +936,7 @@ public:
 
     static bool HandleReloadSpellScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);

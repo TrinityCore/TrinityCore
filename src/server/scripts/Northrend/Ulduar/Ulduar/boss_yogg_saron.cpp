@@ -230,6 +230,9 @@ enum Spells
 
     // Descend Into Madness
     SPELL_TELEPORT_PORTAL_VISUAL            = 64416,
+    SPELL_TELEPORT_TO_STORMWIND_ILLUSION    = 63989,
+    SPELL_TELEPORT_TO_CHAMBER_ILLUSION      = 63997,
+    SPELL_TELEPORT_TO_ICECROWN_ILLUSION     = 63998,
 
     // Illusions
     SPELL_GRIM_REPRISAL                     = 63305,
@@ -395,6 +398,14 @@ enum MiscData
 {
     ACHIEV_TIMED_START_EVENT                = 21001,
     SOUND_LUNATIC_GAZE                      = 15757,
+    MAX_ILLUSION_ROOMS                      = 3
+};
+
+uint32 const IllusionSpells[MAX_ILLUSION_ROOMS]
+{
+    SPELL_TELEPORT_TO_CHAMBER_ILLUSION,
+    SPELL_TELEPORT_TO_ICECROWN_ILLUSION,
+    SPELL_TELEPORT_TO_STORMWIND_ILLUSION
 };
 
 class StartAttackEvent : public BasicEvent
@@ -447,9 +458,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     me->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
 
                 for (uint8 i = DATA_SARA; i <= DATA_MIMIRON_YS; ++i)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
@@ -474,7 +485,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 events.SetPhase(PHASE_ONE);
 
                 instance->SetData(DATA_DRIVE_ME_CRAZY, uint32(true));
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
                 Initialize();
 
@@ -498,7 +509,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     if (Creature* keeper = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
                         keeper->SetInCombatWith(me);
 
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
                 me->CastCustomSpell(SPELL_SUMMON_GUARDIAN_2, SPELLVALUE_MAX_TARGETS, 1);
                 DoCast(me, SPELL_SANITY_PERIODIC);
@@ -1419,7 +1430,11 @@ class npc_descend_into_madness : public CreatureScript
             {
                 if (!result)
                     return;
+
                 clicker->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
+                uint32 illusion = _instance->GetData(DATA_ILLUSION);
+                if (illusion < MAX_ILLUSION_ROOMS)
+                    DoCast(clicker, IllusionSpells[illusion], true);
                 me->DespawnOrUnsummon();
             }
 

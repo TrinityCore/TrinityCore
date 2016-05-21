@@ -232,7 +232,7 @@ This class is used to:
 3. some certain cases, same for all battlegrounds
 4. It has properties same for all battlegrounds
 */
-class Battleground
+class TC_GAME_API Battleground
 {
     public:
         Battleground();
@@ -253,7 +253,7 @@ class Battleground
 
         /* achievement req. */
         virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
-        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         virtual bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         /* Battleground */

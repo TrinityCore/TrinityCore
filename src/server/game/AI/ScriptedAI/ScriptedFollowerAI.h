@@ -32,7 +32,7 @@ enum eFollowState
     STATE_FOLLOW_POSTEVENT  = 0x020                         //can be set at complete and allow post event to run
 };
 
-class FollowerAI : public ScriptedAI
+class TC_GAME_API FollowerAI : public ScriptedAI
 {
     public:
         explicit FollowerAI(Creature* creature);
@@ -46,7 +46,7 @@ class FollowerAI : public ScriptedAI
 
         void MoveInLineOfSight(Unit*) override;
 
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;
 
         void JustDied(Unit*) override;
 

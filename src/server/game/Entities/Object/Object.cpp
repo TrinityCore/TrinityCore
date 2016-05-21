@@ -254,7 +254,10 @@ void Object::SendUpdateToPlayer(Player* player)
     UpdateData upd(player->GetMapId());
     WorldPacket packet;
 
-    BuildCreateUpdateBlockForPlayer(&upd, player);
+    if (player->HaveAtClient(this))
+        BuildValuesUpdateBlockForPlayer(&upd, player);
+    else
+        BuildCreateUpdateBlockForPlayer(&upd, player);
     upd.BuildPacket(&packet);
     player->GetSession()->SendPacket(&packet);
 }
@@ -2300,7 +2303,9 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     AddToMap(summon->ToCreature());
     summon->InitSummon();
 
-    //ObjectAccessor::UpdateObjectVisibility(summon);
+    // call MoveInLineOfSight for nearby creatures
+    Trinity::AIRelocationNotifier notifier(*summon);
+    summon->VisitNearbyObject(GetVisibilityRange(), notifier);
 
     return summon;
 }
@@ -2804,16 +2809,16 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 
 // Updates Area based phases, does not remove phases from auras
 // Phases from gm commands are not taken into calculations, they can be lost!!
-void WorldObject::UpdateAreaPhase()
+void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
-    PhaseInfo const& phases = sObjectMgr->GetAreaPhases();
+    PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
     for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
     {
-        uint32 areaId = itr->first;
+        uint32 areaOrZoneId = itr->first;
         for (PhaseInfoStruct const& phase : itr->second)
         {
-            if (areaId == GetAreaId())
+            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
             {
                 if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                 {

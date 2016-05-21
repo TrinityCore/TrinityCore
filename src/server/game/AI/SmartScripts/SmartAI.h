@@ -42,7 +42,7 @@ enum SmartEscortVars
     SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
 };
 
-class SmartAI : public CreatureAI
+class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
         ~SmartAI(){ }
@@ -79,7 +79,7 @@ class SmartAI : public CreatureAI
         void EnterCombat(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
 
         // Called when the creature is killed
         void JustDied(Unit* killer) override;
@@ -230,7 +230,7 @@ class SmartAI : public CreatureAI
         bool mJustReset;
 };
 
-class SmartGameObjectAI : public GameObjectAI
+class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
         SmartGameObjectAI(GameObject* g) : GameObjectAI(g) { }
@@ -257,4 +257,8 @@ class SmartGameObjectAI : public GameObjectAI
     private:
         SmartScript mScript;
 };
+
+/// Registers scripts required by the SAI scripting system
+void AddSC_SmartScripts();
+
 #endif

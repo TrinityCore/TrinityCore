@@ -44,6 +44,15 @@ set(TOMCRYPT_FILES
     src/libtomcrypt/src/misc/crypt_libc.c
 )
 
-include_directories(${CMAKE_SOURCE_DIR}/dep)
-
 add_library(casc STATIC ${SRC_FILES} ${TOMCRYPT_FILES})
+
+target_include_directories(casc
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PRIVATE
+      ${CMAKE_SOURCE_DIR}/dep)
+
+set_target_properties(casc
+  PROPERTIES
+    FOLDER
+      "dep")

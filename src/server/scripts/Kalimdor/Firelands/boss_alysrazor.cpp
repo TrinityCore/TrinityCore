@@ -259,11 +259,11 @@ class npc_blazing_monstrosity : public CreatureScript
             {
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 _summons.DespawnAll();
                 _events.Reset();
-                PassiveAI::EnterEvadeMode();
+                PassiveAI::EnterEvadeMode(why);
             }
 
             void JustDied(Unit* /*killer*/) override

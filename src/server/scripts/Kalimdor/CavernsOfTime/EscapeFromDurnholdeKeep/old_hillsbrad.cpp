@@ -479,12 +479,12 @@ public:
         void DoMount()
         {
             me->Mount(SKARLOC_MOUNT_MODEL);
-            me->SetSpeed(MOVE_RUN, SPEED_MOUNT);
+            me->SetSpeedRate(MOVE_RUN, SPEED_MOUNT);
         }
         void DoUnmount()
         {
             me->Dismount();
-            me->SetSpeed(MOVE_RUN, SPEED_RUN);
+            me->SetSpeedRate(MOVE_RUN, SPEED_RUN);
         }
         void EnterCombat(Unit* /*who*/) override
         {
@@ -535,12 +535,12 @@ public:
             if (!UpdateVictim())
                 return;
 
-                 /// @todo add his abilities'n-crap here
-                if (!LowHp && HealthBelowPct(20))
-                {
-                    Talk(SAY_TH_RANDOM_LOW_HP);
-                    LowHp = true;
-                }
+            /// @todo add his abilities'n-crap here
+            if (!LowHp && HealthBelowPct(20))
+            {
+                Talk(SAY_TH_RANDOM_LOW_HP);
+                LowHp = true;
+            }
         }
     };
 

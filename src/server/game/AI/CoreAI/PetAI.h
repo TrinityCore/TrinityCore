@@ -25,7 +25,7 @@
 class Creature;
 class Spell;
 
-class PetAI : public CreatureAI
+class TC_GAME_API PetAI : public CreatureAI
 {
     public:
 
@@ -47,7 +47,7 @@ class PetAI : public CreatureAI
         //
         void MoveInLineOfSight(Unit* /*who*/) override { } // CreatureAI interferes with returning pets
         void MoveInLineOfSight_Safe(Unit* /*who*/) { } // CreatureAI interferes with returning pets
-        void EnterEvadeMode() override { } // For fleeing, pets don't use this type of Evade mechanic
+        void EnterEvadeMode(EvadeReason /*why*/) override { } // For fleeing, pets don't use this type of Evade mechanic
 
     private:
         bool _isVisible(Unit*) const;

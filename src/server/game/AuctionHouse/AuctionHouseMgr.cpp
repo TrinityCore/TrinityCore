@@ -45,6 +45,12 @@ AuctionHouseMgr::~AuctionHouseMgr()
         delete itr->second;
 }
 
+AuctionHouseMgr* AuctionHouseMgr::instance()
+{
+    static AuctionHouseMgr instance;
+    return &instance;
+}
+
 AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 {
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
@@ -71,12 +77,23 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
 
     float multiplier = CalculatePct(float(entry->DepositRate), 3);
     uint32 timeHr = (((time / 60) / 60) / 12);
-    uint32 deposit = uint32(((multiplier * MSV * count / 3) * timeHr * 3) * sWorld->getRate(RATE_AUCTION_DEPOSIT));
+    uint32 deposit = uint32(MSV * multiplier * sWorld->getRate(RATE_AUCTION_DEPOSIT));
+    float remainderbase = float(MSV * multiplier * sWorld->getRate(RATE_AUCTION_DEPOSIT)) - deposit;
+
+    deposit *= timeHr * count;
+
+    int i = count;
+    while (i > 0 && (remainderbase * i) != uint32(remainderbase * i))
+        i--;
+
+    if (i)
+        deposit += remainderbase * i * timeHr;
 
     TC_LOG_DEBUG("auctionHouse", "MSV:        %u", MSV);
     TC_LOG_DEBUG("auctionHouse", "Items:      %u", count);
     TC_LOG_DEBUG("auctionHouse", "Multiplier: %f", multiplier);
     TC_LOG_DEBUG("auctionHouse", "Deposit:    %u", deposit);
+    TC_LOG_DEBUG("auctionHouse", "Deposit rm: %f", remainderbase * count);
 
     if (deposit < AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT))
         return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
@@ -140,7 +157,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         {
             bidder->GetSession()->SendAuctionWonNotification(auction, item);
             // FIXME: for offline player need also
-            bidder->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS, 1);
+            bidder->UpdateCriteria(CRITERIA_TYPE_WON_AUCTIONS, 1);
         }
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_WON), AuctionEntry::BuildAuctionMailBody(auction->owner, auction->bid, auction->buyout, 0, 0))
@@ -181,8 +198,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
         //FIXME: what do if owner offline
         if (owner && item)
         {
-            owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
-            owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
+            owner->UpdateCriteria(CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
+            owner->UpdateCriteria(CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
             //send auction owner notification, bidder must be current!
             owner->GetSession()->SendAuctionClosedNotification(auction, (float)sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), true, item);
         }
@@ -379,6 +396,116 @@ bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem)
     return true;
 }
 
+void AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry)
+{
+    PlayerAuctions* thisAH;
+    auto itr = pendingAuctionMap.find(player->GetGUID());
+    if (itr != pendingAuctionMap.end())
+        thisAH = itr->second.first;
+    else
+    {
+        thisAH = new PlayerAuctions;
+        pendingAuctionMap[player->GetGUID()] = AuctionPair(thisAH, 0);
+    }
+    thisAH->push_back(aEntry);
+}
+
+uint32 AuctionHouseMgr::PendingAuctionCount(const Player* player) const
+{
+    auto const itr = pendingAuctionMap.find(player->GetGUID());
+    if (itr != pendingAuctionMap.end())
+        return itr->second.first->size();
+
+    return 0;
+}
+
+void AuctionHouseMgr::PendingAuctionProcess(Player* player)
+{
+    auto iterMap = pendingAuctionMap.find(player->GetGUID());
+    if (iterMap == pendingAuctionMap.end())
+        return;
+
+    PlayerAuctions* thisAH = iterMap->second.first;
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    uint32 totalItems = 0;
+    for (auto itrAH = thisAH->begin(); itrAH != thisAH->end(); ++itrAH)
+    {
+        AuctionEntry* AH = (*itrAH);
+        totalItems += AH->itemCount;
+    }
+
+    uint32 totaldeposit = 0;
+    auto itr = (*thisAH->begin());
+
+    if (Item* item = GetAItem(itr->itemGUIDLow))
+         totaldeposit = GetAuctionDeposit(itr->auctionHouseEntry, itr->etime, item, totalItems);
+
+    uint32 depositremain = totaldeposit;
+    for (auto itr = thisAH->begin(); itr != thisAH->end(); ++itr)
+    {
+        AuctionEntry* AH = (*itr);
+
+        if (next(itr) == thisAH->end())
+            AH->deposit = depositremain;
+        else
+        {
+            AH->deposit = totaldeposit / thisAH->size();
+            depositremain -= AH->deposit;
+        }
+
+        AH->DeleteFromDB(trans);
+        AH->SaveToDB(trans);
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+    pendingAuctionMap.erase(player->GetGUID());
+    delete thisAH;
+    player->ModifyMoney(-int32(totaldeposit));
+}
+
+void AuctionHouseMgr::UpdatePendingAuctions()
+{
+    for (auto itr = pendingAuctionMap.begin(); itr != pendingAuctionMap.end();)
+    {
+        ObjectGuid playerGUID = itr->first;
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(playerGUID))
+        {
+            // Check if there were auctions since last update process if not
+            if (PendingAuctionCount(player) == itr->second.second)
+            {
+                ++itr;
+                PendingAuctionProcess(player);
+            }
+            else
+            {
+                ++itr;
+                pendingAuctionMap[playerGUID].second = PendingAuctionCount(player);
+            }
+        }
+        else
+        {
+            // Expire any auctions that we couldn't get a deposit for
+            TC_LOG_WARN("auctionHouse", "Player %s was offline, unable to retrieve deposit!", playerGUID.ToString().c_str());
+            PlayerAuctions* thisAH = itr->second.first;
+            ++itr;
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            for (auto AHitr = thisAH->begin(); AHitr != thisAH->end();)
+            {
+                AuctionEntry* AH = (*AHitr);
+                ++AHitr;
+                AH->expire_time = time(NULL);
+                AH->DeleteFromDB(trans);
+                AH->SaveToDB(trans);
+            }
+            CharacterDatabase.CommitTransaction(trans);
+            pendingAuctionMap.erase(playerGUID);
+            delete thisAH;
+        }
+    }
+}
+
 void AuctionHouseMgr::Update()
 {
     mHordeAuctions.Update();
@@ -453,6 +580,15 @@ void AuctionHouseObject::Update()
     // If storage is empty, no need to update. next == NULL in this case.
     if (AuctionsMap.empty())
         return;
+
+    // Clear expired throttled players
+    for (PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.begin(); itr != GetAllThrottleMap.end();)
+    {
+        if (itr->second.NextAllowedReplication <= curTime)
+            itr = GetAllThrottleMap.erase(itr);
+        else
+            ++itr;
+    }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -609,16 +745,61 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
 
         // Add the item if no search term or if entered search term was found
         if (packet.Items.size() < 50 && totalcount >= listfrom)
-            Aentry->BuildAuctionInfo(packet.Items, true);
+            Aentry->BuildAuctionInfo(packet.Items, true, item);
 
         ++totalcount;
     }
 }
 
-//this function inserts to WorldPacket auction's data
-void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems) const
+void AuctionHouseObject::BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& auctionReplicateResult, Player* player,
+    uint32 global, uint32 cursor, uint32 tombstone, uint32 count)
 {
-    Item* item = sAuctionMgr->GetAItem(itemGUIDLow);
+    time_t curTime = sWorld->GetGameTime();
+
+    auto throttleItr = GetAllThrottleMap.find(player->GetGUID());
+    if (throttleItr != GetAllThrottleMap.end())
+    {
+        if (throttleItr->second.Global != global || throttleItr->second.Cursor != cursor || throttleItr->second.Tombstone != tombstone)
+            return;
+
+        if (!throttleItr->second.IsReplicationInProgress() && throttleItr->second.NextAllowedReplication > curTime)
+            return;
+    }
+    else
+    {
+        throttleItr = GetAllThrottleMap.insert({ player->GetGUID(), PlayerGetAllThrottleData{} }).first;
+        throttleItr->second.NextAllowedReplication = curTime + sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY);
+        throttleItr->second.Global = uint32(curTime);
+    }
+
+    if (AuctionsMap.empty() || !count)
+        return;
+
+    auto itr = AuctionsMap.upper_bound(cursor);
+    for (; itr != AuctionsMap.end(); ++itr)
+    {
+        AuctionEntry* auction = itr->second;
+        if (auction->expire_time < curTime)
+            continue;
+
+        Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
+        if (!item)
+            continue;
+
+        auction->BuildAuctionInfo(auctionReplicateResult.Items, true, item);
+        if (!--count)
+            break;
+    }
+
+    auctionReplicateResult.ChangeNumberGlobal = throttleItr->second.Global;
+    auctionReplicateResult.ChangeNumberCursor = throttleItr->second.Cursor = !auctionReplicateResult.Items.empty() ? auctionReplicateResult.Items.back().AuctionItemID : 0;
+    auctionReplicateResult.ChangeNumberTombstone = throttleItr->second.Tombstone = !count ? AuctionsMap.rbegin()->first : 0;
+}
+
+//this function inserts to WorldPacket auction's data
+void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems, Item* sourceItem /*= nullptr*/) const
+{
+    Item* item = (sourceItem) ? sourceItem : sAuctionMgr->GetAItem(itemGUIDLow);
     if (!item)
     {
         TC_LOG_ERROR("misc", "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: " UI64FMTD, Id, itemGUIDLow);

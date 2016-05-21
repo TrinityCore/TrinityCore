@@ -6,7 +6,7 @@
 #include "WorldSession.h"
 #include <map>
 
-class PlayerTaxi
+class TC_GAME_API PlayerTaxi
 {
     public:
         PlayerTaxi() { m_taximask.fill(0); }

@@ -132,7 +132,10 @@ public:
 ## at_map_chamber
 ######*/
 
-#define QUEST_HIDDEN_CHAMBER    2240
+enum MapChamber
+{
+    QUEST_HIDDEN_CHAMBER = 2240
+};
 
 class AreaTrigger_at_map_chamber : public AreaTriggerScript
 {

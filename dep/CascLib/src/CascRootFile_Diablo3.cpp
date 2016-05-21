@@ -137,7 +137,7 @@ typedef struct _CASC_FILE_ENTRY
     DWORD  NameOffset;                              // Offset of the name (in name's dynamic array)
     USHORT SubIndex;                                // File\SubFile index
     BYTE   AssetIndex;                              // Asset index (aka directory index)
-    BYTE   EntryFlags;                              // Entry flags 
+    BYTE   EntryFlags;                              // Entry flags
 } CASC_FILE_ENTRY, *PCASC_FILE_ENTRY;
 
 //-----------------------------------------------------------------------------
@@ -313,9 +313,9 @@ static size_t CreateShortName(
     //  SoundBank\Angel.sbk
     //  SoundBank\Angel\0000.fsb
     //  SoundBank\Angel\0002.fsb
-    // 
+    //
     // We use the Base\Data_D3\PC\Misc\Packages.dat for real file extensions, where possible
-    // 
+    //
     if(pPackageMap != NULL)
     {
         // Retrieve the asset name
@@ -459,7 +459,7 @@ static int InsertFileEntry(
 }
 
 static int ParseDirEntries_FileId1(
-    TRootHandler_Diablo3 * pRootHandler,    
+    TRootHandler_Diablo3 * pRootHandler,
     LPBYTE pbFileEntries,
     DWORD dwFileEntries,
     DWORD dwRootDirIndex)
@@ -491,7 +491,7 @@ static int ParseDirEntries_FileId1(
 }
 
 static int ParseDirEntries_FileId2(
-    TRootHandler_Diablo3 * pRootHandler,    
+    TRootHandler_Diablo3 * pRootHandler,
     LPBYTE pbFileEntries,
     DWORD dwFileEntries,
     DWORD dwRootDirIndex)
@@ -523,13 +523,13 @@ static int ParseDirEntries_FileId2(
 }
 
 static int ParseDirEntries_Named(
-    TRootHandler_Diablo3 * pRootHandler,    
+    TRootHandler_Diablo3 * pRootHandler,
     LPBYTE pbFileEntries,
     LPBYTE pbFileEnd,
     DWORD dwFileEntries,
     DWORD dwRootDirIndex)
 {
-    char szFileName[MAX_PATH+1]; 
+    char szFileName[MAX_PATH+1];
     char * szNamePtr = szFileName;
     DWORD cbFileEntry;
     int nError = ERROR_SUCCESS;
@@ -591,7 +591,7 @@ static int ParseDirEntries_Named(
 static void ResolveFullFileNames(
     TRootHandler_Diablo3 * pRootHandler,
     PDIABLO3_CORE_TOC_ENTRY pCoreTocEntries,
-    PCASC_MAP pPackageMap,    
+    PCASC_MAP pPackageMap,
     LPBYTE pbCoreTocFile,
     DWORD dwFileIndexes)
 {
@@ -703,7 +703,7 @@ static int ParseDirectoryHeader(
     // Structure of a Diablo3 directory file
     // 1) Signature (4 bytes)
     // 2) Number of DIABLO3_FILEID1_ENTRY entries (4 bytes)
-    // 3) Array of DIABLO3_FILEID1_ENTRY entries 
+    // 3) Array of DIABLO3_FILEID1_ENTRY entries
     // 4) Number of DIABLO3_FILEID2_ENTRY entries (4 bytes)
     // 5) Array of DIABLO3_FILEID2_ENTRY entries
     // 6) Number of DIABLO3_NAMED_ENTRY entries (4 bytes)

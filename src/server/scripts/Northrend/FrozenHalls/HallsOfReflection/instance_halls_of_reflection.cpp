@@ -349,7 +349,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 }
                                 break;
                             case FAIL:
-                                DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                                DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
 
                                 if (Creature* jainaOrSylvanas = instance->GetCreature(JainaOrSylvanasEscapeGUID))
                                     jainaOrSylvanas->DespawnOrUnsummon(10000);

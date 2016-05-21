@@ -276,7 +276,7 @@ WorldPacket const* WorldPackets::Chat::ChatPlayerAmbiguous::Write()
 {
     _worldPacket.WriteBits(Name.length(), 9);
     _worldPacket.WriteString(Name);
-    
+
     return &_worldPacket;
 }
 

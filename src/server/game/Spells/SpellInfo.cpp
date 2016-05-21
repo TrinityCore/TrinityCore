@@ -26,6 +26,7 @@
 #include "Battleground.h"
 #include "Vehicle.h"
 #include "Pet.h"
+#include "InstanceScript.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -470,7 +471,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_UNK12))
             level = _spellInfo->BaseLevel;
 
-        if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel > level)
+        if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel < level)
             level = _spellInfo->Scaling.MaxScalingLevel;
 
         float value = 0.0f;
@@ -513,7 +514,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 *variance = valueVariance;
         }
 
-        basePoints = int32(value);
+        basePoints = int32(round(value));
 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
@@ -527,7 +528,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 level = int32(_spellInfo->MaxLevel);
             else if (level < int32(_spellInfo->BaseLevel))
                 level = int32(_spellInfo->BaseLevel);
-            level -= int32(_spellInfo->SpellLevel);
+            if (!_spellInfo->IsPassive())
+                level -= int32(_spellInfo->SpellLevel);
             basePoints += int32(level * basePointsPerLevel);
         }
 
@@ -557,7 +559,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
     {
         // bonus amount from combo points
         if (caster->m_movedPlayer && comboDamage)
-            if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
+            if (uint32 comboPoints = caster->m_movedPlayer->GetComboPoints())
                 value += comboDamage * comboPoints;
 
         value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
@@ -636,10 +638,10 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 
 float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = ChainAmplitude;
+    float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
-    return multiplier;
+        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+    return multiplierPercent / 100.0f;
 }
 
 bool SpellEffectInfo::HasRadius() const
@@ -880,7 +882,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 157 SPELL_EFFECT_CREATE_ITEM_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 158 SPELL_EFFECT_MILLING
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 159 SPELL_EFFECT_ALLOW_RENAME_PET
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 160 SPELL_EFFECT_160
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 160 SPELL_EFFECT_FORCE_CAST_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 161 SPELL_EFFECT_TALENT_SPEC_COUNT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 162 SPELL_EFFECT_TALENT_SPEC_SELECT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 163 SPELL_EFFECT_163
@@ -924,54 +926,54 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 201 SPELL_EFFECT_ENABLE_BATTLE_PETS
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 202 SPELL_EFFECT_202
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 203 SPELL_EFFECT_203
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 204 SPELL_EFFECT_204
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 205 SPELL_EFFECT_205
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 206 SPELL_EFFECT_206
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 207 SPELL_EFFECT_207
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 207 SPELL_EFFECT_LAUNCH_QUEST_TASK
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 208 SPELL_EFFECT_208
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 209 SPELL_EFFECT_209
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 210 SPELL_EFFECT_210
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 211 SPELL_EFFECT_211
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 212 SPELL_EFFECT_212
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 213 SPELL_EFFECT_213
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 214 SPELL_EFFECT_214
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 215 SPELL_EFFECT_215
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 216 SPELL_EFFECT_216
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 217 SPELL_EFFECT_217
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 214 SPELL_EFFECT_CREATE_GARRISON
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 216 SPELL_EFFECT_CREATE_SHIPMENT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 217 SPELL_EFFECT_UPGRADE_GARRISON
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 218 SPELL_EFFECT_218
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 219 SPELL_EFFECT_219
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 220 SPELL_EFFECT_220
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 221 SPELL_EFFECT_221
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 222 SPELL_EFFECT_222
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 223 SPELL_EFFECT_223
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 224 SPELL_EFFECT_224
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 225 SPELL_EFFECT_225
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 226 SPELL_EFFECT_226
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 227 SPELL_EFFECT_227
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 228 SPELL_EFFECT_228
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 229 SPELL_EFFECT_229
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 230 SPELL_EFFECT_230
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 231 SPELL_EFFECT_231
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 232 SPELL_EFFECT_232
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 233 SPELL_EFFECT_233
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 232 SPELL_EFFECT_REMOVE_PHASE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 234 SPELL_EFFECT_234
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 235 SPELL_EFFECT_235
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 236 SPELL_EFFECT_236
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 237 SPELL_EFFECT_237
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 238 SPELL_EFFECT_238
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 239 SPELL_EFFECT_239
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 236 SPELL_EFFECT_GIVE_EXPERIENCE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 238 SPELL_EFFECT_INCREASE_SKILL
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 240 SPELL_EFFECT_240
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 241 SPELL_EFFECT_241
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 242 SPELL_EFFECT_242
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 243 SPELL_EFFECT_243
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 244 SPELL_EFFECT_244
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 245 SPELL_EFFECT_235
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 246 SPELL_EFFECT_236
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 247 SPELL_EFFECT_237
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 248 SPELL_EFFECT_238
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 249 SPELL_EFFECT_239
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 250 SPELL_EFFECT_240
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 251 SPELL_EFFECT_241
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 245 SPELL_EFFECT_UPGRADE_HEIRLOOM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 246 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 247 SPELL_EFFECT_ADD_GARRISON_MISSION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 248 SPELL_EFFECT_FINISH_SHIPMENT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 249 SPELL_EFFECT_249
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 250 SPELL_EFFECT_TAKE_SCREENSHOT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
 };
 
 SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals)
@@ -993,7 +995,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
     }
 
     SpellName = spellEntry->Name_lang;
-    Rank = nullptr;
     RuneCostID = spellEntry->RuneCostID;
     SpellDifficultyId = 0;
     SpellScalingId = spellEntry->ScalingID;
@@ -1052,9 +1053,14 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
+    SpellProcsPerMinuteEntry const* _ppm = _options ? sSpellProcsPerMinuteStore.LookupEntry(_options->SpellProcsPerMinuteID) : nullptr;
     ProcFlags = _options ? _options->ProcTypeMask : 0;
     ProcChance = _options ? _options->ProcChance : 0;
     ProcCharges = _options ? _options->ProcCharges : 0;
+    ProcCooldown = _options ? _options->ProcCategoryRecovery : 0;
+    ProcBasePPM = _ppm ? _ppm->BaseProcRate : 0.0f;
+    if (_options)
+        ProcPPMMods = sDB2Manager.GetSpellProcsPerMinuteMods(_options->SpellProcsPerMinuteID);
     StackAmount = _options ? _options->CumulativeAura : 0;
 
     // SpellAuraRestrictionsEntry
@@ -1537,6 +1543,11 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return (AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG) != 0;
 }
 
+bool SpellInfo::HasInitialAggro() const
+{
+    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
+}
+
 bool SpellInfo::IsAffectedBySpellMods() const
 {
     return !(AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS);
@@ -2015,6 +2026,13 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
     if (HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_SELF_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+
+    if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
+        if (Map* map = caster->GetMap())
+            if (InstanceMap* iMap = map->ToInstanceMap())
+                if (InstanceScript* instance = iMap->GetInstanceScript())
+                    if (instance->GetCombatResurrectionCharges() == 0 && instance->IsEncounterInProgress())
+                        return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;
 }
@@ -2734,6 +2752,126 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
     return costs;
 }
 
+inline float CalcPPMHasteMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    float haste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+    float rangedHaste = caster->GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
+    float spellHaste = caster->GetFloatValue(UNIT_MOD_CAST_HASTE);
+    float regenHaste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return (1.0f / haste - 1.0f) * mod->Coeff;
+        case 2:
+            return (1.0f / rangedHaste - 1.0f) * mod->Coeff;
+        case 3:
+            return (1.0f / spellHaste - 1.0f) * mod->Coeff;
+        case 4:
+            return (1.0f / regenHaste - 1.0f) * mod->Coeff;
+        case 5:
+            return (1.0f / std::min(std::min(std::min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod->Coeff;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return 0.0f;
+
+    float crit = caster->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+    float rangedCrit = caster->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+    float spellCrit = caster->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return crit * mod->Coeff * 0.01f;
+        case 2:
+            return rangedCrit * mod->Coeff * 0.01f;
+        case 3:
+            return spellCrit * mod->Coeff * 0.01f;
+        case 4:
+            return std::min(std::min(crit, rangedCrit), spellCrit) * mod->Coeff * 0.01f;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 itemLevel)
+{
+    if (uint32(itemLevel) == mod->Param)
+        return 0.0f;
+
+    float itemLevelPoints = GetRandomPropertyPoints(itemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    float basePoints = GetRandomPropertyPoints(mod->Param, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    if (itemLevelPoints == basePoints)
+        return 0.0f;
+
+    return ((itemLevelPoints / basePoints) - 1.0f) * mod->Coeff;
+}
+
+float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
+{
+    float ppm = ProcBasePPM;
+    for (SpellProcsPerMinuteModEntry const* mod : ProcPPMMods)
+    {
+        switch (mod->Type)
+        {
+            case SPELL_PPM_MOD_HASTE:
+            {
+                ppm *= 1.0f + CalcPPMHasteMod(mod, caster);
+                break;
+            }
+            case SPELL_PPM_MOD_CRIT:
+            {
+                ppm *= 1.0f + CalcPPMCritMod(mod, caster);
+                break;
+            }
+            case SPELL_PPM_MOD_CLASS:
+            {
+                if (caster->getClassMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_SPEC:
+            {
+                if (Player* plrCaster = caster->ToPlayer())
+                    if (plrCaster->GetSpecId(plrCaster->GetActiveTalentGroup()) == mod->Param)
+                        ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_RACE:
+            {
+                if (caster->getRaceMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_ITEM_LEVEL:
+            {
+                ppm *= 1.0f + CalcPPMItemLevelMod(mod, itemLevel);
+                break;
+            }
+            case SPELL_PPM_MOD_BATTLEGROUND:
+            {
+                if (caster->GetMap()->IsBattlegroundOrArena())
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    return ppm;
+}
+
 bool SpellInfo::IsRanked() const
 {
     return ChainEntry != NULL;
@@ -2752,18 +2890,21 @@ SpellInfo const* SpellInfo::GetFirstRankSpell() const
         return this;
     return ChainEntry->first;
 }
+
 SpellInfo const* SpellInfo::GetLastRankSpell() const
 {
     if (!ChainEntry)
         return NULL;
     return ChainEntry->last;
 }
+
 SpellInfo const* SpellInfo::GetNextRankSpell() const
 {
     if (!ChainEntry)
         return NULL;
     return ChainEntry->next;
 }
+
 SpellInfo const* SpellInfo::GetPrevRankSpell() const
 {
     if (!ChainEntry)

@@ -63,46 +63,49 @@ enum class HighGuid
     Uniq             = 1,
     Player           = 2,
     Item             = 3,
-    StaticDoor       = 4,   //NYI
-    Transport        = 5,
-    Conversation     = 6,
-    Creature         = 7,
-    Vehicle          = 8,
-    Pet              = 9,
-    GameObject       = 10,
-    DynamicObject    = 11,
-    AreaTrigger      = 12,
-    Corpse           = 13,
-    LootObject       = 14,
-    SceneObject      = 15,
-    Scenario         = 16,
-    AIGroup          = 17,
-    DynamicDoor      = 18,
-    ClientActor      = 19,  //NYI
-    Vignette         = 20,
-    CallForHelp      = 21,
-    AIResource       = 22,
-    AILock           = 23,
-    AILockTicket     = 24,
-    ChatChannel      = 25,
-    Party            = 26,
-    Guild            = 27,
-    WowAccount       = 28,
-    BNetAccount      = 29,
-    GMTask           = 30,
-    MobileSession    = 31,  //NYI
-    RaidGroup        = 32,
-    Spell            = 33,
-    Mail             = 34,
-    WebObj           = 35,  //NYI
-    LFGObject        = 36,  //NYI
-    LFGList          = 37,  //NYI
-    UserRouter       = 38,
-    PVPQueueGroup    = 39,
-    UserClient       = 40,
-    PetBattle        = 41,  //NYI
-    UniqueUserClient = 42,
-    BattlePet        = 43,
+    WorldTransaction = 4,
+    StaticDoor       = 5,   //NYI
+    Transport        = 6,
+    Conversation     = 7,
+    Creature         = 8,
+    Vehicle          = 9,
+    Pet              = 10,
+    GameObject       = 11,
+    DynamicObject    = 12,
+    AreaTrigger      = 13,
+    Corpse           = 14,
+    LootObject       = 15,
+    SceneObject      = 16,
+    Scenario         = 17,
+    AIGroup          = 18,
+    DynamicDoor      = 19,
+    ClientActor      = 20,  //NYI
+    Vignette         = 21,
+    CallForHelp      = 22,
+    AIResource       = 23,
+    AILock           = 24,
+    AILockTicket     = 25,
+    ChatChannel      = 26,
+    Party            = 27,
+    Guild            = 28,
+    WowAccount       = 29,
+    BNetAccount      = 30,
+    GMTask           = 31,
+    MobileSession    = 32,  //NYI
+    RaidGroup        = 33,
+    Spell            = 34,
+    Mail             = 35,
+    WebObj           = 36,  //NYI
+    LFGObject        = 37,  //NYI
+    LFGList          = 38,  //NYI
+    UserRouter       = 39,
+    PVPQueueGroup    = 40,
+    UserClient       = 41,
+    PetBattle        = 42,  //NYI
+    UniqUserClient   = 43,
+    BattlePet        = 44,
+    CommerceObj      = 45,
+    ClientSession    = 46,
 
     Count,
 };
@@ -150,12 +153,15 @@ GUID_TRAIT_GLOBAL(HighGuid::Mail)
 GUID_TRAIT_GLOBAL(HighGuid::UserRouter)
 GUID_TRAIT_GLOBAL(HighGuid::PVPQueueGroup)
 GUID_TRAIT_GLOBAL(HighGuid::UserClient)
-GUID_TRAIT_GLOBAL(HighGuid::UniqueUserClient)
+GUID_TRAIT_GLOBAL(HighGuid::UniqUserClient)
 GUID_TRAIT_GLOBAL(HighGuid::BattlePet)
+GUID_TRAIT_GLOBAL(HighGuid::CommerceObj)
+GUID_TRAIT_GLOBAL(HighGuid::ClientSession)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Player)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Item)       // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Transport)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Guild)
+GUID_TRAIT_MAP_SPECIFIC(HighGuid::WorldTransaction)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Conversation)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Creature)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Vehicle)
@@ -180,11 +186,11 @@ class PackedGuid;
 
 #pragma pack(push, 1)
 
-class ObjectGuid
+class TC_GAME_API ObjectGuid
 {
-    friend std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
-    friend ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
-    friend ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid);
+    friend TC_GAME_API std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
+    friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
+    friend TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid);
 
     public:
         static ObjectGuid const Empty;
@@ -332,9 +338,9 @@ typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
 // maximum buffer size for packed guid is 18 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 18
 
-class PackedGuid
+class TC_GAME_API PackedGuid
 {
-        friend ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+        friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
     public:
         explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid << uint16(0); }
@@ -348,7 +354,7 @@ class PackedGuid
         ByteBuffer _packedGuid;
 };
 
-class ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGeneratorBase
 {
 public:
     ObjectGuidGeneratorBase(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
@@ -363,7 +369,7 @@ protected:
 };
 
 template<HighGuid high>
-class ObjectGuidGenerator : public ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGenerator : public ObjectGuidGeneratorBase
 {
 public:
     explicit ObjectGuidGenerator(ObjectGuid::LowType start = UI64LIT(1)) : ObjectGuidGeneratorBase(start) { }
@@ -376,12 +382,12 @@ public:
     }
 };
 
-ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
-ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid&       guid);
 
-ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
-std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
+TC_GAME_API std::ostream& operator<<(std::ostream& stream, ObjectGuid const& guid);
 
 namespace std
 {

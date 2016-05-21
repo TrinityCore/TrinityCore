@@ -34,7 +34,34 @@ using boost::asio::ip::tcp;
 #define TC_SOCKET_USE_IOCP
 #endif
 
-template<class T>
+/**
+    @class Socket
+
+    Base async socket implementation
+
+    @tparam T derived class type (CRTP)
+    @tparam Stream stream type used for operations on socket
+            Stream must implement the following methods:
+
+            void close(boost::system::error_code& error);
+
+            void shutdown(boost::asio::socket_base::shutdown_type what, boost::system::error_code& shutdownError);
+
+            template<typename MutableBufferSequence, typename ReadHandlerType>
+            void async_read_some(MutableBufferSequence const& buffers, ReadHandlerType&& handler);
+
+            template<typename ConstBufferSequence, typename WriteHandlerType>
+            void async_write_some(ConstBufferSequence const& buffers, WriteHandlerType&& handler);
+
+            template<typename ConstBufferSequence>
+            std::size_t write_some(ConstBufferSequence const& buffers, boost::system::error_code& error);
+
+            template<typename SettableSocketOption>
+            void set_option(SettableSocketOption const& option, boost::system::error_code& error);
+
+            tcp::socket::endpoint_type remote_endpoint() const;
+*/
+template<class T, class Stream = tcp::socket>
 class Socket : public std::enable_shared_from_this<T>
 {
 public:
@@ -55,11 +82,11 @@ public:
 
     virtual bool Update()
     {
-        if (!IsOpen())
+        if (_closed)
             return false;
 
 #ifndef TC_SOCKET_USE_IOCP
-        if (_isWritingAsync || _writeQueue.empty())
+        if (_isWritingAsync || (_writeQueue.empty() && !_closing))
             return true;
 
         for (; HandleQueue();)
@@ -87,7 +114,18 @@ public:
         _readBuffer.Normalize();
         _readBuffer.EnsureFreeSpace();
         _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
-            std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+            std::bind(&Socket<T, Stream>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+    }
+
+    void AsyncReadWithCallback(void (T::*callback)(boost::system::error_code, std::size_t))
+    {
+        if (!IsOpen())
+            return;
+
+        _readBuffer.Normalize();
+        _readBuffer.EnsureFreeSpace();
+        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
+            std::bind(callback, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
     void QueuePacket(MessageBuffer&& buffer)
@@ -134,10 +172,10 @@ protected:
 
 #ifdef TC_SOCKET_USE_IOCP
         MessageBuffer& buffer = _writeQueue.front();
-        _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T>::WriteHandler,
+        _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T, Stream>::WriteHandler,
             this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #else
-        _socket.async_write_some(boost::asio::null_buffers(), std::bind(&Socket<T>::WriteHandlerWrapper,
+        _socket.async_write_some(boost::asio::null_buffers(), std::bind(&Socket<T, Stream>::WriteHandlerWrapper,
             this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #endif
 
@@ -153,6 +191,10 @@ protected:
                 GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
     }
 
+    Stream& underlying_stream()
+    {
+        return _socket;
+    }
 
 private:
     void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)
@@ -197,9 +239,6 @@ private:
 
     bool HandleQueue()
     {
-        if (!IsOpen())
-            return false;
-
         if (_writeQueue.empty())
             return false;
 
@@ -216,11 +255,15 @@ private:
                 return AsyncProcessQueue();
 
             _writeQueue.pop();
+            if (_closing && _writeQueue.empty())
+                CloseSocket();
             return false;
         }
         else if (bytesSent == 0)
         {
             _writeQueue.pop();
+            if (_closing && _writeQueue.empty())
+                CloseSocket();
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
@@ -230,12 +273,14 @@ private:
         }
 
         _writeQueue.pop();
+        if (_closing && _writeQueue.empty())
+            CloseSocket();
         return !_writeQueue.empty();
     }
 
 #endif
 
-    tcp::socket _socket;
+    Stream _socket;
 
     boost::asio::ip::address _remoteAddress;
     uint16 _remotePort;

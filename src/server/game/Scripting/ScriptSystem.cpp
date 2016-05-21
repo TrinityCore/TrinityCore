@@ -21,7 +21,13 @@
 #include "DatabaseEnv.h"
 #include "ScriptMgr.h"
 
-ScriptPointVector const SystemMgr::_empty;
+TC_GAME_API ScriptPointVector const SystemMgr::_empty;
+
+SystemMgr* SystemMgr::instance()
+{
+    static SystemMgr instance;
+    return &instance;
+}
 
 void SystemMgr::LoadScriptWaypoints()
 {

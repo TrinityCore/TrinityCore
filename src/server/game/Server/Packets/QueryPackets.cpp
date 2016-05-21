@@ -137,7 +137,7 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
     else
     {
         uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
-        uint32 bnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(accountId);
+        uint32 bnetAccountId = ::Battlenet::AccountMgr::GetIdByGameAccount(accountId);
 
         AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
         BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);

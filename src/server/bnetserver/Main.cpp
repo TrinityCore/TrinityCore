@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,29 +23,22 @@
 * authentication server
 */
 
-#include "ComponentManager.h"
-#include "ModuleManager.h"
 #include "SessionManager.h"
-#include "Common.h"
-#include "Config.h"
-#include "DatabaseEnv.h"
-#include "Log.h"
 #include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "GitRevision.h"
-#include "Util.h"
-#include "ZmqContext.h"
+#include "SslContext.h"
 #include "DatabaseLoader.h"
-#include <cstdlib>
+#include "LoginRESTService.h"
 #include <iostream>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/program_options.hpp>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
+#include <boost/filesystem/path.hpp>
+#include <google/protobuf/stubs/common.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
+namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_BNET_CONFIG
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
@@ -74,25 +66,26 @@ void StopDB();
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void KeepDatabaseAliveHandler(boost::system::error_code const& error);
 void BanExpiryHandler(boost::system::error_code const& error);
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
 
 static boost::asio::io_service* _ioService;
 static boost::asio::deadline_timer* _dbPingTimer;
 static uint32 _dbPingInterval;
 static boost::asio::deadline_timer* _banExpiryCheckTimer;
 static uint32 _banExpiryCheckInterval;
-LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
 
-    std::string configFile = _TRINITY_BNET_CONFIG;
+    auto configFile = fs::absolute(_TRINITY_BNET_CONFIG);
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help or version is enabled
     if (vm.count("help") || vm.count("version"))
         return 0;
+
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 #if PLATFORM == PLATFORM_WINDOWS
     if (configService.compare("install") == 0)
@@ -104,7 +97,9 @@ int main(int argc, char** argv)
 #endif
 
     std::string configError;
-    if (!sConfigMgr->LoadInitial(configFile, configError))
+    if (!sConfigMgr->LoadInitial(configFile.generic_string(),
+                                 std::vector<std::string>(argv, argv + argc),
+                                 configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
@@ -115,7 +110,7 @@ int main(int argc, char** argv)
 
     TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
+    TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
     TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
@@ -137,10 +132,9 @@ int main(int argc, char** argv)
         }
     }
 
-    int32 worldListenPort = sConfigMgr->GetIntDefault("WorldserverListenPort", 1118);
-    if (worldListenPort < 0 || worldListenPort > 0xFFFF)
+    if (!Battlenet::SslContext::Initialize())
     {
-        TC_LOG_ERROR("server.bnetserver", "Specified worldserver listen port (%d) out of allowed range (1-65535)", worldListenPort);
+        TC_LOG_ERROR("server.bnetserver", "Failed to initialize SSL context");
         return 1;
     }
 
@@ -148,12 +142,7 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    sIpcContext->Initialize();
-
     _ioService = new boost::asio::io_service();
-
-    // Get the list of realms for the server
-    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), worldListenPort);
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
@@ -164,6 +153,17 @@ int main(int argc, char** argv)
         delete _ioService;
         return 1;
     }
+
+    if (!sLoginService.Start(*_ioService))
+    {
+        StopDB();
+        delete _ioService;
+        TC_LOG_ERROR("server.bnetserver", "Failed to initialize login service");
+        return 1;
+    }
+
+    // Get the list of realms for the server
+    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
@@ -190,9 +190,6 @@ int main(int argc, char** argv)
     _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
     _banExpiryCheckTimer->async_wait(BanExpiryHandler);
 
-    sComponentMgr->Load();
-    sModuleMgr->Load();
-
 #if PLATFORM == PLATFORM_WINDOWS
     if (m_ServiceStatus != -1)
     {
@@ -208,9 +205,9 @@ int main(int argc, char** argv)
     _banExpiryCheckTimer->cancel();
     _dbPingTimer->cancel();
 
-    sSessionMgr.StopNetwork();
+    sLoginService.Stop();
 
-    sIpcContext->Close();
+    sSessionMgr.StopNetwork();
 
     sRealmList->Close();
 
@@ -224,6 +221,7 @@ int main(int argc, char** argv)
     delete _banExpiryCheckTimer;
     delete _dbPingTimer;
     delete _ioService;
+    google::protobuf::ShutdownProtobufLibrary();
     return 0;
 }
 
@@ -301,7 +299,7 @@ void ServiceStatusWatcher(boost::system::error_code const& error)
 }
 #endif
 
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService)
 {
     (void)configService;
 
@@ -309,7 +307,8 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_BNET_CONFIG), "use <arg> as configuration file")
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_BNET_CONFIG)),
+                     "use <arg> as configuration file")
         ;
 #if PLATFORM == PLATFORM_WINDOWS
     options_description win("Windows platform specific options");

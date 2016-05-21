@@ -484,6 +484,21 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSaved
 {
     TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: %u, Difficulty: %u, ToggleExtend: %s", setSavedInstanceExtend.MapID, setSavedInstanceExtend.DifficultyID, setSavedInstanceExtend.Extend ? "On" : "Off");
 
+    if (Player* player = GetPlayer())
+    {
+        InstancePlayerBind* instanceBind = player->GetBoundInstance(setSavedInstanceExtend.MapID, Difficulty(setSavedInstanceExtend.DifficultyID), setSavedInstanceExtend.Extend); // include expired instances if we are toggling extend on
+        if (!instanceBind || !instanceBind->save || !instanceBind->perm)
+            return;
+
+        BindExtensionState newState;
+        if (!setSavedInstanceExtend.Extend || instanceBind->extendState == EXTEND_STATE_EXPIRED)
+            newState = EXTEND_STATE_NORMAL;
+        else
+            newState = EXTEND_STATE_EXTENDED;
+
+        player->BindToInstance(instanceBind->save, true, newState, false);
+    }
+
     /*
     InstancePlayerBind* instanceBind = _player->GetBoundInstance(setSavedInstanceExtend.MapID, Difficulty(setSavedInstanceExtend.DifficultyID));
     if (!instanceBind || !instanceBind->save)

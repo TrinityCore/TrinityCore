@@ -156,7 +156,7 @@ struct LiquidData
     float  depth_level;
 };
 
-class GridMap
+class TC_GAME_API GridMap
 {
     uint32  _flags;
     union{
@@ -256,7 +256,7 @@ typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMa
 
 typedef TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid> MapStoredObjectTypesContainer;
 
-class Map : public GridRefManager<NGridType>
+class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
@@ -280,6 +280,7 @@ class Map : public GridRefManager<NGridType>
 
         virtual bool AddPlayerToMap(Player* player, bool initPlayer = true);
         virtual void RemovePlayerFromMap(Player*, bool);
+
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
 
@@ -295,7 +296,8 @@ class Map : public GridRefManager<NGridType>
         void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
         void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
 
-        template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
+        template<class T, class CONTAINER>
+        void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
         bool IsRemovalGrid(float x, float y) const
         {
@@ -311,6 +313,7 @@ class Map : public GridRefManager<NGridType>
         bool GetUnloadLock(const GridCoord &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
         void SetUnloadLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
+        void LoadAllCells();
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         virtual void UnloadAll();
 
@@ -365,7 +368,23 @@ class Map : public GridRefManager<NGridType>
 
         uint32 GetInstanceId() const { return i_InstanceId; }
         uint8 GetSpawnMode() const { return (i_spawnMode); }
-        virtual bool CanEnter(Player* /*player*/) { return true; }
+
+        enum EnterState
+        {
+            CAN_ENTER = 0,
+            CANNOT_ENTER_ALREADY_IN_MAP = 1, // Player is already in the map
+            CANNOT_ENTER_NO_ENTRY, // No map entry was found for the target map ID
+            CANNOT_ENTER_UNINSTANCED_DUNGEON, // No instance template was found for dungeon map
+            CANNOT_ENTER_DIFFICULTY_UNAVAILABLE, // Requested instance difficulty is not available for target map
+            CANNOT_ENTER_NOT_IN_RAID, // Target instance is a raid instance and the player is not in a raid group
+            CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE, // Player is dead and their corpse is not in target instance
+            CANNOT_ENTER_INSTANCE_BIND_MISMATCH, // Player's permanent instance save is not compatible with their group's current instance bind
+            CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
+            CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
+            CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
+            CANNOT_ENTER_UNSPECIFIED_REASON
+        };
+        virtual EnterState CannotEnter(Player* /*player*/) { return CAN_ENTER; }
         const char* GetMapName() const;
 
         // have meaning only for instanced map (that have set real difficulty)
@@ -737,7 +756,7 @@ enum InstanceResetMethod
     INSTANCE_RESET_RESPAWN_DELAY
 };
 
-class InstanceMap : public Map
+class TC_GAME_API InstanceMap : public Map
 {
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
@@ -751,10 +770,13 @@ class InstanceMap : public Map
         InstanceScript* GetInstanceScript() { return i_data; }
         void PermBindAllPlayers(Player* source);
         void UnloadAll() override;
-        bool CanEnter(Player* player) override;
+        EnterState CannotEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
+        /* this checks if any players have a permanent bind (included reactivatable expired binds) to the instance ID
+        it needs a DB query, so use sparingly */
+        bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
 
@@ -766,7 +788,7 @@ class InstanceMap : public Map
         uint32 i_script_id;
 };
 
-class BattlegroundMap : public Map
+class TC_GAME_API BattlegroundMap : public Map
 {
     public:
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
@@ -774,7 +796,7 @@ class BattlegroundMap : public Map
 
         bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
         void RemovePlayerFromMap(Player*, bool) override;
-        bool CanEnter(Player* player) override;
+        EnterState CannotEnter(Player* player) override;
         void SetUnload();
         //void UnloadAll(bool pForce);
         void RemoveAllPlayers() override;

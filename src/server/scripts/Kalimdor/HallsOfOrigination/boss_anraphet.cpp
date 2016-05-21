@@ -284,7 +284,7 @@ class npc_omega_stance : public CreatureScript
                 DoCast(me, SPELL_OMEGA_STANCE_SPIDER_TRIGGER, true);
             }
 
-            void EnterEvadeMode() override { }
+            void EnterEvadeMode(EvadeReason /*why*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -308,7 +308,7 @@ class npc_alpha_beam : public CreatureScript
                     anraphet->CastSpell(me, SPELL_ALPHA_BEAMS_BACK_CAST);
             }
 
-            void EnterEvadeMode() override { } // Never evade
+            void EnterEvadeMode(EvadeReason /*why*/) override { } // Never evade
 
             private:
                 InstanceScript* _instance;
@@ -384,7 +384,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                         case EVENT_BRANN_UNLOCK_DOOR:
                             Talk(BRANN_SAY_UNLOCK_DOOR);
                             _instance->SetBossState(DATA_VAULT_OF_LIGHTS, DONE);
-                            _instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_EVENT);
+                            _instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_VAULT_OF_LIGHTS_EVENT);
                             events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 3500);
                             break;
                         case EVENT_BRANN_THINK:

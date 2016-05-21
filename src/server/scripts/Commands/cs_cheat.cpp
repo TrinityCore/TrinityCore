@@ -217,10 +217,10 @@ public:
 
         if (!*args)
             argstr = (chr->isTaxiCheater()) ? "off" : "on";
-        
+
 
         if (argstr == "off")
-            
+
         {
             chr->SetTaxiCheater(false);
             handler->PSendSysMessage(LANG_YOU_REMOVE_TAXIS, handler->GetNameLink(chr).c_str());

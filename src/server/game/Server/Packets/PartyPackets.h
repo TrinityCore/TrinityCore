@@ -366,7 +366,7 @@ namespace WorldPackets
         {
         public:
             SetPartyAssignment(WorldPacket&& packet) : ClientPacket(CMSG_SET_PARTY_ASSIGNMENT, std::move(packet)) { }
-        
+
             void Read() override;
             uint8 Assignment = 0;
             uint8 PartyIndex = 0;

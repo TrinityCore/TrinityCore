@@ -417,7 +417,7 @@ void hyjalAI::Reset()
     }
 }
 
-void hyjalAI::EnterEvadeMode()
+void hyjalAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     if (me->GetEntry() != JAINA)
         me->RemoveAllAuras();

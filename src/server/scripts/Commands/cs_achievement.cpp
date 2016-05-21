@@ -68,7 +68,7 @@ public:
             return false;
         }
 
-        if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievementId))
+        if (AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievementId))
             target->CompletedAchievement(achievementEntry);
 
         return true;

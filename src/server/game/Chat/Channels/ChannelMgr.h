@@ -24,7 +24,7 @@
 #define MAX_CHANNEL_NAME_STR 0x31
 #define MAX_CHANNEL_PASS_STR 31
 
-class ChannelMgr
+class TC_GAME_API ChannelMgr
 {
     typedef std::map<std::wstring, Channel*> ChannelMap;
 

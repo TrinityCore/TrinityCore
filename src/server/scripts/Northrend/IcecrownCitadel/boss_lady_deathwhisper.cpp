@@ -322,7 +322,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             livingAddEntries.insert(unit->GetEntry());
 
                 if (livingAddEntries.size() >= 5)
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_FULL_HOUSE, 0, me);
+                    instance->DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_FULL_HOUSE, 0, me);
 
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
                 {
@@ -421,7 +421,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)) || !CheckInRoom())
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);
@@ -1043,8 +1043,9 @@ class at_lady_deathwhisper_entrance : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
-                    ladyDeathwhisper->AI()->DoAction(ACTION_START_INTRO);
+                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
+                    if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
+                        ladyDeathwhisper->AI()->DoAction(ACTION_START_INTRO);
 
             return true;
         }

@@ -211,7 +211,7 @@ namespace WorldPackets
             };
 
             Complaint(WorldPacket&& packet) : ClientPacket(CMSG_COMPLAINT, std::move(packet)) { }
-        
+
             void Read() override;
 
             uint8 ComplaintType = 0;

@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "Item.h"
 #include "AuctionHouseMgr.h"
+#include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
 
 MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
@@ -48,8 +49,8 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
             break;
         default:
             m_messageType = MAIL_NORMAL;
-            m_senderId = UI64LIT(0);                                 // will show mail from not existed player
-            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
+            m_senderId = UI64LIT(0);                        // will show mail from non-existing player
+            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail message contains unexpected sender typeid (%u).", sender->GetTypeId());
             break;
     }
 }
@@ -61,6 +62,9 @@ MailSender::MailSender(CalendarEvent* sender)
 
 MailSender::MailSender(AuctionEntry* sender)
     : m_messageType(MAIL_AUCTION), m_senderId(uint64(sender->GetHouseId())), m_stationery(MAIL_STATIONERY_AUCTION) { }
+
+MailSender::MailSender(BlackMarketEntry* sender)
+    : m_messageType(MAIL_BLACKMARKET), m_senderId(sender->GetTemplate()->SellerNPC), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
 MailSender::MailSender(Player* sender)
 {

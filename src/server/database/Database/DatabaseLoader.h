@@ -19,7 +19,7 @@
 #define DatabaseLoader_h__
 
 #include "DatabaseWorkerPool.h"
-#include "DatabaseEnv.h"
+#include "DBUpdater.h"
 
 #include <functional>
 #include <stack>
@@ -27,7 +27,7 @@
 
 // A helper class to initiate all database worker pools,
 // handles updating, delays preparing of statements and cleans up on failure.
-class DatabaseLoader
+class TC_DATABASE_API DatabaseLoader
 {
 public:
     DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask);

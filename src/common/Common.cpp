@@ -18,7 +18,7 @@
 
 #include "Common.h"
 
-char const* localeNames[TOTAL_LOCALES] =
+TC_COMMON_API char const* localeNames[TOTAL_LOCALES] =
 {
   "enUS",
   "koKR",

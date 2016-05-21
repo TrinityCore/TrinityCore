@@ -130,7 +130,7 @@ class boss_alar : public CreatureScript
                 _Reset();
 
                 me->SetDisplayId(me->GetNativeDisplayId());
-                me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
+                me->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
                 //me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 //me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
@@ -178,7 +178,7 @@ class boss_alar : public CreatureScript
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->AttackStop();
                         me->SetTarget(ObjectGuid::Empty);
-                        me->SetSpeed(MOVE_RUN, 5.0f);
+                        me->SetSpeedRate(MOVE_RUN, 5.0f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(0, waypoint[5][0], waypoint[5][1], waypoint[5][2]);
                     }
@@ -261,7 +261,7 @@ class boss_alar : public CreatureScript
                             case WE_REVIVE:
                                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
                                 me->SetFullHealth();
-                                me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
+                                me->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 DoZoneInCombat();
                                 DoCast(me, SPELL_REBIRTH, true);
@@ -289,6 +289,7 @@ class boss_alar : public CreatureScript
                                     me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f);
                                     me->StopMoving();
                                     WaitEvent = WE_LAND;
+                                    return;
                                 }
                                 else
                                 {
@@ -484,7 +485,7 @@ class npc_ember_of_alar : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 me->setDeathState(JUST_DIED);
             }

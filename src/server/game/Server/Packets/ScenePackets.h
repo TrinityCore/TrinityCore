@@ -25,7 +25,7 @@ namespace WorldPackets
 {
     namespace Scenes
     {
-        class PlayScene final : public ServerPacket
+        class TC_GAME_API PlayScene final : public ServerPacket
         {
         public:
             PlayScene() : ServerPacket(SMSG_PLAY_SCENE, 34) { }

@@ -29,7 +29,7 @@ namespace VMAP
     class GroupModel;
     class VMapManager2;
 
-    struct LocationInfo
+    struct TC_COMMON_API LocationInfo
     {
         LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
         const ModelInstance* hitInstance;
@@ -37,7 +37,7 @@ namespace VMAP
         float ground_Z;
     };
 
-    class StaticMapTree
+    class TC_COMMON_API StaticMapTree
     {
         typedef std::unordered_map<uint32, bool> loadedTileMap;
         typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
@@ -87,7 +87,7 @@ namespace VMAP
             StaticMapTree& operator=(StaticMapTree const& right) = delete;
     };
 
-    struct AreaInfo
+    struct TC_COMMON_API AreaInfo
     {
         AreaInfo(): result(false), ground_Z(-G3D::finf()), flags(0), adtId(0),
             rootId(0), groupId(0) { }

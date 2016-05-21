@@ -68,7 +68,7 @@ enum QuestFailedReason
     QUEST_ERR_HAS_IN_PROGRESS                   = 30        // "Progress Bar objective not completed"
 };
 
-enum QuestPushReason
+enum QuestPushReason : uint8
 {
     QUEST_PUSH_SUCCESS                  = 0,    // "Sharing quest with %s..."
     QUEST_PUSH_INVALID                  = 1,    // "%s is not eligible for that quest"
@@ -276,7 +276,7 @@ typedef std::vector<QuestObjective> QuestObjectives;
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
-class Quest
+class TC_GAME_API Quest
 {
     friend class ObjectMgr;
     friend class Player;

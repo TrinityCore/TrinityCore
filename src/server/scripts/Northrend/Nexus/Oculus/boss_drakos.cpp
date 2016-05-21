@@ -133,7 +133,7 @@ class boss_drakos : public CreatureScript
                 Talk(SAY_DEATH);
 
                 // start achievement timer (kill Eregos within 20 min)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
 
             void KilledUnit(Unit* /*victim*/) override

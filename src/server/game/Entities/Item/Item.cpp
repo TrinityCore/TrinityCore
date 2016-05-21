@@ -462,8 +462,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         need_save = true;
     }
 
-    std::string enchants = fields[8].GetString();
-    _LoadIntoDataField(enchants, ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[9].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
@@ -554,41 +553,11 @@ Player* Item::GetOwner()const
     return ObjectAccessor::FindPlayer(GetOwnerGUID());
 }
 
+// Just a "legacy shortcut" for proto->GetSkill()
 uint32 Item::GetSkill()
 {
-    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
-    {
-        SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
-        SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
-        SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
-        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
-        SKILL_FISHING
-    };
-
-    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
-    {
-        0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
-    };
-
     ItemTemplate const* proto = GetTemplate();
-
-    switch (proto->GetClass())
-    {
-        case ITEM_CLASS_WEAPON:
-            if (proto->GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
-                return 0;
-            else
-                return item_weapon_skills[proto->GetSubClass()];
-
-        case ITEM_CLASS_ARMOR:
-            if (proto->GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
-                return 0;
-            else
-                return item_armor_skills[proto->GetSubClass()];
-
-        default:
-            return 0;
-    }
+    return proto->GetSkill();
 }
 
 int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
@@ -918,9 +887,9 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
             owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetEntry(), id);
     }
 
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET, charges);
     SetState(ITEM_CHANGED, owner);
 }
 
@@ -929,7 +898,7 @@ void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player*
     if (GetEnchantmentDuration(slot) == duration)
         return;
 
-    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
+    SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
     SetState(ITEM_CHANGED, owner);
     // Cannot use GetOwner() here, has to be passed as an argument to avoid freeze due to hashtable locking
 }
@@ -1920,12 +1889,28 @@ uint32 Item::GetVisibleEntry() const
     return GetEntry();
 }
 
-uint32 Item::GetVisibleAppearanceModId() const
+uint16 Item::GetVisibleAppearanceModId() const
 {
     if (GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
-        return GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD);
+        return uint16(GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
 
-    return GetAppearanceModId();
+    return uint16(GetAppearanceModId());
+}
+
+uint32 Item::GetVisibleEnchantmentId() const
+{
+    if (uint32 enchantIllusion = GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION))
+        return enchantIllusion;
+
+    return GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
+}
+
+uint16 Item::GetVisibleItemVisual() const
+{
+    if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetVisibleEnchantmentId()))
+        return enchant->ItemVisual;
+
+    return 0;
 }
 
 void Item::AddBonuses(uint32 bonusListID)

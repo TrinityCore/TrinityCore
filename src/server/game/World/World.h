@@ -29,7 +29,7 @@
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "QueryResult.h"
-#include "Callback.h"
+#include "QueryCallback.h"
 #include "Realm/Realm.h"
 
 #include <atomic>
@@ -79,6 +79,7 @@ enum ShutdownExitCode
 enum WorldTimers
 {
     WUPDATE_AUCTIONS,
+    WUPDATE_AUCTIONS_PENDING,
     WUPDATE_WEATHERS,
     WUPDATE_UPTIME,
     WUPDATE_CORPSES,
@@ -90,6 +91,8 @@ enum WorldTimers
     WUPDATE_AHBOT,
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
+    WUPDATE_BLACKMARKET,
+    WUPDATE_CHECK_FILECHANGES,
     WUPDATE_COUNT
 };
 
@@ -122,7 +125,6 @@ enum WorldBoolConfigs
     CONFIG_QUEST_IGNORE_RAID,
     CONFIG_DETECT_POS_COLLISION,
     CONFIG_RESTRICTED_LFG_CHANNEL,
-    CONFIG_TALENTS_INSPECTING,
     CONFIG_CHAT_FAKE_MESSAGE_PREVENTING,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP,
     CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE,
@@ -136,7 +138,6 @@ enum WorldBoolConfigs
     CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE,
     CONFIG_BG_XP_FOR_KILL,
     CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE,
-    CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY,
     CONFIG_ARENA_SEASON_IN_PROGRESS,
     CONFIG_ARENA_LOG_EXTENDED_INFO,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
@@ -178,6 +179,15 @@ enum WorldBoolConfigs
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
     CONFIG_RESET_DUEL_COOLDOWNS,
     CONFIG_RESET_DUEL_HEALTH_MANA,
+    CONFIG_BASEMAP_LOAD_GRIDS,
+    CONFIG_INSTANCEMAP_LOAD_GRIDS,
+    CONFIG_BLACKMARKET_ENABLED,
+    CONFIG_HOTSWAP_ENABLED,
+    CONFIG_HOTSWAP_RECOMPILER_ENABLED,
+    CONFIG_HOTSWAP_EARLY_TERMINATION_ENABLED,
+    CONFIG_HOTSWAP_BUILD_FILE_RECREATION_ENABLED,
+    CONFIG_HOTSWAP_INSTALL_ENABLED,
+    CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -366,6 +376,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST,
     CONFIG_BG_REWARD_WINNER_CONQUEST_LAST,
     CONFIG_CREATURE_PICKPOCKET_REFILL,
+    CONFIG_CREATURE_STOP_FOR_PLAYER,
     CONFIG_AHBOT_UPDATE_INTERVAL,
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN,
     CONFIG_CHARTER_COST_GUILD,
@@ -374,6 +385,11 @@ enum WorldIntConfigs
     CONFIG_CHARTER_COST_ARENA_5v5,
     CONFIG_NO_GRAY_AGGRO_ABOVE,
     CONFIG_NO_GRAY_AGGRO_BELOW,
+    CONFIG_AUCTION_GETALL_DELAY,
+    CONFIG_AUCTION_SEARCH_DELAY,
+    CONFIG_TALENTS_INSPECTING,
+    CONFIG_BLACKMARKET_MAXAUCTIONS,
+    CONFIG_BLACKMARKET_UPDATE_PERIOD,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -446,20 +462,6 @@ enum Rates
     RATE_MONEY_QUEST,
     RATE_MONEY_MAX_LEVEL_QUEST,
     MAX_RATES
-};
-
-/// Can be used in SMSG_AUTH_RESPONSE packet
-enum BillingPlanFlags
-{
-    SESSION_NONE            = 0x00,
-    SESSION_UNUSED          = 0x01,
-    SESSION_RECURRING_BILL  = 0x02,
-    SESSION_FREE_TRIAL      = 0x04,
-    SESSION_IGR             = 0x08,
-    SESSION_USAGE           = 0x10,
-    SESSION_TIME_MIXTURE    = 0x20,
-    SESSION_RESTRICTED      = 0x40,
-    SESSION_ENABLE_CAIS     = 0x80
 };
 
 enum RealmZone
@@ -555,14 +557,10 @@ struct CharacterInfo
 };
 
 /// The World
-class World
+class TC_GAME_API World
 {
     public:
-        static World* instance()
-        {
-            static World instance;
-            return &instance;
-        }
+        static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;
 
@@ -823,6 +821,7 @@ class World
         IntervalTimer m_timers[WUPDATE_COUNT];
         time_t mail_timer;
         time_t mail_timer_expires;
+        time_t blackmarket_timer;
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
@@ -898,9 +897,11 @@ class World
         std::deque<PreparedQueryResultFuture> m_realmCharCallbacks;
 };
 
-extern Realm realm;
-uint32 GetVirtualRealmAddress();
+TC_GAME_API extern Realm realm;
+
+TC_GAME_API uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
+
 #endif
 /// @}

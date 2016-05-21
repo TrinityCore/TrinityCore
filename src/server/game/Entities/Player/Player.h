@@ -40,7 +40,7 @@ struct ItemExtendedCostEntry;
 struct TrainerSpell;
 struct VendorItem;
 
-template<class T> class AchievementMgr;
+class PlayerAchievementMgr;
 class ReputationMgr;
 class Channel;
 class Creature;
@@ -54,6 +54,7 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
+class PlayerAI;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -114,8 +115,6 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
-
-extern uint32 const MasterySpells[MAX_CLASSES];
 
 enum TalentSpecialization // talent tabs
 {
@@ -456,7 +455,7 @@ enum RuneCooldowns
     RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
 };
 
-enum RuneType
+enum RuneType : uint8
 {
     RUNE_BLOOD      = 0,
     RUNE_UNHOLY     = 1,
@@ -600,8 +599,9 @@ enum PlayerFieldBytesOffsets
 
 enum PlayerFieldBytes2Offsets
 {
-    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
-    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+    PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 2     // uint16!
 };
 
 static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
@@ -684,9 +684,10 @@ enum QuestSlotOffsets
     QUEST_ID_OFFSET     = 0,
     QUEST_STATE_OFFSET  = 1,
     QUEST_COUNTS_OFFSET = 2,
-    QUEST_TIME_OFFSET   = 4
+    QUEST_TIME_OFFSET   = 14
 };
 
+#define MAX_QUEST_COUNTS 24
 #define MAX_QUEST_OFFSET 15
 
 enum QuestSlotStateMask
@@ -739,7 +740,7 @@ enum PlayerSlots
 
 #define INVENTORY_SLOT_BAG_0    255
 
-enum EquipmentSlots                                         // 19 slots
+enum EquipmentSlots : uint8                                 // 19 slots
 {
     EQUIPMENT_SLOT_START        = 0,
     EQUIPMENT_SLOT_HEAD         = 0,
@@ -767,13 +768,13 @@ enum EquipmentSlots                                         // 19 slots
 #define VISIBLE_ITEM_ENTRY_OFFSET 0
 #define VISIBLE_ITEM_ENCHANTMENT_OFFSET 1
 
-enum InventorySlots                                         // 4 slots
+enum InventorySlots : uint8                                 // 4 slots
 {
     INVENTORY_SLOT_BAG_START    = 19,
     INVENTORY_SLOT_BAG_END      = 23
 };
 
-enum InventoryPackSlots                                     // 16 slots
+enum InventoryPackSlots : uint8                             // 16 slots
 {
     INVENTORY_SLOT_ITEM_START   = 23,
     INVENTORY_SLOT_ITEM_END     = 39
@@ -845,39 +846,26 @@ typedef std::vector<ItemPosCount> ItemPosCountVec;
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                          = 0,
-    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 1,   // You are already locked to %s
-    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 2,   // Map cannot be entered at this time.
-    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 3,   // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
-    TRANSFER_ABORT_NOT_FOUND                     = 4,   // Transfer Aborted: instance not found
-    TRANSFER_ABORT_NEED_GROUP                    = 5,   // Transfer Aborted: you must be in a raid group to enter this instance
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 6,   // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_DIFFICULTY                    = 7,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_REALM_ONLY                    = 8,   // All players in the party must be from the same realm to enter %s.
-    TRANSFER_ABORT_NOT_FOUND_2                   = 13,  // Transfer Aborted: instance not found
-    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 15,  // This instance is already in progress. You may only switch difficulties from inside the instance.
-    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 16,  // You have entered too many instances recently.
-    TRANSFER_ABORT_MAX_PLAYERS                   = 17,  // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND_3                   = 19,  // Transfer Aborted: instance not found
-    TRANSFER_ABORT_ERROR                         = 21,
-    TRANSFER_ABORT_NOT_FOUND_4                   = 23,  // Transfer Aborted: instance not found
-    TRANSFER_ABORT_UNIQUE_MESSAGE                = 24,  // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 27,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
-    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 28,  // Transfer Aborted: cross-realm zone is down
-    TRANSFER_ABORT_ZONE_IN_COMBAT                = 29,  // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 31,  // You must have <TBC, WotLK> expansion installed to access this area.
-
-    /*
-    // Unknown values - not used by the client to display any error
-    TRANSFER_ABORT_MANY_REALM_INSTANCES
-    TRANSFER_ABORT_AREA_NOT_ZONED
-    TRANSFER_ABORT_TIMEOUT
-    TRANSFER_ABORT_SHUTTING_DOWN
-    TRANSFER_ABORT_PLAYER_CONDITION
-    TRANSFER_ABORT_BUSY
-    TRANSFER_ABORT_DISCONNECTED
-    TRANSFER_ABORT_LOGGING_OUT
-    TRANSFER_ABORT_NEED_SERVER
-    */
+    TRANSFER_ABORT_ERROR                         = 1,
+    TRANSFER_ABORT_MAX_PLAYERS                   = 2,   // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND                     = 3,   // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 4,   // You have entered too many instances recently.
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 6,   // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 7,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY                    = 8,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 9,   // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 10,  // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NEED_GROUP                    = 11,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_NOT_FOUND_2                   = 12,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_3                   = 13,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_4                   = 14,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_REALM_ONLY                    = 15,  // All players in the party must be from the same realm to enter %s.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 16,  // Map cannot be entered at this time.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 18,  // You are already locked to %s
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 19,  // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 22,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
+    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 24,  // Transfer Aborted: cross-realm zone is down
+    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 26,  // This instance is already in progress. You may only switch difficulties from inside the instance.
 };
 
 enum NewWorldReason
@@ -928,7 +916,7 @@ enum TeleportToOptions
 };
 
 /// Type of environmental damages
-enum EnviromentalDamage
+enum EnviromentalDamage : uint8
 {
     DAMAGE_EXHAUSTED = 0,
     DAMAGE_DROWNING  = 1,
@@ -1012,16 +1000,29 @@ enum PlayerDelayedOperations
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
-extern uint64 const MAX_MONEY_AMOUNT;
+TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
 
+enum BindExtensionState
+{
+    EXTEND_STATE_EXPIRED  =   0,
+    EXTEND_STATE_NORMAL   =   1,
+    EXTEND_STATE_EXTENDED =   2,
+    EXTEND_STATE_KEEP     = 255   // special state: keep current save type
+};
 struct InstancePlayerBind
 {
     InstanceSave* save;
-    bool perm;
     /* permanent PlayerInstanceBinds are created in Raid/Heroic instances for players
-       that aren't already permanently bound when they are inside when a boss is killed
-       or when they enter an instance that the group leader is permanently bound to. */
-    InstancePlayerBind() : save(nullptr), perm(false) { }
+    that aren't already permanently bound when they are inside when a boss is killed
+    or when they enter an instance that the group leader is permanently bound to. */
+    bool perm;
+    /* extend state listing:
+    EXPIRED  - doesn't affect anything unless manually re-extended by player
+    NORMAL   - standard state
+    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL */
+    BindExtensionState extendState;
+
+    InstancePlayerBind() : save(NULL), perm(false), extendState(EXTEND_STATE_NORMAL) { }
 };
 
 struct AccessRequirement
@@ -1063,7 +1064,7 @@ enum ReferAFriendError
     ERR_REFER_A_FRIEND_MAP_INCOMING_TRANSFER_NOT_ALLOWED = 15
 };
 
-enum PlayerRestState
+enum PlayerRestState : uint8
 {
     REST_STATE_RESTED                                = 0x01,
     REST_STATE_NOT_RAF_LINKED                        = 0x02,
@@ -1080,7 +1081,7 @@ enum PlayerCommandStates
     CHEAT_WATERWALK = 0x10
 };
 
-enum PlayerLogXPReason
+enum PlayerLogXPReason : uint8
 {
     LOG_XP_REASON_KILL    = 0,
     LOG_XP_REASON_NO_KILL = 1
@@ -1146,7 +1147,7 @@ struct ResurrectionData
 static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
 static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
 
-struct PlayerTalentInfo
+struct TC_GAME_API PlayerTalentInfo
 {
     PlayerTalentInfo() :
         ResetTalentsCost(0), ResetTalentsTime(0),
@@ -1182,7 +1183,7 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
-class Player : public Unit, public GridObject<Player>
+class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player* player);
@@ -1190,6 +1191,8 @@ class Player : public Unit, public GridObject<Player>
     public:
         explicit Player(WorldSession* session);
         ~Player();
+
+        PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(i_AI); }
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
@@ -1207,7 +1210,8 @@ class Player : public Unit, public GridObject<Player>
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
-        void SetSummonPoint(uint32 mapid, float x, float y, float z);
+        bool HasSummonPending() const;
+        void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
 
         bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo);
@@ -1300,12 +1304,16 @@ class Player : public Unit, public GridObject<Player>
 
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
+        void Say(uint32 textId, WorldObject const* target = nullptr) override;
         /// Handles yelled message in regular chat based on declared language and in config pre-defined Range.
         void Yell(std::string const& text, Language language, WorldObject const* = nullptr) override;
+        void Yell(uint32 textId, WorldObject const* target = nullptr) override;
         /// Outputs an universal text which is supposed to be an action.
         void TextEmote(std::string const& text, WorldObject const* = nullptr, bool = false) override;
+        void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false) override;
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
         void Whisper(std::string const& text, Language language, Player* receiver, bool = false) override;
+        void Whisper(uint32 textId, Player* target, bool isBossWhisper = false) override;
         void WhisperAddon(std::string const& text, std::string const& prefix, Player* receiver);
 
         /*********************************************************/
@@ -1671,7 +1679,7 @@ class Player : public Unit, public GridObject<Player>
         void SetTarget(ObjectGuid const& /*guid*/) override { } /// Used for serverside target changes, does not apply to players
         void SetSelection(ObjectGuid const& guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { return GetPower(POWER_COMBO_POINTS); }
+        uint32 GetComboPoints() const { return uint32(GetPower(POWER_COMBO_POINTS)); }
         void AddComboPoints(int8 count, Spell* spell = nullptr);
         void GainSpellComboPoints(int8 count);
         void ClearComboPoints();
@@ -1798,7 +1806,8 @@ class Player : public Unit, public GridObject<Player>
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr) const;
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = nullptr);
+        template <class T>
+        void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr);
         void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
@@ -1813,11 +1822,10 @@ class Player : public Unit, public GridObject<Player>
         void SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura);
         void ClearResurrectRequestData()
         {
-            delete _resurrectionData;
-            _resurrectionData = nullptr;
+            _resurrectionData.reset();
         }
 
-        bool IsResurrectRequestedBy(ObjectGuid guid) const
+        bool IsResurrectRequestedBy(ObjectGuid const& guid) const
         {
             if (!IsResurrectRequested())
                 return false;
@@ -1825,8 +1833,9 @@ class Player : public Unit, public GridObject<Player>
             return !_resurrectionData->GUID.IsEmpty() && _resurrectionData->GUID == guid;
         }
 
-        bool IsResurrectRequested() const { return _resurrectionData != nullptr; }
+        bool IsResurrectRequested() const { return _resurrectionData.get() != nullptr; }
         void ResurrectUsingRequestData();
+        void ResurrectUsingRequestDataImpl();
 
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
@@ -2268,13 +2277,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
-        // Recall position
-        uint32 m_recallMap;
-        float  m_recallX;
-        float  m_recallY;
-        float  m_recallZ;
-        float  m_recallO;
-        void   SaveRecallPosition();
+        void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
+        void Recall() { TeleportTo(m_recall_location); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
@@ -2291,7 +2295,7 @@ class Player : public Unit, public GridObject<Player>
         // currently visible objects at player client
         GuidUnorderedSet m_clientGUIDs;
 
-        bool HaveAtClient(WorldObject const* u) const;
+        bool HaveAtClient(Object const* u) const;
 
         bool IsNeverVisible() const override;
 
@@ -2330,6 +2334,8 @@ class Player : public Unit, public GridObject<Player>
         void SendCinematicStart(uint32 CinematicSequenceId) const;
         void SendMovieStart(uint32 MovieId) const;
 
+        uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
@@ -2342,20 +2348,19 @@ class Player : public Unit, public GridObject<Player>
         bool m_InstanceValid;
         // permanent binds and solo binds by difficulty
         BoundInstancesMap m_boundInstances[MAX_DIFFICULTY];
-        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
+        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);
         InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
         InstanceSave* GetInstanceSave(uint32 mapid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
-        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
+        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, BindExtensionState extendState = EXTEND_STATE_NORMAL, bool load = false);
         void BindToInstance();
         void SetPendingBind(uint32 instanceId, uint32 bindTimer);
         bool HasPendingBind() const { return _pendingBindId > 0; }
         void SendRaidInfo();
-        static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
-        bool CheckInstanceLoginValid(Map* map);
+        bool CheckInstanceValidity(bool /*isLogin*/);
         bool CheckInstanceCount(uint32 instanceId) const;
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
 
@@ -2425,10 +2430,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetAchievementPoints() const;
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
-        void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
-        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
-        void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void ResetCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+        void UpdateCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
+        void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
+        void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex) const;
@@ -2685,7 +2690,7 @@ class Player : public Unit, public GridObject<Player>
         void ResetTimeSync();
         void SendTimeSync();
 
-        ResurrectionData* _resurrectionData;
+        std::unique_ptr<ResurrectionData> _resurrectionData;
 
         WorldSession* m_session;
 
@@ -2741,10 +2746,10 @@ class Player : public Unit, public GridObject<Player>
 
         // Player summoning
         time_t m_summon_expire;
-        uint32 m_summon_mapid;
-        float  m_summon_x;
-        float  m_summon_y;
-        float  m_summon_z;
+        WorldLocation m_summon_location;
+
+        // Recall position
+        WorldLocation m_recall_location;
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
@@ -2783,7 +2788,6 @@ class Player : public Unit, public GridObject<Player>
 
         MapReference m_mapRef;
 
-        void UpdateCharmedAI();
         uint32 m_lastFallTime;
         float  m_lastFallZ;
 
@@ -2810,7 +2814,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        AchievementMgr<Player>* m_achievementMgr;
+        PlayerAchievementMgr* m_achievementMgr;
         ReputationMgr*  m_reputationMgr;
 
         uint32 m_ChampioningFaction;
@@ -2838,15 +2842,17 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 };
 
-void AddItemsSetItem(Player* player, Item* item);
-void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
+TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
+TC_GAME_API void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)
+template <class T>
+void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-        return 0;
+        return;
+
     float totalmul = 1.0f;
     int32 totalflat = 0;
 
@@ -2882,9 +2888,8 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         DropModCharge(mod, spell);
     }
-    float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
-    basevalue = T((float)basevalue + diff);
-    return T(diff);
+
+    basevalue = T(float(basevalue + totalflat) * totalmul);
 }
 
 #endif

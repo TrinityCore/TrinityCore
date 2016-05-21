@@ -92,7 +92,7 @@ namespace WorldPackets
             int32 RecoveryTime = 0;
             int8 ConsumedCharges = 0;
         };
-        
+
         class PetSpells final : public ServerPacket
         {
         public:
@@ -101,7 +101,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid PetGUID;
-            uint16 CreatureFamily = 0;
+            uint16 _CreatureFamily = 0; ///< @see enum CreatureFamily
             uint16 Specialization = 0;
             uint32 TimeLimit = 0;
             uint8 ReactState = 0;
@@ -157,7 +157,7 @@ namespace WorldPackets
             std::vector<uint32> Spells;
         };
 
-        
+
         struct PetRenameData
         {
             ObjectGuid PetGUID;

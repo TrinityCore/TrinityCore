@@ -59,11 +59,11 @@ void CascDumpSparseArray(const char * szFileName, void * pvSparseArray)
 
     // Create the dump file
     fp = fopen(szFileName, "wt");
-    if(fp != NULL)                             
+    if(fp != NULL)
     {
         // Write header
         fprintf(fp, "##   Value\n--   -----\n");
-                          
+
         // Write the values
         for(DWORD i = 0; i < pSparseArray->TotalItemCount; i++)
         {
@@ -91,7 +91,7 @@ void CascDumpNameFragTable(const char * szFileName, void * pMarFile)
 
     // Create the dump file
     fp = fopen(szFileName, "wt");
-    if(fp != NULL)                             
+    if(fp != NULL)
     {
         PNAME_FRAG pNameTable = pDB->NameFragTable.NameFragArray;
         const char * szNames = pDB->IndexStruct_174.NameFragments.CharArray;
@@ -241,7 +241,7 @@ void CascDumpEncodingEntry(
         {
             // Dump the index key
             dump_print(dc, "  %s\n", StringFromMD5(pbIndexKey, szMd5));
-            
+
             // Dump the index entry as well
             if(nDumpLevel >= DUMP_LEVEL_INDEX_ENTRIES)
             {
@@ -290,7 +290,7 @@ void CascDumpIndexEntries(const char * szFileName, TCascStorage * hs)
 
                 FileSize = ConvertBytesToInteger_4_LE(pIndexEntry->FileSizeLE);
                 ArchOffset &= 0x3FFFFFFF;
-                
+
                 fprintf(fp, " %02X  %08X %08X %s\n", ArchIndex, (DWORD)ArchOffset, FileSize, StringFromBinary(pIndexEntry->IndexKey, CASC_FILE_KEY_SIZE, szIndexKey));
             }
 

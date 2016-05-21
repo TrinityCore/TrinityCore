@@ -234,7 +234,7 @@ void DatabaseWorkerPool<T>::EscapeString(std::string& str)
         return;
 
     char* buf = new char[str.size() * 2 + 1];
-    EscapeString(buf, str.c_str(), str.size());
+    EscapeString(buf, str.c_str(), uint32(str.size()));
     str = buf;
     delete[] buf;
 }
@@ -317,7 +317,7 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     return connection;
 }
 
-template class DatabaseWorkerPool<LoginDatabaseConnection>;
-template class DatabaseWorkerPool<WorldDatabaseConnection>;
-template class DatabaseWorkerPool<CharacterDatabaseConnection>;
-template class DatabaseWorkerPool<HotfixDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<HotfixDatabaseConnection>;

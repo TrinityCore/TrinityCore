@@ -198,9 +198,9 @@ class boss_doomrel : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
 
                 _instance->SetGuidData(DATA_EVENSTARTER, ObjectGuid::Empty);
             }

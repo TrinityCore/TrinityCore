@@ -254,7 +254,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE               = 347,
     RBAC_PERM_COMMAND_DISABLE                                = 348,
     RBAC_PERM_COMMAND_DISABLE_ADD                            = 349,
-    RBAC_PERM_COMMAND_DISABLE_ADD_ACHIEVEMENT_CRITERIA       = 350,
+    RBAC_PERM_COMMAND_DISABLE_ADD_CRITERIA                   = 350,
     RBAC_PERM_COMMAND_DISABLE_ADD_BATTLEGROUND               = 351,
     RBAC_PERM_COMMAND_DISABLE_ADD_MAP                        = 352,
     RBAC_PERM_COMMAND_DISABLE_ADD_MMAP                       = 353,
@@ -263,7 +263,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DISABLE_ADD_SPELL                      = 356,
     RBAC_PERM_COMMAND_DISABLE_ADD_VMAP                       = 357,
     RBAC_PERM_COMMAND_DISABLE_REMOVE                         = 358,
-    RBAC_PERM_COMMAND_DISABLE_REMOVE_ACHIEVEMENT_CRITERIA    = 359,
+    RBAC_PERM_COMMAND_DISABLE_REMOVE_CRITERIA                = 359,
     RBAC_PERM_COMMAND_DISABLE_REMOVE_BATTLEGROUND            = 360,
     RBAC_PERM_COMMAND_DISABLE_REMOVE_MAP                     = 361,
     RBAC_PERM_COMMAND_DISABLE_REMOVE_MMAP                    = 362,
@@ -513,7 +513,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_QUEST_REWARD                           = 606,
     RBAC_PERM_COMMAND_RELOAD                                 = 607,
     RBAC_PERM_COMMAND_RELOAD_ACCESS_REQUIREMENT              = 608,
-    RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_CRITERIA_DATA       = 609,
+    RBAC_PERM_COMMAND_RELOAD_CRITERIA_DATA                   = 609,
     RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD              = 610,
     RBAC_PERM_COMMAND_RELOAD_ALL                             = 611,
     RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT                 = 612,
@@ -727,6 +727,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION                = 833,
     RBAC_PERM_COMMAND_GO_QUEST                               = 834,
     RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
+    RBAC_PERM_COMMAND_DEBUG_BOUNDARY                         = 836,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -744,7 +745,7 @@ enum RBACCommandResult
 
 typedef std::set<uint32> RBACPermissionContainer;
 
-class RBACPermission
+class TC_GAME_API RBACPermission
 {
     public:
         RBACPermission(uint32 id = 0, std::string const& name = ""):
@@ -779,7 +780,7 @@ class RBACPermission
  * - Granted permissions: through linked permissions and directly assigned
  * - Denied permissions: through linked permissions and directly assigned
  */
-class RBACData
+class TC_GAME_API RBACData
 {
     public:
         RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):

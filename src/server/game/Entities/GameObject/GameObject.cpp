@@ -74,9 +74,15 @@ GameObject::~GameObject()
     //    CleanupsBeforeDelete();
 }
 
-bool GameObject::AIM_Initialize()
+void GameObject::AIM_Destroy()
 {
     delete m_AI;
+    m_AI = nullptr;
+}
+
+bool GameObject::AIM_Initialize()
+{
+    AIM_Destroy();
 
     m_AI = FactorySelector::SelectGameObjectAI(this);
 
@@ -1402,7 +1408,15 @@ void GameObject::Use(Unit* user)
                         break;
                 }
 
-                player->KillCreditGO(info->entry, GetGUID());
+                if (Group* group = player->GetGroup())
+                {
+                    for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                        if (Player* member = itr->GetSource())
+                            if (member->IsAtGroupRewardDistance(this))
+                                member->KillCreditGO(info->entry, GetGUID());
+                }
+                else
+                    player->KillCreditGO(info->entry, GetGUID());
             }
 
             if (uint32 trapEntry = info->goober.linkedTrap)
@@ -1722,7 +1736,7 @@ void GameObject::Use(Unit* user)
             Player* player = user->ToPlayer();
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
+            player->UpdateCriteria(CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
             return;
         }
 

@@ -42,7 +42,7 @@ namespace WorldPackets
             MovementInfo movementInfo;
         };
 
-        class MoveUpdate final : public ServerPacket
+        class TC_GAME_API MoveUpdate final : public ServerPacket
         {
         public:
             MoveUpdate() : ServerPacket(SMSG_MOVE_UPDATE) { }
@@ -427,7 +427,7 @@ namespace WorldPackets
             ObjectGuid SummonerGUID;
         };
 
-        class ControlUpdate final : public ServerPacket
+        class TC_GAME_API ControlUpdate final : public ServerPacket
         {
         public:
             ControlUpdate() : ServerPacket(SMSG_CONTROL_UPDATE, 16 + 1) { }
@@ -447,6 +447,19 @@ namespace WorldPackets
 
             MovementInfo movementInfo;
             int32 SplineID = 0;
+        };
+
+        class SummonRequest final : public ServerPacket
+        {
+        public:
+            SummonRequest() : ServerPacket(SMSG_SUMMON_REQUEST, 16 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SummonerGUID;
+            uint32 SummonerVirtualRealmAddress = 0;
+            int32 AreaID = 0;
+            bool SkipStartingArea = false;
         };
     }
 

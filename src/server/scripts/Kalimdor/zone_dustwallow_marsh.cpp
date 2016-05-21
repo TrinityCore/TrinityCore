@@ -35,49 +35,6 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## npc_lady_jaina_proudmoore
-######*/
-
-enum LadyJaina
-{
-    QUEST_JAINAS_AUTOGRAPH = 558,
-    SPELL_JAINAS_AUTOGRAPH = 23122
-};
-
-#define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
-
-class npc_lady_jaina_proudmoore : public CreatureScript
-{
-public:
-    npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
-            player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
 ## npc_nat_pagle
 ######*/
 

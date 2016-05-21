@@ -29,16 +29,14 @@ namespace Connection_Patcher
         {
             struct x86
             {
-                static const std::vector<unsigned char> BNet     () { return { 0xC7, 0x40, 0x0C, 0xD5, 0xF8, 0x7F, 0x82 }; }
-                static const std::vector<unsigned char> Password () { return { 0x75 }; }
-                static const std::vector<unsigned char> Signature() { return { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }; }
+                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x6A, 0x01 }; }
+                static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x59, 0x59, 0x84, 0xC0, 0xEB }; }
             };
 
             struct x64
             {
-                static const std::vector<unsigned char> BNet     () { return { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x41, 0x0C, 0x48, 0x8B, 0xC1, 0xC3 }; }
-                static const std::vector<unsigned char> Password () { return { 0x75 }; }
-                static const std::vector<unsigned char> Signature() { return { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xE9 }; }
+                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x41, 0xB1, 0x01 }; }
+                static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0xEB }; }
             };
         };
     }

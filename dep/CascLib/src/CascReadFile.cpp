@@ -146,7 +146,7 @@ static int EnsureHeaderAreaIsLoaded(TCascFile * hf)
 
         hs->dwFileBeginDelta = (FileSignature == BLTE_HEADER_SIGNATURE) ? BLTE_HEADER_DELTA : 0;
     }
-           
+
     // If the file size is not loaded yet, do it
     if(hf->FrameCount == 0)
     {
@@ -225,7 +225,7 @@ static int EnsureFrameHeadersLoaded(TCascFile * hf)
             {
                 // Offset of the first frame is right after the file frames
                 hf->FramesOffset = hf->HeaderOffset + sizeof(DWORD) + sizeof(DWORD);
-                
+
                 hf->pFrames[0].FrameArchiveOffset = hf->FramesOffset;
                 hf->pFrames[0].FrameFileOffset = 0;
                 hf->pFrames[0].CompressedSize = hf->CompressedSize;
@@ -288,12 +288,12 @@ static int ProcessFileFrame(
     // Perform the loop
     for(;;)
     {
-        // Set the output buffer. 
+        // Set the output buffer.
         // Even operations: extract to temporary buffer
         // Odd operations: extract to output buffer
         pbWorkBuffer = (dwStepCount & 0x01) ? pbOutBuffer : pbTempBuffer;
         cbWorkBuffer = (dwStepCount & 0x01) ? cbOutBuffer : cbTempBuffer;
-        
+
         // Perform the operation specific to the operation ID
         switch(pbInBuffer[0])
         {
@@ -530,7 +530,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
                 {
                     if(hf->pbFileCache != NULL)
                         CASC_FREE(hf->pbFileCache);
-                    
+
                     hf->pbFileCache = CASC_ALLOC(BYTE, pFrame->FrameSize);
                     hf->cbFileCache = pFrame->FrameSize;
                 }
@@ -546,7 +546,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
                 // Load the raw file data to memory
                 FileOffset = pFrame->FrameArchiveOffset;
                 bReadResult = FileStream_Read(hf->pStream, &FileOffset, pbFrameData, pFrame->CompressedSize);
-                
+
                 // Note: The raw file data size could be less than expected
                 // Happened in WoW build 19342 with the ROOT file. MD5 in the frame header
                 // is zeroed, which means it should not be checked

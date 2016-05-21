@@ -103,11 +103,9 @@ void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    std::string realmName = sObjectMgr->GetRealmName(realm.Id.Realm);
-
     InviterVirtualRealmAddress = GetVirtualRealmAddress();
-    InviterRealmNameActual = realmName;
-    InviterRealmNameNormalized = realmName;
+    InviterRealmNameActual = sObjectMgr->GetRealmName(realm.Id.Realm);
+    InviterRealmNameNormalized = sObjectMgr->GetNormalizedRealmName(realm.Id.Realm);
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()

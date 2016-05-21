@@ -30,6 +30,65 @@ char const* ItemTemplate::GetName(LocaleConstant locale) const
     return ExtendedData->Name->Str[locale];
 }
 
+
+bool ItemTemplate::CanChangeEquipStateInCombat() const
+{
+    switch (GetInventoryType())
+    {
+    case INVTYPE_RELIC:
+    case INVTYPE_SHIELD:
+    case INVTYPE_HOLDABLE:
+        return true;
+    default:
+        break;
+    }
+
+    switch (GetClass())
+    {
+    case ITEM_CLASS_WEAPON:
+    case ITEM_CLASS_PROJECTILE:
+        return true;
+    }
+
+    return false;
+}
+
+uint32 ItemTemplate::GetSkill() const
+{
+    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
+    {
+        SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
+        SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
+        SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
+        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
+        SKILL_FISHING
+    };
+
+    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
+    {
+        0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
+    };
+
+
+    switch (GetClass())
+    {
+    case ITEM_CLASS_WEAPON:
+        if (GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
+            return 0;
+        else
+            return item_weapon_skills[GetSubClass()];
+
+    case ITEM_CLASS_ARMOR:
+        if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
+            return 0;
+        else
+            return item_armor_skills[GetSubClass()];
+
+    default:
+        return 0;
+    }
+}
+
 char const* ItemTemplate::GetDefaultLocaleName() const
 {
     return ExtendedData->Name->Str[sWorld->GetDefaultDbcLocale()];

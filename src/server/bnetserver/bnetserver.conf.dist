@@ -48,18 +48,30 @@ LogsDir = ""
 MaxPingTime = 30
 
 #
-#    WorldserverListenPort
-#        Description: TCP port to listen on for incoming worldserver IPC.
-#        Default:     1118
-
-WorldserverListenPort = 1118
-
-#
 #    BattlenetPort
 #        Description: TCP port to reach the auth server for battle.net connections.
 #        Default:     1119
 
 BattlenetPort = 1119
+
+#
+#    LoginREST.Port
+#        Description: TCP port to reach the REST login method.
+#        Default:     8081
+#
+#    LoginREST.ExternalAddress
+#        Description: IP address sent to clients connecting from outside the network where bnetserver runs
+#                     Set it to your external IP address
+#
+#    LoginREST.LocalAddress
+#        Description: IP address sent to clients connecting from inside the network where bnetserver runs
+#                     Set it to your local IP address (common 192.168.x.x network)
+#                     or leave it at default value 127.0.0.1 if connecting directly to the internet without a router
+#
+
+LoginREST.Port = 8081
+LoginREST.ExternalAddress=127.0.0.1
+LoginREST.LocalAddress=127.0.0.1
 
 #
 #
@@ -76,6 +88,22 @@ BindIP = "0.0.0.0"
 #        Default:     ""                  - (Disabled)
 
 PidFile = ""
+
+#
+#    CertificatesFile
+#        Description: Certificates file.
+#        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
+#        Default:     "./bnetserver.cert.pem"
+
+CertificatesFile = "./bnetserver.cert.pem"
+
+#
+#    PrivateKeyFile
+#        Description: Private key file.
+#        Example:     "/etc/ssl/private/bnetserver.key.pem"
+#        Default:     "./bnetserver.key.pem"
+
+PrivateKeyFile = "./bnetserver.key.pem"
 
 #
 #    UseProcessors
@@ -138,6 +166,13 @@ WrongPass.BanType = 0
 WrongPass.Logging = 0
 
 #
+#    BanExpiryCheckInterval
+#        Description: Time (in seconds) between checks for expired bans
+#        Default:     60
+
+BanExpiryCheckInterval = 60
+
+#
 #    SourceDirectory
 #        Description: The path to your TrinityCore source directory.
 #                     If the path is left empty, the built-in CMAKE_SOURCE_DIR is used.
@@ -179,9 +214,17 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 #    LoginDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. Each worker thread is mirrored with its own connection to the
+#                     MySQL server and their own thread on the MySQL server.
 #        Default:     1
 
 LoginDatabase.WorkerThreads = 1
+
+#
+#    LoginDatabase.SynchThreads
+#        Description: The amount of MySQL connections spawned to handle.
+#        Default:     1 - (LoginDatabase.SynchThreads)
+
+LoginDatabase.SynchThreads  = 1
 
 #
 ###################################################################################################

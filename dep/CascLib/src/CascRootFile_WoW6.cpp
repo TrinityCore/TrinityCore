@@ -313,7 +313,7 @@ static int ParseWowRootFile(
 // Implementation of WoW6 root file
 
 static int WowHandler_Insert(
-    TRootHandler_WoW6 * pRootHandler, 
+    TRootHandler_WoW6 * pRootHandler,
     const char * szFileName,
     LPBYTE pbEncodingKey)
 {
@@ -448,7 +448,7 @@ static void TRootHandlerWoW6_Dump(
         // Dump the locale block
         dump_print(dc, "Flags: %08X  Locales: %08X  NumberOfFiles: %u\n"
                        "=========================================================\n",
-                       BlockInfo.pLocaleBlockHdr->Flags, 
+                       BlockInfo.pLocaleBlockHdr->Flags,
                        BlockInfo.pLocaleBlockHdr->Locales,
                        BlockInfo.pLocaleBlockHdr->NumberOfFiles);
 
@@ -476,7 +476,7 @@ static void TRootHandlerWoW6_Dump(
         // Put extra newline
         dump_print(dc, "\n");
     }
-    
+
     ListFile_FreeMap(pListMap);
 }
 #endif

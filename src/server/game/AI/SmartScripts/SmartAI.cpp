@@ -408,12 +408,12 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
     MovepointReached(Data);
 }
 
-void SmartAI::EnterEvadeMode()
+void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     if (!me->IsAlive() || me->IsInEvadeMode())
         return;
 
-    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_CLONE_CASTER);
+    me->RemoveAurasOnEvade();
 
     me->AddUnitState(UNIT_STATE_EVADE);
     me->DeleteThreatList();
@@ -466,6 +466,9 @@ bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 
 bool SmartAI::AssistPlayerInCombat(Unit* who)
 {
+    if (me->HasReactState(REACT_PASSIVE))
+        return false;
+
     if (!who || !who->GetVictim())
         return false;
 

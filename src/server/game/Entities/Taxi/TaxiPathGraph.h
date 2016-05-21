@@ -25,14 +25,10 @@
 class Player;
 struct TaxiNodesEntry;
 
-class TaxiPathGraph
+class TC_GAME_API TaxiPathGraph
 {
 public:
-    static TaxiPathGraph& Instance()
-    {
-        static TaxiPathGraph instance;
-        return instance;
-    }
+    static TaxiPathGraph& Instance();
 
     void Initialize();
     std::size_t GetCompleteNodeRoute(TaxiNodesEntry const* from, TaxiNodesEntry const* to, Player const* player, std::vector<uint32>& shortestPath);

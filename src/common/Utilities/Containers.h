@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Random.h"
+#include "Util.h"
 #include <algorithm>
 #include <functional>
 #include <list>
@@ -114,6 +115,19 @@ namespace Trinity
                 weights.assign(container.size(), 1.0);
 
             return SelectRandomWeightedContainerElement(container, weights);
+        }
+
+        /**
+         * @fn void Trinity::Containers::RandomShuffle(C& container)
+         *
+         * @brief Reorder the elements of the container randomly.
+         *
+         * @param container Container to reorder
+         */
+        template <class C>
+        void RandomShuffle(C& container)
+        {
+            std::shuffle(container.begin(), container.end(), SFMTEngine::Instance());
         }
 
         /**

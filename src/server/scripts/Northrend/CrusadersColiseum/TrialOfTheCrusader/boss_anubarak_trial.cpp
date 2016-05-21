@@ -804,7 +804,7 @@ class npc_anubarak_spike : public CreatureScript
             void StartChase(Unit* who)
             {
                 DoCast(who, SPELL_MARK);
-                me->SetSpeed(MOVE_RUN, 0.5f);
+                me->SetSpeedRate(MOVE_RUN, 0.5f);
                 // make sure the Spine will really follow the one he should
                 me->getThreatManager().clearReferences();
                 me->SetInCombatWithZone();

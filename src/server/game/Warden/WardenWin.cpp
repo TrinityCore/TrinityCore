@@ -17,7 +17,7 @@
  */
 
 #include "Cryptography/HmacHash.h"
-#include "Cryptography/WardenKeyGeneration.h"
+#include "Cryptography/SessionKeyGeneration.h"
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -31,6 +31,7 @@
 #include "WardenWin.h"
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
+#include "SHA1.h"
 
 #include <openssl/md5.h>
 
@@ -42,7 +43,7 @@ void WardenWin::Init(WorldSession* session, BigNumber* k)
 {
     _session = session;
     // Generate Warden Key
-    SHA1Randx WK(k->AsByteArray().get(), k->GetNumBytes());
+    SessionKeyGenerator<SHA1Hash> WK(k->AsByteArray().get(), k->GetNumBytes());
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
 

@@ -21,13 +21,16 @@
 
 #include "Define.h"
 #include <string>
+#include <type_traits>
 #include <openssl/sha.h>
 
 class BigNumber;
 
-class SHA1Hash
+class TC_COMMON_API SHA1Hash
 {
     public:
+        typedef std::integral_constant<uint32, SHA_DIGEST_LENGTH> DigestLength;
+
         SHA1Hash();
         ~SHA1Hash();
 
@@ -46,5 +49,8 @@ class SHA1Hash
         SHA_CTX mC;
         uint8 mDigest[SHA_DIGEST_LENGTH];
 };
-#endif
 
+/// Returns the SHA1 hash of the given content as hex string.
+TC_COMMON_API std::string CalculateSHA1Hash(std::string const& content);
+
+#endif

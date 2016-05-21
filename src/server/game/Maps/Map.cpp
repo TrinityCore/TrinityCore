@@ -17,6 +17,7 @@
  */
 
 #include "Map.h"
+#include "MapManager.h"
 #include "Battleground.h"
 #include "MMapFactory.h"
 #include "CellImpl.h"
@@ -71,7 +72,7 @@ Map::~Map()
     }
 
     if (!m_scriptSchedule.empty())
-        sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
+        sMapMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
@@ -132,9 +133,9 @@ void Map::LoadMMap(int gx, int gy)
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
 
     if (mmapLoadResult)
-        TC_LOG_DEBUG("maps", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_DEBUG("mmaps", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
     else
-        TC_LOG_ERROR("maps", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_ERROR("mmaps", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 }
 
 void Map::LoadVMap(int gx, int gy)
@@ -206,6 +207,13 @@ void Map::LoadMapAndVMap(int gx, int gy)
         LoadVMap(gx, gy);
         LoadMMap(gx, gy);
     }
+}
+
+void Map::LoadAllCells()
+{
+    for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
+        for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
+            LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
 }
 
 void Map::InitStateMachine()
@@ -605,7 +613,7 @@ bool Map::AddToMap(T* obj)
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
-    obj->UpdateObjectVisibility(true);
+    obj->UpdateObjectVisibilityOnCreate();
     return true;
 }
 
@@ -2339,9 +2347,9 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
         {
             // we have mapheight and vmapheight and must select more appropriate
 
-            // we are already under the surface or vmap height above map heigt
+            // vmap height above map height
             // or if the distance of the vmap height is less the land height distance
-            if (z < mapHeight || vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
+            if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height
@@ -3019,17 +3027,17 @@ void Map::RemoveFromActive(DynamicObject* obj)
     RemoveFromActiveHelper(obj);
 }
 
-template bool Map::AddToMap(Corpse*);
-template bool Map::AddToMap(Creature*);
-template bool Map::AddToMap(GameObject*);
-template bool Map::AddToMap(DynamicObject*);
-template bool Map::AddToMap(AreaTrigger*);
+template TC_GAME_API bool Map::AddToMap(Corpse*);
+template TC_GAME_API bool Map::AddToMap(Creature*);
+template TC_GAME_API bool Map::AddToMap(GameObject*);
+template TC_GAME_API bool Map::AddToMap(DynamicObject*);
+template TC_GAME_API bool Map::AddToMap(AreaTrigger*);
 
-template void Map::RemoveFromMap(Corpse*, bool);
-template void Map::RemoveFromMap(Creature*, bool);
-template void Map::RemoveFromMap(GameObject*, bool);
-template void Map::RemoveFromMap(DynamicObject*, bool);
-template void Map::RemoveFromMap(AreaTrigger*, bool);
+template TC_GAME_API void Map::RemoveFromMap(Corpse*, bool);
+template TC_GAME_API void Map::RemoveFromMap(Creature*, bool);
+template TC_GAME_API void Map::RemoveFromMap(GameObject*, bool);
+template TC_GAME_API void Map::RemoveFromMap(DynamicObject*, bool);
+template TC_GAME_API void Map::RemoveFromMap(AreaTrigger*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
@@ -3062,62 +3070,38 @@ void InstanceMap::InitVisibilityDistance()
 /*
     Do map specific checks to see if the player can enter
 */
-bool InstanceMap::CanEnter(Player* player)
+Map::EnterState InstanceMap::CannotEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
-        TC_LOG_ERROR("maps", "InstanceMap::CanEnter - player %s(%s) already in map %d, %d, %d!", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetId(), GetInstanceId(), GetSpawnMode());
+        TC_LOG_ERROR("maps", "InstanceMap::CannotEnter - player %s(%s) already in map %d, %d, %d!", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetId(), GetInstanceId(), GetSpawnMode());
         ABORT();
-        return false;
+        return CANNOT_ENTER_ALREADY_IN_MAP;
     }
 
     // allow GM's to enter
     if (player->IsGameMaster())
-        return Map::CanEnter(player);
+        return Map::CannotEnter(player);
 
     // cannot enter if the instance is full (player cap), GMs don't count
     uint32 maxPlayers = GetMaxPlayers();
     if (GetPlayersCountExceptGMs() >= maxPlayers)
     {
         TC_LOG_WARN("maps", "MAP: Instance '%u' of map '%s' cannot have more than '%u' players. Player '%s' rejected", GetInstanceId(), GetMapName(), maxPlayers, player->GetName().c_str());
-        player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-        return false;
+        return CANNOT_ENTER_MAX_PLAYERS;
     }
 
-    // cannot enter while an encounter is in progress
-    // allow if just loading
+    // cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
     if (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
-    {
-        player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
-        return false;
-    }
+        return CANNOT_ENTER_ZONE_IN_COMBAT;
 
-    // cannot enter if instance is in use by another party/soloer that have a
-    // permanent save in the same instance id
+    // cannot enter if player is permanent saved to a different instance id
+    if (InstancePlayerBind* playerBind = player->GetBoundInstance(GetId(), GetDifficultyID()))
+        if (playerBind->perm && playerBind->save)
+            if (playerBind->save->GetInstanceId() != GetInstanceId())
+                return CANNOT_ENTER_INSTANCE_BIND_MISMATCH;
 
-    PlayerList const &playerList = GetPlayers();
-
-    if (!playerList.isEmpty())
-        for (PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
-            if (Player* iPlayer = i->GetSource())
-            {
-                if (iPlayer->IsGameMaster()) // bypass GMs
-                    continue;
-                if (!player->GetGroup()) // player has not group and there is someone inside, deny entry
-                {
-                    player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-                    return false;
-                }
-                // player inside instance has no group or his groups is different to entering player's one, deny entry
-                if (!iPlayer->GetGroup() || iPlayer->GetGroup() != player->GetGroup())
-                {
-                    player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-                    return false;
-                }
-                break;
-            }
-
-    return Map::CanEnter(player);
+    return Map::CannotEnter(player);
 }
 
 /*
@@ -3169,7 +3153,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
             {
                 if (group)
                 {
-                    // solo saves should be reset when entering a group
+                    // solo saves should have been reset when the map was loaded
                     InstanceGroupBind* groupBind = group->GetBoundInstance(this);
                     if (playerBind && playerBind->save != mapSave)
                     {
@@ -3246,7 +3230,10 @@ void InstanceMap::Update(const uint32 t_diff)
     Map::Update(t_diff);
 
     if (i_data)
+    {
         i_data->Update(t_diff);
+        i_data->UpdateCombatResurrection(t_diff);
+    }
 }
 
 void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
@@ -3318,22 +3305,37 @@ bool InstanceMap::Reset(uint8 method)
         }
         else
         {
+            bool doUnload = true;
             if (method == INSTANCE_RESET_GLOBAL)
+            {
                 // set the homebind timer for players inside (1 minute)
                 for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                    itr->GetSource()->m_InstanceValid = false;
+                {
+                    InstancePlayerBind* bind = itr->GetSource()->GetBoundInstance(GetId(), GetDifficultyID());
+                    if (bind && bind->extendState && bind->save->GetInstanceId() == GetInstanceId())
+                        doUnload = false;
+                    else
+                        itr->GetSource()->m_InstanceValid = false;
+                }
 
-            // the unload timer is not started
-            // instead the map will unload immediately after the players have left
-            m_unloadWhenEmpty = true;
-            m_resetAfterUnload = true;
+                if (doUnload && HasPermBoundPlayers()) // check if any unloaded players have a nonexpired save to this
+                    doUnload = false;
+            }
+
+            if (doUnload)
+            {
+                // the unload timer is not started
+                // instead the map will unload immediately after the players have left
+                m_unloadWhenEmpty = true;
+                m_resetAfterUnload = true;
+            }
         }
     }
     else
     {
         // unloaded at next update
         m_unloadTimer = MIN_UNLOAD_DELAY;
-        m_resetAfterUnload = true;
+        m_resetAfterUnload = !(method == INSTANCE_RESET_GLOBAL && HasPermBoundPlayers());
     }
 
     return m_mapRefManager.isEmpty();
@@ -3433,6 +3435,13 @@ bool Map::IsHeroic() const
     return false;
 }
 
+bool InstanceMap::HasPermBoundPlayers() const
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PERM_BIND_BY_INSTANCE);
+    stmt->setUInt16(0,GetInstanceId());
+    return !!CharacterDatabase.Query(stmt);
+}
+
 uint32 InstanceMap::GetMaxPlayers() const
 {
     MapDifficultyEntry const* mapDiff = GetMapDifficulty();
@@ -3474,21 +3483,21 @@ void BattlegroundMap::InitVisibilityDistance()
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
 }
 
-bool BattlegroundMap::CanEnter(Player* player)
+Map::EnterState BattlegroundMap::CannotEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
-        TC_LOG_ERROR("maps", "BGMap::CanEnter - %s is already in map!", player->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("maps", "BGMap::CannotEnter - player %s is already in map!", player->GetGUID().ToString().c_str());
         ABORT();
-        return false;
+        return CANNOT_ENTER_ALREADY_IN_MAP;
     }
 
     if (player->GetBattlegroundId() != GetInstanceId())
-        return false;
+        return CANNOT_ENTER_INSTANCE_BIND_MISMATCH;
 
     // player number limit is checked in bgmgr, no need to do it here
 
-    return Map::CanEnter(player);
+    return Map::CannotEnter(player);
 }
 
 bool BattlegroundMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)

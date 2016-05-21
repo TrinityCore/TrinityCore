@@ -57,7 +57,7 @@ static TCascFile * CreateFileHandle(TCascStorage * hs, PCASC_INDEX_ENTRY pIndexE
         hf->ArchiveIndex = (DWORD)(FileOffset >> hs->KeyMapping[0].SegmentBits);
         hf->HeaderOffset = (DWORD)(FileOffset & FileOffsMask);
         hf->szClassName = "TCascFile";
-        
+
         // Copy the file size. Note that for all files except ENCODING,
         // this is the compressed file size
         hf->CompressedSize = ConvertBytesToInteger_4_LE(pIndexEntry->FileSizeLE);

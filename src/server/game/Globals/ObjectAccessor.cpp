@@ -34,6 +34,48 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
+template<class T>
+void HashMapHolder<T>::Insert(T* o)
+{
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+
+    GetContainer()[o->GetGUID()] = o;
+}
+
+template<class T>
+void HashMapHolder<T>::Remove(T* o)
+{
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+
+    GetContainer().erase(o->GetGUID());
+}
+
+template<class T>
+T* HashMapHolder<T>::Find(ObjectGuid guid)
+{
+    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+
+    typename MapType::iterator itr = GetContainer().find(guid);
+    return (itr != GetContainer().end()) ? itr->second : NULL;
+}
+
+template<class T>
+auto HashMapHolder<T>::GetContainer() -> MapType&
+{
+    static MapType _objectMap;
+    return _objectMap;
+}
+
+template<class T>
+boost::shared_mutex* HashMapHolder<T>::GetLock()
+{
+    static boost::shared_mutex _lock;
+    return &_lock;
+}
+
+template class TC_GAME_API HashMapHolder<Player>;
+template class TC_GAME_API HashMapHolder<Transport>;
+
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
 {
     switch (guid.GetHigh())
@@ -226,12 +268,3 @@ void ObjectAccessor::SaveAllPlayers()
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
 }
-
-/// Define the static members of HashMapHolder
-
-template <class T> typename HashMapHolder<T>::MapType HashMapHolder<T>::_objectMap;
-template <class T> boost::shared_mutex HashMapHolder<T>::_lock;
-
-/// Global definitions for the hashmap storage
-template class HashMapHolder<Player>;
-template class HashMapHolder<Transport>;

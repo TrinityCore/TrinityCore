@@ -29,18 +29,18 @@ namespace Battlenet
 {
     namespace AccountMgr
     {
-        AccountOpResult CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount = true);
-        AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
-        bool CheckPassword(uint32 accountId, std::string password);
-        AccountOpResult LinkWithGameAccount(std::string const& email, std::string const& gameAccountName);
-        AccountOpResult UnlinkGameAccount(std::string const& gameAccountName);
+        TC_GAME_API AccountOpResult CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount = true);
+        TC_GAME_API AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
+        TC_GAME_API bool CheckPassword(uint32 accountId, std::string password);
+        TC_GAME_API AccountOpResult LinkWithGameAccount(std::string const& email, std::string const& gameAccountName);
+        TC_GAME_API AccountOpResult UnlinkGameAccount(std::string const& gameAccountName);
 
-        uint32 GetId(std::string const& username);
-        bool GetName(uint32 accountId, std::string& name);
-        uint32 GetIdByGameAccount(uint32 gameAccountId);
-        uint8 GetMaxIndex(uint32 accountId);
+        TC_GAME_API uint32 GetId(std::string const& username);
+        TC_GAME_API bool GetName(uint32 accountId, std::string& name);
+        TC_GAME_API uint32 GetIdByGameAccount(uint32 gameAccountId);
+        TC_GAME_API uint8 GetMaxIndex(uint32 accountId);
 
-        std::string CalculateShaPassHash(std::string const& name, std::string const& password);
+        TC_GAME_API std::string CalculateShaPassHash(std::string const& name, std::string const& password);
     }
 }
 
