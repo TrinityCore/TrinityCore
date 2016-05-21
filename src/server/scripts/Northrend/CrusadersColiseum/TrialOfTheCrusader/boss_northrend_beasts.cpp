@@ -1264,8 +1264,7 @@ public:
                     if (instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_IN_PROGRESS || instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
                         return;
 
-            if (Unit* owner = GetUnitOwner())
-                owner->RemoveAurasDueToSpell(SPELL_PARALYSIS);
+            Remove();
         }
 
         void Register()
