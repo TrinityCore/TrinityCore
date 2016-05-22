@@ -40,7 +40,7 @@ BossBoundaryData::~BossBoundaryData()
 }
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
-_combatResurrectionTimer(0), _combatResurrectionCharges(0), entranceId(0), temporaryEntranceId(0), _combatResurrectionTimerStarted(false)
+entranceId(0), temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
@@ -610,7 +610,7 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 void InstanceScript::SetEntranceLocation(uint32 worldSafeLocationId)
 {
     entranceId = worldSafeLocationId;
-    if (temporaryEntranceId > 0)
+    if (temporaryEntranceId)
         temporaryEntranceId = 0;
 }
 

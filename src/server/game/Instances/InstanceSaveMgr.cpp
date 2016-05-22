@@ -96,8 +96,11 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
         return NULL;
     }
 
-    if (!sWorldSafeLocsStore.LookupEntry(entranceId))
+    if (entranceId > 0 && !sWorldSafeLocsStore.LookupEntry(entranceId))
+    {
         TC_LOG_WARN("misc", "InstanceSaveManager::AddInstanceSave: invalid entranceId = %d defined for instance save with mapid = %d, instanceid = %d!", entranceId, mapId, instanceId);
+        entranceId = 0;
+    }
 
     if (!resetTime)
     {

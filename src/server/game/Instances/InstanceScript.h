@@ -253,7 +253,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SetTemporaryEntranceLocation(uint32 worldSafeLocationId) { temporaryEntranceId = worldSafeLocationId; }
 
         // Get's the current entrance id
-        uint32 GetEntranceLocation() const { return temporaryEntranceId > 0 ? temporaryEntranceId : entranceId; }
+        uint32 GetEntranceLocation() const { return temporaryEntranceId ? temporaryEntranceId : entranceId; }
 
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 priority = 0);
         void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);

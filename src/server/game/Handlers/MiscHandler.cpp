@@ -620,13 +620,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
 
     if (!teleported)
     {
-        const WorldSafeLocsEntry* entranceLocation = nullptr;
+        WorldSafeLocsEntry const* entranceLocation = nullptr;
         InstanceSave* instanceSave = player->GetInstanceSave(at->target_mapId);
         if (instanceSave)
         {
             // Check if we can contact the instancescript of the instance for an updated entrance location
             if (Map* map = sMapMgr->FindMap(at->target_mapId, player->GetInstanceSave(at->target_mapId)->GetInstanceId()))
-                if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
+                if (InstanceScript* instanceScript = dynamic_cast<InstanceMap*>(map)->GetInstanceScript())
                     entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceScript->GetEntranceLocation());
 
             // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
