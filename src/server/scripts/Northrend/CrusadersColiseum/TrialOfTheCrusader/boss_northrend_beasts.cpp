@@ -292,7 +292,8 @@ class boss_gormok : public CreatureScript
                 if (damage >= me->GetHealth())
                     for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
                         if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
-                            snobold->ToCreature()->DespawnOrUnsummon();
+                            if (snobold->ToCreature())
+                                snobold->ToCreature()->DespawnOrUnsummon();
             }
 
             void UpdateAI(uint32 diff) override
@@ -324,7 +325,7 @@ class boss_gormok : public CreatureScript
                                 {
                                     snobold->ExitVehicle();
                                     snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    snobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                                    snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
                                     snobold->CastSpell(me, SPELL_RISING_ANGER, true);
                                     snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
                                     break;
@@ -576,13 +577,14 @@ public:
                 if (caster->IsAIEnabled && caster->GetAI())
                     caster->GetAI()->DoAction(ACTION_ACTIVE_SNOBOLD);
 
-                Creature* target = GetTarget()->ToCreature();
-                if (target && target->IsAIEnabled && target->AI())
-                    if (Unit* spellTarget = caster->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(caster)))
-                    {
-                        target->AI()->Talk(EMOTE_SNOBOLLED);
-                        caster->CastSpell(spellTarget, SPELL_RIDE_PLAYER, true);
-                    }
+                Unit* target = GetTarget();
+                if (Unit* spellTarget = caster->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(caster)))
+                {
+                    if (target->ToCreature() && target->IsAIEnabled && target->GetAI())
+                        target->ToCreature()->AI()->Talk(EMOTE_SNOBOLLED);
+
+                    caster->CastSpell(spellTarget, SPELL_RIDE_PLAYER, true);
+                }
             }
         }
 
