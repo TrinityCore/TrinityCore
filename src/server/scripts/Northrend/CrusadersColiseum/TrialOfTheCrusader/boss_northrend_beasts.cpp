@@ -78,6 +78,7 @@ enum BossSpells
     SPELL_FIRE_BOMB_DOT     = 66318,
     SPELL_HEAD_CRACK        = 66407,
     SPELL_JUMP_TO_HAND      = 66342,
+    SPELL_RIDE_PLAYER       = 66245,
 
     //Acidmaw & Dreadscale
     SPELL_ACID_SPIT         = 66880,
@@ -110,7 +111,7 @@ enum MyActions
 {
     ACTION_ENABLE_FIRE_BOMB     = 1,
     ACTION_DISABLE_FIRE_BOMB    = 2,
-    ACTION_JUMP_ON_PLAYER       = 3
+    ACTION_ACTIVE_SNOBOLD       = 3
 };
 
 enum Events
@@ -151,6 +152,67 @@ enum Phases
     PHASE_SUBMERGED         = 3
 };
 
+enum Misc
+{
+    PLAYER_VEHICLE_ID       = 444,
+    DATA_NEW_TARGET         = 0,
+};
+
+class SnobolledTargetSelector : public std::unary_function<Unit*, bool>
+{
+public:
+    SnobolledTargetSelector(Unit* unit, float dist = 200.0f) : _me(unit), _dist(dist) { }
+
+    bool operator()(Unit* unit) const
+    {
+        if (unit->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (_dist > 0.0f && !_me->IsWithinCombatRange(unit, _dist))
+            return false;
+
+        if (!_me->IsWithinCombatRange(unit, -_dist))
+            return false;
+
+        if (unit->HasAura(SPELL_RIDE_PLAYER) || unit->HasAura(SPELL_SNOBOLLED))
+            return false;
+
+        return true;
+    }
+
+private:
+    Unit* _me;
+    float _dist;
+};
+
+class SnoboldEvent : public BasicEvent
+{
+public:
+    SnoboldEvent(Unit* owner, Unit* target, bool apply) : _owner(owner), _target(target), _apply(apply) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
+    {
+        if (_apply)
+            _owner->AddAura(SPELL_SNOBOLLED, _target);
+        else
+        {
+            _target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+            if (_target->GetVehicleKit())
+            {
+                _target->GetVehicleKit()->RemoveAllPassengers();
+                _target->RemoveVehicleKit();
+            }
+        }
+
+        return true;
+    }
+
+private:
+    Unit* _owner;
+    Unit* _target;
+    bool _apply;
+};
+
 class boss_gormok : public CreatureScript
 {
     public:
@@ -172,7 +234,7 @@ class boss_gormok : public CreatureScript
             void EnterEvadeMode(EvadeReason why) override
             {
                 instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                ScriptedAI::EnterEvadeMode(why);
+                BossAI::EnterEvadeMode(why);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -262,10 +324,9 @@ class boss_gormok : public CreatureScript
                                 {
                                     snobold->ExitVehicle();
                                     snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    snobold->ToCreature()->SetReactState(REACT_AGGRESSIVE);
                                     snobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                                    snobold->CastSpell(me, SPELL_RISING_ANGER, true);
                                     snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
-                                    Talk(EMOTE_SNOBOLLED);
                                     break;
                                 }
                             }
@@ -278,12 +339,6 @@ class boss_gormok : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-            void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
-            {
-                if (!apply && seatId == 4) // hand
-                    who->ToCreature()->AI()->DoAction(ACTION_JUMP_ON_PLAYER);
-            } 
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -336,9 +391,28 @@ class npc_snobold_vassal : public CreatureScript
             {
                 Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID);
                 if (victim && victim->IsAlive())
-                    victim->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+                    victim->RemoveAurasDueToSpell(SPELL_RIDE_PLAYER);
 
                 _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+            }
+
+            void SetGUID(ObjectGuid guid, int32 id) override
+            {
+                switch (id)
+                {
+                    case DATA_NEW_TARGET:
+                        if (Unit* target = ObjectAccessor::GetPlayer(*me, guid))
+                        {
+                            me->getThreatManager().resetAllAggro();
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            _targetGUID = target->GetGUID();
+                            me->TauntApply(target);
+                            _events.ScheduleEvent(EVENT_BATTER, 5 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_HEAD_CRACK, 25 * IN_MILLISECONDS);
+                        }
+                    default:
+                        break;
+                }
             }
 
             void DoAction(int32 action) override
@@ -351,21 +425,8 @@ class npc_snobold_vassal : public CreatureScript
                     case ACTION_DISABLE_FIRE_BOMB:
                         _events.CancelEvent(EVENT_FIRE_BOMB);
                         break;
-                    case ACTION_JUMP_ON_PLAYER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SNOBOLLED))
-                        {
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                            _targetGUID = target->GetGUID();
-                            target->CreateVehicleKit(444, 0);
-                            me->EnterVehicle(target, 0);
-                            //DoCast(victim, SPELL_SNOBOLLED, true); direct cast dont work
-                            me->AddAura(SPELL_SNOBOLLED, target);
-                            me->Attack(target, true);
-                            me->TauntApply(target);
-                            _active = true;
-                            _events.ScheduleEvent(EVENT_BATTER, 5 * IN_MILLISECONDS);
-                            _events.ScheduleEvent(EVENT_HEAD_CRACK, 25 * IN_MILLISECONDS);
-                        }
+                    case ACTION_ACTIVE_SNOBOLD:
+                        _active = true;
                         break;
                     default:
                         break;
@@ -377,11 +438,11 @@ class npc_snobold_vassal : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID);
-                if (victim && !victim->IsAlive())
+                if (!me->GetVehicleBase() && _active)
                     MountOnBoss();
 
-                if (!victim && _active)
+                Unit* victim = ObjectAccessor::GetUnit(*me, _targetGUID);
+                if (victim && !victim->IsAlive())
                     MountOnBoss();
 
                 _events.Update(diff);
@@ -412,9 +473,9 @@ class npc_snobold_vassal : public CreatureScript
                     }
                 }
 
-                // do melee attack only when not on Gormoks back
-                if (!me->GetVehicleBase())
-                    DoMeleeAttackIfReady();
+                if (Unit* vehicle = me->GetVehicleBase())
+                    if (vehicle->GetTypeId() == TYPEID_PLAYER)
+                        DoMeleeAttackIfReady();
             }
 
         private:
@@ -428,26 +489,28 @@ class npc_snobold_vassal : public CreatureScript
                 Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_GORMOK));
                 if (gormok && gormok->IsAlive())
                 {
-                    bool found = false;
                     me->GetMotionMaster()->Clear();
                     SetCombatMovement(false);
                     _active = false;
+                    _events.CancelEvent(EVENT_BATTER);
+                    _events.CancelEvent(EVENT_HEAD_CRACK);
 
                     // looping through Gormoks seats
-                    for (uint8 i = 0; i < MAX_SNOBOLDS && !found; i++)
+                    for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                     {
                         if (!gormok->GetVehicleKit()->GetPassenger(i))
                         {
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->EnterVehicle(gormok, i);
                             DoAction(ACTION_ENABLE_FIRE_BOMB);
-                            found = true;
+                            break;
                         }
                     }
                 }
                 else
-                    me->AI()->DoAction(ACTION_JUMP_ON_PLAYER);
-            }
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(me)))
+                        me->CastSpell(target, SPELL_RIDE_PLAYER, true);
+             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -492,40 +555,102 @@ class npc_firebomb : public CreatureScript
         }
 };
 
-class spell_gormok_snobolled : public SpellScriptLoader
+class spell_gormok_jump_to_hand : public SpellScriptLoader
 {
 public:
-    spell_gormok_snobolled() : SpellScriptLoader("spell_gormok_snobolled") { }
+    spell_gormok_jump_to_hand() : SpellScriptLoader("spell_gormok_jump_to_hand") { }
 
-    class spell_gormok_snobolled_AuraScript : public AuraScript
+    class spell_gormok_jump_to_hand_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_gormok_snobolled_AuraScript);
+        PrepareAuraScript(spell_gormok_jump_to_hand_AuraScript);
 
-        bool Validate(SpellInfo const* /*spell*/) override
+        bool Load() override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SNOBOLLED))
-                return false;
-            return true;
+            return GetCaster() && GetCaster()->GetEntry() == NPC_SNOBOLD_VASSAL;
         }
 
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetTarget()->GetVehicleKit())
+            if (Unit* caster = GetCaster())
             {
-                GetTarget()->GetVehicleKit()->RemoveAllPassengers();
-                GetTarget()->RemoveVehicleKit();
+                if (caster->IsAIEnabled && caster->GetAI())
+                    caster->GetAI()->DoAction(ACTION_ACTIVE_SNOBOLD);
+
+                Creature* target = GetTarget()->ToCreature();
+                if (target && target->IsAIEnabled && target->AI())
+                    if (Unit* spellTarget = caster->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(caster)))
+                    {
+                        target->AI()->Talk(EMOTE_SNOBOLLED);
+                        caster->CastSpell(spellTarget, SPELL_RIDE_PLAYER, true);
+                    }
             }
         }
 
         void Register() override
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_snobolled_AuraScript::HandleRemove, EFFECT_0, SPELL_EFFECT_APPLY_AURA, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_jump_to_hand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
     AuraScript* GetAuraScript() const override
     {
-        return new spell_gormok_snobolled_AuraScript();
+        return new spell_gormok_jump_to_hand_AuraScript();
+    }
+};
+
+class spell_gormok_ride_player : public SpellScriptLoader
+{
+public:
+    spell_gormok_ride_player() : SpellScriptLoader("spell_gormok_ride_player") { }
+
+    class spell_gormok_ride_player_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gormok_ride_player_AuraScript);
+
+        bool Load() override
+        {
+            Unit* caster = GetCaster();
+            return caster && caster->GetEntry() == NPC_SNOBOLD_VASSAL;
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+
+            if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
+                return;
+
+            if (!target->CreateVehicleKit(PLAYER_VEHICLE_ID, 0))
+                return;
+
+            Unit* caster = GetCaster();
+            if (caster && caster->IsAIEnabled && caster->GetAI())
+                caster->GetAI()->SetGUID(target->GetGUID(), DATA_NEW_TARGET);
+        }
+
+        void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+                caster->m_Events.AddEvent(new SnoboldEvent(caster, GetTarget(), true), caster->m_Events.CalculateTime(1));
+        }
+
+        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            target->m_Events.AddEvent(new SnoboldEvent(target, target, false), target->m_Events.CalculateTime(1));
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_gormok_ride_player_AuraScript::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_gormok_ride_player_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_ride_player_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_gormok_ride_player_AuraScript();
     }
 };
 
@@ -1177,7 +1302,8 @@ void AddSC_boss_northrend_beasts()
     new npc_snobold_vassal();
     new npc_firebomb();
     new spell_gormok_fire_bomb();
-    new spell_gormok_snobolled();
+    new spell_gormok_jump_to_hand();
+    new spell_gormok_ride_player();
 
     new boss_acidmaw();
     new boss_dreadscale();
