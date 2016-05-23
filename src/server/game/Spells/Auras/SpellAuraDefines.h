@@ -346,7 +346,7 @@ enum AuraType
     SPELL_AURA_ABILITY_PERIODIC_CRIT                        = 286,
     SPELL_AURA_DEFLECT_SPELLS                               = 287,
     SPELL_AURA_IGNORE_HIT_DIRECTION                         = 288,
-    SPELL_AURA_289                                          = 289,
+    SPELL_AURA_PREVENT_DURABILITY_LOSS                      = 289,
     SPELL_AURA_MOD_CRIT_PCT                                 = 290,
     SPELL_AURA_MOD_XP_QUEST_PCT                             = 291,
     SPELL_AURA_OPEN_STABLE                                  = 292,
@@ -504,7 +504,7 @@ enum AuraType
     SPELL_AURA_444                                          = 444,
     SPELL_AURA_445                                          = 445,
     SPELL_AURA_446                                          = 446,
-    SPELL_AURA_447                                          = 447,
+    SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE                    = 447,
     SPELL_AURA_448                                          = 448,
     SPELL_AURA_449                                          = 449,
     SPELL_AURA_450                                          = 450,
@@ -529,7 +529,7 @@ enum AuraType
     SPELL_AURA_469                                          = 469,
     SPELL_AURA_471                                          = 471,
     SPELL_AURA_472                                          = 472,
-    SPELL_AURA_473                                          = 473,
+    SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473, // Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,
     SPELL_AURA_475                                          = 475,
     SPELL_AURA_476                                          = 476,
@@ -537,10 +537,17 @@ enum AuraType
     SPELL_AURA_478                                          = 478,
     SPELL_AURA_479                                          = 479,
     SPELL_AURA_480                                          = 480,
-    SPELL_AURA_481                                          = 481,
+    SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_483                                          = 483,
-    TOTAL_AURAS                                             = 484
+    SPELL_AURA_484                                          = 484,
+    SPELL_AURA_485                                          = 485,
+    SPELL_AURA_486                                          = 486,
+    SPELL_AURA_487                                          = 487,
+    SPELL_AURA_488                                          = 488,
+    SPELL_AURA_489                                          = 489,
+    SPELL_AURA_490                                          = 490,
+    TOTAL_AURAS                                             = 491
 };
 
 enum AuraObjectType

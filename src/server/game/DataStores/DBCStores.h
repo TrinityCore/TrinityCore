@@ -34,7 +34,8 @@ TC_GAME_API char const* GetClassName(uint8 class_, uint8 locale);
 TC_GAME_API char const* GetRaceName(uint8 race, uint8 locale);
 
 // ChrSpecialization
-typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES][MAX_SPECIALIZATIONS];
+#define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
+typedef ChrSpecializationEntry const* ChrSpecializationByIndexArray[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
 
 // CreatureFamilty
 TC_GAME_API char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);

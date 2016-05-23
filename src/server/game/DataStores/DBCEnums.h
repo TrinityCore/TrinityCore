@@ -137,6 +137,17 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum ChrSpecializationFlag
+{
+    CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,
+    CHR_SPECIALIZATION_FLAG_RANGED                  = 0x02,
+    CHR_SPECIALIZATION_FLAG_MELEE                   = 0x04,
+    CHR_SPECIALIZATION_FLAG_UNKNOWN                 = 0x08,
+    CHR_SPECIALIZATION_FLAG_DUAL_WIELD_TWO_HANDED   = 0x10,     // used for CUnitDisplay::SetSheatheInvertedForDualWield
+    CHR_SPECIALIZATION_FLAG_PET_OVERRIDE_SPEC       = 0x20,
+    CHR_SPECIALIZATION_FLAG_RECOMMENDED             = 0x40,
+};
+
 enum CriteriaCondition
 {
     CRITERIA_CONDITION_NONE            = 0,

@@ -389,9 +389,20 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
                 sCharSectionMap.insert({ entry->GenType | (entry->Gender << 8) | (entry->Race << 16), entry });
 
     memset(sChrSpecializationByIndexStore, 0, sizeof(sChrSpecializationByIndexStore));
-    for (uint32 i = 0; i < sChrSpecializationStore.GetNumRows(); ++i)
-        if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(i))
-            sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
+    for (ChrSpecializationEntry const* chrSpec : sChrSpecializationStore)
+    {
+        ASSERT(chrSpec->ClassID < MAX_CLASSES);
+        ASSERT(chrSpec->OrderIndex < MAX_SPECIALIZATIONS);
+
+        uint32 storageIndex = chrSpec->ClassID;
+        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_PET_OVERRIDE_SPEC)
+        {
+            ASSERT(!chrSpec->ClassID);
+            storageIndex = PET_SPEC_OVERRIDE_CLASS_INDEX;
+        }
+
+        sChrSpecializationByIndexStore[storageIndex][chrSpec->OrderIndex] = chrSpec;
+    }
 
     ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
         "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",

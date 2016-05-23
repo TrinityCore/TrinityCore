@@ -4612,6 +4612,11 @@ void Spell::TakeRunePower(bool didHit)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
     }
 
+    bool convertUsedRunes = false;
+    for (AuraEffect const* convertConsumedRuneAuras : m_caster->GetAuraEffectsByType(SPELL_AURA_CONVERT_CONSUMED_RUNE))
+        if (convertConsumedRuneAuras->IsAffectingSpell(m_spellInfo))
+            convertUsedRunes = true;
+
     // Let's say we use a skill that requires a Frost rune. This is the order:
     // - Frost rune
     // - Death rune, originally a Frost rune
@@ -4624,6 +4629,8 @@ void Spell::TakeRunePower(bool didHit)
             player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN), true);
             player->SetLastUsedRune(rune);
             runeCost[rune]--;
+            if (convertUsedRunes)
+                player->ConvertRune(i, RUNE_DEATH);
         }
     }
 
@@ -4643,7 +4650,7 @@ void Spell::TakeRunePower(bool didHit)
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (didHit && !convertUsedRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -4665,7 +4672,7 @@ void Spell::TakeRunePower(bool didHit)
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (didHit && !convertUsedRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
