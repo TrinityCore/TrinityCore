@@ -55,20 +55,18 @@ set(g3dlib_STAT_SRCS
   source/Vector4.cpp
 )
 
-if(WIN32)
-  include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/dep/zlib
-  )
-else()
-  include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-  )
-endif()
-
 add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
 
+target_include_directories(g3dlib
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 target_link_libraries(g3dlib
-  ${ZLIB_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-)
+  PUBLIC
+    zlib
+    threads)
+
+set_target_properties(g3dlib
+    PROPERTIES
+      FOLDER
+        "dep")

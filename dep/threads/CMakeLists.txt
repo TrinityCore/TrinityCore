@@ -8,26 +8,9 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(Detour_STAT_SRCS
-    Source/DetourAlloc.cpp 
-    Source/DetourCommon.cpp 
-    Source/DetourNavMesh.cpp 
-    Source/DetourNavMeshBuilder.cpp 
-    Source/DetourNavMeshQuery.cpp 
-    Source/DetourNode.cpp 
-)
+find_package(Threads REQUIRED)
 
-add_library(Detour STATIC ${Detour_STAT_SRCS})
-
-target_include_directories(Detour
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/Include)
-
-target_link_libraries(Detour
-  PUBLIC
-    zlib)
-
-set_target_properties(Detour
-    PROPERTIES
-      FOLDER
-        "dep")
+add_library(threads INTERFACE)
+target_link_libraries(threads
+  INTERFACE
+    ${CMAKE_THREAD_LIBS_INIT})
