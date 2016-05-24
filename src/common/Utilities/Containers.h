@@ -31,7 +31,7 @@ namespace Trinity
     namespace Containers
     {
         template<class T>
-        void RandomResizeList(std::list<T> &list, uint32 size)
+        void RandomResizeList(std::list<T>& list, uint32 size)
         {
             uint32 list_size = uint32(list.size());
 
@@ -56,7 +56,7 @@ namespace Trinity
             if (size)
                 RandomResizeList(listCopy, size);
 
-            list = listCopy;
+            list = std::move(listCopy);
         }
 
         /*
