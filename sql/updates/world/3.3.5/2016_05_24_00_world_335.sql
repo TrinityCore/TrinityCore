@@ -4,6 +4,9 @@ ALTER TABLE `graveyard_zone` CHANGE `ghost_zone` `GhostZone` MEDIUMINT(8) UNSIGN
 ALTER TABLE `graveyard_zone` CHANGE `faction` `Faction` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `graveyard_zone` ADD COLUMN `Comment` TEXT AFTER `Faction`;
 
+UPDATE `command` SET `help`='Syntax: .reload all area\n\nReload areatrigger_teleport, areatrigger_tavern, graveyard_zone tables.' WHERE `permission`=613;
+UPDATE `command` SET `name`='reload graveyard_zone', `help`='Syntax: .reload graveyard_zone\nReload graveyard_zone table.' WHERE `permission`=645;
+
 UPDATE `graveyard_zone` SET `Comment`='Redridge Mountains - Redridge Mountains' WHERE `ID`=2;
 UPDATE `graveyard_zone` SET `Comment`='Duskwood, Darkshire - Duskwood' WHERE `ID`=3;
 UPDATE `graveyard_zone` SET `Comment`='Westfall, Sentinel Hill GY - Westfall' WHERE `ID`=4;
