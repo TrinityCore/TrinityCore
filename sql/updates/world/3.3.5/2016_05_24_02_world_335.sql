@@ -33,8 +33,7 @@ UPDATE `graveyard_zone` SET `Comment`='Arathi Highlands, Eastern Road - Arathi H
 UPDATE `graveyard_zone` SET `Comment`='Dun Morogh, Anvilmar - Dun Morogh' WHERE `ID`=100;
 UPDATE `graveyard_zone` SET `Comment`='Dun Morogh, Kharanos' WHERE `ID`=101;
 UPDATE `graveyard_zone` SET `Comment`='Badlands, Kargath - Badlands' WHERE `ID`=103;
-UPDATE `graveyard_zone` SET `Comment`='Redridge Mountains, Lakeshire - Duskwood' WHERE `ID`=104;
-UPDATE `graveyard_zone` SET `Comment`='Redridge Mountains, Lakeshire - Redridge Mountains' WHERE `ID`=104;
+UPDATE `graveyard_zone` SET `Comment`='Redridge Mountains, Lakeshire' WHERE `ID`=104;
 UPDATE `graveyard_zone` SET `Comment`='Elwynn Forest, Northshire - Elwynn Forest' WHERE `ID`=105;
 UPDATE `graveyard_zone` SET `Comment`='Elwynn Forest, Goldshire - Elwynn Forest' WHERE `ID`=106;
 UPDATE `graveyard_zone` SET `Comment`='Elwynn Forest, Stormwind' WHERE `ID`=107;
