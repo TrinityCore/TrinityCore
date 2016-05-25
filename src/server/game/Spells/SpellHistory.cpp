@@ -359,6 +359,8 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
             if (categoryDuration.count() > 0)
                 petSpellCooldown.CategoryDuration = uint32(categoryDuration.count());
         }
+        else
+            petSpellCooldown.CategoryDuration = 0x80000000;
 
         petSpells->Cooldowns.push_back(petSpellCooldown);
     }
@@ -381,7 +383,6 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
         }
     }
 }
-
 
 void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell /*= nullptr*/, bool onHold /*= false*/)
 {
