@@ -341,7 +341,7 @@ class boss_halion : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_TWILIGHT_REALM))
                             {
                                 _meteorStrikePos = target->GetPosition();
-                                me->CastSpell(_meteorStrikePos.GetPositionX(), _meteorStrikePos.GetPositionY(), _meteorStrikePos.GetPositionZ(), SPELL_METEOR_STRIKE, true, NULL, NULL, me->GetGUID());
+                                me->CastSpell(_meteorStrikePos.GetPositionX(), _meteorStrikePos.GetPositionY(), _meteorStrikePos.GetPositionZ(), SPELL_METEOR_STRIKE, true, nullptr, nullptr, me->GetGUID());
                                 Talk(SAY_METEOR_STRIKE);
                             }
                             events.ScheduleEvent(EVENT_METEOR_STRIKE, Seconds(38));
@@ -724,7 +724,7 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_TWILIGHT_MENDING:
                             if (ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HALION))) // Just check if physical Halion is spawned
                                 if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_TWILIGHT_HALION)))
-                                    twilightHalion->CastSpell((Unit*)NULL, SPELL_TWILIGHT_MENDING, true);
+                                    twilightHalion->CastSpell((Unit*)nullptr, SPELL_TWILIGHT_MENDING, true);
                             break;
                         case EVENT_TRIGGER_BERSERK:
                             for (uint8 i = DATA_HALION; i <= DATA_TWILIGHT_HALION; i++)
@@ -897,7 +897,7 @@ class npc_orb_carrier : public CreatureScript
                 /// However, refreshing it looks bad, so just cast the spell if
                 /// we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, false);
+                    me->CastSpell((Unit*)nullptr, SPELL_TRACK_ROTATION, false);
 
                 scheduler.Update(diff);
 
@@ -920,7 +920,7 @@ class npc_orb_carrier : public CreatureScript
                         if (northOrb && northOrb->GetTypeId() == TYPEID_UNIT)
                             northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
 
-                        scheduler.Schedule(Seconds(4), [this](TaskContext /*context*/)
+                        scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             DoAction(ACTION_SHOOT);
                         });
@@ -1543,7 +1543,7 @@ class spell_halion_marks : public SpellScriptLoader
                     return;
 
                 // Stacks marker
-                GetTarget()->CastCustomSpell(_summonSpellId, SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount(), GetTarget(), TRIGGERED_FULL_MASK, NULL, NULL, GetCasterGUID());
+                GetTarget()->CastCustomSpell(_summonSpellId, SPELLVALUE_BASE_POINT1, aurEff->GetBase()->GetStackAmount(), GetTarget(), TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
             }
 
             void Register() override
