@@ -374,11 +374,11 @@ struct TC_GAME_API CreatureTemplate
     // helpers
     SkillType GetRequiredLootSkill() const
     {
-        if (type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
+        if (type_flags & CREATURE_TYPE_FLAG_HERB_SKINNING_SKILL)
             return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_MINING_SKINNING_SKILL)
             return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL)
             return SKILL_ENGINEERING;
         else
             return SKILL_SKINNING;                          // normal case
@@ -386,12 +386,12 @@ struct TC_GAME_API CreatureTemplate
 
     bool IsExotic() const
     {
-        return (type_flags & CREATURE_TYPEFLAGS_EXOTIC) != 0;
+        return (type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) != 0;
     }
 
     bool IsTameable(bool canTameExotic) const
     {
-        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
+        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_PET) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
