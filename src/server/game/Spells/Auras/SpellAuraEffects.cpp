@@ -406,7 +406,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     &AuraEffect::HandleEnableAltPower,                            //346 SPELL_AURA_ENABLE_ALT_POWER
-    &AuraEffect::HandleNULL,                                      //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE
+    &AuraEffect::HandleNoImmediateEffect,                         //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE  implemented in SpellHistory::StartCooldown
     &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoneyOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //349 SPELL_AURA_MOD_CURRENCY_GAIN implemented in Player::ModifyCurrency
     &AuraEffect::HandleNULL,                                      //350 SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT
@@ -439,7 +439,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //377 SPELL_AURA_CAST_WHILE_WALKING_2
     &AuraEffect::HandleNULL,                                      //378
     &AuraEffect::HandleNULL,                                      //379
-    &AuraEffect::HandleNULL,                                      //380
+    &AuraEffect::HandleNoImmediateEffect,                         //380 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE implemented in Spell::TriggerGlobalCooldown
     &AuraEffect::HandleNULL,                                      //381
     &AuraEffect::HandleNULL,                                      //382 SPELL_AURA_MOD_PET_STAT_PCT
     &AuraEffect::HandleNULL,                                      //383 SPELL_AURA_IGNORE_SPELL_COOLDOWN
@@ -475,8 +475,8 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //413
     &AuraEffect::HandleNULL,                                      //414
     &AuraEffect::HandleNULL,                                      //415
-    &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE_EFFECTS
-    &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_EFFECTS
+    &AuraEffect::HandleNoImmediateEffect,                         //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN implemented in SpellHistory::StartCooldown
+    &AuraEffect::HandleNoImmediateEffect,                         //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN implemented in Spell::TriggerGlobalCooldown
     &AuraEffect::HandleNULL,                                      //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModIncreaseBaseManaPercent,            //419 SPELL_AURA_MOD_BASE_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_MOD_BATTLE_PET_XP_PCT
