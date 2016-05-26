@@ -51,6 +51,7 @@ class TC_GAME_API AuraEffect
 
         int32 GetMiscValueB() const { return GetSpellEffectInfo()->MiscValueB; }
         int32 GetMiscValue() const { return GetSpellEffectInfo()->MiscValue; }
+        flag128 GetSpellClassMask() const { return GetSpellEffectInfo()->SpellClassMask; }
         AuraType GetAuraType() const { return (AuraType)GetSpellEffectInfo()->ApplyAuraName; }
         int32 GetAmount() const { return m_amount; }
         void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}

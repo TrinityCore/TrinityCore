@@ -12440,6 +12440,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
     float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
+
     if (val > 0)
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
@@ -12448,7 +12449,18 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
         if (GetTypeId() == TYPEID_PLAYER)
         {
             if (att == BASE_ATTACK)
+            {
                 ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, val, !apply);
+
+                const Unit::AuraEffectList list = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE);
+
+                for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
+                {
+                    (*itr)->ApplySpellMod(this, false);
+                    (*itr)->CalculateSpellMod();
+                    (*itr)->ApplySpellMod(this, true);
+                }
+            }
             else if (att == RANGED_ATTACK)
                 ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, val, !apply);
         }
