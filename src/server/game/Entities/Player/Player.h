@@ -30,6 +30,7 @@
 #include "SpellHistory.h"
 #include "Unit.h"
 #include "TradeData.h"
+#include "CinematicMgr.h"
 
 #include <limits>
 #include <string>
@@ -1026,6 +1027,7 @@ struct ResurrectionData
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
+    friend class CinematicMgr;
     friend void Item::AddToUpdateQueueOf(Player* player);
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:
@@ -1050,7 +1052,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
-        void SetSummonPoint(uint32 mapid, float x, float y, float z);
+        bool HasSummonPending() const;
+        void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
 
         bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
@@ -1148,12 +1151,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
+        void Say(uint32 textId, WorldObject const* target = nullptr) override;
         /// Handles yelled message in regular chat based on declared language and in config pre-defined Range.
         void Yell(std::string const& text, Language language, WorldObject const* = nullptr) override;
+        void Yell(uint32 textId, WorldObject const* target = nullptr) override;
         /// Outputs an universal text which is supposed to be an action.
         void TextEmote(std::string const& text, WorldObject const* = nullptr, bool = false) override;
+        void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false) override;
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
         void Whisper(std::string const& text, Language language, Player* receiver, bool = false) override;
+        void Whisper(uint32 textId, Player* target, bool isBossWhisper = false) override;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -1268,6 +1275,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : nullptr; }
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
+
+        CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateSoulboundTradeItems();
@@ -1587,7 +1596,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr) const;
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = nullptr);
+        template <class T>
+        void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr);
         void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
@@ -2073,13 +2083,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
-        // Recall position
-        uint32 m_recallMap;
-        float  m_recallX;
-        float  m_recallY;
-        float  m_recallZ;
-        float  m_recallO;
-        void   SaveRecallPosition();
+        void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
+        void Recall() { TeleportTo(m_recall_location); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
 
@@ -2131,6 +2136,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendCinematicStart(uint32 CinematicSequenceId) const;
         void SendMovieStart(uint32 MovieId) const;
+
+        uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
 
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
@@ -2499,10 +2506,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // Player summoning
         time_t m_summon_expire;
-        uint32 m_summon_mapid;
-        float  m_summon_x;
-        float  m_summon_y;
-        float  m_summon_z;
+        WorldLocation m_summon_location;
+
+        // Recall position
+        WorldLocation m_recall_location;
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
@@ -2523,6 +2530,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
         Item* _LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
+
+        CinematicMgr* _cinematicMgr;
 
         GuidSet m_refundableItems;
         void SendRefundInfo(Item* item);
@@ -2596,11 +2605,13 @@ TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
 TC_GAME_API void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell)
+template <class T>
+void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-        return 0;
+        return;
+
     float totalmul = 1.0f;
     int32 totalflat = 0;
 
@@ -2636,9 +2647,8 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         DropModCharge(mod, spell);
     }
-    float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
-    basevalue = T((float)basevalue + diff);
-    return T(diff);
+
+    basevalue = T(float(basevalue + totalflat) * totalmul);
 }
 
 #endif

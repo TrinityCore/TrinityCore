@@ -714,6 +714,15 @@ void Map::Update(const uint32 t_diff)
 
         VisitNearbyCellsOf(player, grid_object_update, world_object_update);
 
+        // If player is using far sight, visit that object too
+        if (WorldObject* viewPoint = player->GetViewpoint())
+        {
+            if (Creature* viewCreature = viewPoint->ToCreature())
+                VisitNearbyCellsOf(viewCreature, grid_object_update, world_object_update);
+            else if (DynamicObject* viewObject = viewPoint->ToDynObject())
+                VisitNearbyCellsOf(viewObject, grid_object_update, world_object_update);
+        }
+
         // Handle updates for creatures in combat with player and are more than 60 yards away
         if (player->IsInCombat())
         {
@@ -2336,9 +2345,9 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
         {
             // we have mapheight and vmapheight and must select more appropriate
 
-            // we are already under the surface or vmap height above map heigt
+            // vmap height above map height
             // or if the distance of the vmap height is less the land height distance
-            if (z < mapHeight || vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
+            if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height
@@ -2658,8 +2667,8 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpa
     cell.SetNoCreate();
     TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
     TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
-    cell.Visit(cellpair, world_notifier, *this, *player, player->GetSightRange());
-    cell.Visit(cellpair, grid_notifier,  *this, *player, player->GetSightRange());
+    cell.Visit(cellpair, world_notifier, *this, *player->m_seer, player->GetSightRange());
+    cell.Visit(cellpair, grid_notifier,  *this, *player->m_seer, player->GetSightRange());
 
     // send data
     notifier.SendToSelf();

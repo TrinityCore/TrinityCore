@@ -820,41 +820,6 @@ bool AuthSession::HandleReconnectProof()
     }
 }
 
-tcp::endpoint const GetAddressForClient(Realm const& realm, ip::address const& clientAddr)
-{
-    ip::address realmIp;
-
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            realmIp = clientAddr;
-        else
-        {
-            // Assume that user connecting from the machine that authserver is located on
-            // has all realms available in his local network
-            realmIp = realm.LocalAddress;
-        }
-    }
-    else
-    {
-        if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()) ==
-            (realm.LocalAddress.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()))
-        {
-            realmIp = realm.LocalAddress;
-        }
-        else
-            realmIp = realm.ExternalAddress;
-    }
-
-    tcp::endpoint endpoint(realmIp, realm.Port);
-
-    // Return external IP
-    return endpoint;
-}
-
 bool AuthSession::HandleRealmList()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleRealmList");

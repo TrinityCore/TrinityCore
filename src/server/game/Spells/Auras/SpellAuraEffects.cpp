@@ -346,7 +346,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //286 SPELL_AURA_ABILITY_PERIODIC_CRIT implemented in AuraEffect::PeriodicTick
     &AuraEffect::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &AuraEffect::HandleNoImmediateEffect,                         //288 SPELL_AURA_IGNORE_HIT_DIRECTION  implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult Unit::RollMeleeOutcomeAgainst
-    &AuraEffect::HandleNULL,                                      //289 unused (3.2.0)
+    &AuraEffect::HandleNoImmediateEffect,                         //289 SPELL_AURA_PREVENT_DURABILITY_LOSS implemented in Player::DurabilityPointsLoss
     &AuraEffect::HandleAuraModCritPct,                            //290 SPELL_AURA_MOD_CRIT_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &AuraEffect::HandleAuraOpenStable,                            //292 SPELL_AURA_OPEN_STABLE
@@ -2915,7 +2915,7 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    target->UpdateSpeed(MOVE_RUN);
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2930,7 +2930,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
 
     Unit* target = aurApp->GetTarget();
     if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
-        target->UpdateSpeed(MOVE_FLIGHT, true);
+        target->UpdateSpeed(MOVE_FLIGHT);
 
     //! Update ability to fly
     if (GetAuraType() == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
@@ -2965,7 +2965,7 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_SWIM, true);
+    target->UpdateSpeed(MOVE_SWIM);
 }
 
 void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -2975,12 +2975,12 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_RUN, true);
-    target->UpdateSpeed(MOVE_SWIM, true);
-    target->UpdateSpeed(MOVE_FLIGHT, true);
-    target->UpdateSpeed(MOVE_RUN_BACK, true);
-    target->UpdateSpeed(MOVE_SWIM_BACK, true);
-    target->UpdateSpeed(MOVE_FLIGHT_BACK, true);
+    target->UpdateSpeed(MOVE_RUN);
+    target->UpdateSpeed(MOVE_SWIM);
+    target->UpdateSpeed(MOVE_FLIGHT);
+    target->UpdateSpeed(MOVE_RUN_BACK);
+    target->UpdateSpeed(MOVE_SWIM_BACK);
+    target->UpdateSpeed(MOVE_FLIGHT_BACK);
 }
 
 void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -2990,9 +2990,9 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
-    target->UpdateSpeed(MOVE_RUN,  true);
-    target->UpdateSpeed(MOVE_SWIM, true);
-    target->UpdateSpeed(MOVE_FLIGHT,  true);
+    target->UpdateSpeed(MOVE_RUN);
+    target->UpdateSpeed(MOVE_SWIM);
+    target->UpdateSpeed(MOVE_FLIGHT);
 }
 
 /*********************************************************/
@@ -4686,7 +4686,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
-                        break;
+                    break;
             }
         }
         // AT REMOVE
@@ -5978,9 +5978,6 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
 
     caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
-
-    if (target->GetHealth() < damage)
-        damage = uint32(target->GetHealth());
 
     // Set trigger flag
     uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;

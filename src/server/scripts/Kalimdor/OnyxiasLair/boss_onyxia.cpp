@@ -205,7 +205,7 @@ public:
                 PointData = GetMoveData();
                 MovePoint = PointData->LocIdEnd;
 
-                me->SetSpeed(MOVE_FLIGHT, 1.5f);
+                me->SetSpeedRate(MOVE_FLIGHT, 1.5f);
                 me->GetMotionMaster()->MovePoint(8, MiddleRoomLocation);
             }
         }
@@ -220,7 +220,7 @@ public:
                         PointData = GetMoveData();
                         if (PointData)
                         {
-                            me->SetSpeed(MOVE_FLIGHT, 1.0f);
+                            me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                             me->GetMotionMaster()->MovePoint(PointData->LocId, PointData->fX, PointData->fY, PointData->fZ);
                         }
                         break;
@@ -250,7 +250,7 @@ public:
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();
                         me->GetMotionMaster()->MoveTakeoff(11, Phase2Floating);
-                        me->SetSpeed(MOVE_FLIGHT, 1.0f);
+                        me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                         Talk(SAY_PHASE_2_TRANS);
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
                         events.ScheduleEvent(EVENT_WHELP_SPAWN, 5000);

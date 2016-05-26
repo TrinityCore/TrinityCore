@@ -206,7 +206,7 @@ add_library(scripts STATIC
 
 target_link_libraries(scripts
   PUBLIC
-    game)
+    game-interface)
 
 target_include_directories(scripts
   PUBLIC

@@ -725,7 +725,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     2    - (Disabled, Paladin)
 #                     4    - (Disabled, Hunter)
 #                     8    - (Disabled, Rogue)
-#                     16   - (Disabled, Undead)
+#                     16   - (Disabled, Priest)
 #                     32   - (Disabled, Death Knight)
 #                     64   - (Disabled, Shaman)
 #                     128  - (Disabled, Mage)
@@ -1303,8 +1303,8 @@ HotSwap.ScriptDir = "scripts"
 #        Description: Enables the dynamic script recompiler.
 #                     Watches your script source directories and recompiles the
 #                     script modules on changes.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
 HotSwap.EnableReCompiler = 1
 
@@ -1658,6 +1658,14 @@ ListenRange.TextEmote = 40
 ListenRange.Yell = 300
 
 #
+#    Creature.MovingStopTimeForPlayer
+#        Description: Time (in milliseconds) during which creature will not move after
+#                     interaction with player.
+#        Default: 180000
+
+Creature.MovingStopTimeForPlayer = 180000
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1867,6 +1875,13 @@ GM.LowerSecurity = 0
 #                     0  - (Disabled)
 
 GM.TicketSystem.ChanceOfGMSurvey = 50
+
+#
+#    GM.ForceShutdownThreshold
+#        Description: Minimum shutdown time in seconds before 'force' is required if other players are connected.
+#        Default:     30
+
+GM.ForceShutdownThreshold = 30
 
 #
 ###################################################################################################
@@ -3293,7 +3308,6 @@ AuctionHouseBot.Class.Key = 1
 AuctionHouseBot.Class.Misc = 5
 AuctionHouseBot.Class.Glyph = 3
 
-
 #
 ###################################################################################################
 
@@ -3582,6 +3596,7 @@ Appender.DBErrors=2,2,0,DBErrors.log
 Logger.root=5,Console Server
 Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
+Logger.scripts.hotswap=3,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
@@ -3624,7 +3639,6 @@ Logger.mmaps=3,Server
 #Logger.rbac=3,Console Server
 #Logger.scripts=3,Console Server
 #Logger.scripts.ai=3,Console Server
-#Logger.scripts.hotswap=3,Console Server
 #Logger.server.authserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.periodic=3,Console Server

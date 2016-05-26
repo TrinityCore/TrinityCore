@@ -745,7 +745,7 @@ public:
             if (!Trigger)
                 return;
 
-            Trigger->SetSpeed(MOVE_WALK, 3);
+            Trigger->SetSpeedRate(MOVE_WALK, 3);
             Trigger->SetWalk(true);
             Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
 
@@ -1301,15 +1301,17 @@ public:
 
             EventMaiev Event = EVENT_MAIEV_NULL;
             for (uint8 i = 1; i <= MaxTimer; ++i)
+            {
                 if (Timer[i])
                 {
                     if (Timer[i] <= diff)
                         Event = (EventMaiev)i;
                     else Timer[i] -= diff;
                 }
+            }
 
-                switch (Event)
-                {
+            switch (Event)
+            {
                 case EVENT_MAIEV_STEALTH:
                     {
                         me->SetFullHealth();
@@ -1345,21 +1347,21 @@ public:
                     break;
                 default:
                     break;
-                }
+            }
 
-                if (HealthBelowPct(50))
-                {
-                    me->SetVisible(false);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
-                        ENSURE_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->DeleteFromThreatList(me->GetGUID());
-                    me->AttackStop();
-                    Timer[EVENT_MAIEV_STEALTH] = 60000; // reappear after 1 minute
-                    MaxTimer = 1;
-                }
+            if (HealthBelowPct(50))
+            {
+                me->SetVisible(false);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
+                    ENSURE_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->DeleteFromThreatList(me->GetGUID());
+                me->AttackStop();
+                Timer[EVENT_MAIEV_STEALTH] = 60000; // reappear after 1 minute
+                MaxTimer = 1;
+            }
 
-                if (Phase == PHASE_NORMAL_MAIEV)
-                    DoMeleeAttackIfReady();
+            if (Phase == PHASE_NORMAL_MAIEV)
+                DoMeleeAttackIfReady();
         }
 
     private:
@@ -1524,7 +1526,7 @@ public:
         void BeginWalk()
         {
             me->SetWalk(false);
-            me->SetSpeed(MOVE_RUN, 1.0f);
+            me->SetSpeedRate(MOVE_RUN, 1.0f);
             me->GetMotionMaster()->MovePoint(0, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
         }
 

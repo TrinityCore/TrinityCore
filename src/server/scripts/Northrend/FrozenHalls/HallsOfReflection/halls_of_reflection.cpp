@@ -2580,7 +2580,7 @@ class npc_quel_delar_sword : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                me->SetSpeed(MOVE_FLIGHT, 4.5f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 4.5f);
                 DoCast(SPELL_WHIRLWIND_VISUAL);
                 if (_intro)
                     _events.ScheduleEvent(EVENT_QUEL_DELAR_INIT, 0);

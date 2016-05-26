@@ -347,7 +347,7 @@ class boss_zuljin : public CreatureScript
                                 Vortex->CastSpell(Vortex, SPELL_CYCLONE_PASSIVE, true);
                                 Vortex->CastSpell(Vortex, SPELL_CYCLONE_VISUAL, true);
                                 Vortex->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                Vortex->SetSpeed(MOVE_RUN, 1.0f);
+                                Vortex->SetSpeedRate(MOVE_RUN, 1.0f);
                                 Vortex->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
                                 DoZoneInCombat(Vortex);
                             }
@@ -438,7 +438,7 @@ class boss_zuljin : public CreatureScript
                             {
                                 if (me->GetVictim())
                                     TankGUID = me->EnsureVictim()->GetGUID();
-                                me->SetSpeed(MOVE_RUN, 5.0f);
+                                me->SetSpeedRate(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Claw_Rage_Timer = 0;
                                 Claw_Loop_Timer = 500;
@@ -462,7 +462,7 @@ class boss_zuljin : public CreatureScript
                                         if (Claw_Counter == 12)
                                         {
                                             Claw_Rage_Timer = urand(15000, 20000);
-                                            me->SetSpeed(MOVE_RUN, 1.2f);
+                                            me->SetSpeedRate(MOVE_RUN, 1.2f);
                                             AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
                                             TankGUID.Clear();
                                             return;
@@ -487,7 +487,7 @@ class boss_zuljin : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 TankGUID = me->EnsureVictim()->GetGUID();
-                                me->SetSpeed(MOVE_RUN, 5.0f);
+                                me->SetSpeedRate(MOVE_RUN, 5.0f);
                                 AttackStart(target); // change victim
                                 Lynx_Rush_Timer = 0;
                                 Claw_Counter = 0;
@@ -510,7 +510,7 @@ class boss_zuljin : public CreatureScript
                                     if (Claw_Counter == 9)
                                     {
                                         Lynx_Rush_Timer = urand(15000, 20000);
-                                        me->SetSpeed(MOVE_RUN, 1.2f);
+                                        me->SetSpeedRate(MOVE_RUN, 1.2f);
                                         AttackStart(ObjectAccessor::GetUnit(*me, TankGUID));
                                         TankGUID.Clear();
                                     }

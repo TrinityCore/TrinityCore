@@ -76,6 +76,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT    = 0x00800000,   // 23   removed by entering pvp combat
     AURA_INTERRUPT_FLAG_DIRECT_DAMAGE       = 0x01000000,   // 24   removed by any direct damage
     AURA_INTERRUPT_FLAG_LANDING             = 0x02000000,   // 25   removed by hitting the ground
+    AURA_INTERRUPT_FLAG_LEAVE_COMBAT        = 0x80000000,   // 31   removed by leaving combat
 
     AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE)
 };
@@ -1755,6 +1756,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAreaAurasDueToLeaveWorld();
         void RemoveAllAuras();
         void RemoveArenaAuras();
+        void RemoveAurasOnEvade();
         void RemoveAllAurasOnDeath();
         void RemoveAllAurasRequiringDeadTarget();
         void RemoveAllAurasExceptType(AuraType type);
@@ -1855,6 +1857,9 @@ class TC_GAME_API Unit : public WorldObject
         Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
+
+        // Check if our current channel spell has attribute SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
+        bool CanMoveDuringChannel() const;
 
         SpellHistory* GetSpellHistory() { return m_spellHistory; }
         SpellHistory const* GetSpellHistory() const { return m_spellHistory; }
@@ -2018,10 +2023,11 @@ class TC_GAME_API Unit : public WorldObject
         void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo = NULL);
         void CalcHealAbsorb(Unit* victim, SpellInfo const* spellInfo, uint32& healAmount, uint32& absorb);
 
-        void  UpdateSpeed(UnitMoveType mtype, bool forced);
+        void  UpdateSpeed(UnitMoveType mtype);
         float GetSpeed(UnitMoveType mtype) const;
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
-        void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
+        void SetSpeed(UnitMoveType mtype, float newValue);
+        void SetSpeedRate(UnitMoveType mtype, float rate);
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
@@ -2165,11 +2171,11 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Yell(std::string const& text, Language language, WorldObject const* target = nullptr);
         virtual void TextEmote(std::string const& text, WorldObject const* target = nullptr, bool isBossEmote = false);
         virtual void Whisper(std::string const& text, Language language, Player* target, bool isBossWhisper = false);
-        void Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject const* target);
-        void Say(uint32 textId, WorldObject const* target = nullptr);
-        void Yell(uint32 textId, WorldObject const* target = nullptr);
-        void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
-        void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
+        virtual void Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject const* target);
+        virtual void Say(uint32 textId, WorldObject const* target = nullptr);
+        virtual void Yell(uint32 textId, WorldObject const* target = nullptr);
+        virtual void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
+        virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
     protected:
         explicit Unit (bool isWorldObject);
@@ -2249,11 +2255,12 @@ class TC_GAME_API Unit : public WorldObject
 
         void DisableSpline();
     private:
-        bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const* & spellProcEvent);
-        bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown, bool * handled);
-        bool HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleOverrideClassScriptAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 cooldown);
+        bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent);
+        bool RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const* spellProcEvent);
+        bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, Milliseconds& cooldown);
+        bool HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, bool* handled);
+        bool HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
+        bool HandleOverrideClassScriptAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell);
         bool HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura);
         bool HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura);
 

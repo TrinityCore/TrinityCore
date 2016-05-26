@@ -34,6 +34,7 @@ EndScriptData */
 #include "Transport.h"
 #include "Language.h"
 #include "MapManager.h"
+#include "M2Stores.h"
 
 #include <fstream>
 
@@ -122,6 +123,23 @@ public:
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, id);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        // Dump camera locations
+        if (CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(id))
+        {
+            std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->cinematicCamera);
+            if (itr != sFlyByCameraStore.end())
+            {
+                handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->cinematicCamera);
+                uint32 count = 1 ;
+                for (FlyByCamera cam : itr->second)
+                {
+                    handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
+                    count++;
+                }
+                handler->PSendSysMessage("%u waypoints dumped", itr->second.size());
+            }
         }
 
         handler->GetSession()->GetPlayer()->SendCinematicStart(id);
@@ -830,7 +848,7 @@ public:
             if (Unit* unit = ref->GetSource()->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (current guid %u, DB guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), unit->GetTypeId() == TYPEID_UNIT ? unit->ToCreature()->GetSpawnId() : 0, ref->getThreat());
             }
             ref = ref->next();
         }

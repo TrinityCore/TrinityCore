@@ -474,20 +474,10 @@ Player::Player(WorldSession* session): Unit(true)
 
     // Player summoning
     m_summon_expire = 0;
-    m_summon_mapid = 0;
-    m_summon_x = 0.0f;
-    m_summon_y = 0.0f;
-    m_summon_z = 0.0f;
 
     m_mover = this;
     m_movedPlayer = this;
     m_seer = this;
-
-    m_recallMap = 0;
-    m_recallX = 0;
-    m_recallY = 0;
-    m_recallZ = 0;
-    m_recallO = 0;
 
     m_homebindMapId = 0;
     m_homebindAreaId = 0;
@@ -535,6 +525,9 @@ Player::Player(WorldSession* session): Unit(true)
     _activeCheats = CHEAT_NONE;
     healthBeforeDuel = 0;
     manaBeforeDuel = 0;
+
+    _cinematicMgr = new CinematicMgr(this);
+
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
 }
@@ -574,6 +567,7 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
+    delete _cinematicMgr;
 
     sWorld->DecreasePlayerCount();
 }
@@ -1224,7 +1218,15 @@ void Player::Update(uint32 p_time)
         m_spellModTakingSpell = nullptr;
     }
 
-    //used to implement delayed far teleport
+    // Update cinematic location, if 500ms have passed and we're doing a cinematic now.
+    _cinematicMgr->m_cinematicDiff += p_time;
+    if (_cinematicMgr->m_cinematicCamera && _cinematicMgr->m_activeCinematicCameraId && GetMSTimeDiffToNow(_cinematicMgr->m_lastCinematicCheck) > CINEMATIC_UPDATEDIFF)
+    {
+        _cinematicMgr->m_lastCinematicCheck = getMSTime();
+        _cinematicMgr->UpdateCinematicLocation(p_time);
+    }
+
+    //used to implement delayed far teleports
     SetCanDelayTeleport(true);
     Unit::Update(p_time);
     SetCanDelayTeleport(false);
@@ -2417,11 +2419,11 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint32 npcflag
         return nullptr;
 
     // Deathstate checks
-    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
+    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return nullptr;
 
     // alive or spirit healer
-    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return nullptr;
 
     // appropriate npc type
@@ -4939,6 +4941,9 @@ void Player::DurabilityPointsLossAll(int32 points, bool inventory)
 
 void Player::DurabilityPointsLoss(Item* item, int32 points)
 {
+    if (HasAuraType(SPELL_AURA_PREVENT_DURABILITY_LOSS))
+        return;
+
     int32 pMaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     int32 pOldDurability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
     int32 pNewDurability = pOldDurability - points;
@@ -6355,15 +6360,6 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     return true;
 }
 
-void Player::SaveRecallPosition()
-{
-    m_recallMap = GetMapId();
-    m_recallX = GetPositionX();
-    m_recallY = GetPositionY();
-    m_recallZ = GetPositionZ();
-    m_recallO = GetOrientation();
-}
-
 void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
 {
     if (self)
@@ -6403,6 +6399,8 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId) const
     WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
     data << uint32(CinematicSequenceId);
     SendDirectMessage(&data);
+    if (CinematicSequencesEntry const* sequence = sCinematicSequencesStore.LookupEntry(CinematicSequenceId))
+        _cinematicMgr->SetActiveCinematicCamera(sequence->cinematicCamera);
 }
 
 void Player::SendMovieStart(uint32 MovieId) const
@@ -20307,6 +20305,11 @@ void Player::Say(std::string const& text, Language language, WorldObject const* 
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
+void Player::Say(uint32 textId, WorldObject const* target /*= nullptr*/)
+{
+    Talk(textId, CHAT_MSG_SAY, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
+}
+
 void Player::Yell(std::string const& text, Language language, WorldObject const* /*= nullptr*/)
 {
     std::string _text(text);
@@ -20317,6 +20320,11 @@ void Player::Yell(std::string const& text, Language language, WorldObject const*
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
 
+void Player::Yell(uint32 textId, WorldObject const* target /*= nullptr*/)
+{
+    Talk(textId, CHAT_MSG_YELL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), target);
+}
+
 void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/, bool /*= false*/)
 {
     std::string _text(text);
@@ -20325,6 +20333,11 @@ void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
+}
+
+void Player::TextEmote(uint32 textId, WorldObject const* target /*= nullptr*/, bool /*isBossEmote = false*/)
+{
+    Talk(textId, CHAT_MSG_EMOTE, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
 }
 
 void Player::Whisper(std::string const& text, Language language, Player* target, bool /*= false*/)
@@ -20361,6 +20374,24 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
         ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_AFK, target->GetName().c_str(), target->autoReplyMsg.c_str());
     else if (target->isDND())
         ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, target->GetName().c_str(), target->autoReplyMsg.c_str());
+}
+
+void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false*/)
+{
+    if (!target)
+        return;
+
+    BroadcastText const* bct = sObjectMgr->GetBroadcastText(textId);
+    if (!bct)
+    {
+        TC_LOG_ERROR("entities.unit", "WorldObject::MonsterWhisper: `broadcast_text` was not %u found", textId);
+        return;
+    }
+
+    LocaleConstant locale = target->GetSession()->GetSessionDbLocaleIndex();
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, getGender()), 0, "", locale);
+    target->SendDirectMessage(&data);
 }
 
 Item* Player::GetMItem(uint32 id)
@@ -20481,7 +20512,7 @@ void Player::VehicleSpellInitialize()
     data << uint8(0);                                       // Command State
     data << uint16(0x800);                                  // DisableActions (set for all vehicles)
 
-    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint32 i = 0; i < MAX_CREATURE_SPELLS; ++i)
     {
         uint32 spellId = vehicle->m_spells[i];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -20505,7 +20536,7 @@ void Player::VehicleSpellInitialize()
         data << uint32(MAKE_UNIT_ACTION_BUTTON(spellId, i+8));
     }
 
-    for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
+    for (uint32 i = MAX_CREATURE_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
         data << uint32(0);
 
     data << uint8(0); // Auras?
@@ -23155,13 +23186,32 @@ void Player::UpdateForQuestWorldObjects()
     GetSession()->SendPacket(&packet);
 }
 
-void Player::SetSummonPoint(uint32 mapid, float x, float y, float z)
+bool Player::HasSummonPending() const
 {
+    return m_summon_expire >= time(nullptr);
+}
+
+void Player::SendSummonRequestFrom(Unit* summoner)
+{
+    if (!summoner)
+        return;
+
+    // Player already has active summon request
+    if (HasSummonPending())
+        return;
+
+    // Evil Twin (ignore player summon, but hide this for summoner)
+    if (HasAura(23445))
+        return;
+
     m_summon_expire = time(nullptr) + MAX_PLAYER_SUMMON_DELAY;
-    m_summon_mapid = mapid;
-    m_summon_x = x;
-    m_summon_y = y;
-    m_summon_z = z;
+    m_summon_location.WorldRelocate(*summoner);
+
+    WorldPacket data(SMSG_SUMMON_REQUEST, 8 + 4 + 4);
+    data << uint64(summoner->GetGUID());                     // summoner guid
+    data << uint32(summoner->GetZoneId());                   // summoner zone
+    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
+    GetSession()->SendPacket(&data);
 }
 
 void Player::SummonIfPossible(bool agree)
@@ -23192,7 +23242,7 @@ void Player::SummonIfPossible(bool agree)
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
 
-    TeleportTo(m_summon_mapid, m_summon_x, m_summon_y, m_summon_z, GetOrientation());
+    TeleportTo(m_summon_location);
 }
 
 void Player::RemoveItemDurations(Item* item)
@@ -26090,6 +26140,9 @@ bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
     if (!packetOnly && !Unit::SetCanFly(apply))
         return false;
 
+    if (!apply)
+        SetFallInformation(0, GetPositionZ());
+
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
     data << GetPackGUID();
     data << uint32(0);          //! movement counter
@@ -26417,4 +26470,23 @@ void Player::RemoveRestFlag(RestFlag restFlag)
         _restTime = 0;
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
     }
+}
+
+uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
+{
+    ASSERT(maximum <= 10000);
+
+    uint32 roll = urand(minimum, maximum);
+
+    WorldPacket data(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8);
+    data << uint32(minimum);
+    data << uint32(maximum);
+    data << uint32(roll);
+    data << GetGUID();
+    if (Group* group = GetGroup())
+        group->BroadcastPacket(&data, false);
+    else
+        SendDirectMessage(&data);
+
+    return roll;
 }

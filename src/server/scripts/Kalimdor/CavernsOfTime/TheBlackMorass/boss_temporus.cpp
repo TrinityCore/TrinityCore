@@ -107,36 +107,36 @@ public:
             if (!UpdateVictim())
                 return;
 
-                events.Update(diff);
+            events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-                while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_HASTE:
-                            DoCast(me, SPELL_HASTE);
-                            events.ScheduleEvent(EVENT_HASTE, urand(20000, 25000));
-                            break;
-                        case EVENT_MORTAL_WOUND:
-                            DoCast(me, SPELL_MORTAL_WOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 20000));
-                            break;
-                        case EVENT_WING_BUFFET:
-                             DoCast(me, SPELL_WING_BUFFET);
-                            events.ScheduleEvent(EVENT_WING_BUFFET, urand(20000, 30000));
-                            break;
-                        case EVENT_SPELL_REFLECTION: // Only in Heroic
-                            DoCast(me, SPELL_REFLECT);
-                            events.ScheduleEvent(EVENT_SPELL_REFLECTION, urand(25000, 35000));
-                            break;
-                        default:
-                            break;
-                    }
+                    case EVENT_HASTE:
+                        DoCast(me, SPELL_HASTE);
+                        events.ScheduleEvent(EVENT_HASTE, urand(20000, 25000));
+                        break;
+                    case EVENT_MORTAL_WOUND:
+                        DoCast(me, SPELL_MORTAL_WOUND);
+                        events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 20000));
+                        break;
+                    case EVENT_WING_BUFFET:
+                         DoCast(me, SPELL_WING_BUFFET);
+                        events.ScheduleEvent(EVENT_WING_BUFFET, urand(20000, 30000));
+                        break;
+                    case EVENT_SPELL_REFLECTION: // Only in Heroic
+                        DoCast(me, SPELL_REFLECT);
+                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, urand(25000, 35000));
+                        break;
+                    default:
+                        break;
                 }
-                DoMeleeAttackIfReady();
+            }
+            DoMeleeAttackIfReady();
         }
     };
 

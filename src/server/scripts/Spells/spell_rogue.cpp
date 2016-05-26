@@ -43,7 +43,8 @@ enum RogueSpells
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC        = 59628,
     SPELL_ROGUE_HONOR_AMONG_THIEVES             = 51698,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC        = 52916,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_2           = 51699
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_2           = 51699,
+    SPELL_ROGUE_T10_2P_BONUS                    = 70804,
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -843,6 +844,40 @@ public:
     }
 };
 
+// 70805 - Rogue T10 2P Bonus -- THIS SHOULD BE REMOVED WITH NEW PROC SYSTEM.
+class spell_rog_t10_2p_bonus : public SpellScriptLoader
+{
+public:
+    spell_rog_t10_2p_bonus() : SpellScriptLoader("spell_rog_t10_2p_bonus") { }
+
+    class spell_rog_t10_2p_bonus_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_t10_2p_bonus_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_T10_2P_BONUS))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            return eventInfo.GetActor() == eventInfo.GetActionTarget();
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_rog_t10_2p_bonus_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rog_t10_2p_bonus_AuraScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -858,4 +893,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_honor_among_thieves();
     new spell_rog_honor_among_thieves_proc();
+    new spell_rog_t10_2p_bonus();
 }
