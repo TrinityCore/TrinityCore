@@ -722,3 +722,39 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
     SendPacket(petNameInvalid.Write());
 }
+
+void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& packet)
+{
+    if (!_player->IsInWorld())
+        return;
+
+    Pet* pet = ObjectAccessor::GetPet(*_player, packet.PetGUID);
+
+    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
+        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
+        return;
+
+    if (packet.SpecGroupIndex >= MAX_SPECIALIZATIONS)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u out of range", packet.SpecGroupIndex);
+        return;
+    }
+
+    uint32 specIndex = _player->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0;
+
+    ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[specIndex][packet.SpecGroupIndex];
+
+    if (!petSpec)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u not found", packet.SpecGroupIndex);
+        return;
+    }
+
+    if (_player->getLevel() < MIN_SPECIALIZATION_LEVEL)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - player level too low for specializations");
+        return;
+    }
+
+    pet->SetSpecialization(petSpec->ID);
+}
